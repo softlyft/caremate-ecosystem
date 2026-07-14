@@ -1,8 +1,20 @@
+const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');
 const { withUniwindConfig } = require('uniwind/metro');
 
+const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '..');
+
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+const config = getDefaultConfig(projectRoot);
+
+// Monorepo: resolve hoisted deps + watch shared packages.
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+config.resolver.disableHierarchicalLookup = true;
 
 // Required for expo-sqlite on web (wa-sqlite.wasm).
 config.resolver.assetExts.push('wasm');

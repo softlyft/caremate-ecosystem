@@ -4,6 +4,7 @@ import { getDatabase } from '@/database/client';
 import { emergencyProfiles } from '@/database/schema';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
+import { toJson } from '@/sync/cloud-types';
 import type { EmergencyProfile } from '@/types';
 import { createId, nowIso, parseJsonArray, stringifyJson } from '@/utils/helpers';
 
@@ -147,10 +148,10 @@ class EmergencyRepository extends BaseRepository {
       photo_url: profile.photoUrl,
       blood_group: profile.bloodGroup,
       genotype: profile.genotype,
-      allergies: profile.allergies,
-      current_medications: profile.currentMedications,
-      chronic_conditions: profile.chronicConditions,
-      emergency_contacts: profile.emergencyContacts,
+      allergies: toJson(profile.allergies),
+      current_medications: toJson(profile.currentMedications),
+      chronic_conditions: toJson(profile.chronicConditions),
+      emergency_contacts: toJson(profile.emergencyContacts),
       preferred_hospital: profile.preferredHospital,
       insurance_provider: profile.insuranceProvider,
       notes: profile.notes,

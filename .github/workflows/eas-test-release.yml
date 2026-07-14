@@ -27,6 +27,11 @@ on:
   push:
     branches:
       - staging
+    paths:
+      - 'caremate/**'
+      - 'packages/**'
+      - 'supabase/**'
+      - '.github/workflows/eas-test-release.yml'
     tags:
       - 'test-release/*'
 
@@ -38,6 +43,9 @@ jobs:
   gate:
     name: Format · Lint · Typecheck · Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -47,8 +55,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
+        working-directory: .
         run: npm ci
 
       - name: Format
@@ -125,6 +135,9 @@ jobs:
     needs: [gate, resolve-targets]
     if: needs.resolve-targets.outputs.internal_android == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -134,6 +147,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
@@ -142,6 +156,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
+        working-directory: .
         run: npm ci
 
       - name: EAS Build (internal-android)
@@ -158,6 +173,9 @@ jobs:
     needs: [gate, resolve-targets]
     if: needs.resolve-targets.outputs.testflight == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -167,6 +185,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
@@ -175,6 +194,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
+        working-directory: .
         run: npm ci
 
       - name: Write App Store Connect API key
@@ -209,6 +229,9 @@ jobs:
     needs: [gate, resolve-targets]
     if: needs.resolve-targets.outputs.staging == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -218,6 +241,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
@@ -226,6 +250,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
+        working-directory: .
         run: npm ci
 
       - name: EAS Build (staging · Android + iOS)

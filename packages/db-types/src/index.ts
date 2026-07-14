@@ -13,4 +13,13 @@ export type {
   Provider,
   HealthTip,
   Profile,
+  Settings,
+  EmergencyProfile,
+  Bookmark,
+  MiniAppSnapshot,
+  SubscriptionPrice,
+  Subscription,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
 } from './database';

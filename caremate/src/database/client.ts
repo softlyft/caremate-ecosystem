@@ -172,6 +172,22 @@ const MIGRATION_SQL = `
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS subscription_entitlements (
+    id TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL,
+    household_id TEXT,
+    plan_type TEXT NOT NULL,
+    billing_interval TEXT NOT NULL,
+    currency TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    status TEXT NOT NULL,
+    current_period_end TEXT,
+    sync_status TEXT NOT NULL DEFAULT 'synced',
+    deleted_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
 `;
 
 let sqliteDb: SQLite.SQLiteDatabase | null = null;

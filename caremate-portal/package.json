@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
+    "dev:turbo": "next dev --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/constants/roles.test.ts",
     "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "seed:catalogs": "node scripts/seed-catalogs.mjs"
   },
   "dependencies": {
-    "@caremate/db-types": "file:../packages/db-types",
+    "@caremate/db-types": "*",
     "@hookform/resolvers": "^5.4.0",
     "@supabase/ssr": "^0.12.2",
     "@supabase/supabase-js": "^2.110.5",
@@ -21,8 +24,8 @@
     "date-fns": "^4.4.0",
     "lucide-react": "^1.24.0",
     "next": "15.5.19",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-hook-form": "^7.81.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
@@ -33,11 +36,12 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/react": "^19.2.2",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.19",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.20.5",
+    "typescript": "~5.9.2"
   }
 }

@@ -361,6 +361,16 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+# Webhooks must be publicly reachable without a user JWT.
+[functions.billing-webhook-stripe]
+verify_jwt = false
+
+[functions.billing-webhook-paystack]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = true
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

@@ -24,6 +24,7 @@ Device-only (never on Supabase): `sync_queue`, `sync_metadata`.
 | `articles` | `articles` | pull (push no-op — Currents/evergreen local/seed) |
 | `bookmarks` | `bookmarks` | push + pull |
 | `mini_app_snapshots` | `mini_app_snapshots` | push + pull |
+| `subscription_entitlements` | `subscriptions` (+ `subscription_prices` read) | **pull only** (webhooks own writes) |
 | `sync_queue` | — | device outbox |
 | `sync_metadata` | — | device cursors |
 
@@ -49,7 +50,8 @@ Or from this app (proxies to root): `npm run supabase:db:push`
 
 Core cloud schema: `../supabase/migrations/20260713210000_core_sync_schema.sql`  
 Mini-apps: `../supabase/migrations/20260713195606_mini_app_snapshots.sql`  
-Admin portal RBAC: `../supabase/migrations/20260714160000_admin_portal_rbac.sql`
+Admin portal RBAC: `../supabase/migrations/20260714160000_admin_portal_rbac.sql`  
+Billing: `../supabase/migrations/20260714180000_billing_subscriptions.sql`
 
 ## Sync still intact
 
@@ -58,6 +60,6 @@ UI → repository → SQLite → sync_queue → handler.push → Supabase
                                          handler.pull → SQLite
 ```
 
-Handlers still registered for: `profiles`, `settings`, `emergency_profiles`, `providers`, `articles`, `bookmarks`, `mini_app_snapshots`.
+Handlers still registered for: `profiles`, `settings`, `emergency_profiles`, `providers`, `articles`, `bookmarks`, `mini_app_snapshots`, family entities, `subscriptions` (pull-only).
 
 Missing remote tables previously caused push/pull to fail quietly (handler catch / empty pull → seed). After `db push`, signed-in sync should succeed for those entities.

@@ -1,12 +1,5 @@
 # Shared Postgres types for CareMate clients
 
-Hand-maintained for now to match [`../../supabase/migrations`](../../supabase/migrations).
+Hand-maintained to match [`../../supabase/migrations`](../../supabase/migrations) (or regenerate when the CLI is linked).
 
-Regenerate (when CLI is linked):
-
-```bash
-# from monorepo root
-npm run db:types
-```
-
-Mobile SQLite (Drizzle) stays in `caremate/src/database/schema.ts` and must stay aligned for synced tables — see `caremate/docs/supabase-alignment.md`.
+Consumed by **mobile** (`caremate`) and **portal** (`caremate-portal`) via the `@caremate/db-types` workspace package.

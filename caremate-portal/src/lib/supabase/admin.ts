@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@caremate/db-types';
 
 /** Service-role client — server-only. Never import from client components. */
 export function createAdminClient() {
@@ -9,7 +10,7 @@ export function createAdminClient() {
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
 
-  return createClient(url, key, {
+  return createClient<Database>(url, key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
