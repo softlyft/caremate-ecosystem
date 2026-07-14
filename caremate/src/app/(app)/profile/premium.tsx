@@ -1,23 +1,14 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
-import {
-  formatPriceAmount,
-  getPremiumState,
-  premiumLabel,
-} from '@/domains/billing/entitlement';
+import { formatPriceAmount, getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
 import { billingRepository } from '@/domains/billing/repository';
-import type {
-  BillingCurrency,
-  BillingInterval,
-  PlanType,
-  PremiumState,
-  SubscriptionPriceRow,
-} from '@/domains/billing/types';
+import type { BillingCurrency, BillingInterval, PlanType } from '@/domains/billing/types';
 import { familyRepository } from '@/domains/family/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { palette, radius, shadow, spacing } from '@/theme/colors';
@@ -26,45 +17,46 @@ export default function PremiumScreen() {
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [premium, setPremium] = useState<PremiumState | null>(null);
-  const [prices, setPrices] = useState<SubscriptionPriceRow[]>([]);
   const [planType, setPlanType] = useState<PlanType>('personal');
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly');
-  const [householdId, setHouseholdId] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!isGuest) {
-        const household = await familyRepository.findHouseholdForUser(userId);
-        setHouseholdId(household?.id ?? null);
-        const state = await getPremiumState(userId);
-        setPremium(state);
-      } else {
-        setPremium(null);
-        setHouseholdId(null);
+  const premiumQuery = useQuery({
+    queryKey: ['billing', 'premium', userId, isGuest],
+    queryFn: async () => {
+      if (isGuest) {
+        return { premium: null, householdId: null as string | null };
       }
-      const catalog = await billingRepository.listPrices();
-      setPrices(catalog);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load billing');
-    } finally {
-      setLoading(false);
-    }
-  }, [isGuest, userId]);
+      const household = await familyRepository.findHouseholdForUser(userId);
+      const premium = await getPremiumState(userId);
+      return { premium, householdId: household?.id ?? null };
+    },
+  });
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const pricesQuery = useQuery({
+    queryKey: ['billing', 'prices'],
+    queryFn: () => billingRepository.listPrices(),
+  });
+
+  const loading = premiumQuery.isLoading || pricesQuery.isLoading;
+  const premium = premiumQuery.data?.premium ?? null;
+  const householdId = premiumQuery.data?.householdId ?? null;
+  const prices = pricesQuery.data ?? [];
 
   const selectedPrices = prices.filter(
     (p) => p.planType === planType && p.billingInterval === billingInterval,
   );
+
+  async function refresh() {
+    setError(null);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] }),
+      queryClient.invalidateQueries({ queryKey: ['billing', 'prices'] }),
+    ]);
+  }
 
   async function pay(currency: BillingCurrency) {
     if (isGuest) {
@@ -184,9 +176,14 @@ export default function PremiumScreen() {
             </>
           )}
 
-          {error ? (
+          {error || premiumQuery.error || pricesQuery.error ? (
             <AppText variant="quickActionSubtitle" style={styles.error}>
-              {error}
+              {error ??
+                (premiumQuery.error instanceof Error
+                  ? premiumQuery.error.message
+                  : pricesQuery.error instanceof Error
+                    ? pricesQuery.error.message
+                    : 'Failed to load billing')}
             </AppText>
           ) : null}
 
@@ -197,15 +194,7 @@ export default function PremiumScreen() {
   );
 }
 
-function Chip({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
+function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}

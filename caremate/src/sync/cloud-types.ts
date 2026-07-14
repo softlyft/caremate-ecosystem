@@ -3,13 +3,9 @@
  * Domain models stay camelCase under `@/types` / repositories;
  * these snake_case rows match `@caremate/db-types`.
  */
-export type {
-  Database,
-  Tables,
-  TablesInsert,
-  TablesUpdate,
-  Json,
-} from '@caremate/db-types';
+import type { Json } from '@caremate/db-types';
+
+export type { Database, Tables, TablesInsert, TablesUpdate, Json } from '@caremate/db-types';
 
 export type {
   Profile as CloudProfile,
@@ -20,8 +16,6 @@ export type {
   Bookmark as CloudBookmark,
   MiniAppSnapshot as CloudMiniAppSnapshot,
 } from '@caremate/db-types';
-
-import type { Json } from '@caremate/db-types';
 
 /** Cast domain payloads into Supabase `Json` columns without losing runtime shape. */
 export function toJson(value: unknown): Json {

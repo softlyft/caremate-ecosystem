@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useTransition } from 'react';
@@ -41,7 +41,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -60,7 +60,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     },
   });
 
-  const imageUrl = watch('image_url');
+  const imageUrl = useWatch({ control, name: 'image_url' });
 
   const onSubmit = handleSubmit((values) => {
     start(async () => {

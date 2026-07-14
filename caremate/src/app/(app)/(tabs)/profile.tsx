@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { UserRound } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,7 +9,6 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { images } from '@/constants/assets';
 import { getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
-import type { PremiumState } from '@/domains/billing/types';
 import { useAuthStore } from '@/features/auth/store';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
@@ -27,17 +26,13 @@ export default function ProfileTabScreen() {
   const setBiometricEnabled = useAuthStore((state) => state.setBiometricEnabled);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
-  const [premium, setPremium] = useState<PremiumState | null>(null);
 
-  useEffect(() => {
-    if (isGuest) {
-      setPremium(null);
-      return;
-    }
-    void getPremiumState(userId)
-      .then(setPremium)
-      .catch(() => setPremium(null));
-  }, [isGuest, userId]);
+  const premiumQuery = useQuery({
+    queryKey: ['billing', 'premium', userId, isGuest],
+    enabled: !isGuest,
+    queryFn: () => getPremiumState(userId),
+  });
+  const premium = premiumQuery.data ?? null;
 
   async function handleBiometricToggle(value: boolean) {
     const available = await authService.isBiometricAvailable();
