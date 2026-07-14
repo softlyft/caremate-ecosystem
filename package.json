@@ -1,0 +1,19 @@
+{
+  "name": "caremate-ecosystem",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CareMate monorepo — mobile, admin portal, shared Supabase schema",
+  "scripts": {
+    "supabase:link": "supabase link --project-ref eybakmhqtotoywwgwgjy",
+    "supabase:migration:new": "supabase migration new",
+    "supabase:migration:list": "supabase migration list",
+    "supabase:db:push": "supabase db push",
+    "db:types": "node scripts/merge-db-types.mjs",
+    "portal:dev": "npm run dev --prefix caremate-portal",
+    "portal:build": "npm run build --prefix caremate-portal",
+    "mobile:start": "npm run start --prefix caremate"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

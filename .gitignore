@@ -1,0 +1,38 @@
+# CareMate ecosystem — root ignores
+
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Nested git backups from monorepo consolidation (remove after remote is set)
+**/.git.bak-pre-monorepo/
+
+# Dependencies & build
+node_modules/
+dist/
+build/
+.turbo/
+.next/
+out/
+.expo/
+android/app/build/
+ios/build/
+*.tsbuildinfo
+
+# Supabase CLI local
+supabase/.branches
+supabase/.temp
+
+# Native / secrets
+*.pem
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json

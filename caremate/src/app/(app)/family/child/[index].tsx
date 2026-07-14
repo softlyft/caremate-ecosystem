@@ -1,0 +1,193 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { z } from 'zod';
+
+import { AppText } from '@/components/ui/AppText';
+import { Button, Input } from '@/components/ui/form-controls';
+import { FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
+import type { FamilyMemberGender } from '@/domains/family/types';
+import { layoutSpacing, palette, radius, spacing } from '@/theme';
+
+const childSchema = z.object({
+  fullName: z.string().min(1, 'Enter full name'),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD')
+    .refine((value) => {
+      const date = new Date(value);
+      return !Number.isNaN(date.getTime()) && date <= new Date();
+    }, 'Enter a valid past date'),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
+  notes: z.string().optional(),
+});
+
+type ChildForm = z.infer<typeof childSchema>;
+
+export default function FamilyChildFormScreen() {
+  const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ index: string }>();
+  const index = Number.parseInt(params.index ?? '0', 10) || 0;
+  const childCount = useFamilySetupStore((s) => s.childCount);
+  const children = useFamilySetupStore((s) => s.children);
+  const upsertChild = useFamilySetupStore((s) => s.upsertChild);
+  const existing = children[index];
+
+  const { control, handleSubmit, setValue, formState } = useForm<ChildForm>({
+    resolver: zodResolver(childSchema),
+    defaultValues: {
+      fullName: existing?.fullName ?? '',
+      dateOfBirth: existing?.dateOfBirth ?? '',
+      gender: (existing?.gender as FamilyMemberGender) ?? 'prefer_not_to_say',
+      notes: existing?.notes ?? '',
+    },
+  });
+
+  const gender = useWatch({ control, name: 'gender' });
+
+  function onSubmit(values: ChildForm) {
+    upsertChild(index, {
+      fullName: values.fullName.trim(),
+      dateOfBirth: values.dateOfBirth.trim(),
+      gender: values.gender,
+      notes: values.notes?.trim() || '',
+    });
+
+    const next = index + 1;
+    if (next < childCount) {
+      router.push(`/(app)/family/child/${next}`);
+      return;
+    }
+    router.push('/(app)/family/review');
+  }
+
+  if (index < 0 || index >= childCount) {
+    Alert.alert('Invalid step');
+    router.replace('/(app)/family/kids-count');
+    return null;
+  }
+
+  return (
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      keyboardShouldPersistTaps="handled"
+    >
+      <AppText variant="sectionTitle">
+        Child {index + 1} of {childCount}
+      </AppText>
+      <AppText variant="subtitle">Full name, date of birth, and gender.</AppText>
+
+      <View style={styles.card}>
+        <Controller
+          control={control}
+          name="fullName"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="Full name"
+              autoCapitalize="words"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="dateOfBirth"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="Date of birth (YYYY-MM-DD)"
+              autoCapitalize="none"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+        />
+
+        <AppText variant="body">Gender</AppText>
+        <View style={styles.chipRow}>
+          {FAMILY_GENDERS.map((g) => {
+            const selected = gender === g.value;
+            return (
+              <Pressable
+                key={g.value}
+                style={[styles.chip, selected && styles.chipSelected]}
+                onPress={() => setValue('gender', g.value, { shouldValidate: true })}
+              >
+                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
+                  {g.label}
+                </AppText>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Controller
+          control={control}
+          name="notes"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="Notes (allergies, etc.) — optional"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+        />
+
+        {formState.errors.fullName || formState.errors.dateOfBirth || formState.errors.gender ? (
+          <AppText variant="formError" color={palette.danger}>
+            {formState.errors.fullName?.message ??
+              formState.errors.dateOfBirth?.message ??
+              formState.errors.gender?.message}
+          </AppText>
+        ) : null}
+
+        <Button
+          label={index + 1 < childCount ? 'Next child' : 'Review'}
+          onPress={handleSubmit(onSubmit)}
+        />
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  content: {
+    padding: layoutSpacing.screenHorizontal,
+    gap: spacing.md,
+  },
+  card: {
+    backgroundColor: palette.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    padding: layoutSpacing.cardPadding,
+    gap: spacing.sm,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  chip: {
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: palette.background,
+  },
+  chipSelected: {
+    backgroundColor: palette.primaryLight,
+    borderColor: palette.primary,
+  },
+  chipTextSelected: {
+    color: palette.primaryDark,
+  },
+});

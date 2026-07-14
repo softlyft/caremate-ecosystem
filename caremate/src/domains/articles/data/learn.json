@@ -1,0 +1,258 @@
+{
+  "heart": [
+    {
+      "id": "evergreen-heart-1",
+      "title": "Know your blood pressure numbers",
+      "summary": "Understanding systolic and diastolic readings helps you spot risk early.",
+      "content": "Blood pressure is written as two numbers: systolic (pressure when the heart beats) over diastolic (pressure when the heart rests). A healthy adult reading is often around 120/80 mmHg, but your clinician may set a personal target.\n\nCheck at the same time of day when possible, sit quietly for a few minutes first, and keep a simple log. Sudden severe headache, chest pain, or shortness of breath with very high readings needs urgent care.\n\nLifestyle basics that support heart health include reducing excess salt, staying active most days, limiting alcohol, not smoking, and managing stress and sleep."
+    },
+    {
+      "id": "evergreen-heart-2",
+      "title": "Everyday habits that protect your heart",
+      "summary": "Small daily choices add up for long-term cardiovascular health.",
+      "content": "Your heart benefits from consistent, realistic habits more than short intense bursts of change. Aim for at least 150 minutes of moderate activity a week, such as brisk walking, if your clinician agrees it is safe for you.\n\nEat more vegetables, fruits, beans, and whole grains. Choose lean proteins and healthier fats like nuts and fish when available. Cut back on ultra-processed snacks and sugary drinks.\n\nIf you have diabetes, high cholesterol, or a family history of heart disease, ask about screening and medication that may further lower risk."
+    },
+    {
+      "id": "evergreen-heart-3",
+      "title": "Chest pain: when to seek help fast",
+      "summary": "Not all chest discomfort is a heart attack, but some warning signs need emergency care.",
+      "content": "Call emergency services if chest pain is crushing or pressure-like, spreads to the arm, jaw, or back, or comes with sweating, nausea, dizziness, or severe shortness of breath.\n\nWomen and older adults may notice unusual fatigue, indigestion-like discomfort, or breathlessness more than classic chest pain.\n\nDo not drive yourself if you suspect a heart emergency. While waiting for help, sit or lie down and follow dispatcher instructions."
+    },
+    {
+      "id": "evergreen-heart-4",
+      "title": "Salt, fluid, and heart strain",
+      "summary": "Too much salt can raise blood pressure and make the heart work harder.",
+      "content": "Most people get more salt from packaged foods, seasonings, and restaurant meals than from the salt shaker alone. Reading labels and cooking more meals at home can help you cut back gradually.\n\nIf you have heart failure or kidney disease, your care team may also limit fluids. Follow those instructions carefully and report sudden weight gain, swelling, or worsening breathlessness.\n\nFlavor food with herbs, citrus, garlic, and spices instead of relying only on salt."
+    },
+    {
+      "id": "evergreen-heart-5",
+      "title": "Cholesterol basics in plain language",
+      "summary": "LDL, HDL, and triglycerides each play a different role in heart risk.",
+      "content": "LDL is often called “bad” cholesterol because high levels can contribute to plaque in arteries. HDL helps carry cholesterol away and is generally protective when higher. Triglycerides rise with excess sugar, alcohol, and low activity.\n\nA fasting or non-fasting lipid panel helps your clinician interpret your risk alongside blood pressure, smoking status, and family history.\n\nDiet, exercise, and sometimes medication can improve your numbers. Do not stop prescribed medicine without medical advice."
+    }
+  ],
+  "child": [
+    {
+      "id": "evergreen-child-1",
+      "title": "When a child’s fever needs attention",
+      "summary": "Age, how the child looks, and other symptoms matter as much as the number on the thermometer.",
+      "content": "A fever is the body’s response to infection. For many older children who are drinking, alert, and otherwise well, supportive care and monitoring may be enough.\n\nSeek urgent care for babies under 3 months with fever, any child who is very sleepy or hard to wake, has a stiff neck, rash with fever, trouble breathing, persistent vomiting, or seizures.\n\nUse age-appropriate fever medicine only as directed. Never give aspirin to children unless a clinician specifically advises it."
+    },
+    {
+      "id": "evergreen-child-2",
+      "title": "Hydration and oral rehydration for kids",
+      "summary": "Fluids matter most when children have diarrhea, vomiting, or hot-weather illness.",
+      "content": "Offer small, frequent sips of clean water or oral rehydration solution rather than large amounts at once if a child is nauseated.\n\nWatch for dry mouth, fewer wet diapers or trips to the toilet, sunken eyes, and unusual irritability or lethargy—these can signal dehydration.\n\nContinue breastfeeding if that is how the baby usually feeds. Avoid sugary sodas and undiluted fruit juice as the main fluid during illness."
+    },
+    {
+      "id": "evergreen-child-3",
+      "title": "Safe sleep for infants",
+      "summary": "Simple sleep setup choices lower the risk of sleep-related infant death.",
+      "content": "Place babies on their back to sleep on a firm, flat surface with a fitted sheet only. Keep soft bedding, pillows, bumpers, and loose blankets out of the sleep space.\n\nRoom-sharing without bed-sharing is recommended for the early months. Avoid smoke exposure around the baby.\n\nIf you are unsure about swaddling, pacifiers, or sleep positioners, ask your pediatric clinician for guidance that matches your baby’s age."
+    },
+    {
+      "id": "evergreen-child-4",
+      "title": "Keeping childhood vaccines on track",
+      "summary": "Immunization schedules protect children and the people around them.",
+      "content": "Vaccines train the immune system to recognize serious diseases before a child is exposed. Missing doses can leave gaps in protection.\n\nBring your child’s card or digital record to visits and ask which vaccines are due. Catch-up schedules exist if doses were delayed.\n\nMild fever or soreness after a shot is common. Seek care for allergic reactions, high fever with unusual symptoms, or anything that worries you after vaccination."
+    },
+    {
+      "id": "evergreen-child-5",
+      "title": "Nutrition building blocks for growing kids",
+      "summary": "Regular meals with variety support growth, energy, and concentration.",
+      "content": "Offer fruits, vegetables, proteins, dairy or fortified alternatives, and whole grains across the week. Children may need repeated gentle exposure before accepting new foods.\n\nLimit sugary drinks and keep ultraprocessed snacks as occasional foods rather than daily staples.\n\nIf growth seems slow, appetite suddenly changes, or you worry about deficiencies, discuss screening and practical meal ideas with a clinician."
+    }
+  ],
+  "pregnancy": [
+    {
+      "id": "evergreen-pregnancy-1",
+      "title": "Early pregnancy warning signs to know",
+      "summary": "Some symptoms are common; others need same-day or emergency care.",
+      "content": "Mild nausea, breast tenderness, and fatigue are common early on. Contact a clinician urgently for heavy bleeding, severe one-sided pain, fainting, severe headache with vision changes, or reduced fetal movement later in pregnancy.\n\nStart prenatal care as soon as pregnancy is confirmed. Share your full medical history, medicines, and any previous pregnancy complications.\n\nAvoid alcohol, smoking, and drugs. Ask before taking herbal products or over-the-counter medicines."
+    },
+    {
+      "id": "evergreen-pregnancy-2",
+      "title": "Prenatal nutrition essentials",
+      "summary": "Folate, iron, protein, and hydration support mother and baby.",
+      "content": "A prenatal vitamin with folic acid is recommended before conception and in early pregnancy to help prevent neural tube defects. Iron needs often rise as blood volume increases.\n\nEat balanced meals with vegetables, fruits, proteins, dairy or alternatives, and whole grains. Food safety matters: avoid unpasteurized dairy and undercooked meats as advised by your clinician.\n\nIf nausea limits eating, focus on what you can keep down and ask about safe anti-nausea options."
+    },
+    {
+      "id": "evergreen-pregnancy-3",
+      "title": "Movement and rest during pregnancy",
+      "summary": "Most pregnancies benefit from gentle, regular activity unless advised otherwise.",
+      "content": "Walking, prenatal yoga, and swimming are common options when your clinician says exercise is safe. Stop if you feel chest pain, dizziness, vaginal bleeding, or painful contractions.\n\nListen to your body as pregnancy progresses—balance and joint comfort can change. Side sleeping, especially on the left side later in pregnancy, may improve comfort for some people.\n\nRest is productive too. Short naps and earlier bedtimes can help when sleep is fragmented."
+    },
+    {
+      "id": "evergreen-pregnancy-4",
+      "title": "Preparing for labor and birth",
+      "summary": "A simple birth plan and packed bag reduce stress when labor starts.",
+      "content": "Discuss preferred pain relief, who will be present, and newborn care preferences with your care team ahead of time. Plans can change for safety—flexibility matters.\n\nKnow the signs of labor: regular contractions that intensify, water breaking, or bloody show. Ask your clinic when to come in based on your risk level and distance from care.\n\nPack documents, clothes, toiletries, phone charger, and newborn essentials before your due window."
+    },
+    {
+      "id": "evergreen-pregnancy-5",
+      "title": "Mental health while expecting",
+      "summary": "Mood changes are common; persistent depression or anxiety deserves support.",
+      "content": "Hormonal shifts, sleep loss, and life changes can affect mood in pregnancy. Tell someone if you feel hopeless, panic often, or cannot bond with the pregnancy.\n\nSupport can include counseling, peer groups, and medication that a clinician judges safe for pregnancy.\n\nPartners and family can help by sharing chores, attending visits, and checking in without judgment."
+    }
+  ],
+  "mental": [
+    {
+      "id": "evergreen-mental-1",
+      "title": "Spotting burnout before it peaks",
+      "summary": "Exhaustion, cynicism, and reduced effectiveness are classic burnout signals.",
+      "content": "Burnout often builds slowly: sleep that does not restore you, dread before work or caregiving, irritability, and feeling numb or detached.\n\nStart with basics—consistent sleep and wake times, short breaks, and saying no to one optional demand this week. Talk with a trusted person about what feels unsustainable.\n\nIf you have thoughts of self-harm, seek urgent help through local emergency services or a crisis line."
+    },
+    {
+      "id": "evergreen-mental-2",
+      "title": "Grounding techniques for anxious moments",
+      "summary": "Simple sensory exercises can interrupt spiraling worry.",
+      "content": "Try the 5-4-3-2-1 method: name five things you see, four you can touch, three you hear, two you smell, and one you taste.\n\nSlow breathing helps many people: inhale for four counts, exhale for six. Repeat for a few minutes.\n\nThese tools complement—not replace—professional care for ongoing anxiety, panic attacks, or trauma symptoms."
+    },
+    {
+      "id": "evergreen-mental-3",
+      "title": "Sleep and mood are tightly linked",
+      "summary": "Protecting sleep often improves emotional resilience the next day.",
+      "content": "Keep a regular sleep schedule, dim screens before bed, and reserve the bed for sleep when you can. Limit caffeine late in the day.\n\nIf racing thoughts keep you awake, jot a short worry list to revisit tomorrow, then return to a calm routine like reading or stretching.\n\nPersistent insomnia, nightmares, or daytime collapse deserve a clinical conversation—sleep disorders and depression often overlap."
+    },
+    {
+      "id": "evergreen-mental-4",
+      "title": "Talking to someone when you are struggling",
+      "summary": "Naming what you feel is a first step toward support.",
+      "content": "You do not need a perfect script. Try: “I have been overwhelmed and I need to talk,” or “I am not okay and I need help finding care.”\n\nChoose a trusted friend, family member, faith leader, or clinician. If the first person cannot help, ask who else might.\n\nIn a crisis, contact emergency services. You deserve support even if your pain does not feel “serious enough.”"
+    },
+    {
+      "id": "evergreen-mental-5",
+      "title": "Digital habits that calm the mind",
+      "summary": "Endless scrolling can fuel comparison and anxiety.",
+      "content": "Set app limits or move social apps off your home screen. Avoid news doomscrolling right before bed.\n\nReplace one scroll session with a short walk, stretch, or message to a real person.\n\nCurate feeds toward accounts that educate or uplift rather than inflame. Your attention is a health resource."
+    }
+  ],
+  "medication": [
+    {
+      "id": "evergreen-medication-1",
+      "title": "How to take medicines safely",
+      "summary": "Right drug, dose, time, and route prevent many avoidable problems.",
+      "content": "Read the label every time. Check the name, dose, and whether the medicine is with food or on an empty stomach.\n\nUse only the measuring device that comes with liquid medicines—not kitchen spoons. Do not share prescription drugs.\n\nIf you miss a dose, follow the package or pharmacist advice. Do not double up unless instructed."
+    },
+    {
+      "id": "evergreen-medication-2",
+      "title": "Storing medicines at home",
+      "summary": "Heat, humidity, and curious children are common storage risks.",
+      "content": "Keep medicines in a cool, dry place away from direct sun unless the label says otherwise. Bathrooms are often too humid.\n\nUse child-resistant containers and store them out of children’s reach and sight. Check expiry dates during a monthly tidy.\n\nAsk a pharmacist how to dispose of unused opioids, antibiotics, and sharps safely in your area."
+    },
+    {
+      "id": "evergreen-medication-3",
+      "title": "Antibiotics: finish the plan you were given",
+      "summary": "Stopping early can leave infection behind and encourage resistance.",
+      "content": "Take antibiotics exactly as prescribed, even if you feel better midway—unless your clinician tells you to stop.\n\nAntibiotics do not treat viruses like most colds and flu. Using them “just in case” can cause side effects and resistance.\n\nTell your clinician about rashes, severe diarrhea, or breathing difficulty after a dose."
+    },
+    {
+      "id": "evergreen-medication-4",
+      "title": "Interactions: food, drinks, and other drugs",
+      "summary": "Some combinations change how strong a medicine becomes.",
+      "content": "Grapefruit, alcohol, herbal teas, and over-the-counter cold remedies can interact with prescriptions. Always list everything you take—including supplements—at clinic visits.\n\nPharmacists can check interactions quickly if you bring your full list.\n\nNever combine sedating medicines with alcohol. When in doubt, ask before you mix."
+    },
+    {
+      "id": "evergreen-medication-5",
+      "title": "Building a simple medication routine",
+      "summary": "Reminders and pill organizers reduce missed and double doses.",
+      "content": "Link doses to daily anchors like breakfast or brushing teeth. Phone alarms and shared family reminders help.\n\nA weekly pill organizer works for many people if filled carefully once a week. Keep a written list of drug names and doses in your wallet or phone.\n\nBring that list to every appointment and emergency visit."
+    }
+  ],
+  "nutrition": [
+    {
+      "id": "evergreen-nutrition-1",
+      "title": "Build a balanced plate without perfection",
+      "summary": "Half vegetables and fruits, plus protein and whole grains, is a practical template.",
+      "content": "Fill half your plate with vegetables and fruits when you can. Add a protein source—beans, eggs, fish, poultry, meat, or dairy—and a portion of whole grains or starchy foods.\n\nLocal, seasonal produce counts. Frozen vegetables are nutritious and convenient.\n\nProgress beats perfection: improving one meal a day still helps."
+    },
+    {
+      "id": "evergreen-nutrition-2",
+      "title": "Sugar, drinks, and steady energy",
+      "summary": "Sugary drinks spike energy then leave you drained.",
+      "content": "Water should be your default drink. Limit sodas, energy drinks, and sweetened juices.\n\nIf you want flavor, try fruit-infused water or unsweetened tea. For children, offer water and milk more often than juice.\n\nReading labels helps—sugar hides in sauces, yogurts, and breakfast cereals."
+    },
+    {
+      "id": "evergreen-nutrition-3",
+      "title": "Protein on a budget",
+      "summary": "Beans, eggs, and tinned fish are affordable protein workhorses.",
+      "content": "Lentils, beans, groundnuts, eggs, and canned fish provide protein without always buying expensive cuts of meat.\n\nCombine plant proteins across the day with grains and dairy or fortified alternatives for a complete pattern.\n\nBatch-cook stews and soups so protein-rich meals are ready on busy days."
+    },
+    {
+      "id": "evergreen-nutrition-4",
+      "title": "Eating well with limited appetite",
+      "summary": "Small, nutrient-dense meals help when full plates feel impossible.",
+      "content": "Try smaller portions more often. Choose foods that pack calories and nutrients: nut butters, eggs, yogurt, smoothies, and soft stews.\n\nEat when energy is highest in the day. Keep easy snacks visible.\n\nIf weight loss is unintentional or swallowing is hard, see a clinician promptly."
+    },
+    {
+      "id": "evergreen-nutrition-5",
+      "title": "Food safety at home",
+      "summary": "Clean hands, separate raw foods, and thorough cooking prevent many illnesses.",
+      "content": "Wash hands before cooking and after handling raw meat, eggs, or pets. Keep raw and ready-to-eat foods on separate surfaces.\n\nCook meats and leftovers to safe temperatures and refrigerate promptly. When in doubt about spoilage, throw it out.\n\nUse clean water for drinking and washing produce."
+    }
+  ],
+  "fitness": [
+    {
+      "id": "evergreen-fitness-1",
+      "title": "Start moving with a walking habit",
+      "summary": "Brisk walking is one of the most accessible ways to build fitness.",
+      "content": "Begin with 10–15 minutes most days and add a few minutes weekly. Walk as if you are slightly late—breathing harder but still able to talk.\n\nComfortable shoes and a safe route matter more than fancy gear. Invite a friend for accountability.\n\nIf you have chest pain, dizziness, or joint injuries, get medical advice before increasing intensity."
+    },
+    {
+      "id": "evergreen-fitness-2",
+      "title": "Strength training without a gym",
+      "summary": "Bodyweight moves build muscle and support healthy aging.",
+      "content": "Try squats to a chair, wall push-ups, glute bridges, and standing marches. Aim for 2–3 short sessions a week.\n\nQuality form beats high reps with poor control. Rest between sets and breathe steadily.\n\nMuscle supports blood sugar control, balance, and independence as you age."
+    },
+    {
+      "id": "evergreen-fitness-3",
+      "title": "Warm up, cool down, and recover",
+      "summary": "Preparation and recovery reduce injury and next-day stiffness.",
+      "content": "Spend 3–5 minutes marching, arm circles, or easy mobility before harder effort. After exercise, walk slowly and stretch gently.\n\nSleep, protein-rich meals, and rest days are part of training—not a break from it.\n\nSharp pain is a stop signal; muscle fatigue is different from joint injury pain."
+    },
+    {
+      "id": "evergreen-fitness-4",
+      "title": "Staying active with a busy schedule",
+      "summary": "Short sessions still count when life is full.",
+      "content": "Stack movement onto existing routines: stairs instead of the elevator, walking meetings, or 7-minute home circuits between tasks.\n\nThree 10-minute bouts can match one 30-minute session for many health benefits.\n\nSchedule workouts like appointments. Consistency beats rare heroic workouts."
+    },
+    {
+      "id": "evergreen-fitness-5",
+      "title": "Listen to pain versus normal effort",
+      "summary": "Knowing the difference keeps you progressing safely.",
+      "content": "Muscle burn and heavier breathing during exercise can be normal. Sudden sharp pain, swelling, or joint instability is not.\n\nScale back intensity after illness and rebuild gradually. Hydrate and avoid extreme heat when possible.\n\nPeople with chronic conditions should ask clinicians which activities and heart-rate ranges are appropriate."
+    }
+  ],
+  "infectious": [
+    {
+      "id": "evergreen-infectious-1",
+      "title": "Hand hygiene that actually works",
+      "summary": "Soap, water, and key moments cut transmission of many infections.",
+      "content": "Wash with soap for at least 20 seconds before eating, after using the toilet, after coughing or sneezing into your hands, and after caring for someone who is ill.\n\nIf soap and water are unavailable, use alcohol-based hand rub when hands are not visibly dirty.\n\nKeep nails reasonably short and avoid touching your eyes, nose, and mouth with unwashed hands."
+    },
+    {
+      "id": "evergreen-infectious-2",
+      "title": "Cough and sneeze etiquette",
+      "summary": "Covering correctly protects the people around you.",
+      "content": "Cough or sneeze into a tissue or your elbow—not your bare hands. Dispose of tissues and wash hands afterward.\n\nStay home from work, school, or gatherings when you have a fever or productive cough if you can, especially around infants and older adults.\n\nWear a mask in crowded indoor spaces when you are ill or when local guidance recommends it."
+    },
+    {
+      "id": "evergreen-infectious-3",
+      "title": "When a cold might be something more",
+      "summary": "Duration, breathing trouble, and high fever change the plan.",
+      "content": "Most colds improve within a week. Seek care for trouble breathing, chest pain, confusion, persistent high fever, symptoms that suddenly worsen, or illness in high-risk people (infants, pregnant people, older adults, immunocompromised).\n\nHydration and rest help viral illnesses. Antibiotics are not routine for uncomplicated colds.\n\nAsk a clinician about testing when influenza, COVID-19, malaria, or other local infections are circulating."
+    },
+    {
+      "id": "evergreen-infectious-4",
+      "title": "Food and water precautions while traveling",
+      "summary": "Simple choices reduce traveler’s diarrhea and related infections.",
+      "content": "Prefer sealed bottled or boiled water when tap water is uncertain. Avoid ice of unknown origin and raw foods washed in unsafe water.\n\nChoose hot, thoroughly cooked meals. Peel fruits yourself.\n\nPack oral rehydration supplies and know where to seek care if vomiting and diarrhea become severe."
+    },
+    {
+      "id": "evergreen-infectious-5",
+      "title": "Vaccines and boosters for adults",
+      "summary": "Immunization is not only for children.",
+      "content": "Adults may need tetanus boosters, influenza vaccines, COVID-19 updates, hepatitis vaccines, or others based on age, job, travel, and health conditions.\n\nAsk at clinic visits which vaccines you are due for. Pregnancy and chronic disease can change recommendations.\n\nKeeping a personal vaccine record prevents duplicate or missed doses."
+    }
+  ]
+}

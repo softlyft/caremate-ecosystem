@@ -1,0 +1,48 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development"
+    },
+    "internal-android": {
+      "android": {
+        "buildType": "apk",
+        "distribution": "internal"
+      },
+      "channel": "internal",
+      "env": {
+        "APP_ENV": "internal"
+      }
+    },
+    "testflight": {
+      "ios": {
+        "distribution": "store",
+        "autoIncrement": true
+      },
+      "channel": "testflight",
+      "env": {
+        "APP_ENV": "testflight"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "channel": "staging",
+      "autoIncrement": true,
+      "env": {
+        "APP_ENV": "staging"
+      }
+    }
+  },
+  "submit": {
+    "testflight": {
+      "ios": {
+        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID"
+      }
+    }
+  }
+}

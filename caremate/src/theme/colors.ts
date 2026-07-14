@@ -1,0 +1,98 @@
+export const palette = {
+  primary: '#16A34A',
+  primaryLight: '#DCFCE7',
+  primaryDark: '#15803D',
+  brandBlue: '#2563EB',
+  brandBlueLight: '#DBEAFE',
+  background: '#FFFFFF',
+  surface: '#F8FAFC',
+  divider: '#E5E7EB',
+  text: '#111827',
+  textSecondary: '#6B7280',
+  blueAccent: '#3B82F6',
+  blueLight: '#EFF6FF',
+  purpleLight: '#F3E8FF',
+  brandPurple: '#7C3AED',
+  brandPurpleDark: '#6D28D9',
+  orangeLight: '#FFF7ED',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  shadow: 'rgba(15, 23, 42, 0.08)',
+} as const;
+
+export const colors = {
+  light: {
+    background: palette.background,
+    surface: palette.surface,
+    text: palette.text,
+    textMuted: palette.textSecondary,
+    primary: palette.primary,
+    primaryLight: palette.primaryLight,
+    primaryDark: palette.primaryDark,
+    border: palette.divider,
+    danger: palette.danger,
+    warning: palette.warning,
+    success: palette.primary,
+    offline: palette.warning,
+    blueAccent: palette.blueAccent,
+    blueLight: palette.blueLight,
+    purpleLight: palette.purpleLight,
+    orangeLight: palette.orangeLight,
+    brandBlue: palette.brandBlue,
+  },
+  dark: {
+    background: '#0B1220',
+    surface: '#111827',
+    text: '#F8FAFC',
+    textMuted: '#94A3B8',
+    primary: '#4ADE80',
+    primaryLight: '#14532D',
+    primaryDark: '#22C55E',
+    border: '#1F2937',
+    danger: '#F87171',
+    warning: '#FBBF24',
+    success: '#4ADE80',
+    offline: '#F59E0B',
+    blueAccent: '#60A5FA',
+    blueLight: '#1E3A5F',
+    purpleLight: '#3B0764',
+    orangeLight: '#431407',
+    brandBlue: '#60A5FA',
+  },
+} as const;
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  screen: 20,
+} as const;
+
+export const radius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 18,
+  xxl: 20,
+  pill: 24,
+  full: 999,
+} as const;
+
+export const shadow = {
+  card: {
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  soft: {
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+} as const;
