@@ -71,9 +71,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Hollow dirs under caremate/node_modules (empty `expo/`, etc.) break Expo
+      # autolinking. Keep only packages that actually have a package.json.
+      - name: Prune nested package stubs
+        run: |
+          set -euo pipefail
+          if [ -d caremate/node_modules ]; then
+            find caremate/node_modules -mindepth 1 -maxdepth 1 \( -type d -o -type l \) | while read -r entry; do
+              if [ ! -f "$entry/package.json" ]; then
+                echo "Removing stub: $entry"
+                rm -rf "$entry"
+              fi
+            done
+            # Also drop empty scoped folders left behind (e.g. @expo with no packages).
+            find caremate/node_modules -mindepth 1 -maxdepth 1 -type d -name '@*' | while read -r scope; do
+              if [ -z "$(find "$scope" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
+                echo "Removing empty scope: $scope"
+                rm -rf "$scope"
+              fi
+            done
+          fi
+
       - name: Generate native Android project
         working-directory: caremate
-        run: npx expo prebuild --platform android --non-interactive --no-install
+        env:
+          CI: 1
+        run: npx expo prebuild --platform android --clean --no-install
 
       - name: Build release APK
         working-directory: caremate/android

@@ -39,6 +39,7 @@
       "expo-sqlite",
       "expo-secure-store",
       "expo-background-task",
+      "./plugins/withAndroidSplashScreenDependency.js",
       [
         "expo-splash-screen",
         {

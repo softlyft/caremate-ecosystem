@@ -1,12 +1,13 @@
 -- Billing: portal-configurable Premium prices + user/household subscriptions.
 -- Providers: NGN → Paystack, USD → Stripe. Intervals: monthly | yearly.
 -- Plans: personal (per user) | family (per household).
+-- Note: column is billing_interval (not "interval") — "interval" is a Postgres type name.
 
 -- ========== subscription_prices ==========
 create table if not exists public.subscription_prices (
   id text primary key,
   plan_type text not null check (plan_type in ('personal', 'family')),
-  interval text not null check (interval in ('monthly', 'yearly')),
+  billing_interval text not null check (billing_interval in ('monthly', 'yearly')),
   currency text not null check (currency in ('NGN', 'USD')),
   amount_minor integer not null check (amount_minor >= 0),
   provider text not null check (provider in ('paystack', 'stripe')),
@@ -15,7 +16,7 @@ create table if not exists public.subscription_prices (
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (plan_type, interval, currency),
+  unique (plan_type, billing_interval, currency),
   check (
     (currency = 'NGN' and provider = 'paystack')
     or (currency = 'USD' and provider = 'stripe')
@@ -43,7 +44,7 @@ create table if not exists public.subscriptions (
   user_id uuid not null references auth.users (id) on delete cascade,
   household_id text references public.family_households (id) on delete set null,
   plan_type text not null check (plan_type in ('personal', 'family')),
-  interval text not null check (interval in ('monthly', 'yearly')),
+  billing_interval text not null check (billing_interval in ('monthly', 'yearly')),
   currency text not null check (currency in ('NGN', 'USD')),
   provider text not null check (provider in ('paystack', 'stripe')),
   status text not null default 'incomplete'
@@ -88,7 +89,7 @@ revoke insert, update, delete on public.subscriptions from authenticated, anon;
 -- ========== Seed default prices (editable in portal) ==========
 -- amount_minor: NGN kobo, USD cents
 insert into public.subscription_prices (
-  id, plan_type, interval, currency, amount_minor, provider, is_active
+  id, plan_type, billing_interval, currency, amount_minor, provider, is_active
 ) values
   ('price_personal_monthly_ngn', 'personal', 'monthly', 'NGN', 250000, 'paystack', true),
   ('price_personal_yearly_ngn',  'personal', 'yearly',  'NGN', 2500000, 'paystack', true),
@@ -98,4 +99,4 @@ insert into public.subscription_prices (
   ('price_personal_yearly_usd',  'personal', 'yearly',  'USD', 4999, 'stripe', true),
   ('price_family_monthly_usd',   'family',   'monthly', 'USD', 999, 'stripe', true),
   ('price_family_yearly_usd',    'family',   'yearly',  'USD', 9999, 'stripe', true)
-on conflict (plan_type, interval, currency) do nothing;
+on conflict (plan_type, billing_interval, currency) do nothing;
