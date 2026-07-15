@@ -20,7 +20,7 @@
     "lint": "npm run lint -w caremate && npm run lint -w caremate-portal",
     "typecheck": "npm run typecheck -w caremate && npm run typecheck -w caremate-portal",
     "test": "npm run test -w caremate && npm run test -w caremate-portal",
-    "format": "npm run format -w caremate && npm run test -w caremate-portal"
+    "format": "npm run format -w caremate"
   },
   "engines": {
     "node": ">=20"
