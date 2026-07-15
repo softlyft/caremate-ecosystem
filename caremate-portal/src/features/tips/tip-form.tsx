@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTransition } from 'react';
@@ -33,7 +33,7 @@ export function TipForm({ tip, onDone }: { tip?: HealthTip; onDone?: () => void 
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -45,8 +45,8 @@ export function TipForm({ tip, onDone }: { tip?: HealthTip; onDone?: () => void 
     },
   });
 
-  const isActive = watch('is_active');
-  const sortOrder = watch('sort_order');
+  const isActive = useWatch({ control, name: 'is_active' });
+  const sortOrder = useWatch({ control, name: 'sort_order' });
 
   const onSubmit = handleSubmit((values) => {
     start(async () => {

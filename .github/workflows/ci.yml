@@ -1,0 +1,83 @@
+# Monorepo quality gates for mobile, portal, and shared packages.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - staging
+      - deployment-check
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile:
+    name: Mobile · Format · Lint · Typecheck · Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Format
+        run: npm run format
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+        env:
+          CI: true
+
+  portal:
+    name: Portal · Lint · Typecheck · Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate-portal
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+        env:
+          CI: true

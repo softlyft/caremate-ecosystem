@@ -6,6 +6,7 @@ import { getLegacyProviderIds, getProviderSeeds } from '@/domains/providers/util
 import { useAuthStore } from '@/features/auth/store';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
+import { toJson } from '@/sync/cloud-types';
 import type { Provider, ProviderType } from '@/types';
 import { nowIso, parseJson, stringifyJson } from '@/utils/helpers';
 
@@ -168,7 +169,7 @@ class ProviderRepository extends BaseRepository {
       p_latitude: provider.latitude,
       p_longitude: provider.longitude,
       p_distance_km: provider.distanceKm,
-      p_attributes: provider.attributes ?? {},
+      p_attributes: toJson(provider.attributes ?? {}),
       p_updated_at: provider.updatedAt,
     });
     if (stubError) {

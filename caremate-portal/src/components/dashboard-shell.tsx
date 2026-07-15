@@ -8,6 +8,7 @@ import {
   BookOpen,
   MapPin,
   Lightbulb,
+  CreditCard,
   LogOut,
   HeartPulse,
 } from 'lucide-react';
@@ -24,6 +25,7 @@ const NAV = [
   { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
   { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
   { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
 ] as const;
 
 export function DashboardShell({

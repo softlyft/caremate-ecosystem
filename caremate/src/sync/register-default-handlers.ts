@@ -1,4 +1,5 @@
 import { articleRepository } from '@/domains/articles/repository';
+import { billingRepository } from '@/domains/billing/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
 import { profileRepository } from '@/domains/profile/repository';
@@ -98,5 +99,12 @@ export function registerDefaultSyncHandlers(): void {
         await familyRepository.pullFromRemote(userId);
       }
     },
+  });
+
+  registerSyncHandler('subscriptions', {
+    push: async () => {
+      // Entitlements are server-owned (webhooks). Device never pushes.
+    },
+    pull: () => billingRepository.pullFromRemote(),
   });
 }

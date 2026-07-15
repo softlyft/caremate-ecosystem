@@ -36,3 +36,4 @@ GoogleService-Info.plist
 .idea/
 .vscode/*
 !.vscode/extensions.json
+artifacts/

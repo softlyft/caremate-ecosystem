@@ -10,13 +10,31 @@ caremate-ecosystem/
   caremate-portal/       # Next.js admin portal
 ```
 
+## Workspaces
+
+Install once from the **repo root** (`npm workspaces`):
+
+```bash
+npm install
+```
+
+Root scripts:
+
+| Script | What it runs |
+|--------|----------------|
+| `npm run lint` | Mobile + portal lint |
+| `npm run typecheck` | Mobile + portal `tsc` |
+| `npm run test` | Mobile Jest + portal RBAC unit tests |
+| `npm run format` | Mobile Prettier check |
+| `npm run portal:dev` / `mobile:start` | App servers via workspace |
+
 ## Responsibilities
 
 | Path | Owns |
 |------|------|
 | `supabase/` | Cloud schema only — Auth-adjacent tables, catalogs, RLS, Storage |
 | `caremate/src/database/` | Device SQLite (Drizzle). Must stay **aligned** with shared cloud tables via sync mappers |
-| `packages/db-types/` | TypeScript `Database` types consumed by portal (and future apps) |
+| `packages/db-types/` | TypeScript `Database` types consumed by mobile + portal |
 | Apps | UI + feature logic; never fork migration history |
 
 ## Prerequisites
@@ -43,32 +61,57 @@ When you change a table that mobile syncs, update in the same change set:
 1. `supabase/migrations/*`
 2. `caremate/src/database/schema.ts` + repository/sync handlers
 3. `caremate/docs/supabase-alignment.md`
-4. `npm run db:types` (portal types)
+4. `npm run db:types` (shared types for both apps)
 
 Portal-only tables (e.g. `admin_audit_events`) stay cloud-only — no SQLite mirror.
+
+## Billing (Premium)
+
+- Cloud tables: `subscription_prices`, `subscriptions` (see `supabase/migrations/20260714180000_billing_subscriptions.sql`)
+- Portal **Billing** (admin): configure Personal/Family × monthly/yearly × NGN/USD; list subscribers
+- Mobile: hosted **Paystack** (NGN) / **Stripe** (USD) checkout via Edge Function `create-checkout`
+- Webhooks: `billing-webhook-paystack`, `billing-webhook-stripe`
+- Secrets are set on **Supabase Edge Functions** (not in portal `.env`):
+
+```bash
+supabase secrets set STRIPE_SECRET_KEY=sk_... STRIPE_WEBHOOK_SECRET=whsec_... PAYSTACK_SECRET_KEY=sk_...
+```
+
+Deep links: `caremate://billing/success`, `caremate://billing/cancel`
+
+Local `supabase db reset` loads `supabase/seed.sql` (placeholder). Catalog fixtures: `npm run seed:catalogs -w caremate-portal`.
 
 ## Apps
 
 ### Mobile (`caremate/`)
 
 ```bash
-cd caremate && npm install && npm start
+npm install                    # from repo root
+npm run mobile:start
+# or: npm run start -w caremate
 ```
 
 Proxies for DB ops (still run migrations from root):
 
 ```bash
-cd caremate && npm run supabase:db:push   # → repo root
+npm run supabase:db:push -w caremate   # → repo root
 ```
 
 ### Admin portal (`caremate-portal/`)
 
 ```bash
-cd caremate-portal && cp .env.example .env.local   # fill keys
-cd .. && npm run supabase:db:push                 # apply schema first
-cd caremate-portal && npm install && npm run bootstrap:admin -- you@example.com admin
-npm run dev
+cp caremate-portal/.env.example caremate-portal/.env.local   # fill keys
+npm run supabase:db:push
+npm run bootstrap:admin -w caremate-portal -- you@example.com admin
+npm run portal:dev
 ```
+
+## CI
+
+Workflows live under `.github/workflows/` (repo root):
+
+- `ci.yml` — mobile + portal quality gates
+- `eas-test-release.yml` — EAS test builds (mobile)
 
 ## Former remotes
 
@@ -89,6 +132,6 @@ Then delete `**/.git.bak-pre-monorepo` once you confirm history is where you wan
 
 ## Adding a future app
 
-1. Add `caremate-<name>/` at repo root.
+1. Add `caremate-<name>/` at repo root and list it in root `package.json` `workspaces`.
 2. Consume `@caremate/db-types` and the same Supabase project env vars.
 3. Put any new cloud schema only in `supabase/migrations/`.

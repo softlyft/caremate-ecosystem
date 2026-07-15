@@ -15,6 +15,18 @@ import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { createId, nowIso } from '@/utils/helpers';
 
+function asMemberKind(value: string): FamilyMemberKind {
+  return value as FamilyMemberKind;
+}
+
+function asMemberGender(value: string | null): FamilyMemberGender | null {
+  return value as FamilyMemberGender | null;
+}
+
+function asConnectionStatus(value: string): FamilyConnectionStatus {
+  return value as FamilyConnectionStatus;
+}
+
 function mapHousehold(row: typeof familyHouseholds.$inferSelect): FamilyHousehold {
   return {
     id: row.id,
@@ -494,11 +506,11 @@ class FamilyRepository extends BaseRepository {
       await this.upsertMemberLocal({
         id: row.id,
         householdId: row.household_id,
-        kind: row.kind,
+        kind: asMemberKind(row.kind),
         linkedUserId: row.linked_user_id,
         fullName: row.full_name,
         dateOfBirth: row.date_of_birth,
-        gender: row.gender,
+        gender: asMemberGender(row.gender),
         notes: row.notes,
         syncStatus: 'synced',
         deletedAt: null,
@@ -528,7 +540,7 @@ class FamilyRepository extends BaseRepository {
         toUserId: row.to_user_id,
         toEmail: row.to_email,
         toPhone: row.to_phone,
-        status: row.status,
+        status: asConnectionStatus(row.status),
         inviteToken: row.invite_token,
         syncStatus: 'synced',
         deletedAt: null,

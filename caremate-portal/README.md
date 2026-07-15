@@ -62,6 +62,9 @@ Seeds from `../caremate` JSON bundles into shared Postgres.
 | **Learn** | CRUD on `articles`, media upload |
 | **Providers** | Nearby directory CRUD |
 | **Health tips** | CRUD on `health_tips` |
+| **Billing** | Admin-only Premium prices (Personal/Family · monthly/yearly · NGN/USD) + subscriber list |
 | **Audit** | `admin_audit_events` |
+
+Payment processor secrets live on Supabase Edge Functions (`STRIPE_*`, `PAYSTACK_SECRET_KEY`), not in this portal `.env`.
 
 Clinical PHI is not editable here.

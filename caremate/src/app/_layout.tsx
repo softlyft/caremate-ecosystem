@@ -7,6 +7,7 @@ import '../../global.css';
 
 import { AppProviders } from '@/components/AppProviders';
 import { AuthDeepLinkHandler } from '@/components/AuthDeepLinkHandler';
+import { BillingDeepLinkHandler } from '@/components/BillingDeepLinkHandler';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { useAuthStore } from '@/features/auth/store';
 import { useAppFonts } from '@/hooks/use-app-fonts';
@@ -32,6 +33,7 @@ export default function RootLayout() {
     <GluestackUIProvider mode={colorScheme === 'dark' ? 'dark' : 'light'}>
       <AppProviders>
         <AuthDeepLinkHandler />
+        <BillingDeepLinkHandler />
         <Stack
           screenOptions={{
             headerStyle: { backgroundColor: '#FFFFFF' },

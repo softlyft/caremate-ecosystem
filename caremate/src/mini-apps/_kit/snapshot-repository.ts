@@ -5,6 +5,7 @@ import { getDatabase } from '@/database/client';
 import { miniAppSnapshots } from '@/database/schema';
 import { BaseRepository } from '@/repositories/base-repository';
 import { supabase } from '@/lib/supabase';
+import { toJson } from '@/sync/cloud-types';
 import { nowIso, parseJson, stringifyJson } from '@/utils/helpers';
 
 export const MINI_APP_KEYS = [
@@ -165,7 +166,7 @@ class MiniAppSnapshotRepository extends BaseRepository {
       id: snapshot.id,
       user_id: snapshot.userId,
       app_key: snapshot.appKey,
-      payload: snapshot.payload,
+      payload: toJson(snapshot.payload),
       updated_at: snapshot.updatedAt,
     });
   }

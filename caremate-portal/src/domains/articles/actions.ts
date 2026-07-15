@@ -33,14 +33,15 @@ export async function saveArticle(input: ArticleInput) {
   const id = input.id ?? crypto.randomUUID();
   const now = new Date().toISOString();
 
+  const categoryId = input.category_id?.trim() || 'uncategorized';
   const row = {
     id,
     title: input.title,
     summary: input.summary ?? null,
-    content: input.content ?? null,
+    content: input.content ?? '',
     content_type: input.content_type,
-    category_id: input.category_id ?? null,
-    category_name: input.category_id ? categoryName(input.category_id) : null,
+    category_id: categoryId,
+    category_name: categoryName(categoryId),
     image_url: input.image_url ?? null,
     source_url: input.source_url ?? null,
     published_at: input.published_at || null,

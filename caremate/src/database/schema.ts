@@ -148,6 +148,20 @@ export const familyConnectionRequests = sqliteTable('family_connection_requests'
   ...syncColumns,
 });
 
+/** Pull-only cache of cloud Premium entitlement for offline badge/UI. */
+export const subscriptionEntitlements = sqliteTable('subscription_entitlements', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  householdId: text('household_id'),
+  planType: text('plan_type').notNull(),
+  billingInterval: text('billing_interval').notNull(),
+  currency: text('currency').notNull(),
+  provider: text('provider').notNull(),
+  status: text('status').notNull(),
+  currentPeriodEnd: text('current_period_end'),
+  ...syncColumns,
+});
+
 export const schema = {
   profiles,
   emergencyProfiles,
@@ -161,4 +175,5 @@ export const schema = {
   familyHouseholds,
   familyMembers,
   familyConnectionRequests,
+  subscriptionEntitlements,
 };

@@ -23,3 +23,7 @@ export function canEditCatalog(role: StaffRole | null | undefined): boolean {
 export function canAssignRoles(role: StaffRole | null | undefined): boolean {
   return role === 'admin';
 }
+
+export function canManageBilling(role: StaffRole | null | undefined): boolean {
+  return role === 'admin';
+}

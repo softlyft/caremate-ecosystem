@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { UserRound } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { images } from '@/constants/assets';
+import { getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
 import { useAuthStore } from '@/features/auth/store';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
@@ -24,6 +26,13 @@ export default function ProfileTabScreen() {
   const setBiometricEnabled = useAuthStore((state) => state.setBiometricEnabled);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
+
+  const premiumQuery = useQuery({
+    queryKey: ['billing', 'premium', userId, isGuest],
+    enabled: !isGuest,
+    queryFn: () => getPremiumState(userId),
+  });
+  const premium = premiumQuery.data ?? null;
 
   async function handleBiometricToggle(value: boolean) {
     const available = await authService.isBiometricAvailable();
@@ -57,6 +66,27 @@ export default function ProfileTabScreen() {
             ? 'Browse freely. Sign in anytime to sync your data.'
             : (user?.email ?? 'Signed in')}
         </AppText>
+        {!isGuest ? (
+          <AppText variant="quickActionSubtitle" style={styles.centered}>
+            Plan: {premiumLabel(premium?.tier ?? 'free')}
+          </AppText>
+        ) : null}
+      </View>
+
+      <View style={[styles.card, shadow.soft]}>
+        <AppText variant="cardTitle">Premium</AppText>
+        <AppText variant="quickActionSubtitle">
+          {isGuest
+            ? 'Sign in to upgrade to Premium Personal or Family.'
+            : 'Manage Free vs Premium Personal or Family (Paystack / Stripe).'}
+        </AppText>
+        <Button
+          label={isGuest ? 'Sign in for Premium' : 'View Premium'}
+          variant="secondary"
+          onPress={() =>
+            isGuest ? router.push('/(auth)/login') : router.push('/(app)/profile/premium' as Href)
+          }
+        />
       </View>
 
       {isGuest ? (

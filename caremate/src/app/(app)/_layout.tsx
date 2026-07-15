@@ -31,6 +31,7 @@ export default function AppLayout() {
       <Stack.Screen name="providers/[id]" options={{ headerShown: true, title: 'Provider' }} />
       <Stack.Screen name="providers/map" options={{ headerShown: true, title: 'Map' }} />
       <Stack.Screen name="profile/settings" options={{ headerShown: true, title: 'Settings' }} />
+      <Stack.Screen name="profile/premium" options={{ headerShown: true, title: 'Premium' }} />
       <Stack.Screen name="family/index" options={{ headerShown: true, title: 'Family' }} />
       <Stack.Screen name="family/setup" options={{ headerShown: true, title: 'Family setup' }} />
       <Stack.Screen name="family/kids-count" options={{ headerShown: true, title: 'Kids' }} />
