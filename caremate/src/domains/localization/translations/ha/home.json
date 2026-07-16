@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Barka da safiya",
+    "afternoon": "Barka da rana",
+    "evening": "Barka da yamma"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Tafiyar lafiyarka, an tsara ta kyau",
+  "emergency": {
+    "title": "Bayanin gaggawa",
+    "body": "Ajiye nau'in jini, rashin jituwa, da lambobin ICE a shirye ba tare da intanet ba.",
+    "cta": "Saita"
+  },
+  "featuredArticles": {
+    "title": "A gare ka",
+    "subtitle": "Labaran lafiya da amincewa da shawarwari"
+  },
+  "healthCategories": {
+    "title": "Duba batutuwa",
+    "subtitle": "Nemo jagora ta fannin lafiya"
+  },
+  "nearby": {
+    "title": "Kulawa kusa",
+    "subtitle": "Asibitoci, clinic, da kantin magani a kusa da kai"
+  },
+  "dailyTip": {
+    "label": "Fahimtar yau"
+  },
+  "searchA11y": "Nemo CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Gaggawa",
+      "subtitle": "Katin lafiya ba tare da intanet ba"
+    },
+    "nearby": {
+      "title": "Kusa",
+      "subtitle": "Nemo kulawa kusa"
+    },
+    "symptoms": {
+      "title": "Koyo",
+      "subtitle": "Labaran lafiya"
+    },
+    "medication": {
+      "title": "Magunguna",
+      "subtitle": "Bi diddigin allurai"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Asibitoci",
+    "pharmacy": "Kantunan magani",
+    "laboratory": "Labs",
+    "clinic": "Clinic",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Bankunan jini",
+    "ambulance": "Ambulans"
+  }
+}

@@ -21,6 +21,7 @@ import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -30,6 +31,7 @@ const SOFT_END = '#F5F3FF';
 const TITLE = palette.brandPurpleDark;
 
 export default function EmergencyViewScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
 
@@ -39,7 +41,7 @@ export default function EmergencyViewScreen() {
   });
 
   if (query.isLoading) {
-    return <LoadingState title="Loading emergency profile..." />;
+    return <LoadingState title={t('emergency.loading')} />;
   }
 
   const profile = query.data;
@@ -47,9 +49,9 @@ export default function EmergencyViewScreen() {
     return (
       <View style={styles.screen}>
         <EmptyState
-          title="No emergency profile yet"
-          message="Add your critical health details for offline access."
-          actionLabel="Create Profile"
+          title={t('emergency.empty.title')}
+          message={t('emergency.empty.message')}
+          actionLabel={t('emergency.empty.cta')}
           onAction={() => router.push('/(app)/emergency/edit')}
         />
       </View>
@@ -83,7 +85,7 @@ export default function EmergencyViewScreen() {
               </View>
 
               <AppText variant="caption" style={styles.heroEyebrow}>
-                Emergency profile
+                {t('emergency.profileEyebrow')}
               </AppText>
               <AppText variant="screenTitle" style={styles.heroTitle}>
                 {profile.fullName}
@@ -114,34 +116,47 @@ export default function EmergencyViewScreen() {
         <AnimatedSection index={1}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Health details
+              {t('emergency.healthDetails')}
             </AppText>
-            <InfoRow label="Blood group" value={profile.bloodGroup} />
+            <InfoRow label={t('emergency.fields.bloodGroup')} value={profile.bloodGroup} />
             <View style={styles.divider} />
-            <InfoRow label="Genotype" value={profile.genotype} />
+            <InfoRow label={t('emergency.fields.genotype')} value={profile.genotype} />
             <View style={styles.divider} />
-            <InfoRow label="Allergies" value={profile.allergies.join(', ') || 'None'} />
+            <InfoRow
+              label={t('emergency.fields.allergies')}
+              value={profile.allergies.join(', ') || t('common.none')}
+            />
             <View style={styles.divider} />
-            <InfoRow label="Medications" value={profile.currentMedications.join(', ') || 'None'} />
+            <InfoRow
+              label={t('emergency.fields.medications')}
+              value={profile.currentMedications.join(', ') || t('common.none')}
+            />
             <View style={styles.divider} />
-            <InfoRow label="Conditions" value={profile.chronicConditions.join(', ') || 'None'} />
+            <InfoRow
+              label={t('emergency.fields.conditions')}
+              value={profile.chronicConditions.join(', ') || t('common.none')}
+            />
             <View style={styles.divider} />
-            <InfoRow label="Preferred hospital" value={profile.preferredHospital} icon={Hospital} />
+            <InfoRow
+              label={t('emergency.fields.hospital')}
+              value={profile.preferredHospital}
+              icon={Hospital}
+            />
             <View style={styles.divider} />
-            <InfoRow label="Insurance" value={profile.insuranceProvider} />
+            <InfoRow label={t('emergency.fields.insurance')} value={profile.insuranceProvider} />
             <View style={styles.divider} />
-            <InfoRow label="Notes" value={profile.notes} />
+            <InfoRow label={t('emergency.fields.notes')} value={profile.notes} />
           </View>
         </AnimatedSection>
 
         <AnimatedSection index={2}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Emergency contacts
+              {t('emergency.fields.contacts')}
             </AppText>
             {profile.emergencyContacts.length === 0 ? (
               <AppText variant="caption" style={styles.muted}>
-                No contacts added.
+                {t('emergency.noContacts')}
               </AppText>
             ) : (
               profile.emergencyContacts.map((contact, index) => (
@@ -175,16 +190,15 @@ export default function EmergencyViewScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <AppText variant="caption" style={styles.sectionEyebrow}>
-                  Lock screen access
+                  {t('emergency.lock.accessTitle')}
                 </AppText>
                 <AppText variant="body" style={styles.lockBody}>
                   {Platform.OS === 'ios'
-                    ? 'Add the CareMate “Emergency Info” widget to your Lock Screen (long-press Lock Screen → Customize → Add Widget).'
-                    : 'Add the CareMate “Emergency Info” widget to your Home Screen (long-press home → Widgets).'}
+                    ? t('emergency.lock.widgetIos')
+                    : t('emergency.lock.widgetAndroid')}
                 </AppText>
                 <AppText variant="caption" style={[styles.muted, { marginTop: spacing.xs }]}>
-                  Minimal fields shown: name, blood group, genotype, allergies, and your first ICE
-                  contact.
+                  {t('emergency.lock.minimalFields')}
                 </AppText>
               </View>
             </View>
@@ -199,7 +213,7 @@ export default function EmergencyViewScreen() {
             >
               <UserRoundPen color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                Edit profile
+                {t('emergency.editProfile')}
               </AppText>
             </PressableScale>
 
@@ -209,7 +223,7 @@ export default function EmergencyViewScreen() {
             >
               <Smartphone color={ACCENT} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.secondaryCtaLabel}>
-                Preview lock-screen card
+                {t('emergency.preview')}
               </AppText>
             </PressableScale>
 
@@ -219,7 +233,7 @@ export default function EmergencyViewScreen() {
             >
               <QrCode color={ACCENT} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.secondaryCtaLabel}>
-                Show QR code
+                {t('emergency.showQr')}
               </AppText>
             </PressableScale>
           </View>
@@ -238,6 +252,7 @@ function InfoRow({
   value: string | null | undefined;
   icon?: typeof Hospital;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.infoRow}>
       {Icon ? (
@@ -250,7 +265,7 @@ function InfoRow({
           {label}
         </AppText>
         <AppText variant="body" style={styles.infoValue}>
-          {value || 'Not set'}
+          {value || t('common.notSet')}
         </AppText>
       </View>
     </View>

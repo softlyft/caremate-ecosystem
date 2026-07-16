@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Ìtọ́jú tí ó ń ṣiṣẹ́ láìsí ayélujára",
+    "subtitle": "Ìṣètò kúkúrú kan kí Tòsí, ìròyìn, àti irinṣẹ́ pájáwìrì lè dára láti ọjọ́ àkọ́kọ́.",
+    "cta": "Jẹ́ ká lọ",
+    "foot": "Bẹ̀rẹ̀ nípa yíyan orílẹ̀-èdè àti èdè.",
+    "preview": {
+      "countryLanguage": "Orílẹ̀-èdè + èdè",
+      "priorities": "Àwọn ohun tí ó ṣe pàtàkì fún ọ",
+      "news": "Ìròyìn ìlera àdúgbò",
+      "nearby": "Ìtọ́jú tòsí"
+    }
+  },
+  "country": {
+    "title": "Orílẹ̀-èdè àti èdè rẹ",
+    "subtitle": "Àwọn wọ̀nyí ń ṣàkóso àkóónú ìlera àdúgbò àti ìṣàkóso ara ẹni káàkiri CareMate.",
+    "field": {
+      "country": "Orílẹ̀-èdè",
+      "language": "Èdè",
+      "state": "Ìpínlẹ̀ / agbègbè (àyànfẹ́)"
+    },
+    "statePlaceholder": "bíi Greater Accra"
+  },
+  "priorities": {
+    "title": "Kí ni ó ṣe pàtàkì jùlọ?",
+    "subtitle": "Tẹ ohun tí o bìkítà nípa — a ó mú àwọn ìgbésẹ̀ tó kàn ṣe déédéé.",
+    "continueSelected": "Tẹ̀síwájú · {{count}} tí a yàn",
+    "emergency": {
+      "label": "Pájáwìrì",
+      "description": "Káàdì ìlera láìsí ayélujára fún àwọn olùrànlọ́wọ́ àkọ́kọ́"
+    },
+    "nearby": {
+      "label": "Ìtọ́jú tòsí",
+      "description": "Àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ"
+    },
+    "family": {
+      "label": "Ẹbí / àwọn ọmọ",
+      "description": "Àwọn profáìlì ilé àti ìtọ́jú ọmọ tí a pín"
+    },
+    "learn": {
+      "label": "Kọ́",
+      "description": "Àwọn àpilẹ̀kọ ìlera tí a gbẹ́kẹ̀lé àti ìmọ̀ràn"
+    }
+  },
+  "location": {
+    "title": "Wá ìtọ́jú tòsí",
+    "subtitle": "Lo GPS tó pẹ́ẹ́rẹ́ fún àwọn ìbámu tó dára jùlọ, tàbí fi pin àìpé tí ó dá lórí orílẹ̀-èdè sílẹ̀.",
+    "enable": "Mú ibùdó ṣiṣẹ́",
+    "checking": "Ń ṣàyẹ̀wò…",
+    "approximateCta": "Lo ibùdó tó fẹ́rẹ̀ẹ́",
+    "precise": {
+      "title": "Pẹ́ẹ́rẹ́",
+      "hint": "Ìṣàtò tó dára jùlọ fún àwọn ilé-ìwòsàn àti ilé-ìtọ́jú ní àyíká rẹ"
+    },
+    "approximate": {
+      "title": "Tó fẹ́rẹ̀ẹ́",
+      "hint": "Àtìlẹ́yìn tí ó dá lórí orílẹ̀-èdè — o lè yí padà nígbàkúgbà"
+    }
+  },
+  "notifications": {
+    "title": "Máa mọ̀ ohun tí ń ṣẹlẹ̀",
+    "subtitle": "Fi ìfẹ́ rẹ pamọ́ nísinsìnyí. Ìfiránṣẹ́ push yóò bẹ̀rẹ̀ nígbà tí ìfitónilétí CareMate bá ti ṣètò tán.",
+    "healthReminders": "Ìránnilétí ìlera",
+    "healthRemindersHint": "Ìmọ̀ràn, ìtọ́kasí àyẹ̀wò, àti àwọn ìmúdójúìwọ̀n pàtàkì"
+  },
+  "next": {
+    "title": "O ti ṣetan",
+    "subtitle": "Ṣàwárí gẹ́gẹ́ bí àlejò, tàbí ṣẹ̀dá àkọọ́lẹ̀ kí data pájáwìrì àti ẹbí lè ṣàmúisọpọ̀.",
+    "continueExploring": "Tẹ̀síwájú láti ṣàwárí",
+    "saving": "Ń fi pamọ́…",
+    "createAccount": "Ṣẹ̀dá àkọọ́lẹ̀",
+    "haveAccount": "Mo ti ní àkọọ́lẹ̀ tẹ́lẹ̀",
+    "browseTitle": "Máa wòó ní òminira",
+    "browseHint": "Àwọn àpilẹ̀kọ, Tòsí, àti àwọn áàpù kékeré ń ṣiṣẹ́ gẹ́gẹ́ bí àlejò",
+    "syncTitle": "Ṣẹ̀dá láti ṣàmúisọpọ̀",
+    "syncHint": "Ṣẹ̀dá àkọọ́lẹ̀ ṣáájú pájáwìrì tàbí ẹbí kí data má bàá dúró lórí ẹ̀rọ yìí nìkan"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Ngwa",
+  "subtitle": "Ngwaọrụ ahụike onwe na-arụ ọrụ na-enweghị ịntanetị",
+  "readyCount": "Ngwaọrụ {{count}} dị njikere",
+  "comingSoon": "Na-abịa n'oge na-adịghị anya",
+  "registry": {
+    "medication-tracker": {
+      "name": "Onye Nchịkwa Ọgwụ",
+      "description": "Soro ọgwụ, dose kwa ụbọchị, na nnabata maka gị ma ọ bụ ezinụlọ gị."
+    },
+    "checkup-planner": {
+      "name": "Onye Nhazi Nyocha",
+      "description": "Hụ nyocha ahụike a tụrụ aro site na afọ, okike, na mpaghara."
+    },
+    "immunization-tracker": {
+      "name": "Onye Nchịkwa Ịgba Ọgwụ Mgbochi",
+      "description": "Soro ọgwụ mgbochi, ụbọchị kwesịrị, na ndekọ ịgba ọgwụ nwa gị."
+    },
+    "pregnancy-tracker": {
+      "name": "Onye Nchịkwa Ime",
+      "description": "Soro ime gị izu n'izu, dekọọ mgbaàmà, ma soro isi ihe."
+    },
+    "period-tracker": {
+      "name": "Onye Nchịkwa Nsọ Nwanyị",
+      "description": "Soro okirikiri, dekọọ ụbọchị nsọ, ma hụ amụma dị mfe."
+    }
+  },
+  "signInRequired": "Banye iji mekọrịta ngwaọrụ a n'ofe ngwaọrụ",
+  "save": "Chekwaa",
+  "log": "Dekọọ ntinye",
+  "setup": "Hazie"
+}

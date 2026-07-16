@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -12,17 +13,19 @@ import {
   MonthCalendarGrid,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import { CHECKUP_CATALOG, getCadenceLabel } from '@/mini-apps/checkup-planner/constants';
+import { CHECKUP_CATALOG } from '@/mini-apps/checkup-planner/constants';
 import {
   useCheckupPlannerHydrated,
   useCheckupPlannerStore,
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
+import { localizeCadence, localizeCheckup } from '@/mini-apps/checkup-planner/localize';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
 
 export default function CheckupPlannerLogScreen() {
+  const { t } = useTranslation();
   const { checkupId: paramCheckupId, year: paramYear } = useLocalSearchParams<{
     checkupId?: string;
     year?: string;
@@ -72,9 +75,9 @@ export default function CheckupPlannerLogScreen() {
   if (!profile) {
     return (
       <View style={styles.loading}>
-        <AppText variant="body">Set up your checkup profile first.</AppText>
+        <AppText variant="body">{t('apps.checkupPlanner.needSetup')}</AppText>
         <MiniAppCta
-          label="Set up planner"
+          label={t('apps.checkupPlanner.setUpPlanner')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.replace('/(app)/apps/checkup-planner/setup')}
@@ -86,9 +89,9 @@ export default function CheckupPlannerLogScreen() {
   if (!checkup) {
     return (
       <View style={styles.loading}>
-        <AppText variant="body">That checkup was not found.</AppText>
+        <AppText variant="body">{t('apps.checkup.ui.notFound')}</AppText>
         <MiniAppCta
-          label="Go back"
+          label={t('common.goBack')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.back()}
@@ -97,15 +100,17 @@ export default function CheckupPlannerLogScreen() {
     );
   }
 
+  const localizedCheckup = localizeCheckup(checkup, t);
+
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
-        Log that you completed this checkup for {year}. You can undo later from this screen.
+        {t('apps.checkup.ui.logIntro', { year })}
       </AppText>
 
-      <MiniAppCard index={1} title={checkup.name} theme={theme}>
+      <MiniAppCard index={1} title={localizedCheckup.name} theme={theme}>
         <AppText variant="caption" style={styles.muted}>
-          {getCadenceLabel(checkup.cadence)} · {checkup.description}
+          {localizeCadence(checkup.cadence, t)} · {localizedCheckup.description}
         </AppText>
       </MiniAppCard>
 
@@ -130,7 +135,7 @@ export default function CheckupPlannerLogScreen() {
           </Pressable>
         </View>
         <AppText variant="caption" style={styles.muted}>
-          Date completed
+          {t('apps.checkup.ui.dateCompleted')}
         </AppText>
         <MonthCalendarGrid
           monthRef={monthRef}
@@ -142,20 +147,22 @@ export default function CheckupPlannerLogScreen() {
             today: dayKey === todayKey,
           })}
         />
-        <AppText variant="body">Completed: {formatDisplayDate(completedDate)}</AppText>
+        <AppText variant="body">
+          {t('apps.checkup.ui.completedLabel', { date: formatDisplayDate(completedDate) })}
+        </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={3} title="Notes (optional)" theme={theme}>
+      <MiniAppCard index={3} title={t('apps.checkup.ui.notesOptional')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
-          placeholder="Clinic name, results to follow up…"
+          placeholder={t('apps.checkup.ui.notesPlaceholder')}
           multiline
         />
       </MiniAppCard>
 
       <MiniAppCta
-        label={existing ? 'Update log' : `Mark done for ${year}`}
+        label={existing ? t('apps.checkup.ui.updateLog') : t('apps.checkup.ui.markDone', { year })}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}
@@ -172,7 +179,7 @@ export default function CheckupPlannerLogScreen() {
 
       {existing ? (
         <MiniAppCta
-          label="Remove completion"
+          label={t('apps.checkup.ui.removeCompletion')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary

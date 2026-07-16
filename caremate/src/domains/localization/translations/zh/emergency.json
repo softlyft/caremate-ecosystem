@@ -1,0 +1,40 @@
+{
+  "title": "急救",
+  "loading": "正在加载急救档案...",
+  "empty": {
+    "title": "尚无急救档案",
+    "message": "添加血型、过敏信息和紧急联系人，供急救人员使用。",
+    "cta": "创建档案"
+  },
+  "fields": {
+    "fullName": "全名",
+    "bloodGroup": "血型",
+    "genotype": "基因型",
+    "allergies": "过敏",
+    "medications": "当前用药",
+    "conditions": "慢性病",
+    "contacts": "紧急联系人",
+    "hospital": "首选医院",
+    "insurance": "保险公司",
+    "notes": "备注"
+  },
+  "edit": {
+    "title": "编辑急救档案",
+    "save": "保存档案",
+    "addContact": "添加联系人",
+    "contactName": "联系人姓名",
+    "contactPhone": "电话",
+    "relationship": "关系"
+  },
+  "qr": {
+    "title": "急救二维码",
+    "empty": "请先创建急救档案"
+  },
+  "lock": {
+    "title": "急救卡",
+    "call": "拨打紧急联系人",
+    "help": "如果您无法自行表达，请出示此卡。"
+  },
+  "widget": "更新锁屏小组件",
+  "preview": "预览锁屏"
+}

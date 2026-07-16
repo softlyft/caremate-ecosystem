@@ -4,6 +4,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { translateText } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow } from '@/theme';
 
 type GlossyHeaderConfig = {
@@ -85,7 +86,7 @@ export function glossyStackHeaderOptions({
   softEnd = '#F0FDFA',
   titleColor = palette.primaryDark,
   icon = BookOpen,
-  backAccessibilityLabel = 'Go back',
+  backAccessibilityLabel = translateText('en', 'learn.goBack'),
   modal = false,
 }: GlossyHeaderConfig) {
   return {
@@ -121,7 +122,7 @@ export function glossyStackHeaderOptions({
   };
 }
 
-export function learnArticleHeaderOptions(title = 'Article') {
+export function learnArticleHeaderOptions(title = translateText('en', 'learn.article')) {
   return glossyStackHeaderOptions({
     title,
     accent: palette.primary,
@@ -129,7 +130,7 @@ export function learnArticleHeaderOptions(title = 'Article') {
     softEnd: '#F0FDFA',
     titleColor: palette.primaryDark,
     icon: BookOpen,
-    backAccessibilityLabel: 'Back to Learn',
+    backAccessibilityLabel: translateText('en', 'learn.backToLearn'),
   });
 }
 

@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Maakye",
+    "afternoon": "Maaha",
+    "evening": "Maadwo"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Wo apɔwmuden akwantuo, wɔahyehyɛ no fɛfɛɛfɛ",
+  "emergency": {
+    "title": "Ahoyɛ profile",
+    "body": "Ma mogya su, allergies, ne ICE nkitahodie nsi so a intanɛt nni hɔ.",
+    "cta": "Hyehyɛ"
+  },
+  "featuredArticles": {
+    "title": "Ma wo",
+    "subtitle": "Apɔwmuden nsɛm a wotumi gye di ne afotu"
+  },
+  "healthCategories": {
+    "title": "Hwɛ nsɛmti",
+    "subtitle": "Hwehwɛ akwankyerɛ wɔ apɔwmuden afa"
+  },
+  "nearby": {
+    "title": "Hwɛ a ɛbɛn",
+    "subtitle": "Ayaresabea, clinic, ne aduru fie a ɛbɛn wo"
+  },
+  "dailyTip": {
+    "label": "Da biara nhunumu"
+  },
+  "searchA11y": "Hwehwɛ CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Ahoyɛ",
+      "subtitle": "Apɔwmuden kaade a intanɛt nni so"
+    },
+    "nearby": {
+      "title": "Bɛn",
+      "subtitle": "Hwehwɛ hwɛ a ɛbɛn"
+    },
+    "symptoms": {
+      "title": "Sua",
+      "subtitle": "Apɔwmuden nkyerɛkyerɛ"
+    },
+    "medication": {
+      "title": "Aduru",
+      "subtitle": "Di doze akyi"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Ayaresabea",
+    "pharmacy": "Aduru fie",
+    "laboratory": "Labs",
+    "clinic": "Clinic",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Mogya bank",
+    "ambulance": "Ambulance"
+  }
+}

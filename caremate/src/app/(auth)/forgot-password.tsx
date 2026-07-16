@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import { authService } from '@/services/auth-service';
 import { config } from '@/constants/env';
 import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
@@ -21,6 +22,7 @@ const schema = z.object({
 type ForgotPasswordForm = z.infer<typeof schema>;
 
 export default function ForgotPasswordScreen() {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { control, handleSubmit, formState } = useForm<ForgotPasswordForm>({
@@ -36,14 +38,12 @@ export default function ForgotPasswordScreen() {
       }
       setIsSubmitting(true);
       await authService.resetPassword(values.email);
-      Alert.alert(
-        'Check your email',
-        'If an account exists for that address, we sent a password reset link. Open it on this device to choose a new password.',
-        [{ text: 'OK', onPress: () => router.back() }],
-      );
+      Alert.alert(t('auth.forgot.sent'), t('auth.forgot.subtitle'), [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to send reset email';
-      Alert.alert('Request failed', message);
+      const message = error instanceof Error ? error.message : t('common.error');
+      Alert.alert(t('common.error'), message);
     } finally {
       setIsSubmitting(false);
     }
@@ -51,10 +51,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle
-        title="Reset password"
-        subtitle="Enter the email for your CareMate account. We’ll send a secure link that opens back in the app."
-      />
+      <SectionTitle title={t('auth.forgot.title')} subtitle={t('auth.forgot.subtitle')} />
       <View style={styles.form}>
         <Controller
           control={control}
@@ -63,7 +60,7 @@ export default function ForgotPasswordScreen() {
             <Input
               autoCapitalize="none"
               keyboardType="email-address"
-              placeholder="Email"
+              placeholder={t('auth.forgot.email')}
               autoComplete="email"
               textContentType="emailAddress"
               onBlur={onBlur}
@@ -78,12 +75,12 @@ export default function ForgotPasswordScreen() {
           </AppText>
         ) : null}
         <Button
-          label={isSubmitting ? 'Sending...' : 'Send Reset Link'}
+          label={isSubmitting ? t('common.loading') : t('auth.forgot.submit')}
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         />
         <Link href="/(auth)/login">
-          <AppText variant="seeAll">Back to sign in</AppText>
+          <AppText variant="seeAll">{t('auth.forgot.back')}</AppText>
         </Link>
         {__DEV__ ? (
           <AppText variant="caption" color={colors.textMuted}>

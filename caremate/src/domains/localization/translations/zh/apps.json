@@ -1,0 +1,32 @@
+{
+  "title": "应用",
+  "subtitle": "可离线使用的个人健康工具",
+  "readyCount": "{{count}} 个工具可用",
+  "comingSoon": "即将推出",
+  "registry": {
+    "medication-tracker": {
+      "name": "用药追踪",
+      "description": "追踪您或家人的药物、每日剂量和依从性。"
+    },
+    "checkup-planner": {
+      "name": "体检规划",
+      "description": "按年龄、性别和地区查看推荐的体检项目。"
+    },
+    "immunization-tracker": {
+      "name": "疫苗追踪",
+      "description": "追踪疫苗、到期日和孩子的接种记录。"
+    },
+    "pregnancy-tracker": {
+      "name": "孕期追踪",
+      "description": "按周跟随孕期，记录症状并追踪里程碑。"
+    },
+    "period-tracker": {
+      "name": "经期追踪",
+      "description": "追踪周期、记录经期并查看简单预测。"
+    }
+  },
+  "signInRequired": "登录以在各设备间同步此工具",
+  "save": "保存",
+  "log": "记录条目",
+  "setup": "设置"
+}

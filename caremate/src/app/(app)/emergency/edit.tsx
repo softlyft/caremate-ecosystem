@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
   Alert,
@@ -32,26 +32,25 @@ import {
 import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { useTranslation } from '@/domains/localization';
 import { Switch } from '@/components/ui/switch';
 import { palette, radius, spacing, useAppTheme } from '@/theme';
 
 const EMERGENCY_ACCENT = palette.brandPurple;
 const EMERGENCY_SOFT = palette.purpleLight;
 
-const schema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  bloodGroup: z.string().min(1, 'Select a blood group'),
-  genotype: z.string().min(1, 'Select a genotype'),
-  allergies: z.string().optional(),
-  currentMedications: z.string().optional(),
-  chronicConditions: z.string().optional(),
-  preferredHospital: z.string().optional(),
-  insuranceProvider: z.string().optional(),
-  notes: z.string().optional(),
-});
-
-type EmergencyForm = z.infer<typeof schema>;
+type EmergencyForm = {
+  firstName: string;
+  lastName: string;
+  bloodGroup: string;
+  genotype: string;
+  allergies?: string;
+  currentMedications?: string;
+  chronicConditions?: string;
+  preferredHospital?: string;
+  insuranceProvider?: string;
+  notes?: string;
+};
 
 function splitList(value?: string) {
   return value
@@ -69,6 +68,7 @@ const EMPTY_CONTACT = {
 };
 
 export default function EmergencyEditScreen() {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
@@ -77,6 +77,23 @@ export default function EmergencyEditScreen() {
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
   const [contactError, setContactError] = useState<string | null>(null);
   const [lockSurfaceEnabled, setLockSurfaceEnabled] = useState(true);
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        firstName: z.string().min(1, t('emergency.edit.firstNameRequired')),
+        lastName: z.string().min(1, t('emergency.edit.lastNameRequired')),
+        bloodGroup: z.string().min(1, t('emergency.edit.bloodGroupRequired')),
+        genotype: z.string().min(1, t('emergency.edit.genotypeRequired')),
+        allergies: z.string().optional(),
+        currentMedications: z.string().optional(),
+        chronicConditions: z.string().optional(),
+        preferredHospital: z.string().optional(),
+        insuranceProvider: z.string().optional(),
+        notes: z.string().optional(),
+      }),
+    [t],
+  );
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.emergencyProfile, userId],
@@ -114,7 +131,7 @@ export default function EmergencyEditScreen() {
   const selectedGenotype = useWatch({ control, name: 'genotype' });
 
   if (query.isLoading) {
-    return <LoadingState title="Loading profile..." />;
+    return <LoadingState title={t('emergency.edit.loading')} />;
   }
 
   function addContact() {
@@ -123,7 +140,7 @@ export default function EmergencyEditScreen() {
     const relationship = draftContact.relationship.trim();
 
     if (!name || !phone || !relationship) {
-      setContactError('Name, phone, and relationship are required');
+      setContactError(t('emergency.edit.contactRequired'));
       return;
     }
 
@@ -131,7 +148,7 @@ export default function EmergencyEditScreen() {
       (contact) => contact.phone === phone && contact.name.toLowerCase() === name.toLowerCase(),
     );
     if (duplicate) {
-      setContactError('That contact is already on your list');
+      setContactError(t('emergency.edit.contactDuplicate'));
       return;
     }
 
@@ -163,8 +180,9 @@ export default function EmergencyEditScreen() {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
       router.back();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to save profile';
-      Alert.alert('Save failed', message);
+      const message =
+        error instanceof Error ? error.message : t('emergency.edit.saveFailedMessage');
+      Alert.alert(t('emergency.edit.saveFailed'), message);
     }
   }
 
@@ -182,16 +200,14 @@ export default function EmergencyEditScreen() {
           automaticallyAdjustKeyboardInsets
           contentInsetAdjustmentBehavior="automatic"
         >
-          <AppText variant="caption">
-            Saved locally first. Sync happens in the background when you are online.
-          </AppText>
+          <AppText variant="caption">{t('emergency.edit.hint')}</AppText>
 
           <Controller
             control={control}
             name="firstName"
             render={({ field }) => (
               <Input
-                placeholder="First name"
+                placeholder={t('emergency.fields.firstName')}
                 autoCapitalize="words"
                 {...field}
                 onChangeText={field.onChange}
@@ -203,7 +219,7 @@ export default function EmergencyEditScreen() {
             name="lastName"
             render={({ field }) => (
               <Input
-                placeholder="Last name"
+                placeholder={t('emergency.fields.lastName')}
                 autoCapitalize="words"
                 {...field}
                 onChangeText={field.onChange}
@@ -212,7 +228,7 @@ export default function EmergencyEditScreen() {
           />
 
           <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">Blood group</AppText>
+            <AppText variant="cardTitle">{t('emergency.fields.bloodGroup')}</AppText>
             <View style={styles.chipRow}>
               {BLOOD_GROUPS.map((group) => {
                 const selected = selectedBloodGroup === group;
@@ -235,7 +251,7 @@ export default function EmergencyEditScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">Genotype</AppText>
+            <AppText variant="cardTitle">{t('emergency.fields.genotype')}</AppText>
             <View style={styles.chipRow}>
               {GENOTYPES.map((genotype) => {
                 const selected = selectedGenotype === genotype;
@@ -262,7 +278,7 @@ export default function EmergencyEditScreen() {
             name="allergies"
             render={({ field }) => (
               <Input
-                placeholder="Allergies (comma separated)"
+                placeholder={t('emergency.fields.allergiesPlaceholder')}
                 {...field}
                 onChangeText={field.onChange}
               />
@@ -273,7 +289,7 @@ export default function EmergencyEditScreen() {
             name="currentMedications"
             render={({ field }) => (
               <Input
-                placeholder="Medications (comma separated)"
+                placeholder={t('emergency.fields.medicationsPlaceholder')}
                 {...field}
                 onChangeText={field.onChange}
               />
@@ -284,7 +300,7 @@ export default function EmergencyEditScreen() {
             name="chronicConditions"
             render={({ field }) => (
               <Input
-                placeholder="Chronic conditions (comma separated)"
+                placeholder={t('emergency.fields.conditionsPlaceholder')}
                 {...field}
                 onChangeText={field.onChange}
               />
@@ -294,28 +310,41 @@ export default function EmergencyEditScreen() {
             control={control}
             name="preferredHospital"
             render={({ field }) => (
-              <Input placeholder="Preferred hospital" {...field} onChangeText={field.onChange} />
+              <Input
+                placeholder={t('emergency.fields.hospital')}
+                {...field}
+                onChangeText={field.onChange}
+              />
             )}
           />
           <Controller
             control={control}
             name="insuranceProvider"
             render={({ field }) => (
-              <Input placeholder="Insurance provider" {...field} onChangeText={field.onChange} />
+              <Input
+                placeholder={t('emergency.fields.insurance')}
+                {...field}
+                onChangeText={field.onChange}
+              />
             )}
           />
           <Controller
             control={control}
             name="notes"
             render={({ field }) => (
-              <Input placeholder="Notes" multiline {...field} onChangeText={field.onChange} />
+              <Input
+                placeholder={t('emergency.fields.notes')}
+                multiline
+                {...field}
+                onChangeText={field.onChange}
+              />
             )}
           />
 
           <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">Emergency contacts</AppText>
+            <AppText variant="cardTitle">{t('emergency.fields.contacts')}</AppText>
             {contacts.length === 0 ? (
-              <AppText variant="caption">No contacts added yet.</AppText>
+              <AppText variant="caption">{t('emergency.edit.noContactsYet')}</AppText>
             ) : (
               contacts.map((contact, index) => (
                 <View
@@ -332,7 +361,7 @@ export default function EmergencyEditScreen() {
                   </View>
                   <Pressable onPress={() => removeContact(index)} hitSlop={8}>
                     <AppText variant="seeAll" color={colors.danger}>
-                      Remove
+                      {t('emergency.edit.remove')}
                     </AppText>
                   </Pressable>
                 </View>
@@ -340,7 +369,7 @@ export default function EmergencyEditScreen() {
             )}
 
             <Input
-              placeholder="Contact name"
+              placeholder={t('emergency.edit.contactName')}
               autoCapitalize="words"
               value={draftContact.name}
               onChangeText={(name) => {
@@ -349,7 +378,7 @@ export default function EmergencyEditScreen() {
               }}
             />
             <Input
-              placeholder="Relationship (e.g. Spouse, Parent)"
+              placeholder={t('emergency.edit.relationshipPlaceholder')}
               autoCapitalize="words"
               value={draftContact.relationship}
               onChangeText={(relationship) => {
@@ -358,7 +387,7 @@ export default function EmergencyEditScreen() {
               }}
             />
             <Input
-              placeholder="Phone number"
+              placeholder={t('emergency.edit.phoneNumber')}
               keyboardType="phone-pad"
               value={draftContact.phone}
               onChangeText={(phone) => {
@@ -371,16 +400,17 @@ export default function EmergencyEditScreen() {
                 {contactError}
               </AppText>
             ) : null}
-            <Button label="Add contact" variant="secondary" onPress={addContact} />
+            <Button
+              label={t('emergency.edit.addContact')}
+              variant="secondary"
+              onPress={addContact}
+            />
           </View>
 
           <View style={styles.lockRow}>
             <View style={styles.lockCopy}>
-              <AppText variant="cardTitle">Show on Lock Screen</AppText>
-              <AppText variant="caption">
-                Surfaces blood type and your first ICE contact on the CareMate widget (iOS Lock
-                Screen / Android Home Screen).
-              </AppText>
+              <AppText variant="cardTitle">{t('emergency.edit.lockScreenTitle')}</AppText>
+              <AppText variant="caption">{t('emergency.edit.lockScreenHint')}</AppText>
             </View>
             <Switch value={lockSurfaceEnabled} onValueChange={setLockSurfaceEnabled} />
           </View>
@@ -397,7 +427,7 @@ export default function EmergencyEditScreen() {
             </AppText>
           ) : null}
 
-          <Button label="Save Emergency Profile" onPress={handleSubmit(onSubmit)} />
+          <Button label={t('emergency.edit.save')} onPress={handleSubmit(onSubmit)} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

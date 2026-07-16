@@ -1,0 +1,28 @@
+{
+  "title": "Aprender",
+  "subtitle": "Orientación y noticias de salud de confianza para tu camino",
+  "articleCount": "{{count}} artículos",
+  "searchPlaceholder": "Buscar artículos",
+  "bookmarks": "Ver marcadores",
+  "featured": "Destacados",
+  "allTopics": "Todos los temas",
+  "loading": "Cargando artículos...",
+  "empty": {
+    "title": "No se encontraron artículos",
+    "categoryTitle": "No hay artículos de {{category}}",
+    "message": "Prueba otra búsqueda o categoría."
+  },
+  "bookmarksTitle": "Marcadores",
+  "bookmarksEmpty": {
+    "title": "Aún no hay marcadores",
+    "message": "Guarda artículos para leerlos sin conexión más tarde."
+  },
+  "article": "Artículo",
+  "news": "Noticias",
+  "backToLearn": "Volver a Aprender",
+  "goBack": "Volver",
+  "notFound": {
+    "title": "Artículo no encontrado",
+    "message": "Es posible que este artículo se haya eliminado."
+  }
+}

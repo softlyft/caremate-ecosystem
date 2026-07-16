@@ -5,7 +5,7 @@ import {
   type CheckupDefinition,
   type CheckupGenderFilter,
 } from '@/mini-apps/checkup-planner/constants';
-import { INTERNATIONAL_COUNTRY_CODE } from '@/constants/locations';
+import { localizationService } from '@/domains/localization';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 
 export type PlannerGender = 'female' | 'male' | 'other';
@@ -60,7 +60,7 @@ export function getAgeInYear(dateOfBirth: string, year: number): number {
 
 export function resolvePlannerRegion(regionCode: string | null | undefined): string {
   const code = regionCode?.trim().toUpperCase();
-  return code || INTERNATIONAL_COUNTRY_CODE;
+  return code || localizationService.internationalCountryCode;
 }
 
 function matchesGender(filter: CheckupGenderFilter, gender: PlannerGender): boolean {
@@ -78,7 +78,7 @@ function matchesRegion(checkup: CheckupDefinition, regionCode: string): boolean 
   if (!checkup.regions || checkup.regions.length === 0) {
     return true;
   }
-  if (regionCode === INTERNATIONAL_COUNTRY_CODE) {
+  if (regionCode === localizationService.internationalCountryCode) {
     // Region-specific tips stay hidden on pure INT unless they're universal.
     return false;
   }

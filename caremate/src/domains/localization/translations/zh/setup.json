@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "全部完成",
+    "title": "您已准备就绪",
+    "subtitle": "之后可从「我的」完成跳过的步骤。CareMate 会使用本设备上已保存的内容离线运行。",
+    "openHome": "打开首页",
+    "finishLater": " — 稍后再完成",
+    "checks": {
+      "countryLanguage": "国家和语言",
+      "location": "附近位置偏好",
+      "notifications": "通知偏好",
+      "emergency": "急救要点",
+      "family": "家庭设置"
+    }
+  },
+  "emergency": {
+    "title": "急救要点",
+    "subtitle": "血型、基因型和一位紧急联系人有助于急救人员。",
+    "skip": "暂时跳过",
+    "save": "保存并继续"
+  },
+  "familyPrompt": {
+    "title": "设置您的家庭？",
+    "subtitle": "添加孩子以便接种疫苗和共享护理工具。",
+    "setup": "设置家庭",
+    "notNow": "现在不"
+  },
+  "finishItems": {
+    "country": {
+      "title": "设置您的国家",
+      "subtitle": "获取您所在国家的本地健康资讯"
+    },
+    "accountEmergency": {
+      "title": "保存急救档案",
+      "subtitle": "创建账户以便同步您的离线卡"
+    },
+    "accountFamily": {
+      "title": "设置家庭护理",
+      "subtitle": "登录以添加孩子并共享家庭"
+    },
+    "emergency": {
+      "title": "完成急救要点",
+      "subtitle": "血型、基因型和一位紧急联系人"
+    },
+    "family": {
+      "title": "设置您的家庭",
+      "subtitle": "添加孩子以便接种疫苗和共享护理"
+    }
+  }
+}

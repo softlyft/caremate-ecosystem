@@ -5,9 +5,12 @@ import { StyleSheet, View } from 'react-native';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
 
 export function EmergencyBanner() {
+  const { t } = useTranslation();
+
   return (
     <PressableScale
       style={[styles.wrapper, shadow.card]}
@@ -27,15 +30,15 @@ export function EmergencyBanner() {
         </View>
         <View style={styles.copy}>
           <AppText variant="quickActionTitle" style={styles.title}>
-            Emergency health profile
+            {t('home.emergency.title')}
           </AppText>
           <AppText variant="quickActionSubtitle" style={styles.body}>
-            Keep vital info ready — allergies, meds, and contacts when seconds count.
+            {t('home.emergency.body')}
           </AppText>
         </View>
         <View style={styles.cta}>
           <AppText variant="button" style={{ color: palette.brandPurple }}>
-            Set up
+            {t('home.emergency.cta')}
           </AppText>
           <ChevronRight color={palette.brandPurple} size={16} strokeWidth={2.5} />
         </View>

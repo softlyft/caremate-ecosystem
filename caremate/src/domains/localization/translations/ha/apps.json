@@ -1,0 +1,32 @@
+{
+  "title": "Manhaja",
+  "subtitle": "Kayan aikin lafiya na mutum da ke aiki ba tare da intanet ba",
+  "readyCount": "Kayan aiki {{count}} sun shirya",
+  "comingSoon": "Yana zuwa nan ba da jimawa ba",
+  "registry": {
+    "medication-tracker": {
+      "name": "Mai Bi Diggin Magunguna",
+      "description": "Bi diggin magunguna, allurai na yau da kullum, da bin doka a gare ka ko iyalinka."
+    },
+    "checkup-planner": {
+      "name": "Mai Tsara Bincike",
+      "description": "Duba binciken likita da aka ba da shawara bisa shekaru, jinsi, da yanki."
+    },
+    "immunization-tracker": {
+      "name": "Mai Bi Diggin Alluran Rigakafi",
+      "description": "Bi diggin alluran, ranakun da suka cancanta, da bayanan alluran yaronka."
+    },
+    "pregnancy-tracker": {
+      "name": "Mai Bi Diggin Ciki",
+      "description": "Bi ciki naki mako-mako, rubuta alamomi, kuma bi diggin muhimman matakai."
+    },
+    "period-tracker": {
+      "name": "Mai Bi Diggin Haila",
+      "description": "Bi diggin zagaye, rubuta ranakun haila, kuma ga hasashe masu sauƙi."
+    }
+  },
+  "signInRequired": "Shiga don daidaita wannan kayan aiki a duk na'urori",
+  "save": "Ajiye",
+  "log": "Rubuta shigarwa",
+  "setup": "Saita"
+}

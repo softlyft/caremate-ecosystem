@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { getCountryName } from '@/constants/locations';
+import { localizationService, useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -22,12 +22,16 @@ import {
 import {
   buildYearSchedule,
   getAgeInYear,
-  getCadenceLabel,
-  getStatusLabel,
   getYearSummary,
   resolvePlannerRegion,
   type CheckupItemStatus,
 } from '@/mini-apps/checkup-planner/utils';
+import {
+  localizeCadence,
+  localizeCheckup,
+  localizeCheckupStatus,
+  localizeGender,
+} from '@/mini-apps/checkup-planner/localize';
 import { palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
@@ -47,6 +51,7 @@ const STATUS_BACKGROUNDS: Record<CheckupItemStatus, string> = {
 };
 
 export default function CheckupPlannerScreen() {
+  const { t } = useTranslation();
   const hydrated = useCheckupPlannerHydrated();
   const currentYear = useMemo(() => new Date().getFullYear(), []);
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -60,27 +65,39 @@ export default function CheckupPlannerScreen() {
   );
   const summary = getYearSummary(schedule);
   const region = resolvePlannerRegion(profile?.regionCode);
-  const regionLabel = region === 'INT' ? 'International' : (getCountryName(region) ?? region);
+  const regionLabel =
+    region === localizationService.internationalCountryCode
+      ? t('apps.checkup.ui.globalShort')
+      : (localizationService.getCountryName(region) ?? region);
   const age = profile ? getAgeInYear(profile.dateOfBirth, selectedYear) : null;
   const isNextYear = selectedYear === currentYear + 1;
 
   const heroTitle = profile
     ? summary.actionable > 0
-      ? `${summary.actionable} checkup${summary.actionable === 1 ? '' : 's'} for ${selectedYear}`
+      ? t(
+          summary.actionable === 1
+            ? 'apps.checkup.ui.actionableOne'
+            : 'apps.checkup.ui.actionableMany',
+          { count: summary.actionable, year: selectedYear },
+        )
       : summary.completed > 0
-        ? `${selectedYear} checkups on track`
-        : `Your ${selectedYear} plan`
-    : 'Plan your health checkups';
+        ? t('apps.checkup.ui.onTrack', { year: selectedYear })
+        : t('apps.checkup.ui.yearPlan', { year: selectedYear })
+    : t('apps.checkupPlanner.emptyTitle');
 
   const heroSubtitle = profile
-    ? `Age ${age} · ${profile.gender} · ${regionLabel}`
-    : 'Enter your date of birth, gender, and optional region to see recommended tests';
+    ? t('apps.checkup.ui.ageLine', {
+        age: age ?? 0,
+        gender: localizeGender(profile.gender, t),
+        region: regionLabel,
+      })
+    : t('apps.checkupPlanner.emptySubtitle');
 
   return (
     <MiniAppScreen>
       <MiniAppHero
         appId="checkup-planner"
-        eyebrow="Checkup Planner"
+        eyebrow={t('apps.checkupPlanner.eyebrow')}
         title={heroTitle}
         subtitle={heroSubtitle}
       />
@@ -88,14 +105,14 @@ export default function CheckupPlannerScreen() {
       {profile ? (
         <View style={styles.yearSwitcher}>
           <MiniAppChip
-            label={`This year (${currentYear})`}
+            label={t('apps.checkup.ui.thisYear', { year: currentYear })}
             selected={!isNextYear}
             accent={theme.color}
             soft={theme.backgroundColor}
             onPress={() => setSelectedYear(currentYear)}
           />
           <MiniAppChip
-            label={`Next year (${currentYear + 1})`}
+            label={t('apps.checkup.ui.nextYear', { year: currentYear + 1 })}
             selected={isNextYear}
             accent={theme.color}
             soft={theme.backgroundColor}
@@ -107,31 +124,37 @@ export default function CheckupPlannerScreen() {
       {profile ? (
         <MiniAppCard index={1} theme={theme}>
           <View style={styles.summaryRow}>
-            <AppText variant="body">Done</AppText>
+            <AppText variant="body">{t('apps.checkup.ui.done')}</AppText>
             <AppText variant="body">
-              {summary.completed} of {summary.total}
+              {t('apps.checkup.ui.ofTotal', { completed: summary.completed, total: summary.total })}
             </AppText>
           </View>
           <MiniAppProgress progress={summary.progress} accent={theme.color} />
           <AppText variant="caption" style={styles.muted}>
-            Guidance only — talk with a clinician for personal advice.
+            {t('apps.checkup.ui.guidance')}
           </AppText>
         </MiniAppCard>
       ) : null}
 
       {profile ? (
-        <MiniAppCard index={2} title={`${selectedYear} checklist`} theme={theme}>
+        <MiniAppCard
+          index={2}
+          title={t('apps.checkup.ui.checklist', { year: selectedYear })}
+          theme={theme}
+        >
           {schedule.length === 0 ? (
             <AppText variant="caption" style={styles.muted}>
-              No checkups listed for this year with your current profile.
+              {t('apps.checkup.ui.emptyYear')}
             </AppText>
           ) : (
             schedule.map((item) => (
               <MiniAppRow
                 key={item.checkup.id}
-                title={item.checkup.name}
-                subtitle={`${getCadenceLabel(item.checkup.cadence)}${
-                  item.completion ? ` · Done ${item.completion.completedDate}` : ` · Tap to log`
+                title={localizeCheckup(item.checkup, t).name}
+                subtitle={`${localizeCadence(item.checkup.cadence, t)}${
+                  item.completion
+                    ? ` · ${t('apps.checkup.ui.doneDate', { date: item.completion.completedDate })}`
+                    : ` · ${t('apps.checkup.ui.tapToLog')}`
                 }`}
                 soft={STATUS_BACKGROUNDS[item.status]}
                 onPress={() =>
@@ -142,7 +165,7 @@ export default function CheckupPlannerScreen() {
                 }
                 trailing={
                   <StatusPill
-                    label={getStatusLabel(item.status)}
+                    label={localizeCheckupStatus(item.status, t)}
                     color={STATUS_COLORS[item.status]}
                     background={STATUS_BACKGROUNDS[item.status]}
                   />
@@ -154,7 +177,9 @@ export default function CheckupPlannerScreen() {
       ) : null}
 
       <MiniAppCta
-        label={profile ? 'Edit profile' : 'Set up planner'}
+        label={
+          profile ? t('apps.checkupPlanner.editProfile') : t('apps.checkupPlanner.setUpPlanner')
+        }
         accent={theme.color}
         soft={theme.backgroundColor}
         index={3}

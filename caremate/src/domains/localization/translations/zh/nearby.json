@@ -1,0 +1,36 @@
+{
+  "title": "附近",
+  "subtitle": "查找您周围的医院、诊所、药店等",
+  "nearbyCount": "附近 {{count}} 家",
+  "searchPlaceholder": "搜索服务机构",
+  "loading": "正在加载服务机构...",
+  "empty": {
+    "title": "附近没有服务机构",
+    "message": "请尝试其他筛选或扩大搜索范围。",
+    "offline": "离线时显示已缓存的服务机构。"
+  },
+  "approximate": "正在使用大致位置",
+  "outsideArea": "超出您常去区域 — 结果可能有限",
+  "detail": {
+    "loading": "正在加载服务机构...",
+    "notFound": "未找到服务机构",
+    "unavailable": "详情不可用",
+    "favorite": "收藏",
+    "unfavorite": "取消收藏",
+    "call": "拨打",
+    "directions": "导航"
+  },
+  "map": {
+    "loading": "正在加载地图...",
+    "empty": "地图上暂无可用位置"
+  },
+  "types": {
+    "hospital": "医院",
+    "pharmacy": "药店",
+    "laboratory": "化验室",
+    "clinic": "诊所",
+    "telemedicine": "远程医疗",
+    "blood_bank": "血库",
+    "ambulance": "救护车"
+  }
+}

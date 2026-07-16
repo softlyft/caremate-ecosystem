@@ -1,0 +1,40 @@
+{
+  "title": "Pájáwìrì",
+  "loading": "Ń ṣàkójọpọ̀ profáìlì pájáwìrì...",
+  "empty": {
+    "title": "Kò sí profáìlì pájáwìrì síbẹ̀",
+    "message": "Ṣàfikún ẹ̀yà ẹ̀jẹ̀, àìlera sí nǹkan, àti àwọn olùbásọ̀rọ̀ ICE fún àwọn olùrànlọ́wọ́ àkọ́kọ́.",
+    "cta": "Ṣẹ̀dá profáìlì"
+  },
+  "fields": {
+    "fullName": "Orúkọ kíkún",
+    "bloodGroup": "Ẹ̀yà ẹ̀jẹ̀",
+    "genotype": "Genotype",
+    "allergies": "Àìlera sí nǹkan",
+    "medications": "Àwọn òògùn lọ́wọ́lọ́wọ́",
+    "conditions": "Àìsàn tó pẹ́",
+    "contacts": "Àwọn olùbásọ̀rọ̀ pájáwìrì",
+    "hospital": "Ilé-ìwòsàn tí o fẹ́",
+    "insurance": "Olùpèsè ìṣúra",
+    "notes": "Àkọsílẹ̀"
+  },
+  "edit": {
+    "title": "Ṣàtúnṣe profáìlì pájáwìrì",
+    "save": "Fi profáìlì pamọ́",
+    "addContact": "Ṣàfikún olùbásọ̀rọ̀",
+    "contactName": "Orúkọ olùbásọ̀rọ̀",
+    "contactPhone": "Fóònù",
+    "relationship": "Ìbáṣepọ̀"
+  },
+  "qr": {
+    "title": "QR pájáwìrì",
+    "empty": "Ṣẹ̀dá profáìlì pájáwìrì náà kọ́kọ́"
+  },
+  "lock": {
+    "title": "Káàdì pájáwìrì",
+    "call": "Pè ICE",
+    "help": "Fi káàdì yìí hàn tí o kò bá le sọ̀rọ̀ fún ara rẹ."
+  },
+  "widget": "Ṣe àtúnṣe widget ojú ìṣèlọ́wọ́",
+  "preview": "Wò ojú ìṣèlọ́wọ́"
+}

@@ -11,12 +11,14 @@ import {
   CompactArticleCard,
   FeaturedArticleCard,
 } from '@/domains/articles/components/ArticleCards';
+import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { articleRepository } from '@/domains/articles/repository';
 import { spacing } from '@/theme/colors';
 import type { Article } from '@/types';
 
 export default function ArticleCategoryScreen() {
+  const { t } = useTranslation();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
@@ -45,14 +47,14 @@ export default function ArticleCategoryScreen() {
   }, [articlesQuery.data]);
 
   if (categoriesQuery.isLoading || articlesQuery.isLoading) {
-    return <LoadingState title="Loading category..." />;
+    return <LoadingState title={t('learn.loadingCategory')} />;
   }
 
   return (
     <Screen>
-      <AppText variant="screenTitle">{category?.name ?? 'Category'}</AppText>
+      <AppText variant="screenTitle">{category?.name ?? t('learn.category')}</AppText>
       {featured === null && rest.length === 0 ? (
-        <EmptyState title="No articles in this category" />
+        <EmptyState title={t('learn.categoryEmpty')} />
       ) : (
         <FlatList
           data={rest}

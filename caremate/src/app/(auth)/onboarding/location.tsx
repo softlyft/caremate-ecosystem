@@ -22,11 +22,13 @@ import {
   OnboardingShell,
 } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
+import { useTranslation } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[3];
 
 export default function OnboardingLocationScreen() {
+  const { t } = useTranslation();
   const setLocationMode = useOnboardingDraftStore((s) => s.setLocationMode);
   const skipLocation = useOnboardingDraftStore((s) => s.skipLocation);
   const [busy, setBusy] = useState(false);
@@ -70,9 +72,9 @@ export default function OnboardingLocationScreen() {
 
   return (
     <OnboardingShell
-      step={3}
-      title="Find care nearby"
-      subtitle="Use precise GPS for the best matches, or keep an approximate Lagos-area pin."
+      step={4}
+      title={t('onboarding.location.title')}
+      subtitle={t('onboarding.location.subtitle')}
       onSkip={useApproximate}
       hero={
         <View style={[styles.heroShell, shadow.card]}>
@@ -94,13 +96,13 @@ export default function OnboardingLocationScreen() {
       footer={
         <>
           <OnboardingPrimaryButton
-            label={busy ? 'Checking…' : 'Enable location'}
+            label={busy ? t('onboarding.location.checking') : t('onboarding.location.enable')}
             accent={theme.accent}
             disabled={busy}
             onPress={() => void enablePrecise()}
           />
           <OnboardingSecondaryButton
-            label="Use approximate location"
+            label={t('onboarding.location.approximateCta')}
             accent={theme.accent}
             soft={theme.soft}
             disabled={busy}
@@ -120,10 +122,10 @@ export default function OnboardingLocationScreen() {
           </View>
           <View style={styles.optionCopy}>
             <AppText variant="cardTitle" style={{ color: theme.title }}>
-              Precise
+              {t('onboarding.location.precise.title')}
             </AppText>
             <AppText variant="caption" style={styles.optionHint}>
-              Best ranking for hospitals and clinics around you
+              {t('onboarding.location.precise.hint')}
             </AppText>
           </View>
         </PressableScale>
@@ -138,10 +140,10 @@ export default function OnboardingLocationScreen() {
           </View>
           <View style={styles.optionCopy}>
             <AppText variant="cardTitle" style={{ color: theme.title }}>
-              Approximate
+              {t('onboarding.location.approximate.title')}
             </AppText>
             <AppText variant="caption" style={styles.optionHint}>
-              Lagos-area fallback — change anytime later
+              {t('onboarding.location.approximate.hint')}
             </AppText>
           </View>
         </PressableScale>

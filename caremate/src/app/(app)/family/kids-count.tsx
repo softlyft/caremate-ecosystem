@@ -6,9 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input } from '@/components/ui/form-controls';
 import { useFamilySetupStore } from '@/domains/family';
+import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function FamilyKidsCountScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const childCount = useFamilySetupStore((s) => s.childCount);
   const setChildCount = useFamilySetupStore((s) => s.setChildCount);
@@ -30,17 +32,17 @@ export default function FamilyKidsCountScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       keyboardShouldPersistTaps="handled"
     >
-      <AppText variant="sectionTitle">How many kids?</AppText>
-      <AppText variant="subtitle">You can add more children later from your family hub.</AppText>
+      <AppText variant="sectionTitle">{t('family.kidsCount.title')}</AppText>
+      <AppText variant="subtitle">{t('family.kidsCount.subtitle')}</AppText>
 
       <View style={styles.card}>
         <Input
-          placeholder="Number of kids"
+          placeholder={t('family.kidsCount.placeholder')}
           keyboardType="number-pad"
           value={value}
           onChangeText={setValue}
         />
-        <Button label="Continue" onPress={continueNext} />
+        <Button label={t('common.continue')} onPress={continueNext} />
       </View>
     </ScrollView>
   );

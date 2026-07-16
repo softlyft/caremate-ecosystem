@@ -9,6 +9,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useFamilySetupStore } from '@/domains/family';
+import { useTranslation } from '@/domains/localization';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = palette.brandBlue;
@@ -17,6 +18,7 @@ const SOFT_END = '#EFF6FF';
 const TITLE = palette.brandBlue;
 
 export default function FamilySetupScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const setIsParent = useFamilySetupStore((s) => s.setIsParent);
 
@@ -42,14 +44,13 @@ export default function FamilySetupScreen() {
                 </View>
               </View>
               <AppText variant="caption" style={styles.heroEyebrow}>
-                Family setup
+                {t('family.setup.eyebrow')}
               </AppText>
               <AppText variant="screenTitle" style={styles.heroTitle}>
-                Are you a parent?
+                {t('family.setup.parentTitle')}
               </AppText>
               <AppText variant="subtitle" style={styles.heroSubtitle}>
-                If yes, we will help you add your kids and optionally connect your spouse. Each
-                parent keeps their own CareMate profile and health data.
+                {t('family.setup.parentSubtitle')}
               </AppText>
             </LinearGradientFill>
           </View>
@@ -65,7 +66,7 @@ export default function FamilySetupScreen() {
               }}
             >
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                Yes, I&apos;m a parent
+                {t('family.setup.yesParent')}
               </AppText>
             </PressableScale>
             <PressableScale
@@ -76,7 +77,7 @@ export default function FamilySetupScreen() {
               }}
             >
               <AppText variant="button" style={styles.secondaryCtaLabel}>
-                Not right now
+                {t('family.setup.notRightNow')}
               </AppText>
             </PressableScale>
           </View>

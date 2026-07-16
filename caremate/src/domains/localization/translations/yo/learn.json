@@ -1,0 +1,28 @@
+{
+  "title": "Kọ́",
+  "subtitle": "Ìmọ̀ràn ìlera tí a gbẹ́kẹ̀lé àti ìròyìn tí a yàn fún ìrìnàjò rẹ",
+  "articleCount": "Àpilẹ̀kọ {{count}}",
+  "searchPlaceholder": "Wá àwọn àpilẹ̀kọ",
+  "bookmarks": "Wo àwọn àmì-ìwé",
+  "featured": "Tí a yàn",
+  "allTopics": "Gbogbo kókó",
+  "loading": "Ń ṣàkójọpọ̀ àwọn àpilẹ̀kọ...",
+  "empty": {
+    "title": "A kò rí àpilẹ̀kọ kan",
+    "categoryTitle": "Kò sí àpilẹ̀kọ {{category}}",
+    "message": "Gbìyànjú ìwárí mìíràn tàbí ẹ̀ka mìíràn."
+  },
+  "bookmarksTitle": "Àwọn àmì-ìwé",
+  "bookmarksEmpty": {
+    "title": "Kò sí àmì-ìwé síbẹ̀",
+    "message": "Fi àwọn àpilẹ̀kọ pamọ́ láti kà wọ́n láìsí ayélujára lẹ́yìn."
+  },
+  "article": "Àpilẹ̀kọ",
+  "news": "Ìròyìn",
+  "backToLearn": "Padà sí Kọ́",
+  "goBack": "Padà sẹ́yìn",
+  "notFound": {
+    "title": "A kò rí àpilẹ̀kọ náà",
+    "message": "Ó ṣeé ṣe kí a ti yọ àpilẹ̀kọ yìí kúrò."
+  }
+}

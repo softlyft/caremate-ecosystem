@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -22,13 +23,17 @@ import {
   buildDaySlots,
   formatDisplayDate,
   getDaySummary,
-  getFrequencyLabel,
-  getMedicationPatientLabel,
-  getStatusLabel,
   toDateKey,
   type DoseSlotStatus,
   type Medication,
 } from '@/mini-apps/medication-tracker/utils';
+import {
+  localizeDoseSlotLabel,
+  localizeFrequencyLabel,
+  localizeMedicationPatient,
+  localizeMedicationStatus,
+} from '@/mini-apps/medication-tracker/localize';
+import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -61,6 +66,7 @@ function normalizeMed(medication: Medication): Medication {
 }
 
 export default function MedicationTrackerScreen() {
+  const { t } = useTranslation();
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const hydrated = useMedicationTrackerHydrated();
@@ -77,11 +83,11 @@ export default function MedicationTrackerScreen() {
     const kids = new Map<string, string>();
     for (const medication of medications) {
       if (medication.forKid && medication.familyMemberId) {
-        kids.set(medication.familyMemberId, getMedicationPatientLabel(medication));
+        kids.set(medication.familyMemberId, localizeMedicationPatient(medication, t));
       }
     }
     return Array.from(kids.entries()).map(([id, name]) => ({ id, name }));
-  }, [medications]);
+  }, [medications, t]);
 
   const filteredMedications = useMemo(() => {
     if (patientFilter === 'all') {
@@ -111,25 +117,30 @@ export default function MedicationTrackerScreen() {
 
   const heroTitle = hasMedications
     ? summary.expected > 0
-      ? `${summary.taken} of ${summary.expected} doses taken today`
+      ? t('apps.medication.ui.dosesTakenToday', {
+          taken: summary.taken,
+          expected: summary.expected,
+        })
       : summary.taken > 0
-        ? `${summary.taken} as-needed dose${summary.taken === 1 ? '' : 's'} logged today`
-        : 'Nothing scheduled for today'
-    : 'Track your medications';
+        ? t(pluralKey('apps.medication.ui.asNeededLoggedToday', summary.taken), {
+            count: summary.taken,
+          })
+        : t('apps.medication.ui.nothingToday')
+    : t('apps.medicationTracker.emptyTitle');
 
   const heroSubtitle = hasMedications
     ? summary.due > 0
-      ? `${summary.due} dose${summary.due === 1 ? '' : 's'} still due today`
+      ? t(pluralKey('apps.medication.ui.dosesStillDue', summary.due), { count: summary.due })
       : summary.missed > 0
-        ? 'Catch up on any missed doses from earlier'
-        : 'You are up to date for today'
-    : 'Add medicines for yourself or your kids, then log each dose';
+        ? t('apps.medication.ui.catchUp')
+        : t('apps.medication.ui.upToDate')
+    : t('apps.medicationTracker.emptySubtitle');
 
   return (
     <MiniAppScreen>
       <MiniAppHero
         appId="medication-tracker"
-        eyebrow="Medication"
+        eyebrow={t('apps.medicationTracker.eyebrow')}
         title={heroTitle}
         subtitle={heroSubtitle}
       />
@@ -142,8 +153,8 @@ export default function MedicationTrackerScreen() {
         >
           {(
             [
-              { id: 'all' as const, label: 'All' },
-              { id: 'self' as const, label: 'You' },
+              { id: 'all' as const, label: t('common.all') },
+              { id: 'self' as const, label: t('apps.medication.ui.you') },
               ...patientChips.map((kid) => ({ id: kid.id as PatientFilter, label: kid.name })),
             ] as { id: PatientFilter; label: string }[]
           ).map((chip) => (
@@ -162,11 +173,11 @@ export default function MedicationTrackerScreen() {
       {hasMedications ? (
         <MiniAppCard index={1} theme={theme}>
           <View style={styles.summaryRow}>
-            <AppText variant="body">Today</AppText>
+            <AppText variant="body">{t('apps.medication.ui.today')}</AppText>
             <AppText variant="body">{formatDisplayDate(todayKey)}</AppText>
           </View>
           <View style={styles.summaryRow}>
-            <AppText variant="body">Active medicines</AppText>
+            <AppText variant="body">{t('apps.medication.ui.activeMedicines')}</AppText>
             <AppText variant="body">{activeMeds.length}</AppText>
           </View>
           {summary.expected > 0 ? (
@@ -176,26 +187,26 @@ export default function MedicationTrackerScreen() {
       ) : null}
 
       {hasMedications ? (
-        <MiniAppCard index={2} title="Today's doses" theme={theme}>
+        <MiniAppCard index={2} title={t('apps.medicationTracker.todaysDoses')} theme={theme}>
           {todaySlots.length === 0 ? (
             <AppText variant="caption" style={styles.muted}>
-              No doses scheduled for today in this filter. Add a medicine or check start dates.
+              {t('apps.medication.ui.emptyFilter')}
             </AppText>
           ) : (
             todaySlots.map((slot) => {
               const key = `${slot.medication.id}-${slot.slotIndex}-${slot.log?.id ?? 'open'}`;
               const canToggle =
                 slot.status === 'due' || slot.status === 'taken' || slot.status === 'as-needed';
-              const patient = getMedicationPatientLabel(normalizeMed(slot.medication));
+              const patient = localizeMedicationPatient(normalizeMed(slot.medication), t);
               return (
                 <MiniAppRow
                   key={key}
                   title={`${slot.medication.name}${slot.medication.dosage ? ` · ${slot.medication.dosage}` : ''}`}
-                  subtitle={`${patient} · ${slot.slotLabel}${
+                  subtitle={`${patient} · ${localizeDoseSlotLabel(slot, t)}${
                     slot.status === 'taken'
-                      ? ' · Tap to undo'
+                      ? ` · ${t('apps.medication.ui.tapToUndo')}`
                       : canToggle
-                        ? ' · Tap to mark taken'
+                        ? ` · ${t('apps.medication.ui.tapToMarkTaken')}`
                         : ''
                   }`}
                   soft={STATUS_BACKGROUNDS[slot.status]}
@@ -216,7 +227,7 @@ export default function MedicationTrackerScreen() {
                   }
                   trailing={
                     <StatusPill
-                      label={getStatusLabel(slot.status)}
+                      label={localizeMedicationStatus(slot.status, t)}
                       color={STATUS_COLORS[slot.status]}
                       background={STATUS_BACKGROUNDS[slot.status]}
                     />
@@ -229,14 +240,14 @@ export default function MedicationTrackerScreen() {
       ) : null}
 
       {hasMedications ? (
-        <MiniAppCard index={3} title="Medicines" theme={theme}>
+        <MiniAppCard index={3} title={t('apps.medicationTracker.medicines')} theme={theme}>
           {filteredMedications.map((medication) => (
             <MiniAppRow
               key={medication.id}
-              title={`${medication.name}${!medication.active ? ' (paused)' : ''}`}
-              subtitle={`${getMedicationPatientLabel(medication)}${
+              title={`${medication.name}${!medication.active ? ` ${t('apps.medication.ui.pausedSuffix')}` : ''}`}
+              subtitle={`${localizeMedicationPatient(medication, t)}${
                 medication.dosage ? ` · ${medication.dosage}` : ''
-              } · ${getFrequencyLabel(medication.frequency)}`}
+              } · ${localizeFrequencyLabel(medication.frequency, t)}`}
               soft={theme.backgroundColor}
               onPress={() =>
                 router.push({
@@ -246,7 +257,7 @@ export default function MedicationTrackerScreen() {
               }
               trailing={
                 <AppText variant="caption" style={{ color: theme.color, fontWeight: '600' }}>
-                  Edit
+                  {t('apps.edit')}
                 </AppText>
               }
             />
@@ -255,7 +266,7 @@ export default function MedicationTrackerScreen() {
       ) : null}
 
       <MiniAppCta
-        label="Add medicine"
+        label={t('apps.medicationTracker.addMedicine')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}
@@ -268,7 +279,7 @@ export default function MedicationTrackerScreen() {
       />
       {hasMedications ? (
         <MiniAppCta
-          label="Log a dose"
+          label={t('apps.medicationTracker.logDose')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary

@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react
 import { Minus, Plus } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -12,18 +13,22 @@ import {
   MiniAppScreen,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import { MOOD_OPTIONS, SYMPTOM_OPTIONS } from '@/mini-apps/pregnancy-tracker/constants';
 import {
   getTodayLog,
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
+import {
+  localizeMoodOptions,
+  localizeSymptomOptions,
+} from '@/mini-apps/pregnancy-tracker/localize';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 
 const APP_ID = 'pregnancy-tracker' as const;
 
 export default function PregnancyLogScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const todayKey = useMemo(() => toDateKey(new Date()), []);
   const hydrated = usePregnancyTrackerHydrated();
@@ -56,42 +61,42 @@ export default function PregnancyLogScreen() {
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow="Daily log"
-        title="How are you feeling?"
-        subtitle="Log how you're feeling today. This helps you spot patterns over time."
+        eyebrow={t('apps.pregnancy.ui.dailyLog')}
+        title={t('apps.pregnancy.ui.howFeeling')}
+        subtitle={t('apps.pregnancy.ui.howFeelingSubtitle')}
       />
 
-      <MiniAppCard index={1} title="Mood" theme={theme}>
+      <MiniAppCard index={1} title={t('apps.pregnancy.ui.mood')} theme={theme}>
         <View style={styles.chipRow}>
-          {MOOD_OPTIONS.map((option) => (
+          {localizeMoodOptions(t).map((option) => (
             <MiniAppChip
-              key={option}
-              label={option}
-              selected={mood === option}
+              key={option.id}
+              label={option.label}
+              selected={mood === option.id}
               accent={theme.color}
               soft={theme.backgroundColor}
-              onPress={() => setMood(mood === option ? undefined : option)}
+              onPress={() => setMood(mood === option.id ? undefined : option.id)}
             />
           ))}
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={2} title="Symptoms" theme={theme}>
+      <MiniAppCard index={2} title={t('apps.pregnancy.ui.symptoms')} theme={theme}>
         <View style={styles.chipRow}>
-          {SYMPTOM_OPTIONS.map((option) => (
+          {localizeSymptomOptions(t).map((option) => (
             <MiniAppChip
-              key={option}
-              label={option}
-              selected={symptoms.includes(option)}
+              key={option.id}
+              label={option.label}
+              selected={symptoms.includes(option.id)}
               accent={theme.color}
               soft={theme.backgroundColor}
-              onPress={() => toggleSymptom(option)}
+              onPress={() => toggleSymptom(option.id)}
             />
           ))}
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={3} title="Baby kicks" theme={theme}>
+      <MiniAppCard index={3} title={t('apps.pregnancy.ui.babyKicks')} theme={theme}>
         <View style={styles.counterRow}>
           <Pressable
             style={[styles.counterButton, { borderColor: theme.color }]}
@@ -110,15 +115,15 @@ export default function PregnancyLogScreen() {
           </Pressable>
         </View>
         <AppText variant="caption" style={styles.muted}>
-          Tap + each time you feel movement
+          {t('apps.pregnancy.ui.tapKickHint')}
         </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={4} title="Notes" theme={theme}>
+      <MiniAppCard index={4} title={t('apps.pregnancy.ui.notes')} theme={theme}>
         <TextInput
           value={notes}
           onChangeText={setNotes}
-          placeholder="How are you feeling? Any questions for your next visit?"
+          placeholder={t('apps.pregnancy.ui.notesPlaceholder')}
           multiline
           style={styles.notesInput}
           textAlignVertical="top"
@@ -127,7 +132,7 @@ export default function PregnancyLogScreen() {
       </MiniAppCard>
 
       <MiniAppCta
-        label="Save log"
+        label={t('apps.pregnancyTracker.saveLog')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={5}

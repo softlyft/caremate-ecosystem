@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -26,11 +27,13 @@ import {
   usePeriodTrackerHydrated,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
+import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, radius, spacing } from '@/theme';
 
 const APP_ID = 'period-tracker' as const;
 
 export default function PeriodTrackerScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
@@ -55,21 +58,25 @@ export default function PeriodTrackerScreen() {
   const heroSubtitle =
     daysUntil !== null
       ? daysUntil === 0
-        ? 'Your next period may start today'
-        : `About ${daysUntil} day${daysUntil === 1 ? '' : 's'} until your next period`
-      : 'Log your last period to see predictions';
+        ? t('apps.period.ui.nextMayStartToday')
+        : t(pluralKey('apps.period.ui.daysUntilPeriod', daysUntil), { count: daysUntil })
+      : t('apps.periodTracker.emptySubtitle');
 
   return (
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow="Today"
-        title={cycleDay ? `Day ${cycleDay} of your cycle` : 'Start tracking your cycle'}
+        eyebrow={t('apps.periodTracker.eyebrow')}
+        title={
+          cycleDay
+            ? t('apps.period.ui.dayOfCycle', { day: cycleDay })
+            : t('apps.periodTracker.emptyTitle')
+        }
         subtitle={heroSubtitle}
         trailing={
           cycleDay ? (
             <StatusPill
-              label={`Day ${cycleDay}`}
+              label={t('apps.period.ui.dayPill', { day: cycleDay })}
               color={theme.color}
               background={`${theme.color}22`}
             />
@@ -77,7 +84,7 @@ export default function PeriodTrackerScreen() {
         }
       />
 
-      <MiniAppCard index={1} title="This week" theme={theme}>
+      <MiniAppCard index={1} title={t('apps.period.ui.thisWeek')} theme={theme}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -122,7 +129,7 @@ export default function PeriodTrackerScreen() {
         </ScrollView>
       </MiniAppCard>
 
-      <MiniAppCard index={2} eyebrow="Calendar" theme={theme}>
+      <MiniAppCard index={2} eyebrow={t('apps.period.ui.calendar')} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -166,35 +173,43 @@ export default function PeriodTrackerScreen() {
         <View style={styles.legend}>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: theme.color }]} />
-            <AppText variant="caption">Logged period</AppText>
+            <AppText variant="caption">{t('apps.period.ui.loggedPeriod')}</AppText>
           </View>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, styles.predictedDay]} />
-            <AppText variant="caption">Predicted</AppText>
+            <AppText variant="caption">{t('apps.period.ui.predicted')}</AppText>
           </View>
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={3} title="Cycle summary" theme={theme}>
+      <MiniAppCard index={3} title={t('apps.period.ui.cycleSummary')} theme={theme}>
         <MiniAppRow
-          title="Average cycle"
+          title={t('apps.period.ui.averageCycle')}
           soft={theme.backgroundColor}
-          trailing={<AppText variant="body">{cycleLength} days</AppText>}
+          trailing={
+            <AppText variant="body">
+              {t('apps.period.ui.daysCount', { count: cycleLength })}
+            </AppText>
+          }
         />
         <MiniAppRow
-          title="Period length"
+          title={t('apps.period.ui.periodLength')}
           soft={theme.backgroundColor}
-          trailing={<AppText variant="body">{periodLength} days</AppText>}
+          trailing={
+            <AppText variant="body">
+              {t('apps.period.ui.daysCount', { count: periodLength })}
+            </AppText>
+          }
         />
         <MiniAppRow
-          title="Logged days"
+          title={t('apps.period.ui.loggedDays')}
           soft={theme.backgroundColor}
           trailing={<AppText variant="body">{loggedPeriodDays.length}</AppText>}
         />
       </MiniAppCard>
 
       <MiniAppCta
-        label="Log Period Days"
+        label={t('apps.periodTracker.logPeriodDays')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}

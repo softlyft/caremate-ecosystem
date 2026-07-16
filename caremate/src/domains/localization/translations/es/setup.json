@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "Todo listo",
+    "title": "Ya estás listo",
+    "subtitle": "Termina más tarde lo que omitiste desde Perfil. CareMate funciona sin conexión con lo que has guardado en este dispositivo.",
+    "openHome": "Abrir Inicio",
+    "finishLater": " — terminar más tarde",
+    "checks": {
+      "countryLanguage": "País e idioma",
+      "location": "Preferencia de ubicación cercana",
+      "notifications": "Preferencia de notificaciones",
+      "emergency": "Esenciales de emergencia",
+      "family": "Configuración familiar"
+    }
+  },
+  "emergency": {
+    "title": "Esenciales de emergencia",
+    "subtitle": "Grupo sanguíneo, genotipo y un contacto ICE ayudan a los primeros respondedores.",
+    "skip": "Omitir por ahora",
+    "save": "Guardar y continuar"
+  },
+  "familyPrompt": {
+    "title": "¿Configurar tu hogar?",
+    "subtitle": "Añade niños para vacunación y herramientas de cuidado compartido.",
+    "setup": "Configurar familia",
+    "notNow": "Ahora no"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Define tu país",
+      "subtitle": "Recibe noticias de salud locales de tu país"
+    },
+    "accountEmergency": {
+      "title": "Guarda un perfil de emergencia",
+      "subtitle": "Crea una cuenta para sincronizar tu tarjeta sin conexión"
+    },
+    "accountFamily": {
+      "title": "Configura cuidados familiares",
+      "subtitle": "Inicia sesión para añadir niños y compartir un hogar"
+    },
+    "emergency": {
+      "title": "Completa los esenciales de emergencia",
+      "subtitle": "Grupo sanguíneo, genotipo y un contacto ICE"
+    },
+    "family": {
+      "title": "Configura tu hogar",
+      "subtitle": "Añade niños para vacunación y cuidados compartidos"
+    }
+  }
+}

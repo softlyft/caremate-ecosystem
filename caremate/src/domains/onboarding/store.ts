@@ -5,14 +5,15 @@ import type { LocationMode, OnboardingPriorityId } from './types';
 interface OnboardingDraftState {
   priorities: OnboardingPriorityId[];
   countryCode: string | null;
+  languageCode: string | null;
   state: string;
   locationMode: LocationMode | null;
   notificationsEnabled: boolean;
-  regionSkipped: boolean;
   locationSkipped: boolean;
   togglePriority: (id: OnboardingPriorityId) => void;
-  setRegion: (countryCode: string | null, state: string) => void;
-  skipRegion: () => void;
+  setCountry: (countryCode: string) => void;
+  setLanguage: (languageCode: string) => void;
+  setState: (state: string) => void;
   setLocationMode: (mode: LocationMode) => void;
   skipLocation: () => void;
   setNotificationsEnabled: (enabled: boolean) => void;
@@ -22,10 +23,10 @@ interface OnboardingDraftState {
 const initial = {
   priorities: [] as OnboardingPriorityId[],
   countryCode: null as string | null,
+  languageCode: null as string | null,
   state: '',
   locationMode: null as LocationMode | null,
   notificationsEnabled: true,
-  regionSkipped: false,
   locationSkipped: false,
 };
 
@@ -38,19 +39,9 @@ export const useOnboardingDraftStore = create<OnboardingDraftState>((set, get) =
     set({ priorities: next });
   },
 
-  setRegion: (countryCode, state) =>
-    set({
-      countryCode,
-      state,
-      regionSkipped: false,
-    }),
-
-  skipRegion: () =>
-    set({
-      countryCode: null,
-      state: '',
-      regionSkipped: true,
-    }),
+  setCountry: (countryCode) => set({ countryCode }),
+  setLanguage: (languageCode) => set({ languageCode }),
+  setState: (state) => set({ state }),
 
   setLocationMode: (mode) =>
     set({

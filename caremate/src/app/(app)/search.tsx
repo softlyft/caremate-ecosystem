@@ -23,13 +23,16 @@ import {
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { useTranslation } from '@/domains/localization';
 import { formatProviderType } from '@/domains/providers/types';
 import { normalizeSearchQuery, runGlobalSearch } from '@/domains/search';
+import { getMiniAppLabel } from '@/mini-apps/_kit/registry';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 import { fontFamily, textColors } from '@/theme/typography';
 
 export default function SearchScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
   const [query, setQuery] = useState('');
@@ -181,6 +184,7 @@ export default function SearchScreen() {
           <Section title="Tools" icon={LayoutGrid}>
             {results.tools.map((tool) => {
               const Icon = tool.icon;
+              const { name, description } = getMiniAppLabel(tool.id, t);
               return (
                 <Pressable key={tool.id} style={styles.row} onPress={() => router.push(tool.route)}>
                   <View style={styles.toolRow}>
@@ -188,9 +192,9 @@ export default function SearchScreen() {
                       <Icon color={tool.color} size={18} />
                     </View>
                     <View style={styles.toolCopy}>
-                      <AppText variant="cardTitle">{tool.name}</AppText>
+                      <AppText variant="cardTitle">{name}</AppText>
                       <AppText variant="caption" numberOfLines={2}>
-                        {tool.description}
+                        {description}
                       </AppText>
                     </View>
                   </View>

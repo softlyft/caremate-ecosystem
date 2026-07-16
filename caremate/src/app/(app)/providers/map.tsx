@@ -4,12 +4,14 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { useTranslation } from '@/domains/localization';
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
 export default function ProvidersMapScreen() {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
 
   const coordsQuery = useQuery({
@@ -36,20 +38,17 @@ export default function ProvidersMapScreen() {
   });
 
   if (coordsQuery.isLoading || query.isLoading) {
-    return <LoadingState title="Loading map data..." />;
+    return <LoadingState title={t('nearby.map.loading')} />;
   }
 
   const providers = query.data?.providers ?? [];
 
   return (
     <Screen>
-      <AppText variant="sectionTitle">Nearby Providers</AppText>
-      <AppText variant="caption">
-        Native map integration can be added with `react-native-maps`. This screen lists nearby
-        provider coordinates from the geo API (or local cache offline).
-      </AppText>
+      <AppText variant="sectionTitle">{t('nearby.map.title')}</AppText>
+      <AppText variant="caption">{t('nearby.map.subtitle')}</AppText>
       {providers.length === 0 ? (
-        <EmptyState title="No providers to display" />
+        <EmptyState title={t('nearby.map.empty')} />
       ) : (
         <FlatList
           data={providers}

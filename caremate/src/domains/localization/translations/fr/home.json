@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Bonjour",
+    "afternoon": "Bon après-midi",
+    "evening": "Bonsoir"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Votre parcours santé, clairement organisé",
+  "emergency": {
+    "title": "Profil d'urgence",
+    "body": "Gardez groupe sanguin, allergies et contacts ICE prêts hors ligne.",
+    "cta": "Configurer"
+  },
+  "featuredArticles": {
+    "title": "Pour vous",
+    "subtitle": "Articles et conseils santé de confiance"
+  },
+  "healthCategories": {
+    "title": "Parcourir les thèmes",
+    "subtitle": "Trouvez des conseils par domaine de santé"
+  },
+  "nearby": {
+    "title": "Soins à proximité",
+    "subtitle": "Hôpitaux, cliniques et pharmacies autour de vous"
+  },
+  "dailyTip": {
+    "label": "Conseil du jour"
+  },
+  "searchA11y": "Rechercher dans CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Urgence",
+      "subtitle": "Carte santé hors ligne"
+    },
+    "nearby": {
+      "title": "À proximité",
+      "subtitle": "Trouver des soins près de vous"
+    },
+    "symptoms": {
+      "title": "Apprendre",
+      "subtitle": "Articles santé"
+    },
+    "medication": {
+      "title": "Médicaments",
+      "subtitle": "Suivre les doses"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Hôpitaux",
+    "pharmacy": "Pharmacies",
+    "laboratory": "Laboratoires",
+    "clinic": "Cliniques",
+    "telemedicine": "Télémédecine",
+    "blood_bank": "Banques de sang",
+    "ambulance": "Ambulance"
+  }
+}

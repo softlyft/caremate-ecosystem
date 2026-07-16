@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Ụtụtụ ọma",
+    "afternoon": "Ehihie ọma",
+    "evening": "Mgbede ọma"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Njem ahụike gị, ahaziri nke ọma",
+  "emergency": {
+    "title": "Profaịlụ mberede",
+    "body": "Debe ụdị ọbara, allergies, na kọntaktị ICE dị njikere na-enweghị ịntanetị.",
+    "cta": "Hazie"
+  },
+  "featuredArticles": {
+    "title": "Maka gị",
+    "subtitle": "Akụkọ ahụike a tụkwasịrị obi na ndụmọdụ"
+  },
+  "healthCategories": {
+    "title": "Chọgharịa isiokwu",
+    "subtitle": "Chọta nduzi site na mpaghara ahụike"
+  },
+  "nearby": {
+    "title": "Nlekọta nso",
+    "subtitle": "Ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị"
+  },
+  "dailyTip": {
+    "label": "Nghọta kwa ụbọchị"
+  },
+  "searchA11y": "Chọọ CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Mberede",
+      "subtitle": "Kaadị ahụike na-enweghị ịntanetị"
+    },
+    "nearby": {
+      "title": "Nso",
+      "subtitle": "Chọta nlekọta dị nso"
+    },
+    "symptoms": {
+      "title": "Mụta",
+      "subtitle": "Edemede ahụike"
+    },
+    "medication": {
+      "title": "Ọgwụ",
+      "subtitle": "Soro dose"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Ụlọ ọgwụ",
+    "pharmacy": "Ụlọ ahịa ọgwụ",
+    "laboratory": "Labs",
+    "clinic": "Ụlọ ọgwụ nta",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Ụlọ akụ ọbara",
+    "ambulance": "Ambulans"
+  }
+}

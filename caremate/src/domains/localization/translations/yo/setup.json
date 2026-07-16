@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "Ti ṣetan",
+    "title": "O ti ṣetan",
+    "subtitle": "Parí ohunkóhun tí o fòó lẹ́yìn láti Profáìlì. CareMate ń ṣiṣẹ́ láìsí ayélujára pẹ̀lú ohun tí o ti fi pamọ́ lórí ẹ̀rọ yìí.",
+    "openHome": "Ṣí Ilé",
+    "finishLater": " — parí nígbà mìíràn",
+    "checks": {
+      "countryLanguage": "Orílẹ̀-èdè àti èdè",
+      "location": "Ìfẹ́ ibùdó tòsí",
+      "notifications": "Ìfẹ́ ìfitónilétí",
+      "emergency": "Àwọn ohun pàtàkì pájáwìrì",
+      "family": "Ìṣètò ẹbí"
+    }
+  },
+  "emergency": {
+    "title": "Àwọn ohun pàtàkì pájáwìrì",
+    "subtitle": "Ẹ̀yà ẹ̀jẹ̀, genotype, àti olùbásọ̀rọ̀ ICE kan ń ràn àwọn olùrànlọ́wọ́ àkọ́kọ́ lọ́wọ́.",
+    "skip": "Fòó fún ìsinsìnyí",
+    "save": "Fi pamọ́ kí o sì tẹ̀síwájú"
+  },
+  "familyPrompt": {
+    "title": "Ṣètò ilé rẹ?",
+    "subtitle": "Ṣàfikún àwọn ọmọ fún àjẹsára àti irinṣẹ́ ìtọ́jú tí a pín.",
+    "setup": "Ṣètò ẹbí",
+    "notNow": "Kì í ṣe nísinsìnyí"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Ṣètò orílẹ̀-èdè rẹ",
+      "subtitle": "Gba ìròyìn ìlera àdúgbò fún orílẹ̀-èdè rẹ"
+    },
+    "accountEmergency": {
+      "title": "Fi profáìlì pájáwìrì pamọ́",
+      "subtitle": "Ṣẹ̀dá àkọọ́lẹ̀ kí káàdì láìsí ayélujára rẹ lè ṣàmúisọpọ̀"
+    },
+    "accountFamily": {
+      "title": "Ṣètò ìtọ́jú ẹbí",
+      "subtitle": "Wọlé láti ṣàfikún àwọn ọmọ kí o sì pín ilé"
+    },
+    "emergency": {
+      "title": "Parí àwọn ohun pàtàkì pájáwìrì",
+      "subtitle": "Ẹ̀yà ẹ̀jẹ̀, genotype, àti olùbásọ̀rọ̀ ICE kan"
+    },
+    "family": {
+      "title": "Ṣètò ilé rẹ",
+      "subtitle": "Ṣàfikún àwọn ọmọ fún àjẹsára àti ìtọ́jú tí a pín"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Ẹ káàárọ̀",
+    "afternoon": "Ẹ káàsán",
+    "evening": "Ẹ káalẹ́"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Ìrìnàjò ìlera rẹ, tí a ṣètò dáradára",
+  "emergency": {
+    "title": "Profáìlì pájáwìrì",
+    "body": "Fi ẹ̀yà ẹ̀jẹ̀, àìlera sí nǹkan, àti àwọn olùbásọ̀rọ̀ ICE sílẹ̀ láìsí ayélujára.",
+    "cta": "Ṣètò"
+  },
+  "featuredArticles": {
+    "title": "Fún ọ",
+    "subtitle": "Àwọn ìtàn ìlera tí a gbẹ́kẹ̀lé àti ìmọ̀ràn"
+  },
+  "healthCategories": {
+    "title": "Wò àwọn kókó",
+    "subtitle": "Wá ìmọ̀ràn nípa agbègbè ìlera"
+  },
+  "nearby": {
+    "title": "Ìtọ́jú tòsí",
+    "subtitle": "Àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ"
+  },
+  "dailyTip": {
+    "label": "Ìmọ̀ ọjọ́ kọ̀ọ̀kan"
+  },
+  "searchA11y": "Wá CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Pájáwìrì",
+      "subtitle": "Káàdì ìlera láìsí ayélujára"
+    },
+    "nearby": {
+      "title": "Tòsí",
+      "subtitle": "Wá ìtọ́jú tó súnmọ́"
+    },
+    "symptoms": {
+      "title": "Kọ́",
+      "subtitle": "Àwọn àpilẹ̀kọ ìlera"
+    },
+    "medication": {
+      "title": "Òògùn",
+      "subtitle": "Tọpinpin àwọn ìwọ̀n"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Àwọn ilé-ìwòsàn",
+    "pharmacy": "Àwọn ilé-òògùn",
+    "laboratory": "Àwọn lab",
+    "clinic": "Àwọn ilé-ìtọ́jú",
+    "telemedicine": "Ìwòsàn láti òkèèrè",
+    "blood_bank": "Àwọn ibi ìfipamọ́ ẹ̀jẹ̀",
+    "ambulance": "Ambulansi"
+  }
+}

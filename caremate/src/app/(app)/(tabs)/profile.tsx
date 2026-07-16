@@ -25,6 +25,7 @@ import { getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
 import { getFinishSetupItems, type FinishSetupItem } from '@/domains/onboarding';
+import { useTranslation } from '@/domains/localization';
 import { PatientIdCard } from '@/features/profile/PatientIdCard';
 import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
@@ -35,6 +36,7 @@ import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 
 export default function ProfileTabScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
@@ -121,12 +123,12 @@ export default function ProfileTabScreen() {
                   </View>
                 </View>
                 <AppText variant="heroGreeting" style={styles.name}>
-                  {isGuest ? 'Guest' : displayName}
+                  {isGuest ? t('profile.guest.title') : displayName}
                 </AppText>
                 <AppText variant="subtitle" style={styles.subtitle}>
                   {isGuest
-                    ? 'Browse freely. Sign in anytime to sync your data.'
-                    : (user?.email ?? 'Signed in')}
+                    ? t('profile.guest.subtitle')
+                    : (user?.email ?? t('profile.guest.signIn'))}
                 </AppText>
                 {!isGuest ? (
                   <View style={styles.planPill}>
@@ -142,7 +144,7 @@ export default function ProfileTabScreen() {
                       onPress={() => router.push('/(auth)/login')}
                     >
                       <AppText variant="button" style={styles.primaryCtaLabel}>
-                        Sign in
+                        {t('profile.guest.signIn')}
                       </AppText>
                     </PressableScale>
                     <PressableScale
@@ -150,7 +152,7 @@ export default function ProfileTabScreen() {
                       onPress={() => router.push('/(auth)/register')}
                     >
                       <AppText variant="button" style={styles.secondaryCtaLabel}>
-                        Create account
+                        {t('profile.guest.createAccount')}
                       </AppText>
                     </PressableScale>
                   </View>
@@ -170,7 +172,7 @@ export default function ProfileTabScreen() {
           <AnimatedSection index={isGuest ? 1 : 2}>
             <ProfileCard>
               <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-                Finish setup
+                {t('profile.finishSetup')}
               </AppText>
               {finishItems.map((item, index) => (
                 <View key={item.id}>
@@ -179,8 +181,8 @@ export default function ProfileTabScreen() {
                     icon={CircleCheck}
                     iconColor={palette.primary}
                     iconBackground={palette.primaryLight}
-                    title={item.title}
-                    subtitle={item.subtitle}
+                    title={t(item.titleKey)}
+                    subtitle={t(item.subtitleKey)}
                     onPress={() => router.push(item.href)}
                   />
                 </View>
@@ -192,18 +194,14 @@ export default function ProfileTabScreen() {
         <AnimatedSection index={finishItems.length > 0 ? (isGuest ? 2 : 3) : 2}>
           <ProfileCard>
             <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-              Account
+              {t('profile.account')}
             </AppText>
             <ProfileMenuRow
               icon={Crown}
               iconColor="#B45309"
               iconBackground="#FEF3C7"
-              title="Premium"
-              subtitle={
-                isGuest
-                  ? 'Sign in to unlock Premium Personal or Family'
-                  : 'Manage Free vs Premium Personal or Family'
-              }
+              title={t('profile.menu.premium')}
+              subtitle={isGuest ? t('profile.premium.guestCta') : t('profile.premium.title')}
               onPress={() =>
                 isGuest
                   ? router.push('/(auth)/login')
@@ -215,8 +213,8 @@ export default function ProfileTabScreen() {
               icon={ShieldPlus}
               iconColor={palette.brandPurple}
               iconBackground={palette.purpleLight}
-              title="Emergency profile"
-              subtitle="Create or update your offline emergency health card"
+              title={t('profile.menu.emergency')}
+              subtitle={t('setup.finishItems.emergency.subtitle')}
               onPress={() => router.push('/(app)/emergency')}
             />
             <View style={styles.divider} />
@@ -224,11 +222,11 @@ export default function ProfileTabScreen() {
               icon={Users}
               iconColor={palette.brandBlue}
               iconBackground={palette.brandBlueLight}
-              title="Family"
+              title={t('profile.menu.family')}
               subtitle={
                 isGuest
-                  ? 'Sign in to set up kids and connect your spouse'
-                  : 'Add kids, connect spouse, manage household'
+                  ? t('setup.finishItems.accountFamily.subtitle')
+                  : t('setup.finishItems.family.subtitle')
               }
               onPress={() =>
                 isGuest ? router.push('/(auth)/login') : router.push('/(app)/family')
@@ -240,7 +238,7 @@ export default function ProfileTabScreen() {
         <AnimatedSection index={finishItems.length > 0 ? (isGuest ? 3 : 4) : 3}>
           <ProfileCard>
             <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-              Preferences
+              {t('profile.preferences')}
             </AppText>
             <View style={styles.toggleRow}>
               <View style={[styles.toggleIcon, { backgroundColor: palette.blueLight }]}>
@@ -248,10 +246,10 @@ export default function ProfileTabScreen() {
               </View>
               <View style={styles.toggleCopy}>
                 <AppText variant="body" style={styles.toggleTitle}>
-                  Notifications
+                  {t('common.notifications')}
                 </AppText>
                 <AppText variant="caption" style={styles.toggleSubtitle}>
-                  Reminders and health updates
+                  {t('onboarding.notifications.healthRemindersHint')}
                 </AppText>
               </View>
               <Switch
@@ -270,10 +268,10 @@ export default function ProfileTabScreen() {
                   </View>
                   <View style={styles.toggleCopy}>
                     <AppText variant="body" style={styles.toggleTitle}>
-                      Biometric unlock
+                      {t('profile.biometrics')}
                     </AppText>
                     <AppText variant="caption" style={styles.toggleSubtitle}>
-                      Use Face ID or fingerprint
+                      {t('profile.biometrics')}
                     </AppText>
                   </View>
                   <Switch
@@ -290,8 +288,8 @@ export default function ProfileTabScreen() {
               icon={Settings}
               iconColor={palette.textSecondary}
               iconBackground={palette.surface}
-              title="Settings"
-              subtitle="App preferences and account options"
+              title={t('profile.menu.settings')}
+              subtitle={t('settings.hero.subtitle')}
               onPress={() => router.push('/(app)/profile/settings')}
             />
           </ProfileCard>
@@ -302,7 +300,7 @@ export default function ProfileTabScreen() {
             <PressableScale style={styles.signOut} onPress={() => signOut()}>
               <LogOut color={palette.danger} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.signOutLabel}>
-                Sign out
+                {t('profile.signOut')}
               </AppText>
             </PressableScale>
           </AnimatedSection>

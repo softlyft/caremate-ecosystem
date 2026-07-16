@@ -1,0 +1,42 @@
+{
+  "loading": "Inapakia mipangilio...",
+  "hero": {
+    "eyebrow": "Mapendeleo",
+    "title": "Mipangilio",
+    "subtitle": "Mwonekano, arifa, nchi na lugha, na njia za haraka za familia."
+  },
+  "appearance": "Mwonekano",
+  "theme": {
+    "light": "Mwanga",
+    "dark": "Giza",
+    "system": "Mfumo",
+    "useSystem": "Tumia mandhari ya mfumo",
+    "darkMode": "Hali ya giza"
+  },
+  "familySection": {
+    "guest": "Ingia ili kusanidi wasifu wa familia yako, watoto, na muunganisho wa mwenzi.",
+    "hint": "Ongeza watoto na uunganishe mwenzi wako. Kila mzazi huhifadhi data yake ya CareMate.",
+    "open": "Fungua familia"
+  },
+  "notifications": {
+    "title": "Arifa",
+    "push": "Arifa za push"
+  },
+  "location": {
+    "title": "Eneo",
+    "guestHint": "Ingia ili kuweka nchi na lugha yako. Wageni hutumia chaguo za uanzishaji.",
+    "hint": "Inatumika kwa maudhui ya afya ya eneo na mapendeleo ya lugha.",
+    "country": "Nchi",
+    "language": "Lugha",
+    "state": "Jimbo / mkoa",
+    "statePlaceholder": "mf. California, Greater Accra",
+    "selected": "Imechaguliwa: {{value}}",
+    "notSet": "Haijawekwa",
+    "save": "Hifadhi eneo",
+    "saving": "Inahifadhi..."
+  },
+  "family": {
+    "title": "Familia",
+    "manage": "Simamia kaya"
+  }
+}

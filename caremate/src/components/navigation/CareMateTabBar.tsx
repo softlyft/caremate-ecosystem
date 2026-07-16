@@ -12,20 +12,23 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { palette, radius } from '@/theme';
 
-const TAB_META: Record<
-  string,
-  {
-    label: string;
-    icon: LucideIcon;
-  }
-> = {
-  index: { label: 'Home', icon: Home },
-  articles: { label: 'Learn', icon: BookOpen },
-  providers: { label: 'Nearby', icon: MapPin },
-  apps: { label: 'Apps', icon: LayoutGrid },
-  profile: { label: 'Me', icon: UserRound },
+const TAB_ROUTE_KEYS: Record<string, string> = {
+  index: 'tabs.home',
+  articles: 'tabs.learn',
+  providers: 'tabs.nearby',
+  apps: 'tabs.apps',
+  profile: 'tabs.me',
+};
+
+const TAB_ICONS: Record<string, LucideIcon> = {
+  index: Home,
+  articles: BookOpen,
+  providers: MapPin,
+  apps: LayoutGrid,
+  profile: UserRound,
 };
 
 type TabItemProps = {
@@ -36,9 +39,10 @@ type TabItemProps = {
 };
 
 function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
-  const meta = TAB_META[routeName];
-  const Icon = meta?.icon ?? Home;
-  const label = meta?.label ?? routeName;
+  const { t } = useTranslation();
+  const Icon = TAB_ICONS[routeName] ?? Home;
+  const labelKey = TAB_ROUTE_KEYS[routeName];
+  const label = labelKey ? t(labelKey) : routeName;
   const indicator = useSharedValue(isFocused ? 1 : 0);
 
   indicator.value = withSpring(isFocused ? 1 : 0, {

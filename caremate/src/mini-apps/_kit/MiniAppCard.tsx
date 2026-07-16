@@ -6,7 +6,8 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import type { MiniAppDefinition } from '@/mini-apps/_kit/registry';
+import { useTranslation } from '@/domains/localization';
+import { getMiniAppLabel, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 type MiniAppCardProps = {
@@ -14,13 +15,15 @@ type MiniAppCardProps = {
   index: number;
 };
 
-function lightenForGradient(hex: string): string {
+function lightenForGradient(_hex: string): string {
   // Soft top wash — keep registry pastel as the saturated end of the gradient.
   return '#FFFFFF';
 }
 
 export function MiniAppCard({ app, index }: MiniAppCardProps) {
+  const { t } = useTranslation();
   const Icon = app.icon;
+  const { name, description } = getMiniAppLabel(app.id, t);
 
   return (
     <AnimatedSection index={index + 1}>
@@ -33,7 +36,7 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
           }
         }}
         accessibilityRole="button"
-        accessibilityLabel={app.name}
+        accessibilityLabel={name}
         accessibilityState={{ disabled: !app.available }}
       >
         <LinearGradientFill
@@ -58,23 +61,23 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
             {app.available ? (
               <View style={[styles.openPill, { backgroundColor: palette.background }]}>
                 <AppText variant="caption" style={[styles.openLabel, { color: app.color }]}>
-                  Open
+                  {t('common.open')}
                 </AppText>
                 <ChevronRight color={app.color} size={15} strokeWidth={2.5} />
               </View>
             ) : (
               <View style={styles.soonPill}>
-                <AppText variant="comingSoon">Coming soon</AppText>
+                <AppText variant="comingSoon">{t('apps.comingSoon')}</AppText>
               </View>
             )}
           </View>
 
           <View style={styles.copy}>
             <AppText variant="quickActionTitle" style={styles.title}>
-              {app.name}
+              {name}
             </AppText>
             <AppText variant="quickActionSubtitle" style={styles.description} numberOfLines={3}>
-              {app.description}
+              {description}
             </AppText>
           </View>
 

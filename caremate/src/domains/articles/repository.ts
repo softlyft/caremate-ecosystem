@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, isNull, like, or } from 'drizzle-orm';
 
-import { resolveNewsCountryCode } from '@/constants/locations';
+import { localizationService } from '@/domains/localization';
 import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
 import { articles, bookmarks } from '@/database/schema';
@@ -109,7 +109,11 @@ class ArticleRepository extends BaseRepository {
     return mapped.slice(0, limit);
   }
 
-  async refreshHealthNewsFromCurrents(limit = 10, countryCode = 'INT'): Promise<void> {
+  async refreshHealthNewsFromCurrents(
+    limit = 10,
+    countryCode = 'INT',
+    languageCode: 'en' | 'fr' | 'es' = 'en',
+  ): Promise<void> {
     if (!currentsService.isConfigured()) {
       return;
     }
@@ -119,7 +123,7 @@ class ArticleRepository extends BaseRepository {
       return;
     }
 
-    const news = await currentsService.fetchHealthNews(limit, countryCode);
+    const news = await currentsService.fetchHealthNews(limit, countryCode, languageCode);
     if (news.length === 0) {
       return;
     }
@@ -184,15 +188,16 @@ class ArticleRepository extends BaseRepository {
   }
 
   async refreshTrendingInBackground(
-    options: { isGuest: boolean; countryCode?: string | null } = { isGuest: true },
+    options: { countryCode?: string | null; languageCode?: string | null } = {},
   ): Promise<void> {
-    const countryCode = resolveNewsCountryCode({
-      isGuest: options.isGuest,
-      countryCode: options.countryCode,
-    });
+    const countryCode = localizationService.resolveNewsCountryCode(options.countryCode);
+    const languageCode = localizationService.resolveNewsLanguageCode(
+      options.countryCode,
+      options.languageCode,
+    );
 
     try {
-      await this.refreshHealthNewsFromCurrents(10, countryCode);
+      await this.refreshHealthNewsFromCurrents(10, countryCode, languageCode);
     } catch {
       // Keep showing cached/seeded articles when Currents is unavailable.
     }

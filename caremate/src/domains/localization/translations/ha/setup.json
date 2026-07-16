@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "An shirya",
+    "title": "Ka shirya",
+    "subtitle": "Kammala duk abin da ka tsallake daga baya daga Bayani. CareMate yana aiki ba tare da intanet ba da abin da ka ajiye a wannan na'ura.",
+    "openHome": "Buɗe Gida",
+    "finishLater": " — kammala daga baya",
+    "checks": {
+      "countryLanguage": "Ƙasa da harshe",
+      "location": "Zaɓin wurin kusa",
+      "notifications": "Zaɓin sanarwa",
+      "emergency": "Muhimman abubuwan gaggawa",
+      "family": "Saitin iyali"
+    }
+  },
+  "emergency": {
+    "title": "Muhimman abubuwan gaggawa",
+    "subtitle": "Nau'in jini, genotype, da lambar ICE ɗaya suna taimaka wa masu agajin farko.",
+    "skip": "Tsallake a yanzu",
+    "save": "Ajiye kuma ci gaba"
+  },
+  "familyPrompt": {
+    "title": "A saita gidanka?",
+    "subtitle": "Ƙara yara don alluran rigakafi da kayan aikin kulawa tare.",
+    "setup": "Saita iyali",
+    "notNow": "Ba yanzu ba"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Saita ƙasarka",
+      "subtitle": "Samu labaran lafiya na yanki don ƙasarka"
+    },
+    "accountEmergency": {
+      "title": "Ajiye bayanin gaggawa",
+      "subtitle": "Ƙirƙiri asusu don katin ba tare da intanet ba ya iya daidaitawa"
+    },
+    "accountFamily": {
+      "title": "Saita kulawar iyali",
+      "subtitle": "Shiga don ƙara yara da raba gida"
+    },
+    "emergency": {
+      "title": "Kammala muhimman abubuwan gaggawa",
+      "subtitle": "Nau'in jini, genotype, da lambar ICE ɗaya"
+    },
+    "family": {
+      "title": "Saita gidanka",
+      "subtitle": "Ƙara yara don alluran rigakafi da kulawa tare"
+    }
+  }
+}

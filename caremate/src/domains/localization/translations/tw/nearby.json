@@ -1,0 +1,36 @@
+{
+  "title": "Bɛn",
+  "subtitle": "Hwehwɛ ayaresabea, clinic, aduru fie, ne deɛ ɛkeka ho a ɛbɛn wo",
+  "nearbyCount": "{{count}} bɛn",
+  "searchPlaceholder": "Hwehwɛ wɔn a wɔma",
+  "loading": "Ɛreloa wɔn a wɔma...",
+  "empty": {
+    "title": "Wɔn a wɔma nni bɛn",
+    "message": "Sɔ filter foforo hwɛ anaa trɛw wo nhwehwɛmu mu.",
+    "offline": "Ɛredi wɔn a wɔma a wɔasie no nkyerɛ bere a wo nni intanɛt so."
+  },
+  "approximate": "Ɛrede beaeɛ a ɛbɛn di dwuma",
+  "outsideArea": "Ɛwɔ wo mpɔtam a wotumi di so no akyi — nsonaazɛ betumi asua",
+  "detail": {
+    "loading": "Ɛreloa ɔde ma no...",
+    "notFound": "Wonnnhu ɔde ma no",
+    "unavailable": "Nkyerɛkyerɛ nni hɔ",
+    "favorite": "Sie ɔpɛ",
+    "unfavorite": "Yi ɔpɛ",
+    "call": "Frɛ",
+    "directions": "Kwan"
+  },
+  "map": {
+    "loading": "Ɛreloa map...",
+    "empty": "Map beaeɛ nni hɔ"
+  },
+  "types": {
+    "hospital": "Ayaresabea",
+    "pharmacy": "Aduru fie",
+    "laboratory": "Laboratory",
+    "clinic": "Clinic",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Mogya bank",
+    "ambulance": "Ambulance"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Good Morning",
+    "afternoon": "Good Afternoon",
+    "evening": "Good Evening"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Your health journey, beautifully organized",
+  "emergency": {
+    "title": "Emergency profile",
+    "body": "Keep blood type, allergies, and ICE contacts ready offline.",
+    "cta": "Set up"
+  },
+  "featuredArticles": {
+    "title": "For you",
+    "subtitle": "Trusted health stories and tips"
+  },
+  "healthCategories": {
+    "title": "Browse topics",
+    "subtitle": "Find guidance by health area"
+  },
+  "nearby": {
+    "title": "Nearby care",
+    "subtitle": "Hospitals, clinics, and pharmacies around you"
+  },
+  "dailyTip": {
+    "label": "Daily insight"
+  },
+  "searchA11y": "Search CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Emergency",
+      "subtitle": "Offline health card"
+    },
+    "nearby": {
+      "title": "Nearby",
+      "subtitle": "Find care close by"
+    },
+    "symptoms": {
+      "title": "Learn",
+      "subtitle": "Health articles"
+    },
+    "medication": {
+      "title": "Meds",
+      "subtitle": "Track doses"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Hospitals",
+    "pharmacy": "Pharmacies",
+    "laboratory": "Labs",
+    "clinic": "Clinics",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Blood banks",
+    "ambulance": "Ambulance"
+  }
+}

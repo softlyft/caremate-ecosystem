@@ -8,11 +8,13 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyRepository, useFamilySetupStore } from '@/domains/family';
+import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function FamilyReviewScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
@@ -29,7 +31,8 @@ export default function FamilyReviewScreen() {
       const profile = await profileRepository.findByUserId(userId);
       await familyRepository.createHouseholdWithChildren({
         userId,
-        selfFullName: profile?.fullName || profile?.email?.split('@')[0] || 'Parent',
+        selfFullName:
+          profile?.fullName || profile?.email?.split('@')[0] || t('family.defaultParentLabel'),
         children: draftChildren,
       });
       reset();
@@ -37,8 +40,9 @@ export default function FamilyReviewScreen() {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
       router.replace('/(app)/family');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not save family';
-      Alert.alert('Setup failed', message);
+      const message =
+        error instanceof Error ? error.message : t('family.review.setupFailedMessage');
+      Alert.alert(t('family.review.setupFailed'), message);
     } finally {
       setSaving(false);
     }
@@ -49,14 +53,12 @@ export default function FamilyReviewScreen() {
       style={styles.screen}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
     >
-      <AppText variant="sectionTitle">Review</AppText>
-      <AppText variant="subtitle">Confirm kids before creating your household.</AppText>
+      <AppText variant="sectionTitle">{t('family.review.heading')}</AppText>
+      <AppText variant="subtitle">{t('family.review.subtitle')}</AppText>
 
       <View style={styles.card}>
         {draftChildren.length === 0 ? (
-          <AppText variant="body">
-            No children — you can add them later and still connect a spouse.
-          </AppText>
+          <AppText variant="body">{t('family.review.empty')}</AppText>
         ) : (
           draftChildren.map((child, index) => (
             <View key={`${child.fullName}-${index}`} style={styles.row}>
@@ -64,17 +66,22 @@ export default function FamilyReviewScreen() {
                 {index + 1}. {child.fullName}
               </AppText>
               <AppText variant="caption" style={styles.muted}>
-                DOB {child.dateOfBirth} · {child.gender}
+                {t('family.review.childMeta', { dob: child.dateOfBirth, gender: child.gender })}
               </AppText>
             </View>
           ))
         )}
         <Button
-          label={saving ? 'Saving...' : 'Create family'}
+          label={saving ? t('common.saving') : t('family.review.create')}
           disabled={saving}
           onPress={saveFamily}
         />
-        <Button label="Back" variant="secondary" disabled={saving} onPress={() => router.back()} />
+        <Button
+          label={t('family.review.back')}
+          variant="secondary"
+          disabled={saving}
+          onPress={() => router.back()}
+        />
       </View>
     </ScrollView>
   );

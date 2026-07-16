@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { BookOpen, MapPinned, Sparkles } from 'lucide-react-native';
+import { BookOpen, Globe2, MapPinned, Sparkles } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -17,22 +17,35 @@ import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
+import { useTranslation } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[0];
 
-const PREVIEWS = [
+const PREVIEW_KEYS = [
+  {
+    icon: Globe2,
+    key: 'onboarding.welcome.preview.countryLanguage',
+    color: '#0EA5E9',
+    soft: '#E0F2FE',
+  },
   {
     icon: Sparkles,
-    label: 'Your priorities',
+    key: 'onboarding.welcome.preview.priorities',
     color: palette.brandPurple,
     soft: palette.purpleLight,
   },
-  { icon: BookOpen, label: 'Local health news', color: '#0284C7', soft: '#E0F2FE' },
-  { icon: MapPinned, label: 'Nearby care', color: palette.brandBlue, soft: palette.brandBlueLight },
+  { icon: BookOpen, key: 'onboarding.welcome.preview.news', color: '#0284C7', soft: '#E0F2FE' },
+  {
+    icon: MapPinned,
+    key: 'onboarding.welcome.preview.nearby',
+    color: palette.brandBlue,
+    soft: palette.brandBlueLight,
+  },
 ] as const;
 
 export default function OnboardingWelcomeScreen() {
+  const { t } = useTranslation();
   const pulse = useSharedValue(1);
 
   useEffect(() => {
@@ -50,8 +63,8 @@ export default function OnboardingWelcomeScreen() {
   return (
     <OnboardingShell
       step={0}
-      title="Care that works offline"
-      subtitle="A short setup so Nearby, news, and emergency tools feel right from day one."
+      title={t('onboarding.welcome.title')}
+      subtitle={t('onboarding.welcome.subtitle')}
       showBack={false}
       hero={
         <View style={[styles.heroShell, shadow.card]}>
@@ -74,18 +87,18 @@ export default function OnboardingWelcomeScreen() {
       }
       footer={
         <OnboardingPrimaryButton
-          label="Let's go"
+          label={t('onboarding.welcome.cta')}
           accent={theme.accent}
-          onPress={() => router.push('/(auth)/onboarding/priorities')}
+          onPress={() => router.push('/(auth)/onboarding/country')}
         />
       }
     >
       <View style={styles.previewList}>
-        {PREVIEWS.map((item, index) => {
+        {PREVIEW_KEYS.map((item, index) => {
           const Icon = item.icon;
           return (
             <Animated.View
-              key={item.label}
+              key={item.key}
               entering={FadeInDown.delay(180 + index * 90)
                 .duration(480)
                 .springify()
@@ -101,7 +114,7 @@ export default function OnboardingWelcomeScreen() {
                   <Icon color={item.color} size={18} strokeWidth={2.3} />
                 </View>
                 <AppText variant="body" style={[styles.previewLabel, { color: item.color }]}>
-                  {item.label}
+                  {t(item.key)}
                 </AppText>
               </View>
             </Animated.View>
@@ -109,7 +122,7 @@ export default function OnboardingWelcomeScreen() {
         })}
       </View>
       <AppText variant="caption" style={styles.foot}>
-        Skip anytime — finish later from Profile.
+        {t('onboarding.welcome.foot')}
       </AppText>
     </OnboardingShell>
   );

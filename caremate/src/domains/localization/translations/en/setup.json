@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "All set",
+    "title": "You're ready",
+    "subtitle": "Finish anything you skipped later from Profile. CareMate works offline with what you've saved on this device.",
+    "openHome": "Open Home",
+    "finishLater": " — finish later",
+    "checks": {
+      "countryLanguage": "Country and language",
+      "location": "Nearby location preference",
+      "notifications": "Notification preference",
+      "emergency": "Emergency essentials",
+      "family": "Family setup"
+    }
+  },
+  "emergency": {
+    "title": "Emergency essentials",
+    "subtitle": "Blood group, genotype, and one ICE contact help first responders.",
+    "skip": "Skip for now",
+    "save": "Save and continue"
+  },
+  "familyPrompt": {
+    "title": "Set up your household?",
+    "subtitle": "Add kids for immunization and shared care tools.",
+    "setup": "Set up family",
+    "notNow": "Not right now"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Set your country",
+      "subtitle": "Get local health news for your country"
+    },
+    "accountEmergency": {
+      "title": "Save an emergency profile",
+      "subtitle": "Create an account so your offline card can sync"
+    },
+    "accountFamily": {
+      "title": "Set up family care",
+      "subtitle": "Sign in to add kids and share a household"
+    },
+    "emergency": {
+      "title": "Finish emergency essentials",
+      "subtitle": "Blood group, genotype, and one ICE contact"
+    },
+    "family": {
+      "title": "Set up your household",
+      "subtitle": "Add kids for immunization and shared care"
+    }
+  }
+}

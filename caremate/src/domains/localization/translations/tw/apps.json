@@ -1,0 +1,32 @@
+{
+  "title": "App",
+  "subtitle": "Ankorankorɛ apɔwmuden nneɛma a ɛyɛ adwuma a intanɛt nni hɔ",
+  "readyCount": "Nneɛma {{count}} ayɛ krado",
+  "comingSoon": "Ɛrebɛba nnansa yi",
+  "registry": {
+    "medication-tracker": {
+      "name": "Aduru Di Akyi",
+      "description": "Di aduru, da biara doze, ne di so akyi ma wo anaa wo abusua."
+    },
+    "checkup-planner": {
+      "name": "Nhwehwɛmu Nhyehyɛefo",
+      "description": "Hwɛ ayaresa nhwehwɛmu a wɔkamfo so wɔ mfe, bɔbea, ne mantam so."
+    },
+    "immunization-tracker": {
+      "name": "Ntwamdu Di Akyi",
+      "description": "Di ntwamdu, da a ɛsɛ, ne wo ba ntwamdu krataa akyi."
+    },
+    "pregnancy-tracker": {
+      "name": "Nyinsɛn Di Akyi",
+      "description": "Di wo nyinsɛn akyi dapɛn biara, kyerɛw nsɛnkyerɛnne, na di nneɛma a ɛho hia akyi."
+    },
+    "period-tracker": {
+      "name": "Bosome Di Akyi",
+      "description": "Di ntwam akyi, kyerɛw bosome nna, na hwɛ nkɔmhyɛ a ɛyɛ mmerɛ."
+    }
+  },
+  "signInRequired": "Hyɛn mu na sync nneɛma yi wɔ nneɛma so",
+  "save": "Sie",
+  "log": "Kyerɛw nkyerɛw",
+  "setup": "Hyehyɛ"
+}

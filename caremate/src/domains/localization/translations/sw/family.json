@@ -1,0 +1,35 @@
+{
+  "title": "Familia",
+  "subtitle": "Wasifu wa kaya na huduma ya watoto iliyoshirikiwa",
+  "loading": "Inapakia familia...",
+  "setup": {
+    "title": "Sanidi huduma ya familia?",
+    "subtitle": "Ongeza watoto na uunganishe mwenzi ili zana za huduma zibaki zimepangwa.",
+    "yes": "Ndiyo, sanidi",
+    "notNow": "Si sasa"
+  },
+  "kidsCount": {
+    "title": "Watoto wangapi?",
+    "placeholder": "Idadi ya watoto"
+  },
+  "child": {
+    "title": "Mtoto {{index}}",
+    "name": "Jina kamili",
+    "dob": "Tarehe ya kuzaliwa",
+    "gender": "Jinsia"
+  },
+  "review": {
+    "title": "Kagua kaya",
+    "save": "Hifadhi kaya",
+    "back": "Rudi"
+  },
+  "requests": {
+    "title": "Maombi ya muunganisho",
+    "accept": "Kubali",
+    "decline": "Kataa",
+    "empty": "Hakuna maombi yanayosubiri"
+  },
+  "invite": "Alika mwenzi",
+  "addChild": "Ongeza mtoto",
+  "searchPlaceholder": "Tafuta kwa Kitambulisho cha Mgonjwa au barua pepe"
+}

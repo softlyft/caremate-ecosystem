@@ -17,6 +17,8 @@
     "portal:dev": "npm run dev -w caremate-portal",
     "portal:build": "npm run build -w caremate-portal",
     "mobile:start": "npm run start -w caremate",
+    "mobile:android": "npm run android -w caremate",
+    "mobile:ios": "npm run ios -w caremate",
     "ingest:dev": "cd provider-ingestion && (test -d .venv || python3.12 -m venv .venv) && .venv/bin/pip install -q -r requirements.txt && .venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8090",
     "lint": "npm run lint -w caremate && npm run lint -w caremate-portal",
     "typecheck": "npm run typecheck -w caremate && npm run typecheck -w caremate-portal",

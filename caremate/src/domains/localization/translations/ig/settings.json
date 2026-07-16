@@ -1,0 +1,42 @@
+{
+  "loading": "Na-ebu ntọala...",
+  "hero": {
+    "eyebrow": "Mmasị",
+    "title": "Ntọala",
+    "subtitle": "Ọdịdị, ọkwa, obodo na asụsụ, na ụzọ mkpirisi ezinụlọ."
+  },
+  "appearance": "Ọdịdị",
+  "theme": {
+    "light": "Ìhè",
+    "dark": "Ọchịchịrị",
+    "system": "Sistemụ",
+    "useSystem": "Jiri isiokwu sistemụ",
+    "darkMode": "Ọnọdụ ọchịchịrị"
+  },
+  "familySection": {
+    "guest": "Banye iji hazie profaịlụ ezinụlọ gị, ụmụaka, na njikọ di/nwunye.",
+    "hint": "Tinye ụmụaka ma jikọọ di/nwunye gị. Nne na nna ọ bụla na-echekwa data CareMate nke ya.",
+    "open": "Meghee ezinụlọ"
+  },
+  "notifications": {
+    "title": "Ọkwa",
+    "push": "Ọkwa push"
+  },
+  "location": {
+    "title": "Ebe",
+    "guestHint": "Banye iji hazie obodo na asụsụ gị. Ndị ọbịa na-eji nhọrọ mmalite.",
+    "hint": "A na-eji ya maka ọdịnaya ahụike mpaghara na mmasị asụsụ.",
+    "country": "Obodo",
+    "language": "Asụsụ",
+    "state": "Steeti / mpaghara",
+    "statePlaceholder": "dịka California, Greater Accra",
+    "selected": "Ahọpụtara: {{value}}",
+    "notSet": "Edebeghị",
+    "save": "Chekwaa ebe",
+    "saving": "Na-echekwa..."
+  },
+  "family": {
+    "title": "Ezinụlọ",
+    "manage": "Jikwaa ezinụlọ"
+  }
+}

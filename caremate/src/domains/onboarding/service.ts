@@ -1,6 +1,7 @@
 import type { Href } from 'expo-router';
 
 import { authService } from '@/services/auth-service';
+import { localizationService } from '@/domains/localization';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
 
@@ -11,14 +12,15 @@ import type { DeviceDefaults } from './types';
 /** Persist Phase A draft to device defaults and mark onboarding complete. */
 export async function completePhaseA(): Promise<DeviceDefaults> {
   const draft = useOnboardingDraftStore.getState();
+  const languageCode = localizationService.normalizeLanguage(draft.countryCode, draft.languageCode);
 
   const defaults = await setDeviceDefaults({
-    countryCode: draft.regionSkipped ? null : draft.countryCode,
-    state: draft.regionSkipped ? null : draft.state.trim() || null,
+    countryCode: draft.countryCode,
+    languageCode,
+    state: draft.state.trim() || null,
     locationMode: draft.locationMode ?? 'approximate',
     priorities: draft.priorities,
     notificationsEnabled: draft.notificationsEnabled,
-    regionSkipped: draft.regionSkipped,
     locationSkipped: draft.locationSkipped,
   });
 
@@ -27,11 +29,12 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
   return defaults;
 }
 
-/** Copy device region + notification defaults onto a freshly created profile. */
+/** Copy device country/language defaults onto a freshly created profile. */
 export async function applyDeviceDefaultsToProfile(userId: string): Promise<void> {
   const defaults = await getDeviceDefaults();
   await profileRepository.save(userId, {
     countryCode: defaults.countryCode,
+    languageCode: defaults.languageCode,
     state: defaults.state,
   });
   await profileRepository.saveSettings(userId, {
@@ -67,8 +70,8 @@ export async function markFamilyPromptDone(): Promise<Href> {
 
 export type FinishSetupItem = {
   id: string;
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   href: Href;
 };
 
@@ -81,11 +84,11 @@ export async function getFinishSetupItems(options: {
   const defaults = await getDeviceDefaults();
   const items: FinishSetupItem[] = [];
 
-  if (!options.hasCountry && (defaults.regionSkipped || !defaults.countryCode)) {
+  if (!options.hasCountry) {
     items.push({
-      id: 'region',
-      title: 'Set your region',
-      subtitle: 'Get local health news for your country',
+      id: 'country',
+      titleKey: 'setup.finishItems.country.title',
+      subtitleKey: 'setup.finishItems.country.subtitle',
       href: options.isGuest ? '/(auth)/login' : '/(app)/profile/settings',
     });
   }
@@ -94,16 +97,16 @@ export async function getFinishSetupItems(options: {
     if (defaults.priorities.includes('emergency')) {
       items.push({
         id: 'account-emergency',
-        title: 'Save an emergency profile',
-        subtitle: 'Create an account so your offline card can sync',
+        titleKey: 'setup.finishItems.accountEmergency.title',
+        subtitleKey: 'setup.finishItems.accountEmergency.subtitle',
         href: '/(auth)/register',
       });
     }
     if (defaults.priorities.includes('family')) {
       items.push({
         id: 'account-family',
-        title: 'Set up family care',
-        subtitle: 'Sign in to add kids and share a household',
+        titleKey: 'setup.finishItems.accountFamily.title',
+        subtitleKey: 'setup.finishItems.accountFamily.subtitle',
         href: '/(auth)/register',
       });
     }
@@ -113,8 +116,8 @@ export async function getFinishSetupItems(options: {
   if (!options.hasEmergencyEssentials) {
     items.push({
       id: 'emergency',
-      title: 'Finish emergency essentials',
-      subtitle: 'Blood group, genotype, and one ICE contact',
+      titleKey: 'setup.finishItems.emergency.title',
+      subtitleKey: 'setup.finishItems.emergency.subtitle',
       href: '/(app)/setup/emergency',
     });
   }
@@ -122,8 +125,8 @@ export async function getFinishSetupItems(options: {
   if (defaults.priorities.includes('family') && !options.hasHousehold) {
     items.push({
       id: 'family',
-      title: 'Set up your household',
-      subtitle: 'Add kids for immunization and shared care',
+      titleKey: 'setup.finishItems.family.title',
+      subtitleKey: 'setup.finishItems.family.subtitle',
       href: '/(app)/family/setup',
     });
   }

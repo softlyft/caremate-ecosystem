@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "Emechaala",
+    "title": "Ị dị njikere",
+    "subtitle": "Mechaa ihe ọ bụla ị gafere ma emechaa site na Profaịlụ. CareMate na-arụ ọrụ na-enweghị ịntanetị site na ihe ị chekwara na ngwaọrụ a.",
+    "openHome": "Meghee Ụlọ",
+    "finishLater": " — mechaa ma emechaa",
+    "checks": {
+      "countryLanguage": "Obodo na asụsụ",
+      "location": "Mmasị ebe nso",
+      "notifications": "Mmasị ọkwa",
+      "emergency": "Ihe dị mkpa mberede",
+      "family": "Nhazi ezinụlọ"
+    }
+  },
+  "emergency": {
+    "title": "Ihe dị mkpa mberede",
+    "subtitle": "Ụdị ọbara, genotype, na kọntaktị ICE otu na-enyere ndị na-enyere aka mbụ aka.",
+    "skip": "Mafee ugbu a",
+    "save": "Chekwaa ma gaa n'ihu"
+  },
+  "familyPrompt": {
+    "title": "Hazie ezinụlọ gị?",
+    "subtitle": "Tinye ụmụaka maka ịgba ọgwụ mgbochi na ngwaọrụ nlekọta ekekọrịtara.",
+    "setup": "Hazie ezinụlọ",
+    "notNow": "Ọ bụghị ugbu a"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Hazie obodo gị",
+      "subtitle": "Nweta akụkọ ahụike mpaghara maka obodo gị"
+    },
+    "accountEmergency": {
+      "title": "Chekwaa profaịlụ mberede",
+      "subtitle": "Mepụta akaụntụ ka kaadị na-enweghị ịntanetị gị nwee ike imekọrịta"
+    },
+    "accountFamily": {
+      "title": "Hazie nlekọta ezinụlọ",
+      "subtitle": "Banye iji tinye ụmụaka ma kekọrịta ezinụlọ"
+    },
+    "emergency": {
+      "title": "Mechaa ihe dị mkpa mberede",
+      "subtitle": "Ụdị ọbara, genotype, na kọntaktị ICE otu"
+    },
+    "family": {
+      "title": "Hazie ezinụlọ gị",
+      "subtitle": "Tinye ụmụaka maka ịgba ọgwụ mgbochi na nlekọta ekekọrịtara"
+    }
+  }
+}

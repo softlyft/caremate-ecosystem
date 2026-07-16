@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyConnectionService, familyRepository } from '@/domains/family';
+import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function FamilyRequestsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
@@ -36,20 +38,19 @@ export default function FamilyRequestsScreen() {
         requestId,
         userId,
         accept,
-        selfFullName: profile?.fullName || profile?.email?.split('@')[0] || 'Spouse',
+        selfFullName:
+          profile?.fullName || profile?.email?.split('@')[0] || t('family.defaultSpouseName'),
       });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyRequests });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
       Alert.alert(
-        accept ? 'Connected' : 'Declined',
-        accept
-          ? 'You joined their household. Your personal CareMate data stays yours.'
-          : 'Connection request declined.',
+        accept ? t('family.requests.connected') : t('family.requests.declined'),
+        accept ? t('family.requests.connectedMessage') : t('family.requests.declinedMessage'),
       );
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not update request';
-      Alert.alert('Request failed', message);
+      const message = error instanceof Error ? error.message : t('family.requests.failedMessage');
+      Alert.alert(t('family.requests.failed'), message);
     } finally {
       setBusyId(null);
     }
@@ -58,13 +59,13 @@ export default function FamilyRequestsScreen() {
   if (isGuest) {
     return (
       <View style={styles.padded}>
-        <AppText variant="body">Sign in to view connection requests.</AppText>
+        <AppText variant="body">{t('family.requests.guest')}</AppText>
       </View>
     );
   }
 
   if (requestsQuery.isLoading) {
-    return <LoadingState title="Loading requests..." />;
+    return <LoadingState title={t('family.requests.loading')} />;
   }
 
   const requests = requestsQuery.data ?? [];
@@ -74,37 +75,40 @@ export default function FamilyRequestsScreen() {
       style={styles.screen}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
     >
-      <AppText variant="sectionTitle">Connection requests</AppText>
-      <AppText variant="subtitle">
-        Accepting joins their household for shared kids. Your profile and health data stay on your
-        account.
-      </AppText>
+      <AppText variant="sectionTitle">{t('family.requests.title')}</AppText>
+      <AppText variant="subtitle">{t('family.requests.subtitle')}</AppText>
 
       {requests.length === 0 ? (
         <View style={styles.card}>
-          <AppText variant="body">No pending requests.</AppText>
+          <AppText variant="body">{t('family.requests.empty')}</AppText>
         </View>
       ) : (
         requests.map((request) => (
           <View key={request.id} style={styles.card}>
-            <AppText variant="cardTitle">Spouse connection</AppText>
+            <AppText variant="cardTitle">{t('family.requests.spouseConnection')}</AppText>
             <AppText variant="caption" style={styles.muted}>
-              From user {request.fromUserId.slice(0, 8)}…
+              {t('family.requests.fromUser', { id: request.fromUserId.slice(0, 8) })}
             </AppText>
             {request.toEmail ? (
-              <AppText variant="caption">Lookup email: {request.toEmail}</AppText>
+              <AppText variant="caption">
+                {t('family.requests.lookupEmail', { email: request.toEmail })}
+              </AppText>
             ) : null}
             {request.toPhone ? (
-              <AppText variant="caption">Lookup phone: {request.toPhone}</AppText>
+              <AppText variant="caption">
+                {t('family.requests.lookupPhone', { phone: request.toPhone })}
+              </AppText>
             ) : null}
             <View style={styles.actions}>
               <Button
-                label={busyId === request.id ? 'Working...' : 'Accept'}
+                label={
+                  busyId === request.id ? t('family.requests.working') : t('family.requests.accept')
+                }
                 disabled={busyId === request.id}
                 onPress={() => respond(request.id, true)}
               />
               <Button
-                label="Decline"
+                label={t('family.requests.decline')}
                 variant="secondary"
                 disabled={busyId === request.id}
                 onPress={() => respond(request.id, false)}

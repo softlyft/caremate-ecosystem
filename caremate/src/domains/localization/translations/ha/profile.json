@@ -1,0 +1,36 @@
+{
+  "title": "Ni",
+  "guest": {
+    "title": "Kana bincike a matsayin baƙo",
+    "subtitle": "Shiga don daidaita bayanin gaggawa, iyali, da zaɓuɓɓuka a duk na'urori.",
+    "signIn": "Shiga",
+    "createAccount": "Ƙirƙiri asusu"
+  },
+  "finishSetup": "Kammala saiti",
+  "account": "Asusu",
+  "preferences": "Zaɓuɓɓuka",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Bayanin gaggawa",
+    "family": "Iyali",
+    "settings": "Saituna"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Ana lodawa tsare-tsare...",
+    "personal": "Na mutum ɗaya",
+    "family": "Iyali",
+    "monthly": "Na wata-wata",
+    "yearly": "Na shekara-shekara",
+    "guestCta": "Shiga don biyan kuɗi",
+    "error": "Ba a iya fara biyan kuɗi ba"
+  },
+  "patientId": {
+    "title": "ID ɗin Majinyaci na CareMate",
+    "generate": "Ƙirƙiri ID a gare ni",
+    "copy": "Kwafi",
+    "fallbackName": "Memba"
+  },
+  "signOut": "Fita",
+  "biometrics": "Buɗe da biometrics"
+}

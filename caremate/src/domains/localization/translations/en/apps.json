@@ -1,0 +1,600 @@
+{
+  "title": "Apps",
+  "subtitle": "Personal health tools that work offline",
+  "readyCount": "{{count}} tools ready",
+  "comingSoon": "Coming soon",
+  "registry": {
+    "medication-tracker": {
+      "name": "Medication Tracker",
+      "description": "Track medicines, daily doses, and adherence for you or your family."
+    },
+    "checkup-planner": {
+      "name": "Checkup Planner",
+      "description": "See recommended medical checkups by age, gender, and region."
+    },
+    "immunization-tracker": {
+      "name": "Immunization Tracker",
+      "description": "Track vaccines, due dates, and your child's immunization record."
+    },
+    "pregnancy-tracker": {
+      "name": "Pregnancy Tracker",
+      "description": "Follow your pregnancy week by week, log symptoms, and track milestones."
+    },
+    "period-tracker": {
+      "name": "Period Tracker",
+      "description": "Track cycles, log period days, and see simple predictions."
+    }
+  },
+  "signInRequired": "Sign in to sync this tool across devices",
+  "signInRequiredTitle": "Sign in required",
+  "save": "Save",
+  "saveChanges": "Save changes",
+  "log": "Log entry",
+  "setup": "Set up",
+  "loading": "Loading...",
+  "edit": "Edit",
+  "editProfile": "Edit profile",
+  "openFamily": "Open family",
+  "setUpFamily": "Set up family",
+  "setUpFamilyFirst": "Set up your family first",
+  "addChildren": "Add children in Family",
+  "manageInFamily": "Manage in Family",
+  "goToFamilySetup": "Go to family setup",
+  "backToTracker": "Back to tracker",
+  "clearSelection": "Clear selection",
+  "remove": "Remove",
+  "medicationTracker": {
+    "eyebrow": "Medication",
+    "emptyTitle": "Track your medications",
+    "emptySubtitle": "Add medicines for yourself or your kids, then log each dose",
+    "addMedicine": "Add medicine",
+    "logDose": "Log a dose",
+    "todaysDoses": "Today's doses",
+    "medicines": "Medicines",
+    "setupSave": "Add medicine",
+    "setupSaveEdit": "Save changes"
+  },
+  "checkupPlanner": {
+    "eyebrow": "Checkup Planner",
+    "emptyTitle": "Plan your health checkups",
+    "emptySubtitle": "Enter your date of birth, gender, and optional region to see recommended tests",
+    "setUpPlanner": "Set up planner",
+    "editProfile": "Edit profile",
+    "setupSave": "Save and view plan",
+    "setupSaveEdit": "Save changes",
+    "needSetup": "Set up your checkup profile first."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Immunization",
+    "loading": "Loading children from your family…",
+    "loadingLog": "Loading vaccine log…",
+    "emptyTitle": "Track immunizations",
+    "signInSubtitle": "Immunization tracking uses children from your CareMate family profile.",
+    "needsFamilySubtitle": "Create your family profile and add kids with date of birth. Then their vaccine schedule will appear here.",
+    "needsChildrenSubtitle": "Your household has no children with a date of birth yet. Add kids in Family to start tracking vaccines.",
+    "childrenFromFamilyTitle": "Children come from Family",
+    "childrenFromFamilySubtitle": "You can't add a child here. Set up your family profile and add kids with date of birth, then return to Immunization Tracker.",
+    "logVaccine": "Log vaccine",
+    "saveVaccine": "Save vaccine",
+    "updateRecord": "Update record",
+    "noChildSelected": "No child selected",
+    "noChildSubtitle": "Add children in your Family profile before logging vaccines."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Pregnancy",
+    "emptyTitle": "Track your pregnancy journey",
+    "emptySubtitle": "Set your due date or last period to get started",
+    "setUp": "Set up pregnancy",
+    "updateDueDate": "Update due date",
+    "logToday": "Log today",
+    "setupSave": "Save",
+    "saveLog": "Save log"
+  },
+  "periodTracker": {
+    "eyebrow": "Today",
+    "emptyTitle": "Start tracking your cycle",
+    "emptySubtitle": "Log your last period to see predictions",
+    "logPeriodDays": "Log Period Days",
+    "markPeriod": "Mark your period",
+    "markPeriodSubtitle": "Tap the days you were on your period. You can select multiple days across the month."
+  },
+  "checkup": {
+    "cadence": {
+      "annual": "Every year",
+      "once": "Once (when due)",
+      "every-2-years": "Every 2 years",
+      "every-3-years": "Every 3 years",
+      "every-5-years": "Every 5 years"
+    },
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other / prefer not to say"
+    },
+    "catalog": {
+      "general-checkup": {
+        "name": "General medical checkup",
+        "description": "Yearly visit with a clinician for overall health review."
+      },
+      "dental-checkup": {
+        "name": "Dental checkup",
+        "description": "Cleaning and oral exam to catch cavities and gum disease early."
+      },
+      "eye-exam": {
+        "name": "Eye / vision exam",
+        "description": "Check vision and eye health; more often if you wear glasses or have diabetes."
+      },
+      "blood-pressure": {
+        "name": "Blood pressure check",
+        "description": "Screen for hypertension — a silent risk for heart disease and stroke."
+      },
+      "blood-sugar": {
+        "name": "Blood sugar / diabetes screen",
+        "description": "Fasting glucose or HbA1c, especially with family history or excess weight."
+      },
+      "cholesterol": {
+        "name": "Cholesterol / lipid panel",
+        "description": "Blood test for heart risk. Discuss frequency with your clinician."
+      },
+      "weight-bmi": {
+        "name": "Weight & BMI review",
+        "description": "Track healthy weight trends as part of your annual checkup."
+      },
+      "flu-vaccine": {
+        "name": "Seasonal flu vaccination",
+        "description": "Yearly flu shot where available and recommended."
+      },
+      "cervical-screening": {
+        "name": "Cervical screening (Pap / HPV)",
+        "description": "Screen for cervical cancer. Follow local guidelines for interval."
+      },
+      "mammogram": {
+        "name": "Mammogram",
+        "description": "Breast cancer screening. Start age varies by guideline and risk."
+      },
+      "prostate-discussion": {
+        "name": "Prostate health discussion",
+        "description": "Talk with a clinician about PSA testing and prostate symptoms."
+      },
+      "prostate-earlier": {
+        "name": "Earlier prostate discussion",
+        "description": "Consider discussing screening earlier if you are of African ancestry or have family history."
+      },
+      "colorectal-screening": {
+        "name": "Colorectal cancer screening",
+        "description": "Stool test or colonoscopy starting in mid-adulthood — ask which option fits you."
+      },
+      "skin-check": {
+        "name": "Skin check",
+        "description": "Review moles and skin changes with a clinician."
+      },
+      "hearing-check": {
+        "name": "Hearing check",
+        "description": "Screen for age-related hearing loss."
+      },
+      "bone-density-women": {
+        "name": "Bone density (DEXA)",
+        "description": "Screen for osteoporosis risk after menopause / later adulthood."
+      },
+      "bone-density-men": {
+        "name": "Bone density (DEXA)",
+        "description": "Screen for osteoporosis risk in later adulthood."
+      },
+      "tetanus-booster": {
+        "name": "Tetanus booster review",
+        "description": "Confirm tetanus (and related) boosters are up to date — often every 10 years."
+      }
+    },
+    "status": {
+      "completed": "Done",
+      "due": "Due",
+      "overdue": "Overdue",
+      "upcoming": "Upcoming"
+    },
+    "ui": {
+      "actionableOne": "{{count}} checkup for {{year}}",
+      "actionableMany": "{{count}} checkups for {{year}}",
+      "onTrack": "{{year}} checkups on track",
+      "yearPlan": "Your {{year}} plan",
+      "ageLine": "Age {{age}} · {{gender}} · {{region}}",
+      "thisYear": "This year ({{year}})",
+      "nextYear": "Next year ({{year}})",
+      "done": "Done",
+      "ofTotal": "{{completed}} of {{total}}",
+      "guidance": "Guidance only — talk with a clinician for personal advice.",
+      "checklist": "{{year}} checklist",
+      "emptyYear": "No checkups listed for this year with your current profile.",
+      "tapToLog": "Tap to log",
+      "doneDate": "Done {{date}}",
+      "clearData": "Clear planner data",
+      "clearConfirmTitle": "Clear checkup planner?",
+      "clearConfirmMessage": "Your profile and completion history will be removed from this device.",
+      "regionOptional": "Country (optional)",
+      "regionHint": "Used for a few country-aware tips. Leave as Global if unsure.",
+      "globalOption": "Global ({{code}})",
+      "dob": "Date of birth",
+      "genderLabel": "Gender",
+      "notesPlaceholder": "Clinic name, results to follow up…",
+      "markDone": "Mark done for {{year}}",
+      "updateLog": "Update log",
+      "removeLog": "Remove this log",
+      "setupIntro": "We use your date of birth, gender, and region to suggest standard checkups. Region is optional and defaults to International.",
+      "tapDob": "Tap your date of birth.",
+      "dobLabel": "DOB: {{date}}",
+      "logIntro": "Log that you completed this checkup for {{year}}. You can undo later from this screen.",
+      "notFound": "That checkup was not found.",
+      "dateCompleted": "Date completed",
+      "completedLabel": "Completed: {{date}}",
+      "notesOptional": "Notes (optional)",
+      "removeCompletion": "Remove completion",
+      "globalShort": "Global"
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Birth dose",
+        "description": "Protects against severe forms of tuberculosis."
+      },
+      "hep-b-birth": {
+        "name": "Hepatitis B",
+        "doseLabel": "Birth dose",
+        "description": "First dose given at birth or within 24 hours."
+      },
+      "opv-0": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 0",
+        "description": "Birth dose of oral polio vaccine."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 1",
+        "description": "Covers diphtheria, tetanus, pertussis, hepatitis B, and Hib."
+      },
+      "opv-1": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 1",
+        "description": "First routine polio dose."
+      },
+      "pcv-1": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dose 1",
+        "description": "Protects against pneumococcal disease."
+      },
+      "rota-1": {
+        "name": "Rotavirus",
+        "doseLabel": "Dose 1",
+        "description": "Protects against severe diarrhoea from rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 2",
+        "description": "Second pentavalent dose."
+      },
+      "opv-2": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 2",
+        "description": "Second routine polio dose."
+      },
+      "pcv-2": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dose 2",
+        "description": "Second pneumococcal dose."
+      },
+      "rota-2": {
+        "name": "Rotavirus",
+        "doseLabel": "Dose 2",
+        "description": "Second rotavirus dose."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 3",
+        "description": "Third pentavalent dose."
+      },
+      "opv-3": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 3",
+        "description": "Third routine polio dose."
+      },
+      "pcv-3": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dose 3",
+        "description": "Third pneumococcal dose."
+      },
+      "ipv": {
+        "name": "Polio (IPV)",
+        "doseLabel": "Booster",
+        "description": "Inactivated polio booster around 6 months."
+      },
+      "measles-1": {
+        "name": "Measles / MR",
+        "doseLabel": "Dose 1",
+        "description": "First measles-rubella dose around 9 months."
+      },
+      "yellow-fever": {
+        "name": "Yellow Fever",
+        "doseLabel": "Single dose",
+        "description": "Recommended in endemic regions from 9 months."
+      },
+      "measles-2": {
+        "name": "Measles / MR",
+        "doseLabel": "Dose 2",
+        "description": "Second measles-rubella dose around 15 months."
+      },
+      "vitamin-a": {
+        "name": "Vitamin A",
+        "doseLabel": "Supplement",
+        "description": "Routine vitamin A supplementation from 15 months."
+      }
+    },
+    "ui": {
+      "nextDue": "Next: {{name}} ({{dose}})",
+      "allUpToDate": "All scheduled vaccines are up to date",
+      "selectChild": "Select a child to see their recommended vaccine schedule",
+      "dob": "Date of birth",
+      "attention": "Attention needed",
+      "scheduleTitle": "Vaccine schedule",
+      "timeline": "Timeline",
+      "vaccineRecord": "Vaccine record",
+      "alreadyLogged": "Already logged",
+      "administeredDate": "Administered date",
+      "providerOptional": "Provider / clinic",
+      "optional": "Optional",
+      "notesPlaceholder": "Batch number, reactions, etc.",
+      "removeRecord": "Remove record",
+      "whereToGo": "Where to go",
+      "nextSteps": "Next steps",
+      "overdueVisit": "{{count}} vaccine overdue — schedule a visit",
+      "overdueVisit_other": "{{count}} vaccines overdue — schedule a visit",
+      "vaccinesCompleted": "{{completed}} of {{total}} vaccines completed",
+      "children": "Children",
+      "family": "Family",
+      "childrenFromFamilyCaption": "Children come from your Family profile.",
+      "profile": "Profile",
+      "details": "Details",
+      "age": "Age",
+      "percentComplete": "{{percent}}% complete",
+      "nextUp": "Next up",
+      "recommendedBy": "Recommended by {{date}}",
+      "daysOverdue": "{{count}} day overdue",
+      "daysOverdue_other": "{{count}} days overdue",
+      "dueToday": "Due today",
+      "dueInDays": "Due in {{count}} day",
+      "dueInDays_other": "Due in {{count}} days",
+      "givenOn": "Given {{date}}",
+      "dueOn": "Due {{date}}",
+      "vaccineRecordTitle": "Vaccine record",
+      "logIntro": "Log when this vaccine was given. You can update or remove the record later.",
+      "alreadyLoggedPill": "Already logged",
+      "completedOn": "Completed: {{date}}",
+      "noChildSelected": "No child selected",
+      "vaccine": "Vaccine",
+      "select": "Select",
+      "notes": "Notes",
+      "tapAdministeredDate": "Tap the date this vaccine was administered",
+      "selectedDate": "Selected: {{date}}",
+      "familySetupExplainer": "Family setup collects date of birth for each child — that's what powers the vaccine schedule."
+    },
+    "status": {
+      "completed": "Completed",
+      "overdue": "Overdue",
+      "due-soon": "Due soon",
+      "upcoming": "Upcoming"
+    }
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Once daily",
+        "slots": {
+          "0": "Daily dose"
+        }
+      },
+      "twice-daily": {
+        "label": "Twice daily",
+        "slots": {
+          "0": "Morning",
+          "1": "Evening"
+        }
+      },
+      "three-times-daily": {
+        "label": "Three times daily",
+        "slots": {
+          "0": "Morning",
+          "1": "Afternoon",
+          "2": "Evening"
+        }
+      },
+      "as-needed": {
+        "label": "As needed",
+        "slots": {
+          "0": "Dose"
+        }
+      }
+    },
+    "ui": {
+      "you": "You",
+      "child": "Child",
+      "nothingToday": "Nothing scheduled for today",
+      "catchUp": "Catch up on any missed doses from earlier",
+      "upToDate": "You are up to date for today",
+      "paused": "Paused",
+      "editMedicine": "Edit Medicine",
+      "addMedicine": "Add Medicine",
+      "updateHint": "Update dosage, schedule, who this is for, or pause this medicine.",
+      "addHint": "Add a medicine for yourself or a child in your family.",
+      "forKid": "Is this for a kid?",
+      "forMe": "No — for me",
+      "forKidYes": "Yes — for a kid",
+      "setupFamilyFirst": "Set up your family and add kids first.",
+      "addChildrenFirst": "Add children in Family before assigning a medicine.",
+      "howOften": "How often",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "With food, side effects, etc.",
+      "notesPlaceholderLog": "With food, side effects…",
+      "selectChildTitle": "Select a child",
+      "selectChildMessage": "Choose which child this medicine is for.",
+      "removeMedicine": "Remove medicine",
+      "removeConfirmTitle": "Remove medicine?",
+      "removeConfirmMessage": "Dose history for this medicine will also be deleted.",
+      "updateDoseLog": "Update dose log",
+      "markTaken": "Mark as taken",
+      "removeDoseLog": "Remove this dose log",
+      "dosesTakenToday": "{{taken}} of {{expected}} doses taken today",
+      "asNeededLoggedToday": "{{count}} as-needed dose logged today",
+      "asNeededLoggedToday_other": "{{count}} as-needed doses logged today",
+      "dosesStillDue": "{{count}} dose still due today",
+      "dosesStillDue_other": "{{count}} doses still due today",
+      "doseN": "Dose {{n}}",
+      "today": "Today",
+      "activeMedicines": "Active medicines",
+      "emptyFilter": "No doses scheduled for today in this filter. Add a medicine or check start dates.",
+      "tapToUndo": "Tap to undo",
+      "tapToMarkTaken": "Tap to mark taken",
+      "pausedSuffix": "(paused)",
+      "notFound": "That medicine was not found.",
+      "addBeforeLogging": "Add a medicine before logging doses.",
+      "logIntro": "Log a dose you have taken. You can also undo from the home screen.",
+      "medicine": "Medicine",
+      "dose": "Dose",
+      "dateLabel": "Date: {{date}}",
+      "name": "Name",
+      "dosage": "Dosage",
+      "namePlaceholder": "e.g. Metformin",
+      "dosagePlaceholder": "e.g. 500mg",
+      "startDateHint": "Start date — doses are tracked from this day forward.",
+      "startsOn": "Starts {{date}}",
+      "status": "Status",
+      "active": "Active",
+      "whichChild": "Which child?",
+      "signInFamilyKids": "Sign in and set up your family to assign medicines to kids.",
+      "anyParentCanLog": "Any parent in the household can log doses for kids from their CareMate account."
+    },
+    "status": {
+      "taken": "Taken",
+      "due": "Due",
+      "missed": "Missed",
+      "upcoming": "Upcoming",
+      "as-needed": "As needed"
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Happy": "Happy",
+      "Calm": "Calm",
+      "Tired": "Tired",
+      "Anxious": "Anxious",
+      "Excited": "Excited",
+      "Unwell": "Unwell"
+    },
+    "symptoms": {
+      "Nausea": "Nausea",
+      "Fatigue": "Fatigue",
+      "Back pain": "Back pain",
+      "Cramping": "Cramping",
+      "Heartburn": "Heartburn",
+      "Swelling": "Swelling",
+      "Headache": "Headache",
+      "Insomnia": "Insomnia",
+      "Food cravings": "Food cravings"
+    },
+    "milestones": {
+      "8": {
+        "title": "First prenatal visit",
+        "description": "Schedule your first check-up with your provider."
+      },
+      "12": {
+        "title": "End of first trimester",
+        "description": "Risk of miscarriage drops significantly."
+      },
+      "20": {
+        "title": "Anatomy scan",
+        "description": "Mid-pregnancy ultrasound around 18–22 weeks."
+      },
+      "28": {
+        "title": "Third trimester begins",
+        "description": "Baby is growing quickly — rest when you can."
+      },
+      "36": {
+        "title": "Weekly check-ins",
+        "description": "Your provider may want to see you more often."
+      },
+      "40": {
+        "title": "Due date",
+        "description": "Your estimated delivery date."
+      }
+    },
+    "ui": {
+      "dailyLog": "Daily log",
+      "howFeeling": "How are you feeling?",
+      "howFeelingSubtitle": "Log how you're feeling today. This helps you spot patterns over time.",
+      "babyKicks": "Baby kicks",
+      "notesPlaceholder": "How are you feeling? Any questions for your next visit?",
+      "setTimeline": "Set your timeline",
+      "setTimelineSubtitle": "Choose how you want to set up your pregnancy timeline. You can use your last period or a due date from your provider.",
+      "lastPeriod": "Last period",
+      "dueDate": "Due date",
+      "babyNickname": "Baby nickname",
+      "pickDate": "Pick a date",
+      "tapLmp": "Tap the first day of your last menstrual period.",
+      "tapDue": "Tap your estimated due date from your provider.",
+      "estimatedDue": "Estimated due date",
+      "selectedDue": "Selected due date",
+      "progress": "Pregnancy progress",
+      "kicksLogged": "Kicks logged",
+      "comingUp": "Coming up",
+      "milestonesTitle": "Milestones",
+      "journey": "Journey",
+      "weekDay": "Week {{weeks}}, Day {{days}}",
+      "daysUntilDue": "{{count}} day until {{name}}'s due date",
+      "daysUntilDue_other": "{{count}} days until {{name}}'s due date",
+      "todayIsDue": "Today is {{name}}'s due date",
+      "daysPastDue": "{{count}} day past due date",
+      "daysPastDue_other": "{{count}} days past due date",
+      "timeline": "Timeline",
+      "percentComplete": "{{percent}}% complete",
+      "week0": "Week 0",
+      "week40": "Week 40",
+      "estimatedFromLmp": "Estimated from your last menstrual period",
+      "todaysLog": "Today's log",
+      "daily": "Daily",
+      "mood": "Mood",
+      "symptoms": "Symptoms",
+      "noSymptomsToday": "No symptoms logged yet today",
+      "weekThisWeek": "Week {{week}} · This week",
+      "weekInDays": "Week {{week}} · In about {{count}} day",
+      "weekInDays_other": "Week {{week}} · In about {{count}} days",
+      "weekLabel": "Week {{week}}",
+      "setupEyebrow": "Setup",
+      "tapKickHint": "Tap + each time you feel movement",
+      "notes": "Notes",
+      "babyPlaceholder": "Baby"
+    },
+    "trimester": {
+      "1": "First trimester",
+      "2": "Second trimester",
+      "3": "Third trimester"
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Your next period may start today",
+      "thisWeek": "This week",
+      "cycleSummary": "Cycle summary",
+      "averageCycle": "Average cycle",
+      "periodLength": "Period length",
+      "loggedDays": "Logged days",
+      "dayOfCycle": "Day {{day}} of your cycle",
+      "dayPill": "Day {{day}}",
+      "daysUntilPeriod": "About {{count}} day until your next period",
+      "daysUntilPeriod_other": "About {{count}} days until your next period",
+      "calendar": "Calendar",
+      "loggedPeriod": "Logged period",
+      "predicted": "Predicted",
+      "daysCount": "{{count}} days",
+      "daysSelected": "{{count}} day selected",
+      "daysSelected_other": "{{count}} days selected"
+    }
+  }
+}

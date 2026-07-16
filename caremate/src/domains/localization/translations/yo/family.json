@@ -1,0 +1,35 @@
+{
+  "title": "Ẹbí",
+  "subtitle": "Àwọn profáìlì ilé àti ìtọ́jú ọmọ tí a pín",
+  "loading": "Ń ṣàkójọpọ̀ ẹbí...",
+  "setup": {
+    "title": "Ṣètò ìtọ́jú ẹbí?",
+    "subtitle": "Ṣàfikún àwọn ọmọ kí o sì sopọ̀ mọ́ ọkọ/aya kí àwọn irinṣẹ́ ìtọ́jú lè wà ní ètò.",
+    "yes": "Bẹ́ẹ̀ni, ṣètò",
+    "notNow": "Kì í ṣe nísinsìnyí"
+  },
+  "kidsCount": {
+    "title": "Àwọn ọmọ mélòó?",
+    "placeholder": "Iye àwọn ọmọ"
+  },
+  "child": {
+    "title": "Ọmọ {{index}}",
+    "name": "Orúkọ kíkún",
+    "dob": "Ọjọ́ ìbí",
+    "gender": "Akọ tàbí abo"
+  },
+  "review": {
+    "title": "Ṣàyẹ̀wò ilé",
+    "save": "Fi ilé pamọ́",
+    "back": "Padà"
+  },
+  "requests": {
+    "title": "Àwọn ìbéèrè àsopọ̀",
+    "accept": "Gbà",
+    "decline": "Kọ̀",
+    "empty": "Kò sí ìbéèrè tó ń dúró"
+  },
+  "invite": "Pe ọkọ/aya",
+  "addChild": "Ṣàfikún ọmọ",
+  "searchPlaceholder": "Wá nípasẹ̀ ID Aláìsàn tàbí ímeèlì"
+}

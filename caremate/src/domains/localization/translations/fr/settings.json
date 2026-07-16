@@ -1,0 +1,42 @@
+{
+  "loading": "Chargement des paramètres...",
+  "hero": {
+    "eyebrow": "Préférences",
+    "title": "Paramètres",
+    "subtitle": "Apparence, notifications, pays et langue, et raccourcis famille."
+  },
+  "appearance": "Apparence",
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système",
+    "useSystem": "Utiliser le thème système",
+    "darkMode": "Mode sombre"
+  },
+  "familySection": {
+    "guest": "Connectez-vous pour configurer votre profil familial, vos enfants et le lien avec votre conjoint.",
+    "hint": "Ajoutez des enfants et connectez votre conjoint. Chaque parent conserve ses propres données CareMate.",
+    "open": "Ouvrir la famille"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "push": "Notifications push"
+  },
+  "location": {
+    "title": "Localisation",
+    "guestHint": "Connectez-vous pour définir votre pays et votre langue. Les invités utilisent les choix de l'onboarding.",
+    "hint": "Utilisé pour le contenu santé local et les préférences linguistiques.",
+    "country": "Pays",
+    "language": "Langue",
+    "state": "État / province",
+    "statePlaceholder": "ex. Californie, Grand Accra",
+    "selected": "Sélectionné : {{value}}",
+    "notSet": "Non défini",
+    "save": "Enregistrer la localisation",
+    "saving": "Enregistrement..."
+  },
+  "family": {
+    "title": "Famille",
+    "manage": "Gérer le foyer"
+  }
+}

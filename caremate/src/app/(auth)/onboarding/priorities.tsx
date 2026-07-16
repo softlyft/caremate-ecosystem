@@ -6,10 +6,11 @@ import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { ONBOARDING_PRIORITIES, useOnboardingDraftStore } from '@/domains/onboarding';
+import { ONBOARDING_PRIORITY_IDS, useOnboardingDraftStore } from '@/domains/onboarding';
 import type { OnboardingPriorityId } from '@/domains/onboarding';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES, PRIORITY_VISUALS } from '@/domains/onboarding/themes';
+import { useTranslation } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[1];
@@ -22,31 +23,37 @@ const ICONS = {
 } as const;
 
 export default function OnboardingPrioritiesScreen() {
+  const { t } = useTranslation();
   const priorities = useOnboardingDraftStore((s) => s.priorities);
   const togglePriority = useOnboardingDraftStore((s) => s.togglePriority);
 
   return (
     <OnboardingShell
-      step={1}
-      title="What matters most?"
-      subtitle="Tap what you care about — we'll tailor the next optional steps."
-      onSkip={() => router.push('/(auth)/onboarding/region')}
+      step={2}
+      title={t('onboarding.priorities.title')}
+      subtitle={t('onboarding.priorities.subtitle')}
+      onSkip={() => router.push('/(auth)/onboarding/location')}
       footer={
         <OnboardingPrimaryButton
-          label={priorities.length ? `Continue · ${priorities.length} selected` : 'Continue'}
+          label={
+            priorities.length
+              ? t('onboarding.priorities.continueSelected', { count: priorities.length })
+              : t('common.continue')
+          }
           accent={theme.accent}
-          onPress={() => router.push('/(auth)/onboarding/region')}
+          onPress={() => router.push('/(auth)/onboarding/location')}
         />
       }
     >
       <View style={styles.list}>
-        {ONBOARDING_PRIORITIES.map((item, index) => {
-          const selected = priorities.includes(item.id);
-          const visual = PRIORITY_VISUALS[item.id as OnboardingPriorityId];
-          const Icon = ICONS[item.id as OnboardingPriorityId];
+        {ONBOARDING_PRIORITY_IDS.map((item, index) => {
+          const id = item as OnboardingPriorityId;
+          const selected = priorities.includes(id);
+          const visual = PRIORITY_VISUALS[id];
+          const Icon = ICONS[id];
           return (
             <Animated.View
-              key={item.id}
+              key={id}
               entering={FadeInDown.delay(100 + index * 80)
                 .duration(480)
                 .springify()
@@ -63,7 +70,7 @@ export default function OnboardingPrioritiesScreen() {
                       }
                     : null,
                 ]}
-                onPress={() => togglePriority(item.id)}
+                onPress={() => togglePriority(id)}
                 scale={0.97}
               >
                 <LinearGradientFill
@@ -90,10 +97,10 @@ export default function OnboardingPrioritiesScreen() {
                       variant="cardTitle"
                       style={[styles.label, selected ? { color: visual.accent } : null]}
                     >
-                      {item.label}
+                      {t(`onboarding.priorities.${id}.label`)}
                     </AppText>
                     <AppText variant="caption" style={styles.description}>
-                      {item.description}
+                      {t(`onboarding.priorities.${id}.description`)}
                     </AppText>
                   </View>
                   {selected ? (

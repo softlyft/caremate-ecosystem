@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Kulawa da ke aiki ba tare da intanet ba",
+    "subtitle": "Saiti na ɗan gajeren lokaci don Kusa, labarai, da kayan aikin gaggawa su yi daidai tun ranar farko.",
+    "cta": "Mu tafi",
+    "foot": "Fara da zaɓar ƙasa da harshe.",
+    "preview": {
+      "countryLanguage": "Ƙasa + harshe",
+      "priorities": "Abubuwan da suka fi muhimmanci a gare ka",
+      "news": "Labaran lafiya na yanki",
+      "nearby": "Kulawa kusa"
+    }
+  },
+  "country": {
+    "title": "Ƙasarka da harshenka",
+    "subtitle": "Waɗannan suna jagorantar abubuwan lafiya na yanki da keɓancewa a duk CareMate.",
+    "field": {
+      "country": "Ƙasa",
+      "language": "Harshe",
+      "state": "Jiha / lardi (na zaɓi)"
+    },
+    "statePlaceholder": "misali Greater Accra"
+  },
+  "priorities": {
+    "title": "Me ya fi muhimmanci?",
+    "subtitle": "Taɓa abin da kake damuwa da shi — za mu daidaita matakai na zaɓi masu zuwa.",
+    "continueSelected": "Ci gaba · an zaɓi {{count}}",
+    "emergency": {
+      "label": "Gaggawa",
+      "description": "Katin lafiya ba tare da intanet ba don masu agajin farko"
+    },
+    "nearby": {
+      "label": "Kulawa kusa",
+      "description": "Asibitoci, clinic, da kantin magani a kusa da kai"
+    },
+    "family": {
+      "label": "Iyali / yara",
+      "description": "Bayanan gidaje da kula da yara tare"
+    },
+    "learn": {
+      "label": "Koyo",
+      "description": "Labaran lafiya da amincewa da shawarwari"
+    }
+  },
+  "location": {
+    "title": "Nemo kulawa kusa",
+    "subtitle": "Yi amfani da GPS daidai don mafi kyawun sakamako, ko ajiye kimanin wurin bisa ƙasa.",
+    "enable": "Kunna wuri",
+    "checking": "Ana duba…",
+    "approximateCta": "Yi amfani da kimanin wuri",
+    "precise": {
+      "title": "Daidai",
+      "hint": "Mafi kyawun jeri ga asibitoci da clinic a kusa da kai"
+    },
+    "approximate": {
+      "title": "Kimani",
+      "hint": "Madadin bisa ƙasa — canza kowane lokaci daga baya"
+    }
+  },
+  "notifications": {
+    "title": "Kasance a cikin labari",
+    "subtitle": "Ajiye zaɓinka yanzu. Isar da sanarwa za ta fara aiki idan an kammala haɗe-haɗen sanarwar CareMate.",
+    "healthReminders": "Tunatarwar lafiya",
+    "healthRemindersHint": "Shawarwari, tunatarwar bincike, da muhimman sabuntawa"
+  },
+  "next": {
+    "title": "Ka shirya",
+    "subtitle": "Bincika a matsayin baƙo, ko ƙirƙiri asusu don bayanan gaggawa da iyali su iya daidaitawa.",
+    "continueExploring": "Ci gaba da bincike",
+    "saving": "Ana ajiyewa…",
+    "createAccount": "Ƙirƙiri asusu",
+    "haveAccount": "Na riga na sami asusu",
+    "browseTitle": "Bincika cikin 'yanci",
+    "browseHint": "Labarai, Kusa, da ƙananan manhaja suna aiki a matsayin baƙo",
+    "syncTitle": "Ƙirƙiri don daidaitawa",
+    "syncHint": "Ƙirƙiri asusu kafin gaggawa ko iyali don bayanai kada su makale a wannan na'ura kawai"
+  }
+}

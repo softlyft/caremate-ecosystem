@@ -10,6 +10,7 @@ import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -19,6 +20,7 @@ const SOFT_END = '#F5F3FF';
 const TITLE = palette.brandPurpleDark;
 
 export default function EmergencyQrScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
 
@@ -28,17 +30,14 @@ export default function EmergencyQrScreen() {
   });
 
   if (query.isLoading) {
-    return <LoadingState title="Preparing QR code..." />;
+    return <LoadingState title={t('emergency.qr.loading')} />;
   }
 
   const profile = query.data;
   if (!profile) {
     return (
       <View style={styles.screen}>
-        <EmptyState
-          title="No emergency profile"
-          message="Create a profile before generating a QR code."
-        />
+        <EmptyState title={t('emergency.qr.emptyTitle')} message={t('emergency.qr.emptyMessage')} />
       </View>
     );
   }
@@ -73,13 +72,13 @@ export default function EmergencyQrScreen() {
                 </View>
               </View>
               <AppText variant="caption" style={styles.heroEyebrow}>
-                Share offline
+                {t('emergency.qr.shareOffline')}
               </AppText>
               <AppText variant="screenTitle" style={styles.heroTitle}>
-                Emergency QR
+                {t('emergency.qr.title')}
               </AppText>
               <AppText variant="subtitle" style={styles.heroSubtitle}>
-                First responders can scan for critical details when you cannot speak.
+                {t('emergency.qr.subtitle')}
               </AppText>
             </LinearGradientFill>
           </View>
@@ -88,12 +87,12 @@ export default function EmergencyQrScreen() {
         <AnimatedSection index={1}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Preview
+              {t('emergency.qr.preview')}
             </AppText>
             <View style={styles.qrPlaceholder}>
               <QrCode color={ACCENT} size={64} strokeWidth={1.5} />
               <AppText variant="caption" style={styles.previewHint}>
-                QR rendering will use an Edge Function or on-device encoder in a follow-up.
+                {t('emergency.qr.previewHint')}
               </AppText>
             </View>
           </View>
@@ -102,7 +101,7 @@ export default function EmergencyQrScreen() {
         <AnimatedSection index={2}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Payload
+              {t('emergency.qr.payload')}
             </AppText>
             <AppText variant="navLabel" selectable style={styles.payload}>
               {payload}

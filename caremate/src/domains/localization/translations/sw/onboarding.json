@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Huduma inayofanya kazi bila mtandao",
+    "subtitle": "Usanidi mfupi ili Karibu, habari, na zana za dharura zihisi sawa tangu siku ya kwanza.",
+    "cta": "Twende",
+    "foot": "Anza kwa kuchagua nchi na lugha.",
+    "preview": {
+      "countryLanguage": "Nchi + lugha",
+      "priorities": "Vipaumbele vyako",
+      "news": "Habari za afya za eneo",
+      "nearby": "Huduma karibu"
+    }
+  },
+  "country": {
+    "title": "Nchi na lugha yako",
+    "subtitle": "Hizi huendesha maudhui ya afya ya eneo na ubinafsishaji katika CareMate.",
+    "field": {
+      "country": "Nchi",
+      "language": "Lugha",
+      "state": "Jimbo / mkoa (hiari)"
+    },
+    "statePlaceholder": "mf. Greater Accra"
+  },
+  "priorities": {
+    "title": "Nini muhimu zaidi?",
+    "subtitle": "Gusa unachojali — tutaweka hatua zinazofuata za hiari kulingana na hilo.",
+    "continueSelected": "Endelea · {{count}} zimechaguliwa",
+    "emergency": {
+      "label": "Dharura",
+      "description": "Kadi ya afya bila mtandao kwa wahudumu wa kwanza"
+    },
+    "nearby": {
+      "label": "Huduma karibu",
+      "description": "Hospitali, kliniki, na maduka ya dawa karibu nawe"
+    },
+    "family": {
+      "label": "Familia / watoto",
+      "description": "Wasifu wa kaya na huduma ya watoto iliyoshirikiwa"
+    },
+    "learn": {
+      "label": "Jifunze",
+      "description": "Makala za afya zinazoaminika na vidokezo"
+    }
+  },
+  "location": {
+    "title": "Tafuta huduma karibu",
+    "subtitle": "Tumia GPS sahihi kwa mechi bora, au weka pini ya takriban kulingana na nchi.",
+    "enable": "Washa eneo",
+    "checking": "Inakagua…",
+    "approximateCta": "Tumia eneo la takriban",
+    "precise": {
+      "title": "Sahihi",
+      "hint": "Uorodheshaji bora kwa hospitali na kliniki karibu nawe"
+    },
+    "approximate": {
+      "title": "Takriban",
+      "hint": "Mbadala kulingana na nchi — badilisha wakati wowote baadaye"
+    }
+  },
+  "notifications": {
+    "title": "Endelea kupata habari",
+    "subtitle": "Hifadhi mapendeleo yako sasa. Uwasilishaji wa push utaanza CareMate arifa zitakapounganishwa kikamilifu.",
+    "healthReminders": "Vikumbusho vya afya",
+    "healthRemindersHint": "Vidokezo, vikumbusho vya uchunguzi, na masasisho muhimu"
+  },
+  "next": {
+    "title": "Uko tayari",
+    "subtitle": "Chunguza kama mgeni, au fungua akaunti ili data ya dharura na familia iweze kusawazishwa.",
+    "continueExploring": "Endelea kuchunguza",
+    "saving": "Inahifadhi…",
+    "createAccount": "Fungua akaunti",
+    "haveAccount": "Nina akaunti tayari",
+    "browseTitle": "Vinjari kwa uhuru",
+    "browseHint": "Makala, Karibu, na programu ndogo hufanya kazi kama mgeni",
+    "syncTitle": "Fungua ili kusawazisha",
+    "syncHint": "Fungua akaunti kabla ya dharura au familia ili data isibaki kwenye kifaa hiki pekee"
+  }
+}

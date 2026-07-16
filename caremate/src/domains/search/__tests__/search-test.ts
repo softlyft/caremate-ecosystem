@@ -6,8 +6,6 @@ const stubIcon = (() => null) as unknown as MiniAppDefinition['icon'];
 const sampleApps: MiniAppDefinition[] = [
   {
     id: 'medication-tracker',
-    name: 'Medication Tracker',
-    description: 'Track medicines and doses.',
     route: '/(app)/apps/medication-tracker',
     icon: stubIcon,
     color: '#000',
@@ -16,8 +14,6 @@ const sampleApps: MiniAppDefinition[] = [
   },
   {
     id: 'period-tracker',
-    name: 'Period Tracker',
-    description: 'Track cycles.',
     route: '/(app)/apps/period-tracker',
     icon: stubIcon,
     color: '#000',
@@ -26,8 +22,6 @@ const sampleApps: MiniAppDefinition[] = [
   },
   {
     id: 'checkup-planner',
-    name: 'Checkup Planner',
-    description: 'Plan medical checkups.',
     route: '/(app)/apps/checkup-planner',
     icon: stubIcon,
     color: '#000',
@@ -47,7 +41,7 @@ describe('search helpers', () => {
     expect(matchesSearchText(null, 'x')).toBe(false);
   });
 
-  test('filterMiniApps matches name/description and skips unavailable', () => {
+  test('filterMiniApps matches registry labels and skips unavailable', () => {
     expect(filterMiniApps('medicine', sampleApps).map((app) => app.id)).toEqual([
       'medication-tracker',
     ]);

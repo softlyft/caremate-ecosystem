@@ -6,12 +6,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
+import { useTranslation } from '@/domains/localization';
 import { VACCINE_SCHEDULE } from '@/mini-apps/immunization-tracker/constants';
 import {
   useImmunizationTrackerHydrated,
   useImmunizationTrackerStore,
 } from '@/mini-apps/immunization-tracker/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/immunization-tracker/utils';
+import { localizeVaccine } from '@/mini-apps/immunization-tracker/localize';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -27,6 +29,7 @@ import { palette, spacing } from '@/theme';
 const APP_ID = 'immunization-tracker' as const;
 
 export default function ImmunizationLogScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const { vaccineId: initialVaccineId, profileId: paramProfileId } = useLocalSearchParams<{
     vaccineId?: string;
@@ -69,7 +72,10 @@ export default function ImmunizationLogScreen() {
   const [provider, setProvider] = useState(existingRecord?.provider ?? '');
   const [notes, setNotes] = useState(existingRecord?.notes ?? '');
 
-  const selectedVaccine = VACCINE_SCHEDULE.find((vaccine) => vaccine.id === selectedVaccineId)!;
+  const selectedVaccine = localizeVaccine(
+    VACCINE_SCHEDULE.find((vaccine) => vaccine.id === selectedVaccineId)!,
+    t,
+  );
   const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
   const selectVaccine = (vaccineId: string) => {
@@ -81,7 +87,7 @@ export default function ImmunizationLogScreen() {
   };
 
   if (!hydrated) {
-    return <LoadingState title="Loading vaccine log…" />;
+    return <LoadingState title={t('apps.immunizationTracker.loadingLog')} />;
   }
 
   if (!profileId) {
@@ -89,12 +95,12 @@ export default function ImmunizationLogScreen() {
       <MiniAppScreen>
         <MiniAppHero
           appId={APP_ID}
-          eyebrow="Log vaccine"
-          title="No child selected"
-          subtitle="Add children in your Family profile before logging vaccines."
+          eyebrow={t('apps.immunizationTracker.logVaccine')}
+          title={t('apps.immunizationTracker.noChildSelected')}
+          subtitle={t('apps.immunizationTracker.noChildSubtitle')}
         />
         <MiniAppCta
-          label="Open family"
+          label={t('apps.openFamily')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.replace('/(app)/family')}
@@ -107,20 +113,26 @@ export default function ImmunizationLogScreen() {
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow="Log vaccine"
-        title={profileName ?? 'Vaccine record'}
-        subtitle={`Record a vaccine for ${profileName ?? 'this child'}. You can update or remove an existing entry.`}
+        eyebrow={t('apps.immunizationTracker.logVaccine')}
+        title={profileName ?? t('apps.immunization.ui.vaccineRecordTitle')}
+        subtitle={t('apps.immunization.ui.logIntro')}
       />
 
-      <MiniAppCard index={1} title="Vaccine" eyebrow="Select" theme={theme}>
+      <MiniAppCard
+        index={1}
+        title={t('apps.immunization.ui.vaccine')}
+        eyebrow={t('apps.immunization.ui.select')}
+        theme={theme}
+      >
         <View style={styles.chipRow}>
           {VACCINE_SCHEDULE.map((vaccine) => {
             const selected = vaccine.id === selectedVaccineId;
             const completed = profileRecords.some((record) => record.vaccineId === vaccine.id);
+            const localized = localizeVaccine(vaccine, t);
             return (
               <MiniAppChip
                 key={vaccine.id}
-                label={`${vaccine.name} ${vaccine.doseLabel}${completed ? ' ✓' : ''}`}
+                label={`${localized.name} ${localized.doseLabel}${completed ? ' ✓' : ''}`}
                 selected={selected}
                 accent={theme.color}
                 soft={theme.backgroundColor}
@@ -132,14 +144,19 @@ export default function ImmunizationLogScreen() {
         <AppText variant="quickActionSubtitle">{selectedVaccine.description}</AppText>
         {existingRecord ? (
           <StatusPill
-            label="Already logged"
+            label={t('apps.immunization.ui.alreadyLoggedPill')}
             color={theme.color}
             background={theme.backgroundColor}
           />
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={2} title={monthLabel} eyebrow="Administered date" theme={theme}>
+      <MiniAppCard
+        index={2}
+        title={monthLabel}
+        eyebrow={t('apps.immunization.ui.administeredDate')}
+        theme={theme}
+      >
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -150,7 +167,7 @@ export default function ImmunizationLogScreen() {
             <ChevronLeft color={palette.textSecondary} size={20} />
           </Pressable>
           <AppText variant="caption" style={styles.muted}>
-            Tap the date this vaccine was administered
+            {t('apps.immunization.ui.tapAdministeredDate')}
           </AppText>
           <Pressable
             hitSlop={12}
@@ -172,27 +189,45 @@ export default function ImmunizationLogScreen() {
 
         {administeredDate ? (
           <AppText variant="body" style={styles.selectedDate}>
-            Selected: {formatDisplayDate(administeredDate)}
+            {t('apps.immunization.ui.selectedDate', { date: formatDisplayDate(administeredDate) })}
           </AppText>
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={3} title="Provider / clinic" eyebrow="Optional" theme={theme}>
+      <MiniAppCard
+        index={3}
+        title={t('apps.immunization.ui.providerOptional')}
+        eyebrow={t('apps.immunization.ui.optional')}
+        theme={theme}
+      >
         <Input
           value={provider}
           onChangeText={setProvider}
-          placeholder="Optional"
+          placeholder={t('apps.immunization.ui.optional')}
           autoCapitalize="words"
         />
       </MiniAppCard>
 
-      <MiniAppCard index={4} title="Notes" eyebrow="Details" theme={theme}>
-        <Input value={notes} onChangeText={setNotes} placeholder="Batch number, reactions, etc." />
+      <MiniAppCard
+        index={4}
+        title={t('apps.immunization.ui.notes')}
+        eyebrow={t('apps.immunization.ui.details')}
+        theme={theme}
+      >
+        <Input
+          value={notes}
+          onChangeText={setNotes}
+          placeholder={t('apps.immunization.ui.notesPlaceholder')}
+        />
       </MiniAppCard>
 
       <View style={!administeredDate ? styles.ctaDisabled : undefined}>
         <MiniAppCta
-          label={existingRecord ? 'Update record' : 'Save vaccine'}
+          label={
+            existingRecord
+              ? t('apps.immunizationTracker.updateRecord')
+              : t('apps.immunizationTracker.saveVaccine')
+          }
           accent={theme.color}
           soft={theme.backgroundColor}
           index={5}
@@ -214,7 +249,7 @@ export default function ImmunizationLogScreen() {
 
       {existingRecord ? (
         <MiniAppCta
-          label="Remove record"
+          label={t('apps.immunization.ui.removeRecord')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary

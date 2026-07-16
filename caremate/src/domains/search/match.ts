@@ -1,4 +1,5 @@
 import type { MiniAppDefinition } from '@/mini-apps/_kit/registry';
+import { translateText } from '@/domains/localization/i18n/translate';
 
 const MAX_RESULTS_PER_SECTION = 8;
 
@@ -25,10 +26,11 @@ export function filterMiniApps(query: string, apps: MiniAppDefinition[]): MiniAp
 
   return apps
     .filter((app) => app.available)
-    .filter(
-      (app) =>
-        matchesSearchText(app.name, normalized) || matchesSearchText(app.description, normalized),
-    )
+    .filter((app) => {
+      const name = translateText('en', `apps.registry.${app.id}.name`);
+      const description = translateText('en', `apps.registry.${app.id}.description`);
+      return matchesSearchText(name, normalized) || matchesSearchText(description, normalized);
+    })
     .slice(0, MAX_RESULTS_PER_SECTION);
 }
 

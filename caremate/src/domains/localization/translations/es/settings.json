@@ -1,0 +1,42 @@
+{
+  "loading": "Cargando ajustes...",
+  "hero": {
+    "eyebrow": "Preferencias",
+    "title": "Ajustes",
+    "subtitle": "Apariencia, notificaciones, país e idioma, y accesos de familia."
+  },
+  "appearance": "Apariencia",
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "useSystem": "Usar tema del sistema",
+    "darkMode": "Modo oscuro"
+  },
+  "familySection": {
+    "guest": "Inicia sesión para configurar tu perfil familiar, hijos y conexión con tu pareja.",
+    "hint": "Añade hijos y conecta a tu pareja. Cada padre mantiene sus propios datos de CareMate.",
+    "open": "Abrir familia"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "push": "Notificaciones push"
+  },
+  "location": {
+    "title": "Ubicación",
+    "guestHint": "Inicia sesión para definir tu país e idioma. Los invitados usan las selecciones del onboarding.",
+    "hint": "Se usa para contenido de salud local y preferencias de idioma.",
+    "country": "País",
+    "language": "Idioma",
+    "state": "Estado / provincia",
+    "statePlaceholder": "ej. California, Gran Accra",
+    "selected": "Seleccionado: {{value}}",
+    "notSet": "No definido",
+    "save": "Guardar ubicación",
+    "saving": "Guardando..."
+  },
+  "family": {
+    "title": "Familia",
+    "manage": "Gestionar hogar"
+  }
+}

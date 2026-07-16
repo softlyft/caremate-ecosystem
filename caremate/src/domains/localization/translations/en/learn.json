@@ -1,0 +1,38 @@
+{
+  "title": "Learn",
+  "subtitle": "Trusted health guidance and news curated for your journey",
+  "articleCount": "{{count}} articles",
+  "searchPlaceholder": "Search articles",
+  "bookmarks": "View bookmarks",
+  "featured": "Featured",
+  "allTopics": "All topics",
+  "loading": "Loading articles...",
+  "loadingArticle": "Loading article...",
+  "loadingBookmarks": "Loading bookmarks...",
+  "loadingCategory": "Loading category...",
+  "category": "Category",
+  "categoryEmpty": "No articles in this category",
+  "empty": {
+    "title": "No articles found",
+    "categoryTitle": "No {{category}} articles",
+    "message": "Try another search or category."
+  },
+  "bookmarksTitle": "Bookmarks",
+  "bookmarksEmpty": {
+    "title": "No bookmarks yet",
+    "message": "Save articles to read them offline later."
+  },
+  "article": "Article",
+  "news": "News",
+  "brand": "CareMate",
+  "minRead": "{{minutes}} min read",
+  "externalSource": "External source",
+  "careMateGuide": "CareMate guide",
+  "readFull": "Read full article",
+  "backToLearn": "Back to Learn",
+  "goBack": "Go back",
+  "notFound": {
+    "title": "Article not found",
+    "message": "This article may have been removed."
+  }
+}

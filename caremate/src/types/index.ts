@@ -27,6 +27,7 @@ export interface Profile extends BaseEntity {
   dateOfBirth: string | null;
   avatarUrl: string | null;
   countryCode: string | null;
+  languageCode: string | null;
   state: string | null;
   /** CareMate Patient ID — 12 digits, minted on demand (not at signup). */
   patientId: string | null;

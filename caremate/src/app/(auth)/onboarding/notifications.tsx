@@ -17,11 +17,13 @@ import { Switch } from '@/components/ui/switch';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
+import { useTranslation } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[4];
 
 export default function OnboardingNotificationsScreen() {
+  const { t } = useTranslation();
   const notificationsEnabled = useOnboardingDraftStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useOnboardingDraftStore((s) => s.setNotificationsEnabled);
   const swing = useSharedValue(0);
@@ -51,9 +53,9 @@ export default function OnboardingNotificationsScreen() {
 
   return (
     <OnboardingShell
-      step={4}
-      title="Stay in the loop"
-      subtitle="Save your preference now. Push delivery turns on when CareMate notifications are fully wired."
+      step={5}
+      title={t('onboarding.notifications.title')}
+      subtitle={t('onboarding.notifications.subtitle')}
       onSkip={handleSkip}
       hero={
         <View style={[styles.heroShell, shadow.card]}>
@@ -79,7 +81,7 @@ export default function OnboardingNotificationsScreen() {
       }
       footer={
         <OnboardingPrimaryButton
-          label="Continue"
+          label={t('common.continue')}
           accent={theme.accent}
           onPress={() => router.push('/(auth)/onboarding/next')}
         />
@@ -100,10 +102,10 @@ export default function OnboardingNotificationsScreen() {
           </View>
           <View style={styles.copy}>
             <AppText variant="body" style={[styles.title, { color: theme.title }]}>
-              Health reminders
+              {t('onboarding.notifications.healthReminders')}
             </AppText>
             <AppText variant="caption" style={styles.subtitle}>
-              Tips, checkup nudges, and important updates
+              {t('onboarding.notifications.healthRemindersHint')}
             </AppText>
           </View>
           <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />

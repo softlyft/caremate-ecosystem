@@ -1,0 +1,32 @@
+{
+  "title": "Programu",
+  "subtitle": "Zana za afya binafsi zinazofanya kazi bila mtandao",
+  "readyCount": "Zana {{count}} ziko tayari",
+  "comingSoon": "Inakuja hivi karibuni",
+  "registry": {
+    "medication-tracker": {
+      "name": "Kifuatiliaji cha Dawa",
+      "description": "Fuatilia dawa, dozi za kila siku, na ufuataji kwa ajili yako au familia yako."
+    },
+    "checkup-planner": {
+      "name": "Mpangaji wa Uchunguzi",
+      "description": "Ona uchunguzi wa matibabu unaopendekezwa kulingana na umri, jinsia, na eneo."
+    },
+    "immunization-tracker": {
+      "name": "Kifuatiliaji cha Chanjo",
+      "description": "Fuatilia chanjo, tarehe zinazostahili, na rekodi ya chanjo ya mtoto wako."
+    },
+    "pregnancy-tracker": {
+      "name": "Kifuatiliaji cha Ujauzito",
+      "description": "Fuata ujauzito wako wiki kwa wiki, rekodi dalili, na fuatilia hatua muhimu."
+    },
+    "period-tracker": {
+      "name": "Kifuatiliaji cha Hedhi",
+      "description": "Fuatilia mizunguko, rekodi siku za hedhi, na uone utabiri rahisi."
+    }
+  },
+  "signInRequired": "Ingia ili kusawazisha zana hii kati ya vifaa",
+  "save": "Hifadhi",
+  "log": "Rekodi ingizo",
+  "setup": "Sanidi"
+}

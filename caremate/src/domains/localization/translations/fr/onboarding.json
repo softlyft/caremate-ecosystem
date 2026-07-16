@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Des soins qui fonctionnent hors ligne",
+    "subtitle": "Une courte configuration pour que Proximité, l'actualité et les outils d'urgence soient adaptés dès le premier jour.",
+    "cta": "C'est parti",
+    "foot": "Commencez par choisir le pays et la langue.",
+    "preview": {
+      "countryLanguage": "Pays + langue",
+      "priorities": "Vos priorités",
+      "news": "Actualités santé locales",
+      "nearby": "Soins à proximité"
+    }
+  },
+  "country": {
+    "title": "Votre pays et votre langue",
+    "subtitle": "Ils déterminent le contenu santé local et la personnalisation dans CareMate.",
+    "field": {
+      "country": "Pays",
+      "language": "Langue",
+      "state": "État / province (facultatif)"
+    },
+    "statePlaceholder": "ex. Grand Accra"
+  },
+  "priorities": {
+    "title": "Qu'est-ce qui compte le plus ?",
+    "subtitle": "Touchez ce qui vous intéresse — nous adapterons les prochaines étapes facultatives.",
+    "continueSelected": "Continuer · {{count}} sélectionné(s)",
+    "emergency": {
+      "label": "Urgence",
+      "description": "Carte santé hors ligne pour les secours"
+    },
+    "nearby": {
+      "label": "Soins à proximité",
+      "description": "Hôpitaux, cliniques et pharmacies autour de vous"
+    },
+    "family": {
+      "label": "Famille / enfants",
+      "description": "Profils du foyer et soins partagés pour les enfants"
+    },
+    "learn": {
+      "label": "Apprendre",
+      "description": "Articles et conseils santé de confiance"
+    }
+  },
+  "location": {
+    "title": "Trouver des soins près de vous",
+    "subtitle": "Utilisez le GPS précis pour les meilleurs résultats, ou conservez un point approximatif basé sur le pays.",
+    "enable": "Activer la localisation",
+    "checking": "Vérification…",
+    "approximateCta": "Utiliser une localisation approximative",
+    "precise": {
+      "title": "Précise",
+      "hint": "Meilleur classement des hôpitaux et cliniques autour de vous"
+    },
+    "approximate": {
+      "title": "Approximative",
+      "hint": "Repli basé sur le pays — modifiable à tout moment"
+    }
+  },
+  "notifications": {
+    "title": "Restez informé",
+    "subtitle": "Enregistrez votre préférence maintenant. Les notifications push s'activeront quand CareMate sera entièrement connecté.",
+    "healthReminders": "Rappels santé",
+    "healthRemindersHint": "Conseils, rappels de bilan et mises à jour importantes"
+  },
+  "next": {
+    "title": "Vous êtes prêt",
+    "subtitle": "Explorez en tant qu'invité, ou créez un compte pour synchroniser urgence et famille.",
+    "continueExploring": "Continuer à explorer",
+    "saving": "Enregistrement…",
+    "createAccount": "Créer un compte",
+    "haveAccount": "J'ai déjà un compte",
+    "browseTitle": "Parcourir librement",
+    "browseHint": "Articles, À proximité et mini-apps fonctionnent en invité",
+    "syncTitle": "Créer pour synchroniser",
+    "syncHint": "Créez un compte avant urgence ou famille pour ne pas perdre vos données"
+  }
+}

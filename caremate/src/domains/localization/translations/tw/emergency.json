@@ -1,0 +1,40 @@
+{
+  "title": "Ahoyɛ",
+  "loading": "Ɛreloa ahoyɛ profile...",
+  "empty": {
+    "title": "Ahoyɛ profile nni hɔ dedaw",
+    "message": "Fa mogya kuw, allergies, ne ICE nkitahodie ka ho ma wɔn a wodi kan boa.",
+    "cta": "Yɛ profile"
+  },
+  "fields": {
+    "fullName": "Din a ɛyɛ pɛ",
+    "bloodGroup": "Mogya kuw",
+    "genotype": "Genotype",
+    "allergies": "Allergies",
+    "medications": "Aduru a wowɔ seesei",
+    "conditions": "Yareɛ a ɛtra hɔ daa",
+    "contacts": "Ahoyɛ nkitahodie",
+    "hospital": "Ayaresabea a wopɛ",
+    "insurance": "Insurance ɔde ma",
+    "notes": "Nkyerɛw"
+  },
+  "edit": {
+    "title": "Sesa ahoyɛ profile",
+    "save": "Sie profile",
+    "addContact": "Fa nkitahodie ka ho",
+    "contactName": "Nkitahodie din",
+    "contactPhone": "Fon",
+    "relationship": "Abusuabɔ"
+  },
+  "qr": {
+    "title": "Ahoyɛ QR",
+    "empty": "Yɛ ahoyɛ profile kan"
+  },
+  "lock": {
+    "title": "Ahoyɛ kaade",
+    "call": "Frɛ ICE",
+    "help": "Kyerɛ kaade yi sɛ wontumi nkasa mma wo ho a."
+  },
+  "widget": "Sesa lock-screen widget",
+  "preview": "Hwɛ lock screen"
+}

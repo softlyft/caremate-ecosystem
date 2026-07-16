@@ -1,0 +1,42 @@
+{
+  "loading": "Ń ṣàkójọpọ̀ àwọn ètò...",
+  "hero": {
+    "eyebrow": "Àwọn ìfẹ́",
+    "title": "Àwọn ètò",
+    "subtitle": "Ìrísí, ìfitónilétí, orílẹ̀-èdè àti èdè, àti àwọn ọ̀nà kíá ẹbí."
+  },
+  "appearance": "Ìrísí",
+  "theme": {
+    "light": "Ìmọ́lẹ̀",
+    "dark": "Òkùnkùn",
+    "system": "Ẹ̀rọ",
+    "useSystem": "Lo téèmù ẹ̀rọ",
+    "darkMode": "Ìpo òkùnkùn"
+  },
+  "familySection": {
+    "guest": "Wọlé láti ṣètò profáìlì ẹbí rẹ, àwọn ọmọ, àti àsopọ̀ ọkọ/aya.",
+    "hint": "Ṣàfikún àwọn ọmọ kí o sì sopọ̀ mọ́ ọkọ/aya rẹ. Òbí kọ̀ọ̀kan ń pa data CareMate tirẹ̀ mọ́.",
+    "open": "Ṣí ẹbí"
+  },
+  "notifications": {
+    "title": "Ìfitónilétí",
+    "push": "Ìfitónilétí push"
+  },
+  "location": {
+    "title": "Ibùdó",
+    "guestHint": "Wọlé láti ṣètò orílẹ̀-èdè àti èdè rẹ. Àwọn àlejò ń lo àṣàyàn ìbẹ̀rẹ̀.",
+    "hint": "A ń lò ó fún àkóónú ìlera àdúgbò àti ìfẹ́ èdè.",
+    "country": "Orílẹ̀-èdè",
+    "language": "Èdè",
+    "state": "Ìpínlẹ̀ / agbègbè",
+    "statePlaceholder": "bíi California, Greater Accra",
+    "selected": "Tí a yàn: {{value}}",
+    "notSet": "Kò tíì ṣètò",
+    "save": "Fi ibùdó pamọ́",
+    "saving": "Ń fi pamọ́..."
+  },
+  "family": {
+    "title": "Ẹbí",
+    "manage": "Ṣàkóso ilé"
+  }
+}

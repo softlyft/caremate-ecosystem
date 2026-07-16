@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -13,21 +14,20 @@ import {
   MonthCalendarGrid,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import {
-  FREQUENCY_OPTIONS,
-  type MedicationFrequency,
-} from '@/mini-apps/medication-tracker/constants';
+import { type MedicationFrequency } from '@/mini-apps/medication-tracker/constants';
 import {
   useMedicationTrackerHydrated,
   useMedicationTrackerStore,
 } from '@/mini-apps/medication-tracker/store';
 import { useMedicationFamilyKids } from '@/mini-apps/medication-tracker/use-family-kids';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/medication-tracker/utils';
+import { localizeFrequencyOptions } from '@/mini-apps/medication-tracker/localize';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
 
 export default function MedicationSetupScreen() {
+  const { t } = useTranslation();
   const { medicationId } = useLocalSearchParams<{ medicationId?: string }>();
   const navigation = useNavigation();
   const today = useMemo(() => new Date(), []);
@@ -79,9 +79,9 @@ export default function MedicationSetupScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      title: isEditing ? 'Edit Medicine' : 'Add Medicine',
+      title: isEditing ? t('apps.medication.ui.editMedicine') : t('apps.medication.ui.addMedicine'),
     });
-  }, [isEditing, navigation]);
+  }, [isEditing, navigation, t]);
 
   const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   const selectedChild =
@@ -103,9 +103,9 @@ export default function MedicationSetupScreen() {
   if (isEditing && !editing) {
     return (
       <View style={styles.loading}>
-        <AppText variant="body">That medicine was not found.</AppText>
+        <AppText variant="body">{t('apps.medication.ui.notFound')}</AppText>
         <MiniAppCta
-          label="Go back"
+          label={t('common.goBack')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.back()}
@@ -117,15 +117,13 @@ export default function MedicationSetupScreen() {
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
-        {isEditing
-          ? 'Update dosage, schedule, who this is for, or pause this medicine.'
-          : 'Add a medicine for yourself or a child in your family.'}
+        {isEditing ? t('apps.medication.ui.updateHint') : t('apps.medication.ui.addHint')}
       </AppText>
 
-      <MiniAppCard index={1} title="Is this for a kid?" theme={theme}>
+      <MiniAppCard index={1} title={t('apps.medication.ui.forKid')} theme={theme}>
         <View style={styles.chipRow}>
           <MiniAppChip
-            label="No — for me"
+            label={t('apps.medication.ui.forMe')}
             selected={!forKid}
             accent={theme.color}
             soft={theme.backgroundColor}
@@ -135,7 +133,7 @@ export default function MedicationSetupScreen() {
             }}
           />
           <MiniAppChip
-            label="Yes — for a kid"
+            label={t('apps.medication.ui.forKidYes')}
             selected={forKid}
             accent={theme.color}
             soft={theme.backgroundColor}
@@ -150,10 +148,10 @@ export default function MedicationSetupScreen() {
             ) : familyKids.status === 'guest' ? (
               <>
                 <AppText variant="caption" style={styles.muted}>
-                  Sign in and set up your family to assign medicines to kids.
+                  {t('apps.medication.ui.signInFamilyKids')}
                 </AppText>
                 <MiniAppCta
-                  label="Sign in"
+                  label={t('common.signIn')}
                   accent={theme.color}
                   soft={theme.backgroundColor}
                   secondary
@@ -166,12 +164,14 @@ export default function MedicationSetupScreen() {
               <>
                 <AppText variant="caption" style={styles.muted}>
                   {familyKids.status === 'needs_family_setup'
-                    ? 'Set up your family and add kids first.'
-                    : 'Add children in Family before assigning a medicine.'}
+                    ? t('apps.medication.ui.setupFamilyFirst')
+                    : t('apps.medication.ui.addChildrenFirst')}
                 </AppText>
                 <MiniAppCta
                   label={
-                    familyKids.status === 'needs_family_setup' ? 'Set up family' : 'Open family'
+                    familyKids.status === 'needs_family_setup'
+                      ? t('apps.setUpFamily')
+                      : t('apps.openFamily')
                   }
                   accent={theme.color}
                   soft={theme.backgroundColor}
@@ -188,7 +188,7 @@ export default function MedicationSetupScreen() {
               </>
             ) : (
               <>
-                <AppText variant="body">Which child?</AppText>
+                <AppText variant="body">{t('apps.medication.ui.whichChild')}</AppText>
                 <View style={styles.chipRow}>
                   {familyKids.children.map((child) => (
                     <MiniAppChip
@@ -202,7 +202,7 @@ export default function MedicationSetupScreen() {
                   ))}
                 </View>
                 <AppText variant="caption" style={styles.muted}>
-                  Any parent in the household can log doses for kids from their CareMate account.
+                  {t('apps.medication.ui.anyParentCanLog')}
                 </AppText>
               </>
             )}
@@ -210,27 +210,27 @@ export default function MedicationSetupScreen() {
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={2} title="Name" theme={theme}>
+      <MiniAppCard index={2} title={t('apps.medication.ui.name')} theme={theme}>
         <Input
           value={name}
           onChangeText={setName}
-          placeholder="e.g. Metformin"
+          placeholder={t('apps.medication.ui.namePlaceholder')}
           autoCapitalize="words"
         />
       </MiniAppCard>
 
-      <MiniAppCard index={3} title="Dosage" theme={theme}>
+      <MiniAppCard index={3} title={t('apps.medication.ui.dosage')} theme={theme}>
         <Input
           value={dosage}
           onChangeText={setDosage}
-          placeholder="e.g. 500mg"
+          placeholder={t('apps.medication.ui.dosagePlaceholder')}
           autoCapitalize="none"
         />
       </MiniAppCard>
 
-      <MiniAppCard index={4} title="How often" theme={theme}>
+      <MiniAppCard index={4} title={t('apps.medication.ui.howOften')} theme={theme}>
         <View style={styles.chipRow}>
-          {FREQUENCY_OPTIONS.map((option) => (
+          {localizeFrequencyOptions(t).map((option) => (
             <MiniAppChip
               key={option.id}
               label={option.label}
@@ -264,7 +264,7 @@ export default function MedicationSetupScreen() {
           </Pressable>
         </View>
         <AppText variant="caption" style={styles.muted}>
-          Start date — doses are tracked from this day forward.
+          {t('apps.medication.ui.startDateHint')}
         </AppText>
         <MonthCalendarGrid
           monthRef={monthRef}
@@ -273,30 +273,34 @@ export default function MedicationSetupScreen() {
           onDayPress={setStartDate}
           getDayState={(dayKey) => ({ selected: dayKey === startDate })}
         />
-        {startDate ? <AppText variant="body">Starts {formatDisplayDate(startDate)}</AppText> : null}
+        {startDate ? (
+          <AppText variant="body">
+            {t('apps.medication.ui.startsOn', { date: formatDisplayDate(startDate) })}
+          </AppText>
+        ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={6} title="Notes (optional)" theme={theme}>
+      <MiniAppCard index={6} title={t('apps.medication.ui.notesOptional')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
-          placeholder="With food, side effects, etc."
+          placeholder={t('apps.medication.ui.notesPlaceholder')}
           multiline
         />
       </MiniAppCard>
 
       {isEditing ? (
-        <MiniAppCard index={7} title="Status" theme={theme}>
+        <MiniAppCard index={7} title={t('apps.medication.ui.status')} theme={theme}>
           <View style={styles.chipRow}>
             <MiniAppChip
-              label="Active"
+              label={t('apps.medication.ui.active')}
               selected={active}
               accent={theme.color}
               soft={theme.backgroundColor}
               onPress={() => setActive(true)}
             />
             <MiniAppChip
-              label="Paused"
+              label={t('apps.medication.ui.paused')}
               selected={!active}
               accent={theme.color}
               soft={theme.backgroundColor}
@@ -307,7 +311,11 @@ export default function MedicationSetupScreen() {
       ) : null}
 
       <MiniAppCta
-        label={isEditing ? 'Save changes' : 'Add medicine'}
+        label={
+          isEditing
+            ? t('apps.medicationTracker.setupSaveEdit')
+            : t('apps.medicationTracker.setupSave')
+        }
         accent={theme.color}
         soft={theme.backgroundColor}
         index={8}
@@ -316,7 +324,10 @@ export default function MedicationSetupScreen() {
             return;
           }
           if (forKid && !selectedChild) {
-            Alert.alert('Select a child', 'Choose which child this medicine is for.');
+            Alert.alert(
+              t('apps.medication.ui.selectChildTitle'),
+              t('apps.medication.ui.selectChildMessage'),
+            );
             return;
           }
           const patientPayload = {
@@ -343,19 +354,19 @@ export default function MedicationSetupScreen() {
 
       {isEditing && editing ? (
         <MiniAppCta
-          label="Remove medicine"
+          label={t('apps.medication.ui.removeMedicine')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary
           index={9}
           onPress={() => {
             Alert.alert(
-              'Remove medicine?',
-              'Dose history for this medicine will also be deleted.',
+              t('apps.medication.ui.removeConfirmTitle'),
+              t('apps.medication.ui.removeConfirmMessage'),
               [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                  text: 'Remove',
+                  text: t('common.remove'),
                   style: 'destructive',
                   onPress: () => {
                     removeMedication(editing.id);

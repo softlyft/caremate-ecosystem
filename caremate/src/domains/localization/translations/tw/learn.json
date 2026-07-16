@@ -1,0 +1,28 @@
+{
+  "title": "Sua",
+  "subtitle": "Apɔwmuden akwankyerɛ a wotumi gye di ne amanneɛ a wɔapaw ma wo akwantuo",
+  "articleCount": "Nkyerɛkyerɛ {{count}}",
+  "searchPlaceholder": "Hwehwɛ nkyerɛkyerɛ",
+  "bookmarks": "Hwɛ nhwɛsoɔ",
+  "featured": "Deɛ ɛda adi",
+  "allTopics": "Nsɛmti nyinaa",
+  "loading": "Ɛreloa nkyerɛkyerɛ...",
+  "empty": {
+    "title": "Wonnnhu nkyerɛkyerɛ biara",
+    "categoryTitle": "{{category}} nkyerɛkyerɛ nni hɔ",
+    "message": "Sɔ nhwehwɛmu foforo anaa kuw foforo hwɛ."
+  },
+  "bookmarksTitle": "Nhwɛsoɔ",
+  "bookmarksEmpty": {
+    "title": "Nhwɛsoɔ nni hɔ dedaw",
+    "message": "Sie nkyerɛkyerɛ na kenkan wɔn akyiri a intanɛt nni hɔ."
+  },
+  "article": "Nkyerɛkyerɛ",
+  "news": "Amanneɛ",
+  "backToLearn": "San kɔ Sua",
+  "goBack": "San kɔ akyiri",
+  "notFound": {
+    "title": "Wonnnhu nkyerɛkyerɛ no",
+    "message": "Ebia wɔayi nkyerɛkyerɛ yi afiri hɔ."
+  }
+}

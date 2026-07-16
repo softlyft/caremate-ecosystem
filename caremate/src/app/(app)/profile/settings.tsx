@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { QUERY_KEYS } from '@/constants/config';
-import { getCountryName, NEWS_COUNTRIES, NIGERIA_STATES } from '@/constants/locations';
+import { localizationService, useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
@@ -26,6 +26,7 @@ const SOFT_END = '#F8FAFC';
 const TITLE = '#334155';
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
@@ -43,13 +44,19 @@ export default function SettingsScreen() {
   });
 
   const remoteCountryCode = profileQuery.data?.countryCode ?? null;
+  const remoteLanguageCode = profileQuery.data?.languageCode ?? null;
   const remoteState = profileQuery.data?.state ?? '';
   const [countryDraft, setCountryDraft] = useState<string | null | undefined>(undefined);
+  const [languageDraft, setLanguageDraft] = useState<string | null | undefined>(undefined);
   const [stateDraft, setStateDraft] = useState<string | undefined>(undefined);
   const [savingLocation, setSavingLocation] = useState(false);
 
   const countryCode = countryDraft !== undefined ? countryDraft : remoteCountryCode;
+  const languageCode = languageDraft !== undefined ? languageDraft : remoteLanguageCode;
   const state = stateDraft !== undefined ? stateDraft : remoteState;
+  const subdivisions = localizationService.getCountrySubdivisions(countryCode);
+  const languages = localizationService.getSupportedLanguages(countryCode);
+  const resolvedLanguage = localizationService.normalizeLanguage(countryCode, languageCode);
 
   async function updateTheme(value: 'light' | 'dark' | 'system') {
     setTheme(value);
@@ -70,11 +77,13 @@ export default function SettingsScreen() {
     try {
       await profileRepository.save(userId, {
         countryCode,
+        languageCode: resolvedLanguage,
         state: state.trim() || null,
       });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trendingArticles });
       setCountryDraft(undefined);
+      setLanguageDraft(undefined);
       setStateDraft(undefined);
     } finally {
       setSavingLocation(false);
@@ -82,7 +91,7 @@ export default function SettingsScreen() {
   }
 
   if (!isGuest && profileQuery.isLoading) {
-    return <LoadingState title="Loading settings..." />;
+    return <LoadingState title={t('settings.loading')} />;
   }
 
   return (
@@ -113,13 +122,13 @@ export default function SettingsScreen() {
               </View>
 
               <AppText variant="caption" style={styles.heroEyebrow}>
-                Preferences
+                {t('settings.hero.eyebrow')}
               </AppText>
               <AppText variant="screenTitle" style={styles.heroTitle}>
-                Settings
+                {t('settings.hero.title')}
               </AppText>
               <AppText variant="subtitle" style={styles.heroSubtitle}>
-                Appearance, notifications, location for local health news, and family shortcuts.
+                {t('settings.hero.subtitle')}
               </AppText>
             </LinearGradientFill>
           </View>
@@ -127,15 +136,15 @@ export default function SettingsScreen() {
 
         <AnimatedSection index={1}>
           <View style={[styles.card, shadow.soft]}>
-            <SectionLabel icon={Users} title="Family" />
+            <SectionLabel icon={Users} title={t('settings.family.title')} />
             {isGuest ? (
               <AppText variant="caption" style={styles.muted}>
-                Sign in to set up your family profile, kids, and spouse connection.
+                {t('settings.familySection.guest')}
               </AppText>
             ) : (
               <>
                 <AppText variant="caption" style={styles.muted}>
-                  Add children and connect your spouse. Each parent keeps their own CareMate data.
+                  {t('settings.familySection.hint')}
                 </AppText>
                 <PressableScale
                   style={styles.secondaryCta}
@@ -143,7 +152,7 @@ export default function SettingsScreen() {
                 >
                   <Users color={ACCENT} size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
-                    Open family
+                    {t('settings.familySection.open')}
                   </AppText>
                 </PressableScale>
               </>
@@ -153,10 +162,10 @@ export default function SettingsScreen() {
 
         <AnimatedSection index={2}>
           <View style={[styles.card, shadow.soft]}>
-            <SectionLabel icon={Palette} title="Appearance" />
+            <SectionLabel icon={Palette} title={t('settings.appearance')} />
             <SettingRow
               icon={Palette}
-              label="Use system theme"
+              label={t('settings.theme.useSystem')}
               trailing={
                 <Switch
                   value={theme === 'system'}
@@ -167,7 +176,7 @@ export default function SettingsScreen() {
             <View style={styles.divider} />
             <SettingRow
               icon={Moon}
-              label="Dark mode"
+              label={t('settings.theme.darkMode')}
               trailing={
                 <Switch
                   value={theme === 'dark'}
@@ -180,10 +189,10 @@ export default function SettingsScreen() {
 
         <AnimatedSection index={3}>
           <View style={[styles.card, shadow.soft]}>
-            <SectionLabel icon={Bell} title="Notifications" />
+            <SectionLabel icon={Bell} title={t('settings.notifications.title')} />
             <SettingRow
               icon={Bell}
-              label="Push notifications"
+              label={t('settings.notifications.push')}
               trailing={<Switch value={notificationsEnabled} onValueChange={updateNotifications} />}
             />
           </View>
@@ -191,22 +200,22 @@ export default function SettingsScreen() {
 
         <AnimatedSection index={4}>
           <View style={[styles.card, shadow.soft]}>
-            <SectionLabel icon={MapPin} title="Location" />
+            <SectionLabel icon={MapPin} title={t('settings.location.title')} />
             {isGuest ? (
               <AppText variant="caption" style={styles.muted}>
-                Sign in to set your country and state. Guests see international health news.
+                {t('settings.location.guestHint')}
               </AppText>
             ) : (
               <>
                 <AppText variant="caption" style={styles.muted}>
-                  Used for local health news. Leave unset to see international stories.
+                  {t('settings.location.hint')}
                 </AppText>
 
                 <AppText variant="caption" style={styles.fieldLabel}>
-                  Country
+                  {t('settings.location.country')}
                 </AppText>
                 <View style={styles.chipRow}>
-                  {NEWS_COUNTRIES.map((country) => {
+                  {localizationService.listCountryOptions().map((country) => {
                     const selected = countryCode === country.code;
                     return (
                       <PressableScale
@@ -214,8 +223,16 @@ export default function SettingsScreen() {
                         style={[styles.chip, selected && styles.chipSelected]}
                         scale={0.96}
                         onPress={() => {
-                          setCountryDraft(selected ? null : country.code);
-                          if (country.code !== 'NG') {
+                          if (selected) {
+                            return;
+                          }
+                          setCountryDraft(country.code);
+                          setLanguageDraft(localizationService.getDefaultLanguage(country.code));
+                          if (
+                            !localizationService
+                              .getCountrySubdivisions(country.code)
+                              .includes(state)
+                          ) {
                             setStateDraft('');
                           }
                         }}
@@ -231,50 +248,79 @@ export default function SettingsScreen() {
                   })}
                 </View>
 
-                {countryCode === 'NG' ? (
+                {countryCode ? (
                   <>
                     <AppText variant="caption" style={styles.fieldLabel}>
-                      State
+                      {t('settings.location.language')}
                     </AppText>
                     <View style={styles.chipRow}>
-                      {NIGERIA_STATES.map((item) => {
-                        const selected = state === item;
+                      {languages.map((item) => {
+                        const selected = resolvedLanguage === item;
                         return (
                           <PressableScale
                             key={item}
                             style={[styles.chip, selected && styles.chipSelected]}
                             scale={0.96}
-                            onPress={() => setStateDraft(selected ? '' : item)}
+                            onPress={() => setLanguageDraft(item)}
                           >
                             <AppText
                               variant="caption"
                               style={selected ? styles.chipTextSelected : styles.chipText}
                             >
-                              {item}
+                              {localizationService.getLanguageConfig(item).nativeName}
                             </AppText>
                           </PressableScale>
                         );
                       })}
                     </View>
                   </>
-                ) : (
+                ) : null}
+
+                {countryCode ? (
                   <>
                     <AppText variant="caption" style={styles.fieldLabel}>
-                      State / region
+                      {t('settings.location.state')}
                     </AppText>
-                    <Input
-                      placeholder="e.g. California, Greater Accra"
-                      value={state}
-                      onChangeText={setStateDraft}
-                      autoCapitalize="words"
-                    />
+                    {subdivisions.length > 0 ? (
+                      <View style={styles.chipRow}>
+                        {subdivisions.map((item) => {
+                          const selected = state === item;
+                          return (
+                            <PressableScale
+                              key={item}
+                              style={[styles.chip, selected && styles.chipSelected]}
+                              scale={0.96}
+                              onPress={() => setStateDraft(selected ? '' : item)}
+                            >
+                              <AppText
+                                variant="caption"
+                                style={selected ? styles.chipTextSelected : styles.chipText}
+                              >
+                                {item}
+                              </AppText>
+                            </PressableScale>
+                          );
+                        })}
+                      </View>
+                    ) : (
+                      <Input
+                        placeholder={t('settings.location.statePlaceholder')}
+                        value={state}
+                        onChangeText={setStateDraft}
+                        autoCapitalize="words"
+                      />
+                    )}
                   </>
-                )}
+                ) : null}
 
                 {(countryCode || state) && (
                   <AppText variant="caption" style={styles.muted}>
-                    Selected:{' '}
-                    {[getCountryName(countryCode), state].filter(Boolean).join(' · ') || 'Not set'}
+                    {t('settings.location.selected', {
+                      value:
+                        [localizationService.getCountryName(countryCode), state]
+                          .filter(Boolean)
+                          .join(' · ') || t('settings.location.notSet'),
+                    })}
                   </AppText>
                 )}
 
@@ -289,7 +335,7 @@ export default function SettingsScreen() {
                 >
                   <MapPin color="#FFFFFF" size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.primaryCtaLabel}>
-                    {savingLocation ? 'Saving...' : 'Save location'}
+                    {savingLocation ? t('settings.location.saving') : t('settings.location.save')}
                   </AppText>
                 </PressableScale>
               </>

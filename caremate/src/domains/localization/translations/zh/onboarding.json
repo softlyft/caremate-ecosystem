@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "离线也能用的健康关怀",
+    "subtitle": "简短设置，让附近、资讯和急救工具从第一天就符合您的需求。",
+    "cta": "开始吧",
+    "foot": "先选择国家和语言。",
+    "preview": {
+      "countryLanguage": "国家 + 语言",
+      "priorities": "您的优先事项",
+      "news": "本地健康资讯",
+      "nearby": "附近医疗服务"
+    }
+  },
+  "country": {
+    "title": "您的国家和语言",
+    "subtitle": "这些设置决定 CareMate 的本地健康内容和个性化体验。",
+    "field": {
+      "country": "国家",
+      "language": "语言",
+      "state": "州 / 省（可选）"
+    },
+    "statePlaceholder": "例如：大阿克拉"
+  },
+  "priorities": {
+    "title": "什么对您最重要？",
+    "subtitle": "点选您关心的内容 — 我们将据此调整后续可选步骤。",
+    "continueSelected": "继续 · 已选 {{count}} 项",
+    "emergency": {
+      "label": "急救",
+      "description": "供急救人员使用的离线健康卡"
+    },
+    "nearby": {
+      "label": "附近医疗服务",
+      "description": "您周围的医院、诊所和药店"
+    },
+    "family": {
+      "label": "家庭 / 孩子",
+      "description": "家庭档案与共享的儿童护理"
+    },
+    "learn": {
+      "label": "学习",
+      "description": "可信的健康文章与建议"
+    }
+  },
+  "location": {
+    "title": "查找附近的医疗服务",
+    "subtitle": "使用精确 GPS 获得最佳匹配，或保留基于国家的大致位置。",
+    "enable": "启用定位",
+    "checking": "检查中…",
+    "approximateCta": "使用大致位置",
+    "precise": {
+      "title": "精确",
+      "hint": "更好地为您附近的医院和诊所排序"
+    },
+    "approximate": {
+      "title": "大致",
+      "hint": "基于国家的备用方案 — 之后可随时更改"
+    }
+  },
+  "notifications": {
+    "title": "保持关注",
+    "subtitle": "现在保存您的偏好。CareMate 通知完全接入后将开启推送。",
+    "healthReminders": "健康提醒",
+    "healthRemindersHint": "建议、体检提醒和重要更新"
+  },
+  "next": {
+    "title": "一切就绪",
+    "subtitle": "可以游客身份探索，或创建账户以同步急救和家庭数据。",
+    "continueExploring": "继续探索",
+    "saving": "保存中…",
+    "createAccount": "创建账户",
+    "haveAccount": "我已有账户",
+    "browseTitle": "自由浏览",
+    "browseHint": "文章、附近和迷你应用可游客使用",
+    "syncTitle": "创建以同步",
+    "syncHint": "先创建账户再设置急救或家庭，以免数据只留在本机"
+  }
+}

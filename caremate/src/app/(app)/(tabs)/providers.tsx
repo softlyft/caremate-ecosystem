@@ -11,29 +11,19 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { useTranslation } from '@/domains/localization';
 import {
   NearbyProviderCard,
   getProviderTypeTheme,
 } from '@/domains/providers/components/NearbyProviderCard';
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
-import {
-  PRIMARY_PROVIDER_TYPES,
-  PROVIDER_TYPE_LABELS,
-  type ProviderType,
-} from '@/domains/providers/types';
+import { PRIMARY_PROVIDER_TYPES, type ProviderType } from '@/domains/providers/types';
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
-const FILTERS: { label: string; value?: ProviderType }[] = [
-  { label: 'All' },
-  ...PRIMARY_PROVIDER_TYPES.map((type) => ({
-    label: PROVIDER_TYPE_LABELS[type],
-    value: type,
-  })),
-];
-
 export default function ProvidersTabScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { online } = useNetworkStatus();
   const { q: queryParam } = useLocalSearchParams<{ q?: string }>();
@@ -45,6 +35,17 @@ export default function ProvidersTabScreen() {
     setQueryParamSnapshot(queryParam);
     setSearch(initialQuery);
   }
+
+  const filters = useMemo(
+    () => [
+      { label: t('common.all'), value: undefined as ProviderType | undefined },
+      ...PRIMARY_PROVIDER_TYPES.map((type) => ({
+        label: t(`home.providerTypes.${type}`),
+        value: type as ProviderType,
+      })),
+    ],
+    [t],
+  );
 
   const coordsQuery = useQuery({
     queryKey: [...QUERY_KEYS.providers, 'coords'],
@@ -80,7 +81,7 @@ export default function ProvidersTabScreen() {
   if (coordsQuery.isLoading || providersQuery.isLoading) {
     return (
       <View style={styles.screen}>
-        <LoadingState title="Loading nearby providers..." />
+        <LoadingState title={t('nearby.loading')} />
       </View>
     );
   }
@@ -105,14 +106,14 @@ export default function ProvidersTabScreen() {
                 <View style={styles.heroBadge}>
                   <MapPinned color={palette.primary} size={15} strokeWidth={2.25} />
                   <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
-                    {providers.length} nearby
+                    {t('nearby.nearbyCount', { count: providers.length })}
                   </AppText>
                 </View>
                 <AppText variant="screenTitle" style={styles.title}>
-                  Nearby
+                  {t('nearby.title')}
                 </AppText>
                 <AppText variant="subtitle" style={styles.subtitle}>
-                  Hospitals, clinics, pharmacies, and more around you
+                  {t('nearby.subtitle')}
                 </AppText>
               </View>
             </AnimatedSection>
@@ -121,16 +122,14 @@ export default function ProvidersTabScreen() {
 
             {!online || source === 'cache' ? (
               <AppText variant="caption" style={styles.statusNote}>
-                {online
-                  ? 'Showing cached providers. Pull again when the catalog is reachable.'
-                  : 'Offline — showing cached providers.'}
+                {t('nearby.empty.offline')}
               </AppText>
             ) : null}
             {online && source === 'remote' && approximateLocation ? (
               <AppText variant="caption" style={styles.statusNote}>
                 {coordsQuery.data?.outsideServiceArea
-                  ? 'Device location is outside Nigeria — showing Lagos providers.'
-                  : 'Using a default Lagos area — enable location for true Nearby distance.'}
+                  ? t('nearby.outsideArea')
+                  : t('nearby.approximate')}
               </AppText>
             ) : null}
 
@@ -140,7 +139,7 @@ export default function ProvidersTabScreen() {
               </View>
               <TextInput
                 style={styles.searchInput}
-                placeholder="Search providers"
+                placeholder={t('nearby.searchPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 value={search}
                 onChangeText={setSearch}
@@ -150,12 +149,12 @@ export default function ProvidersTabScreen() {
             </View>
 
             <View style={styles.filters}>
-              {FILTERS.map((item) => {
+              {filters.map((item) => {
                 const active = item.value === filter || (!item.value && !filter);
                 const theme = item.value ? getProviderTypeTheme(item.value) : null;
                 return (
                   <PressableScale
-                    key={item.label}
+                    key={item.value ?? 'all'}
                     style={[
                       styles.chip,
                       active
@@ -194,12 +193,8 @@ export default function ProvidersTabScreen() {
         }
         ListEmptyComponent={
           <EmptyState
-            title="No providers nearby"
-            message={
-              online
-                ? 'Try another search, widen filters, or check that locations have been ingested.'
-                : 'Connect to the internet to load Nearby providers for your area.'
-            }
+            title={t('nearby.empty.title')}
+            message={online ? t('nearby.empty.message') : t('nearby.empty.offline')}
           />
         }
         renderItem={({ item }) => (

@@ -1,0 +1,36 @@
+{
+  "title": "Èmi",
+  "guest": {
+    "title": "O ń wòó gẹ́gẹ́ bí àlejò",
+    "subtitle": "Wọlé láti ṣàmúisọpọ̀ profáìlì pájáwìrì, ẹbí, àti àwọn ìfẹ́ káàkiri àwọn ẹ̀rọ.",
+    "signIn": "Wọlé",
+    "createAccount": "Ṣẹ̀dá àkọọ́lẹ̀"
+  },
+  "finishSetup": "Parí ìṣètò",
+  "account": "Àkọọ́lẹ̀",
+  "preferences": "Àwọn ìfẹ́",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Profáìlì pájáwìrì",
+    "family": "Ẹbí",
+    "settings": "Àwọn ètò"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Ń ṣàkójọpọ̀ àwọn ètò...",
+    "personal": "Ara ẹni",
+    "family": "Ẹbí",
+    "monthly": "Oṣooṣù",
+    "yearly": "Ọdọọdún",
+    "guestCta": "Wọlé láti ṣe àkọsílẹ̀",
+    "error": "Kò le bẹ̀rẹ̀ ìsanwó"
+  },
+  "patientId": {
+    "title": "ID Aláìsàn CareMate",
+    "generate": "Ṣẹ̀dá ID fún mi",
+    "copy": "Dàákọ",
+    "fallbackName": "Ọmọ ẹgbẹ́"
+  },
+  "signOut": "Jáde",
+  "biometrics": "Ṣí pẹ̀lú biometrics"
+}

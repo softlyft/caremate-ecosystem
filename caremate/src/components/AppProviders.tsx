@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/form-controls';
 import { BrandLoader } from '@/components/ui/BrandLoader';
 import { getDatabase, initializeDatabase } from '@/database/client';
 import { profiles } from '@/database/schema';
+import { I18nProvider } from '@/domains/localization';
 import { getDeviceDefaults } from '@/domains/onboarding';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
@@ -186,10 +187,16 @@ function BootstrapGate({ children }: PropsWithChildren) {
   return children;
 }
 
+function LocalizedApp({ children }: PropsWithChildren) {
+  return <I18nProvider>{children}</I18nProvider>;
+}
+
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
-      <BootstrapGate>{children}</BootstrapGate>
+      <BootstrapGate>
+        <LocalizedApp>{children}</LocalizedApp>
+      </BootstrapGate>
     </QueryClientProvider>
   );
 }

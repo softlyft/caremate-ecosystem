@@ -6,6 +6,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { SectionHeader } from '@/components/motion/SectionHeader';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import type { Provider } from '@/types';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
 
@@ -50,11 +51,13 @@ function isVerified(provider: Provider): boolean {
 }
 
 export function NearbyProvidersRow({ providers }: NearbyProvidersRowProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <SectionHeader
-        title="Healthcare near you"
-        subtitle="Nearby"
+        title={t('home.nearby.title')}
+        subtitle={t('home.nearby.subtitle')}
         onSeeAll={() => router.push('/(app)/(tabs)/providers')}
       />
       {providers.length === 0 ? (
@@ -63,10 +66,10 @@ export function NearbyProvidersRow({ providers }: NearbyProvidersRowProps) {
             <MapPin color={palette.primary} size={22} />
           </View>
           <AppText variant="cardTitle" style={styles.emptyTitle}>
-            Discover care nearby
+            {t('nearby.empty.title')}
           </AppText>
           <AppText variant="body" style={styles.emptyBody}>
-            Connect to find hospitals, clinics, and pharmacies around you.
+            {t('nearby.empty.message')}
           </AppText>
         </View>
       ) : (

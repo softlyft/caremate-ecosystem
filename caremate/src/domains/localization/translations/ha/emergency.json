@@ -1,0 +1,40 @@
+{
+  "title": "Gaggawa",
+  "loading": "Ana lodawa bayanin gaggawa...",
+  "empty": {
+    "title": "Babu bayanin gaggawa tukuna",
+    "message": "Ƙara nau'in jini, rashin jituwa, da lambobin ICE don masu agajin farko.",
+    "cta": "Ƙirƙiri bayani"
+  },
+  "fields": {
+    "fullName": "Cikakken suna",
+    "bloodGroup": "Nau'in jini",
+    "genotype": "Genotype",
+    "allergies": "Rashin jituwa",
+    "medications": "Magungunan yanzu",
+    "conditions": "Cututtuka na yau da kullum",
+    "contacts": "Lambobin gaggawa",
+    "hospital": "Asibitin da aka fi so",
+    "insurance": "Mai bayar da inshora",
+    "notes": "Bayanan kula"
+  },
+  "edit": {
+    "title": "Gyara bayanin gaggawa",
+    "save": "Ajiye bayani",
+    "addContact": "Ƙara lamba",
+    "contactName": "Sunan mai lamba",
+    "contactPhone": "Waya",
+    "relationship": "Dangantaka"
+  },
+  "qr": {
+    "title": "QR na gaggawa",
+    "empty": "Fara ƙirƙirar bayanin gaggawa"
+  },
+  "lock": {
+    "title": "Katin gaggawa",
+    "call": "Kira ICE",
+    "help": "Nuna wannan katin idan ba za ka iya yi magana da kanka ba."
+  },
+  "widget": "Sabunta widget na allon kulle",
+  "preview": "Duba allon kulle"
+}

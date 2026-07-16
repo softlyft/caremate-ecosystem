@@ -1,0 +1,36 @@
+{
+  "title": "Tòsí",
+  "subtitle": "Wá àwọn ilé-ìwòsàn, ilé-ìtọ́jú, ilé-òògùn, àti ohun mìíràn ní àyíká rẹ",
+  "nearbyCount": "{{count}} tòsí",
+  "searchPlaceholder": "Wá àwọn olùpèsè",
+  "loading": "Ń ṣàkójọpọ̀ àwọn olùpèsè...",
+  "empty": {
+    "title": "Kò sí olùpèsè tòsí",
+    "message": "Gbìyànjú àṣàyàn mìíràn tàbí fẹ́ ìwárí rẹ.",
+    "offline": "Ń fi àwọn olùpèsè tí a fi pamọ́ hàn nígbà tí o kò sí lórí ayélujára."
+  },
+  "approximate": "Ń lo ibùdó tó fẹ́rẹ̀ẹ́",
+  "outsideArea": "Ó wà níta agbègbè rẹ déédéé — èsì lè dínkù",
+  "detail": {
+    "loading": "Ń ṣàkójọpọ̀ olùpèsè...",
+    "notFound": "A kò rí olùpèsè",
+    "unavailable": "Àwọn àlàyé kò sí",
+    "favorite": "Fi ààyànfẹ́ pamọ́",
+    "unfavorite": "Yọ ààyànfẹ́",
+    "call": "Pè",
+    "directions": "Ìtọ́sọ́nà"
+  },
+  "map": {
+    "loading": "Ń ṣàkójọpọ̀ máàpù...",
+    "empty": "Kò sí ibùdó máàpù"
+  },
+  "types": {
+    "hospital": "Ilé-ìwòsàn",
+    "pharmacy": "Ilé-òògùn",
+    "laboratory": "Ilé-ìṣàyẹ̀wò",
+    "clinic": "Ilé-ìtọ́jú",
+    "telemedicine": "Ìwòsàn láti òkèèrè",
+    "blood_bank": "Ibi ìfipamọ́ ẹ̀jẹ̀",
+    "ambulance": "Ambulansi"
+  }
+}

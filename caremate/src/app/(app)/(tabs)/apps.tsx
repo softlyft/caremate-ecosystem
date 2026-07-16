@@ -5,11 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { MINI_APPS } from '@/mini-apps/_kit/registry';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function AppsTabScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const availableCount = MINI_APPS.filter((app) => app.available).length;
 
@@ -28,15 +30,15 @@ export default function AppsTabScreen() {
             <View style={styles.heroBadge}>
               <LayoutGrid color={palette.primary} size={16} strokeWidth={2.25} />
               <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
-                {availableCount} tools ready
+                {t('apps.readyCount', { count: availableCount })}
               </AppText>
             </View>
 
             <AppText variant="screenTitle" style={styles.title}>
-              Apps
+              {t('apps.title')}
             </AppText>
             <AppText variant="subtitle" style={styles.subtitle}>
-              Standalone health tools built into CareMate — track meds, checkups, cycles, and more.
+              {t('apps.subtitle')}
             </AppText>
           </View>
         </AnimatedSection>

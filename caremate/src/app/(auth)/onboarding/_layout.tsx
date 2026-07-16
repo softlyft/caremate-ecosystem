@@ -5,7 +5,7 @@ export default function OnboardingLayout() {
     <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="priorities" />
-      <Stack.Screen name="region" />
+      <Stack.Screen name="country" />
       <Stack.Screen name="location" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="next" />

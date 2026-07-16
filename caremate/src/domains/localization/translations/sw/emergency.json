@@ -1,0 +1,40 @@
+{
+  "title": "Dharura",
+  "loading": "Inapakia wasifu wa dharura...",
+  "empty": {
+    "title": "Bado hakuna wasifu wa dharura",
+    "message": "Ongeza aina ya damu, mizio, na anwani za ICE kwa wahudumu wa kwanza.",
+    "cta": "Unda wasifu"
+  },
+  "fields": {
+    "fullName": "Jina kamili",
+    "bloodGroup": "Aina ya damu",
+    "genotype": "Genotype",
+    "allergies": "Mizio",
+    "medications": "Dawa za sasa",
+    "conditions": "Magonjwa sugu",
+    "contacts": "Anwani za dharura",
+    "hospital": "Hospitali inayopendelewa",
+    "insurance": "Mtoa bima",
+    "notes": "Maelezo"
+  },
+  "edit": {
+    "title": "Hariri wasifu wa dharura",
+    "save": "Hifadhi wasifu",
+    "addContact": "Ongeza anwani",
+    "contactName": "Jina la anwani",
+    "contactPhone": "Simu",
+    "relationship": "Uhusiano"
+  },
+  "qr": {
+    "title": "QR ya dharura",
+    "empty": "Unda wasifu wa dharura kwanza"
+  },
+  "lock": {
+    "title": "Kadi ya dharura",
+    "call": "Piga ICE",
+    "help": "Onyesha kadi hii ikiwa huwezi kuzungumza kwa ajili yako mwenyewe."
+  },
+  "widget": "Sasisha widget ya skrini ya kufunga",
+  "preview": "Hakiki skrini ya kufunga"
+}
