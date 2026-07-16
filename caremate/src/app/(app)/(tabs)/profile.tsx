@@ -126,7 +126,9 @@ export default function ProfileTabScreen() {
                   {isGuest ? t('profile.guest.title') : displayName}
                 </AppText>
                 <AppText variant="subtitle" style={styles.subtitle}>
-                  {isGuest ? t('profile.guest.subtitle') : (user?.email ?? t('profile.guest.signIn'))}
+                  {isGuest
+                    ? t('profile.guest.subtitle')
+                    : (user?.email ?? t('profile.guest.signIn'))}
                 </AppText>
                 {!isGuest ? (
                   <View style={styles.planPill}>
@@ -199,11 +201,7 @@ export default function ProfileTabScreen() {
               iconColor="#B45309"
               iconBackground="#FEF3C7"
               title={t('profile.menu.premium')}
-              subtitle={
-                isGuest
-                  ? t('profile.premium.guestCta')
-                  : t('profile.premium.title')
-              }
+              subtitle={isGuest ? t('profile.premium.guestCta') : t('profile.premium.title')}
               onPress={() =>
                 isGuest
                   ? router.push('/(auth)/login')

@@ -67,9 +67,7 @@ export default function ArticleDetailScreen() {
   }
 
   if (!article) {
-    return (
-      <ErrorState title={t('learn.notFound.title')} message={t('learn.notFound.message')} />
-    );
+    return <ErrorState title={t('learn.notFound.title')} message={t('learn.notFound.message')} />;
   }
 
   const evergreen = isEvergreenArticle(article);

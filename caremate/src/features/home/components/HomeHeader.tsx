@@ -27,9 +27,7 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
     afternoon: t('home.greeting.afternoon'),
     evening: t('home.greeting.evening'),
   });
-  const greeting = name
-    ? t('home.greetingNamed', { greeting: greetingBase, name })
-    : greetingBase;
+  const greeting = name ? t('home.greetingNamed', { greeting: greetingBase, name }) : greetingBase;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>

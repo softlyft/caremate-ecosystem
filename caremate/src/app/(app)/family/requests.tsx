@@ -49,8 +49,7 @@ export default function FamilyRequestsScreen() {
         accept ? t('family.requests.connectedMessage') : t('family.requests.declinedMessage'),
       );
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('family.requests.failedMessage');
+      const message = error instanceof Error ? error.message : t('family.requests.failedMessage');
       Alert.alert(t('family.requests.failed'), message);
     } finally {
       setBusyId(null);
@@ -103,9 +102,7 @@ export default function FamilyRequestsScreen() {
             <View style={styles.actions}>
               <Button
                 label={
-                  busyId === request.id
-                    ? t('family.requests.working')
-                    : t('family.requests.accept')
+                  busyId === request.id ? t('family.requests.working') : t('family.requests.accept')
                 }
                 disabled={busyId === request.id}
                 onPress={() => respond(request.id, true)}

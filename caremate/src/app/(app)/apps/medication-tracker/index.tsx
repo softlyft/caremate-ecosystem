@@ -117,9 +117,14 @@ export default function MedicationTrackerScreen() {
 
   const heroTitle = hasMedications
     ? summary.expected > 0
-      ? t('apps.medication.ui.dosesTakenToday', { taken: summary.taken, expected: summary.expected })
+      ? t('apps.medication.ui.dosesTakenToday', {
+          taken: summary.taken,
+          expected: summary.expected,
+        })
       : summary.taken > 0
-        ? t(pluralKey('apps.medication.ui.asNeededLoggedToday', summary.taken), { count: summary.taken })
+        ? t(pluralKey('apps.medication.ui.asNeededLoggedToday', summary.taken), {
+            count: summary.taken,
+          })
         : t('apps.medication.ui.nothingToday')
     : t('apps.medicationTracker.emptyTitle');
 

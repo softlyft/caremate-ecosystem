@@ -40,7 +40,12 @@ export default function HomeScreen() {
     : splitFullName(profileQuery.data?.fullName ?? '').firstName || null;
 
   const articlesQuery = useQuery({
-    queryKey: [...QUERY_KEYS.trendingArticles, userKey, countryCode ?? 'none', languageCode ?? 'en'],
+    queryKey: [
+      ...QUERY_KEYS.trendingArticles,
+      userKey,
+      countryCode ?? 'none',
+      languageCode ?? 'en',
+    ],
     queryFn: () =>
       articleRepository.getTrendingToday(3, {
         isGuest,

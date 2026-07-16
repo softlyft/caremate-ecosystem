@@ -3,9 +3,7 @@ import { createTranslator, translateText } from '@/domains/localization/i18n/tra
 describe('translateText', () => {
   it('returns English strings by default', () => {
     expect(translateText('en', 'common.continue')).toBe('Continue');
-    expect(translateText('en', 'home.tagline')).toBe(
-      'Your health journey, beautifully organized',
-    );
+    expect(translateText('en', 'home.tagline')).toBe('Your health journey, beautifully organized');
   });
 
   it('returns localized strings when available', () => {

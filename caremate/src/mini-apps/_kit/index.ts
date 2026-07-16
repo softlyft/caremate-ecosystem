@@ -1,4 +1,9 @@
-export { MINI_APPS, getMiniAppLabel, type MiniAppDefinition, type MiniAppId } from '@/mini-apps/_kit/registry';
+export {
+  MINI_APPS,
+  getMiniAppLabel,
+  type MiniAppDefinition,
+  type MiniAppId,
+} from '@/mini-apps/_kit/registry';
 export { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 export { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 export {

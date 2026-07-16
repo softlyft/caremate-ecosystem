@@ -86,8 +86,7 @@ export default function FamilyHubScreen() {
         setNotFound(true);
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('family.lookupFailedMessage');
+      const message = error instanceof Error ? error.message : t('family.lookupFailedMessage');
       Alert.alert(t('family.lookupFailed'), message);
     } finally {
       setBusy(false);
@@ -111,8 +110,7 @@ export default function FamilyHubScreen() {
       setLookup('');
       await refreshAll();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('family.connectionFailedMessage');
+      const message = error instanceof Error ? error.message : t('family.connectionFailedMessage');
       Alert.alert(t('family.connectionFailed'), message);
     } finally {
       setBusy(false);
@@ -136,8 +134,7 @@ export default function FamilyHubScreen() {
       }
       await refreshAll();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('family.inviteFailedMessage');
+      const message = error instanceof Error ? error.message : t('family.inviteFailedMessage');
       Alert.alert(t('family.inviteFailed'), message);
     } finally {
       setBusy(false);
@@ -167,8 +164,7 @@ export default function FamilyHubScreen() {
       setChildGender('prefer_not_to_say');
       await refreshAll();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('family.addChildFailedMessage');
+      const message = error instanceof Error ? error.message : t('family.addChildFailedMessage');
       Alert.alert(t('family.addChildFailed'), message);
     } finally {
       setBusy(false);
@@ -222,10 +218,7 @@ export default function FamilyHubScreen() {
           contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
         >
           <AnimatedSection index={0}>
-            <FamilyHero
-              title={t('family.startTitle')}
-              subtitle={t('family.startSubtitle')}
-            />
+            <FamilyHero title={t('family.startTitle')} subtitle={t('family.startSubtitle')} />
           </AnimatedSection>
           <AnimatedSection index={1}>
             <PressableScale
@@ -456,8 +449,7 @@ export default function FamilyHubScreen() {
                 </AppText>
                 <AppText variant="caption">
                   {t('family.locationLabel', {
-                    value:
-                      [matched.state, matched.countryCode].filter(Boolean).join(', ') || '—',
+                    value: [matched.state, matched.countryCode].filter(Boolean).join(', ') || '—',
                   })}
                 </AppText>
                 <PressableScale

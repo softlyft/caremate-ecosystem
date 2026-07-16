@@ -168,7 +168,9 @@ export default function OnboardingCountryScreen() {
                     <AppText
                       variant="caption"
                       style={
-                        selected ? [styles.chipTextSelected, { color: theme.accent }] : styles.chipText
+                        selected
+                          ? [styles.chipTextSelected, { color: theme.accent }]
+                          : styles.chipText
                       }
                     >
                       {item}

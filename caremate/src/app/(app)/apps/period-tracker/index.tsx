@@ -186,12 +186,20 @@ export default function PeriodTrackerScreen() {
         <MiniAppRow
           title={t('apps.period.ui.averageCycle')}
           soft={theme.backgroundColor}
-          trailing={<AppText variant="body">{t('apps.period.ui.daysCount', { count: cycleLength })}</AppText>}
+          trailing={
+            <AppText variant="body">
+              {t('apps.period.ui.daysCount', { count: cycleLength })}
+            </AppText>
+          }
         />
         <MiniAppRow
           title={t('apps.period.ui.periodLength')}
           soft={theme.backgroundColor}
-          trailing={<AppText variant="body">{t('apps.period.ui.daysCount', { count: periodLength })}</AppText>}
+          trailing={
+            <AppText variant="body">
+              {t('apps.period.ui.daysCount', { count: periodLength })}
+            </AppText>
+          }
         />
         <MiniAppRow
           title={t('apps.period.ui.loggedDays')}

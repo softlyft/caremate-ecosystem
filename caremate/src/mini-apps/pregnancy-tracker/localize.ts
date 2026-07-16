@@ -1,8 +1,4 @@
-import {
-  MILESTONES,
-  MOOD_OPTIONS,
-  SYMPTOM_OPTIONS,
-} from '@/mini-apps/pregnancy-tracker/constants';
+import { MILESTONES, MOOD_OPTIONS, SYMPTOM_OPTIONS } from '@/mini-apps/pregnancy-tracker/constants';
 import type { TranslateFn } from '@/mini-apps/_kit/i18n';
 import type { PregnancyMilestone, Trimester } from '@/mini-apps/pregnancy-tracker/utils';
 

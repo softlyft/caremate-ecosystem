@@ -143,7 +143,9 @@ export default function CheckupPlannerSetupScreen() {
         </AppText>
         <View style={styles.chipRow}>
           <MiniAppChip
-            label={t('apps.checkup.ui.globalOption', { code: localizationService.internationalCountryCode })}
+            label={t('apps.checkup.ui.globalOption', {
+              code: localizationService.internationalCountryCode,
+            })}
             selected={regionCode === null}
             accent={theme.color}
             soft={theme.backgroundColor}
@@ -153,15 +155,15 @@ export default function CheckupPlannerSetupScreen() {
             .listCountryOptions()
             .filter((country) => country.code !== localizationService.internationalCountryCode)
             .map((country) => (
-            <MiniAppChip
-              key={country.code}
-              label={country.name}
-              selected={regionCode === country.code}
-              accent={theme.color}
-              soft={theme.backgroundColor}
-              onPress={() => setRegionCode(country.code)}
-            />
-          ))}
+              <MiniAppChip
+                key={country.code}
+                label={country.name}
+                selected={regionCode === country.code}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => setRegionCode(country.code)}
+              />
+            ))}
         </View>
       </MiniAppCard>
 

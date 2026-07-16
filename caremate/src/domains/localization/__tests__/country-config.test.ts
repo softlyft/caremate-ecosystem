@@ -16,7 +16,13 @@ describe('country language configuration', () => {
     expect(localizationService.getSupportedLanguages('KE')).toEqual(['en', 'sw']);
     expect(localizationService.getSupportedLanguages('TZ')).toEqual(['en', 'sw']);
     expect(localizationService.getSupportedLanguages('SN')).toEqual(['en', 'fr']);
-    expect(localizationService.getSupportedLanguages('INT')).toEqual(['en', 'es', 'fr', 'zh', 'hi']);
+    expect(localizationService.getSupportedLanguages('INT')).toEqual([
+      'en',
+      'es',
+      'fr',
+      'zh',
+      'hi',
+    ]);
     expect(localizationService.getSupportedLanguages('ZA')).toEqual(['en']);
   });
 

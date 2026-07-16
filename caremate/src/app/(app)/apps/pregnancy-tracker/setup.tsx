@@ -132,8 +132,10 @@ export default function PregnancySetupScreen() {
       {previewDueDate ? (
         <View style={[styles.preview, { backgroundColor: theme.backgroundColor }]}>
           <AppText variant="body" style={{ color: theme.titleColor }}>
-            {mode === 'lmp' ? t('apps.pregnancy.ui.estimatedDue') : t('apps.pregnancy.ui.selectedDue')}:{' '}
-            {formatDueDate(previewDueDate)}
+            {mode === 'lmp'
+              ? t('apps.pregnancy.ui.estimatedDue')
+              : t('apps.pregnancy.ui.selectedDue')}
+            : {formatDueDate(previewDueDate)}
           </AppText>
         </View>
       ) : null}

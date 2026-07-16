@@ -228,7 +228,11 @@ export default function SettingsScreen() {
                           }
                           setCountryDraft(country.code);
                           setLanguageDraft(localizationService.getDefaultLanguage(country.code));
-                          if (!localizationService.getCountrySubdivisions(country.code).includes(state)) {
+                          if (
+                            !localizationService
+                              .getCountrySubdivisions(country.code)
+                              .includes(state)
+                          ) {
                             setStateDraft('');
                           }
                         }}

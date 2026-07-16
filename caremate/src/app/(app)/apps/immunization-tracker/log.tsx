@@ -151,7 +151,12 @@ export default function ImmunizationLogScreen() {
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={2} title={monthLabel} eyebrow={t('apps.immunization.ui.administeredDate')} theme={theme}>
+      <MiniAppCard
+        index={2}
+        title={monthLabel}
+        eyebrow={t('apps.immunization.ui.administeredDate')}
+        theme={theme}
+      >
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -203,7 +208,12 @@ export default function ImmunizationLogScreen() {
         />
       </MiniAppCard>
 
-      <MiniAppCard index={4} title={t('apps.immunization.ui.notes')} eyebrow={t('apps.immunization.ui.details')} theme={theme}>
+      <MiniAppCard
+        index={4}
+        title={t('apps.immunization.ui.notes')}
+        eyebrow={t('apps.immunization.ui.details')}
+        theme={theme}
+      >
         <Input
           value={notes}
           onChangeText={setNotes}

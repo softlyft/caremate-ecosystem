@@ -160,9 +160,7 @@ export default function FamilyChildFormScreen() {
         ) : null}
 
         <Button
-          label={
-            index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')
-          }
+          label={index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')}
           onPress={handleSubmit(onSubmit)}
         />
       </View>

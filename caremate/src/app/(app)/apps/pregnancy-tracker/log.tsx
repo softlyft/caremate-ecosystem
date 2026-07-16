@@ -18,7 +18,10 @@ import {
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
-import { localizeMoodOptions, localizeSymptomOptions } from '@/mini-apps/pregnancy-tracker/localize';
+import {
+  localizeMoodOptions,
+  localizeSymptomOptions,
+} from '@/mini-apps/pregnancy-tracker/localize';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 

@@ -114,7 +114,9 @@ export default function ImmunizationTrackerScreen() {
 
   const heroSubtitle = hasProfile
     ? summary.overdue > 0
-      ? t(pluralKey('apps.immunization.ui.overdueVisit', summary.overdue), { count: summary.overdue })
+      ? t(pluralKey('apps.immunization.ui.overdueVisit', summary.overdue), {
+          count: summary.overdue,
+        })
       : summary.nextDue
         ? t('apps.immunization.ui.nextDue', {
             name: localizeVaccine(summary.nextDue.vaccine, t).name,
@@ -221,7 +223,10 @@ export default function ImmunizationTrackerScreen() {
             })}
             {summary.nextDue.status === 'overdue'
               ? ` · ${t(
-                  pluralKey('apps.immunization.ui.daysOverdue', Math.abs(summary.nextDue.daysUntilDue)),
+                  pluralKey(
+                    'apps.immunization.ui.daysOverdue',
+                    Math.abs(summary.nextDue.daysUntilDue),
+                  ),
                   { count: Math.abs(summary.nextDue.daysUntilDue) },
                 )}`
               : summary.nextDue.daysUntilDue === 0

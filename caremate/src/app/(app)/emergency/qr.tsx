@@ -37,10 +37,7 @@ export default function EmergencyQrScreen() {
   if (!profile) {
     return (
       <View style={styles.screen}>
-        <EmptyState
-          title={t('emergency.qr.emptyTitle')}
-          message={t('emergency.qr.emptyMessage')}
-        />
+        <EmptyState title={t('emergency.qr.emptyTitle')} message={t('emergency.qr.emptyMessage')} />
       </View>
     );
   }

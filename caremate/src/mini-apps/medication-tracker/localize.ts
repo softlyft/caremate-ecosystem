@@ -14,7 +14,8 @@ export function localizeFrequencyOptions(t: TranslateFn) {
     ...option,
     label: localizeFrequencyLabel(option.id, t),
     slotLabels: option.slotLabels.map(
-      (_, index) => t(`apps.medication.frequency.${option.id}.slots.${index}`) || option.slotLabels[index],
+      (_, index) =>
+        t(`apps.medication.frequency.${option.id}.slots.${index}`) || option.slotLabels[index],
     ),
   }));
 }

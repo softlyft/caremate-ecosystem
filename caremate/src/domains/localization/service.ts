@@ -48,9 +48,7 @@ class LocalizationService {
     if (!normalized) {
       return internationalConfig();
     }
-    return (
-      COUNTRY_CONFIGS.find((country) => country.code === normalized) ?? internationalConfig()
-    );
+    return COUNTRY_CONFIGS.find((country) => country.code === normalized) ?? internationalConfig();
   }
 
   getCountryName(code: string | null | undefined): string | null {

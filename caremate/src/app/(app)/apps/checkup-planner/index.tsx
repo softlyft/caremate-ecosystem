@@ -75,7 +75,9 @@ export default function CheckupPlannerScreen() {
   const heroTitle = profile
     ? summary.actionable > 0
       ? t(
-          summary.actionable === 1 ? 'apps.checkup.ui.actionableOne' : 'apps.checkup.ui.actionableMany',
+          summary.actionable === 1
+            ? 'apps.checkup.ui.actionableOne'
+            : 'apps.checkup.ui.actionableMany',
           { count: summary.actionable, year: selectedYear },
         )
       : summary.completed > 0
@@ -135,7 +137,11 @@ export default function CheckupPlannerScreen() {
       ) : null}
 
       {profile ? (
-        <MiniAppCard index={2} title={t('apps.checkup.ui.checklist', { year: selectedYear })} theme={theme}>
+        <MiniAppCard
+          index={2}
+          title={t('apps.checkup.ui.checklist', { year: selectedYear })}
+          theme={theme}
+        >
           {schedule.length === 0 ? (
             <AppText variant="caption" style={styles.muted}>
               {t('apps.checkup.ui.emptyYear')}
@@ -171,7 +177,9 @@ export default function CheckupPlannerScreen() {
       ) : null}
 
       <MiniAppCta
-        label={profile ? t('apps.checkupPlanner.editProfile') : t('apps.checkupPlanner.setUpPlanner')}
+        label={
+          profile ? t('apps.checkupPlanner.editProfile') : t('apps.checkupPlanner.setUpPlanner')
+        }
         accent={theme.color}
         soft={theme.backgroundColor}
         index={3}

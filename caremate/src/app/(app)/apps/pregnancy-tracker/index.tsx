@@ -78,11 +78,16 @@ export default function PregnancyTrackerScreen() {
       <MiniAppHero
         appId={APP_ID}
         eyebrow={
-          hasSetup ? localizeTrimester(gestationalAge!.trimester, t) : t('apps.pregnancyTracker.eyebrow')
+          hasSetup
+            ? localizeTrimester(gestationalAge!.trimester, t)
+            : t('apps.pregnancyTracker.eyebrow')
         }
         title={
           hasSetup && gestationalAge
-            ? t('apps.pregnancy.ui.weekDay', { weeks: gestationalAge.weeks, days: gestationalAge.days })
+            ? t('apps.pregnancy.ui.weekDay', {
+                weeks: gestationalAge.weeks,
+                days: gestationalAge.days,
+              })
             : t('apps.pregnancyTracker.emptyTitle')
         }
         subtitle={heroSubtitle}
@@ -207,9 +212,7 @@ export default function PregnancyTrackerScreen() {
       <View style={!hydrated ? styles.ctaDisabled : undefined}>
         <MiniAppCta
           label={
-            hasSetup
-              ? t('apps.pregnancyTracker.updateDueDate')
-              : t('apps.pregnancyTracker.setUp')
+            hasSetup ? t('apps.pregnancyTracker.updateDueDate') : t('apps.pregnancyTracker.setUp')
           }
           accent={theme.color}
           soft={theme.backgroundColor}

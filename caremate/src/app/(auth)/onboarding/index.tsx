@@ -23,10 +23,25 @@ import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 const theme = ONBOARDING_STEP_THEMES[0];
 
 const PREVIEW_KEYS = [
-  { icon: Globe2, key: 'onboarding.welcome.preview.countryLanguage', color: '#0EA5E9', soft: '#E0F2FE' },
-  { icon: Sparkles, key: 'onboarding.welcome.preview.priorities', color: palette.brandPurple, soft: palette.purpleLight },
+  {
+    icon: Globe2,
+    key: 'onboarding.welcome.preview.countryLanguage',
+    color: '#0EA5E9',
+    soft: '#E0F2FE',
+  },
+  {
+    icon: Sparkles,
+    key: 'onboarding.welcome.preview.priorities',
+    color: palette.brandPurple,
+    soft: palette.purpleLight,
+  },
   { icon: BookOpen, key: 'onboarding.welcome.preview.news', color: '#0284C7', soft: '#E0F2FE' },
-  { icon: MapPinned, key: 'onboarding.welcome.preview.nearby', color: palette.brandBlue, soft: palette.brandBlueLight },
+  {
+    icon: MapPinned,
+    key: 'onboarding.welcome.preview.nearby',
+    color: palette.brandBlue,
+    soft: palette.brandBlueLight,
+  },
 ] as const;
 
 export default function OnboardingWelcomeScreen() {
