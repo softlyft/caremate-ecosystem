@@ -16,13 +16,24 @@ provider_organizations          id = uuid (gen_random_uuid)
 
 Mobile Nearby
   ├── RPC nearby_providers(lat, lng, radius, type, search, limit)
-  ├── SQLite cache: last geo page + favorites snapshots + optional seed bootstrap
+  ├── SQLite cache: last geo page + favorites snapshots
   └── Does NOT mirror the full national catalog into SQLite
 ```
 
 **Scale note:** Nigeria alone can exceed 50k facilities. Full `select('*')` sync into SQLite is not used. Prefer geo pages (~100 pins) and keep favorites hydrated by id.
 
 Excel ingest: **non-UUID** identifier → insert; **UUID** → update existing row. Copy IDs from the portal after the first upload.
+
+## Mobile runtime behavior
+
+Current mobile provider behavior is:
+
+1. Query `nearby_providers` when online
+2. Cache returned rows in SQLite
+3. Fall back to cached provider rows offline
+4. Keep user favorites merged locally through `provider_favorites`
+
+Bundled seed rows are no longer the primary runtime source. `AppProviders` currently purges bundled provider data during bootstrap, so provider availability depends on cached or remote data rather than local seed hydration.
 
 **Do not** create separate `Hospital` / `Pharmacy` tables for Phase 1–2. Add specialized columns only when a field is queried/filtered often enough to leave JSON.
 

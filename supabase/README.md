@@ -4,6 +4,16 @@ Single source of truth for the CareMate cloud database (Postgres, RLS, RPCs, Sto
 
 All apps in this monorepo (`caremate`, `caremate-portal`, future packages) target the same project.
 
+## Docs
+
+For service-specific documentation, start here:
+
+- [Supabase docs index](./docs/README.md)
+- [Schema overview](./docs/schema-overview.md)
+- [Auth and RLS](./docs/auth-and-rls.md)
+- [RPCs and functions](./docs/rpcs-and-functions.md)
+- [Operations](./docs/operations.md)
+
 ## Commands (from repo root)
 
 ```bash

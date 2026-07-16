@@ -2,6 +2,16 @@
 
 Python FastAPI service: FHIR-shaped Excel → resource tables → Nearby `providers` projection.
 
+## Docs
+
+For service-specific documentation, start here:
+
+- [Provider-ingestion docs index](./docs/README.md)
+- [Architecture](./docs/architecture.md)
+- [API](./docs/api.md)
+- [Data model](./docs/data-model.md)
+- [Development](./docs/development.md)
+
 ## Model
 
 ```text

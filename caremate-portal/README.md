@@ -4,6 +4,17 @@ Next.js admin console for CareMate. Lives in the **caremate-ecosystem** monorepo
 
 See the [ecosystem README](../README.md) for folder layout and migration ownership.
 
+## Docs
+
+For service-specific documentation, start here:
+
+- [Portal docs index](./docs/README.md)
+- [Architecture](./docs/architecture.md)
+- [Auth & RBAC](./docs/auth-rbac.md)
+- [Catalogs](./docs/catalogs.md)
+- [Billing](./docs/billing.md)
+- [Development](./docs/development.md)
+
 ## Stack
 
 - Next.js 15 (App Router) + TypeScript + Tailwind v4

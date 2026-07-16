@@ -24,6 +24,7 @@ Implementation spans:
 | `isLoading` | `boolean` | Auth operation in progress |
 | `isInitialized` | `boolean` | Bootstrap auth check complete |
 | `biometricEnabled` | `boolean` | User opted into biometric unlock |
+| `passwordRecoveryPending` | `boolean` | Recovery deep-link session is active |
 
 ### Actions
 
@@ -31,10 +32,13 @@ Implementation spans:
 |--------|----------|
 | `initialize()` | Called on app boot. Restores session from SecureStore → Supabase `getSession()`. Falls back to guest. |
 | `signIn(email, password)` | Supabase password auth |
-| `signUp(email, password, fullName)` | Creates Supabase user + local profile, emergency profile, settings |
+| `signUp(email, password, fullName, phone)` | Creates Supabase user + local profile + emergency profile |
 | `signOut()` | Clears session → returns to guest |
-| `signInDemo()` | Local demo user when Supabase unavailable |
 | `setBiometricEnabled(enabled)` | Persists preference |
+| `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
+| `clearPasswordRecovery()` | Clears recovery mode |
+| `updatePassword(password)` | Completes password reset from the recovery flow |
+| `syncSessionFromSupabase()` | Refreshes Zustand auth state from Supabase session |
 
 ---
 
@@ -57,15 +61,6 @@ Guest users can:
 
 ---
 
-## Demo mode
-
-When `isSupabaseConfigured === false` (no `.env` credentials), login screen offers **demo sign-in** which:
-- Sets a local demo user without network
-- Seeds sample profile and emergency data
-- Useful for development and demos
-
----
-
 ## Session persistence
 
 | Platform | Token storage |
@@ -80,22 +75,27 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 ## Biometric unlock
 
 Uses `expo-local-authentication`:
-- `authService.enableBiometrics()` — checks hardware + enrollment, sets flag
 - `authService.authenticateWithBiometrics()` — shows system prompt ("Unlock CareMate")
-- Preference stored in SecureStore (`STORAGE_KEYS.BIOMETRIC_ENABLED`)
+- `setBiometricEnabled(enabled)` persists the preference
+- Preference is stored in SecureStore via `STORAGE_KEYS.biometricEnabled`
 
-Biometrics gate session **unlock** on the device; they do not replace Supabase authentication.
+Biometrics do **not** currently gate session unlock in the app shell. The setting is implemented as stored preference only.
 
 ---
 
 ## Sign-up side effects
 
-On successful `signUp`, the auth store also creates local SQLite records:
-1. **Profile** — `profileRepository.save()`
-2. **Emergency profile** — empty template via `emergencyRepository.save()`
-3. **Settings** — default theme/notifications via `profileRepository.saveSettings()`
+On successful `signUpWithEmail`, the auth service also creates local SQLite records:
 
-This ensures offline data exists immediately after registration.
+1. **Profile** — saved locally with name, email, and phone
+2. **Emergency profile** — initial empty profile with full name
+3. **Device defaults** — applied via onboarding/device default helpers
+
+This ensures local data exists immediately after registration.
+
+### Current limitation
+
+Guest-created core records such as emergency/profile data are not comprehensively migrated into the new signed-in account during sign-up. Mini-app guest migration is handled separately through the mini-app snapshot flow.
 
 ---
 
@@ -104,11 +104,11 @@ This ensures offline data exists immediately after registration.
 ### Login (`(auth)/login.tsx`)
 - Email + password form (React Hook Form + Zod)
 - Forgot password link
-- Demo sign-in button (when Supabase unconfigured)
 - Continue as guest
+- If Supabase env is missing, the screen surfaces configuration messaging rather than a demo sign-in path
 
 ### Register (`(auth)/register.tsx`)
-- Name, email, password
+- First name, last name, phone, email, password
 - Creates account via `signUp`
 
 ### Forgot password (`(auth)/forgot-password.tsx`)
@@ -126,10 +126,20 @@ This ensures offline data exists immediately after registration.
 2. Ensure the Site URL / additional redirect URLs allow that scheme
 3. Customize the “Reset password” email template if desired; the link must use Supabase’s redirect to the app URI
 
-### Onboarding (`(auth)/onboarding.tsx`)
-- 3 slides explaining offline emergency profile, articles, providers
-- "Get Started" → navigates to login
-- **Not currently shown on first app launch**
+### Onboarding (`(auth)/onboarding/*`)
+
+The onboarding experience is now a multi-step flow and is part of first-run entry when onboarding is incomplete.
+
+Implemented steps:
+
+- Intro
+- Priorities
+- Region
+- Location
+- Notifications
+- Next / wrap-up
+
+The app then routes into post-auth setup screens under `/(app)/setup/*` as needed.
 
 ---
 
@@ -144,7 +154,6 @@ This ensures offline data exists immediately after registration.
 
 ## Planned auth methods (not implemented)
 
-From `CareMate.md`:
 - Phone OTP
 - Google Sign-In
 - Apple Sign-In
