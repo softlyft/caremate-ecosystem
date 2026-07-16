@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
@@ -19,18 +19,10 @@ import { articleRepository } from '@/domains/articles/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
+import { queryClient } from '@/lib/query-client';
 import { authService } from '@/services/auth-service';
 import { registerDailyBackgroundSync } from '@/sync/background-daily-sync';
 import { syncEngine } from '@/sync/engine';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: 1,
-    },
-  },
-});
 
 async function migrateOnboardingFlagIfUpgrading() {
   const alreadyComplete = await authService.isOnboardingComplete();

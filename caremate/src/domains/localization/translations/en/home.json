@@ -57,5 +57,14 @@
     "telemedicine": "Telemedicine",
     "blood_bank": "Blood banks",
     "ambulance": "Ambulance"
+  },
+  "notifications": {
+    "loading": "Loading notifications…",
+    "loadFailed": "Couldn't load notifications",
+    "emptyTitle": "You're all caught up",
+    "emptyMessage": "Updates about family, reminders, and account activity will show up here.",
+    "openHint": "Open notifications",
+    "welcomeTitle": "Welcome to CareMate",
+    "welcomeBody": "Here's a quick guide to get around:\n\n• Home — Emergency card, Nearby care, Learn, and shortcuts\n• Apps — Medication, vaccines, checkups, pregnancy, and period trackers\n• Family — Household profiles and shared kids care\n• Profile — Patient ID, settings, and preferences\n\nThis bell collects updates in one place. Explore at your pace — CareMate works offline too."
   }
 }

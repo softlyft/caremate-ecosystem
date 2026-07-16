@@ -11,6 +11,7 @@ import type {
   FamilyMemberGender,
   FamilyMemberKind,
 } from '@/domains/family/types';
+import { createInAppNotification } from '@/domains/notifications/service';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { createId, nowIso } from '@/utils/helpers';
@@ -533,6 +534,7 @@ class FamilyRepository extends BaseRepository {
     }
 
     for (const row of data) {
+      const status = asConnectionStatus(row.status);
       await this.saveConnectionRequestLocal({
         id: row.id,
         householdId: row.household_id,
@@ -540,13 +542,56 @@ class FamilyRepository extends BaseRepository {
         toUserId: row.to_user_id,
         toEmail: row.to_email,
         toPhone: row.to_phone,
-        status: asConnectionStatus(row.status),
+        status,
         inviteToken: row.invite_token,
         syncStatus: 'synced',
         deletedAt: null,
         createdAt: row.created_at ?? nowIso(),
         updatedAt: row.updated_at ?? nowIso(),
       });
+
+      // Local inbox cards when family connection state lands on this device.
+      try {
+        if (row.to_user_id === userId && status === 'pending') {
+          await createInAppNotification({
+            userId,
+            domain: 'family',
+            eventType: 'connection_request_received',
+            title: 'Family connection request',
+            body: 'Someone wants to connect with you in CareMate Family. Open Family to respond.',
+            severity: 'important',
+            entityType: 'family_connection_requests',
+            entityId: row.id,
+            dedupeKey: `family:request:${row.id}:pending`,
+          });
+        } else if (row.from_user_id === userId && status === 'accepted') {
+          await createInAppNotification({
+            userId,
+            domain: 'family',
+            eventType: 'connection_request_accepted',
+            title: 'Family connection accepted',
+            body: 'Your family connection request was accepted.',
+            severity: 'info',
+            entityType: 'family_connection_requests',
+            entityId: row.id,
+            dedupeKey: `family:request:${row.id}:accepted`,
+          });
+        } else if (row.from_user_id === userId && status === 'declined') {
+          await createInAppNotification({
+            userId,
+            domain: 'family',
+            eventType: 'connection_request_declined',
+            title: 'Family connection declined',
+            body: 'Your family connection request was declined.',
+            severity: 'info',
+            entityType: 'family_connection_requests',
+            entityId: row.id,
+            dedupeKey: `family:request:${row.id}:declined`,
+          });
+        }
+      } catch {
+        // Inbox write is best-effort; family sync must not fail because of it.
+      }
     }
   }
 }

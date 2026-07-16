@@ -88,12 +88,17 @@ async function baselineLegacySchemaIfNeeded(database: SQLite.SQLiteDatabase): Pr
     return;
   }
 
-  const latestWhen = Math.max(0, ...migrations.journal.entries.map((entry) => entry.when));
+  // Only mark the initial schema dump as applied. Later journal entries
+  // (e.g. notifications) must still run via migrate().
+  const initialWhen =
+    migrations.journal.entries.find((entry) => entry.idx === 0)?.when ??
+    migrations.journal.entries[0]?.when ??
+    0;
   const insertSql = `INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)`;
   if (isWebBrowser()) {
-    await database.runAsync(insertSql, ['', latestWhen]);
+    await database.runAsync(insertSql, ['', initialWhen]);
   } else {
-    database.runSync(insertSql, ['', latestWhen]);
+    database.runSync(insertSql, ['', initialWhen]);
   }
 }
 

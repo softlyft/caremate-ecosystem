@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { Bell } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
@@ -8,6 +9,7 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
 import { useTranslation } from '@/domains/localization';
+import { useUnreadNotificationCount } from '@/domains/notifications/hooks';
 import { getGreeting } from '@/features/home/constants';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -21,6 +23,8 @@ type HomeHeaderProps = {
 export function HomeHeader({ firstName }: HomeHeaderProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const unreadQuery = useUnreadNotificationCount();
+  const hasUnread = (unreadQuery.data ?? 0) > 0;
   const name = firstName?.trim();
   const greetingBase = getGreeting({
     morning: t('home.greeting.morning'),
@@ -44,9 +48,11 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
         <PressableScale
           style={styles.notificationButton}
           accessibilityLabel={t('common.notifications')}
+          accessibilityHint={t('home.notifications.openHint')}
+          onPress={() => router.push('/(app)/notifications')}
         >
           <Bell color={palette.text} size={22} strokeWidth={2} />
-          <View style={styles.unreadDot} />
+          {hasUnread ? <View style={styles.unreadDot} /> : null}
         </PressableScale>
       </Animated.View>
 
