@@ -19,18 +19,18 @@ Metro config: `metro.config.js` wires Uniwind and processes `global.css`.
 
 ## Brand colors
 
-Primary brand green: **`#16A34A`**
+Primary brand teal: **`#0D9488`**
 
 Defined in `src/theme/colors.ts` → `palette`:
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `primary` | `#16A34A` | Buttons, active tab, links |
-| `primaryLight` | `#DCFCE7` | Light green backgrounds |
-| `primaryDark` | `#15803D` | Pressed states |
-| `brandBlue` | `#2563EB` | Secondary accent |
+| `primary` | `#0D9488` | Buttons, active tab, links |
+| `primaryLight` | `#CCFBF1` | Light teal backgrounds |
+| `primaryDark` | `#0F766E` | Pressed / emphasis |
+| `brandBlue` | `#2563EB` | Nearby / secondary accent |
 | `background` | `#FFFFFF` | Screen background (light) |
-| `surface` | `#F9FAFB` | Card surfaces |
+| `surface` | `#F8FAFC` | Screen wash behind cards |
 | `text` | `#111827` | Primary text |
 | `textSecondary` | `#6B7280` | Subtitles, captions |
 | `divider` | `#E5E7EB` | Borders |
@@ -87,13 +87,34 @@ Typography tokens are applied as **React Native style objects** in `AppText`, no
 
 From `src/theme/colors.ts` and `typography.ts`:
 
-| Token | Value |
-|-------|-------|
-| `layoutSpacing.screenHorizontal` | 20px |
-| `layoutSpacing.cardPadding` | 16px |
-| `spacing.xs` – `spacing.xl` | 4 – 32px scale |
-| `radius.sm` – `radius.xxl` | Border radius scale |
-| `shadow.soft` | Subtle card elevation |
+| Token | Value | Typical use |
+|-------|-------|-------------|
+| `layoutSpacing.screenHorizontal` | 20px | Screen edge inset |
+| `layoutSpacing.cardPadding` | 16px | Inside cards |
+| `layoutSpacing.welcomeToSubtitle` | 6px | Title → supporting line |
+| `layoutSpacing.sectionTitleToContent` | 16px | Section header → content; **default gap between home sections / stacked cards** |
+| `layoutSpacing.betweenSections` | 32px | Reserved for rare major breaks (prefer 16px on main tabs) |
+| `spacing.xs` – `spacing.xl` | 4 – 32px | General scale |
+| `radius.sm` – `radius.xxl` | Border radius scale | — |
+| `shadow.soft` / `shadow.card` | Elevation | Cards |
+
+### Tab spacing rhythm
+
+Main tabs (Home, Learn, Nearby, Apps, Me) use a tightened rhythm so stacks of cards do not feel airy:
+
+| Pattern | Target |
+|---------|--------|
+| Greeting / title → subtitle | ~6px |
+| Hero → first control / search | ~16px |
+| Stacked cards / ad slots / section blocks | ~8–16px (`spacing.sm` or `sectionTitleToContent`) |
+| Chip / filter rows | horizontal scroll; ~10px between chips |
+| List item separators | ~12px |
+
+Avoid stacking a component’s own `marginBottom` on top of a parent `gap` (use `OfflineBanner` `flush` and `HealthCategoriesRow` filter flush mode on Learn/Nearby).
+
+Notifications inbox uses an indigo header/card accent (`#4F46E5`) distinct from Nearby blue and brand teal.
+
+Catalog ad cards use **blue** washes (sky for house, richer blue for sponsored) — see [Ads](./ads.md).
 
 ---
 

@@ -409,6 +409,152 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['health_tips']['Insert']>;
         Relationships: [];
       };
+      ad_remote_config: {
+        Row: {
+          key: string;
+          value: string;
+          updated_at: string;
+        };
+        Insert: {
+          key: string;
+          value: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_remote_config']['Insert']>;
+        Relationships: [];
+      };
+      ad_campaigns: {
+        Row: {
+          id: string;
+          source: string;
+          advertiser_id: string | null;
+          name: string;
+          status: string;
+          priority: number;
+          frequency_cap_per_day: number;
+          starts_at: string | null;
+          ends_at: string | null;
+          country_codes: Json;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id: string;
+          source?: string;
+          advertiser_id?: string | null;
+          name: string;
+          status?: string;
+          priority?: number;
+          frequency_cap_per_day?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          country_codes?: Json;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_campaigns']['Insert']>;
+        Relationships: [];
+      };
+      ad_advertisers: {
+        Row: {
+          id: string;
+          name: string;
+          org_type: string;
+          website_url: string | null;
+          logo_url: string | null;
+          verification_status: string;
+          verified_at: string | null;
+          verified_by_user_id: string | null;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id: string;
+          name: string;
+          org_type?: string;
+          website_url?: string | null;
+          logo_url?: string | null;
+          verification_status?: string;
+          verified_at?: string | null;
+          verified_by_user_id?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_advertisers']['Insert']>;
+        Relationships: [];
+      };
+      ad_creatives: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          title: string;
+          body: string;
+          cta_label: string | null;
+          cta_href: string | null;
+          image_url: string | null;
+          badge_label: string | null;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id: string;
+          campaign_id: string;
+          title: string;
+          body: string;
+          cta_label?: string | null;
+          cta_href?: string | null;
+          image_url?: string | null;
+          badge_label?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_creatives']['Insert']>;
+        Relationships: [];
+      };
+      ad_placements: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          slot_id: string;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id: string;
+          campaign_id: string;
+          slot_id: string;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_placements']['Insert']>;
+        Relationships: [];
+      };
+      ad_events: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          event_type: string;
+          campaign_id: string | null;
+          creative_id: string | null;
+          slot_id: string;
+          source: string;
+          ad_unit_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          user_id?: string | null;
+          event_type: string;
+          campaign_id?: string | null;
+          creative_id?: string | null;
+          slot_id: string;
+          source?: string;
+          ad_unit_id?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_events']['Insert']>;
+        Relationships: [];
+      };
       admin_audit_events: {
         Row: {
           id: string;
@@ -612,6 +758,12 @@ export type ProviderLocation = Database['public']['Tables']['provider_locations'
 export type ProviderHealthcareService =
   Database['public']['Tables']['provider_healthcare_services']['Row'];
 export type HealthTip = Database['public']['Tables']['health_tips']['Row'];
+export type AdRemoteConfig = Database['public']['Tables']['ad_remote_config']['Row'];
+export type AdCampaign = Database['public']['Tables']['ad_campaigns']['Row'];
+export type AdAdvertiser = Database['public']['Tables']['ad_advertisers']['Row'];
+export type AdCreative = Database['public']['Tables']['ad_creatives']['Row'];
+export type AdPlacement = Database['public']['Tables']['ad_placements']['Row'];
+export type AdEvent = Database['public']['Tables']['ad_events']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];
 export type EmergencyProfile = Database['public']['Tables']['emergency_profiles']['Row'];

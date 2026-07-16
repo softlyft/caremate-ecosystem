@@ -7,6 +7,8 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { Box } from '@/components/ui/box';
 import { ErrorState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { AD_SLOTS } from '@/domains/ads';
+import { AdSlot } from '@/features/ads/AdSlot';
 import { DailyHealthTip } from '@/features/home/components/DailyHealthTip';
 import { EmergencyBanner } from '@/features/home/components/EmergencyBanner';
 import { FeaturedArticles } from '@/features/home/components/FeaturedArticles';
@@ -22,7 +24,7 @@ import { articleRepository } from '@/domains/articles/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
-import { palette } from '@/theme';
+import { layoutSpacing, palette } from '@/theme';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -156,17 +158,37 @@ export default function HomeScreen() {
           <DailyHealthTip userKey={userKey} />
         </AnimatedSection>
 
-        <AnimatedSection index={4}>
+        <AnimatedSection
+          index={4}
+          style={{
+            marginHorizontal: layoutSpacing.screenHorizontal,
+            marginBottom: layoutSpacing.sectionTitleToContent,
+          }}
+        >
+          <AdSlot slotId={AD_SLOTS.HOME_TIPS} />
+        </AnimatedSection>
+
+        <AnimatedSection index={5}>
           <HealthCategoriesRow />
         </AnimatedSection>
 
         <FeaturedArticles articles={articles} />
 
-        <AnimatedSection index={6}>
-          <NearbyProvidersRow providers={providers} />
+        <AnimatedSection
+          index={6}
+          style={{
+            marginHorizontal: layoutSpacing.screenHorizontal,
+            marginBottom: layoutSpacing.sectionTitleToContent,
+          }}
+        >
+          <AdSlot slotId={AD_SLOTS.HOME_FEED} />
         </AnimatedSection>
 
         <AnimatedSection index={7}>
+          <NearbyProvidersRow providers={providers} />
+        </AnimatedSection>
+
+        <AnimatedSection index={8}>
           <EmergencyBanner />
         </AnimatedSection>
       </Animated.ScrollView>

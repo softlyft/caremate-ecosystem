@@ -72,6 +72,7 @@ See [Mini-Apps](./mini-apps.md) for routes, storage keys, and feature detail.
 | PostHog analytics | Phase 1+ |
 | Sentry error monitoring | Phase 1+ |
 | Expo Notifications + FCM | Phase 1+ |
+| Ads (per-slot house / sponsored / AdMob) | Shipped — see [Ads](./ads.md); portal `/dashboard/ads`; per-slot frequency caps; bootstrap catalog pull |
 | Apple Health / Health Connect | Phase 4 |
 
 ### Home screen

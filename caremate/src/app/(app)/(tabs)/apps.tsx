@@ -61,14 +61,12 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingBottom: 40,
-    gap: spacing.md,
+    gap: layoutSpacing.sectionTitleToContent,
   },
   hero: {
     position: 'relative',
     overflow: 'hidden',
-    gap: 8,
-    marginBottom: spacing.xs,
-    paddingBottom: spacing.sm,
+    gap: layoutSpacing.welcomeToSubtitle,
   },
   meshTop: {
     position: 'absolute',
@@ -120,6 +118,6 @@ const styles = StyleSheet.create({
     maxWidth: '95%',
   },
   grid: {
-    gap: 14,
+    gap: spacing.sm,
   },
 });

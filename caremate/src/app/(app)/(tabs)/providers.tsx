@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { MapPinned, Search } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -11,6 +11,7 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
 import {
   NearbyProviderCard,
@@ -19,6 +20,7 @@ import {
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { PRIMARY_PROVIDER_TYPES, type ProviderType } from '@/domains/providers/types';
+import { AdSlot } from '@/features/ads/AdSlot';
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -51,6 +53,8 @@ export default function ProvidersTabScreen() {
     queryKey: [...QUERY_KEYS.providers, 'coords'],
     queryFn: resolveNearbyCoords,
     staleTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const providersQuery = useQuery({
@@ -72,13 +76,20 @@ export default function ProvidersTabScreen() {
       });
     },
     enabled: coordsQuery.isSuccess || coordsQuery.isError,
+    staleTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const providers = useMemo(() => providersQuery.data?.providers ?? [], [providersQuery.data]);
   const source = providersQuery.data?.source;
   const approximateLocation = coordsQuery.data?.isApproximate ?? true;
 
-  if (coordsQuery.isLoading || providersQuery.isLoading) {
+  if (
+    (coordsQuery.isLoading || providersQuery.isLoading) &&
+    providersQuery.data === undefined &&
+    coordsQuery.data === undefined
+  ) {
     return (
       <View style={styles.screen}>
         <LoadingState title={t('nearby.loading')} />
@@ -138,7 +149,7 @@ export default function ProvidersTabScreen() {
               </View>
             </AnimatedSection>
 
-            <OfflineBanner />
+            <OfflineBanner flush />
 
             {!online || source === 'cache' ? (
               <AppText variant="caption" style={styles.statusNote}>
@@ -166,37 +177,45 @@ export default function ProvidersTabScreen() {
               />
             </View>
 
-            <View style={styles.filters}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filters}
+              decelerationRate="fast"
+            >
               {filters.map((item) => {
                 const active = item.value === filter || (!item.value && !filter);
                 const theme = item.value ? getProviderTypeTheme(item.value) : null;
+                const Icon = theme?.icon ?? MapPinned;
+                const iconBg = theme?.soft ?? palette.blueLight;
+                const iconColor = theme?.accent ?? palette.brandBlue;
+
                 return (
                   <PressableScale
                     key={item.value ?? 'all'}
                     style={[
                       styles.chip,
-                      active
+                      active ? styles.chipSelected : null,
+                      active && theme
                         ? {
-                            backgroundColor: theme?.accent ?? palette.primary,
-                            borderColor: theme?.accent ?? palette.primary,
+                            borderColor: theme.accent,
+                            backgroundColor: theme.soft,
                           }
-                        : {
-                            backgroundColor: palette.background,
-                            borderColor: palette.divider,
-                          },
+                        : null,
+                      shadow.soft,
                     ]}
                     onPress={() => setFilter(item.value)}
                   >
-                    <AppText
-                      variant="categoryPill"
-                      style={{ color: active ? '#FFFFFF' : palette.text, fontSize: 13 }}
-                    >
-                      {item.label}
-                    </AppText>
+                    <View style={[styles.iconWrap, { backgroundColor: iconBg }]}>
+                      <Icon color={iconColor} size={15} strokeWidth={2.25} />
+                    </View>
+                    <AppText variant="categoryPill">{item.label}</AppText>
                   </PressableScale>
                 );
               })}
-            </View>
+            </ScrollView>
+
+            <AdSlot slotId={AD_SLOTS.NEARBY_LIST} />
           </View>
         }
         ListEmptyComponent={
@@ -231,12 +250,12 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     gap: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   hero: {
     position: 'relative',
     overflow: 'hidden',
-    gap: 8,
+    gap: layoutSpacing.welcomeToSubtitle,
     paddingBottom: spacing.xs,
   },
   meshTop: {
@@ -319,13 +338,31 @@ const styles = StyleSheet.create({
   },
   filters: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    alignItems: 'center',
+    gap: 10,
+    paddingRight: layoutSpacing.screenHorizontal,
   },
   chip: {
-    borderWidth: 1,
-    borderRadius: radius.full,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingVertical: 10,
+    borderRadius: radius.full,
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: palette.divider,
+  },
+  chipSelected: {
+    borderWidth: 2,
+    borderColor: palette.brandBlue,
+    backgroundColor: palette.blueLight,
+  },
+  iconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

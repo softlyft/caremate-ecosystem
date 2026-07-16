@@ -15,6 +15,10 @@ import { getDeviceDefaults } from '@/domains/onboarding';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
+import { config } from '@/constants/env';
+import { QUERY_KEYS } from '@/constants/config';
+import { initializeAdsConsentAndSdk } from '@/domains/ads/consent';
+import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { providerRepository } from '@/domains/providers/repository';
@@ -59,6 +63,9 @@ async function runBackgroundStartupTasks() {
   try {
     await syncEngine.start();
     await registerDailyBackgroundSync();
+    if (config.isAdMobConfigured || __DEV__) {
+      void initializeAdsConsentAndSdk();
+    }
   } catch {
     // Background sync failures should not affect local-first startup.
   }
@@ -85,7 +92,9 @@ function BootstrapGate({ children }: PropsWithChildren) {
         await Promise.all([
           articleRepository.pullFromRemote(),
           healthTipRepository.pullFromRemote(),
+          adsRepository.pullFromRemote(),
         ]);
+        void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
         await initializeAuth();
 
         try {
@@ -152,7 +161,9 @@ function BootstrapGate({ children }: PropsWithChildren) {
                 await Promise.all([
                   articleRepository.pullFromRemote(),
                   healthTipRepository.pullFromRemote(),
+                  adsRepository.pullFromRemote(),
                 ]);
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
                 await initializeAuth();
                 setDbReady(true);
                 void runBackgroundStartupTasks();

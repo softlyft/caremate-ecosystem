@@ -328,6 +328,41 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 ---
 
+## Ads (banner slots)
+
+Requires portal migration + sync. Use dev client / EAS build for AdMob cases (not Expo Go).
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| AD-01 | P0 | Portal: `ads.enabled` on, slot `home.feed` = house, active house campaign | Open Home | House banner visible with CareMate labeling |
+| AD-01b | P0 | Welcome campaign placements synced | Open Home | Tip ad (`home.tips`) and feed ad (`home.feed`) both can show |
+| AD-01c | P0 | `learn.article_header` + `learn.article_footer` placements | Open any article | Ads before and after body |
+| AD-01d | P0 | `nearby.provider` placement | Open provider detail | Ad before contact card |
+| AD-02 | P0 | Slot mode = `off` for `home.feed` | Open Home | No banner in feed slot |
+| AD-03 | P0 | Portal: master `ads.enabled` off | Open Home / Learn / Nearby | No ad banners anywhere |
+| AD-04 | P1 | Slot = house, no active house inventory | Open slot surface | Empty slot — no AdMob/house fallback |
+| AD-05 | P1 | Slot = sponsored, verified advertiser + active campaign | Open slot surface | Banner shows **Sponsored** label |
+| AD-06 | P1 | Slot = sponsored, advertiser pending | Open slot surface | Empty slot |
+| AD-07 | P1 | Slot = admob, free user, online, dev build | Open slot surface | AdMob test banner or empty on load failure |
+| AD-08 | P1 | Slot = admob, Premium user | Open slot surface | No AdMob (empty slot) |
+| AD-09 | P1 | Slot = admob, airplane mode | Open slot surface | Empty slot |
+| AD-10 | P2 | Tap house/sponsored CTA | — | In-app navigation; click event queued |
+| AD-11 | P2 | Portal: change slot mode | Pull/sync app | New mode respected after sync |
+| AD-12 | P1 | Same house campaign on Home + Learn article | View Home then open article | Article ads still eligible (per-slot frequency cap) |
+| AD-13 | P2 | Fresh install / clear SQLite | Cold start online | Ad catalog present without waiting for manual sync |
+
+---
+
+## Tab UX / spacing (smoke)
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| UX-01 | P1 | Any | Switch Home ↔ Learn ↔ Nearby repeatedly | No full-screen reload flash; scroll position retained |
+| UX-02 | P2 | Learn | Tap category chips including All | Filters in place; no tab remount |
+| UX-03 | P2 | Nearby | Swipe type chips horizontally | Single row scroll; each chip has icon + type color when selected |
+
+---
+
 ## Out of scope / known gaps (do not fail unless regression)
 
 | Area | Note |

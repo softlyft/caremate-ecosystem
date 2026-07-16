@@ -12,7 +12,9 @@ import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHea
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
+import { AdSlot } from '@/features/ads/AdSlot';
 import { getProviderTypeTheme } from '@/domains/providers/components/NearbyProviderCard';
 import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-maps';
 import { providerRepository } from '@/domains/providers/repository';
@@ -190,6 +192,10 @@ export default function ProviderDetailScreen() {
         </AnimatedSection>
 
         <AnimatedSection index={1}>
+          <AdSlot slotId={AD_SLOTS.NEARBY_PROVIDER} />
+        </AnimatedSection>
+
+        <AnimatedSection index={2}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
               {t('nearby.detail.contact')}
@@ -257,7 +263,7 @@ export default function ProviderDetailScreen() {
           </View>
         </AnimatedSection>
 
-        <AnimatedSection index={2}>
+        <AnimatedSection index={3}>
           <View style={styles.actions}>
             <PressableScale
               style={[

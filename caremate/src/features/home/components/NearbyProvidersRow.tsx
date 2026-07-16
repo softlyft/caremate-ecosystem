@@ -134,7 +134,7 @@ export function NearbyProvidersRow({ providers }: NearbyProvidersRowProps) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: layoutSpacing.betweenSections,
+    marginBottom: layoutSpacing.sectionTitleToContent,
   },
   row: {
     paddingHorizontal: layoutSpacing.screenHorizontal,

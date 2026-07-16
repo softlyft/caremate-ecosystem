@@ -9,8 +9,10 @@ export default function TabsLayout() {
   return (
     <Tabs
       tabBar={(props) => <CareMateTabBar {...props} />}
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
+        freezeOnBlur: true,
         sceneStyle: {
           paddingBottom: TAB_BAR_SCENE_INSET,
         },

@@ -9,7 +9,7 @@ import { useNotificationsInbox } from '@/domains/notifications/hooks';
 import { markNotificationsRead } from '@/domains/notifications/service';
 import { NotificationCard } from '@/features/notifications/NotificationCard';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, spacing } from '@/theme';
+import { layoutSpacing, spacing } from '@/theme';
 
 export default function NotificationsScreen() {
   const { t } = useTranslation();
@@ -80,7 +80,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: palette.surface,
+    backgroundColor: '#F8FAFF',
   },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,

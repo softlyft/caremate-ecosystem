@@ -60,6 +60,7 @@ Home header Bell
 - SQLite `notifications` table + Drizzle migration `0001_*`
 - Repository / `createInAppNotification` helper for domains to enqueue cards
 - Notifications screen with read-only cards; opening marks all as read
+- Indigo header / unread card treatment (`features/notifications/NotificationCard.tsx`) — distinct from Nearby blue and brand teal
 - Home bell navigates here; unread red dot when `read_at` is null
 - Guest inbox migrates onto signed-in `user_id`
 - First emitter: family connection request received / accepted / declined (on pull)

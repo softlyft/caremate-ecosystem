@@ -61,11 +61,9 @@ export default function ArticleCategoryScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           ListHeaderComponent={
-            featured ? (
-              <Box className="mb-3">
-                <FeaturedArticleCard article={featured} />
-              </Box>
-            ) : null
+            <Box className="mb-3 gap-3">
+              {featured ? <FeaturedArticleCard article={featured} /> : null}
+            </Box>
           }
           renderItem={({ item }) => <CompactArticleCard article={item} />}
           ItemSeparatorComponent={() => <Box className="h-3" />}

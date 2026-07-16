@@ -4,6 +4,7 @@
   "articleCount": "{{count}} artículos",
   "searchPlaceholder": "Buscar artículos",
   "bookmarks": "Ver marcadores",
+  "bookmarksShort": "Marcadores",
   "featured": "Destacados",
   "allTopics": "Todos los temas",
   "loading": "Cargando artículos...",

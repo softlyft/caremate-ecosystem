@@ -35,7 +35,7 @@ export function FeaturedArticles({ articles }: FeaturedArticlesProps) {
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 24,
+    marginBottom: layoutSpacing.sectionTitleToContent,
   },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,

@@ -281,14 +281,13 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
+    gap: spacing.sm,
     paddingBottom: 40,
   },
   hero: {
     position: 'relative',
     overflow: 'hidden',
-    gap: spacing.md,
-    marginBottom: spacing.xs,
+    gap: spacing.sm,
   },
   meshTop: {
     position: 'absolute',
@@ -325,9 +324,9 @@ const styles = StyleSheet.create({
   },
   identityInner: {
     alignItems: 'center',
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
-    gap: 8,
+    gap: layoutSpacing.welcomeToSubtitle,
   },
   avatarRing: {
     width: 88,
@@ -336,7 +335,6 @@ const styles = StyleSheet.create({
     padding: 4,
     borderWidth: 2,
     borderColor: 'rgba(13, 148, 136, 0.25)',
-    marginBottom: 4,
   },
   avatar: {
     flex: 1,
@@ -359,7 +357,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   planPill: {
-    marginTop: 6,
+    marginTop: 2,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -369,9 +367,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   guestActions: {
-    marginTop: 10,
+    marginTop: spacing.sm,
     width: '100%',
-    gap: 10,
+    gap: spacing.sm,
   },
   primaryCta: {
     backgroundColor: palette.primary,
@@ -399,7 +397,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     fontSize: 11,
-    marginBottom: 4,
+    marginBottom: 2,
     paddingHorizontal: 4,
   },
   divider: {
@@ -411,7 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 4,
   },
   toggleIcon: {

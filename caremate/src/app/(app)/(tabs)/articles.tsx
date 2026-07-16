@@ -11,12 +11,14 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { AD_SLOTS } from '@/domains/ads';
 import {
   CompactArticleCard,
   FeaturedArticleCard,
 } from '@/domains/articles/components/ArticleCards';
 import { articleRepository } from '@/domains/articles/repository';
 import { useTranslation } from '@/domains/localization';
+import { AdSlot } from '@/features/ads/AdSlot';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
 import {
   HealthCategoriesRow,
@@ -73,6 +75,9 @@ export default function ArticlesTabScreen() {
       }
       return articleRepository.findAll(term, userKey);
     },
+    staleTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -117,14 +122,10 @@ export default function ArticlesTabScreen() {
 
   const handleSelectCategory = (categoryId: HealthCategoryId | null) => {
     setSelectedCategoryId(categoryId);
-    if (categoryId) {
-      router.setParams({ category: categoryId });
-      return;
-    }
-    router.replace('/(app)/(tabs)/articles');
+    router.setParams({ category: categoryId ?? '' });
   };
 
-  if (articlesQuery.isLoading) {
+  if (articlesQuery.isLoading && articlesQuery.data === undefined) {
     return (
       <View style={styles.screen}>
         <LoadingState title={t('learn.loading')} />
@@ -159,16 +160,27 @@ export default function ArticlesTabScreen() {
                     {t('learn.articleCount', { count: articles.length })}
                   </AppText>
                 </View>
-                <AppText variant="screenTitle" style={styles.title}>
-                  {t('learn.title')}
-                </AppText>
+                <View style={styles.titleRow}>
+                  <AppText variant="screenTitle" style={styles.title}>
+                    {t('learn.title')}
+                  </AppText>
+                  <PressableScale
+                    style={styles.bookmarksCta}
+                    onPress={() => router.push('/(app)/articles/bookmarks')}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('learn.bookmarks')}
+                  >
+                    <Bookmark color={palette.primary} size={15} strokeWidth={2.25} />
+                    <AppText variant="seeAll">{t('learn.bookmarksShort')}</AppText>
+                  </PressableScale>
+                </View>
                 <AppText variant="subtitle" style={styles.subtitle}>
                   {t('learn.subtitle')}
                 </AppText>
               </View>
             </AnimatedSection>
 
-            <OfflineBanner />
+            <OfflineBanner flush />
 
             <View style={[styles.searchShell, shadow.soft]}>
               <View style={styles.searchIcon}>
@@ -194,14 +206,6 @@ export default function ArticlesTabScreen() {
               onSelectCategory={handleSelectCategory}
             />
 
-            <PressableScale
-              style={styles.bookmarksCta}
-              onPress={() => router.push('/(app)/articles/bookmarks')}
-            >
-              <Bookmark color={palette.primary} size={16} strokeWidth={2.25} />
-              <AppText variant="seeAll">{t('learn.bookmarks')}</AppText>
-            </PressableScale>
-
             {featured ? (
               <View style={styles.featuredWrap}>
                 <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
@@ -210,6 +214,8 @@ export default function ArticlesTabScreen() {
                 <FeaturedArticleCard article={featured} />
               </View>
             ) : null}
+
+            <AdSlot slotId={AD_SLOTS.LEARN_LIST} />
 
             {rest.length > 0 ? (
               <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
@@ -295,8 +301,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.7,
     fontSize: 11,
   },
-  title: {
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
     zIndex: 1,
+  },
+  title: {
+    flex: 1,
     letterSpacing: -0.6,
   },
   subtitle: {
@@ -332,7 +345,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   bookmarksCta: {
-    alignSelf: 'flex-start',
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,

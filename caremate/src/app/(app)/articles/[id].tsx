@@ -14,6 +14,7 @@ import { learnArticleHeaderOptions } from '@/components/navigation/glossyStackHe
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { AD_SLOTS } from '@/domains/ads';
 import {
   ARTICLE_THUMBNAILS,
   estimateReadingTime,
@@ -23,6 +24,7 @@ import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkTogg
 import { articleRepository } from '@/domains/articles/repository';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { useTranslation } from '@/domains/localization';
+import { AdSlot } from '@/features/ads/AdSlot';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 function getCategoryMeta(categoryId: string) {
@@ -174,6 +176,10 @@ export default function ArticleDetailScreen() {
         </AnimatedSection>
 
         <AnimatedSection index={2}>
+          <AdSlot slotId={AD_SLOTS.LEARN_ARTICLE_HEADER} />
+        </AnimatedSection>
+
+        <AnimatedSection index={3}>
           <View style={[styles.bodyCard, shadow.soft]}>
             <View style={styles.bodyAccent} />
             <View style={styles.bodyCopy}>
@@ -190,8 +196,12 @@ export default function ArticleDetailScreen() {
           </View>
         </AnimatedSection>
 
+        <AnimatedSection index={4}>
+          <AdSlot slotId={AD_SLOTS.LEARN_ARTICLE_FOOTER} />
+        </AnimatedSection>
+
         {article.sourceUrl ? (
-          <AnimatedSection index={3}>
+          <AnimatedSection index={5}>
             <PressableScale
               style={[styles.cta, shadow.soft]}
               onPress={() => WebBrowser.openBrowserAsync(article.sourceUrl!)}

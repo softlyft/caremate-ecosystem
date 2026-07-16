@@ -35,7 +35,7 @@ export function HomeSearchBar() {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: layoutSpacing.screenHorizontal,
-    marginBottom: layoutSpacing.betweenSections,
+    marginBottom: layoutSpacing.sectionTitleToContent,
     borderRadius: radius.xxl,
     backgroundColor: palette.background,
     borderWidth: 1,

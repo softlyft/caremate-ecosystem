@@ -4,6 +4,7 @@
   "articleCount": "{{count}} 篇文章",
   "searchPlaceholder": "搜索文章",
   "bookmarks": "查看收藏",
+  "bookmarksShort": "收藏",
   "featured": "精选",
   "allTopics": "全部主题",
   "loading": "正在加载文章...",
