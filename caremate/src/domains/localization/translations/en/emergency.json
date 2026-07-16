@@ -1,11 +1,15 @@
 {
   "title": "Emergency",
   "loading": "Loading emergency profile...",
+  "loadFailed": {
+    "title": "Couldn't load emergency profile",
+    "message": "Check your connection and try again."
+  },
   "profileEyebrow": "Emergency profile",
   "healthDetails": "Health details",
   "noContacts": "No contacts added.",
   "editProfile": "Edit profile",
-  "showQr": "Show QR code",
+  "showQr": "Patient ID card (QR)",
   "empty": {
     "title": "No emergency profile yet",
     "message": "Add blood group, allergies, and ICE contacts for first responders.",
@@ -44,6 +48,7 @@
     "noContactsYet": "No contacts added yet.",
     "remove": "Remove",
     "contactRequired": "Name, phone, and relationship are required",
+    "contactAtLeastOne": "Add at least one ICE contact before saving",
     "contactDuplicate": "That contact is already on your list",
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
@@ -53,16 +58,9 @@
     "lockScreenHint": "Surfaces blood type and your first ICE contact on the CareMate widget (iOS Lock Screen / Android Home Screen)."
   },
   "qr": {
-    "title": "Emergency QR",
-    "loading": "Preparing QR code...",
-    "empty": "Create an emergency profile first",
-    "emptyTitle": "No emergency profile",
-    "emptyMessage": "Create a profile before generating a QR code.",
-    "shareOffline": "Share offline",
-    "subtitle": "First responders can scan for critical details when you cannot speak.",
-    "preview": "Preview",
-    "previewHint": "QR rendering will use an Edge Function or on-device encoder in a follow-up.",
-    "payload": "Payload"
+    "title": "Patient ID QR",
+    "loading": "Opening Patient ID card...",
+    "redirectHint": "QR codes live on the back of your Patient ID card on the Me tab."
   },
   "lock": {
     "title": "Emergency card",

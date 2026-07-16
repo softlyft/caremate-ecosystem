@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Bookmark, Clock, ExternalLink, Sparkles } from 'lucide-react-native';
+import { Clock, ExternalLink, Sparkles } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
@@ -11,6 +11,7 @@ import {
   estimateReadingTime,
   HEALTH_CATEGORIES,
 } from '@/domains/articles/categories';
+import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
@@ -28,20 +29,26 @@ function ArticleThumbnail({
   height,
   width,
   featured = false,
+  fill = false,
 }: {
   article: Article;
-  height: number;
+  height?: number;
   width?: number | `${number}%`;
   featured?: boolean;
+  /** Stretch to fill the parent (compact left column). */
+  fill?: boolean;
 }) {
   const fallbackColor = ARTICLE_THUMBNAILS[article.id] ?? getCategoryAccent(article.categoryId);
   const evergreen = isEvergreenArticle(article);
+  const sizeStyle = fill
+    ? styles.thumbFill
+    : { height: height ?? 108, width: width ?? '100%' };
 
   if (article.imageUrl) {
     return (
       <Image
         source={{ uri: article.imageUrl }}
-        style={{ height, width: width ?? '100%' }}
+        style={sizeStyle}
         contentFit="cover"
       />
     );
@@ -54,12 +61,13 @@ function ArticleThumbnail({
         { offset: '100%', color: '#FFFFFF' },
       ]}
       angle={135}
-      style={{
-        height,
-        width: width ?? '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      style={[
+        sizeStyle,
+        {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+      ]}
     >
       <View style={styles.thumbBlob} />
       <View style={[styles.thumbIcon, featured ? styles.thumbIconFeatured : null]}>
@@ -143,11 +151,10 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
           <AppText variant="caption" color="brand" style={styles.readCta}>
             Read article
           </AppText>
-          {external ? (
-            <ExternalLink color={palette.textSecondary} size={16} />
-          ) : (
-            <Bookmark color={palette.primary} size={16} />
-          )}
+          <View style={styles.footerActions}>
+            {external ? <ExternalLink color={palette.textSecondary} size={16} /> : null}
+            <BookmarkToggleButton articleId={article.id} size={16} />
+          </View>
         </View>
       </View>
     </PressableScale>
@@ -168,7 +175,7 @@ export function CompactArticleCard({ article }: { article: Article }) {
     >
       <View style={styles.compactRow}>
         <View style={[styles.compactThumbWrap, { borderColor: `${accent}55` }]}>
-          <ArticleThumbnail article={article} height={108} width={108} />
+          <ArticleThumbnail article={article} fill />
         </View>
 
         <View style={styles.compactBody}>
@@ -188,11 +195,10 @@ export function CompactArticleCard({ article }: { article: Article }) {
                 {minutes} min read
               </AppText>
             </View>
-            {external ? (
-              <ExternalLink color={palette.textSecondary} size={15} />
-            ) : (
-              <Bookmark color={palette.textSecondary} size={15} />
-            )}
+            <View style={styles.footerActions}>
+              {external ? <ExternalLink color={palette.textSecondary} size={15} /> : null}
+              <BookmarkToggleButton articleId={article.id} size={15} />
+            </View>
           </View>
         </View>
       </View>
@@ -234,6 +240,9 @@ export function ArticleCardList({ articles, featureFirst = true }: ArticleCardLi
 }
 
 const styles = StyleSheet.create({
+  thumbFill: {
+    ...StyleSheet.absoluteFill,
+  },
   thumbBlob: {
     position: 'absolute',
     top: -24,
@@ -351,6 +360,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   readCta: {
     fontWeight: '600',
   },
@@ -363,12 +377,15 @@ const styles = StyleSheet.create({
   },
   compactRow: {
     flexDirection: 'row',
+    alignItems: 'stretch',
     minHeight: 124,
   },
   compactThumbWrap: {
     width: 108,
+    alignSelf: 'stretch',
     overflow: 'hidden',
     borderRightWidth: 1,
+    position: 'relative',
   },
   compactBody: {
     flex: 1,

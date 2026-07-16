@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
-import { BookOpen, MapPinned, ShieldPlus, Users } from 'lucide-react-native';
+import { BookOpen, MapPinned, Sparkles, ShieldPlus, Users } from 'lucide-react-native';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { FloatingToast, useShakeNudge } from '@/components/ui/FloatingToast';
 import { ONBOARDING_PRIORITY_IDS, useOnboardingDraftStore } from '@/domains/onboarding';
 import type { OnboardingPriorityId } from '@/domains/onboarding';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
@@ -26,6 +28,22 @@ export default function OnboardingPrioritiesScreen() {
   const { t } = useTranslation();
   const priorities = useOnboardingDraftStore((s) => s.priorities);
   const togglePriority = useOnboardingDraftStore((s) => s.togglePriority);
+  const [showHint, setShowHint] = useState(false);
+  const [hintKey, setHintKey] = useState(0);
+  const { style: shakeStyle, shake } = useShakeNudge();
+
+  const hideHint = useCallback(() => setShowHint(false), []);
+
+  const continueNext = () => {
+    if (priorities.length === 0) {
+      setShowHint(true);
+      setHintKey((key) => key + 1);
+      shake();
+      return;
+    }
+    setShowHint(false);
+    router.push('/(auth)/onboarding/location');
+  };
 
   return (
     <OnboardingShell
@@ -34,18 +52,31 @@ export default function OnboardingPrioritiesScreen() {
       subtitle={t('onboarding.priorities.subtitle')}
       onSkip={() => router.push('/(auth)/onboarding/location')}
       footer={
-        <OnboardingPrimaryButton
-          label={
-            priorities.length
-              ? t('onboarding.priorities.continueSelected', { count: priorities.length })
-              : t('common.continue')
-          }
-          accent={theme.accent}
-          onPress={() => router.push('/(auth)/onboarding/location')}
-        />
+        <>
+          {showHint ? (
+            <FloatingToast
+              key={hintKey}
+              title={t('onboarding.priorities.minSelectTitle')}
+              message={t('onboarding.priorities.minSelectMessage')}
+              accent={theme.accent}
+              soft={theme.soft}
+              icon={<Sparkles color={theme.accent} size={18} strokeWidth={2.3} />}
+              onHide={hideHint}
+            />
+          ) : null}
+          <OnboardingPrimaryButton
+            label={
+              priorities.length
+                ? t('onboarding.priorities.continueSelected', { count: priorities.length })
+                : t('common.continue')
+            }
+            accent={theme.accent}
+            onPress={continueNext}
+          />
+        </>
       }
     >
-      <View style={styles.list}>
+      <Animated.View style={[styles.list, shakeStyle]}>
         {ONBOARDING_PRIORITY_IDS.map((item, index) => {
           const id = item as OnboardingPriorityId;
           const selected = priorities.includes(id);
@@ -70,7 +101,10 @@ export default function OnboardingPrioritiesScreen() {
                       }
                     : null,
                 ]}
-                onPress={() => togglePriority(id)}
+                onPress={() => {
+                  setShowHint(false);
+                  togglePriority(id);
+                }}
                 scale={0.97}
               >
                 <LinearGradientFill
@@ -120,7 +154,7 @@ export default function OnboardingPrioritiesScreen() {
             </Animated.View>
           );
         })}
-      </View>
+      </Animated.View>
     </OnboardingShell>
   );
 }

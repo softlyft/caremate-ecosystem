@@ -9,7 +9,7 @@ import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import {
@@ -86,6 +86,26 @@ export default function ProvidersTabScreen() {
     );
   }
 
+  if (providersQuery.isError && providersQuery.data === undefined) {
+    return (
+      <View style={styles.screen}>
+        <ErrorState
+          title={t('nearby.loadFailed.title')}
+          message={
+            providersQuery.error instanceof Error
+              ? providersQuery.error.message
+              : t('nearby.loadFailed.message')
+          }
+          actionLabel={t('common.retry')}
+          onAction={() => {
+            void coordsQuery.refetch();
+            void providersQuery.refetch();
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.screen}>
       <FlatList
@@ -127,9 +147,7 @@ export default function ProvidersTabScreen() {
             ) : null}
             {online && source === 'remote' && approximateLocation ? (
               <AppText variant="caption" style={styles.statusNote}>
-                {coordsQuery.data?.outsideServiceArea
-                  ? t('nearby.outsideArea')
-                  : t('nearby.approximate')}
+                {t('nearby.approximate')}
               </AppText>
             ) : null}
 
@@ -179,16 +197,6 @@ export default function ProvidersTabScreen() {
                 );
               })}
             </View>
-
-            <PressableScale
-              style={styles.mapCta}
-              onPress={() => router.push('/(app)/providers/map')}
-            >
-              <MapPinned color={palette.brandBlue} size={16} />
-              <AppText variant="seeAll" style={{ color: palette.brandBlue }}>
-                Open map view
-              </AppText>
-            </PressableScale>
           </View>
         }
         ListEmptyComponent={
@@ -319,15 +327,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     paddingHorizontal: 14,
     paddingVertical: 9,
-  },
-  mapCta: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: palette.brandBlueLight,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.full,
   },
 });

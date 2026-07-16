@@ -1,3 +1,4 @@
+import { APP_NAME, APP_STORE_URLS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
 import type { FamilyConnectionRequest, FamilyLookupUser } from '@/domains/family/types';
 import { supabase } from '@/lib/supabase';
@@ -21,13 +22,22 @@ function normalizeQuery(raw: string): {
   return { email: null, phone, query };
 }
 
-export function buildSpouseInviteMessage(params: { fromName: string; inviteToken: string }): {
-  message: string;
-  link: string;
-} {
-  const link = `https://caremate.app/family/invite?token=${params.inviteToken}`;
-  const message = `${params.fromName} invited you to join their CareMate family.\n\nDownload CareMate and open this link after you sign up:\n${link}\n\nOr in the app, go to Me → Family and accept the request when it appears.`;
-  return { message, link };
+/**
+ * Plaintext message for someone who is not on CareMate yet.
+ * No invite tokens or deep links — spouse connection happens in-app after they install and sign up.
+ */
+export function buildSpouseInviteMessage(params: { fromName: string }): { message: string } {
+  const message = [
+    `${params.fromName} uses ${APP_NAME} for family health and wants to connect with you.`,
+    '',
+    `Get ${APP_NAME}:`,
+    `• iPhone: ${APP_STORE_URLS.ios}`,
+    `• Android: ${APP_STORE_URLS.android}`,
+    '',
+    'After you create an account, open Family in the app so they can find you by email or phone and send a connection request.',
+  ].join('\n');
+
+  return { message };
 }
 
 class FamilyConnectionService {
@@ -62,23 +72,23 @@ class FamilyConnectionService {
     };
   }
 
+  /** In-app spouse connection only — requires a matched CareMate account. */
   async requestConnection(params: {
     householdId: string;
     fromUserId: string;
     fromName: string;
     emailOrPhone: string;
-    matchedUser?: FamilyLookupUser | null;
-  }): Promise<{ request: FamilyConnectionRequest; invite?: { message: string; link: string } }> {
+    matchedUser: FamilyLookupUser;
+  }): Promise<{ request: FamilyConnectionRequest }> {
     const { email, phone } = normalizeQuery(params.emailOrPhone);
     const timestamp = nowIso();
-    const inviteToken = params.matchedUser ? null : await createId();
 
     const { data, error } = await supabase.rpc('create_family_connection_request', {
       p_household_id: params.householdId,
-      p_to_user_id: params.matchedUser?.userId ?? null,
+      p_to_user_id: params.matchedUser.userId,
       p_to_email: email,
       p_to_phone: phone,
-      p_invite_token: inviteToken,
+      p_invite_token: null,
     });
 
     if (error) {
@@ -87,24 +97,18 @@ class FamilyConnectionService {
         id: await createId(),
         householdId: params.householdId,
         fromUserId: params.fromUserId,
-        toUserId: params.matchedUser?.userId ?? null,
+        toUserId: params.matchedUser.userId,
         toEmail: email,
         toPhone: phone,
         status: 'pending',
-        inviteToken,
+        inviteToken: null,
         syncStatus: 'pending',
         deletedAt: null,
         createdAt: timestamp,
         updatedAt: timestamp,
       };
       await familyRepository.saveConnectionRequestLocal(local, { queue: true });
-
-      return {
-        request: local,
-        invite: inviteToken
-          ? buildSpouseInviteMessage({ fromName: params.fromName, inviteToken })
-          : undefined,
-      };
+      return { request: local };
     }
 
     const row = Array.isArray(data) ? data[0] : data;
@@ -112,11 +116,11 @@ class FamilyConnectionService {
       id: row?.id ?? (await createId()),
       householdId: params.householdId,
       fromUserId: params.fromUserId,
-      toUserId: row?.to_user_id ?? params.matchedUser?.userId ?? null,
+      toUserId: row?.to_user_id ?? params.matchedUser.userId,
       toEmail: row?.to_email ?? email,
       toPhone: row?.to_phone ?? phone,
       status: (row?.status as FamilyConnectionRequest['status']) ?? 'pending',
-      inviteToken: row?.invite_token ?? inviteToken,
+      inviteToken: null,
       syncStatus: 'synced',
       deletedAt: null,
       createdAt: row?.created_at ?? timestamp,
@@ -124,13 +128,7 @@ class FamilyConnectionService {
     };
 
     await familyRepository.saveConnectionRequestLocal(request);
-
-    return {
-      request,
-      invite: request.inviteToken
-        ? buildSpouseInviteMessage({ fromName: params.fromName, inviteToken: request.inviteToken })
-        : undefined,
-    };
+    return { request };
   }
 
   async respondToRequest(params: {

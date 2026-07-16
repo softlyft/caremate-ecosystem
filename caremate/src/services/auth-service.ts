@@ -1,15 +1,50 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 
 import { STORAGE_KEYS } from '@/constants/config';
+import { identityFromAuthUser } from '@/domains/auth/auth-identity';
+import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-account';
+import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
 import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { authStorage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
-import { emergencyRepository } from '@/domains/emergency/repository';
-import { applyDeviceDefaultsToProfile } from '@/domains/onboarding';
-import { profileRepository } from '@/domains/profile/repository';
 import type { AuthUser } from '@/types';
 
 export class AuthService {
+  /**
+   * Guest merge + local profile/emergency/settings stubs so the app is usable
+   * before (or without) a successful sync pull.
+   */
+  async prepareLocalAccount(
+    user: {
+      id: string;
+      email?: string | null;
+      phone?: string | null;
+      user_metadata?: Record<string, unknown>;
+    },
+    overrides?: { fullName?: string; phone?: string; email?: string },
+    options?: { forceDeviceDefaults?: boolean },
+  ) {
+    try {
+      await migrateGuestLocalData(user.id);
+    } catch {
+      // Guest migration is best-effort; auth must still succeed.
+    }
+
+    try {
+      await bootstrapLocalAccountRecords(
+        {
+          ...identityFromAuthUser(user),
+          ...(overrides?.email !== undefined ? { email: overrides.email } : {}),
+          ...(overrides?.fullName !== undefined ? { fullName: overrides.fullName } : {}),
+          ...(overrides?.phone !== undefined ? { phone: overrides.phone } : {}),
+        },
+        options,
+      );
+    } catch {
+      // Local stubs are best-effort; auth must still succeed.
+    }
+  }
+
   async getSession() {
     const { data, error } = await supabase.auth.getSession();
     if (error) {
@@ -37,6 +72,11 @@ export class AuthService {
     if (error) {
       throw error;
     }
+
+    if (data.user) {
+      await this.prepareLocalAccount(data.user);
+    }
+
     return data;
   }
 
@@ -57,13 +97,11 @@ export class AuthService {
     }
 
     if (data.user) {
-      await profileRepository.save(data.user.id, {
-        fullName,
-        email,
-        phone: normalizedPhone,
-      });
-      await applyDeviceDefaultsToProfile(data.user.id);
-      await emergencyRepository.save(data.user.id, { fullName });
+      await this.prepareLocalAccount(
+        data.user,
+        { fullName, phone: normalizedPhone, email },
+        { forceDeviceDefaults: true },
+      );
     }
 
     return data;

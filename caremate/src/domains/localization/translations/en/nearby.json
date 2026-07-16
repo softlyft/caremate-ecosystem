@@ -4,12 +4,16 @@
   "nearbyCount": "{{count}} nearby",
   "searchPlaceholder": "Search providers",
   "loading": "Loading providers...",
+  "loadFailed": {
+    "title": "Couldn't load providers",
+    "message": "Check your connection and try again."
+  },
   "empty": {
     "title": "No providers nearby",
     "message": "Try another filter or widen your search.",
     "offline": "Showing cached providers while offline."
   },
-  "approximate": "Using approximate location",
+  "approximate": "Using approximate location based on your selected region",
   "outsideArea": "Outside your usual area — results may be limited",
   "detail": {
     "loading": "Loading provider...",
@@ -29,13 +33,15 @@
     "favorite": "Save favorite",
     "unfavorite": "Remove favorite",
     "call": "Call",
-    "directions": "Get directions"
+    "directions": "Get directions",
+    "openInMaps": "Open in Maps",
+    "openInMapsHint": "Tap to open in your maps app"
   },
   "map": {
-    "loading": "Loading map data...",
+    "loading": "Loading...",
     "empty": "No providers to display",
-    "title": "Nearby Providers",
-    "subtitle": "Native map integration can be added with react-native-maps. This screen lists nearby provider coordinates from the geo API (or local cache offline)."
+    "title": "Nearby",
+    "subtitle": "Open a provider to launch directions in your device maps app."
   },
   "types": {
     "hospital": "Hospital",

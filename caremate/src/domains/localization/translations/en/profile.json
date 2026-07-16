@@ -41,10 +41,20 @@
     "error": "Could not start checkout"
   },
   "patientId": {
+    "eyebrow": "Identity",
+    "cardTitle": "Patient ID card",
     "title": "CareMate Patient ID",
+    "description": "Your CareMate ID is unique to your account. Generate it once — a QR code is created on the back of the card.",
+    "empty": "No Patient ID yet. Generate one to attach a CareMate ID card (with QR) to your profile.",
     "generate": "Generate ID for me",
+    "generateError": "Could not generate Patient ID",
     "copy": "Copy",
-    "fallbackName": "Member"
+    "fallbackName": "CareMate member",
+    "badge": "PATIENT ID",
+    "tapForQr": "Tap for QR",
+    "tapForFront": "Tap to flip back",
+    "qrSide": "Scan Patient ID",
+    "flipA11y": "Flip Patient ID card"
   },
   "signOut": "Sign out",
   "biometrics": "Unlock with biometrics"

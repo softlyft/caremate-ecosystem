@@ -15,6 +15,10 @@
     "title": "For you",
     "subtitle": "Trusted health stories and tips"
   },
+  "loadFailed": {
+    "title": "Couldn't load Home",
+    "message": "Check your connection and try again."
+  },
   "healthCategories": {
     "title": "Browse topics",
     "subtitle": "Find guidance by health area"

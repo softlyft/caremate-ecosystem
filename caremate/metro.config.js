@@ -19,6 +19,7 @@ config.resolver.disableHierarchicalLookup = true;
 // Required for expo-sqlite on web (wa-sqlite.wasm).
 config.resolver.assetExts.push('wasm');
 config.resolver.sourceExts = config.resolver.sourceExts.filter((ext) => ext !== 'wasm');
+config.resolver.sourceExts.push('sql');
 
 // SharedArrayBuffer requires cross-origin isolation headers on web.
 config.server.enhanceMiddleware = (middleware) => {

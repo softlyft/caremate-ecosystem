@@ -5,6 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { Box } from '@/components/ui/box';
+import { ErrorState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { DailyHealthTip } from '@/features/home/components/DailyHealthTip';
 import { EmergencyBanner } from '@/features/home/components/EmergencyBanner';
@@ -14,6 +15,7 @@ import { HomeHeader } from '@/features/home/components/HomeHeader';
 import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { NearbyProvidersRow } from '@/features/home/components/NearbyProvidersRow';
 import { splitFullName } from '@/domains/emergency/constants';
+import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { articleRepository } from '@/domains/articles/repository';
@@ -23,6 +25,7 @@ import { providerRepository } from '@/domains/providers/repository';
 import { palette } from '@/theme';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
@@ -108,6 +111,28 @@ export default function HomeScreen() {
 
   const articles = articlesQuery.data ?? [];
   const providers = providersQuery.data?.slice(0, 4) ?? [];
+  const feedFailed =
+    localizationReady && articlesQuery.isError && articlesQuery.data === undefined;
+
+  if (feedFailed) {
+    return (
+      <Box className="flex-1" style={{ backgroundColor: palette.surface }}>
+        <ErrorState
+          title={t('home.loadFailed.title')}
+          message={
+            articlesQuery.error instanceof Error
+              ? articlesQuery.error.message
+              : t('home.loadFailed.message')
+          }
+          actionLabel={t('common.retry')}
+          onAction={() => {
+            void articlesQuery.refetch();
+            void providersQuery.refetch();
+          }}
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box className="flex-1" style={{ backgroundColor: palette.surface }}>

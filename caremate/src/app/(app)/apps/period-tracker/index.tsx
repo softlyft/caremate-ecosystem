@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
@@ -12,6 +11,7 @@ import {
   MiniAppRow,
   MiniAppScreen,
   MonthCalendarGrid,
+  MonthCalendarNavigator,
   StatusPill,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
@@ -53,8 +53,6 @@ export default function PeriodTrackerScreen() {
   const daysUntil =
     nextPeriod && lastPeriodStart ? Math.max(0, daysBetween(today, nextPeriod)) : null;
   const weekStrip = getWeekStrip(today);
-  const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-
   const heroSubtitle =
     daysUntil !== null
       ? daysUntil === 0
@@ -130,25 +128,11 @@ export default function PeriodTrackerScreen() {
       </MiniAppCard>
 
       <MiniAppCard index={2} eyebrow={t('apps.period.ui.calendar')} theme={theme}>
-        <View style={styles.monthHeader}>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() - 1, 1))
-            }
-          >
-            <ChevronLeft color={palette.textSecondary} size={20} />
-          </Pressable>
-          <AppText variant="cardTitle">{monthLabel}</AppText>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1))
-            }
-          >
-            <ChevronRight color={palette.textSecondary} size={20} />
-          </Pressable>
-        </View>
+        <MonthCalendarNavigator
+          accentColor={theme.color}
+          monthRef={monthRef}
+          onMonthChange={setMonthRef}
+        />
 
         <MonthCalendarGrid
           monthRef={monthRef}
@@ -239,11 +223,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: palette.surface,
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   predictedDay: {
     backgroundColor: '#FBCFE8',

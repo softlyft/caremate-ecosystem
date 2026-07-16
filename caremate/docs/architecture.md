@@ -68,9 +68,9 @@ Significant choices (Expo, SQLite, Supabase, guest-first, repositories) are reco
 
 ### Database (`src/database/`)
 
-- `client.ts` — opens SQLite, runs inline migrations, exports Drizzle instance
-- `schema.ts` — Drizzle table definitions
-- Migrations: hand-written SQL in `client.ts` today; Drizzle Kit configured for future generated migrations
+- `client.ts` — opens SQLite, runs Drizzle Kit migrations, exports Drizzle instance
+- `schema.ts` — Drizzle table definitions (source of truth)
+- `migrations/` — generated SQL + journal (`npm run db:generate`)
 
 ---
 
@@ -120,11 +120,13 @@ Default query `staleTime` is 30 seconds (`AppProviders.tsx`).
 
 Defined in `src/components/AppProviders.tsx` → `BootstrapGate`:
 
-1. **`initializeDatabase()`** — create/open `caremate.db`, run `CREATE TABLE IF NOT EXISTS` migrations
-2. **`articleRepository.pullFromRemote()`** — pull Learn catalog from Supabase (guests included)
-3. **`providerRepository.seedIfEmpty()`** — insert sample providers if table empty
+1. **`initializeDatabase()`** — create/open `caremate.db`, apply Drizzle migrations
+2. **`providerRepository.purgeBundledProviders()`** — soft-delete legacy bundled/demo provider rows (no local seed hydration)
+3. **`articleRepository.pullFromRemote()`** / **`healthTipRepository.pullFromRemote()`** — pull Learn catalog and tips from Supabase (guests included)
 4. **`useAuthStore.initialize()`** — restore Supabase session or default to guest
-5. **`syncEngine.start()`** — begin background sync loop
+5. **`syncEngine.start()`** (background) — begin sync loop after the UI is ready
+
+Nearby providers are **not** seeded at bootstrap. Screens call `providerRepository.findNearby()` → Supabase `nearby_providers` RPC; an empty result shows the Nearby empty state.
 
 Until steps 1–4 complete, a full-screen spinner is shown. Root layout also waits for fonts (`useAppFonts`) and `isInitialized` before hiding splash.
 

@@ -25,6 +25,8 @@
     "title": "सबसे ज़्यादा क्या मायने रखता है?",
     "subtitle": "जो आपको चाहिए उसे टैप करें — हम अगले वैकल्पिक चरण उसी के अनुसार ढालेंगे।",
     "continueSelected": "जारी रखें · {{count}} चयनित",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "आपातकाल",
       "description": "प्रथम उत्तरदाताओं के लिए ऑफ़लाइन स्वास्थ्य कार्ड"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "नज़दीक देखभाल खोजें",
-    "subtitle": "सबसे अच्छे मिलान के लिए सटीक GPS इस्तेमाल करें, या देश पर आधारित अनुमानित स्थान रखें।",
     "enable": "स्थान सक्षम करें",
     "checking": "जाँच हो रही है…",
     "approximateCta": "अनुमानित स्थान इस्तेमाल करें",
@@ -53,8 +54,7 @@
       "hint": "आपके आसपास अस्पतालों और क्लीनिकों की बेहतर रैंकिंग"
     },
     "approximate": {
-      "title": "अनुमानित",
-      "hint": "देश पर आधारित विकल्प — बाद में कभी भी बदलें"
+      "title": "अनुमानित"
     }
   },
   "notifications": {

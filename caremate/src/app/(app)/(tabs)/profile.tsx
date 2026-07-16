@@ -6,7 +6,6 @@ import {
   Bell,
   CircleCheck,
   Crown,
-  Fingerprint,
   LogOut,
   Settings,
   ShieldPlus,
@@ -31,7 +30,6 @@ import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
-import { authService } from '@/services/auth-service';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 
@@ -42,8 +40,6 @@ export default function ProfileTabScreen() {
   const isGuest = useIsGuest();
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
-  const biometricEnabled = useAuthStore((state) => state.biometricEnabled);
-  const setBiometricEnabled = useAuthStore((state) => state.setBiometricEnabled);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
 
@@ -82,14 +78,6 @@ export default function ProfileTabScreen() {
     },
   });
   const finishItems = finishSetupQuery.data ?? [];
-
-  async function handleBiometricToggle(value: boolean) {
-    const available = await authService.isBiometricAvailable();
-    if (value && !available) {
-      return;
-    }
-    await setBiometricEnabled(value);
-  }
 
   async function handleNotificationsToggle(value: boolean) {
     setNotificationsEnabled(value);
@@ -259,30 +247,6 @@ export default function ProfileTabScreen() {
                 thumbColor={notificationsEnabled ? palette.primary : '#F3F4F6'}
               />
             </View>
-            {!isGuest ? (
-              <>
-                <View style={styles.divider} />
-                <View style={styles.toggleRow}>
-                  <View style={[styles.toggleIcon, { backgroundColor: palette.primaryLight }]}>
-                    <Fingerprint color={palette.primary} size={20} strokeWidth={2.25} />
-                  </View>
-                  <View style={styles.toggleCopy}>
-                    <AppText variant="body" style={styles.toggleTitle}>
-                      {t('profile.biometrics')}
-                    </AppText>
-                    <AppText variant="caption" style={styles.toggleSubtitle}>
-                      {t('profile.biometrics')}
-                    </AppText>
-                  </View>
-                  <Switch
-                    value={biometricEnabled}
-                    onValueChange={handleBiometricToggle}
-                    trackColor={{ false: palette.divider, true: palette.primaryLight }}
-                    thumbColor={biometricEnabled ? palette.primary : '#F3F4F6'}
-                  />
-                </View>
-              </>
-            ) : null}
             <View style={styles.divider} />
             <ProfileMenuRow
               icon={Settings}

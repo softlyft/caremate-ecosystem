@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
-import { LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyConnectionService, familyRepository } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
@@ -66,6 +66,23 @@ export default function FamilyRequestsScreen() {
 
   if (requestsQuery.isLoading) {
     return <LoadingState title={t('family.requests.loading')} />;
+  }
+
+  if (requestsQuery.isError && requestsQuery.data === undefined) {
+    return (
+      <ErrorState
+        title={t('family.requests.loadFailed.title')}
+        message={
+          requestsQuery.error instanceof Error
+            ? requestsQuery.error.message
+            : t('family.requests.loadFailed.message')
+        }
+        actionLabel={t('common.retry')}
+        onAction={() => {
+          void requestsQuery.refetch();
+        }}
+      />
+    );
   }
 
   const requests = requestsQuery.data ?? [];

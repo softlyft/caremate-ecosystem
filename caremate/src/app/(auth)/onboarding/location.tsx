@@ -15,6 +15,7 @@ import Animated, {
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { localizationService, useTranslation } from '@/domains/localization';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
 import {
   OnboardingPrimaryButton,
@@ -22,7 +23,6 @@ import {
   OnboardingShell,
 } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
-import { useTranslation } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[3];
@@ -31,8 +31,13 @@ export default function OnboardingLocationScreen() {
   const { t } = useTranslation();
   const setLocationMode = useOnboardingDraftStore((s) => s.setLocationMode);
   const skipLocation = useOnboardingDraftStore((s) => s.skipLocation);
+  const countryCode = useOnboardingDraftStore((s) => s.countryCode);
+  const regionState = useOnboardingDraftStore((s) => s.state);
   const [busy, setBusy] = useState(false);
   const ping = useSharedValue(0.4);
+
+  const placeLabel =
+    regionState.trim() || localizationService.getCountryConfig(countryCode).name;
 
   useEffect(() => {
     ping.value = withRepeat(
@@ -74,7 +79,7 @@ export default function OnboardingLocationScreen() {
     <OnboardingShell
       step={4}
       title={t('onboarding.location.title')}
-      subtitle={t('onboarding.location.subtitle')}
+      subtitle={t('onboarding.location.subtitle', { place: placeLabel })}
       onSkip={useApproximate}
       hero={
         <View style={[styles.heroShell, shadow.card]}>
@@ -143,7 +148,7 @@ export default function OnboardingLocationScreen() {
               {t('onboarding.location.approximate.title')}
             </AppText>
             <AppText variant="caption" style={styles.optionHint}>
-              {t('onboarding.location.approximate.hint')}
+              {t('onboarding.location.approximate.hint', { place: placeLabel })}
             </AppText>
           </View>
         </PressableScale>

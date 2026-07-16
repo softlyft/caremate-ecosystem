@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
 import { joinFullName } from '@/domains/emergency/constants';
@@ -137,8 +137,7 @@ export default function RegisterScreen() {
           control={control}
           name="password"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              secureTextEntry
+            <PasswordInput
               placeholder={t('auth.register.password')}
               onBlur={onBlur}
               onChangeText={onChange}

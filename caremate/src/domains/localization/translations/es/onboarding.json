@@ -25,6 +25,8 @@
     "title": "¿Qué es lo más importante?",
     "subtitle": "Toca lo que te importa — adaptaremos los siguientes pasos opcionales.",
     "continueSelected": "Continuar · {{count}} seleccionado(s)",
+    "minSelectTitle": "Elige al menos uno",
+    "minSelectMessage": "Selecciona una prioridad para personalizar tu experiencia en CareMate.",
     "emergency": {
       "label": "Emergencia",
       "description": "Tarjeta de salud sin conexión para primeros respondedores"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "Encuentra atención cerca",
-    "subtitle": "Usa GPS preciso para los mejores resultados, o mantén un punto aproximado según el país.",
     "enable": "Activar ubicación",
     "checking": "Comprobando…",
     "approximateCta": "Usar ubicación aproximada",
@@ -53,8 +54,7 @@
       "hint": "Mejor clasificación de hospitales y clínicas a tu alrededor"
     },
     "approximate": {
-      "title": "Aproximada",
-      "hint": "Respaldo según el país — cámbialo cuando quieras"
+      "title": "Aproximada"
     }
   },
   "notifications": {

@@ -101,24 +101,25 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 
 ### Important implementation details
 
-- `providerRepository.purgeBundledProviders()` removes bundled provider seed rows during bootstrap
-- The app does not currently use a `seedIfEmpty()` flow
-- The “Map” route is a coordinate list placeholder, not a native map experience
+- Source of truth is Supabase via `nearby_providers`; local SQLite is a cache of the last geo page plus favorites
+- `providerRepository.purgeBundledProviders()` removes legacy bundled/demo rows during bootstrap (there is no `seedIfEmpty()`)
+- When the RPC returns no rows (or the cache is empty offline), Nearby shows an empty state — that is expected
+- Provider detail opens the address in the device’s default maps app (Apple Maps / Google Maps / geo intent) — there is no in-app map SDK
 - Favorites are toggled on the provider detail screen and sync through `provider_favorites`
+- Coordinates for ranking come from live GPS (precise mode) or a **selection-based** approximate pin (country / Nigerian state) — see [Provider model → Geo strategy](./provider-model.md#geo-strategy-nearby-coordinates)
 
 ### Related screens
 
 | Screen | Route | Notes |
 |--------|-------|-------|
-| Nearby tab | `/(app)/(tabs)/providers` | Filters + search |
-| Provider detail | `/(app)/providers/[id]` | Favorite toggle, contact info, directions |
-| Map placeholder | `/(app)/providers/map` | Coordinate list placeholder |
+| Nearby tab | `/(app)/(tabs)/providers` | Filters + search; empty state when none nearby |
+| Provider detail | `/(app)/providers/[id]` | Favorite toggle, contact info, Open in Maps |
+| Map (legacy) | `/(app)/providers/map` | Redirects to the Nearby tab |
 
 ### Current limitations
 
-- Offline fresh installs may have an empty provider experience until cached or remote results exist
-- The map experience is still a placeholder screen
-- The providers tab does not yet surface a dedicated error state
+- Offline fresh installs stay empty until a successful online nearby fetch caches results
+- Open in Maps needs an address or coordinates on the provider row
 
 ## Apps Tab
 
@@ -156,11 +157,10 @@ See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 - Theme preference (light, dark, system)
 - Notifications preference
 - Region and location-related profile fields
-- Biometric preference toggle
 
 ### Current limitations
 
-- The biometric toggle currently stores preference but does not gate app access
+- Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
 - Notifications are preference-only; push delivery and reminder flows are not fully wired
 - Premium status is surfaced in the UI, but feature locking is still intentionally limited
 
@@ -174,7 +174,7 @@ Emergency profile data is intended to be available offline and also surfaced thr
 |-------|---------|
 | `/(app)/emergency` | View profile |
 | `/(app)/emergency/edit` | Edit profile |
-| `/(app)/emergency/qr` | QR preview |
+| `/(app)/emergency/qr` | Redirects to Me → Patient ID card (QR on card back) |
 | `/emergency-lock` | Public emergency card |
 
 ### Editable data
@@ -198,8 +198,6 @@ Emergency profile data is intended to be available offline and also surfaced thr
 ### Current limitations
 
 - QR is currently a payload preview rather than a generated QR image
-- The edit flow allows saving without requiring an ICE contact, while setup is stricter
-- Emergency screens do not consistently surface dedicated query error states
 
 ## Family
 
@@ -220,7 +218,6 @@ Implemented capabilities include:
 ### Current limitations
 
 - Invite links are generated but not fully redeemable through an in-app deep-link flow
-- Validation differs between inline child entry and dedicated child editing screens
 
 See [Family profiles](./family-profiles.md) for the domain-specific flow.
 
@@ -236,7 +233,6 @@ This onboarding flow is part of the actual entry experience when onboarding has 
 ### Current limitations
 
 - Notifications setup is preference-only today
-- Some onboarding copy is more polished than the underlying implementation (for example push notifications and location copy)
 
 ## Offline Behavior Summary
 

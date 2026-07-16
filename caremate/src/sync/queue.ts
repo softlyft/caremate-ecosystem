@@ -1,9 +1,28 @@
-import { eq } from 'drizzle-orm';
+import { eq, gte } from 'drizzle-orm';
 
+import { SYNC_CONFIG } from '@/constants/config';
 import { getDatabase } from '@/database/client';
 import { syncQueue } from '@/database/schema';
 import type { SyncOperation } from '@/types';
 import { createId, nowIso } from '@/utils/helpers';
+
+export interface SyncQueueSummary {
+  pendingCount: number;
+  failedCount: number;
+}
+
+const queueListeners = new Set<() => void>();
+
+function notifyQueueChanged(): void {
+  queueListeners.forEach((listener) => listener());
+}
+
+export function subscribeToSyncQueue(listener: () => void): () => void {
+  queueListeners.add(listener);
+  return () => {
+    queueListeners.delete(listener);
+  };
+}
 
 export async function enqueueSyncOperation(params: {
   entityType: string;
@@ -26,6 +45,7 @@ export async function enqueueSyncOperation(params: {
     createdAt: timestamp,
     updatedAt: timestamp,
   });
+  notifyQueueChanged();
 
   // If online, push soon without blocking the write path.
   // Dynamic import avoids a circular dependency with sync/engine → repositories → queue.
@@ -43,9 +63,29 @@ export async function getPendingSyncOperations() {
   return db.select().from(syncQueue).orderBy(syncQueue.createdAt);
 }
 
+export async function getSyncQueueSummary(): Promise<SyncQueueSummary> {
+  const items = await getPendingSyncOperations();
+  const failedCount = items.filter((item) => item.attempts >= SYNC_CONFIG.maxRetries).length;
+
+  return {
+    pendingCount: items.length - failedCount,
+    failedCount,
+  };
+}
+
+export async function retryFailedSyncOperations(): Promise<void> {
+  const db = getDatabase();
+  await db
+    .update(syncQueue)
+    .set({ attempts: 0, lastError: null, updatedAt: nowIso() })
+    .where(gte(syncQueue.attempts, SYNC_CONFIG.maxRetries));
+  notifyQueueChanged();
+}
+
 export async function markSyncOperationComplete(id: string): Promise<void> {
   const db = getDatabase();
   await db.delete(syncQueue).where(eq(syncQueue.id, id));
+  notifyQueueChanged();
 }
 
 export async function markSyncOperationFailed(id: string, error: string): Promise<void> {
@@ -63,4 +103,5 @@ export async function markSyncOperationFailed(id: string, error: string): Promis
       updatedAt: nowIso(),
     })
     .where(eq(syncQueue.id, id));
+  notifyQueueChanged();
 }

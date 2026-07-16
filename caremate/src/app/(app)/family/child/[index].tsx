@@ -4,11 +4,10 @@ import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input } from '@/components/ui/form-controls';
-import { FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
+import { createChildProfileSchema, FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
@@ -32,17 +31,10 @@ export default function FamilyChildFormScreen() {
 
   const childSchema = useMemo(
     () =>
-      z.object({
-        fullName: z.string().min(1, t('family.child.nameRequired')),
-        dateOfBirth: z
-          .string()
-          .regex(/^\d{4}-\d{2}-\d{2}$/, t('family.child.dobFormat'))
-          .refine((value) => {
-            const date = new Date(value);
-            return !Number.isNaN(date.getTime()) && date <= new Date();
-          }, t('family.child.dobInvalid')),
-        gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
-        notes: z.string().optional(),
+      createChildProfileSchema({
+        nameRequired: t('family.child.nameRequired'),
+        dobFormat: t('family.child.dobFormat'),
+        dobInvalid: t('family.child.dobInvalid'),
       }),
     [t],
   );

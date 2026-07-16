@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { Bookmark, Clock, ExternalLink, Sparkles } from 'lucide-react-native';
+import { Clock, ExternalLink, Sparkles } from 'lucide-react-native';
 import { useLayoutEffect, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -19,6 +19,7 @@ import {
   estimateReadingTime,
   HEALTH_CATEGORIES,
 } from '@/domains/articles/categories';
+import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { articleRepository } from '@/domains/articles/repository';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { useTranslation } from '@/domains/localization';
@@ -161,12 +162,13 @@ export default function ArticleDetailScreen() {
                 </View>
               ) : (
                 <View style={[styles.readPill, { backgroundColor: palette.primaryLight }]}>
-                  <Bookmark color={palette.primary} size={13} />
+                  <Sparkles color={palette.primary} size={13} />
                   <AppText variant="caption" style={{ color: palette.primary }}>
                     {t('learn.careMateGuide')}
                   </AppText>
                 </View>
               )}
+              <BookmarkToggleButton articleId={article.id} size={15} style={styles.bookmarkBtn} />
             </View>
           </View>
         </AnimatedSection>
@@ -312,6 +314,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    alignItems: 'center',
+  },
+  bookmarkBtn: {
+    marginLeft: 'auto',
   },
   readPill: {
     flexDirection: 'row',

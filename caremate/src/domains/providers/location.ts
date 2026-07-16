@@ -3,24 +3,29 @@ import * as Location from 'expo-location';
 import { localizationService } from '@/domains/localization';
 import { getDeviceDefaults } from '@/domains/onboarding/device-defaults';
 
-export const DEFAULT_NEARBY_COORDS = {
-  latitude: 0,
-  longitude: 0,
-} as const;
-
 export type NearbyCoords = {
   latitude: number;
   longitude: number;
+  /** True when using the user's selected country/state pin instead of live GPS. */
   isApproximate: boolean;
-  /** True when device GPS was discarded because it is outside supported region. */
-  outsideServiceArea?: boolean;
 };
 
+/**
+ * Resolve the coordinates used for Nearby ranking.
+ *
+ * Priority:
+ * 1. Live GPS when onboarding chose "precise" and permission is granted
+ * 2. Approximate pin for the selected country (and Nigerian state when set)
+ * 3. Same approximate pin if permission is denied or GPS fails
+ *
+ * There is no Nigeria bounding-box gate — GPS is trusted when available.
+ */
 export async function resolveNearbyCoords(): Promise<NearbyCoords> {
   try {
     const defaults = await getDeviceDefaults();
-    const fallback = localizationService.getFallbackCoords(defaults.countryCode);
-    if (defaults.locationMode === 'approximate') {
+    const fallback = localizationService.getFallbackCoords(defaults.countryCode, defaults.state);
+
+    if (defaults.locationMode !== 'precise') {
       return { ...fallback, isApproximate: true };
     }
 
@@ -40,7 +45,10 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
     };
   } catch {
     const defaults = await getDeviceDefaults().catch(() => null);
-    const fallback = localizationService.getFallbackCoords(defaults?.countryCode);
-    return { ...fallback, isApproximate: true, outsideServiceArea: true };
+    const fallback = localizationService.getFallbackCoords(
+      defaults?.countryCode,
+      defaults?.state,
+    );
+    return { ...fallback, isApproximate: true };
   }
 }

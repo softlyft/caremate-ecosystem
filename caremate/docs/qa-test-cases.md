@@ -44,7 +44,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | AU-01 | P0 | Guest | Me → Create Account → fill valid first/last, phone, email, password (≥6) → Create | Account creates; lands in app signed-in. |
-| AU-02 | P0 | Signed-out | Me → Sign In → valid email/password | Signs in; Me shows email / user label. |
+| AU-02 | P0 | Signed-out | Me → Sign In → valid email/password | Signs in; Me shows email / user label; local profile/emergency rows exist without waiting on sync. |
 | AU-03 | P1 | — | Register with invalid email | Validation error; no submit success. |
 | AU-04 | P1 | — | Register with short password | “Password must be at least 6 characters”. |
 | AU-05 | P1 | Existing account | Register again with same email | Clear failure message (e.g. already registered). |
@@ -54,8 +54,8 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | AU-07c | P2 | Expired/invalid reset link | Open stale link or open `/auth/reset-password` cold | Link expired / request-new-link path; no crash. |
 | AU-08 | P0 | Guest | Browse Home / Learn / Nearby / Apps | All usable without account. |
 | AU-09 | P0 | Signed-in | Me → Sign Out | Returns to guest state; CTAs to Sign In / Create Account. |
-| AU-10 | P2 | Signed-in, device with biometrics | Enable biometric unlock on Me | Preference persists and toggle state is restored after relaunch. |
-| AU-11 | P2 | No biometrics hardware/enroll | Enable biometric | App handles the unsupported case gracefully and does not crash. |
+| AU-10 | P2 | Signed-in | Me tab preferences | Biometric unlock toggle is not shown (deferred until app-lock is enforced). |
+| AU-11 | P2 | — | — | Reserved for biometric app-lock once implemented. |
 | AU-12 | P1 | Airplane mode | Attempt login/register | User-facing network failure message (not raw stack trace). |
 
 ---
@@ -66,7 +66,8 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 |----|---|-----|-------|----------|
 | OB-01 | P0 | Fresh install / onboarding incomplete | Launch app | Onboarding intro opens instead of dropping straight into tabs. |
 | OB-02 | P1 | Onboarding flow | Complete priorities, region, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
-| OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Flow completes with fallback/default location behavior. |
+| OB-02b | P1 | Priorities step with nothing selected | Tap Continue | Soft toast asks for at least one priority; navigation is blocked until a choice is made (Skip still allowed). |
+| OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Copy reflects selected country/state; Nearby later uses that region’s approximate pin (state capital when set, else country capital). |
 | OB-04 | P1 | Onboarding complete | Relaunch app | Onboarding does not reappear on every launch. |
 | OB-05 | P1 | Newly signed-in user | Complete post-signup setup screens | Emergency, family prompt, and done screens advance correctly. |
 
@@ -81,10 +82,12 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | HM-03 | P0 | Guest | Open Home | Greeting without personal name (time-of-day only). |
 | HM-04 | P1 | Online | Wait on Home | Trending articles populate or keep evergreen if Currents fails. |
 | HM-05 | P1 | Offline | Open Home | Offline banner; previously cached / evergreen content still shown. |
+| HM-05b | P1 | Article feed query fails with no cache | Open Home | ErrorState with Retry; Retry reloads feed. |
 | HM-06 | P1 | Any | Tap search bar | Opens Search screen with focused input. |
 | HM-06b | P0 | Seeded content | Search for a known article keyword | Article results shown; tap opens detail. |
 | HM-06c | P1 | Seeded providers | Search for a provider name | Nearby results shown; tap opens detail. |
 | HM-06d | P1 | Any | Search “medication” | Medication Tracker appears under Tools. |
+| HM-06e | P1 | Search query fails | Search with a keyword while search backend errors | ErrorState with Retry (not empty “No results”). |
 | HM-07 | P1 | Any | Tap a health category chip | Opens Learn filtered by that category. |
 | HM-08 | P1 | Any | Tap a featured article | Opens article detail. |
 | HM-09 | P1 | Any | Tap a nearby provider card | Opens provider detail. |
@@ -114,16 +117,17 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | NB-01 | P0 | Online or previously cached providers | Open Nearby | Provider list loads from nearby results or cached rows; screen does not crash if remote fetch fails. |
+| NB-01b | P1 | Nearby query fails with no cache | Open Nearby | ErrorState with Retry (not empty-state copy). |
 | NB-02 | P1 | List open | Filter All / Hospitals / Clinics / Pharmacies / Labs / Telemedicine / Blood Bank / Ambulance | List filters correctly for the available provider types. |
 | NB-02b | P1 | List open | Search by provider name keyword | Matching providers remain; others hide. |
 | NB-03 | P0 | Any | Open a provider | Detail shows name, type, contact, address as available. |
 | NB-04 | P1 | Signed-in | Toggle favorite on detail | Favorite state persists after leave/reopen. |
 | NB-05 | P2 | Guest | Toggle favorite | Still works locally (guest-scoped) or gated per product rule — confirm no crash. |
-| NB-06 | P1 | Detail with coordinates | Open directions link | External maps URL opens. |
-| NB-07 | P2 | Map entry | Open Map screen | Placeholder/coordinate list loads (not a full interactive map yet). |
+| NB-06 | P1 | Detail with address or coordinates | Tap Open in Maps | Device default maps app opens with the provider location. |
+| NB-07 | P2 | Legacy map route | Open `/(app)/providers/map` | Redirects to Nearby tab. |
 | NB-08 | P1 | Offline with cached provider data | Nearby tab | Cached providers still list successfully. |
-| NB-09 | P1 | Location permission denied or approximate mode chosen | Open Nearby | App falls back to default supported coordinates and still attempts to show providers. |
-| NB-10 | P1 | Device location outside Nigeria (or emulator default outside service area) | Open Nearby | App falls back to Lagos/default supported coordinates rather than showing a broken empty flow. |
+| NB-09 | P1 | Location permission denied or approximate mode chosen | Open Nearby | App uses the approximate pin for the selected country/state and still attempts to show providers; approximate-location caption may show. |
+| NB-10 | P1 | Precise mode + GPS granted while device is far from selected region | Open Nearby | Live GPS is used (no country-bounds discard); ranking follows device position. |
 
 ---
 
@@ -131,8 +135,10 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| EM-01 | P0 | Guest or signed-in | Me / Home → Emergency → create/edit | Can save full name + medical fields. |
+| EM-01 | P0 | Guest or signed-in | Me / Home → Emergency → create/edit | Can save full name + medical fields + at least one ICE contact. |
+| EM-01b | P1 | Edit form | Try save with zero ICE contacts | Blocked with “at least one ICE contact” error. |
 | EM-02 | P0 | Profile exists | View emergency profile | Shows blood group, genotype, allergies, meds, contacts, notes as entered. |
+| EM-02b | P1 | Emergency query fails with no local row | Open Emergency view | ErrorState with Retry (not “no profile yet” empty). |
 | EM-03 | P1 | Edit | Add emergency contact (name, phone, relationship) | Saved and displayed. |
 | EM-04 | P1 | Edit | Change blood group / genotype chips | Selection persists. |
 | EM-05 | P1 | Profile complete | Open QR screen | Preview opens; no crash. |
@@ -156,7 +162,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ME-08 | P1 | Signed-in | Settings → set country (e.g. Nigeria) + state → Save | Saves; Learn/Home news context can use country. |
 | ME-09 | P1 | Guest | Settings location | Explain that sign-in is required / control disabled. |
 | ME-10 | P1 | Settings | Open Family from Settings | Same Family flow as Me entry. |
-| ME-11 | P2 | Signed-in | Me biometric toggle | Persist as AU-10; this is preference persistence, not a verified app-lock gate. |
+| ME-11 | P2 | Signed-in | Me preferences | Biometric unlock toggle is not shown until app-lock is enforced. |
 | ME-12 | P1 | Signed-in | Me → Premium | Premium screen opens and current plan state loads without crash. |
 | ME-13 | P1 | Guest | Me → Premium | Upgrade path prompts sign-in instead of attempting checkout anonymously. |
 
@@ -167,19 +173,21 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | FM-01 | P0 | Signed-in, no household | Me → Family → Set up → Yes I’m a parent | Moves to kids count. |
+| FM-01b | P1 | Household query fails | Open Family hub | ErrorState with Retry. |
 | FM-02 | P0 | In setup | Enter N kids (e.g. 2) → Continue | Child 1 form appears. |
 | FM-03 | P0 | Child form | Enter full name, DOB `YYYY-MM-DD`, gender → Next/Review | Advances; review lists kids. |
 | FM-04 | P0 | Review | Create family | Household created; Family hub shows children. |
 | FM-05 | P1 | Setup | Choose 0 kids → Review → Create | Household allowed; can add child later from hub. |
 | FM-06 | P1 | Hub | Add another child (name, DOB, gender) | Appears in children list. |
+| FM-06b | P1 | Hub inline add | DOB not YYYY-MM-DD or future date | Same validation messages as setup child form; child not saved. |
 | FM-07 | P1 | Invalid DOB | Enter bad date | Validation error. |
 | FM-08 | P0 | Hub + Account B exists | Connect spouse → enter B’s email → Find | Shows **full** profile card (name, email, phone, DOB, location if set). |
 | FM-09 | P0 | Matched card | Tap Connect | Success; pending request created for B. |
 | FM-10 | P0 | Account B | Open Family → requests → Accept | B joins A’s household as spouse; B’s personal profile/data stays B’s. |
+| FM-10b | P1 | Requests query fails | Open Family requests | ErrorState with Retry (not empty list). |
 | FM-11 | P1 | Account B | Decline request | Status declined; not added as spouse. |
-| FM-12 | P1 | Unknown email/phone | Find → not found | Message + generate/share invite (no automatic SMS/email). |
-| FM-13 | P1 | Share invite | Share sheet | Message contains CareMate invite link/token text. |
-| FM-13b | P2 | Shared invite link opened on another device | Open generated invite URL | Record current behavior: invite link may not complete an in-app redeem flow automatically; no crash or broken navigation. |
+| FM-12 | P1 | Unknown email/phone | Find → not found | Shows copyable App Store / Play Store invite message (no token/deep link). |
+| FM-13 | P1 | Not found | Copy / Share message | Clipboard or share sheet gets store links + install instructions; no invite URL with token. |
 | FM-14 | P1 | Guest | Family entry | Blocked with sign-in. |
 | FM-15 | P1 | Airplane mode | Create household + kids | Saves locally; syncs when back online. |
 | FM-16 | P2 | Not a parent path | “Not right now” | Returns to Family without forcing kids. |
@@ -325,12 +333,12 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | Area | Note |
 |------|------|
 | Bookmark toggle on Learn cards | Often decorative; bookmarks screen may be empty |
-| Provider map | Placeholder, not full maps SDK |
-| Emergency QR | Preview; may not encode real QR yet |
-| Biometric unlock | Preference exists, but full app-lock enforcement may not be wired |
+| Provider map | No in-app map; Open in Maps uses system maps |
+| Emergency Patient ID QR | On-device QR on the back of the Me → Patient ID card (tap to flip) |
+| Biometric unlock | Hidden in UI until app-lock gate is implemented |
 | Push notifications | Preference toggle may not deliver OS pushes yet |
 | Premium gating | Pricing and checkout UI exist, but most feature locking may still be soft/incomplete |
-| Family invite links | Share/invite text exists, but deep-link redemption may not be fully wired |
+| Family spouse invites | In-app request when account exists; otherwise copy/share store download message (no redeemable invite links) |
 | Spouse join | Personal mini-app data stays per parent (shared household kids only) |
 
 ---

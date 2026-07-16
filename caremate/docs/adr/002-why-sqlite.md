@@ -20,7 +20,7 @@ Use **on-device SQLite** (`expo-sqlite`) as the **source of truth for persisted 
 ## Consequences
 
 - UI reads/writes feel instant offline; Supabase is a backup/sync peer, not the interactive datastore.
-- Schema changes require local migration care (`database/client.ts` today; Drizzle Kit reserved for future generated migrations).
+- Schema changes use Drizzle Kit migrations (`npm run db:generate` → `src/database/migrations/`, applied at boot).
 - Conflict handling and merge rules live in the sync layer (device often wins for pending local writes).
 - SQLite-on-web remains experimental; mobile is the reference offline experience.
 - Storage grows on-device; cleanup/retention policies may be needed later for large article caches.

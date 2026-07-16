@@ -33,7 +33,30 @@ Current mobile provider behavior is:
 3. Fall back to cached provider rows offline
 4. Keep user favorites merged locally through `provider_favorites`
 
-Bundled seed rows are no longer the primary runtime source. `AppProviders` currently purges bundled provider data during bootstrap, so provider availability depends on cached or remote data rather than local seed hydration.
+Bundled seed rows are not used at runtime. `AppProviders` purges legacy bundled/demo provider rows during bootstrap. Nearby availability comes only from the Supabase RPC (or the last cached geo page); an empty RPC/cache result is shown as empty state in the UI.
+
+## Geo strategy (Nearby coordinates)
+
+Nearby ranking always needs a lat/lng for `nearby_providers`. Coordinates come from `resolveNearbyCoords()` in `domains/providers/location.ts`.
+
+```
+Onboarding locationMode
+  ├── precise + permission granted → live GPS
+  ├── precise + denied / GPS error → approximate pin
+  └── approximate / skipped        → approximate pin
+```
+
+**Approximate pin = selection-based, not a hard-coded Lagos default.**
+
+| Selection | Pin used |
+|-----------|----------|
+| Country + Nigerian state | That state's capital / major-city coords (`nigeria-state-coords.ts`) |
+| Country only | Country capital-area coords from `african-countries.ts` / country config |
+| No country yet (Global / unset) | International fallback (`0, 0`) — Nearby may be empty until region is chosen |
+
+There is **no** Nigeria bounding-box gate. When precise GPS is available, it is used even if the device is outside the selected country. Approximate mode deliberately uses the user's onboarding country/state so results stay relevant without sharing live location.
+
+Permission UX lives in onboarding (`/(auth)/onboarding/location`): enable precise GPS or continue with the selected-region approximate pin. Nearby shows a caption when results are ranked from that approximate pin.
 
 **Do not** create separate `Hospital` / `Pharmacy` tables for Phase 1–2. Add specialized columns only when a field is queried/filtered often enough to leave JSON.
 
@@ -116,7 +139,9 @@ Until then, keep the core stable.
 |-------|------|
 | Type catalog | `domains/providers/types.ts` |
 | Repository (geo + cache) | `domains/providers/repository.ts` |
-| GPS helper | `domains/providers/location.ts` |
+| GPS / approximate pin resolver | `domains/providers/location.ts` |
+| Country capital pins | `domains/localization/african-countries.ts` |
+| Nigerian state pins | `domains/localization/nigeria-state-coords.ts` |
 | FHIR seed map | `domains/providers/utils/fhir-providers.ts` |
 | Nearby RPC | `supabase/migrations/20260715200000_nearby_providers_rpc.sql` |
 | SQLite | `database/schema.ts` → `providers.attributes` |
