@@ -38,14 +38,7 @@ type HeroProps = {
   trailing?: ReactNode;
 };
 
-export function MiniAppHero({
-  appId,
-  eyebrow,
-  title,
-  subtitle,
-  index = 0,
-  trailing,
-}: HeroProps) {
+export function MiniAppHero({ appId, eyebrow, title, subtitle, index = 0, trailing }: HeroProps) {
   const theme = getMiniAppTheme(appId);
   const Icon = theme.icon;
 
@@ -136,14 +129,7 @@ type ChipProps = {
   disabled?: boolean;
 };
 
-export function MiniAppChip({
-  label,
-  selected,
-  onPress,
-  accent,
-  soft,
-  disabled,
-}: ChipProps) {
+export function MiniAppChip({ label, selected, onPress, accent, soft, disabled }: ChipProps) {
   return (
     <PressableScale
       disabled={disabled || !onPress}

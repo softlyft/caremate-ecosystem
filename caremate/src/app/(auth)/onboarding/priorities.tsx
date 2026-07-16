@@ -8,10 +8,7 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { ONBOARDING_PRIORITIES, useOnboardingDraftStore } from '@/domains/onboarding';
 import type { OnboardingPriorityId } from '@/domains/onboarding';
-import {
-  OnboardingPrimaryButton,
-  OnboardingShell,
-} from '@/domains/onboarding/OnboardingShell';
+import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES, PRIORITY_VISUALS } from '@/domains/onboarding/themes';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
@@ -100,7 +97,10 @@ export default function OnboardingPrioritiesScreen() {
                     </AppText>
                   </View>
                   {selected ? (
-                    <Animated.View entering={ZoomIn.duration(220)} style={[styles.check, { backgroundColor: visual.accent }]}>
+                    <Animated.View
+                      entering={ZoomIn.duration(220)}
+                      style={[styles.check, { backgroundColor: visual.accent }]}
+                    >
                       <AppText variant="caption" style={styles.checkLabel}>
                         ✓
                       </AppText>

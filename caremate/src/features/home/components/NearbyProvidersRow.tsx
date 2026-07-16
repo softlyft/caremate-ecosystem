@@ -107,9 +107,7 @@ export function NearbyProvidersRow({ providers }: NearbyProvidersRowProps) {
                     <View style={styles.distancePill}>
                       <MapPin color={palette.textSecondary} size={12} />
                       <AppText variant="providerMeta">
-                        {provider.distanceKm != null
-                          ? `${provider.distanceKm.toFixed(1)} km`
-                          : '—'}
+                        {provider.distanceKm != null ? `${provider.distanceKm.toFixed(1)} km` : '—'}
                       </AppText>
                     </View>
                   </View>

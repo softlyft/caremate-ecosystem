@@ -35,7 +35,11 @@ function GlossyBackButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={() => router.back()}
-      style={[styles.backButton, { backgroundColor: soft, borderColor: `${accent}33` }, shadow.soft]}
+      style={[
+        styles.backButton,
+        { backgroundColor: soft, borderColor: `${accent}33` },
+        shadow.soft,
+      ]}
       scale={0.94}
       hitSlop={8}
     >

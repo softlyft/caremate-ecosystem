@@ -2,8 +2,6 @@ import { create } from 'zustand';
 
 import { GUEST_USER } from '@/constants/guest';
 import { authService } from '@/services/auth-service';
-import { emergencyRepository } from '@/domains/emergency/repository';
-import { profileRepository } from '@/domains/profile/repository';
 import type { AuthUser } from '@/types';
 
 interface AuthState {
@@ -143,5 +141,4 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
     }
   },
-
 }));

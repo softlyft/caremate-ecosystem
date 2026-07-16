@@ -65,7 +65,7 @@ export default function FamilySetupScreen() {
               }}
             >
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                Yes, I'm a parent
+                Yes, I&apos;m a parent
               </AppText>
             </PressableScale>
             <PressableScale

@@ -181,7 +181,10 @@ export default function ProvidersTabScreen() {
               })}
             </View>
 
-            <PressableScale style={styles.mapCta} onPress={() => router.push('/(app)/providers/map')}>
+            <PressableScale
+              style={styles.mapCta}
+              onPress={() => router.push('/(app)/providers/map')}
+            >
               <MapPinned color={palette.brandBlue} size={16} />
               <AppText variant="seeAll" style={{ color: palette.brandBlue }}>
                 Open map view

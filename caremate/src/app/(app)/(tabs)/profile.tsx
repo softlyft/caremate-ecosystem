@@ -68,8 +68,8 @@ export default function ProfileTabScreen() {
       ]);
       const hasEmergencyEssentials = Boolean(
         emergency?.bloodGroup &&
-          emergency.genotype &&
-          (emergency.emergencyContacts?.length ?? 0) > 0,
+        emergency.genotype &&
+        (emergency.emergencyContacts?.length ?? 0) > 0,
       );
       return getFinishSetupItems({
         isGuest,

@@ -15,10 +15,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { Switch } from '@/components/ui/switch';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
-import {
-  OnboardingPrimaryButton,
-  OnboardingShell,
-} from '@/domains/onboarding/OnboardingShell';
+import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 

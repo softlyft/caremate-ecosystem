@@ -184,9 +184,7 @@ export default function SettingsScreen() {
             <SettingRow
               icon={Bell}
               label="Push notifications"
-              trailing={
-                <Switch value={notificationsEnabled} onValueChange={updateNotifications} />
-              }
+              trailing={<Switch value={notificationsEnabled} onValueChange={updateNotifications} />}
             />
           </View>
         </AnimatedSection>
@@ -303,13 +301,7 @@ export default function SettingsScreen() {
   );
 }
 
-function SectionLabel({
-  icon: Icon,
-  title,
-}: {
-  icon: typeof Settings;
-  title: string;
-}) {
+function SectionLabel({ icon: Icon, title }: { icon: typeof Settings; title: string }) {
   return (
     <View style={styles.sectionLabel}>
       <View style={styles.sectionIcon}>

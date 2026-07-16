@@ -1,10 +1,6 @@
 import { ReactNode } from 'react';
 import { Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -33,10 +29,14 @@ export function PressableScale({
       {...props}
       style={[style, animatedStyle]}
       onPressIn={(event) => {
+        // Reanimated shared values are mutable by design.
+        // eslint-disable-next-line react-hooks/immutability
         pressed.value = withSpring(scale, { damping: 18, stiffness: 320 });
         onPressIn?.(event);
       }}
       onPressOut={(event) => {
+        // Reanimated shared values are mutable by design.
+        // eslint-disable-next-line react-hooks/immutability
         pressed.value = withSpring(1, { damping: 14, stiffness: 260 });
         onPressOut?.(event);
       }}

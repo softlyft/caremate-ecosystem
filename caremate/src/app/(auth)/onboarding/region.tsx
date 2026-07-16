@@ -9,10 +9,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { NEWS_COUNTRIES, NIGERIA_STATES } from '@/constants/locations';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
-import {
-  OnboardingPrimaryButton,
-  OnboardingShell,
-} from '@/domains/onboarding/OnboardingShell';
+import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
@@ -85,7 +82,9 @@ export default function OnboardingRegionScreen() {
               >
                 <AppText
                   variant="caption"
-                  style={selected ? [styles.chipTextSelected, { color: theme.accent }] : styles.chipText}
+                  style={
+                    selected ? [styles.chipTextSelected, { color: theme.accent }] : styles.chipText
+                  }
                 >
                   {country.name}
                 </AppText>
@@ -119,7 +118,9 @@ export default function OnboardingRegionScreen() {
                   <AppText
                     variant="caption"
                     style={
-                      selected ? [styles.chipTextSelected, { color: theme.accent }] : styles.chipText
+                      selected
+                        ? [styles.chipTextSelected, { color: theme.accent }]
+                        : styles.chipText
                     }
                   >
                     {item}

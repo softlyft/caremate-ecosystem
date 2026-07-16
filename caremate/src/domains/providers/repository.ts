@@ -56,7 +56,7 @@ function filterLocalRows(
     type?: ProviderType;
     favoritesOnly?: boolean;
     search?: string;
-  }
+  },
 ): (typeof providers.$inferSelect)[] {
   let next = rows;
   if (filters?.type) {
@@ -134,7 +134,7 @@ class ProviderRepository extends BaseRepository {
           await this.cacheRemoteProviders(data as RemoteProviderRow[]);
           const favoriteIds = await this.localFavoriteIds();
           const mapped = (data as RemoteProviderRow[]).map((row) =>
-            this.mapRemoteRow(row, favoriteIds.has(row.id))
+            this.mapRemoteRow(row, favoriteIds.has(row.id)),
           );
           return { providers: mapped, source: 'remote' };
         }

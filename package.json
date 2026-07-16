@@ -21,7 +21,7 @@
     "lint": "npm run lint -w caremate && npm run lint -w caremate-portal",
     "typecheck": "npm run typecheck -w caremate && npm run typecheck -w caremate-portal",
     "test": "npm run test -w caremate && npm run test -w caremate-portal",
-    "format": "npm run format -w caremate",
+    "format": "npm run format:write -w caremate",
     "seed:articles": "npm run seed:articles -w caremate-portal",
     "seed:tips": "npm run seed:tips -w caremate-portal",
     "seed:catalogs": "npm run seed:catalogs -w caremate-portal"

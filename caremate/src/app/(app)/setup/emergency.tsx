@@ -46,7 +46,10 @@ export default function SetupEmergencyEssentialsScreen() {
       return;
     }
     if (!iceName.trim() || !icePhone.trim() || !iceRelationship.trim()) {
-      Alert.alert('ICE contact', 'Add name, phone, and relationship for your first emergency contact.');
+      Alert.alert(
+        'ICE contact',
+        'Add name, phone, and relationship for your first emergency contact.',
+      );
       return;
     }
 

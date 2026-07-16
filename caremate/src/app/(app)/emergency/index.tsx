@@ -122,21 +122,11 @@ export default function EmergencyViewScreen() {
             <View style={styles.divider} />
             <InfoRow label="Allergies" value={profile.allergies.join(', ') || 'None'} />
             <View style={styles.divider} />
-            <InfoRow
-              label="Medications"
-              value={profile.currentMedications.join(', ') || 'None'}
-            />
+            <InfoRow label="Medications" value={profile.currentMedications.join(', ') || 'None'} />
             <View style={styles.divider} />
-            <InfoRow
-              label="Conditions"
-              value={profile.chronicConditions.join(', ') || 'None'}
-            />
+            <InfoRow label="Conditions" value={profile.chronicConditions.join(', ') || 'None'} />
             <View style={styles.divider} />
-            <InfoRow
-              label="Preferred hospital"
-              value={profile.preferredHospital}
-              icon={Hospital}
-            />
+            <InfoRow label="Preferred hospital" value={profile.preferredHospital} icon={Hospital} />
             <View style={styles.divider} />
             <InfoRow label="Insurance" value={profile.insuranceProvider} />
             <View style={styles.divider} />

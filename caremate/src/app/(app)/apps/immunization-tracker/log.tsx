@@ -131,7 +131,11 @@ export default function ImmunizationLogScreen() {
         </View>
         <AppText variant="quickActionSubtitle">{selectedVaccine.description}</AppText>
         {existingRecord ? (
-          <StatusPill label="Already logged" color={theme.color} background={theme.backgroundColor} />
+          <StatusPill
+            label="Already logged"
+            color={theme.color}
+            background={theme.backgroundColor}
+          />
         ) : null}
       </MiniAppCard>
 

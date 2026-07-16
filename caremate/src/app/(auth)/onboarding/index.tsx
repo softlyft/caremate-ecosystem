@@ -15,17 +15,19 @@ import { useEffect } from 'react';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
-import {
-  OnboardingPrimaryButton,
-  OnboardingShell,
-} from '@/domains/onboarding/OnboardingShell';
+import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[0];
 
 const PREVIEWS = [
-  { icon: Sparkles, label: 'Your priorities', color: palette.brandPurple, soft: palette.purpleLight },
+  {
+    icon: Sparkles,
+    label: 'Your priorities',
+    color: palette.brandPurple,
+    soft: palette.purpleLight,
+  },
   { icon: BookOpen, label: 'Local health news', color: '#0284C7', soft: '#E0F2FE' },
   { icon: MapPinned, label: 'Nearby care', color: palette.brandBlue, soft: palette.brandBlueLight },
 ] as const;
@@ -35,10 +37,7 @@ export default function OnboardingWelcomeScreen() {
 
   useEffect(() => {
     pulse.value = withRepeat(
-      withSequence(
-        withTiming(1.06, { duration: 1200 }),
-        withTiming(1, { duration: 1200 }),
-      ),
+      withSequence(withTiming(1.06, { duration: 1200 }), withTiming(1, { duration: 1200 })),
       -1,
       false,
     );
@@ -92,7 +91,12 @@ export default function OnboardingWelcomeScreen() {
                 .springify()
                 .damping(18)}
             >
-              <View style={[styles.previewRow, { backgroundColor: item.soft, borderColor: `${item.color}33` }]}>
+              <View
+                style={[
+                  styles.previewRow,
+                  { backgroundColor: item.soft, borderColor: `${item.color}33` },
+                ]}
+              >
                 <View style={[styles.previewIcon, { backgroundColor: '#FFFFFF' }]}>
                   <Icon color={item.color} size={18} strokeWidth={2.3} />
                 </View>

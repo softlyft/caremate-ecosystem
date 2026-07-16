@@ -29,6 +29,7 @@ import {
   setEmergencyLockSurfaceEnabled,
   syncEmergencyLockSurface,
 } from '@/domains/emergency/lock-surface';
+import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { Switch } from '@/components/ui/switch';
@@ -36,7 +37,6 @@ import { palette, radius, spacing, useAppTheme } from '@/theme';
 
 const EMERGENCY_ACCENT = palette.brandPurple;
 const EMERGENCY_SOFT = palette.purpleLight;
-import type { EmergencyContact } from '@/types';
 
 const schema = z.object({
   firstName: z.string().min(1, 'First name is required'),

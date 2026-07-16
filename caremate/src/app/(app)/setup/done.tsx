@@ -77,10 +77,7 @@ export default function SetupDoneScreen() {
       </View>
 
       <View style={styles.footer}>
-        <PressableScale
-          style={styles.primaryCta}
-          onPress={() => router.replace('/(app)/(tabs)')}
-        >
+        <PressableScale style={styles.primaryCta} onPress={() => router.replace('/(app)/(tabs)')}>
           <AppText variant="button" style={styles.primaryLabel}>
             Open Home
           </AppText>

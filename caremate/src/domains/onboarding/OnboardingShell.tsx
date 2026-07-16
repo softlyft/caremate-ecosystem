@@ -80,7 +80,10 @@ export function OnboardingShell({
             <PressableScale
               onPress={() => router.back()}
               hitSlop={8}
-              style={[styles.topChip, { backgroundColor: `${theme.accent}14`, borderColor: `${theme.accent}33` }]}
+              style={[
+                styles.topChip,
+                { backgroundColor: `${theme.accent}14`, borderColor: `${theme.accent}33` },
+              ]}
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
                 Back
@@ -100,7 +103,10 @@ export function OnboardingShell({
             <PressableScale
               onPress={onSkip}
               hitSlop={8}
-              style={[styles.topChip, { backgroundColor: `${theme.accent}14`, borderColor: `${theme.accent}33` }]}
+              style={[
+                styles.topChip,
+                { backgroundColor: `${theme.accent}14`, borderColor: `${theme.accent}33` },
+              ]}
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
                 {skipLabel}

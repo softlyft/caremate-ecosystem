@@ -49,10 +49,7 @@ export default function ArticleDetailScreen() {
   });
 
   const article = query.data ?? null;
-  const paragraphs = useMemo(
-    () => (article ? splitParagraphs(article.content) : []),
-    [article],
-  );
+  const paragraphs = useMemo(() => (article ? splitParagraphs(article.content) : []), [article]);
 
   useLayoutEffect(() => {
     const shortTitle = article?.title

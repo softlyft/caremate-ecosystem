@@ -1,14 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import {
-  BadgeCheck,
-  Heart,
-  Mail,
-  MapPin,
-  Navigation,
-  Phone,
-  Star,
-} from 'lucide-react-native';
+import { BadgeCheck, Heart, Mail, MapPin, Navigation, Phone, Star } from 'lucide-react-native';
 import { useLayoutEffect } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -177,7 +169,10 @@ export default function ProviderDetailScreen() {
                 {verified ? (
                   <View style={[styles.metaPill, { backgroundColor: palette.primaryLight }]}>
                     <BadgeCheck color={palette.primary} size={13} />
-                    <AppText variant="caption" style={{ color: palette.primary, fontWeight: '600' }}>
+                    <AppText
+                      variant="caption"
+                      style={{ color: palette.primary, fontWeight: '600' }}
+                    >
                       Verified
                     </AppText>
                   </View>
@@ -209,11 +204,7 @@ export default function ProviderDetailScreen() {
 
             <View style={styles.divider} />
 
-            <PressableScale
-              disabled={!detail.phone}
-              onPress={callProvider}
-              style={styles.infoRow}
-            >
+            <PressableScale disabled={!detail.phone} onPress={callProvider} style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Phone color={theme.accent} size={18} />
               </View>
@@ -232,11 +223,7 @@ export default function ProviderDetailScreen() {
 
             <View style={styles.divider} />
 
-            <PressableScale
-              disabled={!detail.email}
-              onPress={emailProvider}
-              style={styles.infoRow}
-            >
+            <PressableScale disabled={!detail.email} onPress={emailProvider} style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Mail color={theme.accent} size={18} />
               </View>

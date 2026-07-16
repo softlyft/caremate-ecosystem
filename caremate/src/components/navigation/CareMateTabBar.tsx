@@ -1,11 +1,14 @@
 import type { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs';
-import { BookOpen, Home, LayoutGrid, MapPin, UserRound, type LucideIcon } from 'lucide-react-native';
+import {
+  BookOpen,
+  Home,
+  LayoutGrid,
+  MapPin,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';

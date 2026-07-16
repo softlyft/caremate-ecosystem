@@ -240,10 +240,7 @@ export default function PremiumScreen() {
                         <PressableScale
                           key={price.id}
                           disabled={disabled}
-                          style={[
-                            styles.secondaryCta,
-                            disabled ? styles.ctaDisabled : null,
-                          ]}
+                          style={[styles.secondaryCta, disabled ? styles.ctaDisabled : null]}
                           onPress={() => void pay(price.currency)}
                         >
                           <AppText variant="button" style={styles.secondaryCtaLabel}>
@@ -304,7 +301,9 @@ function Chip({
       accessibilityRole="button"
       scale={0.96}
     >
-      {Icon ? <Icon color={active ? ACCENT : palette.textSecondary} size={14} strokeWidth={2.2} /> : null}
+      {Icon ? (
+        <Icon color={active ? ACCENT : palette.textSecondary} size={14} strokeWidth={2.2} />
+      ) : null}
       <AppText variant="body" style={active ? styles.chipTextActive : styles.chipText}>
         {label}
       </AppText>

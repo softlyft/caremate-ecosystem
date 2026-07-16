@@ -171,7 +171,9 @@ export default function FamilyHubScreen() {
 
   if (isGuest) {
     return (
-      <View style={[styles.screen, styles.guestWrap, { paddingBottom: insets.bottom + spacing.xl }]}>
+      <View
+        style={[styles.screen, styles.guestWrap, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
         <View style={[styles.heroShell, shadow.card]}>
           <LinearGradientFill
             colors={[
@@ -399,8 +401,8 @@ export default function FamilyHubScreen() {
               Connect spouse
             </AppText>
             <AppText variant="caption" style={styles.muted}>
-              Enter their CareMate email or phone. We do not send invites automatically — if they are
-              not found, you get a message to share.
+              Enter their CareMate email or phone. We do not send invites automatically — if they
+              are not found, you get a message to share.
             </AppText>
             <Input
               placeholder="Email or phone"
@@ -410,10 +412,7 @@ export default function FamilyHubScreen() {
               onChangeText={setLookup}
             />
             <PressableScale
-              style={[
-                styles.secondaryCta,
-                busy || !lookup.trim() ? styles.ctaDisabled : null,
-              ]}
+              style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
               disabled={busy || !lookup.trim()}
               onPress={() => void handleLookup()}
             >
@@ -466,7 +465,10 @@ export default function FamilyHubScreen() {
             {inviteText ? (
               <View style={styles.foundCard}>
                 <AppText variant="caption">{inviteText}</AppText>
-                <PressableScale style={styles.secondaryCta} onPress={() => void handleShareInvite()}>
+                <PressableScale
+                  style={styles.secondaryCta}
+                  onPress={() => void handleShareInvite()}
+                >
                   <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
                     Share invite
@@ -481,15 +483,7 @@ export default function FamilyHubScreen() {
   );
 }
 
-function FamilyHero({
-  title,
-  subtitle,
-  meta,
-}: {
-  title: string;
-  subtitle: string;
-  meta?: string;
-}) {
+function FamilyHero({ title, subtitle, meta }: { title: string; subtitle: string; meta?: string }) {
   return (
     <View style={[styles.heroShell, shadow.card]}>
       <LinearGradientFill

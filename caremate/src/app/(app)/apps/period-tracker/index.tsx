@@ -112,10 +112,7 @@ export default function PeriodTrackerScreen() {
                     isToday && styles.todayRing,
                   ]}
                 >
-                  <AppText
-                    variant="body"
-                    style={isLogged ? styles.loggedDayText : undefined}
-                  >
+                  <AppText variant="body" style={isLogged ? styles.loggedDayText : undefined}>
                     {date.getDate()}
                   </AppText>
                 </View>

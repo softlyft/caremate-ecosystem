@@ -39,7 +39,11 @@ async function migrateOnboardingFlagIfUpgrading() {
   // Existing installs (pre-onboarding) often already have a profile row. Skip the wizard for them.
   try {
     const db = getDatabase();
-    const [row] = await db.select({ id: profiles.id }).from(profiles).where(isNull(profiles.deletedAt)).limit(1);
+    const [row] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(isNull(profiles.deletedAt))
+      .limit(1);
     if (row) {
       await authService.setOnboardingComplete(true);
     }

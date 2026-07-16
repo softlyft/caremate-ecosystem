@@ -113,8 +113,7 @@ export function NearbyProviderCard({ provider, onPress }: NearbyProviderCardProp
   const rating = readRating(provider);
   const verified = isVerified(provider);
   const typeLabel = formatProviderType(provider.type as ProviderType);
-  const distanceLabel =
-    provider.distanceKm != null ? `${provider.distanceKm.toFixed(1)} km` : null;
+  const distanceLabel = provider.distanceKm != null ? `${provider.distanceKm.toFixed(1)} km` : null;
 
   return (
     <PressableScale
@@ -141,7 +140,10 @@ export function NearbyProviderCard({ provider, onPress }: NearbyProviderCardProp
           {distanceLabel ? (
             <View style={styles.distanceBadge}>
               <MapPin color={theme.accent} size={11} strokeWidth={2.5} />
-              <AppText variant="caption" style={[styles.distanceBadgeText, { color: theme.accent }]}>
+              <AppText
+                variant="caption"
+                style={[styles.distanceBadgeText, { color: theme.accent }]}
+              >
                 {distanceLabel}
               </AppText>
             </View>

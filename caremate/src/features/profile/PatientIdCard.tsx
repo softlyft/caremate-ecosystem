@@ -51,19 +51,18 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
         </View>
       </View>
       <AppText variant="quickActionSubtitle" style={styles.description}>
-        Your CareMate ID is unique to your account. Generate it once — it is not created at
-        sign-up.
+        Your CareMate ID is unique to your account. Generate it once — it is not created at sign-up.
       </AppText>
 
       {hasId ? (
         <View style={[styles.atmShell, shadow.card]}>
           <View style={styles.atmClip}>
             <LinearGradientFill
-            colors={[
-              { offset: '0%', color: '#0D9488' },
-              { offset: '45%', color: '#0F766E' },
-              { offset: '100%', color: '#115E59' },
-            ]}
+              colors={[
+                { offset: '0%', color: '#0D9488' },
+                { offset: '45%', color: '#0F766E' },
+                { offset: '100%', color: '#115E59' },
+              ]}
               angle={135}
               style={styles.atmCard}
             >

@@ -95,7 +95,12 @@ export default function OnboardingNextScreen() {
       }
     >
       <Animated.View entering={FadeInDown.delay(140).duration(480)} style={styles.cards}>
-        <View style={[styles.infoCard, { borderColor: `${theme.accent}44`, backgroundColor: theme.soft }]}>
+        <View
+          style={[
+            styles.infoCard,
+            { borderColor: `${theme.accent}44`, backgroundColor: theme.soft },
+          ]}
+        >
           <View style={styles.infoIcon}>
             <Compass color={theme.accent} size={18} />
           </View>

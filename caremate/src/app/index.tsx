@@ -28,7 +28,14 @@ export default function Index() {
 
   if (!isInitialized || onboardingComplete === null) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.surface }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: palette.surface,
+        }}
+      >
         <BrandLoader size="lg" />
       </View>
     );

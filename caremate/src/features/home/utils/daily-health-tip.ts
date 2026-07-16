@@ -57,9 +57,7 @@ export async function getDailyHealthTip(
   };
 }
 
-export async function getHealthTipsForCategory(
-  categoryId: HealthTipCategoryId,
-): Promise<string[]> {
+export async function getHealthTipsForCategory(categoryId: HealthTipCategoryId): Promise<string[]> {
   const rows = await healthTipRepository.findActiveByCategory(categoryId);
   return rows.map((row) => row.body);
 }

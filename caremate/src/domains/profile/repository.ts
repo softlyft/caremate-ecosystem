@@ -2,10 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
-import {
-  generatePatientIdDigits,
-  isValidPatientId,
-} from '@/domains/profile/patient-id';
+import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
 import { config } from '@/constants/env';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
@@ -77,8 +74,7 @@ class ProfileRepository extends BaseRepository {
         ...existing,
         ...input,
         // Never accidentally clear an existing patient ID unless explicitly passed null.
-        patientId:
-          input.patientId !== undefined ? input.patientId : existing.patientId,
+        patientId: input.patientId !== undefined ? input.patientId : existing.patientId,
         updatedAt: timestamp,
         syncStatus: 'pending',
       };
