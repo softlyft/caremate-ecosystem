@@ -34,4 +34,6 @@ export const QUERY_KEYS = {
   familyHousehold: ['family-household'] as const,
   familyMembers: ['family-members'] as const,
   familyRequests: ['family-requests'] as const,
+  notifications: ['notifications'] as const,
+  notificationsUnread: ['notifications', 'unread'] as const,
 } as const;

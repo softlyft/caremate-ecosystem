@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import {
+  Bell,
   Crown,
   MapPinned,
   QrCode,
@@ -51,6 +52,18 @@ export default function AppLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ title: 'Apps' }} />
         <Stack.Screen name="search" options={{ headerShown: false, title: 'Search' }} />
+        <Stack.Screen
+          name="notifications/index"
+          options={glossyStackHeaderOptions({
+            title: 'Notifications',
+            accent: '#475569',
+            soft: '#F1F5F9',
+            softEnd: '#F8FAFC',
+            titleColor: '#334155',
+            icon: Bell,
+            backAccessibilityLabel: 'Back to Home',
+          })}
+        />
         <Stack.Screen name="setup/emergency" options={{ headerShown: false }} />
         <Stack.Screen name="setup/family-prompt" options={{ headerShown: false }} />
         <Stack.Screen name="setup/done" options={{ headerShown: false }} />

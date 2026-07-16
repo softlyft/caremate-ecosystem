@@ -1,12 +1,14 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, isNull, ne, sql } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
 import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
 import { config } from '@/constants/env';
+import { GUEST_USER_ID } from '@/constants/guest';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { isOnline } from '@/sync/network';
+import { removeSyncOperationsForEntity } from '@/sync/queue';
 import type { AppSettings, Profile } from '@/types';
 import { createId, nowIso, parseJsonArray } from '@/utils/helpers';
 
@@ -47,10 +49,16 @@ function mapSettings(row: typeof settings.$inferSelect): AppSettings {
 class ProfileRepository extends BaseRepository {
   async findByUserId(userId: string): Promise<Profile | null> {
     const db = getDatabase();
+    // If duplicates ever exist (login stub + pulled remote row), prefer the one
+    // holding a Patient ID, then the oldest, so the answer is deterministic.
     const [row] = await db
       .select()
       .from(profiles)
       .where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt)))
+      .orderBy(
+        sql`CASE WHEN ${profiles.patientId} IS NOT NULL THEN 0 ELSE 1 END`,
+        asc(profiles.createdAt),
+      )
       .limit(1);
     return row ? mapProfile(row) : null;
   }
@@ -165,6 +173,20 @@ class ProfileRepository extends BaseRepository {
     }
 
     const online = config.isSupabaseConfigured && (await isOnline());
+
+    // The account may already own an ID minted on another device / install.
+    // Adopt it instead of minting a second one.
+    if (online && userId !== GUEST_USER_ID) {
+      const { data: remoteProfile } = await supabase
+        .from('profiles')
+        .select('patient_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (remoteProfile && isValidPatientId(remoteProfile.patient_id)) {
+        return this.save(userId, { patientId: remoteProfile.patient_id });
+      }
+    }
+
     const maxAttempts = 12;
 
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -291,7 +313,9 @@ class ProfileRepository extends BaseRepository {
       country_code: profile.countryCode,
       language_code: profile.languageCode,
       state: profile.state,
-      patient_id: profile.patientId,
+      // Patient IDs are permanent once minted — a device that hasn't pulled the
+      // ID yet must never overwrite the remote value with null.
+      ...(isValidPatientId(profile.patientId) ? { patient_id: profile.patientId } : {}),
       updated_at: profile.updatedAt,
     });
   }
@@ -357,6 +381,95 @@ class ProfileRepository extends BaseRepository {
             updatedAt: row.updated_at ?? timestamp,
           },
         });
+
+      await this.reconcileDuplicateLocalRows(row.user_id, row.id);
+    }
+  }
+
+  /**
+   * A fresh login bootstraps a local profile stub with a new random id before
+   * the remote row is pulled, leaving two local rows for one account. Keep the
+   * remote (canonical) row, salvage anything only the stub knows — most
+   * importantly a Patient ID minted offline — and drop the stub plus any of
+   * its queued pushes (they would violate the remote user_id uniqueness).
+   */
+  private async reconcileDuplicateLocalRows(userId: string, canonicalId: string): Promise<void> {
+    const db = getDatabase();
+    const dupes = await db
+      .select()
+      .from(profiles)
+      .where(and(eq(profiles.userId, userId), ne(profiles.id, canonicalId)));
+
+    if (dupes.length === 0) {
+      return;
+    }
+
+    const [canonical] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, canonicalId))
+      .limit(1);
+    if (!canonical) {
+      return;
+    }
+
+    const fill = <T>(current: T | null, candidate: T | null): T | null =>
+      current ?? candidate ?? null;
+
+    let merged = mapProfile(canonical);
+    let changed = false;
+    for (const dupe of dupes) {
+      const next: Profile = {
+        ...merged,
+        fullName: merged.fullName.trim() ? merged.fullName : dupe.fullName,
+        email: fill(merged.email, dupe.email),
+        phone: fill(merged.phone, dupe.phone),
+        dateOfBirth: fill(merged.dateOfBirth, dupe.dateOfBirth),
+        avatarUrl: fill(merged.avatarUrl, dupe.avatarUrl),
+        countryCode: fill(merged.countryCode, dupe.countryCode),
+        languageCode: fill(merged.languageCode, dupe.languageCode),
+        state: fill(merged.state, dupe.state),
+        patientId: isValidPatientId(merged.patientId)
+          ? merged.patientId
+          : isValidPatientId(dupe.patientId)
+            ? dupe.patientId
+            : merged.patientId,
+      };
+      if (JSON.stringify(next) !== JSON.stringify(merged)) {
+        merged = next;
+        changed = true;
+      }
+
+      await db.delete(profiles).where(eq(profiles.id, dupe.id));
+      await removeSyncOperationsForEntity('profiles', dupe.id);
+    }
+
+    if (changed) {
+      const timestamp = nowIso();
+      merged = { ...merged, syncStatus: 'pending', updatedAt: timestamp };
+      await db
+        .update(profiles)
+        .set({
+          fullName: merged.fullName,
+          email: merged.email,
+          phone: merged.phone,
+          dateOfBirth: merged.dateOfBirth,
+          avatarUrl: merged.avatarUrl,
+          countryCode: merged.countryCode,
+          languageCode: merged.languageCode,
+          state: merged.state,
+          patientId: merged.patientId,
+          syncStatus: 'pending',
+          updatedAt: timestamp,
+        })
+        .where(eq(profiles.id, canonicalId));
+
+      await this.queueSync({
+        entityType: 'profiles',
+        entityId: canonicalId,
+        operation: 'update',
+        payload: merged,
+      });
     }
   }
 

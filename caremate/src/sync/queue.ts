@@ -1,4 +1,4 @@
-import { eq, gte } from 'drizzle-orm';
+import { and, eq, gte } from 'drizzle-orm';
 
 import { SYNC_CONFIG } from '@/constants/config';
 import { getDatabase } from '@/database/client';
@@ -79,6 +79,18 @@ export async function retryFailedSyncOperations(): Promise<void> {
     .update(syncQueue)
     .set({ attempts: 0, lastError: null, updatedAt: nowIso() })
     .where(gte(syncQueue.attempts, SYNC_CONFIG.maxRetries));
+  notifyQueueChanged();
+}
+
+/** Drop queued ops for an entity that no longer exists locally (e.g. deduped rows). */
+export async function removeSyncOperationsForEntity(
+  entityType: string,
+  entityId: string,
+): Promise<void> {
+  const db = getDatabase();
+  await db
+    .delete(syncQueue)
+    .where(and(eq(syncQueue.entityType, entityType), eq(syncQueue.entityId, entityId)));
   notifyQueueChanged();
 }
 

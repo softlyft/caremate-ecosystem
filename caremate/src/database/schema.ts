@@ -173,6 +173,26 @@ export const subscriptionEntitlements = sqliteTable('subscription_entitlements',
   ...syncColumns,
 });
 
+/**
+ * In-app notification inbox (title + body cards).
+ * Local-first; cloud sync / push / email fan-out come later.
+ */
+export const notifications = sqliteTable('notifications', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  domain: text('domain').notNull(),
+  eventType: text('event_type').notNull(),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  severity: text('severity').notNull().default('info'),
+  entityType: text('entity_type'),
+  entityId: text('entity_id'),
+  dataJson: text('data_json').notNull().default('{}'),
+  dedupeKey: text('dedupe_key'),
+  readAt: text('read_at'),
+  ...syncColumns,
+});
+
 export const schema = {
   profiles,
   emergencyProfiles,
@@ -188,4 +208,5 @@ export const schema = {
   familyMembers,
   familyConnectionRequests,
   subscriptionEntitlements,
+  notifications,
 };

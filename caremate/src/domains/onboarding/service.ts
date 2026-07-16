@@ -1,9 +1,12 @@
 import type { Href } from 'expo-router';
 
+import { GUEST_USER_ID } from '@/constants/guest';
+import { ensureWelcomeInAppNotification } from '@/domains/notifications/service';
 import { authService } from '@/services/auth-service';
 import { localizationService } from '@/domains/localization';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
+import { useAuthStore } from '@/features/auth/store';
 
 import { getDeviceDefaults, setDeviceDefaults } from './device-defaults';
 import { useOnboardingDraftStore } from './store';
@@ -26,6 +29,13 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
 
   useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
   await authService.setOnboardingComplete(true);
+
+  const userId = useAuthStore.getState().user?.id ?? GUEST_USER_ID;
+  await ensureWelcomeInAppNotification({
+    userId,
+    languageCode,
+  });
+
   return defaults;
 }
 
