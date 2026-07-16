@@ -1,15 +1,17 @@
 import { Image } from 'expo-image';
 import { Bell } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
 import { getGreeting } from '@/features/home/constants';
-import { layoutSpacing, palette, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const LOGO_ASPECT = 1774 / 887;
-const LOGO_HEIGHT = 48;
+const LOGO_HEIGHT = 44;
 
 type HomeHeaderProps = {
   firstName?: string | null;
@@ -18,29 +20,34 @@ type HomeHeaderProps = {
 export function HomeHeader({ firstName }: HomeHeaderProps) {
   const insets = useSafeAreaInsets();
   const name = firstName?.trim();
-  const greeting = name ? `${getGreeting()}, ${name}! 👋` : `${getGreeting()}! 👋`;
+  const greeting = name ? `${getGreeting()}, ${name}` : getGreeting();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
-      <View style={styles.topRow}>
+      <View style={styles.meshTop} />
+      <View style={styles.meshAccent} />
+
+      <Animated.View entering={FadeIn.duration(400)} style={styles.topRow}>
         <Image
           source={images.logoHeader}
           style={styles.logo}
           contentFit="contain"
           contentPosition="left center"
         />
-        <Pressable style={styles.notificationButton} accessibilityLabel="Notifications">
-          <Bell color={palette.textSecondary} size={24} strokeWidth={2} />
+        <PressableScale style={styles.notificationButton} accessibilityLabel="Notifications">
+          <Bell color={palette.text} size={22} strokeWidth={2} />
           <View style={styles.unreadDot} />
-        </Pressable>
-      </View>
+        </PressableScale>
+      </Animated.View>
 
-      <View style={styles.copy}>
-        <AppText variant="heroGreeting">{greeting}</AppText>
-        <AppText variant="subtitle" style={styles.subtitle} color="#9CA3AF">
-          Your health. Our priority
+      <Animated.View entering={FadeInDown.delay(80).duration(500).springify()} style={styles.copy}>
+        <AppText variant="heroGreeting" style={styles.greeting}>
+          {`${greeting} 👋`}
         </AppText>
-      </View>
+        <AppText variant="subtitle" style={styles.subtitle}>
+          Your health journey, beautifully organized
+        </AppText>
+      </Animated.View>
     </View>
   );
 }
@@ -49,14 +56,38 @@ const styles = StyleSheet.create({
   container: {
     paddingLeft: layoutSpacing.screenHorizontal,
     paddingRight: layoutSpacing.screenHorizontal,
-    marginBottom: layoutSpacing.sectionTitleToContent,
+    marginBottom: spacing.md,
     gap: spacing.md,
+    position: 'relative',
+    overflow: 'hidden',
+    paddingBottom: spacing.sm,
+  },
+  meshTop: {
+    position: 'absolute',
+    top: -80,
+    right: -40,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: palette.primaryLight,
+    opacity: 0.7,
+  },
+  meshAccent: {
+    position: 'absolute',
+    top: 20,
+    left: -60,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: palette.blueLight,
+    opacity: 0.55,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.sm,
+    zIndex: 1,
   },
   logo: {
     flex: 1,
@@ -66,25 +97,39 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   copy: {
-    gap: 0,
+    gap: 6,
+    zIndex: 1,
+  },
+  greeting: {
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.6,
   },
   subtitle: {
-    marginTop: layoutSpacing.greetingToWelcome,
+    fontSize: 15,
+    lineHeight: 22,
+    color: palette.textSecondary,
+    maxWidth: '92%',
   },
   notificationButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+    borderRadius: radius.full,
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    ...shadow.soft,
   },
   unreadDot: {
     position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+    top: 10,
+    right: 11,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: palette.danger,
     borderWidth: 1.5,
     borderColor: palette.background,

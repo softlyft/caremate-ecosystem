@@ -1,19 +1,29 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Bell, MapPin, Moon, Palette, Settings, Users } from 'lucide-react-native';
+import { useState, type ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
+import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { QUERY_KEYS } from '@/constants/config';
 import { getCountryName, NEWS_COUNTRIES, NIGERIA_STATES } from '@/constants/locations';
+import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
-import { profileRepository } from '@/domains/profile/repository';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+
+const ACCENT = '#475569';
+const SOFT = '#F1F5F9';
+const SOFT_END = '#F8FAFC';
+const TITLE = '#334155';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -40,6 +50,7 @@ export default function SettingsScreen() {
 
   const countryCode = countryDraft !== undefined ? countryDraft : remoteCountryCode;
   const state = stateDraft !== undefined ? stateDraft : remoteState;
+
   async function updateTheme(value: 'light' | 'dark' | 'system') {
     setTheme(value);
     await profileRepository.saveSettings(userId, { theme: value });
@@ -75,170 +86,395 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Family</AppText>
-        {isGuest ? (
-          <AppText variant="caption" style={styles.muted}>
-            Sign in to set up your family profile, kids, and spouse connection.
-          </AppText>
-        ) : (
-          <>
-            <AppText variant="caption" style={styles.muted}>
-              Add children and connect your spouse. Each parent keeps their own CareMate data.
-            </AppText>
-            <Button
-              label="Open family"
-              variant="secondary"
-              onPress={() => router.push('/(app)/family')}
-            />
-          </>
-        )}
-      </View>
+    <View style={styles.screen}>
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <AnimatedSection index={0}>
+          <View style={[styles.heroShell, shadow.card]}>
+            <LinearGradientFill
+              colors={[
+                { offset: '0%', color: SOFT },
+                { offset: '55%', color: SOFT },
+                { offset: '100%', color: SOFT_END },
+              ]}
+              angle={130}
+              style={styles.hero}
+            >
+              <View style={styles.heroBlob} />
+              <View style={[styles.heroBlobSm, { backgroundColor: ACCENT }]} />
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Appearance</AppText>
-        <View style={styles.row}>
-          <AppText variant="body">Use system theme</AppText>
-          <Switch
-            value={theme === 'system'}
-            onValueChange={(enabled) => updateTheme(enabled ? 'system' : 'light')}
-          />
-        </View>
-        <View style={styles.row}>
-          <AppText variant="body">Dark mode</AppText>
-          <Switch
-            value={theme === 'dark'}
-            onValueChange={(enabled) => updateTheme(enabled ? 'dark' : 'light')}
-          />
-        </View>
-      </View>
+              <View style={styles.heroIconRing}>
+                <View style={styles.heroIconInner}>
+                  <Settings color={ACCENT} size={28} strokeWidth={2.2} />
+                </View>
+              </View>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Notifications</AppText>
-        <View style={styles.row}>
-          <AppText variant="body">Push notifications</AppText>
-          <Switch value={notificationsEnabled} onValueChange={updateNotifications} />
-        </View>
-      </View>
+              <AppText variant="caption" style={styles.heroEyebrow}>
+                Preferences
+              </AppText>
+              <AppText variant="screenTitle" style={styles.heroTitle}>
+                Settings
+              </AppText>
+              <AppText variant="subtitle" style={styles.heroSubtitle}>
+                Appearance, notifications, location for local health news, and family shortcuts.
+              </AppText>
+            </LinearGradientFill>
+          </View>
+        </AnimatedSection>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Location</AppText>
-        {isGuest ? (
-          <AppText variant="caption" style={styles.muted}>
-            Sign in to set your country and state. Guests see international health news.
-          </AppText>
-        ) : (
-          <>
-            <AppText variant="caption" style={styles.muted}>
-              Used for local health news. Leave unset to see international stories.
-            </AppText>
-
-            <AppText variant="body">Country</AppText>
-            <View style={styles.chipRow}>
-              {NEWS_COUNTRIES.map((country) => {
-                const selected = countryCode === country.code;
-                return (
-                  <Pressable
-                    key={country.code}
-                    style={[styles.chip, selected && styles.chipSelected]}
-                    onPress={() => {
-                      setCountryDraft(selected ? null : country.code);
-                      if (country.code !== 'NG') {
-                        setStateDraft('');
-                      }
-                    }}
-                  >
-                    <AppText
-                      variant="caption"
-                      style={selected ? styles.chipTextSelected : undefined}
-                    >
-                      {country.name}
-                    </AppText>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {countryCode === 'NG' ? (
+        <AnimatedSection index={1}>
+          <View style={[styles.card, shadow.soft]}>
+            <SectionLabel icon={Users} title="Family" />
+            {isGuest ? (
+              <AppText variant="caption" style={styles.muted}>
+                Sign in to set up your family profile, kids, and spouse connection.
+              </AppText>
+            ) : (
               <>
-                <AppText variant="body">State</AppText>
+                <AppText variant="caption" style={styles.muted}>
+                  Add children and connect your spouse. Each parent keeps their own CareMate data.
+                </AppText>
+                <PressableScale
+                  style={styles.secondaryCta}
+                  onPress={() => router.push('/(app)/family')}
+                >
+                  <Users color={ACCENT} size={16} strokeWidth={2.25} />
+                  <AppText variant="button" style={styles.secondaryCtaLabel}>
+                    Open family
+                  </AppText>
+                </PressableScale>
+              </>
+            )}
+          </View>
+        </AnimatedSection>
+
+        <AnimatedSection index={2}>
+          <View style={[styles.card, shadow.soft]}>
+            <SectionLabel icon={Palette} title="Appearance" />
+            <SettingRow
+              icon={Palette}
+              label="Use system theme"
+              trailing={
+                <Switch
+                  value={theme === 'system'}
+                  onValueChange={(enabled) => updateTheme(enabled ? 'system' : 'light')}
+                />
+              }
+            />
+            <View style={styles.divider} />
+            <SettingRow
+              icon={Moon}
+              label="Dark mode"
+              trailing={
+                <Switch
+                  value={theme === 'dark'}
+                  onValueChange={(enabled) => updateTheme(enabled ? 'dark' : 'light')}
+                />
+              }
+            />
+          </View>
+        </AnimatedSection>
+
+        <AnimatedSection index={3}>
+          <View style={[styles.card, shadow.soft]}>
+            <SectionLabel icon={Bell} title="Notifications" />
+            <SettingRow
+              icon={Bell}
+              label="Push notifications"
+              trailing={<Switch value={notificationsEnabled} onValueChange={updateNotifications} />}
+            />
+          </View>
+        </AnimatedSection>
+
+        <AnimatedSection index={4}>
+          <View style={[styles.card, shadow.soft]}>
+            <SectionLabel icon={MapPin} title="Location" />
+            {isGuest ? (
+              <AppText variant="caption" style={styles.muted}>
+                Sign in to set your country and state. Guests see international health news.
+              </AppText>
+            ) : (
+              <>
+                <AppText variant="caption" style={styles.muted}>
+                  Used for local health news. Leave unset to see international stories.
+                </AppText>
+
+                <AppText variant="caption" style={styles.fieldLabel}>
+                  Country
+                </AppText>
                 <View style={styles.chipRow}>
-                  {NIGERIA_STATES.map((item) => {
-                    const selected = state === item;
+                  {NEWS_COUNTRIES.map((country) => {
+                    const selected = countryCode === country.code;
                     return (
-                      <Pressable
-                        key={item}
+                      <PressableScale
+                        key={country.code}
                         style={[styles.chip, selected && styles.chipSelected]}
-                        onPress={() => setStateDraft(selected ? '' : item)}
+                        scale={0.96}
+                        onPress={() => {
+                          setCountryDraft(selected ? null : country.code);
+                          if (country.code !== 'NG') {
+                            setStateDraft('');
+                          }
+                        }}
                       >
                         <AppText
                           variant="caption"
-                          style={selected ? styles.chipTextSelected : undefined}
+                          style={selected ? styles.chipTextSelected : styles.chipText}
                         >
-                          {item}
+                          {country.name}
                         </AppText>
-                      </Pressable>
+                      </PressableScale>
                     );
                   })}
                 </View>
-              </>
-            ) : (
-              <>
-                <AppText variant="body">State / region</AppText>
-                <Input
-                  placeholder="e.g. California, Greater Accra"
-                  value={state}
-                  onChangeText={setStateDraft}
-                  autoCapitalize="words"
-                />
+
+                {countryCode === 'NG' ? (
+                  <>
+                    <AppText variant="caption" style={styles.fieldLabel}>
+                      State
+                    </AppText>
+                    <View style={styles.chipRow}>
+                      {NIGERIA_STATES.map((item) => {
+                        const selected = state === item;
+                        return (
+                          <PressableScale
+                            key={item}
+                            style={[styles.chip, selected && styles.chipSelected]}
+                            scale={0.96}
+                            onPress={() => setStateDraft(selected ? '' : item)}
+                          >
+                            <AppText
+                              variant="caption"
+                              style={selected ? styles.chipTextSelected : styles.chipText}
+                            >
+                              {item}
+                            </AppText>
+                          </PressableScale>
+                        );
+                      })}
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <AppText variant="caption" style={styles.fieldLabel}>
+                      State / region
+                    </AppText>
+                    <Input
+                      placeholder="e.g. California, Greater Accra"
+                      value={state}
+                      onChangeText={setStateDraft}
+                      autoCapitalize="words"
+                    />
+                  </>
+                )}
+
+                {(countryCode || state) && (
+                  <AppText variant="caption" style={styles.muted}>
+                    Selected:{' '}
+                    {[getCountryName(countryCode), state].filter(Boolean).join(' · ') || 'Not set'}
+                  </AppText>
+                )}
+
+                <PressableScale
+                  style={[
+                    styles.primaryCta,
+                    savingLocation ? styles.ctaDisabled : null,
+                    shadow.soft,
+                  ]}
+                  disabled={savingLocation}
+                  onPress={() => void saveLocation()}
+                >
+                  <MapPin color="#FFFFFF" size={16} strokeWidth={2.25} />
+                  <AppText variant="button" style={styles.primaryCtaLabel}>
+                    {savingLocation ? 'Saving...' : 'Save location'}
+                  </AppText>
+                </PressableScale>
               </>
             )}
+          </View>
+        </AnimatedSection>
+      </Animated.ScrollView>
+    </View>
+  );
+}
 
-            {(countryCode || state) && (
-              <AppText variant="caption" style={styles.muted}>
-                Selected:{' '}
-                {[getCountryName(countryCode), state].filter(Boolean).join(' · ') || 'Not set'}
-              </AppText>
-            )}
-
-            <Button
-              label={savingLocation ? 'Saving...' : 'Save location'}
-              disabled={savingLocation}
-              onPress={saveLocation}
-            />
-          </>
-        )}
+function SectionLabel({ icon: Icon, title }: { icon: typeof Settings; title: string }) {
+  return (
+    <View style={styles.sectionLabel}>
+      <View style={styles.sectionIcon}>
+        <Icon color={ACCENT} size={14} strokeWidth={2.3} />
       </View>
-    </ScrollView>
+      <AppText variant="caption" style={styles.sectionEyebrow}>
+        {title}
+      </AppText>
+    </View>
+  );
+}
+
+function SettingRow({
+  icon: Icon,
+  label,
+  trailing,
+}: {
+  icon: typeof Settings;
+  label: string;
+  trailing: ReactNode;
+}) {
+  return (
+    <View style={styles.row}>
+      <View style={styles.rowLeading}>
+        <View style={styles.rowIcon}>
+          <Icon color={ACCENT} size={16} strokeWidth={2.2} />
+        </View>
+        <AppText variant="body" style={styles.rowLabel}>
+          {label}
+        </AppText>
+      </View>
+      {trailing}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: palette.background,
+    backgroundColor: palette.surface,
   },
   content: {
-    padding: layoutSpacing.screenHorizontal,
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.md,
     gap: spacing.md,
   },
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.xl,
+  heroShell: {
+    borderRadius: radius.xxl,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
+    borderColor: 'rgba(15, 23, 42, 0.06)',
+  },
+  hero: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    minHeight: 160,
+    justifyContent: 'flex-end',
+    gap: spacing.xs,
+  },
+  heroBlob: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: '#E2E8F0',
+    opacity: 0.7,
+    top: -48,
+    right: -36,
+  },
+  heroBlobSm: {
+    position: 'absolute',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    opacity: 0.1,
+    bottom: 16,
+    left: -12,
+  },
+  heroIconRing: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: `${ACCENT}33`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  heroIconInner: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: `${ACCENT}14`,
+  },
+  heroEyebrow: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+    fontSize: 11,
+  },
+  heroTitle: {
+    color: TITLE,
+    letterSpacing: -0.4,
+  },
+  heroSubtitle: {
+    color: palette.textSecondary,
+    marginTop: 2,
+  },
+  card: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.06)',
+    padding: spacing.md,
     gap: spacing.sm,
+  },
+  sectionLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sectionIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: radius.md,
+    backgroundColor: SOFT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionEyebrow: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    letterSpacing: 0.35,
+    textTransform: 'uppercase',
+    fontSize: 11,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 4,
+  },
+  rowLeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    flex: 1,
+  },
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.md,
+    backgroundColor: SOFT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowLabel: {
+    color: palette.text,
+    flexShrink: 1,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: palette.divider,
+  },
+  fieldLabel: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    marginTop: spacing.xs,
   },
   chipRow: {
     flexDirection: 'row',
@@ -251,16 +487,50 @@ const styles = StyleSheet.create({
     borderColor: palette.divider,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: palette.background,
+    backgroundColor: palette.surface,
   },
   chipSelected: {
-    backgroundColor: palette.primaryLight,
-    borderColor: palette.primary,
+    backgroundColor: SOFT,
+    borderColor: ACCENT,
+  },
+  chipText: {
+    color: palette.textSecondary,
   },
   chipTextSelected: {
-    color: palette.primaryDark,
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
   },
   muted: {
     color: palette.textSecondary,
+  },
+  primaryCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: ACCENT,
+    borderRadius: radius.xl,
+    paddingVertical: 16,
+    marginTop: spacing.xs,
+  },
+  primaryCtaLabel: {
+    color: '#FFFFFF',
+  },
+  secondaryCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: radius.xl,
+    borderWidth: 1.5,
+    borderColor: ACCENT,
+    backgroundColor: SOFT,
+    paddingVertical: 14,
+  },
+  secondaryCtaLabel: {
+    color: ACCENT,
+  },
+  ctaDisabled: {
+    opacity: 0.45,
   },
 });

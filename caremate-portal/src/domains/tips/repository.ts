@@ -9,6 +9,7 @@ export async function listTips(filters?: {
   let query = supabase
     .from('health_tips')
     .select('*')
+    .is('deleted_at', null)
     .order('category_id')
     .order('sort_order', { ascending: true });
 

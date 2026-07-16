@@ -2,7 +2,7 @@ import { useColorScheme } from 'react-native';
 
 import { colors } from '@/theme/colors';
 
-export { colors, palette, radius, shadow, spacing } from '@/theme/colors';
+export { colors, palette, primaryAlpha, radius, shadow, spacing } from '@/theme/colors';
 export {
   fontFamily,
   layoutSpacing,

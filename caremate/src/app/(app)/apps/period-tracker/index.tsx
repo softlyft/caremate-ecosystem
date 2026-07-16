@@ -4,8 +4,16 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
+import {
+  MiniAppCard,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppRow,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  StatusPill,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import {
   daysBetween,
   getCycleDay,
@@ -18,9 +26,12 @@ import {
   usePeriodTrackerHydrated,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { palette, radius, spacing } from '@/theme';
+
+const APP_ID = 'period-tracker' as const;
 
 export default function PeriodTrackerScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const [monthRef, setMonthRef] = useState(
@@ -41,29 +52,32 @@ export default function PeriodTrackerScreen() {
   const weekStrip = getWeekStrip(today);
   const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
-  return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.hero}>
-        <AppText variant="caption" style={styles.heroLabel}>
-          Today
-        </AppText>
-        <AppText variant="screenTitle" style={styles.heroTitle}>
-          {cycleDay ? `Day ${cycleDay} of your cycle` : 'Start tracking your cycle'}
-        </AppText>
-        <AppText variant="subtitle" style={styles.heroSubtitle}>
-          {daysUntil !== null
-            ? daysUntil === 0
-              ? 'Your next period may start today'
-              : `About ${daysUntil} day${daysUntil === 1 ? '' : 's'} until your next period`
-            : 'Log your last period to see predictions'}
-        </AppText>
-      </View>
+  const heroSubtitle =
+    daysUntil !== null
+      ? daysUntil === 0
+        ? 'Your next period may start today'
+        : `About ${daysUntil} day${daysUntil === 1 ? '' : 's'} until your next period`
+      : 'Log your last period to see predictions';
 
-      <View style={[styles.card, shadow.soft]}>
+  return (
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow="Today"
+        title={cycleDay ? `Day ${cycleDay} of your cycle` : 'Start tracking your cycle'}
+        subtitle={heroSubtitle}
+        trailing={
+          cycleDay ? (
+            <StatusPill
+              label={`Day ${cycleDay}`}
+              color={theme.color}
+              background={`${theme.color}22`}
+            />
+          ) : undefined
+        }
+      />
+
+      <MiniAppCard index={1} title="This week" theme={theme}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -87,13 +101,13 @@ export default function PeriodTrackerScreen() {
                 style={styles.stripDay}
                 onPress={() => togglePeriodDay(key)}
               >
-                <AppText variant="caption">
+                <AppText variant="caption" style={styles.stripWeekday}>
                   {date.toLocaleDateString(undefined, { weekday: 'short' })}
                 </AppText>
                 <View
                   style={[
                     styles.stripBubble,
-                    isLogged && styles.loggedDay,
+                    isLogged && { backgroundColor: theme.color },
                     isPredicted && styles.predictedDay,
                     isToday && styles.todayRing,
                   ]}
@@ -106,9 +120,9 @@ export default function PeriodTrackerScreen() {
             );
           })}
         </ScrollView>
-      </View>
+      </MiniAppCard>
 
-      <View style={[styles.card, shadow.soft]}>
+      <MiniAppCard index={2} eyebrow="Calendar" theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -132,6 +146,9 @@ export default function PeriodTrackerScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive={hydrated}
+          accentColor={theme.color}
+          predictedColor="#FBCFE8"
+          predictedBorderColor="#F472B6"
           onDayPress={togglePeriodDay}
           getDayState={(dayKey) => ({
             logged: loggedPeriodDays.includes(dayKey),
@@ -148,7 +165,7 @@ export default function PeriodTrackerScreen() {
 
         <View style={styles.legend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.loggedDay]} />
+            <View style={[styles.legendDot, { backgroundColor: theme.color }]} />
             <AppText variant="caption">Logged period</AppText>
           </View>
           <View style={styles.legendItem}>
@@ -156,65 +173,38 @@ export default function PeriodTrackerScreen() {
             <AppText variant="caption">Predicted</AppText>
           </View>
         </View>
-      </View>
+      </MiniAppCard>
 
-      <View style={[styles.card, shadow.soft]}>
-        <AppText variant="cardTitle">Cycle summary</AppText>
-        <View style={styles.summaryRow}>
-          <AppText variant="body">Average cycle</AppText>
-          <AppText variant="body">{cycleLength} days</AppText>
-        </View>
-        <View style={styles.summaryRow}>
-          <AppText variant="body">Period length</AppText>
-          <AppText variant="body">{periodLength} days</AppText>
-        </View>
-        <View style={styles.summaryRow}>
-          <AppText variant="body">Logged days</AppText>
-          <AppText variant="body">{loggedPeriodDays.length}</AppText>
-        </View>
-      </View>
+      <MiniAppCard index={3} title="Cycle summary" theme={theme}>
+        <MiniAppRow
+          title="Average cycle"
+          soft={theme.backgroundColor}
+          trailing={<AppText variant="body">{cycleLength} days</AppText>}
+        />
+        <MiniAppRow
+          title="Period length"
+          soft={theme.backgroundColor}
+          trailing={<AppText variant="body">{periodLength} days</AppText>}
+        />
+        <MiniAppRow
+          title="Logged days"
+          soft={theme.backgroundColor}
+          trailing={<AppText variant="body">{loggedPeriodDays.length}</AppText>}
+        />
+      </MiniAppCard>
 
-      <Button
+      <MiniAppCta
         label="Log Period Days"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={4}
         onPress={() => router.push('/(app)/apps/period-tracker/log')}
       />
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  hero: {
-    backgroundColor: '#FCE7F3',
-    borderRadius: radius.xxl,
-    padding: layoutSpacing.cardPadding,
-    gap: 4,
-  },
-  heroLabel: {
-    color: '#DB2777',
-  },
-  heroTitle: {
-    color: '#831843',
-  },
-  heroSubtitle: {
-    color: '#9D174D',
-  },
-  card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
-  },
   strip: {
     gap: spacing.sm,
     paddingVertical: spacing.xs,
@@ -223,6 +213,9 @@ const styles = StyleSheet.create({
     width: 52,
     alignItems: 'center',
     gap: 6,
+  },
+  stripWeekday: {
+    color: palette.textSecondary,
   },
   stripBubble: {
     width: 40,
@@ -236,9 +229,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  loggedDay: {
-    backgroundColor: '#DB2777',
   },
   predictedDay: {
     backgroundColor: '#FBCFE8',
@@ -267,9 +257,5 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
 });

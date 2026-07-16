@@ -29,11 +29,14 @@ import {
   setEmergencyLockSurfaceEnabled,
   syncEmergencyLockSurface,
 } from '@/domains/emergency/lock-surface';
+import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { Switch } from '@/components/ui/switch';
 import { palette, radius, spacing, useAppTheme } from '@/theme';
-import type { EmergencyContact } from '@/types';
+
+const EMERGENCY_ACCENT = palette.brandPurple;
+const EMERGENCY_SOFT = palette.purpleLight;
 
 const schema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -428,11 +431,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chipSelected: {
-    backgroundColor: palette.primaryLight,
-    borderColor: palette.primary,
+    backgroundColor: EMERGENCY_SOFT,
+    borderColor: EMERGENCY_ACCENT,
   },
   chipTextSelected: {
-    color: palette.primaryDark,
+    color: EMERGENCY_ACCENT,
   },
   contactCard: {
     borderWidth: 1,

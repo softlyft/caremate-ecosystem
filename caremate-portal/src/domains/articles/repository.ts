@@ -7,7 +7,11 @@ export async function listArticles(filters?: {
   categoryId?: string;
 }): Promise<Article[]> {
   const supabase = await createClient();
-  let query = supabase.from('articles').select('*').order('updated_at', { ascending: false });
+  let query = supabase
+    .from('articles')
+    .select('*')
+    .is('deleted_at', null)
+    .order('updated_at', { ascending: false });
 
   if (filters?.contentType) {
     query = query.eq('content_type', filters.contentType);

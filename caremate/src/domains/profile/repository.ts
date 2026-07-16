@@ -2,8 +2,11 @@ import { and, eq, isNull } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
+import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
+import { config } from '@/constants/env';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
+import { isOnline } from '@/sync/network';
 import type { AppSettings, Profile } from '@/types';
 import { createId, nowIso, parseJsonArray } from '@/utils/helpers';
 
@@ -18,6 +21,7 @@ function mapProfile(row: typeof profiles.$inferSelect): Profile {
     avatarUrl: row.avatarUrl,
     countryCode: row.countryCode ?? null,
     state: row.state ?? null,
+    patientId: row.patientId ?? null,
     syncStatus: row.syncStatus as Profile['syncStatus'],
     deletedAt: row.deletedAt,
     createdAt: row.createdAt,
@@ -50,6 +54,16 @@ class ProfileRepository extends BaseRepository {
     return row ? mapProfile(row) : null;
   }
 
+  async findByPatientId(patientId: string): Promise<Profile | null> {
+    const db = getDatabase();
+    const [row] = await db
+      .select()
+      .from(profiles)
+      .where(and(eq(profiles.patientId, patientId), isNull(profiles.deletedAt)))
+      .limit(1);
+    return row ? mapProfile(row) : null;
+  }
+
   async save(userId: string, input: Partial<Profile>): Promise<Profile> {
     const db = getDatabase();
     const existing = await this.findByUserId(userId);
@@ -59,6 +73,8 @@ class ProfileRepository extends BaseRepository {
       const updated: Profile = {
         ...existing,
         ...input,
+        // Never accidentally clear an existing patient ID unless explicitly passed null.
+        patientId: input.patientId !== undefined ? input.patientId : existing.patientId,
         updatedAt: timestamp,
         syncStatus: 'pending',
       };
@@ -73,6 +89,7 @@ class ProfileRepository extends BaseRepository {
           avatarUrl: updated.avatarUrl,
           countryCode: updated.countryCode,
           state: updated.state,
+          patientId: updated.patientId,
           syncStatus: 'pending',
           updatedAt: timestamp,
         })
@@ -99,6 +116,7 @@ class ProfileRepository extends BaseRepository {
       avatarUrl: input.avatarUrl ?? null,
       countryCode: input.countryCode ?? null,
       state: input.state ?? null,
+      patientId: input.patientId ?? null,
       syncStatus: 'pending',
       deletedAt: null,
       createdAt: timestamp,
@@ -115,6 +133,7 @@ class ProfileRepository extends BaseRepository {
       avatarUrl: profile.avatarUrl,
       countryCode: profile.countryCode,
       state: profile.state,
+      patientId: profile.patientId,
       syncStatus: 'pending',
       deletedAt: null,
       createdAt: timestamp,
@@ -129,6 +148,46 @@ class ProfileRepository extends BaseRepository {
     });
 
     return profile;
+  }
+
+  /**
+   * Mint a unique CareMate Patient ID for an account that does not have one yet.
+   * Does not run at signup — call from Profile "Generate ID for me".
+   */
+  async generatePatientIdForUser(userId: string): Promise<Profile> {
+    const existing = await this.findByUserId(userId);
+    if (existing && isValidPatientId(existing.patientId)) {
+      return existing;
+    }
+
+    const online = config.isSupabaseConfigured && (await isOnline());
+    const maxAttempts = 12;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const candidate = await generatePatientIdDigits();
+      const localHit = await this.findByPatientId(candidate);
+      if (localHit && localHit.userId !== userId) {
+        continue;
+      }
+
+      if (online) {
+        const { data: remoteHit, error } = await supabase
+          .from('profiles')
+          .select('id, user_id')
+          .eq('patient_id', candidate)
+          .maybeSingle();
+        if (error) {
+          throw new Error(error.message);
+        }
+        if (remoteHit && remoteHit.user_id !== userId) {
+          continue;
+        }
+      }
+
+      return this.save(userId, { patientId: candidate });
+    }
+
+    throw new Error('Could not allocate a unique Patient ID. Please try again.');
   }
 
   async getSettings(userId: string): Promise<AppSettings | null> {
@@ -227,6 +286,7 @@ class ProfileRepository extends BaseRepository {
       avatar_url: profile.avatarUrl,
       country_code: profile.countryCode,
       state: profile.state,
+      patient_id: profile.patientId,
       updated_at: profile.updatedAt,
     });
   }
@@ -269,6 +329,7 @@ class ProfileRepository extends BaseRepository {
           avatarUrl: row.avatar_url,
           countryCode: row.country_code ?? null,
           state: row.state ?? null,
+          patientId: row.patient_id ?? null,
           syncStatus: 'synced',
           deletedAt: null,
           createdAt: row.created_at ?? timestamp,
@@ -284,6 +345,7 @@ class ProfileRepository extends BaseRepository {
             avatarUrl: row.avatar_url,
             countryCode: row.country_code ?? null,
             state: row.state ?? null,
+            patientId: row.patient_id ?? null,
             syncStatus: 'synced',
             updatedAt: row.updated_at ?? timestamp,
           },

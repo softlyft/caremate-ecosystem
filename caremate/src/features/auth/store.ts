@@ -2,8 +2,6 @@ import { create } from 'zustand';
 
 import { GUEST_USER } from '@/constants/guest';
 import { authService } from '@/services/auth-service';
-import { emergencyRepository } from '@/domains/emergency/repository';
-import { profileRepository } from '@/domains/profile/repository';
 import type { AuthUser } from '@/types';
 
 interface AuthState {
@@ -20,7 +18,6 @@ interface AuthState {
   signUp: (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   setBiometricEnabled: (enabled: boolean) => Promise<void>;
-  signInDemo: () => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
   clearPasswordRecovery: () => void;
   updatePassword: (password: string) => Promise<void>;
@@ -143,30 +140,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       set({ isLoading: false });
     }
-  },
-
-  signInDemo: async () => {
-    const demoUser = {
-      id: 'demo-user',
-      email: 'demo@caremate.local',
-      phone: null,
-    };
-    await profileRepository.save(demoUser.id, {
-      fullName: 'Demo User',
-      email: demoUser.email,
-    });
-    await emergencyRepository.save(demoUser.id, {
-      fullName: 'Demo User',
-      bloodGroup: 'O+',
-      allergies: ['Penicillin'],
-      currentMedications: ['Vitamin D'],
-    });
-    await profileRepository.saveSettings(demoUser.id, {});
-    set({
-      user: demoUser,
-      isAuthenticated: true,
-      isGuest: false,
-      passwordRecoveryPending: false,
-    });
   },
 }));

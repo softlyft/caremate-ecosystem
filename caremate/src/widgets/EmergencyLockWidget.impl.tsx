@@ -13,7 +13,7 @@ const EmergencyLockWidgetLayout = (
   const isDark = environment.colorScheme === 'dark';
   const titleColor = isDark ? '#F8FAFC' : '#111827';
   const mutedColor = isDark ? '#94A3B8' : '#6B7280';
-  const accentColor = '#16A34A';
+  const accentColor = '#0D9488';
 
   if (!props.hasProfile) {
     return (

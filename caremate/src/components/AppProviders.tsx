@@ -2,16 +2,23 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
+import { isNull } from 'drizzle-orm';
+
 import { AppText } from '@/components/ui/AppText';
 import { Center } from '@/components/ui/center';
 import { Button } from '@/components/ui/form-controls';
-import { Spinner } from '@/components/ui/spinner';
-import { initializeDatabase } from '@/database/client';
+import { BrandLoader } from '@/components/ui/BrandLoader';
+import { getDatabase, initializeDatabase } from '@/database/client';
+import { profiles } from '@/database/schema';
+import { getDeviceDefaults } from '@/domains/onboarding';
+import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import { articleRepository } from '@/domains/articles/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { providerRepository } from '@/domains/providers/repository';
+import { healthTipRepository } from '@/domains/tips/repository';
+import { authService } from '@/services/auth-service';
 import { registerDailyBackgroundSync } from '@/sync/background-daily-sync';
 import { syncEngine } from '@/sync/engine';
 
@@ -23,6 +30,27 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+async function migrateOnboardingFlagIfUpgrading() {
+  const alreadyComplete = await authService.isOnboardingComplete();
+  if (alreadyComplete) {
+    return;
+  }
+  // Existing installs (pre-onboarding) often already have a profile row. Skip the wizard for them.
+  try {
+    const db = getDatabase();
+    const [row] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(isNull(profiles.deletedAt))
+      .limit(1);
+    if (row) {
+      await authService.setOnboardingComplete(true);
+    }
+  } catch {
+    // Best-effort; first-time installs continue into onboarding.
+  }
+}
 
 async function runBackgroundStartupTasks() {
   try {
@@ -58,8 +86,21 @@ function BootstrapGate({ children }: PropsWithChildren) {
       try {
         // Critical path: local SQLite + session only. Network sync stays in the background.
         await initializeDatabase();
-        await Promise.all([articleRepository.seedIfEmpty(), providerRepository.seedIfEmpty()]);
+        await providerRepository.purgeBundledProviders();
+        await migrateOnboardingFlagIfUpgrading();
+        // Catalogs: portal → Supabase (guests included via anon RLS).
+        await Promise.all([
+          articleRepository.pullFromRemote(),
+          healthTipRepository.pullFromRemote(),
+        ]);
         await initializeAuth();
+
+        try {
+          const defaults = await getDeviceDefaults();
+          useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
+        } catch {
+          // Device defaults are optional on cold start.
+        }
 
         if (mounted) {
           setDbReady(true);
@@ -114,9 +155,10 @@ function BootstrapGate({ children }: PropsWithChildren) {
             setDbReady(false);
             initializeDatabase()
               .then(async () => {
+                await providerRepository.purgeBundledProviders();
                 await Promise.all([
-                  articleRepository.seedIfEmpty(),
-                  providerRepository.seedIfEmpty(),
+                  articleRepository.pullFromRemote(),
+                  healthTipRepository.pullFromRemote(),
                 ]);
                 await initializeAuth();
                 setDbReady(true);
@@ -136,7 +178,7 @@ function BootstrapGate({ children }: PropsWithChildren) {
   if (!dbReady || !isInitialized) {
     return (
       <Center className="flex-1 bg-background">
-        <Spinner size="large" color="#16A34A" />
+        <BrandLoader size="lg" />
       </Center>
     );
   }

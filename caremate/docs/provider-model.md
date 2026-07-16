@@ -4,19 +4,25 @@
 
 ## Today vs tomorrow
 
-| Today | Model |
+| Layer | Model |
 |-------|--------|
-| Nearby “Provider” | One core entity: **`Provider`** |
-| Tomorrow’s specialties | Same row, discriminated by **`type`** |
+| FHIR / ingest (write) | `Organization` 1→N `Location` 1→N `HealthcareService` |
+| Nearby / mobile (read) | **Online geo query** (`nearby_providers` RPC) + small SQLite cache |
 
 ```
-Provider (core)
-  ├── type: hospital | clinic | pharmacy | laboratory
-  │         | telemedicine | blood_bank | ambulance
-  │         | (+ dentist, mental_health)
-  ├── shared fields: name, address, phone, geo, favorite, …
-  └── attributes: { … }   ← type-specific, flexible JSON
+provider_organizations          id = uuid (gen_random_uuid)
+  └── provider_locations        id = uuid → providers.id = location_id
+        └── provider_healthcare_services   id = uuid (listed in attributes.services)
+
+Mobile Nearby
+  ├── RPC nearby_providers(lat, lng, radius, type, search, limit)
+  ├── SQLite cache: last geo page + favorites snapshots + optional seed bootstrap
+  └── Does NOT mirror the full national catalog into SQLite
 ```
+
+**Scale note:** Nigeria alone can exceed 50k facilities. Full `select('*')` sync into SQLite is not used. Prefer geo pages (~100 pins) and keep favorites hydrated by id.
+
+Excel ingest: **non-UUID** identifier → insert; **UUID** → update existing row. Copy IDs from the portal after the first upload.
 
 **Do not** create separate `Hospital` / `Pharmacy` tables for Phase 1–2. Add specialized columns only when a field is queried/filtered often enough to leave JSON.
 
@@ -42,7 +48,17 @@ Canonical list: `src/domains/providers/types.ts`
 
 Column: `providers.attributes` (SQLite text JSON, default `{}`).
 
-Suggested shapes (convention only — not enforced in TS yet):
+Ingest always writes (at least):
+
+```ts
+{
+  organization_id: string;
+  location_id: string;
+  services: Array<{ id: string; name: string; type?: string; active?: boolean }>;
+}
+```
+
+Suggested type-specific shapes (convention only — not enforced in TS yet):
 
 ```ts
 // hospital
@@ -64,8 +80,14 @@ Suggested shapes (convention only — not enforced in TS yet):
 { components?: string[]; appointmentRequired?: boolean }
 ```
 
-FHIR seeds may supply attributes via extension  
+FHIR seeds / ingest may supply attributes via extension  
 `https://caremate.app/fhir/StructureDefinition/provider-attributes` (`valueString` JSON).
+
+Canonical FHIR shape for a provider catalog row:
+
+- **Organization** — operator identity
+- **Location** — physical place + coordinates
+- **HealthcareService** — offered service (`providedBy` → Organization, `location` → Location)
 
 ## When to promote an attribute
 
@@ -82,7 +104,8 @@ Until then, keep the core stable.
 | Piece | Path |
 |-------|------|
 | Type catalog | `domains/providers/types.ts` |
-| Repository | `domains/providers/repository.ts` |
+| Repository (geo + cache) | `domains/providers/repository.ts` |
+| GPS helper | `domains/providers/location.ts` |
 | FHIR seed map | `domains/providers/utils/fhir-providers.ts` |
-| Domain exports | `domains/providers/index.ts` |
+| Nearby RPC | `supabase/migrations/20260715200000_nearby_providers_rpc.sql` |
 | SQLite | `database/schema.ts` → `providers.attributes` |

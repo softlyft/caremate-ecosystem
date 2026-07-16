@@ -1,18 +1,7 @@
-import learnData from '@/domains/articles/data/learn.json';
 import { HEALTH_CATEGORIES } from '@/domains/articles/categories';
 import type { Article, ArticleCategory } from '@/types';
 
-export type LearnCategoryId = (typeof HEALTH_CATEGORIES)[number]['id'];
-
-export interface EvergreenArticleSeed {
-  id: string;
-  title: string;
-  summary: string;
-  content: string;
-}
-
-const LEARN_BY_CATEGORY = learnData as Record<LearnCategoryId, EvergreenArticleSeed[]>;
-
+/** Legacy local seed ids (pre-portal CMS). Soft-deleted on pull/boot if still present. */
 const LEGACY_SEED_IDS = ['article-1', 'article-2', 'article-3'] as const;
 
 export const LEARN_CATEGORIES: ArticleCategory[] = [
@@ -25,35 +14,6 @@ export const LEARN_CATEGORIES: ArticleCategory[] = [
   { id: 'health', name: 'Health News', slug: 'health', isSubscribed: true },
 ];
 
-export function getEvergreenSeeds(): Omit<
-  Article,
-  'syncStatus' | 'deletedAt' | 'createdAt' | 'updatedAt'
->[] {
-  const publishedAt = new Date().toISOString();
-  const seeds: Omit<Article, 'syncStatus' | 'deletedAt' | 'createdAt' | 'updatedAt'>[] = [];
-
-  for (const category of HEALTH_CATEGORIES) {
-    const articles = LEARN_BY_CATEGORY[category.id] ?? [];
-    for (const article of articles) {
-      seeds.push({
-        id: article.id,
-        title: article.title,
-        summary: article.summary,
-        content: article.content,
-        contentType: 'article',
-        categoryId: category.id,
-        categoryName: category.name,
-        imageUrl: null,
-        sourceUrl: null,
-        publishedAt,
-        attributes: {},
-      });
-    }
-  }
-
-  return seeds;
-}
-
 export function getLegacySeedIds(): readonly string[] {
   return LEGACY_SEED_IDS;
 }
@@ -62,6 +22,7 @@ export function isExternalArticle(article: Article): boolean {
   return Boolean(article.sourceUrl) || article.id.startsWith('currents-');
 }
 
+/** CareMate catalog content from Supabase (not Currents news). */
 export function isEvergreenArticle(article: Article): boolean {
   return article.id.startsWith('evergreen-') || (!isExternalArticle(article) && !article.sourceUrl);
 }

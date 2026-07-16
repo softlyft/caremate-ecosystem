@@ -1,86 +1,123 @@
-import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { LayoutGrid } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
+import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { MINI_APPS } from '@/mini-apps/_kit/registry';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function AppsTabScreen() {
   const insets = useSafeAreaInsets();
+  const availableCount = MINI_APPS.filter((app) => app.available).length;
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
-    >
-      <AppText variant="screenTitle">Apps</AppText>
-      <AppText variant="subtitle" style={styles.subtitle}>
-        Standalone health tools inside CareMate
-      </AppText>
+    <View style={styles.screen}>
+      <Animated.ScrollView
+        entering={FadeIn.duration(300)}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+      >
+        <AnimatedSection index={0}>
+          <View style={styles.hero}>
+            <View style={styles.meshTop} />
+            <View style={styles.meshAccent} />
 
-      <View style={styles.grid}>
-        {MINI_APPS.map((app) => {
-          const Icon = app.icon;
-          return (
-            <Pressable
-              key={app.id}
-              disabled={!app.available}
-              style={[
-                styles.card,
-                shadow.soft,
-                { backgroundColor: app.backgroundColor, opacity: app.available ? 1 : 0.6 },
-              ]}
-              onPress={() => router.push(app.route)}
-            >
-              <View style={[styles.iconWrap, { backgroundColor: palette.background }]}>
-                <Icon color={app.color} size={28} />
-              </View>
-              <AppText variant="quickActionTitle" style={styles.centered}>
-                {app.name}
+            <View style={styles.heroBadge}>
+              <LayoutGrid color={palette.primary} size={16} strokeWidth={2.25} />
+              <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
+                {availableCount} tools ready
               </AppText>
-              <AppText variant="quickActionSubtitle" style={styles.centered}>
-                {app.description}
-              </AppText>
-              {!app.available ? <AppText variant="comingSoon">Coming soon</AppText> : null}
-            </Pressable>
-          );
-        })}
-      </View>
-    </ScrollView>
+            </View>
+
+            <AppText variant="screenTitle" style={styles.title}>
+              Apps
+            </AppText>
+            <AppText variant="subtitle" style={styles.subtitle}>
+              Standalone health tools built into CareMate — track meds, checkups, cycles, and more.
+            </AppText>
+          </View>
+        </AnimatedSection>
+
+        <View style={styles.grid}>
+          {MINI_APPS.map((app, index) => (
+            <MiniAppCard key={app.id} app={app} index={index} />
+          ))}
+        </View>
+      </Animated.ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: palette.background,
+    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
-    paddingBottom: spacing.xl,
+    paddingBottom: 40,
     gap: spacing.md,
+  },
+  hero: {
+    position: 'relative',
+    overflow: 'hidden',
+    gap: 8,
+    marginBottom: spacing.xs,
+    paddingBottom: spacing.sm,
+  },
+  meshTop: {
+    position: 'absolute',
+    top: -70,
+    right: -40,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: palette.primaryLight,
+    opacity: 0.55,
+  },
+  meshAccent: {
+    position: 'absolute',
+    top: 30,
+    left: -60,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#E0F2FE',
+    opacity: 0.5,
+  },
+  heroBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: palette.background,
+    borderRadius: radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.14)',
+    zIndex: 1,
+  },
+  heroBadgeLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+    fontSize: 11,
+  },
+  title: {
+    zIndex: 1,
+    letterSpacing: -0.6,
   },
   subtitle: {
-    marginBottom: spacing.sm,
+    zIndex: 1,
+    fontSize: 15,
+    lineHeight: 22,
+    color: palette.textSecondary,
+    maxWidth: '95%',
   },
   grid: {
-    gap: spacing.md,
-  },
-  card: {
-    borderRadius: radius.xxl,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
-    alignItems: 'center',
-  },
-  iconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centered: {
-    textAlign: 'center',
+    gap: 14,
   },
 });

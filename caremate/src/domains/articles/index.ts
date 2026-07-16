@@ -19,8 +19,6 @@ export {
   type LearnContentType,
 } from '@/domains/articles/content-types';
 export {
-  getEvergreenSeeds,
-  getLegacySeedIds,
   isEvergreenArticle,
   isExternalArticle,
   LEARN_CATEGORIES,

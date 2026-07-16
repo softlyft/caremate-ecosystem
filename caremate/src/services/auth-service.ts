@@ -5,6 +5,7 @@ import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { authStorage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { applyDeviceDefaultsToProfile } from '@/domains/onboarding';
 import { profileRepository } from '@/domains/profile/repository';
 import type { AuthUser } from '@/types';
 
@@ -61,8 +62,8 @@ export class AuthService {
         email,
         phone: normalizedPhone,
       });
+      await applyDeviceDefaultsToProfile(data.user.id);
       await emergencyRepository.save(data.user.id, { fullName });
-      await profileRepository.saveSettings(data.user.id, {});
     }
 
     return data;

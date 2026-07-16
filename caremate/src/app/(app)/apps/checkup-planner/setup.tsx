@@ -1,11 +1,18 @@
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
 import { INTERNATIONAL_COUNTRY_CODE, NEWS_COUNTRIES } from '@/constants/locations';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import { GENDER_OPTIONS } from '@/mini-apps/checkup-planner/constants';
 import {
   useCheckupPlannerHydrated,
@@ -13,8 +20,9 @@ import {
   type PlannerGender,
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
+
+const theme = getMiniAppTheme('checkup-planner');
 
 export default function CheckupPlannerSetupScreen() {
   const navigation = useNavigation();
@@ -57,43 +65,34 @@ export default function CheckupPlannerSetupScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
+    <MiniAppScreen>
+      <AppText variant="subtitle" style={styles.intro}>
         We use your date of birth, gender, and region to suggest standard checkups. Region is
         optional and defaults to International.
       </AppText>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Gender</AppText>
+      <MiniAppCard index={1} title="Gender" theme={theme}>
         <View style={styles.chipRow}>
-          {GENDER_OPTIONS.map((option) => {
-            const selected = option.id === gender;
-            return (
-              <Pressable
-                key={option.id}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setGender(option.id)}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {option.label}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          {GENDER_OPTIONS.map((option) => (
+            <MiniAppChip
+              key={option.id}
+              label={option.label}
+              selected={option.id === gender}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => setGender(option.id)}
+            />
+          ))}
         </View>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
+      <MiniAppCard index={2} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -119,6 +118,7 @@ export default function CheckupPlannerSetupScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
           onDayPress={(dayKey) => {
             if (dayKey > toDateKey(today)) {
               return;
@@ -133,45 +133,38 @@ export default function CheckupPlannerSetupScreen() {
         {dateOfBirth ? (
           <AppText variant="body">DOB: {formatDisplayDate(dateOfBirth)}</AppText>
         ) : null}
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Region (optional)</AppText>
+      <MiniAppCard index={3} title="Region (optional)" theme={theme}>
         <AppText variant="caption" style={styles.muted}>
           Used for a few region-aware tips. Leave as International if unsure.
         </AppText>
         <View style={styles.chipRow}>
-          <Pressable
-            style={[styles.chip, regionCode === null && styles.chipSelected]}
+          <MiniAppChip
+            label={`International (${INTERNATIONAL_COUNTRY_CODE})`}
+            selected={regionCode === null}
+            accent={theme.color}
+            soft={theme.backgroundColor}
             onPress={() => setRegionCode(null)}
-          >
-            <AppText
-              variant="caption"
-              style={regionCode === null ? styles.chipTextSelected : undefined}
-            >
-              International ({INTERNATIONAL_COUNTRY_CODE})
-            </AppText>
-          </Pressable>
-          {NEWS_COUNTRIES.map((country) => {
-            const selected = regionCode === country.code;
-            return (
-              <Pressable
-                key={country.code}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setRegionCode(country.code)}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {country.name}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          />
+          {NEWS_COUNTRIES.map((country) => (
+            <MiniAppChip
+              key={country.code}
+              label={country.name}
+              selected={regionCode === country.code}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => setRegionCode(country.code)}
+            />
+          ))}
         </View>
-      </View>
+      </MiniAppCard>
 
-      <Button
+      <MiniAppCta
         label={profile ? 'Save changes' : 'Save and view plan'}
-        disabled={!dateOfBirth || !gender}
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={4}
         onPress={() => {
           if (!dateOfBirth || !gender) {
             return;
@@ -182,9 +175,12 @@ export default function CheckupPlannerSetupScreen() {
       />
 
       {profile ? (
-        <Button
+        <MiniAppCta
           label="Clear planner data"
-          variant="secondary"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={5}
           onPress={() => {
             Alert.alert(
               'Clear checkup planner?',
@@ -204,60 +200,31 @@ export default function CheckupPlannerSetupScreen() {
           }}
         />
       ) : null}
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
     padding: layoutSpacing.screenHorizontal,
-    backgroundColor: palette.background,
-  },
-  card: {
     backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
   },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  intro: {
+    color: palette.textSecondary,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: '#CCFBF1',
-    borderColor: '#0F766E',
-  },
-  chipTextSelected: {
-    color: '#0F766E',
+  monthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   muted: {
     color: palette.textSecondary,

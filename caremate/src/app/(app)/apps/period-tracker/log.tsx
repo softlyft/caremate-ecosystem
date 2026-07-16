@@ -1,15 +1,24 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
+import {
+  MiniAppCard,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import { usePeriodTrackerHydrated, usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { palette, spacing } from '@/theme';
+
+const APP_ID = 'period-tracker' as const;
 
 export default function LogPeriodScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
@@ -25,22 +34,21 @@ export default function LogPeriodScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
-        Tap the days you were on your period. You can select multiple days across the month.
-      </AppText>
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow="Log days"
+        title="Mark your period"
+        subtitle="Tap the days you were on your period. You can select multiple days across the month."
+      />
 
-      <View style={styles.card}>
+      <MiniAppCard index={1} eyebrow="Calendar" theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -64,55 +72,51 @@ export default function LogPeriodScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
+          predictedColor="#FBCFE8"
+          predictedBorderColor="#F472B6"
           onDayPress={togglePeriodDay}
           getDayState={(dayKey) => ({ selected: loggedPeriodDays.includes(dayKey) })}
         />
-      </View>
+      </MiniAppCard>
 
-      <AppText variant="caption">{loggedPeriodDays.length} day(s) selected</AppText>
+      <AppText variant="caption" style={styles.selectedCount}>
+        {loggedPeriodDays.length} day(s) selected
+      </AppText>
 
-      <View style={styles.actions}>
-        <Button label="Save" onPress={() => router.back()} />
-        <Button
-          label="Clear selection"
-          variant="secondary"
-          onPress={() => setLoggedPeriodDays([])}
-        />
-      </View>
-    </ScrollView>
+      <MiniAppCta
+        label="Save"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={2}
+        onPress={() => router.back()}
+      />
+      <MiniAppCta
+        label="Clear selection"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={3}
+        secondary
+        onPress={() => setLoggedPeriodDays([])}
+      />
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  card: {
     backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
   },
   monthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  actions: {
-    gap: spacing.sm,
+  selectedCount: {
+    color: palette.textSecondary,
+    marginTop: -spacing.xs,
   },
 });

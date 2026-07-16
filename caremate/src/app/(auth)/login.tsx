@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
 import { useAuthStore } from '@/features/auth/store';
+import { authService } from '@/services/auth-service';
 import { config } from '@/constants/env';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
@@ -22,7 +23,6 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginScreen() {
   const { colors } = useAppTheme();
   const signIn = useAuthStore((state) => state.signIn);
-  const signInDemo = useAuthStore((state) => state.signInDemo);
   const isLoading = useAuthStore((state) => state.isLoading);
 
   const { control, handleSubmit, formState } = useForm<LoginForm>({
@@ -96,23 +96,17 @@ export default function LoginScreen() {
           disabled={isLoading}
           onPress={handleSubmit(onSubmit)}
         />
-        {!config.isSupabaseConfigured ? (
-          <Button
-            label="Continue Offline Demo"
-            variant="secondary"
-            onPress={async () => {
-              await signInDemo();
-              router.replace('/(app)/(tabs)');
-            }}
-          />
-        ) : null}
         <Link href="/(auth)/register">
           <AppText variant="seeAll">Create an account</AppText>
         </Link>
         <Button
           label="Continue as Guest"
           variant="ghost"
-          onPress={() => router.replace('/(app)/(tabs)')}
+          onPress={() => {
+            void authService.setOnboardingComplete(true).then(() => {
+              router.replace('/(app)/(tabs)');
+            });
+          }}
         />
       </View>
     </SafeAreaView>

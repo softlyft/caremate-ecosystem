@@ -69,6 +69,11 @@ export default async function UserDetailPage({
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <Row label="Name">{user.profile?.full_name ?? '—'}</Row>
+            <Row label="Patient ID">
+              {user.profile?.patient_id
+                ? `${user.profile.patient_id.slice(0, 4)} ${user.profile.patient_id.slice(4, 8)} ${user.profile.patient_id.slice(8, 12)}`
+                : '—'}
+            </Row>
             <Row label="Phone">{user.profile?.phone ?? '—'}</Row>
             <Row label="Country">{user.profile?.country_code ?? '—'}</Row>
             <Row label="State">{user.profile?.state ?? '—'}</Row>

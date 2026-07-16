@@ -1,7 +1,10 @@
 export const palette = {
-  primary: '#16A34A',
-  primaryLight: '#DCFCE7',
-  primaryDark: '#15803D',
+  /** Clinical teal-green — trust over lifestyle vibrancy */
+  primary: '#0D9488',
+  primaryLight: '#CCFBF1',
+  primaryDark: '#0F766E',
+  /** RGB channels for rgba() borders/overlays matching `primary` */
+  primaryRgb: '13, 148, 136',
   brandBlue: '#2563EB',
   brandBlueLight: '#DBEAFE',
   background: '#FFFFFF',
@@ -19,6 +22,10 @@ export const palette = {
   danger: '#EF4444',
   shadow: 'rgba(15, 23, 42, 0.08)',
 } as const;
+
+export function primaryAlpha(alpha: number): string {
+  return `rgba(${palette.primaryRgb}, ${alpha})`;
+}
 
 export const colors = {
   light: {
@@ -45,13 +52,13 @@ export const colors = {
     surface: '#111827',
     text: '#F8FAFC',
     textMuted: '#94A3B8',
-    primary: '#4ADE80',
-    primaryLight: '#14532D',
-    primaryDark: '#22C55E',
+    primary: '#2DD4BF',
+    primaryLight: '#134E4A',
+    primaryDark: '#5EEAD4',
     border: '#1F2937',
     danger: '#F87171',
     warning: '#FBBF24',
-    success: '#4ADE80',
+    success: '#2DD4BF',
     offline: '#F59E0B',
     blueAccent: '#60A5FA',
     blueLight: '#1E3A5F',

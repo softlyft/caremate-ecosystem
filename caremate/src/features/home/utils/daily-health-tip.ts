@@ -1,5 +1,5 @@
-import healthTipsData from '@/features/home/data/health-tips.json';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
+import { healthTipRepository } from '@/domains/tips/repository';
 
 export type HealthTipCategoryId = (typeof HEALTH_CATEGORIES)[number]['id'];
 
@@ -10,8 +10,6 @@ export interface DailyHealthTipResult {
   tip: string;
   tipIndex: number;
 }
-
-const TIPS_BY_CATEGORY = healthTipsData as Record<HealthTipCategoryId, string[]>;
 
 function hashString(value: string): number {
   let hash = 0;
@@ -27,24 +25,39 @@ function getDayOfYear(date = new Date()): number {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
-export function getDailyHealthTip(userKey = 'guest', date = new Date()): DailyHealthTipResult {
+export async function getDailyHealthTip(
+  userKey = 'guest',
+  date = new Date(),
+): Promise<DailyHealthTipResult | null> {
+  const tips = await healthTipRepository.findActive();
+  if (tips.length === 0) {
+    return null;
+  }
+
   const categories = HEALTH_CATEGORIES;
   const day = getDayOfYear(date);
   const userHash = hashString(userKey);
   const categoryIndex = (day + userHash) % categories.length;
   const category = categories[categoryIndex];
-  const tips = TIPS_BY_CATEGORY[category.id] ?? [];
-  const tipIndex = tips.length > 0 ? (day + userHash) % tips.length : 0;
+
+  const categoryTips = tips.filter((tip) => tip.categoryId === category.id);
+  const pool = categoryTips.length > 0 ? categoryTips : tips;
+  const tipIndex = (day + userHash) % pool.length;
+  const chosen = pool[tipIndex];
+  if (!chosen?.body?.trim()) {
+    return null;
+  }
 
   return {
     categoryId: category.id,
     categoryName: category.name,
     emoji: category.emoji,
-    tip: tips[tipIndex] ?? 'Stay hydrated and take care of your health today.',
+    tip: chosen.body,
     tipIndex,
   };
 }
 
-export function getHealthTipsForCategory(categoryId: HealthTipCategoryId): string[] {
-  return TIPS_BY_CATEGORY[categoryId] ?? [];
+export async function getHealthTipsForCategory(categoryId: HealthTipCategoryId): Promise<string[]> {
+  const rows = await healthTipRepository.findActiveByCategory(categoryId);
+  return rows.map((row) => row.body);
 }

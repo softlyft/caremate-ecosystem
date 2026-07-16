@@ -28,6 +28,8 @@ export interface Profile extends BaseEntity {
   avatarUrl: string | null;
   countryCode: string | null;
   state: string | null;
+  /** CareMate Patient ID — 12 digits, minted on demand (not at signup). */
+  patientId: string | null;
 }
 
 export interface EmergencyProfile extends BaseEntity {

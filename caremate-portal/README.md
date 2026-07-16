@@ -49,10 +49,17 @@ npm run dev
 ## Optional catalog seed
 
 ```bash
+# Learn articles only (from caremate-portal/data/learn.json)
+npm run seed:articles
+
+# Health tips only (from caremate-portal/data/health-tips.json)
+npm run seed:tips
+
+# Articles + providers + health tips
 npm run seed:catalogs
 ```
 
-Seeds from `../caremate` JSON bundles into shared Postgres.
+Loads portal `.env` (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`). Edit content in the portal afterward; re-run seed only to bootstrap empty projects.
 
 ## Modules
 

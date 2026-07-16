@@ -46,6 +46,7 @@ export async function saveArticle(input: ArticleInput) {
     source_url: input.source_url ?? null,
     published_at: input.published_at || null,
     attributes: input.attributes ?? {},
+    deleted_at: null,
     updated_at: now,
     ...(input.id ? {} : { created_at: now }),
   };
@@ -68,7 +69,11 @@ export async function saveArticle(input: ArticleInput) {
 export async function deleteArticle(id: string) {
   await requireEditor();
   const supabase = await createClient();
-  const { error } = await supabase.from('articles').delete().eq('id', id);
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from('articles')
+    .update({ deleted_at: now, updated_at: now })
+    .eq('id', id);
   if (error) throw error;
   await writeAuditEvent({ action: 'delete_article', entityType: 'article', entityId: id });
   revalidatePath('/dashboard/learn');

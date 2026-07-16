@@ -1,8 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { ScrollView } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { Box } from '@/components/ui/box';
 import { QUERY_KEYS } from '@/constants/config';
 import { DailyHealthTip } from '@/features/home/components/DailyHealthTip';
@@ -14,15 +15,19 @@ import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { NearbyProvidersRow } from '@/features/home/components/NearbyProvidersRow';
 import { splitFullName } from '@/domains/emergency/constants';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import { useDeviceDefaults } from '@/hooks/use-device-defaults';
 import { articleRepository } from '@/domains/articles/repository';
 import { profileRepository } from '@/domains/profile/repository';
+import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
+import { palette } from '@/theme';
 
 export default function HomeScreen() {
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
+  const deviceDefaultsQuery = useDeviceDefaults();
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
@@ -30,7 +35,9 @@ export default function HomeScreen() {
     enabled: !isGuest,
   });
 
-  const countryCode = profileQuery.data?.countryCode ?? null;
+  const countryCode = isGuest
+    ? (deviceDefaultsQuery.data?.countryCode ?? null)
+    : (profileQuery.data?.countryCode ?? null);
   const firstName = isGuest
     ? null
     : splitFullName(profileQuery.data?.fullName ?? '').firstName || null;
@@ -43,13 +50,34 @@ export default function HomeScreen() {
         countryCode,
         userKey,
       }),
-    // Local SQLite read — do not block the shell on network.
-    enabled: isGuest || profileQuery.isSuccess || profileQuery.isError,
+    enabled: isGuest
+      ? deviceDefaultsQuery.isFetched
+      : profileQuery.isSuccess || profileQuery.isError,
+  });
+
+  const coordsQuery = useQuery({
+    queryKey: [...QUERY_KEYS.providers, 'coords'],
+    queryFn: resolveNearbyCoords,
+    staleTime: 5 * 60_000,
   });
 
   const providersQuery = useQuery({
-    queryKey: QUERY_KEYS.providers,
-    queryFn: () => providerRepository.findAll(),
+    queryKey: [
+      ...QUERY_KEYS.providers,
+      'nearby-home',
+      coordsQuery.data?.latitude,
+      coordsQuery.data?.longitude,
+    ],
+    queryFn: async () => {
+      const coords = coordsQuery.data ?? (await resolveNearbyCoords());
+      const result = await providerRepository.findNearby({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        limit: 8,
+      });
+      return result.providers;
+    },
+    enabled: coordsQuery.isSuccess || coordsQuery.isError,
   });
 
   useEffect(() => {
@@ -69,34 +97,55 @@ export default function HomeScreen() {
       }
     }
 
-    // Only kick off Currents after we know guest/country context.
-    if (isGuest || profileQuery.isFetched) {
+    if ((isGuest && deviceDefaultsQuery.isFetched) || (!isGuest && profileQuery.isFetched)) {
       void refreshRemoteNews();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [countryCode, isGuest, profileQuery.isFetched, queryClient]);
+  }, [countryCode, deviceDefaultsQuery.isFetched, isGuest, profileQuery.isFetched, queryClient]);
 
   const articles = articlesQuery.data ?? [];
   const providers = providersQuery.data?.slice(0, 4) ?? [];
 
   return (
-    <Box className="flex-1 bg-background">
-      <ScrollView
+    <Box className="flex-1" style={{ backgroundColor: palette.surface }}>
+      <Animated.ScrollView
+        entering={FadeIn.duration(300)}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
       >
-        <HomeHeader firstName={firstName} />
-        <OfflineBanner />
-        <HomeSearchBar />
-        <DailyHealthTip userKey={userKey} />
-        <HealthCategoriesRow />
+        <AnimatedSection index={0}>
+          <HomeHeader firstName={firstName} />
+        </AnimatedSection>
+
+        <AnimatedSection index={1}>
+          <OfflineBanner />
+        </AnimatedSection>
+
+        <AnimatedSection index={2}>
+          <HomeSearchBar />
+        </AnimatedSection>
+
+        <AnimatedSection index={3}>
+          <DailyHealthTip userKey={userKey} />
+        </AnimatedSection>
+
+        <AnimatedSection index={4}>
+          <HealthCategoriesRow />
+        </AnimatedSection>
+
         <FeaturedArticles articles={articles} />
-        <NearbyProvidersRow providers={providers} />
-        <EmergencyBanner />
-      </ScrollView>
+
+        <AnimatedSection index={6}>
+          <NearbyProvidersRow providers={providers} />
+        </AnimatedSection>
+
+        <AnimatedSection index={7}>
+          <EmergencyBanner />
+        </AnimatedSection>
+      </Animated.ScrollView>
     </Box>
   );
 }

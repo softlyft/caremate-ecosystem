@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
@@ -11,23 +12,41 @@ import { spacing } from '@/theme/colors';
 export default function ProvidersMapScreen() {
   const { colors } = useAppTheme();
 
-  const query = useQuery({
-    queryKey: QUERY_KEYS.providers,
-    queryFn: () => providerRepository.findAll(),
+  const coordsQuery = useQuery({
+    queryKey: [...QUERY_KEYS.providers, 'coords'],
+    queryFn: resolveNearbyCoords,
+    staleTime: 5 * 60_000,
   });
 
-  if (query.isLoading) {
+  const query = useQuery({
+    queryKey: [
+      ...QUERY_KEYS.providers,
+      'map',
+      coordsQuery.data?.latitude,
+      coordsQuery.data?.longitude,
+    ],
+    queryFn: async () => {
+      const coords = coordsQuery.data ?? (await resolveNearbyCoords());
+      return providerRepository.findNearby({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+    },
+    enabled: coordsQuery.isSuccess || coordsQuery.isError,
+  });
+
+  if (coordsQuery.isLoading || query.isLoading) {
     return <LoadingState title="Loading map data..." />;
   }
 
-  const providers = query.data ?? [];
+  const providers = query.data?.providers ?? [];
 
   return (
     <Screen>
       <AppText variant="sectionTitle">Nearby Providers</AppText>
       <AppText variant="caption">
-        Native map integration can be added with `react-native-maps`. This screen lists cached
-        provider coordinates for offline reference.
+        Native map integration can be added with `react-native-maps`. This screen lists nearby
+        provider coordinates from the geo API (or local cache offline).
       </AppText>
       {providers.length === 0 ? (
         <EmptyState title="No providers to display" />
@@ -43,6 +62,7 @@ export default function ProvidersMapScreen() {
               <AppText variant="providerName">{item.name}</AppText>
               <AppText variant="providerMeta">
                 {item.latitude ?? '—'}, {item.longitude ?? '—'}
+                {item.distanceKm != null ? ` · ${item.distanceKm.toFixed(1)} km` : ''}
               </AppText>
             </View>
           )}

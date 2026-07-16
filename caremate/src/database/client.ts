@@ -20,6 +20,7 @@ const MIGRATION_SQL = `
     avatar_url TEXT,
     country_code TEXT,
     state TEXT,
+    patient_id TEXT,
     sync_status TEXT NOT NULL DEFAULT 'pending',
     deleted_at TEXT,
     created_at TEXT NOT NULL,
@@ -86,6 +87,18 @@ const MIGRATION_SQL = `
     id TEXT PRIMARY KEY NOT NULL,
     article_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    deleted_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS health_tips (
+    id TEXT PRIMARY KEY NOT NULL,
+    category_id TEXT NOT NULL,
+    body TEXT NOT NULL,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
     sync_status TEXT NOT NULL DEFAULT 'pending',
     deleted_at TEXT,
     created_at TEXT NOT NULL,
@@ -233,6 +246,7 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
     await addColumnIfMissingAsync(database, 'articles', 'attributes', "TEXT NOT NULL DEFAULT '{}'");
     await addColumnIfMissingAsync(database, 'profiles', 'country_code', 'TEXT');
     await addColumnIfMissingAsync(database, 'profiles', 'state', 'TEXT');
+    await addColumnIfMissingAsync(database, 'profiles', 'patient_id', 'TEXT');
     await addColumnIfMissingAsync(
       database,
       'providers',
@@ -247,6 +261,7 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   addColumnIfMissingSync(database, 'articles', 'attributes', "TEXT NOT NULL DEFAULT '{}'");
   addColumnIfMissingSync(database, 'profiles', 'country_code', 'TEXT');
   addColumnIfMissingSync(database, 'profiles', 'state', 'TEXT');
+  addColumnIfMissingSync(database, 'profiles', 'patient_id', 'TEXT');
   addColumnIfMissingSync(database, 'providers', 'attributes', "TEXT NOT NULL DEFAULT '{}'");
 }
 

@@ -13,7 +13,7 @@ export function getGreeting(): string {
 
 export const PROVIDER_TYPE_FILTERS = [
   { label: 'Hospitals', type: 'hospital' as const, color: '#DBEAFE' },
-  { label: 'Pharmacies', type: 'pharmacy' as const, color: '#DCFCE7' },
+  { label: 'Pharmacies', type: 'pharmacy' as const, color: '#CCFBF1' },
   { label: 'Labs', type: 'laboratory' as const, color: '#EDE9FE' },
   { label: 'Clinics', type: 'clinic' as const, color: '#FFEDD5' },
   { label: 'Telemedicine', type: 'telemedicine' as const, color: '#E0F2FE' },

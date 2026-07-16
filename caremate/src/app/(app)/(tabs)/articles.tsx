@@ -1,29 +1,30 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Bookmark, BookOpen, Search } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
-import { Box } from '@/components/ui/box';
-import { Input } from '@/components/ui/form-controls';
-import { Pressable } from '@/components/ui/pressable';
-import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
-import { Text } from '@/components/ui/text';
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { PressableScale } from '@/components/motion/PressableScale';
+import { AppText } from '@/components/ui/AppText';
+import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import {
+  CompactArticleCard,
+  FeaturedArticleCard,
+} from '@/domains/articles/components/ArticleCards';
+import { articleRepository } from '@/domains/articles/repository';
+import { profileRepository } from '@/domains/profile/repository';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
 import {
   HealthCategoriesRow,
   type HealthCategoryId,
 } from '@/features/home/components/HealthCategoriesRow';
-import {
-  CompactArticleCard,
-  FeaturedArticleCard,
-} from '@/domains/articles/components/ArticleCards';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
-import { articleRepository } from '@/domains/articles/repository';
-import { profileRepository } from '@/domains/profile/repository';
-import { spacing } from '@/theme/colors';
+import { useDeviceDefaults } from '@/hooks/use-device-defaults';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
 function parseCategoryParam(value: string | string[] | undefined): HealthCategoryId | null {
@@ -60,13 +61,16 @@ export default function ArticlesTabScreen() {
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
   const queryClient = useQueryClient();
+  const deviceDefaultsQuery = useDeviceDefaults();
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
     queryFn: () => profileRepository.findByUserId(userId),
     enabled: !isGuest,
   });
-  const countryCode = profileQuery.data?.countryCode ?? null;
+  const countryCode = isGuest
+    ? (deviceDefaultsQuery.data?.countryCode ?? null)
+    : (profileQuery.data?.countryCode ?? null);
 
   const articlesQuery = useQuery({
     queryKey: [...QUERY_KEYS.articles, search, userKey, selectedCategoryId ?? 'all'],
@@ -97,14 +101,14 @@ export default function ArticlesTabScreen() {
       }
     }
 
-    if (isGuest || profileQuery.isFetched) {
+    if ((isGuest && deviceDefaultsQuery.isFetched) || (!isGuest && profileQuery.isFetched)) {
       void refreshRemoteNews();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [countryCode, isGuest, profileQuery.isFetched, queryClient]);
+  }, [countryCode, deviceDefaultsQuery.isFetched, isGuest, profileQuery.isFetched, queryClient]);
 
   const articles = useMemo(() => articlesQuery.data ?? [], [articlesQuery.data]);
 
@@ -112,7 +116,6 @@ export default function ArticlesTabScreen() {
     if (articles.length === 0) {
       return { featured: null as Article | null, rest: [] as Article[] };
     }
-    // Keep featured hero only for the unfiltered Learn feed.
     if (search.trim() || selectedCategoryId) {
       return { featured: null, rest: articles };
     }
@@ -130,7 +133,11 @@ export default function ArticlesTabScreen() {
   };
 
   if (articlesQuery.isLoading) {
-    return <LoadingState title="Loading articles..." />;
+    return (
+      <View style={styles.screen}>
+        <LoadingState title="Loading articles..." />
+      </View>
+    );
   }
 
   const selectedName = selectedCategoryId
@@ -138,57 +145,212 @@ export default function ArticlesTabScreen() {
     : null;
 
   return (
-    <Screen>
-      <View style={[styles.header, { paddingTop: insets.top }]}>
-        <OfflineBanner />
-        <Input placeholder="Search articles" value={search} onChangeText={setSearch} />
-      </View>
-      <HealthCategoriesRow
-        showSeeAll={false}
-        padded={false}
-        showAllOption
-        selectedCategoryId={selectedCategoryId}
-        onSelectCategory={handleSelectCategory}
-      />
-      <Pressable
-        onPress={() => router.push('/(app)/articles/bookmarks')}
-        className="active:opacity-70 mb-2"
-      >
-        <Text size="sm" bold className="text-primary">
-          View bookmarks
-        </Text>
-      </Pressable>
-      {articles.length === 0 ? (
-        <EmptyState
-          title={selectedName ? `No ${selectedName} articles` : 'No articles found'}
-          message="Try another search or category."
-        />
-      ) : (
-        <FlatList
-          data={rest}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={
-            featured ? (
-              <Box className="mb-3">
+    <View style={styles.screen}>
+      <FlatList
+        data={rest}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.list,
+          { paddingTop: insets.top + spacing.sm },
+          articles.length === 0 ? styles.listFill : null,
+        ]}
+        ListHeaderComponent={
+          <View style={styles.headerBlock}>
+            <AnimatedSection index={0}>
+              <View style={styles.hero}>
+                <View style={styles.meshTop} />
+                <View style={styles.meshAccent} />
+                <View style={styles.heroBadge}>
+                  <BookOpen color={palette.primary} size={15} strokeWidth={2.25} />
+                  <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
+                    {articles.length} articles
+                  </AppText>
+                </View>
+                <AppText variant="screenTitle" style={styles.title}>
+                  Learn
+                </AppText>
+                <AppText variant="subtitle" style={styles.subtitle}>
+                  Trusted health guidance and news curated for your journey
+                </AppText>
+              </View>
+            </AnimatedSection>
+
+            <OfflineBanner />
+
+            <View style={[styles.searchShell, shadow.soft]}>
+              <View style={styles.searchIcon}>
+                <Search color={palette.primary} size={16} strokeWidth={2.5} />
+              </View>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search articles"
+                placeholderTextColor="#9CA3AF"
+                value={search}
+                onChangeText={setSearch}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <HealthCategoriesRow
+              showHeader={false}
+              showSeeAll={false}
+              padded={false}
+              showAllOption
+              selectedCategoryId={selectedCategoryId}
+              onSelectCategory={handleSelectCategory}
+            />
+
+            <PressableScale
+              style={styles.bookmarksCta}
+              onPress={() => router.push('/(app)/articles/bookmarks')}
+            >
+              <Bookmark color={palette.primary} size={16} strokeWidth={2.25} />
+              <AppText variant="seeAll">View bookmarks</AppText>
+            </PressableScale>
+
+            {featured ? (
+              <View style={styles.featuredWrap}>
+                <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                  Featured
+                </AppText>
                 <FeaturedArticleCard article={featured} />
-              </Box>
-            ) : null
-          }
-          renderItem={({ item }) => <CompactArticleCard article={item} />}
-          ItemSeparatorComponent={() => <Box className="h-3" />}
-        />
-      )}
-    </Screen>
+              </View>
+            ) : null}
+
+            {rest.length > 0 ? (
+              <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                {selectedName ? selectedName : 'All topics'}
+              </AppText>
+            ) : null}
+          </View>
+        }
+        ListEmptyComponent={
+          <EmptyState
+            title={selectedName ? `No ${selectedName} articles` : 'No articles found'}
+            message="Try another search or category."
+          />
+        }
+        renderItem={({ item }) => <CompactArticleCard article={item} />}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    gap: spacing.md,
-    marginBottom: spacing.md,
+  screen: {
+    flex: 1,
+    backgroundColor: palette.surface,
   },
   list: {
-    paddingBottom: spacing.xl,
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingBottom: 40,
+  },
+  listFill: {
+    flexGrow: 1,
+  },
+  headerBlock: {
+    gap: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  hero: {
+    position: 'relative',
+    overflow: 'hidden',
+    gap: 8,
+    paddingBottom: spacing.xs,
+  },
+  meshTop: {
+    position: 'absolute',
+    top: -70,
+    right: -36,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: palette.primaryLight,
+    opacity: 0.6,
+  },
+  meshAccent: {
+    position: 'absolute',
+    top: 36,
+    left: -56,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: palette.purpleLight,
+    opacity: 0.45,
+  },
+  heroBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: palette.background,
+    borderRadius: radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.14)',
+    zIndex: 1,
+  },
+  heroBadgeLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+    fontSize: 11,
+  },
+  title: {
+    zIndex: 1,
+    letterSpacing: -0.6,
+  },
+  subtitle: {
+    zIndex: 1,
+    fontSize: 15,
+    lineHeight: 22,
+    color: palette.textSecondary,
+    maxWidth: '95%',
+  },
+  searchShell: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.12)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  searchIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: palette.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: palette.text,
+    paddingVertical: 4,
+  },
+  bookmarksCta: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: palette.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+  },
+  featuredWrap: {
+    gap: 8,
+  },
+  sectionEyebrow: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontSize: 11,
   },
 });

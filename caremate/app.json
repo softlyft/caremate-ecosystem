@@ -39,6 +39,12 @@
       "expo-sqlite",
       "expo-secure-store",
       "expo-background-task",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CareMate uses your location to show Nearby care providers."
+        }
+      ],
       "./plugins/withAndroidSplashScreenDependency.js",
       [
         "expo-splash-screen",

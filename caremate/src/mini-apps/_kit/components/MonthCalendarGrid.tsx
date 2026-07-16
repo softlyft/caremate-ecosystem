@@ -16,6 +16,11 @@ type MonthCalendarGridProps = {
   onDayPress?: (dayKey: string) => void;
   getDayState?: (dayKey: string) => DayState;
   interactive?: boolean;
+  /** Selected / logged day fill */
+  accentColor?: string;
+  /** Soft predicted-day fill (defaults to a light tint of accent) */
+  predictedColor?: string;
+  predictedBorderColor?: string;
 };
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -25,6 +30,9 @@ export function MonthCalendarGrid({
   onDayPress,
   getDayState,
   interactive = false,
+  accentColor = '#DB2777',
+  predictedColor = '#FBCFE8',
+  predictedBorderColor = '#F472B6',
 }: MonthCalendarGridProps) {
   const monthCells = getMonthMatrix(monthRef);
   const rows: (Date | null)[][] = [];
@@ -58,9 +66,18 @@ export function MonthCalendarGrid({
 
             const bubbleStyle = [
               styles.dayBubble,
-              isSelected && styles.selectedDay,
-              !isSelected && state.logged && styles.loggedDay,
-              !isSelected && state.predicted && styles.predictedDay,
+              isSelected && { backgroundColor: accentColor },
+              !isSelected &&
+                state.logged && {
+                  backgroundColor: accentColor,
+                },
+              !isSelected &&
+                state.predicted && {
+                  backgroundColor: predictedColor,
+                  borderWidth: 1,
+                  borderColor: predictedBorderColor,
+                  borderStyle: 'dashed' as const,
+                },
               state.today && styles.todayRing,
             ];
 
@@ -133,18 +150,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: palette.background,
-  },
-  selectedDay: {
-    backgroundColor: '#DB2777',
-  },
-  loggedDay: {
-    backgroundColor: '#DB2777',
-  },
-  predictedDay: {
-    backgroundColor: '#FBCFE8',
-    borderWidth: 1,
-    borderColor: '#F472B6',
-    borderStyle: 'dashed',
   },
   selectedDayText: {
     color: '#FFFFFF',
