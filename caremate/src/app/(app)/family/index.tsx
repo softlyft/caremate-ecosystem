@@ -15,6 +15,7 @@ import { LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { FAMILY_GENDERS, familyConnectionService, familyRepository } from '@/domains/family';
 import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
+import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -30,6 +31,7 @@ function formatDob(value: string | null): string {
 }
 
 export default function FamilyHubScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
@@ -84,8 +86,9 @@ export default function FamilyHubScreen() {
         setNotFound(true);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Lookup failed';
-      Alert.alert('Could not search', message);
+      const message =
+        error instanceof Error ? error.message : t('family.lookupFailedMessage');
+      Alert.alert(t('family.lookupFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -99,17 +102,18 @@ export default function FamilyHubScreen() {
       await familyConnectionService.requestConnection({
         householdId,
         fromUserId: userId,
-        fromName: profile?.fullName ?? 'A CareMate parent',
+        fromName: profile?.fullName ?? t('family.defaultParentName'),
         emailOrPhone: lookup,
         matchedUser: matched,
       });
-      Alert.alert('Request sent', 'Your spouse will see a connection request in CareMate.');
+      Alert.alert(t('family.requestSent'), t('family.requestSentMessage'));
       setMatched(null);
       setLookup('');
       await refreshAll();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not send request';
-      Alert.alert('Connection failed', message);
+      const message =
+        error instanceof Error ? error.message : t('family.connectionFailedMessage');
+      Alert.alert(t('family.connectionFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -123,7 +127,7 @@ export default function FamilyHubScreen() {
       const { invite } = await familyConnectionService.requestConnection({
         householdId,
         fromUserId: userId,
-        fromName: profile?.fullName ?? 'A CareMate parent',
+        fromName: profile?.fullName ?? t('family.defaultParentName'),
         emailOrPhone: lookup,
         matchedUser: null,
       });
@@ -132,8 +136,9 @@ export default function FamilyHubScreen() {
       }
       await refreshAll();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not create invite';
-      Alert.alert('Invite failed', message);
+      const message =
+        error instanceof Error ? error.message : t('family.inviteFailedMessage');
+      Alert.alert(t('family.inviteFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -147,7 +152,7 @@ export default function FamilyHubScreen() {
   async function handleAddChild() {
     if (!householdId) return;
     if (!childName.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(childDob)) {
-      Alert.alert('Missing details', 'Enter full name and date of birth as YYYY-MM-DD.');
+      Alert.alert(t('family.missingDetails'), t('family.missingChildDetails'));
       return;
     }
     setBusy(true);
@@ -162,8 +167,9 @@ export default function FamilyHubScreen() {
       setChildGender('prefer_not_to_say');
       await refreshAll();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not add child';
-      Alert.alert('Add child failed', message);
+      const message =
+        error instanceof Error ? error.message : t('family.addChildFailedMessage');
+      Alert.alert(t('family.addChildFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -185,10 +191,10 @@ export default function FamilyHubScreen() {
           >
             <Users color={ACCENT} size={28} strokeWidth={2.2} />
             <AppText variant="screenTitle" style={styles.heroTitle}>
-              Family
+              {t('family.title')}
             </AppText>
             <AppText variant="subtitle" style={styles.heroSubtitle}>
-              Sign in to set up your family profile.
+              {t('family.guestSubtitle')}
             </AppText>
           </LinearGradientFill>
         </View>
@@ -197,7 +203,7 @@ export default function FamilyHubScreen() {
           onPress={() => router.push('/(auth)/login')}
         >
           <AppText variant="button" style={styles.primaryCtaLabel}>
-            Sign in
+            {t('common.signIn')}
           </AppText>
         </PressableScale>
       </View>
@@ -205,7 +211,7 @@ export default function FamilyHubScreen() {
   }
 
   if (householdQuery.isLoading) {
-    return <LoadingState title="Loading family..." />;
+    return <LoadingState title={t('family.loading')} />;
   }
 
   if (!householdQuery.data) {
@@ -217,8 +223,8 @@ export default function FamilyHubScreen() {
         >
           <AnimatedSection index={0}>
             <FamilyHero
-              title="Start your household"
-              subtitle="Set up your family, add kids, and connect your spouse. Each parent keeps their own CareMate data."
+              title={t('family.startTitle')}
+              subtitle={t('family.startSubtitle')}
             />
           </AnimatedSection>
           <AnimatedSection index={1}>
@@ -228,7 +234,7 @@ export default function FamilyHubScreen() {
             >
               <UserPlus color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                Set up family
+                {t('family.setupCta')}
               </AppText>
             </PressableScale>
           </AnimatedSection>
@@ -240,7 +246,7 @@ export default function FamilyHubScreen() {
               >
                 <Link2 color={ACCENT} size={18} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.secondaryCtaLabel}>
-                  View {requestsQuery.data!.length} connection request(s)
+                  {t('family.viewRequests', { count: requestsQuery.data!.length })}
                 </AppText>
               </PressableScale>
             </AnimatedSection>
@@ -263,9 +269,14 @@ export default function FamilyHubScreen() {
       >
         <AnimatedSection index={0}>
           <FamilyHero
-            title="Your family"
-            subtitle="Kids are shared in this household. Each parent keeps their own account data."
-            meta={`${adults.length} adult${adults.length === 1 ? '' : 's'} · ${children.length} child${children.length === 1 ? '' : 'ren'}`}
+            title={t('family.yourFamily')}
+            subtitle={t('family.yourFamilySubtitle')}
+            meta={t('family.meta', {
+              adults: adults.length,
+              adultsPlural: adults.length === 1 ? '' : 's',
+              children: children.length,
+              childrenPlural: children.length === 1 ? '' : 'ren',
+            })}
           />
         </AnimatedSection>
 
@@ -273,11 +284,13 @@ export default function FamilyHubScreen() {
           <AnimatedSection index={1}>
             <View style={[styles.card, styles.requestCard, shadow.soft]}>
               <AppText variant="caption" style={styles.sectionEyebrow}>
-                Connection requests
+                {t('family.requests.title')}
               </AppText>
               <AppText variant="body">
-                You have {requestCount} pending spouse connection request
-                {requestCount === 1 ? '' : 's'}.
+                {t('family.pendingRequests', {
+                  count: requestCount,
+                  plural: requestCount === 1 ? '' : 's',
+                })}
               </AppText>
               <PressableScale
                 style={styles.secondaryCta}
@@ -285,7 +298,7 @@ export default function FamilyHubScreen() {
               >
                 <Link2 color={ACCENT} size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.secondaryCtaLabel}>
-                  Review requests
+                  {t('family.reviewRequests')}
                 </AppText>
               </PressableScale>
             </View>
@@ -295,7 +308,7 @@ export default function FamilyHubScreen() {
         <AnimatedSection index={2}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Parents & spouse
+              {t('family.parentsSpouse')}
             </AppText>
             {adults.map((member, index) => (
               <View key={member.id}>
@@ -317,7 +330,7 @@ export default function FamilyHubScreen() {
             ))}
             {adults.length === 0 ? (
               <AppText variant="caption" style={styles.muted}>
-                No linked adults yet.
+                {t('family.noAdults')}
               </AppText>
             ) : null}
           </View>
@@ -326,7 +339,7 @@ export default function FamilyHubScreen() {
         <AnimatedSection index={3}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Children
+              {t('family.children')}
             </AppText>
             {children.map((child, index) => (
               <View key={child.id}>
@@ -340,7 +353,10 @@ export default function FamilyHubScreen() {
                       {child.fullName}
                     </AppText>
                     <AppText variant="caption" style={styles.muted}>
-                      DOB {formatDob(child.dateOfBirth)} · {child.gender ?? '—'}
+                      {t('family.dobLabel', {
+                        dob: formatDob(child.dateOfBirth),
+                        gender: child.gender ?? '—',
+                      })}
                     </AppText>
                   </View>
                 </View>
@@ -348,16 +364,20 @@ export default function FamilyHubScreen() {
             ))}
             {children.length === 0 ? (
               <AppText variant="caption" style={styles.muted}>
-                No children added yet.
+                {t('family.noChildren')}
               </AppText>
             ) : null}
 
             <AppText variant="caption" style={[styles.sectionEyebrow, { marginTop: spacing.sm }]}>
-              Add another child
+              {t('family.addAnotherChild')}
             </AppText>
-            <Input placeholder="Full name" value={childName} onChangeText={setChildName} />
             <Input
-              placeholder="Date of birth (YYYY-MM-DD)"
+              placeholder={t('family.child.name')}
+              value={childName}
+              onChangeText={setChildName}
+            />
+            <Input
+              placeholder={t('family.dobPlaceholder')}
               value={childDob}
               onChangeText={setChildDob}
               autoCapitalize="none"
@@ -389,7 +409,7 @@ export default function FamilyHubScreen() {
             >
               <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                {busy ? 'Saving...' : 'Add child'}
+                {busy ? t('common.saving') : t('family.addChild')}
               </AppText>
             </PressableScale>
           </View>
@@ -398,14 +418,13 @@ export default function FamilyHubScreen() {
         <AnimatedSection index={4}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Connect spouse
+              {t('family.connectSpouse')}
             </AppText>
             <AppText variant="caption" style={styles.muted}>
-              Enter their CareMate email or phone. We do not send invites automatically — if they
-              are not found, you get a message to share.
+              {t('family.connectSpouseHint')}
             </AppText>
             <Input
-              placeholder="Email or phone"
+              placeholder={t('family.emailOrPhone')}
               autoCapitalize="none"
               keyboardType="email-address"
               value={lookup}
@@ -417,7 +436,7 @@ export default function FamilyHubScreen() {
               onPress={() => void handleLookup()}
             >
               <AppText variant="button" style={styles.secondaryCtaLabel}>
-                {busy ? 'Searching...' : 'Find'}
+                {busy ? t('family.searching') : t('family.find')}
               </AppText>
             </PressableScale>
 
@@ -426,11 +445,20 @@ export default function FamilyHubScreen() {
                 <AppText variant="cardTitle" style={{ color: TITLE }}>
                   {matched.fullName}
                 </AppText>
-                <AppText variant="caption">Email: {matched.email ?? '—'}</AppText>
-                <AppText variant="caption">Phone: {matched.phone ?? '—'}</AppText>
-                <AppText variant="caption">DOB: {formatDob(matched.dateOfBirth)}</AppText>
                 <AppText variant="caption">
-                  Location: {[matched.state, matched.countryCode].filter(Boolean).join(', ') || '—'}
+                  {t('family.emailLabel', { value: matched.email ?? '—' })}
+                </AppText>
+                <AppText variant="caption">
+                  {t('family.phoneLabel', { value: matched.phone ?? '—' })}
+                </AppText>
+                <AppText variant="caption">
+                  {t('family.dobValue', { value: formatDob(matched.dateOfBirth) })}
+                </AppText>
+                <AppText variant="caption">
+                  {t('family.locationLabel', {
+                    value:
+                      [matched.state, matched.countryCode].filter(Boolean).join(', ') || '—',
+                  })}
                 </AppText>
                 <PressableScale
                   style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
@@ -438,7 +466,7 @@ export default function FamilyHubScreen() {
                   onPress={() => void handleConnect()}
                 >
                   <AppText variant="button" style={styles.primaryCtaLabel}>
-                    Connect
+                    {t('family.connect')}
                   </AppText>
                 </PressableScale>
               </View>
@@ -446,9 +474,7 @@ export default function FamilyHubScreen() {
 
             {notFound ? (
               <View style={styles.foundCard}>
-                <AppText variant="body">
-                  We could not find a CareMate account with that email or phone.
-                </AppText>
+                <AppText variant="body">{t('family.notFound')}</AppText>
                 <PressableScale
                   style={[styles.secondaryCta, busy ? styles.ctaDisabled : null]}
                   disabled={busy}
@@ -456,7 +482,7 @@ export default function FamilyHubScreen() {
                 >
                   <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
-                    Generate invite message
+                    {t('family.generateInvite')}
                   </AppText>
                 </PressableScale>
               </View>
@@ -471,7 +497,7 @@ export default function FamilyHubScreen() {
                 >
                   <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
-                    Share invite
+                    {t('family.shareInvite')}
                   </AppText>
                 </PressableScale>
               </View>
@@ -484,6 +510,7 @@ export default function FamilyHubScreen() {
 }
 
 function FamilyHero({ title, subtitle, meta }: { title: string; subtitle: string; meta?: string }) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.heroShell, shadow.card]}>
       <LinearGradientFill
@@ -505,7 +532,7 @@ function FamilyHero({ title, subtitle, meta }: { title: string; subtitle: string
         </View>
 
         <AppText variant="caption" style={styles.heroEyebrow}>
-          Family care
+          {t('family.eyebrow')}
         </AppText>
         <AppText variant="screenTitle" style={styles.heroTitle}>
           {title}

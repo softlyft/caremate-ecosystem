@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Care that works offline",
+    "subtitle": "A short setup so Nearby, news, and emergency tools feel right from day one.",
+    "cta": "Let's go",
+    "foot": "Start by choosing country and language.",
+    "preview": {
+      "countryLanguage": "Country + language",
+      "priorities": "Your priorities",
+      "news": "Local health news",
+      "nearby": "Nearby care"
+    }
+  },
+  "country": {
+    "title": "Your country and language",
+    "subtitle": "These drive local health content and personalization across CareMate.",
+    "field": {
+      "country": "Country",
+      "language": "Language",
+      "state": "State / province (optional)"
+    },
+    "statePlaceholder": "e.g. Greater Accra"
+  },
+  "priorities": {
+    "title": "What matters most?",
+    "subtitle": "Tap what you care about — we'll tailor the next optional steps.",
+    "continueSelected": "Continue · {{count}} selected",
+    "emergency": {
+      "label": "Emergency",
+      "description": "Offline health card for first responders"
+    },
+    "nearby": {
+      "label": "Nearby care",
+      "description": "Hospitals, clinics, and pharmacies around you"
+    },
+    "family": {
+      "label": "Family / kids",
+      "description": "Household profiles and shared kids care"
+    },
+    "learn": {
+      "label": "Learn",
+      "description": "Trusted health articles and tips"
+    }
+  },
+  "location": {
+    "title": "Find care nearby",
+    "subtitle": "Use precise GPS for the best matches, or keep an approximate country-based pin.",
+    "enable": "Enable location",
+    "checking": "Checking…",
+    "approximateCta": "Use approximate location",
+    "precise": {
+      "title": "Precise",
+      "hint": "Best ranking for hospitals and clinics around you"
+    },
+    "approximate": {
+      "title": "Approximate",
+      "hint": "Country-based fallback — change anytime later"
+    }
+  },
+  "notifications": {
+    "title": "Stay in the loop",
+    "subtitle": "Save your preference now. Push delivery turns on when CareMate notifications are fully wired.",
+    "healthReminders": "Health reminders",
+    "healthRemindersHint": "Tips, checkup nudges, and important updates"
+  },
+  "next": {
+    "title": "You're ready",
+    "subtitle": "Explore as a guest, or create an account so emergency and family data can sync.",
+    "continueExploring": "Continue exploring",
+    "saving": "Saving…",
+    "createAccount": "Create account",
+    "haveAccount": "I already have an account",
+    "browseTitle": "Browse freely",
+    "browseHint": "Articles, Nearby, and mini-apps work as a guest",
+    "syncTitle": "Create to sync",
+    "syncHint": "Account before emergency or family so data isn’t stuck on this device"
+  }
+}

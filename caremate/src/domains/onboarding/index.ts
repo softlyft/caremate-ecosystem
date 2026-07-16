@@ -1,4 +1,4 @@
-export { ONBOARDING_PRIORITIES, DEFAULT_DEVICE_DEFAULTS } from './types';
+export { ONBOARDING_PRIORITY_IDS, ONBOARDING_PRIORITIES, DEFAULT_DEVICE_DEFAULTS } from './types';
 export type { DeviceDefaults, LocationMode, OnboardingPriorityId } from './types';
 export { getDeviceDefaults, setDeviceDefaults, updateDeviceDefaults } from './device-defaults';
 export { useOnboardingDraftStore } from './store';

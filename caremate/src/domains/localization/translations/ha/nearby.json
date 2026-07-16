@@ -1,0 +1,36 @@
+{
+  "title": "Kusa",
+  "subtitle": "Nemo asibitoci, clinic, kantin magani, da ƙari a kusa da kai",
+  "nearbyCount": "{{count}} kusa",
+  "searchPlaceholder": "Nemo masu bayarwa",
+  "loading": "Ana lodawa masu bayarwa...",
+  "empty": {
+    "title": "Babu masu bayarwa kusa",
+    "message": "Gwada wani tacewa ko faɗaɗa bincikenka.",
+    "offline": "Ana nuna masu bayarwa da aka ajiye yayin da ba ka da intanet."
+  },
+  "approximate": "Ana amfani da kimanin wuri",
+  "outsideArea": "A waje da yankinka na yau da kullum — sakamakon na iya zama ƙanƙane",
+  "detail": {
+    "loading": "Ana lodawa mai bayarwa...",
+    "notFound": "Ba a sami mai bayarwa ba",
+    "unavailable": "Cikakkun bayanai ba su samu ba",
+    "favorite": "Ajiye a matsayin abin ƙauna",
+    "unfavorite": "Cire abin ƙauna",
+    "call": "Kira",
+    "directions": "Hanyoyi"
+  },
+  "map": {
+    "loading": "Ana lodawa taswira...",
+    "empty": "Babu wuraren taswira"
+  },
+  "types": {
+    "hospital": "Asibiti",
+    "pharmacy": "Kantin magani",
+    "laboratory": "Laboratory",
+    "clinic": "Clinic",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Bankin jini",
+    "ambulance": "Ambulans"
+  }
+}

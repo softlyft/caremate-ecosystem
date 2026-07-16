@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,24 +10,18 @@ import { AppText } from '@/components/ui/AppText';
 import { Button, Input } from '@/components/ui/form-controls';
 import { FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
+import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
-const childSchema = z.object({
-  fullName: z.string().min(1, 'Enter full name'),
-  dateOfBirth: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD')
-    .refine((value) => {
-      const date = new Date(value);
-      return !Number.isNaN(date.getTime()) && date <= new Date();
-    }, 'Enter a valid past date'),
-  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
-  notes: z.string().optional(),
-});
-
-type ChildForm = z.infer<typeof childSchema>;
+type ChildForm = {
+  fullName: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  notes?: string;
+};
 
 export default function FamilyChildFormScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ index: string }>();
   const index = Number.parseInt(params.index ?? '0', 10) || 0;
@@ -34,6 +29,23 @@ export default function FamilyChildFormScreen() {
   const children = useFamilySetupStore((s) => s.children);
   const upsertChild = useFamilySetupStore((s) => s.upsertChild);
   const existing = children[index];
+
+  const childSchema = useMemo(
+    () =>
+      z.object({
+        fullName: z.string().min(1, t('family.child.nameRequired')),
+        dateOfBirth: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/, t('family.child.dobFormat'))
+          .refine((value) => {
+            const date = new Date(value);
+            return !Number.isNaN(date.getTime()) && date <= new Date();
+          }, t('family.child.dobInvalid')),
+        gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
+        notes: z.string().optional(),
+      }),
+    [t],
+  );
 
   const { control, handleSubmit, setValue, formState } = useForm<ChildForm>({
     resolver: zodResolver(childSchema),
@@ -64,7 +76,7 @@ export default function FamilyChildFormScreen() {
   }
 
   if (index < 0 || index >= childCount) {
-    Alert.alert('Invalid step');
+    Alert.alert(t('family.child.invalidStep'));
     router.replace('/(app)/family/kids-count');
     return null;
   }
@@ -76,9 +88,9 @@ export default function FamilyChildFormScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <AppText variant="sectionTitle">
-        Child {index + 1} of {childCount}
+        {t('family.child.titleOf', { current: index + 1, total: childCount })}
       </AppText>
-      <AppText variant="subtitle">Full name, date of birth, and gender.</AppText>
+      <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
 
       <View style={styles.card}>
         <Controller
@@ -86,7 +98,7 @@ export default function FamilyChildFormScreen() {
           name="fullName"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              placeholder="Full name"
+              placeholder={t('family.child.name')}
               autoCapitalize="words"
               onBlur={onBlur}
               onChangeText={onChange}
@@ -99,7 +111,7 @@ export default function FamilyChildFormScreen() {
           name="dateOfBirth"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              placeholder="Date of birth (YYYY-MM-DD)"
+              placeholder={t('family.child.dobPlaceholder')}
               autoCapitalize="none"
               onBlur={onBlur}
               onChangeText={onChange}
@@ -108,7 +120,7 @@ export default function FamilyChildFormScreen() {
           )}
         />
 
-        <AppText variant="body">Gender</AppText>
+        <AppText variant="body">{t('family.child.gender')}</AppText>
         <View style={styles.chipRow}>
           {FAMILY_GENDERS.map((g) => {
             const selected = gender === g.value;
@@ -131,7 +143,7 @@ export default function FamilyChildFormScreen() {
           name="notes"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              placeholder="Notes (allergies, etc.) — optional"
+              placeholder={t('family.child.notesPlaceholder')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -148,7 +160,9 @@ export default function FamilyChildFormScreen() {
         ) : null}
 
         <Button
-          label={index + 1 < childCount ? 'Next child' : 'Review'}
+          label={
+            index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')
+          }
           onPress={handleSubmit(onSubmit)}
         />
       </View>

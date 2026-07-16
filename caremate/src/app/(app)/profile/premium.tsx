@@ -15,6 +15,7 @@ import { formatPriceAmount, getPremiumState, premiumLabel } from '@/domains/bill
 import { billingRepository } from '@/domains/billing/repository';
 import type { BillingCurrency, BillingInterval, PlanType } from '@/domains/billing/types';
 import { familyRepository } from '@/domains/family/repository';
+import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -24,6 +25,7 @@ const SOFT_END = '#FFFBEB';
 const TITLE = '#92400E';
 
 export default function PremiumScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
@@ -74,7 +76,7 @@ export default function PremiumScreen() {
       return;
     }
     if (planType === 'family' && !householdId) {
-      setError('Set up a family household before buying Family Premium.');
+      setError(t('profile.premium.familyRequired'));
       return;
     }
 
@@ -89,17 +91,19 @@ export default function PremiumScreen() {
       });
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Checkout failed');
+      setError(err instanceof Error ? err.message : t('profile.premium.checkoutFailed'));
     } finally {
       setPaying(false);
     }
   }
 
   if (loading) {
-    return <LoadingState title="Loading Premium..." />;
+    return <LoadingState title={t('profile.premium.loading')} />;
   }
 
-  const planLabel = isGuest ? 'Sign in to upgrade' : premiumLabel(premium?.tier ?? 'free');
+  const planLabel = isGuest
+    ? t('profile.premium.signInToUpgrade')
+    : premiumLabel(premium?.tier ?? 'free');
 
   return (
     <View style={styles.screen}>
@@ -128,13 +132,13 @@ export default function PremiumScreen() {
               </View>
 
               <AppText variant="caption" style={styles.heroEyebrow}>
-                CareMate Premium
+                {t('profile.premium.eyebrow')}
               </AppText>
               <AppText variant="screenTitle" style={styles.heroTitle}>
-                Unlock more for your care
+                {t('profile.premium.heroTitle')}
               </AppText>
               <AppText variant="subtitle" style={styles.heroSubtitle}>
-                Free forever for core features. Premium Personal and Family unlock upcoming tools.
+                {t('profile.premium.heroSubtitle')}
               </AppText>
             </LinearGradientFill>
           </View>
@@ -143,7 +147,7 @@ export default function PremiumScreen() {
         <AnimatedSection index={1}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" style={styles.sectionEyebrow}>
-              Your plan
+              {t('profile.premium.yourPlan')}
             </AppText>
             <View style={styles.planRow}>
               <View style={styles.planBadge}>
@@ -155,7 +159,9 @@ export default function PremiumScreen() {
             </View>
             {premium?.currentPeriodEnd ? (
               <AppText variant="caption" style={styles.muted}>
-                Renews / ends {new Date(premium.currentPeriodEnd).toLocaleDateString()}
+                {t('profile.premium.renews', {
+                  date: new Date(premium.currentPeriodEnd).toLocaleDateString(),
+                })}
               </AppText>
             ) : null}
           </View>
@@ -168,7 +174,7 @@ export default function PremiumScreen() {
               onPress={() => router.push('/(auth)/login')}
             >
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                Sign in to upgrade
+                {t('profile.premium.signInToUpgrade')}
               </AppText>
             </PressableScale>
           </AnimatedSection>
@@ -177,17 +183,17 @@ export default function PremiumScreen() {
             <AnimatedSection index={2}>
               <View style={[styles.card, shadow.soft]}>
                 <AppText variant="caption" style={styles.sectionEyebrow}>
-                  Choose plan
+                  {t('profile.premium.choosePlan')}
                 </AppText>
                 <View style={styles.chipRow}>
                   <Chip
-                    label="Personal"
+                    label={t('profile.premium.personal')}
                     icon={Crown}
                     active={planType === 'personal'}
                     onPress={() => setPlanType('personal')}
                   />
                   <Chip
-                    label="Family"
+                    label={t('profile.premium.family')}
                     icon={Users}
                     active={planType === 'family'}
                     onPress={() => setPlanType('family')}
@@ -197,11 +203,11 @@ export default function PremiumScreen() {
                 {planType === 'family' && !householdId ? (
                   <View style={styles.familyHint}>
                     <AppText variant="caption" style={styles.muted}>
-                      No household yet.
+                      {t('profile.premium.noHousehold')}
                     </AppText>
                     <PressableScale onPress={() => router.push('/(app)/family')}>
                       <AppText variant="body" style={styles.link}>
-                        Set up family
+                        {t('profile.premium.setUpFamily')}
                       </AppText>
                     </PressableScale>
                   </View>
@@ -209,12 +215,12 @@ export default function PremiumScreen() {
 
                 <View style={styles.chipRow}>
                   <Chip
-                    label="Monthly"
+                    label={t('profile.premium.monthly')}
                     active={billingInterval === 'monthly'}
                     onPress={() => setBillingInterval('monthly')}
                   />
                   <Chip
-                    label="Yearly"
+                    label={t('profile.premium.yearly')}
                     active={billingInterval === 'yearly'}
                     onPress={() => setBillingInterval('yearly')}
                   />
@@ -225,12 +231,11 @@ export default function PremiumScreen() {
             <AnimatedSection index={3}>
               <View style={[styles.card, shadow.soft]}>
                 <AppText variant="caption" style={styles.sectionEyebrow}>
-                  Pay
+                  {t('profile.premium.pay')}
                 </AppText>
                 {selectedPrices.length === 0 ? (
                   <AppText variant="caption" style={styles.muted}>
-                    No active prices for this selection. Ask an admin to configure billing in the
-                    portal.
+                    {t('profile.premium.noPrices')}
                   </AppText>
                 ) : (
                   <View style={styles.payStack}>
@@ -265,7 +270,7 @@ export default function PremiumScreen() {
                   ? premiumQuery.error.message
                   : pricesQuery.error instanceof Error
                     ? pricesQuery.error.message
-                    : 'Failed to load billing')}
+                    : t('profile.premium.loadFailed'))}
             </AppText>
           </AnimatedSection>
         ) : null}
@@ -274,7 +279,7 @@ export default function PremiumScreen() {
           <PressableScale style={styles.refreshCta} onPress={() => void refresh()}>
             <RefreshCw color={ACCENT} size={16} strokeWidth={2.25} />
             <AppText variant="button" style={styles.refreshLabel}>
-              Refresh status
+              {t('profile.premium.refresh')}
             </AppText>
           </PressableScale>
         </AnimatedSection>

@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { SectionHeader } from '@/components/motion/SectionHeader';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
 
@@ -33,6 +34,7 @@ export function HealthCategoriesRow({
   selectedCategoryId = null,
   onSelectCategory,
 }: HealthCategoriesRowProps) {
+  const { t } = useTranslation();
   const horizontalPad = padded ? layoutSpacing.screenHorizontal : 0;
   const isFilterMode = typeof onSelectCategory === 'function';
 
@@ -52,8 +54,8 @@ export function HealthCategoriesRow({
     <View style={styles.container}>
       {showHeader ? (
         <SectionHeader
-          title="Explore topics"
-          subtitle="Health categories"
+          title={t('home.healthCategories.title')}
+          subtitle={t('home.healthCategories.subtitle')}
           onSeeAll={showSeeAll ? () => router.push('/(app)/(tabs)/articles') : undefined}
         />
       ) : null}
@@ -72,7 +74,7 @@ export function HealthCategoriesRow({
             ]}
             onPress={handleAllPress}
           >
-            <AppText variant="categoryPill">All</AppText>
+            <AppText variant="categoryPill">{t('common.all')}</AppText>
           </PressableScale>
         ) : null}
         {HEALTH_CATEGORIES.map((category) => {

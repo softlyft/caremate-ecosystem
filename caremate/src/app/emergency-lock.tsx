@@ -6,6 +6,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { Card, LoadingState, Screen } from '@/components/ui/screen-states';
 import { readEmergencyLockSnapshot } from '@/domains/emergency/lock-surface';
+import { useTranslation } from '@/domains/localization';
 import { palette, spacing } from '@/theme';
 
 /**
@@ -14,6 +15,7 @@ import { palette, spacing } from '@/theme';
  * Native widgets show the same minimal fields on the Lock/Home Screen.
  */
 export default function EmergencyLockScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const query = useQuery({
     queryKey: ['emergency-lock-surface'],
@@ -21,7 +23,7 @@ export default function EmergencyLockScreen() {
   });
 
   if (query.isLoading) {
-    return <LoadingState title="Loading emergency info..." />;
+    return <LoadingState title={t('emergency.lock.loading')} />;
   }
 
   const snapshot = query.data;
@@ -36,42 +38,55 @@ export default function EmergencyLockScreen() {
       >
         <View style={styles.badge}>
           <AppText variant="caption" style={styles.badgeText}>
-            EMERGENCY · LOCK SCREEN CARD
+            {t('emergency.lock.badge')}
           </AppText>
         </View>
 
         {!snapshot?.hasProfile ? (
           <Card>
-            <AppText variant="screenTitle">No emergency profile</AppText>
-            <AppText variant="body">
-              Open CareMate, create an Emergency Health Profile, and enable lock-screen visibility.
-            </AppText>
+            <AppText variant="screenTitle">{t('emergency.lock.noProfile')}</AppText>
+            <AppText variant="body">{t('emergency.lock.noProfileMessage')}</AppText>
           </Card>
         ) : (
           <>
             <Card>
               <AppText variant="screenTitle">{snapshot.fullName}</AppText>
-              <InfoRow label="Blood group" value={snapshot.bloodGroup || 'Not set'} />
-              <InfoRow label="Genotype" value={snapshot.genotype || 'Not set'} />
-              <InfoRow label="Allergies" value={snapshot.allergies || 'None listed'} />
+              <InfoRow
+                label={t('emergency.fields.bloodGroup')}
+                value={snapshot.bloodGroup || t('common.notSet')}
+              />
+              <InfoRow
+                label={t('emergency.fields.genotype')}
+                value={snapshot.genotype || t('common.notSet')}
+              />
+              <InfoRow
+                label={t('emergency.fields.allergies')}
+                value={snapshot.allergies || t('emergency.lock.noneListed')}
+              />
             </Card>
 
             <Card>
-              <AppText variant="cardTitle">Emergency contact</AppText>
+              <AppText variant="cardTitle">{t('emergency.lock.contactTitle')}</AppText>
               {snapshot.contactName ? (
                 <>
-                  <InfoRow label="Name" value={snapshot.contactName} />
-                  <InfoRow label="Relationship" value={snapshot.contactRelationship || '—'} />
-                  <InfoRow label="Phone" value={snapshot.contactPhone || '—'} />
+                  <InfoRow label={t('emergency.lock.contactName')} value={snapshot.contactName} />
+                  <InfoRow
+                    label={t('emergency.edit.relationship')}
+                    value={snapshot.contactRelationship || '—'}
+                  />
+                  <InfoRow
+                    label={t('emergency.edit.contactPhone')}
+                    value={snapshot.contactPhone || '—'}
+                  />
                   {snapshot.contactPhone ? (
                     <Button
-                      label="Call emergency contact"
+                      label={t('emergency.lock.callContact')}
                       onPress={() => Linking.openURL(`tel:${snapshot.contactPhone}`)}
                     />
                   ) : null}
                 </>
               ) : (
-                <AppText variant="caption">No ICE contact saved.</AppText>
+                <AppText variant="caption">{t('emergency.lock.noContact')}</AppText>
               )}
             </Card>
           </>
@@ -79,8 +94,8 @@ export default function EmergencyLockScreen() {
 
         <AppText variant="caption" style={styles.footnote}>
           {Platform.OS === 'ios'
-            ? 'Add the CareMate Emergency Info widget to your Lock Screen for glanceable access when the device is locked.'
-            : 'Add the CareMate Emergency Info widget to your Home Screen. On Android, emergency responders can also open this card from the widget.'}
+            ? t('emergency.lock.footnoteIos')
+            : t('emergency.lock.footnoteAndroid')}
         </AppText>
       </ScrollView>
     </Screen>

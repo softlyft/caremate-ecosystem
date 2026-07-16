@@ -1,0 +1,40 @@
+{
+  "title": "Emergencia",
+  "loading": "Cargando perfil de emergencia...",
+  "empty": {
+    "title": "Aún no hay perfil de emergencia",
+    "message": "Añade grupo sanguíneo, alergias y contactos ICE para primeros respondedores.",
+    "cta": "Crear perfil"
+  },
+  "fields": {
+    "fullName": "Nombre completo",
+    "bloodGroup": "Grupo sanguíneo",
+    "genotype": "Genotipo",
+    "allergies": "Alergias",
+    "medications": "Medicamentos actuales",
+    "conditions": "Enfermedades crónicas",
+    "contacts": "Contactos de emergencia",
+    "hospital": "Hospital preferido",
+    "insurance": "Aseguradora",
+    "notes": "Notas"
+  },
+  "edit": {
+    "title": "Editar perfil de emergencia",
+    "save": "Guardar perfil",
+    "addContact": "Añadir contacto",
+    "contactName": "Nombre del contacto",
+    "contactPhone": "Teléfono",
+    "relationship": "Parentesco"
+  },
+  "qr": {
+    "title": "QR de emergencia",
+    "empty": "Crea primero un perfil de emergencia"
+  },
+  "lock": {
+    "title": "Tarjeta de emergencia",
+    "call": "Llamar ICE",
+    "help": "Muestra esta tarjeta si no puedes hablar por ti mismo."
+  },
+  "widget": "Actualizar widget de pantalla de bloqueo",
+  "preview": "Vista previa de pantalla de bloqueo"
+}

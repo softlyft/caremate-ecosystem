@@ -1,0 +1,42 @@
+{
+  "loading": "正在加载设置...",
+  "hero": {
+    "eyebrow": "偏好设置",
+    "title": "设置",
+    "subtitle": "外观、通知、国家和语言，以及家庭快捷入口。"
+  },
+  "appearance": "外观",
+  "theme": {
+    "light": "浅色",
+    "dark": "深色",
+    "system": "系统",
+    "useSystem": "使用系统主题",
+    "darkMode": "深色模式"
+  },
+  "familySection": {
+    "guest": "登录以设置家庭档案、孩子以及配偶连接。",
+    "hint": "添加孩子并连接配偶。每位家长保留各自的 CareMate 数据。",
+    "open": "打开家庭"
+  },
+  "notifications": {
+    "title": "通知",
+    "push": "推送通知"
+  },
+  "location": {
+    "title": "位置",
+    "guestHint": "登录以设置您的国家和语言。访客使用引导流程中的选择。",
+    "hint": "用于本地健康内容和语言偏好。",
+    "country": "国家",
+    "language": "语言",
+    "state": "州 / 省",
+    "statePlaceholder": "例如：加利福尼亚、大阿克拉",
+    "selected": "已选择：{{value}}",
+    "notSet": "未设置",
+    "save": "保存位置",
+    "saving": "保存中..."
+  },
+  "family": {
+    "title": "家庭",
+    "manage": "管理家庭"
+  }
+}

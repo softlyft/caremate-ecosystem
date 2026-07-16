@@ -1,0 +1,28 @@
+{
+  "title": "Koyo",
+  "subtitle": "Jagorar lafiya da amincewa da labarai da aka zaɓa don tafiyarka",
+  "articleCount": "Labarai {{count}}",
+  "searchPlaceholder": "Nemo labarai",
+  "bookmarks": "Duba alamomi",
+  "featured": "Fitattun",
+  "allTopics": "Dukkan batutuwa",
+  "loading": "Ana lodawa labarai...",
+  "empty": {
+    "title": "Ba a sami labari ba",
+    "categoryTitle": "Babu labaran {{category}}",
+    "message": "Gwada wani bincike ko rukuni."
+  },
+  "bookmarksTitle": "Alamomi",
+  "bookmarksEmpty": {
+    "title": "Babu alamomi tukuna",
+    "message": "Ajiye labarai don karanta su ba tare da intanet ba daga baya."
+  },
+  "article": "Labari",
+  "news": "Labarai",
+  "backToLearn": "Komawa zuwa Koyo",
+  "goBack": "Komawa baya",
+  "notFound": {
+    "title": "Ba a sami labarin ba",
+    "message": "Wataƙila an cire wannan labarin."
+  }
+}

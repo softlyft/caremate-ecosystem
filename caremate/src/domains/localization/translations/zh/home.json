@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "早上好",
+    "afternoon": "下午好",
+    "evening": "晚上好"
+  },
+  "greetingNamed": "{{greeting}}，{{name}}",
+  "tagline": "您的健康之旅，清晰有序",
+  "emergency": {
+    "title": "急救档案",
+    "body": "将血型、过敏信息和紧急联系人离线备好。",
+    "cta": "去设置"
+  },
+  "featuredArticles": {
+    "title": "为您推荐",
+    "subtitle": "可信的健康故事与建议"
+  },
+  "healthCategories": {
+    "title": "浏览主题",
+    "subtitle": "按健康领域查找指导"
+  },
+  "nearby": {
+    "title": "附近医疗服务",
+    "subtitle": "您周围的医院、诊所和药店"
+  },
+  "dailyTip": {
+    "label": "每日洞察"
+  },
+  "searchA11y": "搜索 CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "急救",
+      "subtitle": "离线健康卡"
+    },
+    "nearby": {
+      "title": "附近",
+      "subtitle": "查找附近医疗"
+    },
+    "symptoms": {
+      "title": "学习",
+      "subtitle": "健康文章"
+    },
+    "medication": {
+      "title": "用药",
+      "subtitle": "追踪剂量"
+    }
+  },
+  "providerTypes": {
+    "hospital": "医院",
+    "pharmacy": "药店",
+    "laboratory": "化验室",
+    "clinic": "诊所",
+    "telemedicine": "远程医疗",
+    "blood_bank": "血库",
+    "ambulance": "救护车"
+  }
+}

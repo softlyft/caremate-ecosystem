@@ -1,0 +1,28 @@
+{
+  "title": "Jifunze",
+  "subtitle": "Mwongozo wa afya unaoaminika na habari zilizochaguliwa kwa safari yako",
+  "articleCount": "Makala {{count}}",
+  "searchPlaceholder": "Tafuta makala",
+  "bookmarks": "Tazama alamisho",
+  "featured": "Zilizoangaziwa",
+  "allTopics": "Mada zote",
+  "loading": "Inapakia makala...",
+  "empty": {
+    "title": "Hakuna makala zilizopatikana",
+    "categoryTitle": "Hakuna makala za {{category}}",
+    "message": "Jaribu utafutaji au kategoria nyingine."
+  },
+  "bookmarksTitle": "Alamisho",
+  "bookmarksEmpty": {
+    "title": "Bado hakuna alamisho",
+    "message": "Hifadhi makala ili uzisome baadaye bila mtandao."
+  },
+  "article": "Makala",
+  "news": "Habari",
+  "backToLearn": "Rudi kwa Jifunze",
+  "goBack": "Rudi nyuma",
+  "notFound": {
+    "title": "Makala haikupatikana",
+    "message": "Huenda makala hii imeondolewa."
+  }
+}

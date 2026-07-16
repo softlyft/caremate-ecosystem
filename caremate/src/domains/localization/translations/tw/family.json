@@ -1,0 +1,35 @@
+{
+  "title": "Abusua",
+  "subtitle": "Ofie profile ne mma hwɛ a wɔkyɛ",
+  "loading": "Ɛreloa abusua...",
+  "setup": {
+    "title": "Hyehyɛ abusua hwɛ?",
+    "subtitle": "Fa mma ka ho na fa ɔwarefo ka ho na hwɛ nneɛma ntena nhyehyɛe mu.",
+    "yes": "Aane, hyehyɛ",
+    "notNow": "Ɛnyɛ seesei"
+  },
+  "kidsCount": {
+    "title": "Mma dodoɔ sɛn?",
+    "placeholder": "Mma dodoɔ"
+  },
+  "child": {
+    "title": "Aba {{index}}",
+    "name": "Din a ɛyɛ pɛ",
+    "dob": "Awo da",
+    "gender": "Bɔbea"
+  },
+  "review": {
+    "title": "Hwɛ ofie bio",
+    "save": "Sie ofie",
+    "back": "San kɔ"
+  },
+  "requests": {
+    "title": "Nkitahodie nsɛm",
+    "accept": "Gye",
+    "decline": "Po",
+    "empty": "Nsɛm a ɛretwɛn nni hɔ"
+  },
+  "invite": "Frɛ ɔwarefo",
+  "addChild": "Fa aba ka ho",
+  "searchPlaceholder": "Hwehwɛ wɔ Oyarefo ID anaa email so"
+}

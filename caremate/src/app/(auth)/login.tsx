@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
 import { authService } from '@/services/auth-service';
 import { config } from '@/constants/env';
@@ -21,6 +22,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
   const signIn = useAuthStore((state) => state.signIn);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -42,14 +44,14 @@ export default function LoginScreen() {
       await signIn(values.email, values.password);
       router.replace('/(app)/(tabs)');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to sign in';
-      Alert.alert('Sign in failed', message);
+      const message = error instanceof Error ? error.message : t('auth.login.error');
+      Alert.alert(t('auth.login.error'), message);
     }
   }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle title="Welcome back" subtitle="Sign in to access your CareMate profile." />
+      <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
       <View style={styles.form}>
         <Controller
           control={control}
@@ -58,7 +60,7 @@ export default function LoginScreen() {
             <Input
               autoCapitalize="none"
               keyboardType="email-address"
-              placeholder="Email"
+              placeholder={t('auth.login.emailPlaceholder')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -76,7 +78,7 @@ export default function LoginScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               secureTextEntry
-              placeholder="Password"
+              placeholder={t('auth.login.passwordPlaceholder')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -89,18 +91,20 @@ export default function LoginScreen() {
           </AppText>
         ) : null}
         <Link href="/(auth)/forgot-password">
-          <AppText variant="seeAll">Forgot password?</AppText>
+          <AppText variant="seeAll">{t('auth.login.forgot')}</AppText>
         </Link>
         <Button
-          label={isLoading ? 'Signing in...' : 'Sign In'}
+          label={isLoading ? t('common.loading') : t('auth.login.submit')}
           disabled={isLoading}
           onPress={handleSubmit(onSubmit)}
         />
         <Link href="/(auth)/register">
-          <AppText variant="seeAll">Create an account</AppText>
+          <AppText variant="seeAll">
+            {t('auth.login.noAccount')} {t('auth.login.register')}
+          </AppText>
         </Link>
         <Button
-          label="Continue as Guest"
+          label={t('auth.login.continueGuest')}
           variant="ghost"
           onPress={() => {
             void authService.setOnboardingComplete(true).then(() => {

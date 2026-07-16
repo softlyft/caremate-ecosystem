@@ -11,11 +11,13 @@ import { QUERY_KEYS } from '@/constants/config';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { useTranslation } from '@/domains/localization';
 import { markEmergencyEssentialsDone } from '@/domains/onboarding';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { fontFamily, palette, radius, spacing } from '@/theme';
 
 export default function SetupEmergencyEssentialsScreen() {
+  const { t } = useTranslation();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
   const [bloodGroup, setBloodGroup] = useState('');
@@ -90,25 +92,24 @@ export default function SetupEmergencyEssentialsScreen() {
       <View style={styles.header}>
         <PressableScale onPress={() => void handleSkip()} hitSlop={8}>
           <AppText variant="body" style={styles.skip}>
-            Skip
+            {t('setup.emergency.skip')}
           </AppText>
         </PressableScale>
       </View>
 
       <View style={styles.body}>
         <AppText variant="caption" style={styles.eyebrow}>
-          Account setup
+          {t('common.continue')}
         </AppText>
         <AppText variant="screenTitle" style={styles.title}>
-          Emergency essentials
+          {t('setup.emergency.title')}
         </AppText>
         <AppText variant="subtitle" style={styles.subtitle}>
-          Blood group, genotype, and one ICE contact make your offline card useful to first
-          responders.
+          {t('setup.emergency.subtitle')}
         </AppText>
 
         <AppText variant="caption" style={styles.fieldLabel}>
-          Blood group
+          {t('emergency.fields.bloodGroup')}
         </AppText>
         <View style={styles.chipRow}>
           {BLOOD_GROUPS.map((group) => {
@@ -132,7 +133,7 @@ export default function SetupEmergencyEssentialsScreen() {
         </View>
 
         <AppText variant="caption" style={styles.fieldLabel}>
-          Genotype
+          {t('emergency.fields.genotype')}
         </AppText>
         <View style={styles.chipRow}>
           {GENOTYPES.map((item) => {
@@ -156,24 +157,24 @@ export default function SetupEmergencyEssentialsScreen() {
         </View>
 
         <Input
-          placeholder="Allergies (optional, comma separated)"
+          placeholder={t('emergency.fields.allergies')}
           value={allergies}
           onChangeText={setAllergies}
         />
         <Input
-          placeholder="ICE contact name"
+          placeholder={t('emergency.edit.contactName')}
           value={iceName}
           onChangeText={setIceName}
           autoCapitalize="words"
         />
         <Input
-          placeholder="Relationship (e.g. Spouse, Parent)"
+          placeholder={t('emergency.edit.relationship')}
           value={iceRelationship}
           onChangeText={setIceRelationship}
           autoCapitalize="words"
         />
         <Input
-          placeholder="Phone number"
+          placeholder={t('emergency.edit.contactPhone')}
           value={icePhone}
           onChangeText={setIcePhone}
           keyboardType="phone-pad"
@@ -187,7 +188,7 @@ export default function SetupEmergencyEssentialsScreen() {
           onPress={() => void handleSave()}
         >
           <AppText variant="button" style={styles.primaryLabel}>
-            {busy ? 'Saving…' : 'Save essentials'}
+            {busy ? t('common.saving') : t('setup.emergency.save')}
           </AppText>
         </PressableScale>
       </View>

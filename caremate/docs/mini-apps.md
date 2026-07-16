@@ -82,7 +82,7 @@ Tap → `router.push(app.route)`.
 
 `MonthCalendarGrid` lives in `period-tracker/` and is reused by pregnancy, immunization, medication, and checkup planner setup/log screens.
 
-Region list for Checkup Planner reuses `NEWS_COUNTRIES` / `INTERNATIONAL_COUNTRY_CODE` from `src/constants/locations.ts` (same as articles).
+Country list for Checkup Planner comes from `localizationService.listCountryOptions()` in `src/domains/localization/`.
 
 ---
 

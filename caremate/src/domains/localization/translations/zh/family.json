@@ -1,0 +1,35 @@
+{
+  "title": "家庭",
+  "subtitle": "家庭档案与共享的儿童护理",
+  "loading": "正在加载家庭...",
+  "setup": {
+    "title": "设置家庭护理？",
+    "subtitle": "添加孩子并连接配偶，让护理工具井然有序。",
+    "yes": "是，去设置",
+    "notNow": "暂不"
+  },
+  "kidsCount": {
+    "title": "有几个孩子？",
+    "placeholder": "孩子数量"
+  },
+  "child": {
+    "title": "孩子 {{index}}",
+    "name": "全名",
+    "dob": "出生日期",
+    "gender": "性别"
+  },
+  "review": {
+    "title": "核对家庭信息",
+    "save": "保存家庭",
+    "back": "返回"
+  },
+  "requests": {
+    "title": "连接请求",
+    "accept": "接受",
+    "decline": "拒绝",
+    "empty": "暂无待处理请求"
+  },
+  "invite": "邀请配偶",
+  "addChild": "添加孩子",
+  "searchPlaceholder": "按患者 ID 或邮箱搜索"
+}

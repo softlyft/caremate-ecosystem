@@ -18,6 +18,7 @@ import { AppText } from '@/components/ui/AppText';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 import { ONBOARDING_STEP_THEMES } from './themes';
+import { useTranslation } from '@/domains/localization';
 
 const TOTAL_PHASE_A_STEPS = 6;
 
@@ -39,10 +40,11 @@ export function OnboardingShell({
   children,
   footer,
   onSkip,
-  skipLabel = 'Skip',
+  skipLabel,
   showBack = true,
   hero,
 }: OnboardingShellProps) {
+  const { t } = useTranslation();
   const theme = ONBOARDING_STEP_THEMES[step] ?? ONBOARDING_STEP_THEMES[0];
   const progress = useSharedValue((step + 1) / TOTAL_PHASE_A_STEPS);
 
@@ -86,7 +88,7 @@ export function OnboardingShell({
               ]}
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
-                Back
+                {t('common.back')}
               </AppText>
             </PressableScale>
           ) : (
@@ -109,7 +111,7 @@ export function OnboardingShell({
               ]}
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
-                {skipLabel}
+                {skipLabel ?? t('common.skip')}
               </AppText>
             </PressableScale>
           ) : (
@@ -125,7 +127,7 @@ export function OnboardingShell({
         >
           <Animated.View entering={FadeIn.duration(400)}>
             <AppText variant="caption" style={[styles.eyebrow, { color: theme.accent }]}>
-              Step {step + 1} of {TOTAL_PHASE_A_STEPS}
+              {t('common.stepOf', { current: step + 1, total: TOTAL_PHASE_A_STEPS })}
             </AppText>
           </Animated.View>
 

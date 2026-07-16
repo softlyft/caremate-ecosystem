@@ -1,0 +1,36 @@
+{
+  "title": "Cerca",
+  "subtitle": "Encuentra hospitales, clínicas, farmacias y más a tu alrededor",
+  "nearbyCount": "{{count}} cerca",
+  "searchPlaceholder": "Buscar proveedores",
+  "loading": "Cargando proveedores...",
+  "empty": {
+    "title": "No hay proveedores cerca",
+    "message": "Prueba otro filtro o amplía la búsqueda.",
+    "offline": "Mostrando proveedores en caché sin conexión."
+  },
+  "approximate": "Usando ubicación aproximada",
+  "outsideArea": "Fuera de tu zona habitual — los resultados pueden ser limitados",
+  "detail": {
+    "loading": "Cargando proveedor...",
+    "notFound": "Proveedor no encontrado",
+    "unavailable": "Detalles no disponibles",
+    "favorite": "Guardar favorito",
+    "unfavorite": "Quitar favorito",
+    "call": "Llamar",
+    "directions": "Indicaciones"
+  },
+  "map": {
+    "loading": "Cargando mapa...",
+    "empty": "No hay ubicaciones disponibles en el mapa"
+  },
+  "types": {
+    "hospital": "Hospital",
+    "pharmacy": "Farmacia",
+    "laboratory": "Laboratorio",
+    "clinic": "Clínica",
+    "telemedicine": "Telemedicina",
+    "blood_bank": "Banco de sangre",
+    "ambulance": "Ambulancia"
+  }
+}

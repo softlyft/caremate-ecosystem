@@ -2,6 +2,7 @@ import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -16,38 +17,41 @@ const APP_ID = 'immunization-tracker' as const;
  * Children are managed in Family — this route only redirects users there.
  */
 export default function ImmunizationSetupScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const navigation = useNavigation();
 
   useEffect(() => {
-    navigation.setOptions({ title: 'Family children' });
-  }, [navigation]);
+    navigation.setOptions({ title: t('apps.openFamily') });
+  }, [navigation, t]);
 
   return (
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow="Immunization"
-        title="Children come from Family"
-        subtitle="You can’t add a child here. Set up your family profile and add kids with date of birth, then return to Immunization Tracker."
+        eyebrow={t('apps.immunizationTracker.eyebrow')}
+        title={t('apps.immunizationTracker.childrenFromFamilyTitle')}
+        subtitle={t('apps.immunizationTracker.childrenFromFamilySubtitle')}
       />
 
-      <MiniAppCard index={1} title="Where to go" eyebrow="Next steps" theme={theme}>
-        <AppText variant="subtitle">
-          Family setup collects date of birth for each child — that’s what powers the vaccine
-          schedule.
-        </AppText>
+      <MiniAppCard
+        index={1}
+        title={t('apps.immunization.ui.whereToGo')}
+        eyebrow={t('apps.immunization.ui.nextSteps')}
+        theme={theme}
+      >
+        <AppText variant="subtitle">{t('apps.immunization.ui.familySetupExplainer')}</AppText>
       </MiniAppCard>
 
       <MiniAppCta
-        label="Go to family setup"
+        label={t('apps.goToFamilySetup')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={2}
         onPress={() => router.replace('/(app)/family/setup')}
       />
       <MiniAppCta
-        label="Open family"
+        label={t('apps.openFamily')}
         accent={theme.color}
         soft={theme.backgroundColor}
         secondary
@@ -55,7 +59,7 @@ export default function ImmunizationSetupScreen() {
         onPress={() => router.replace('/(app)/family')}
       />
       <MiniAppCta
-        label="Back to tracker"
+        label={t('apps.backToTracker')}
         accent={theme.color}
         soft={theme.backgroundColor}
         secondary

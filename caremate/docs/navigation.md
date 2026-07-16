@@ -46,8 +46,8 @@ Group: `(auth)` — header hidden.
 | Route | Screen | Purpose |
 |-------|--------|---------|
 | `/(auth)/onboarding` | `onboarding/index.tsx` | Intro step |
+| `/(auth)/onboarding/country` | `country.tsx` | Country + language selection (required) |
 | `/(auth)/onboarding/priorities` | `priorities.tsx` | User priorities |
-| `/(auth)/onboarding/region` | `region.tsx` | Region selection |
 | `/(auth)/onboarding/location` | `location.tsx` | Approximate location |
 | `/(auth)/onboarding/notifications` | `notifications.tsx` | Notifications preference |
 | `/(auth)/onboarding/next` | `next.tsx` | Transition step |

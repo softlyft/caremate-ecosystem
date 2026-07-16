@@ -5,11 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { getDeviceDefaults } from '@/domains/onboarding';
 import type { DeviceDefaults } from '@/domains/onboarding';
 import { fontFamily, palette, radius, spacing } from '@/theme';
 
 export default function SetupDoneScreen() {
+  const { t } = useTranslation();
   const [defaults, setDefaults] = useState<DeviceDefaults | null>(null);
 
   useEffect(() => {
@@ -18,24 +20,29 @@ export default function SetupDoneScreen() {
 
   const checks = [
     {
-      label: 'Region for local news',
-      done: Boolean(defaults?.countryCode) && !defaults?.regionSkipped,
+      key: 'countryLanguage',
+      label: t('setup.done.checks.countryLanguage'),
+      done: Boolean(defaults?.countryCode) && Boolean(defaults?.languageCode),
     },
     {
-      label: 'Nearby location preference',
+      key: 'location',
+      label: t('setup.done.checks.location'),
       done: Boolean(defaults?.locationMode),
     },
     {
-      label: 'Notification preference',
+      key: 'notifications',
+      label: t('setup.done.checks.notifications'),
       done: defaults != null,
     },
     {
-      label: 'Emergency essentials',
+      key: 'emergency',
+      label: t('setup.done.checks.emergency'),
       done: Boolean(defaults?.emergencyEssentialsDone),
       deferred: defaults?.priorities.includes('emergency'),
     },
     {
-      label: 'Family setup',
+      key: 'family',
+      label: t('setup.done.checks.family'),
       done: Boolean(defaults?.familyPromptDone),
       deferred: defaults?.priorities.includes('family'),
     },
@@ -45,14 +52,13 @@ export default function SetupDoneScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.body}>
         <AppText variant="caption" style={styles.eyebrow}>
-          All set
+          {t('setup.done.eyebrow')}
         </AppText>
         <AppText variant="screenTitle" style={styles.title}>
-          You’re ready
+          {t('setup.done.title')}
         </AppText>
         <AppText variant="subtitle" style={styles.subtitle}>
-          Finish anything you skipped later from Profile. CareMate works offline with what you’ve
-          saved on this device.
+          {t('setup.done.subtitle')}
         </AppText>
 
         <View style={styles.card}>
@@ -62,11 +68,11 @@ export default function SetupDoneScreen() {
             }
             if (item.deferred === undefined || item.deferred === true) {
               return (
-                <View key={item.label} style={styles.checkRow}>
+                <View key={item.key} style={styles.checkRow}>
                   <View style={[styles.dot, item.done ? styles.dotDone : styles.dotPending]} />
                   <AppText variant="body" style={styles.checkLabel}>
                     {item.label}
-                    {!item.done ? ' — finish later' : ''}
+                    {!item.done ? t('setup.done.finishLater') : ''}
                   </AppText>
                 </View>
               );
@@ -79,7 +85,7 @@ export default function SetupDoneScreen() {
       <View style={styles.footer}>
         <PressableScale style={styles.primaryCta} onPress={() => router.replace('/(app)/(tabs)')}>
           <AppText variant="button" style={styles.primaryLabel}>
-            Open Home
+            {t('setup.done.openHome')}
           </AppText>
         </PressableScale>
       </View>

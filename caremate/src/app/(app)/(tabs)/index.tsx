@@ -15,7 +15,7 @@ import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { NearbyProvidersRow } from '@/features/home/components/NearbyProvidersRow';
 import { splitFullName } from '@/domains/emergency/constants';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
-import { useDeviceDefaults } from '@/hooks/use-device-defaults';
+import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { articleRepository } from '@/domains/articles/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { resolveNearbyCoords } from '@/domains/providers/location';
@@ -27,7 +27,7 @@ export default function HomeScreen() {
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
-  const deviceDefaultsQuery = useDeviceDefaults();
+  const { countryCode, languageCode, isReady: localizationReady } = useLocalizationPreferences();
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
@@ -35,24 +35,19 @@ export default function HomeScreen() {
     enabled: !isGuest,
   });
 
-  const countryCode = isGuest
-    ? (deviceDefaultsQuery.data?.countryCode ?? null)
-    : (profileQuery.data?.countryCode ?? null);
   const firstName = isGuest
     ? null
     : splitFullName(profileQuery.data?.fullName ?? '').firstName || null;
 
   const articlesQuery = useQuery({
-    queryKey: [...QUERY_KEYS.trendingArticles, userKey, countryCode ?? 'none'],
+    queryKey: [...QUERY_KEYS.trendingArticles, userKey, countryCode ?? 'none', languageCode ?? 'en'],
     queryFn: () =>
       articleRepository.getTrendingToday(3, {
         isGuest,
         countryCode,
         userKey,
       }),
-    enabled: isGuest
-      ? deviceDefaultsQuery.isFetched
-      : profileQuery.isSuccess || profileQuery.isError,
+    enabled: localizationReady,
   });
 
   const coordsQuery = useQuery({
@@ -86,8 +81,8 @@ export default function HomeScreen() {
     async function refreshRemoteNews() {
       try {
         await articleRepository.refreshTrendingInBackground({
-          isGuest,
           countryCode,
+          languageCode,
         });
         if (!cancelled) {
           await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trendingArticles });
@@ -97,14 +92,14 @@ export default function HomeScreen() {
       }
     }
 
-    if ((isGuest && deviceDefaultsQuery.isFetched) || (!isGuest && profileQuery.isFetched)) {
+    if (localizationReady) {
       void refreshRemoteNews();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [countryCode, deviceDefaultsQuery.isFetched, isGuest, profileQuery.isFetched, queryClient]);
+  }, [countryCode, languageCode, localizationReady, queryClient]);
 
   const articles = articlesQuery.data ?? [];
   const providers = providersQuery.data?.slice(0, 4) ?? [];

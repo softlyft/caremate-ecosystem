@@ -4,19 +4,25 @@ export {
   HEALTH_CATEGORIES,
 } from '@/domains/articles/categories';
 
-export function getGreeting(): string {
+type GreetingLabels = {
+  morning: string;
+  afternoon: string;
+  evening: string;
+};
+
+export function getGreeting(labels?: GreetingLabels): string {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 17) return 'Good Afternoon';
-  return 'Good Evening';
+  if (hour < 12) return labels?.morning ?? 'Good Morning';
+  if (hour < 17) return labels?.afternoon ?? 'Good Afternoon';
+  return labels?.evening ?? 'Good Evening';
 }
 
 export const PROVIDER_TYPE_FILTERS = [
-  { label: 'Hospitals', type: 'hospital' as const, color: '#DBEAFE' },
-  { label: 'Pharmacies', type: 'pharmacy' as const, color: '#CCFBF1' },
-  { label: 'Labs', type: 'laboratory' as const, color: '#EDE9FE' },
-  { label: 'Clinics', type: 'clinic' as const, color: '#FFEDD5' },
-  { label: 'Telemedicine', type: 'telemedicine' as const, color: '#E0F2FE' },
-  { label: 'Blood banks', type: 'blood_bank' as const, color: '#FEE2E2' },
-  { label: 'Ambulance', type: 'ambulance' as const, color: '#FEF3C7' },
+  { type: 'hospital' as const, color: '#DBEAFE' },
+  { type: 'pharmacy' as const, color: '#CCFBF1' },
+  { type: 'laboratory' as const, color: '#EDE9FE' },
+  { type: 'clinic' as const, color: '#FFEDD5' },
+  { type: 'telemedicine' as const, color: '#E0F2FE' },
+  { type: 'blood_bank' as const, color: '#FEE2E2' },
+  { type: 'ambulance' as const, color: '#FEF3C7' },
 ];

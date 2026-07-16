@@ -1,0 +1,42 @@
+{
+  "loading": "Loading settings...",
+  "hero": {
+    "eyebrow": "Preferences",
+    "title": "Settings",
+    "subtitle": "Appearance, notifications, country and language, and family shortcuts."
+  },
+  "appearance": "Appearance",
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "useSystem": "Use system theme",
+    "darkMode": "Dark mode"
+  },
+  "familySection": {
+    "guest": "Sign in to set up your family profile, kids, and spouse connection.",
+    "hint": "Add children and connect your spouse. Each parent keeps their own CareMate data.",
+    "open": "Open family"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "push": "Push notifications"
+  },
+  "location": {
+    "title": "Location",
+    "guestHint": "Sign in to set your country and language. Guests use onboarding selections.",
+    "hint": "Used for local health content and language preferences.",
+    "country": "Country",
+    "language": "Language",
+    "state": "State / province",
+    "statePlaceholder": "e.g. California, Greater Accra",
+    "selected": "Selected: {{value}}",
+    "notSet": "Not set",
+    "save": "Save location",
+    "saving": "Saving..."
+  },
+  "family": {
+    "title": "Family",
+    "manage": "Manage household"
+  }
+}

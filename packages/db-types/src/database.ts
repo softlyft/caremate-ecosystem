@@ -18,6 +18,7 @@ export type Database = {
           date_of_birth: string | null;
           avatar_url: string | null;
           country_code: string | null;
+          language_code: string | null;
           state: string | null;
           patient_id: string | null;
         } & Timestamps;
@@ -30,6 +31,7 @@ export type Database = {
           date_of_birth?: string | null;
           avatar_url?: string | null;
           country_code?: string | null;
+          language_code?: string | null;
           state?: string | null;
           patient_id?: string | null;
           created_at?: string;

@@ -1,4 +1,4 @@
-export { MINI_APPS, type MiniAppDefinition, type MiniAppId } from '@/mini-apps/_kit/registry';
+export { MINI_APPS, getMiniAppLabel, type MiniAppDefinition, type MiniAppId } from '@/mini-apps/_kit/registry';
 export { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 export { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 export {
@@ -25,3 +25,4 @@ export {
   miniAppSnapshotRepository,
 } from '@/mini-apps/_kit/snapshot-repository';
 export * from '@/mini-apps/_kit/date-utils';
+export { pluralKey, type TranslateFn } from '@/mini-apps/_kit/i18n';

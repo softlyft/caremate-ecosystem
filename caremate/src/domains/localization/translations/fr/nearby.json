@@ -1,0 +1,36 @@
+{
+  "title": "À proximité",
+  "subtitle": "Trouvez hôpitaux, cliniques, pharmacies et plus autour de vous",
+  "nearbyCount": "{{count}} à proximité",
+  "searchPlaceholder": "Rechercher des prestataires",
+  "loading": "Chargement des prestataires...",
+  "empty": {
+    "title": "Aucun prestataire à proximité",
+    "message": "Essayez un autre filtre ou élargissez la recherche.",
+    "offline": "Affichage des prestataires en cache hors ligne."
+  },
+  "approximate": "Localisation approximative utilisée",
+  "outsideArea": "Hors de votre zone habituelle — résultats éventuellement limités",
+  "detail": {
+    "loading": "Chargement du prestataire...",
+    "notFound": "Prestataire introuvable",
+    "unavailable": "Détails indisponibles",
+    "favorite": "Ajouter aux favoris",
+    "unfavorite": "Retirer des favoris",
+    "call": "Appeler",
+    "directions": "Itinéraire"
+  },
+  "map": {
+    "loading": "Chargement de la carte...",
+    "empty": "Aucun emplacement disponible sur la carte"
+  },
+  "types": {
+    "hospital": "Hôpital",
+    "pharmacy": "Pharmacie",
+    "laboratory": "Laboratoire",
+    "clinic": "Clinique",
+    "telemedicine": "Télémédecine",
+    "blood_bank": "Banque de sang",
+    "ambulance": "Ambulance"
+  }
+}

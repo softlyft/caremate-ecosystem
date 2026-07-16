@@ -4,11 +4,12 @@ import { MapPin, Pill, ShieldPlus, Stethoscope } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
-type QuickAction = {
-  title: string;
-  subtitle: string;
+type QuickActionDef = {
+  titleKey: string;
+  subtitleKey: string;
   backgroundColor: string;
   iconColor: string;
   icon: LucideIcon;
@@ -16,34 +17,34 @@ type QuickAction = {
   onPress?: () => void;
 };
 
-const ACTIONS: QuickAction[] = [
+const ACTIONS: QuickActionDef[] = [
   {
-    title: 'Emergency Profile',
-    subtitle: 'Emergency health card',
+    titleKey: 'home.quickActions.emergency.title',
+    subtitleKey: 'home.quickActions.emergency.subtitle',
     backgroundColor: palette.primaryLight,
     iconColor: palette.primary,
     icon: ShieldPlus,
     onPress: () => router.push('/(app)/emergency/edit'),
   },
   {
-    title: 'Nearby Care',
-    subtitle: 'Hospitals & pharmacies',
+    titleKey: 'home.quickActions.nearby.title',
+    subtitleKey: 'home.quickActions.nearby.subtitle',
     backgroundColor: palette.blueLight,
     iconColor: palette.blueAccent,
     icon: MapPin,
     onPress: () => router.push('/(app)/(tabs)/providers'),
   },
   {
-    title: 'Symptoms',
-    subtitle: 'Check your symptoms',
+    titleKey: 'home.quickActions.symptoms.title',
+    subtitleKey: 'home.quickActions.symptoms.subtitle',
     backgroundColor: '#F3F4F6',
     iconColor: palette.textSecondary,
     icon: Stethoscope,
     comingSoon: true,
   },
   {
-    title: 'Medication',
-    subtitle: 'Dose reminders',
+    titleKey: 'home.quickActions.medication.title',
+    subtitleKey: 'home.quickActions.medication.subtitle',
     backgroundColor: '#F3F4F6',
     iconColor: palette.textSecondary,
     icon: Pill,
@@ -52,13 +53,15 @@ const ACTIONS: QuickAction[] = [
 ];
 
 export function QuickActionsGrid() {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <AppText variant="sectionTitle">Quick Actions</AppText>
       <View style={styles.grid}>
         {ACTIONS.map((action) => (
           <Pressable
-            key={action.title}
+            key={action.titleKey}
             disabled={action.comingSoon}
             onPress={action.onPress}
             style={[
@@ -69,14 +72,14 @@ export function QuickActionsGrid() {
           >
             <action.icon color={action.iconColor} size={28} />
             <AppText variant="quickActionTitle" numberOfLines={2} style={styles.centeredText}>
-              {action.title}
+              {t(action.titleKey)}
             </AppText>
             <AppText variant="quickActionSubtitle" numberOfLines={2} style={styles.centeredText}>
-              {action.subtitle}
+              {t(action.subtitleKey)}
             </AppText>
             {action.comingSoon ? (
               <View style={styles.badge}>
-                <AppText variant="comingSoon">Soon</AppText>
+                <AppText variant="comingSoon">{t('common.comingSoon')}</AppText>
               </View>
             ) : null}
           </Pressable>

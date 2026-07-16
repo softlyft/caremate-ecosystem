@@ -3,15 +3,18 @@ import { Search, Sparkles } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
+import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
 import { fontFamily, textColors } from '@/theme/typography';
 
 export function HomeSearchBar() {
+  const { t } = useTranslation();
+
   return (
     <PressableScale
       style={styles.container}
       accessibilityRole="search"
-      accessibilityLabel="Search CareMate"
+      accessibilityLabel={t('home.searchA11y')}
       onPress={() => router.push('/(app)/search')}
     >
       <View style={styles.inner}>
@@ -19,7 +22,7 @@ export function HomeSearchBar() {
           <Search color={palette.primary} size={18} strokeWidth={2.5} />
         </View>
         <Text style={styles.placeholder} numberOfLines={1}>
-          Search articles, providers, tools...
+          {t('common.search')}
         </Text>
         <View style={styles.sparkleWrap}>
           <Sparkles color={palette.primary} size={14} />

@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "Tout est prêt",
+    "title": "Vous êtes prêt",
+    "subtitle": "Terminez plus tard ce que vous avez passé depuis Profil. CareMate fonctionne hors ligne avec ce que vous avez enregistré sur cet appareil.",
+    "openHome": "Ouvrir l'accueil",
+    "finishLater": " — terminer plus tard",
+    "checks": {
+      "countryLanguage": "Pays et langue",
+      "location": "Préférence de localisation",
+      "notifications": "Préférence de notifications",
+      "emergency": "Essentiels d'urgence",
+      "family": "Configuration famille"
+    }
+  },
+  "emergency": {
+    "title": "Essentiels d'urgence",
+    "subtitle": "Groupe sanguin, génotype et un contact ICE aident les secours.",
+    "skip": "Passer pour l'instant",
+    "save": "Enregistrer et continuer"
+  },
+  "familyPrompt": {
+    "title": "Configurer votre foyer ?",
+    "subtitle": "Ajoutez des enfants pour la vaccination et les outils de soins partagés.",
+    "setup": "Configurer la famille",
+    "notNow": "Pas pour le moment"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Définir votre pays",
+      "subtitle": "Recevez l'actualité santé locale de votre pays"
+    },
+    "accountEmergency": {
+      "title": "Enregistrer un profil d'urgence",
+      "subtitle": "Créez un compte pour synchroniser votre carte hors ligne"
+    },
+    "accountFamily": {
+      "title": "Configurer les soins familiaux",
+      "subtitle": "Connectez-vous pour ajouter des enfants et partager un foyer"
+    },
+    "emergency": {
+      "title": "Terminer les essentiels d'urgence",
+      "subtitle": "Groupe sanguin, génotype et un contact ICE"
+    },
+    "family": {
+      "title": "Configurer votre foyer",
+      "subtitle": "Ajoutez des enfants pour la vaccination et les soins partagés"
+    }
+  }
+}

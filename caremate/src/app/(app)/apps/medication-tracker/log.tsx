@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -23,11 +24,13 @@ import {
   nextSlotIndexForAsNeeded,
   toDateKey,
 } from '@/mini-apps/medication-tracker/utils';
+import { localizeFrequencyLabel, localizeSlotLabel } from '@/mini-apps/medication-tracker/localize';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
 
 export default function MedicationLogScreen() {
+  const { t } = useTranslation();
   const { medicationId: paramMedicationId } = useLocalSearchParams<{ medicationId?: string }>();
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
@@ -89,9 +92,9 @@ export default function MedicationLogScreen() {
   if (!selectedMedication || !selectedFrequency) {
     return (
       <View style={styles.loading}>
-        <AppText variant="body">Add a medicine before logging doses.</AppText>
+        <AppText variant="body">{t('apps.medication.ui.addBeforeLogging')}</AppText>
         <MiniAppCta
-          label="Add medicine"
+          label={t('apps.medicationTracker.addMedicine')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.replace('/(app)/apps/medication-tracker/setup')}
@@ -105,10 +108,10 @@ export default function MedicationLogScreen() {
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
-        Log a dose you have taken. You can also undo from the home screen.
+        {t('apps.medication.ui.logIntro')}
       </AppText>
 
-      <MiniAppCard index={1} title="Medicine" theme={theme}>
+      <MiniAppCard index={1} title={t('apps.medication.ui.medicine')} theme={theme}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -121,7 +124,7 @@ export default function MedicationLogScreen() {
                 item.forKid && item.patientName
                   ? ` · ${item.patientName}`
                   : item.forKid
-                    ? ' · Child'
+                    ? ` · ${t('apps.medication.ui.child')}`
                     : ''
               }`}
               selected={item.id === selectedMedication.id}
@@ -137,17 +140,17 @@ export default function MedicationLogScreen() {
         </ScrollView>
         <AppText variant="caption" style={styles.muted}>
           {selectedMedication.dosage ? `${selectedMedication.dosage} · ` : ''}
-          {selectedFrequency.label}
+          {localizeFrequencyLabel(selectedMedication.frequency, t)}
         </AppText>
       </MiniAppCard>
 
       {!isAsNeeded ? (
-        <MiniAppCard index={2} title="Dose" theme={theme}>
+        <MiniAppCard index={2} title={t('apps.medication.ui.dose')} theme={theme}>
           <View style={styles.chipRow}>
             {selectedFrequency.slotLabels.map((label, index) => (
               <MiniAppChip
                 key={label}
-                label={label}
+                label={localizeSlotLabel(selectedMedication.frequency, index, t, label)}
                 selected={index === slotIndex}
                 accent={theme.color}
                 soft={theme.backgroundColor}
@@ -213,20 +216,26 @@ export default function MedicationLogScreen() {
             today: dayKey === todayKey,
           })}
         />
-        <AppText variant="body">Date: {formatDisplayDate(dateKey)}</AppText>
+        <AppText variant="body">
+          {t('apps.medication.ui.dateLabel', { date: formatDisplayDate(dateKey) })}
+        </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={4} title="Notes (optional)" theme={theme}>
+      <MiniAppCard index={4} title={t('apps.medication.ui.notesOptional')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
-          placeholder="With food, side effects…"
+          placeholder={t('apps.medication.ui.notesPlaceholderLog')}
           multiline
         />
       </MiniAppCard>
 
       <MiniAppCta
-        label={existingLog && !isAsNeeded ? 'Update dose log' : 'Mark as taken'}
+        label={
+          existingLog && !isAsNeeded
+            ? t('apps.medication.ui.updateDoseLog')
+            : t('apps.medication.ui.markTaken')
+        }
         accent={theme.color}
         soft={theme.backgroundColor}
         index={5}
@@ -246,7 +255,7 @@ export default function MedicationLogScreen() {
 
       {existingLog && !isAsNeeded ? (
         <MiniAppCta
-          label="Remove this dose log"
+          label={t('apps.medication.ui.removeDoseLog')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary

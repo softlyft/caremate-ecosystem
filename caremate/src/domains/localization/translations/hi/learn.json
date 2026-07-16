@@ -1,0 +1,28 @@
+{
+  "title": "जानें",
+  "subtitle": "आपकी यात्रा के लिए चुने गए विश्वसनीय स्वास्थ्य मार्गदर्शन और समाचार",
+  "articleCount": "{{count}} लेख",
+  "searchPlaceholder": "लेख खोजें",
+  "bookmarks": "बुकमार्क देखें",
+  "featured": "विशेष",
+  "allTopics": "सभी विषय",
+  "loading": "लेख लोड हो रहे हैं...",
+  "empty": {
+    "title": "कोई लेख नहीं मिला",
+    "categoryTitle": "कोई {{category}} लेख नहीं",
+    "message": "दूसरी खोज या श्रेणी आज़माएँ।"
+  },
+  "bookmarksTitle": "बुकमार्क",
+  "bookmarksEmpty": {
+    "title": "अभी कोई बुकमार्क नहीं",
+    "message": "बाद में ऑफ़लाइन पढ़ने के लिए लेख सहेजें।"
+  },
+  "article": "लेख",
+  "news": "समाचार",
+  "backToLearn": "जानें पर वापस जाएँ",
+  "goBack": "वापस जाएँ",
+  "notFound": {
+    "title": "लेख नहीं मिला",
+    "message": "यह लेख हटाया गया हो सकता है।"
+  }
+}

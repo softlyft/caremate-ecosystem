@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
 import { joinFullName } from '@/domains/emergency/constants';
 import { resolvePostSignupHref } from '@/domains/onboarding';
@@ -29,6 +30,7 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
   const signUp = useAuthStore((state) => state.signUp);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -56,23 +58,20 @@ export default function RegisterScreen() {
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
-      const raw = error instanceof Error ? error.message : 'Unable to create account';
+      const raw = error instanceof Error ? error.message : t('auth.register.error');
       const message =
         /Unable to resolve host|UnknownHostException|Network request failed|Failed to fetch/i.test(
           raw,
         )
           ? 'No internet connection. Check device/emulator network and try again.'
           : raw;
-      Alert.alert('Registration failed', message);
+      Alert.alert(t('auth.register.error'), message);
     }
   }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle
-        title="Create account"
-        subtitle="Set up your CareMate profile in a few steps."
-      />
+      <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
       <View style={styles.form}>
         <View style={styles.nameRow}>
           <View style={styles.nameField}>
@@ -82,7 +81,7 @@ export default function RegisterScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   autoCapitalize="words"
-                  placeholder="First name"
+                  placeholder={t('auth.register.fullNamePlaceholder')}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -97,7 +96,7 @@ export default function RegisterScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   autoCapitalize="words"
-                  placeholder="Last name"
+                  placeholder={t('auth.register.fullNamePlaceholder')}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -113,7 +112,7 @@ export default function RegisterScreen() {
             <Input
               autoCapitalize="none"
               keyboardType="phone-pad"
-              placeholder="Phone number"
+              placeholder={t('emergency.edit.contactPhone')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -127,7 +126,7 @@ export default function RegisterScreen() {
             <Input
               autoCapitalize="none"
               keyboardType="email-address"
-              placeholder="Email"
+              placeholder={t('auth.register.email')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -140,7 +139,7 @@ export default function RegisterScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               secureTextEntry
-              placeholder="Password"
+              placeholder={t('auth.register.password')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -161,12 +160,14 @@ export default function RegisterScreen() {
           </AppText>
         ) : null}
         <Button
-          label={isLoading ? 'Creating account...' : 'Create Account'}
+          label={isLoading ? t('common.loading') : t('auth.register.submit')}
           disabled={isLoading}
           onPress={handleSubmit(onSubmit)}
         />
         <Link href="/(auth)/login">
-          <AppText variant="seeAll">Already have an account? Sign in</AppText>
+          <AppText variant="seeAll">
+            {t('auth.register.hasAccount')} {t('auth.register.signIn')}
+          </AppText>
         </Link>
       </View>
     </SafeAreaView>

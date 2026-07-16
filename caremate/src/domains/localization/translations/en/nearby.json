@@ -1,0 +1,51 @@
+{
+  "title": "Nearby",
+  "subtitle": "Find hospitals, clinics, pharmacies, and more around you",
+  "nearbyCount": "{{count}} nearby",
+  "searchPlaceholder": "Search providers",
+  "loading": "Loading providers...",
+  "empty": {
+    "title": "No providers nearby",
+    "message": "Try another filter or widen your search.",
+    "offline": "Showing cached providers while offline."
+  },
+  "approximate": "Using approximate location",
+  "outsideArea": "Outside your usual area — results may be limited",
+  "detail": {
+    "loading": "Loading provider...",
+    "notFound": "Provider not found",
+    "unavailable": "Details unavailable",
+    "provider": "Provider",
+    "backToNearby": "Back to Nearby",
+    "verified": "Verified",
+    "contact": "Contact",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "addressUnavailable": "Address unavailable",
+    "phoneUnavailable": "Phone unavailable",
+    "emailUnavailable": "Email unavailable",
+    "distanceKm": "{{distance}} km away",
+    "favorite": "Save favorite",
+    "unfavorite": "Remove favorite",
+    "call": "Call",
+    "directions": "Get directions"
+  },
+  "map": {
+    "loading": "Loading map data...",
+    "empty": "No providers to display",
+    "title": "Nearby Providers",
+    "subtitle": "Native map integration can be added with react-native-maps. This screen lists nearby provider coordinates from the geo API (or local cache offline)."
+  },
+  "types": {
+    "hospital": "Hospital",
+    "pharmacy": "Pharmacy",
+    "laboratory": "Laboratory",
+    "clinic": "Clinic",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Blood bank",
+    "ambulance": "Ambulance",
+    "dentist": "Dentist",
+    "mental_health": "Mental health"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Nso",
+  "subtitle": "Chọta ụlọ ọgwụ, ụlọ ọgwụ nta, ụlọ ahịa ọgwụ, na ihe ndị ọzọ gburugburu gị",
+  "nearbyCount": "{{count}} nso",
+  "searchPlaceholder": "Chọọ ndị na-enye",
+  "loading": "Na-ebu ndị na-enye...",
+  "empty": {
+    "title": "Enweghị ndị na-enye nso",
+    "message": "Nwaa nzacha ọzọ ma ọ bụ gbasaa ọchụchọ gị.",
+    "offline": "Na-egosi ndị na-enye echekwara mgbe ị nọghị n'ịntanetị."
+  },
+  "approximate": "Na-eji ebe dị nso",
+  "outsideArea": "N'èzí mpaghara gị nkịtị — nsonaazụ nwere ike ịdị obere",
+  "detail": {
+    "loading": "Na-ebu onye na-enye...",
+    "notFound": "Ahụghị onye na-enye",
+    "unavailable": "Nkọwa adịghị",
+    "favorite": "Chekwaa ọkacha mmasị",
+    "unfavorite": "Wepụ ọkacha mmasị",
+    "call": "Kpọọ",
+    "directions": "Ụzọ"
+  },
+  "map": {
+    "loading": "Na-ebu maapụ...",
+    "empty": "Enweghị ebe maapụ"
+  },
+  "types": {
+    "hospital": "Ụlọ ọgwụ",
+    "pharmacy": "Ụlọ ahịa ọgwụ",
+    "laboratory": "Laboratory",
+    "clinic": "Ụlọ ọgwụ nta",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Ụlọ akụ ọbara",
+    "ambulance": "Ambulans"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Àwọn áàpù",
+  "subtitle": "Àwọn irinṣẹ́ ìlera ara ẹni tí ó ń ṣiṣẹ́ láìsí ayélujára",
+  "readyCount": "Irinṣẹ́ {{count}} ti ṣetan",
+  "comingSoon": "Ń bọ̀ láìpẹ́",
+  "registry": {
+    "medication-tracker": {
+      "name": "Atọpinpin Òògùn",
+      "description": "Tọpinpin àwọn òògùn, ìwọ̀n ojoojúmọ́, àti ìmúṣẹ fún ọ tàbí ẹbí rẹ."
+    },
+    "checkup-planner": {
+      "name": "Olùṣètò Àyẹ̀wò",
+      "description": "Wo àwọn àyẹ̀wò ìwòsàn tí a dábàá nípa ọjọ́ orí, akọ/abo, àti agbègbè."
+    },
+    "immunization-tracker": {
+      "name": "Atọpinpin Àjẹsára",
+      "description": "Tọpinpin àwọn àjẹsára, ọjọ́ tí ó yẹ, àti àkọsílẹ̀ àjẹsára ọmọ rẹ."
+    },
+    "pregnancy-tracker": {
+      "name": "Atọpinpin Oyún",
+      "description": "Tẹ̀lé oyún rẹ ọ̀sẹ̀-ọ̀sẹ̀, ṣàkọsílẹ̀ àwọn ààmì, kí o sì tọpinpin àwọn ìgbésẹ̀ pàtàkì."
+    },
+    "period-tracker": {
+      "name": "Atọpinpin Nǹkan Oṣù",
+      "description": "Tọpinpin àwọn ìyípo, ṣàkọsílẹ̀ ọjọ́ nǹkan oṣù, kí o sì rí àwọn àsọtẹ́lẹ̀ tó rọrùn."
+    }
+  },
+  "signInRequired": "Wọlé láti ṣàmúisọpọ̀ irinṣẹ́ yìí káàkiri àwọn ẹ̀rọ",
+  "save": "Fi pamọ́",
+  "log": "Ṣàkọsílẹ̀",
+  "setup": "Ṣètò"
+}

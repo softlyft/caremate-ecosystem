@@ -16,14 +16,14 @@ import {
   FeaturedArticleCard,
 } from '@/domains/articles/components/ArticleCards';
 import { articleRepository } from '@/domains/articles/repository';
-import { profileRepository } from '@/domains/profile/repository';
+import { useTranslation } from '@/domains/localization';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
 import {
   HealthCategoriesRow,
   type HealthCategoryId,
 } from '@/features/home/components/HealthCategoriesRow';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
-import { useDeviceDefaults } from '@/hooks/use-device-defaults';
+import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
@@ -37,6 +37,7 @@ function parseCategoryParam(value: string | string[] | undefined): HealthCategor
 }
 
 export default function ArticlesTabScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { category: categoryParam, q: queryParam } = useLocalSearchParams<{
     category?: string;
@@ -61,16 +62,7 @@ export default function ArticlesTabScreen() {
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
   const queryClient = useQueryClient();
-  const deviceDefaultsQuery = useDeviceDefaults();
-
-  const profileQuery = useQuery({
-    queryKey: [...QUERY_KEYS.profile, userId],
-    queryFn: () => profileRepository.findByUserId(userId),
-    enabled: !isGuest,
-  });
-  const countryCode = isGuest
-    ? (deviceDefaultsQuery.data?.countryCode ?? null)
-    : (profileQuery.data?.countryCode ?? null);
+  const { countryCode, languageCode, isReady: localizationReady } = useLocalizationPreferences();
 
   const articlesQuery = useQuery({
     queryKey: [...QUERY_KEYS.articles, search, userKey, selectedCategoryId ?? 'all'],
@@ -89,8 +81,8 @@ export default function ArticlesTabScreen() {
     async function refreshRemoteNews() {
       try {
         await articleRepository.refreshTrendingInBackground({
-          isGuest,
           countryCode,
+          languageCode,
         });
         if (!cancelled) {
           await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.articles });
@@ -101,14 +93,14 @@ export default function ArticlesTabScreen() {
       }
     }
 
-    if ((isGuest && deviceDefaultsQuery.isFetched) || (!isGuest && profileQuery.isFetched)) {
+    if (localizationReady) {
       void refreshRemoteNews();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [countryCode, deviceDefaultsQuery.isFetched, isGuest, profileQuery.isFetched, queryClient]);
+  }, [countryCode, languageCode, localizationReady, queryClient]);
 
   const articles = useMemo(() => articlesQuery.data ?? [], [articlesQuery.data]);
 
@@ -135,7 +127,7 @@ export default function ArticlesTabScreen() {
   if (articlesQuery.isLoading) {
     return (
       <View style={styles.screen}>
-        <LoadingState title="Loading articles..." />
+        <LoadingState title={t('learn.loading')} />
       </View>
     );
   }
@@ -164,14 +156,14 @@ export default function ArticlesTabScreen() {
                 <View style={styles.heroBadge}>
                   <BookOpen color={palette.primary} size={15} strokeWidth={2.25} />
                   <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
-                    {articles.length} articles
+                    {t('learn.articleCount', { count: articles.length })}
                   </AppText>
                 </View>
                 <AppText variant="screenTitle" style={styles.title}>
-                  Learn
+                  {t('learn.title')}
                 </AppText>
                 <AppText variant="subtitle" style={styles.subtitle}>
-                  Trusted health guidance and news curated for your journey
+                  {t('learn.subtitle')}
                 </AppText>
               </View>
             </AnimatedSection>
@@ -184,7 +176,7 @@ export default function ArticlesTabScreen() {
               </View>
               <TextInput
                 style={styles.searchInput}
-                placeholder="Search articles"
+                placeholder={t('learn.searchPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 value={search}
                 onChangeText={setSearch}
@@ -207,13 +199,13 @@ export default function ArticlesTabScreen() {
               onPress={() => router.push('/(app)/articles/bookmarks')}
             >
               <Bookmark color={palette.primary} size={16} strokeWidth={2.25} />
-              <AppText variant="seeAll">View bookmarks</AppText>
+              <AppText variant="seeAll">{t('learn.bookmarks')}</AppText>
             </PressableScale>
 
             {featured ? (
               <View style={styles.featuredWrap}>
                 <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-                  Featured
+                  {t('learn.featured')}
                 </AppText>
                 <FeaturedArticleCard article={featured} />
               </View>
@@ -221,15 +213,19 @@ export default function ArticlesTabScreen() {
 
             {rest.length > 0 ? (
               <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-                {selectedName ? selectedName : 'All topics'}
+                {selectedName ? selectedName : t('learn.allTopics')}
               </AppText>
             ) : null}
           </View>
         }
         ListEmptyComponent={
           <EmptyState
-            title={selectedName ? `No ${selectedName} articles` : 'No articles found'}
-            message="Try another search or category."
+            title={
+              selectedName
+                ? t('learn.empty.categoryTitle', { category: selectedName })
+                : t('learn.empty.title')
+            }
+            message={t('learn.empty.message')}
           />
         }
         renderItem={({ item }) => <CompactArticleCard article={item} />}

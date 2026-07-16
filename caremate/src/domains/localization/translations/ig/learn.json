@@ -1,0 +1,28 @@
+{
+  "title": "Mụta",
+  "subtitle": "Nduzi ahụike a tụkwasịrị obi na akụkọ ahaziri maka njem gị",
+  "articleCount": "Edemede {{count}}",
+  "searchPlaceholder": "Chọọ edemede",
+  "bookmarks": "Lee akara akwụkwọ",
+  "featured": "Pụtara ìhè",
+  "allTopics": "Isiokwu niile",
+  "loading": "Na-ebu edemede...",
+  "empty": {
+    "title": "Ahụghị edemede ọ bụla",
+    "categoryTitle": "Enweghị edemede {{category}}",
+    "message": "Nwaa ọchụchọ ọzọ ma ọ bụ udi ọzọ."
+  },
+  "bookmarksTitle": "Akara akwụkwọ",
+  "bookmarksEmpty": {
+    "title": "Enweghị akara akwụkwọ ma",
+    "message": "Chekwaa edemede ka ị gụọ ha na-enweghị ịntanetị ma emechaa."
+  },
+  "article": "Edemede",
+  "news": "Akụkọ",
+  "backToLearn": "Laghachi na Mụta",
+  "goBack": "Laghachi azụ",
+  "notFound": {
+    "title": "Ahụghị edemede ahụ",
+    "message": "Enwere ike ewepụla edemede a."
+  }
+}

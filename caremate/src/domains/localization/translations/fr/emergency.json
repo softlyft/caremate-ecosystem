@@ -1,0 +1,40 @@
+{
+  "title": "Urgence",
+  "loading": "Chargement du profil d'urgence...",
+  "empty": {
+    "title": "Pas encore de profil d'urgence",
+    "message": "Ajoutez groupe sanguin, allergies et contacts ICE pour les secours.",
+    "cta": "Créer un profil"
+  },
+  "fields": {
+    "fullName": "Nom complet",
+    "bloodGroup": "Groupe sanguin",
+    "genotype": "Génotype",
+    "allergies": "Allergies",
+    "medications": "Médicaments actuels",
+    "conditions": "Maladies chroniques",
+    "contacts": "Contacts d'urgence",
+    "hospital": "Hôpital préféré",
+    "insurance": "Assureur",
+    "notes": "Notes"
+  },
+  "edit": {
+    "title": "Modifier le profil d'urgence",
+    "save": "Enregistrer le profil",
+    "addContact": "Ajouter un contact",
+    "contactName": "Nom du contact",
+    "contactPhone": "Téléphone",
+    "relationship": "Lien de parenté"
+  },
+  "qr": {
+    "title": "QR d'urgence",
+    "empty": "Créez d'abord un profil d'urgence"
+  },
+  "lock": {
+    "title": "Carte d'urgence",
+    "call": "Appeler ICE",
+    "help": "Montrez cette carte si vous ne pouvez pas parler."
+  },
+  "widget": "Mettre à jour le widget d'écran de verrouillage",
+  "preview": "Aperçu de l'écran de verrouillage"
+}

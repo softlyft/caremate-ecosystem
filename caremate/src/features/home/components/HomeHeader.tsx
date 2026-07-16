@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
+import { useTranslation } from '@/domains/localization';
 import { getGreeting } from '@/features/home/constants';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -18,9 +19,17 @@ type HomeHeaderProps = {
 };
 
 export function HomeHeader({ firstName }: HomeHeaderProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const name = firstName?.trim();
-  const greeting = name ? `${getGreeting()}, ${name}` : getGreeting();
+  const greetingBase = getGreeting({
+    morning: t('home.greeting.morning'),
+    afternoon: t('home.greeting.afternoon'),
+    evening: t('home.greeting.evening'),
+  });
+  const greeting = name
+    ? t('home.greetingNamed', { greeting: greetingBase, name })
+    : greetingBase;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
@@ -34,7 +43,10 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
           contentFit="contain"
           contentPosition="left center"
         />
-        <PressableScale style={styles.notificationButton} accessibilityLabel="Notifications">
+        <PressableScale
+          style={styles.notificationButton}
+          accessibilityLabel={t('common.notifications')}
+        >
           <Bell color={palette.text} size={22} strokeWidth={2} />
           <View style={styles.unreadDot} />
         </PressableScale>
@@ -45,7 +57,7 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
           {`${greeting} 👋`}
         </AppText>
         <AppText variant="subtitle" style={styles.subtitle}>
-          Your health journey, beautifully organized
+          {t('home.tagline')}
         </AppText>
       </Animated.View>
     </View>

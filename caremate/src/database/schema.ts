@@ -16,6 +16,7 @@ export const profiles = sqliteTable('profiles', {
   dateOfBirth: text('date_of_birth'),
   avatarUrl: text('avatar_url'),
   countryCode: text('country_code'),
+  languageCode: text('language_code'),
   state: text('state'),
   patientId: text('patient_id'),
   ...syncColumns,

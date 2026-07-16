@@ -1,0 +1,36 @@
+{
+  "title": "Mimi",
+  "guest": {
+    "title": "Unatazama kama mgeni",
+    "subtitle": "Ingia ili kusawazisha wasifu wa dharura, familia, na mapendeleo kati ya vifaa.",
+    "signIn": "Ingia",
+    "createAccount": "Fungua akaunti"
+  },
+  "finishSetup": "Maliza usanidi",
+  "account": "Akaunti",
+  "preferences": "Mapendeleo",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Wasifu wa dharura",
+    "family": "Familia",
+    "settings": "Mipangilio"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Inapakia mipango...",
+    "personal": "Binafsi",
+    "family": "Familia",
+    "monthly": "Kila mwezi",
+    "yearly": "Kila mwaka",
+    "guestCta": "Ingia ili kujisajili",
+    "error": "Haikuweza kuanza malipo"
+  },
+  "patientId": {
+    "title": "Kitambulisho cha Mgonjwa cha CareMate",
+    "generate": "Tengeneza kitambulisho kwangu",
+    "copy": "Nakili",
+    "fallbackName": "Mwanachama"
+  },
+  "signOut": "Toka",
+  "biometrics": "Fungua kwa biometrics"
+}

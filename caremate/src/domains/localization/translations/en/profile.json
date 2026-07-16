@@ -1,0 +1,51 @@
+{
+  "title": "Me",
+  "guest": {
+    "title": "You're browsing as a guest",
+    "subtitle": "Sign in to sync emergency profile, family, and preferences across devices.",
+    "signIn": "Sign in",
+    "createAccount": "Create account"
+  },
+  "finishSetup": "Finish setup",
+  "account": "Account",
+  "preferences": "Preferences",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Emergency profile",
+    "family": "Family",
+    "settings": "Settings"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Loading Premium...",
+    "eyebrow": "CareMate Premium",
+    "heroTitle": "Unlock more for your care",
+    "heroSubtitle": "Free forever for core features. Premium Personal and Family unlock upcoming tools.",
+    "yourPlan": "Your plan",
+    "choosePlan": "Choose plan",
+    "pay": "Pay",
+    "personal": "Personal",
+    "family": "Family",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "guestCta": "Sign in to subscribe",
+    "signInToUpgrade": "Sign in to upgrade",
+    "noHousehold": "No household yet.",
+    "setUpFamily": "Set up family",
+    "familyRequired": "Set up a family household before buying Family Premium.",
+    "noPrices": "No active prices for this selection. Ask an admin to configure billing in the portal.",
+    "checkoutFailed": "Checkout failed",
+    "loadFailed": "Failed to load billing",
+    "refresh": "Refresh status",
+    "renews": "Renews / ends {{date}}",
+    "error": "Could not start checkout"
+  },
+  "patientId": {
+    "title": "CareMate Patient ID",
+    "generate": "Generate ID for me",
+    "copy": "Copy",
+    "fallbackName": "Member"
+  },
+  "signOut": "Sign out",
+  "biometrics": "Unlock with biometrics"
+}

@@ -1,0 +1,35 @@
+{
+  "title": "Ezinụlọ",
+  "subtitle": "Profaịlụ ezinụlọ na nlekọta ụmụaka ekekọrịtara",
+  "loading": "Na-ebu ezinụlọ...",
+  "setup": {
+    "title": "Hazie nlekọta ezinụlọ?",
+    "subtitle": "Tinye ụmụaka ma jikọọ di/nwunye ka ngwaọrụ nlekọta nọrọ n'usoro.",
+    "yes": "Ee, hazie",
+    "notNow": "Ọ bụghị ugbu a"
+  },
+  "kidsCount": {
+    "title": "Ụmụaka ole?",
+    "placeholder": "Ọnụọgụ ụmụaka"
+  },
+  "child": {
+    "title": "Nwa {{index}}",
+    "name": "Aha zuru ezu",
+    "dob": "Ụbọchị ọmụmụ",
+    "gender": "Okike"
+  },
+  "review": {
+    "title": "Nyochaa ezinụlọ",
+    "save": "Chekwaa ezinụlọ",
+    "back": "Laghachi"
+  },
+  "requests": {
+    "title": "Arịrịọ njikọ",
+    "accept": "Nabata",
+    "decline": "Jụ",
+    "empty": "Enweghị arịrịọ na-echere"
+  },
+  "invite": "Kpọọ di/nwunye",
+  "addChild": "Tinye nwa",
+  "searchPlaceholder": "Chọọ site na ID Onye Ọrịa ma ọ bụ email"
+}

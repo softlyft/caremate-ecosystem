@@ -1,5 +1,5 @@
 import { config } from '@/constants/env';
-import { INTERNATIONAL_COUNTRY_CODE } from '@/constants/locations';
+import { localizationService } from '@/domains/localization';
 
 export interface CurrentsNewsItem {
   id: string;
@@ -40,16 +40,17 @@ function normalizeNews(items: CurrentsNewsItem[], limit: number): CurrentsNewsIt
 async function searchHealthNews(
   limit: number,
   countryCode?: string | null,
+  languageCode: 'en' | 'fr' | 'es' = 'en',
 ): Promise<CurrentsNewsItem[]> {
   const params = new URLSearchParams({
     category: 'health',
-    language: 'en',
+    language: languageCode,
   });
 
   // Currents often returns an empty list for `INT` and many country codes (including NG).
   // Only send `country` for concrete ISO codes; omit it for international/global results.
   const normalized = countryCode?.trim().toUpperCase();
-  if (normalized && normalized !== INTERNATIONAL_COUNTRY_CODE) {
+  if (normalized && normalized !== localizationService.internationalCountryCode) {
     params.set('country', normalized);
   }
 
@@ -79,20 +80,21 @@ export const currentsService = {
   async fetchHealthNews(
     limit = 10,
     countryCode = config.currentsCountry,
+    languageCode: 'en' | 'fr' | 'es' = 'en',
   ): Promise<CurrentsNewsItem[]> {
     if (!config.isCurrentsConfigured) {
       return [];
     }
 
-    const primary = await searchHealthNews(limit, countryCode);
+    const primary = await searchHealthNews(limit, countryCode, languageCode);
     if (primary.length > 0) {
       return primary;
     }
 
     // Country-scoped health feeds are frequently empty — fall back to global English health news.
     const normalized = countryCode?.trim().toUpperCase();
-    if (normalized && normalized !== INTERNATIONAL_COUNTRY_CODE) {
-      return searchHealthNews(limit, INTERNATIONAL_COUNTRY_CODE);
+    if (normalized && normalized !== localizationService.internationalCountryCode) {
+      return searchHealthNews(limit, localizationService.internationalCountryCode, languageCode);
     }
 
     return [];

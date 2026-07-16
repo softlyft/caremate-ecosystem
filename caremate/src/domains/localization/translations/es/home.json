@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "Buenos días",
+    "afternoon": "Buenas tardes",
+    "evening": "Buenas noches"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "Tu camino de salud, claramente organizado",
+  "emergency": {
+    "title": "Perfil de emergencia",
+    "body": "Ten listos el grupo sanguíneo, alergias y contactos ICE sin conexión.",
+    "cta": "Configurar"
+  },
+  "featuredArticles": {
+    "title": "Para ti",
+    "subtitle": "Historias y consejos de salud de confianza"
+  },
+  "healthCategories": {
+    "title": "Explorar temas",
+    "subtitle": "Encuentra orientación por área de salud"
+  },
+  "nearby": {
+    "title": "Atención cercana",
+    "subtitle": "Hospitales, clínicas y farmacias a tu alrededor"
+  },
+  "dailyTip": {
+    "label": "Idea del día"
+  },
+  "searchA11y": "Buscar en CareMate",
+  "quickActions": {
+    "emergency": {
+      "title": "Emergencia",
+      "subtitle": "Tarjeta de salud sin conexión"
+    },
+    "nearby": {
+      "title": "Cerca",
+      "subtitle": "Encuentra atención cerca"
+    },
+    "symptoms": {
+      "title": "Aprender",
+      "subtitle": "Artículos de salud"
+    },
+    "medication": {
+      "title": "Medicamentos",
+      "subtitle": "Seguir dosis"
+    }
+  },
+  "providerTypes": {
+    "hospital": "Hospitales",
+    "pharmacy": "Farmacias",
+    "laboratory": "Laboratorios",
+    "clinic": "Clínicas",
+    "telemedicine": "Telemedicina",
+    "blood_bank": "Bancos de sangre",
+    "ambulance": "Ambulancia"
+  }
+}

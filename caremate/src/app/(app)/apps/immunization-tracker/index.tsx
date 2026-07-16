@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
+import { useTranslation } from '@/domains/localization';
 import { useFamilyImmunizationChildren } from '@/mini-apps/immunization-tracker/use-family-children';
 import {
   useActiveImmunizationProfile,
@@ -15,9 +16,10 @@ import {
   formatDisplayDate,
   getAgeLabel,
   getScheduleSummary,
-  getStatusLabel,
   VaccineStatus,
 } from '@/mini-apps/immunization-tracker/utils';
+import { localizeVaccine, localizeVaccineStatus } from '@/mini-apps/immunization-tracker/localize';
+import { pluralKey } from '@/mini-apps/_kit/i18n';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -48,6 +50,7 @@ const STATUS_BACKGROUNDS: Record<VaccineStatus, string> = {
 };
 
 export default function ImmunizationTrackerScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const familySource = useFamilyImmunizationChildren();
@@ -63,7 +66,7 @@ export default function ImmunizationTrackerScreen() {
   const hasProfile = Boolean(profile);
 
   if (familySource.status === 'loading') {
-    return <LoadingState title="Loading children from your family…" />;
+    return <LoadingState title={t('apps.immunizationTracker.loading')} />;
   }
 
   if (familySource.status === 'guest') {
@@ -71,12 +74,12 @@ export default function ImmunizationTrackerScreen() {
       <MiniAppScreen>
         <MiniAppHero
           appId={APP_ID}
-          eyebrow="Immunization"
-          title="Sign in required"
-          subtitle="Immunization tracking uses children from your CareMate family profile."
+          eyebrow={t('apps.immunizationTracker.eyebrow')}
+          title={t('apps.signInRequiredTitle')}
+          subtitle={t('apps.immunizationTracker.signInSubtitle')}
         />
         <MiniAppCta
-          label="Sign in"
+          label={t('common.signIn')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.push('/(auth)/login')}
@@ -91,16 +94,16 @@ export default function ImmunizationTrackerScreen() {
       <MiniAppScreen>
         <MiniAppHero
           appId={APP_ID}
-          eyebrow="Immunization"
-          title={needsSetup ? 'Set up your family first' : 'Add children in Family'}
+          eyebrow={t('apps.immunizationTracker.eyebrow')}
+          title={needsSetup ? t('apps.setUpFamilyFirst') : t('apps.addChildren')}
           subtitle={
             needsSetup
-              ? 'Create your family profile and add kids with date of birth. Then their vaccine schedule will appear here.'
-              : 'Your household has no children with a date of birth yet. Add kids in Family to start tracking vaccines.'
+              ? t('apps.immunizationTracker.needsFamilySubtitle')
+              : t('apps.immunizationTracker.needsChildrenSubtitle')
           }
         />
         <MiniAppCta
-          label={needsSetup ? 'Set up family' : 'Open family'}
+          label={needsSetup ? t('apps.setUpFamily') : t('apps.openFamily')}
           accent={theme.color}
           soft={theme.backgroundColor}
           onPress={() => router.push(needsSetup ? '/(app)/family/setup' : '/(app)/family')}
@@ -111,27 +114,38 @@ export default function ImmunizationTrackerScreen() {
 
   const heroSubtitle = hasProfile
     ? summary.overdue > 0
-      ? `${summary.overdue} vaccine${summary.overdue === 1 ? '' : 's'} overdue — schedule a visit`
+      ? t(pluralKey('apps.immunization.ui.overdueVisit', summary.overdue), { count: summary.overdue })
       : summary.nextDue
-        ? `Next: ${summary.nextDue.vaccine.name} (${summary.nextDue.vaccine.doseLabel})`
-        : 'All scheduled vaccines are up to date'
-    : 'Select a child to see their recommended vaccine schedule';
+        ? t('apps.immunization.ui.nextDue', {
+            name: localizeVaccine(summary.nextDue.vaccine, t).name,
+            dose: localizeVaccine(summary.nextDue.vaccine, t).doseLabel,
+          })
+        : t('apps.immunization.ui.allUpToDate')
+    : t('apps.immunization.ui.selectChild');
 
   return (
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow={hasProfile ? profile!.name : 'Immunization'}
+        eyebrow={hasProfile ? profile!.name : t('apps.immunizationTracker.eyebrow')}
         title={
           hasProfile
-            ? `${summary.completed} of ${summary.total} vaccines completed`
-            : 'Track immunizations'
+            ? t('apps.immunization.ui.vaccinesCompleted', {
+                completed: summary.completed,
+                total: summary.total,
+              })
+            : t('apps.immunizationTracker.emptyTitle')
         }
         subtitle={heroSubtitle}
       />
 
       {profiles.length > 0 ? (
-        <MiniAppCard index={1} title="Children" eyebrow="Family" theme={theme}>
+        <MiniAppCard
+          index={1}
+          title={t('apps.immunization.ui.children')}
+          eyebrow={t('apps.immunization.ui.family')}
+          theme={theme}
+        >
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -149,10 +163,10 @@ export default function ImmunizationTrackerScreen() {
             ))}
           </ScrollView>
           <AppText variant="caption" style={styles.muted}>
-            Children come from your Family profile.
+            {t('apps.immunization.ui.childrenFromFamilyCaption')}
           </AppText>
           <MiniAppCta
-            label="Manage in Family"
+            label={t('apps.manageInFamily')}
             accent={theme.color}
             soft={theme.backgroundColor}
             secondary
@@ -163,21 +177,28 @@ export default function ImmunizationTrackerScreen() {
       ) : null}
 
       {hasProfile && profile ? (
-        <MiniAppCard index={3} title="Profile" eyebrow="Details" theme={theme}>
+        <MiniAppCard
+          index={3}
+          title={t('apps.immunization.ui.profile')}
+          eyebrow={t('apps.immunization.ui.details')}
+          theme={theme}
+        >
           <MiniAppRow
-            title="Date of birth"
+            title={t('apps.immunization.ui.dob')}
             subtitle={formatDisplayDate(profile.dateOfBirth)}
             soft={theme.backgroundColor}
           />
           <MiniAppRow
-            title="Age"
+            title={t('apps.immunization.ui.age')}
             subtitle={getAgeLabel(profile.dateOfBirth, today)}
             soft={theme.backgroundColor}
           />
           <MiniAppProgress
             progress={summary.progress}
             accent={theme.color}
-            label={`${Math.round(summary.progress * 100)}% complete`}
+            label={t('apps.immunization.ui.percentComplete', {
+              percent: Math.round(summary.progress * 100),
+            })}
           />
         </MiniAppCard>
       ) : null}
@@ -185,29 +206,38 @@ export default function ImmunizationTrackerScreen() {
       {hasProfile && summary.nextDue ? (
         <MiniAppCard
           index={4}
-          title="Attention needed"
-          eyebrow="Next up"
+          title={t('apps.immunization.ui.attention')}
+          eyebrow={t('apps.immunization.ui.nextUp')}
           theme={theme}
           style={styles.nextDueCard}
         >
           <AppText variant="body" style={styles.nextDueTitle}>
-            {summary.nextDue.vaccine.name} · {summary.nextDue.vaccine.doseLabel}
+            {localizeVaccine(summary.nextDue.vaccine, t).name} ·{' '}
+            {localizeVaccine(summary.nextDue.vaccine, t).doseLabel}
           </AppText>
           <AppText variant="caption" style={styles.muted}>
-            Recommended by {formatDisplayDate(summary.nextDue.recommendedDate)}
+            {t('apps.immunization.ui.recommendedBy', {
+              date: formatDisplayDate(summary.nextDue.recommendedDate),
+            })}
             {summary.nextDue.status === 'overdue'
-              ? ` · ${Math.abs(summary.nextDue.daysUntilDue)} day${Math.abs(summary.nextDue.daysUntilDue) === 1 ? '' : 's'} overdue`
+              ? ` · ${t(
+                  pluralKey('apps.immunization.ui.daysOverdue', Math.abs(summary.nextDue.daysUntilDue)),
+                  { count: Math.abs(summary.nextDue.daysUntilDue) },
+                )}`
               : summary.nextDue.daysUntilDue === 0
-                ? ' · Due today'
-                : ` · Due in ${summary.nextDue.daysUntilDue} day${summary.nextDue.daysUntilDue === 1 ? '' : 's'}`}
+                ? ` · ${t('apps.immunization.ui.dueToday')}`
+                : ` · ${t(
+                    pluralKey('apps.immunization.ui.dueInDays', summary.nextDue.daysUntilDue),
+                    { count: summary.nextDue.daysUntilDue },
+                  )}`}
           </AppText>
           <StatusPill
-            label={getStatusLabel(summary.nextDue.status)}
+            label={localizeVaccineStatus(summary.nextDue.status, t)}
             color={STATUS_COLORS[summary.nextDue.status]}
             background={STATUS_BACKGROUNDS[summary.nextDue.status]}
           />
           <MiniAppCta
-            label="Log this vaccine"
+            label={t('apps.immunizationTracker.logVaccine')}
             accent={theme.color}
             soft={theme.backgroundColor}
             index={5}
@@ -222,15 +252,24 @@ export default function ImmunizationTrackerScreen() {
       ) : null}
 
       {hasProfile ? (
-        <MiniAppCard index={6} title="Vaccine schedule" eyebrow="Timeline" theme={theme}>
+        <MiniAppCard
+          index={6}
+          title={t('apps.immunization.ui.scheduleTitle')}
+          eyebrow={t('apps.immunization.ui.timeline')}
+          theme={theme}
+        >
           {schedule.map((item) => (
             <MiniAppRow
               key={item.vaccine.id}
-              title={`${item.vaccine.name} · ${item.vaccine.doseLabel}`}
+              title={`${localizeVaccine(item.vaccine, t).name} · ${localizeVaccine(item.vaccine, t).doseLabel}`}
               subtitle={
                 item.status === 'completed' && item.record
-                  ? `Given ${formatDisplayDate(item.record.administeredDate)}`
-                  : `Due ${formatDisplayDate(item.recommendedDate)}`
+                  ? t('apps.immunization.ui.givenOn', {
+                      date: formatDisplayDate(item.record.administeredDate),
+                    })
+                  : t('apps.immunization.ui.dueOn', {
+                      date: formatDisplayDate(item.recommendedDate),
+                    })
               }
               soft={STATUS_BACKGROUNDS[item.status]}
               onPress={() =>
@@ -241,7 +280,7 @@ export default function ImmunizationTrackerScreen() {
               }
               trailing={
                 <StatusPill
-                  label={getStatusLabel(item.status)}
+                  label={localizeVaccineStatus(item.status, t)}
                   color={STATUS_COLORS[item.status]}
                   background={STATUS_BACKGROUNDS[item.status]}
                 />
@@ -253,7 +292,7 @@ export default function ImmunizationTrackerScreen() {
 
       {hasProfile ? (
         <MiniAppCta
-          label="Log vaccine"
+          label={t('apps.immunizationTracker.logVaccine')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary

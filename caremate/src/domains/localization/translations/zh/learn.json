@@ -1,0 +1,28 @@
+{
+  "title": "学习",
+  "subtitle": "为您的健康之旅精选的可信指导与资讯",
+  "articleCount": "{{count}} 篇文章",
+  "searchPlaceholder": "搜索文章",
+  "bookmarks": "查看收藏",
+  "featured": "精选",
+  "allTopics": "全部主题",
+  "loading": "正在加载文章...",
+  "empty": {
+    "title": "未找到文章",
+    "categoryTitle": "没有 {{category}} 相关文章",
+    "message": "请尝试其他搜索或分类。"
+  },
+  "bookmarksTitle": "收藏",
+  "bookmarksEmpty": {
+    "title": "暂无收藏",
+    "message": "保存文章以便之后离线阅读。"
+  },
+  "article": "文章",
+  "news": "资讯",
+  "backToLearn": "返回学习",
+  "goBack": "返回",
+  "notFound": {
+    "title": "未找到文章",
+    "message": "该文章可能已被移除。"
+  }
+}

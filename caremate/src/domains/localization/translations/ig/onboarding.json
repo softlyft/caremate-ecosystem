@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Nlekọta na-arụ ọrụ na-enweghị ịntanetị",
+    "subtitle": "Nhazi dị mkpirikpi ka Nso, akụkọ, na ngwaọrụ mberede dị mma site n'ụbọchị mbụ.",
+    "cta": "Ka anyị gaa",
+    "foot": "Malite site n'ịhọrọ obodo na asụsụ.",
+    "preview": {
+      "countryLanguage": "Obodo + asụsụ",
+      "priorities": "Ihe dị gị mkpa",
+      "news": "Akụkọ ahụike mpaghara",
+      "nearby": "Nlekọta nso"
+    }
+  },
+  "country": {
+    "title": "Obodo na asụsụ gị",
+    "subtitle": "Ndị a na-achịkwa ọdịnaya ahụike mpaghara na nhazi onwe n'ofe CareMate.",
+    "field": {
+      "country": "Obodo",
+      "language": "Asụsụ",
+      "state": "Steeti / mpaghara (nhọrọ)"
+    },
+    "statePlaceholder": "dịka Greater Accra"
+  },
+  "priorities": {
+    "title": "Gịnị ka dị mkpa nke ọma?",
+    "subtitle": "Pịa ihe ị na-eche banyere ya — anyị ga-eme ka usoro nhọrọ na-esote dabara.",
+    "continueSelected": "Gaa n'ihu · ahọpụtara {{count}}",
+    "emergency": {
+      "label": "Mberede",
+      "description": "Kaadị ahụike na-enweghị ịntanetị maka ndị na-enyere aka mbụ"
+    },
+    "nearby": {
+      "label": "Nlekọta nso",
+      "description": "Ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị"
+    },
+    "family": {
+      "label": "Ezinụlọ / ụmụaka",
+      "description": "Profaịlụ ezinụlọ na nlekọta ụmụaka ekekọrịtara"
+    },
+    "learn": {
+      "label": "Mụta",
+      "description": "Edemede ahụike a tụkwasịrị obi na ndụmọdụ"
+    }
+  },
+  "location": {
+    "title": "Chọta nlekọta nso",
+    "subtitle": "Jiri GPS ziri ezi maka nsonaazụ kacha mma, ma ọ bụ debe pin dabere na obodo.",
+    "enable": "Mee ka ebe rụọ ọrụ",
+    "checking": "Na-enyocha…",
+    "approximateCta": "Jiri ebe dị nso",
+    "precise": {
+      "title": "Ziri ezi",
+      "hint": "Nhazi kacha mma maka ụlọ ọgwụ na ụlọ ọgwụ nta gburugburu gị"
+    },
+    "approximate": {
+      "title": "Dị nso",
+      "hint": "Ndabere dabere na obodo — gbanwee mgbe ọ bụla"
+    }
+  },
+  "notifications": {
+    "title": "Nọrọ na ozi",
+    "subtitle": "Chekwaa mmasị gị ugbu a. Nzipụ push ga-amalite mgbe ejikọtara ọkwa CareMate kpamkpam.",
+    "healthReminders": "Ncheta ahụike",
+    "healthRemindersHint": "Ndụmọdụ, ncheta nyocha, na mmelite dị mkpa"
+  },
+  "next": {
+    "title": "Ị dị njikere",
+    "subtitle": "Chọgharịa dịka ọbịa, ma ọ bụ mepụta akaụntụ ka data mberede na ezinụlọ nwee ike imekọrịta.",
+    "continueExploring": "Gaa n'ihu ịchọgharịa",
+    "saving": "Na-echekwa…",
+    "createAccount": "Mepụta akaụntụ",
+    "haveAccount": "Enwere m akaụntụ",
+    "browseTitle": "Chọgharịa n'efu",
+    "browseHint": "Edemede, Nso, na obere ngwa na-arụ ọrụ dịka ọbịa",
+    "syncTitle": "Mepụta iji mekọrịta",
+    "syncHint": "Mepụta akaụntụ tupu mberede ma ọ bụ ezinụlọ ka data ghara ịnọ n'anwụ naanị na ngwaọrụ a"
+  }
+}

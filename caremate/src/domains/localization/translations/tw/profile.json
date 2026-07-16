@@ -1,0 +1,36 @@
+{
+  "title": "Me",
+  "guest": {
+    "title": "Worehwɛ sɛ ɔhɔho",
+    "subtitle": "Hyɛn mu na sync ahoyɛ profile, abusua, ne apɛdeɛ wɔ nneɛma so.",
+    "signIn": "Hyɛn mu",
+    "createAccount": "Yɛ akawnt"
+  },
+  "finishSetup": "Wie nhyehyɛe",
+  "account": "Akawnt",
+  "preferences": "Apɛdeɛ",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Ahoyɛ profile",
+    "family": "Abusua",
+    "settings": "Nhyehyɛe"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Ɛreloa nhyehyɛe...",
+    "personal": "Ankorankorɛ",
+    "family": "Abusua",
+    "monthly": "Bosome biara",
+    "yearly": "Afe biara",
+    "guestCta": "Hyɛn mu na kyɛɛ",
+    "error": "Antumi anhye ase sika tua"
+  },
+  "patientId": {
+    "title": "CareMate Oyarefo ID",
+    "generate": "Yɛ ID ma me",
+    "copy": "Kyerɛw",
+    "fallbackName": "Membere"
+  },
+  "signOut": "Fi mu",
+  "biometrics": "Bue wɔ biometrics so"
+}

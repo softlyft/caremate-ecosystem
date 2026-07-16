@@ -5,11 +5,13 @@ import { Box } from '@/components/ui/box';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { CompactArticleCard } from '@/domains/articles/components/ArticleCards';
+import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { articleRepository } from '@/domains/articles/repository';
 import { spacing } from '@/theme/colors';
 
 export default function BookmarksScreen() {
+  const { t } = useTranslation();
   const userId = useCurrentUserId();
 
   const query = useQuery({
@@ -18,7 +20,7 @@ export default function BookmarksScreen() {
   });
 
   if (query.isLoading) {
-    return <LoadingState title="Loading bookmarks..." />;
+    return <LoadingState title={t('learn.loadingBookmarks')} />;
   }
 
   const bookmarks = query.data ?? [];
@@ -27,8 +29,8 @@ export default function BookmarksScreen() {
     <Screen>
       {bookmarks.length === 0 ? (
         <EmptyState
-          title="No bookmarks yet"
-          message="Bookmark articles to read them offline later."
+          title={t('learn.bookmarksEmpty.title')}
+          message={t('learn.bookmarksEmpty.message')}
         />
       ) : (
         <FlatList

@@ -21,6 +21,7 @@ import {
 } from '@/domains/articles/categories';
 import { articleRepository } from '@/domains/articles/repository';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
+import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 function getCategoryMeta(categoryId: string) {
@@ -39,6 +40,7 @@ function splitParagraphs(content: string): string[] {
 }
 
 export default function ArticleDetailScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
 
@@ -56,16 +58,18 @@ export default function ArticleDetailScreen() {
       ? article.title.length > 28
         ? `${article.title.slice(0, 28).trim()}…`
         : article.title
-      : 'Article';
+      : t('learn.article');
     navigation.setOptions(learnArticleHeaderOptions(shortTitle));
-  }, [article?.title, navigation]);
+  }, [article?.title, navigation, t]);
 
   if (query.isLoading) {
-    return <LoadingState title="Loading article..." />;
+    return <LoadingState title={t('learn.loadingArticle')} />;
   }
 
   if (!article) {
-    return <ErrorState title="Article not found" message="This article may have been removed." />;
+    return (
+      <ErrorState title={t('learn.notFound.title')} message={t('learn.notFound.message')} />
+    );
   }
 
   const evergreen = isEvergreenArticle(article);
@@ -121,7 +125,7 @@ export default function ArticleDetailScreen() {
                   variant="caption"
                   style={evergreen ? styles.pillBrandText : styles.pillNewsText}
                 >
-                  {evergreen ? 'CareMate' : 'News'}
+                  {evergreen ? t('learn.brand') : t('learn.news')}
                 </AppText>
               </View>
               <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.92)' }]}>
@@ -147,21 +151,21 @@ export default function ArticleDetailScreen() {
               <View style={styles.readPill}>
                 <Clock color={palette.textSecondary} size={13} />
                 <AppText variant="caption" style={styles.readText}>
-                  {minutes} min read
+                  {t('learn.minRead', { minutes })}
                 </AppText>
               </View>
               {external ? (
                 <View style={styles.readPill}>
                   <ExternalLink color={palette.textSecondary} size={13} />
                   <AppText variant="caption" style={styles.readText}>
-                    External source
+                    {t('learn.externalSource')}
                   </AppText>
                 </View>
               ) : (
                 <View style={[styles.readPill, { backgroundColor: palette.primaryLight }]}>
                   <Bookmark color={palette.primary} size={13} />
                   <AppText variant="caption" style={{ color: palette.primary }}>
-                    CareMate guide
+                    {t('learn.careMateGuide')}
                   </AppText>
                 </View>
               )}
@@ -194,7 +198,7 @@ export default function ArticleDetailScreen() {
             >
               <ExternalLink color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.ctaLabel}>
-                Read full article
+                {t('learn.readFull')}
               </AppText>
             </PressableScale>
           </AnimatedSection>

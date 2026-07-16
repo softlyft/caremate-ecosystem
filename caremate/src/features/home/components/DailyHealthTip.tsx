@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { getDailyHealthTip } from '@/features/home/utils/daily-health-tip';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
 
@@ -12,6 +13,7 @@ interface DailyHealthTipProps {
 }
 
 export function DailyHealthTip({ userKey = 'guest' }: DailyHealthTipProps) {
+  const { t } = useTranslation();
   const { data: tip } = useQuery({
     queryKey: ['daily-health-tip', userKey],
     queryFn: () => getDailyHealthTip(userKey),
@@ -37,7 +39,7 @@ export function DailyHealthTip({ userKey = 'guest' }: DailyHealthTipProps) {
         </View>
         <View style={styles.content}>
           <AppText variant="caption" color="brand" style={styles.label}>
-            {tip.emoji} {tip.categoryName} · Daily insight
+            {tip.emoji} {tip.categoryName} · {t('home.dailyTip.label')}
           </AppText>
           <AppText variant="body" style={styles.tip}>
             {tip.tip}

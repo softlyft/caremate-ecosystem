@@ -1,0 +1,42 @@
+{
+  "loading": "Ɛreloa nhyehyɛe...",
+  "hero": {
+    "eyebrow": "Apɛdeɛ",
+    "title": "Nhyehyɛe",
+    "subtitle": "Ahwehwɛde, amanneɛbɔ, ɔman ne kasa, ne abusua kwan tiawa."
+  },
+  "appearance": "Ahwehwɛde",
+  "theme": {
+    "light": "Hann",
+    "dark": "Sum",
+    "system": "Sistem",
+    "useSystem": "Fa sistem theme di dwuma",
+    "darkMode": "Sum mode"
+  },
+  "familySection": {
+    "guest": "Hyɛn mu na hyehyɛ wo abusua profile, mma, ne ɔwarefo nkitahodie.",
+    "hint": "Fa mma ka ho na fa wo ɔwarefo ka ho. Awofoɔ biara sie ne CareMate data ankasa.",
+    "open": "Bue abusua"
+  },
+  "notifications": {
+    "title": "Amanneɛbɔ",
+    "push": "Push amanneɛbɔ"
+  },
+  "location": {
+    "title": "Beaeɛ",
+    "guestHint": "Hyɛn mu na hyehyɛ wo ɔman ne kasa. Ahɔhoɔ de mfiase paw di dwuma.",
+    "hint": "Wɔde di dwuma ma mpɔtam apɔwmuden nsɛm ne kasa apɛdeɛ.",
+    "country": "Ɔman",
+    "language": "Kasa",
+    "state": "Mantam / province",
+    "statePlaceholder": "sɛ California, Greater Accra",
+    "selected": "Wopaw: {{value}}",
+    "notSet": "Wonnnhyehyɛeɛ",
+    "save": "Sie beaeɛ",
+    "saving": "Ɛresie..."
+  },
+  "family": {
+    "title": "Abusua",
+    "manage": "Hwɛ ofie so"
+  }
+}

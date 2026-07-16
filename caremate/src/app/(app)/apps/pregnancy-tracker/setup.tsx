@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -26,6 +27,7 @@ type SetupMode = 'lmp' | 'due-date';
 const APP_ID = 'pregnancy-tracker' as const;
 
 export default function PregnancySetupScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const [monthRef, setMonthRef] = useState(
@@ -56,14 +58,14 @@ export default function PregnancySetupScreen() {
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow="Setup"
-        title="Set your timeline"
-        subtitle="Choose how you want to set up your pregnancy timeline. You can use your last period or a due date from your provider."
+        eyebrow={t('apps.pregnancy.ui.setupEyebrow')}
+        title={t('apps.pregnancy.ui.setTimeline')}
+        subtitle={t('apps.pregnancy.ui.setTimelineSubtitle')}
       />
 
       <View style={styles.modeRow}>
         <MiniAppChip
-          label="Last period"
+          label={t('apps.pregnancy.ui.lastPeriod')}
           selected={mode === 'lmp'}
           accent={theme.color}
           soft={theme.backgroundColor}
@@ -73,7 +75,7 @@ export default function PregnancySetupScreen() {
           }}
         />
         <MiniAppChip
-          label="Due date"
+          label={t('apps.pregnancy.ui.dueDate')}
           selected={mode === 'due-date'}
           accent={theme.color}
           soft={theme.backgroundColor}
@@ -84,16 +86,16 @@ export default function PregnancySetupScreen() {
         />
       </View>
 
-      <MiniAppCard index={1} title="Baby nickname" theme={theme}>
+      <MiniAppCard index={1} title={t('apps.pregnancy.ui.babyNickname')} theme={theme}>
         <Input
           value={babyNickname}
           onChangeText={setBabyNickname}
-          placeholder="Baby"
+          placeholder={t('apps.pregnancy.ui.babyPlaceholder')}
           autoCapitalize="words"
         />
       </MiniAppCard>
 
-      <MiniAppCard index={2} eyebrow="Pick a date" theme={theme}>
+      <MiniAppCard index={2} eyebrow={t('apps.pregnancy.ui.pickDate')} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -115,9 +117,7 @@ export default function PregnancySetupScreen() {
         </View>
 
         <AppText variant="caption" style={styles.muted}>
-          {mode === 'lmp'
-            ? 'Tap the first day of your last menstrual period.'
-            : 'Tap your estimated due date from your provider.'}
+          {mode === 'lmp' ? t('apps.pregnancy.ui.tapLmp') : t('apps.pregnancy.ui.tapDue')}
         </AppText>
 
         <MonthCalendarGrid
@@ -132,7 +132,7 @@ export default function PregnancySetupScreen() {
       {previewDueDate ? (
         <View style={[styles.preview, { backgroundColor: theme.backgroundColor }]}>
           <AppText variant="body" style={{ color: theme.titleColor }}>
-            {mode === 'lmp' ? 'Estimated due date' : 'Selected due date'}:{' '}
+            {mode === 'lmp' ? t('apps.pregnancy.ui.estimatedDue') : t('apps.pregnancy.ui.selectedDue')}:{' '}
             {formatDueDate(previewDueDate)}
           </AppText>
         </View>
@@ -140,7 +140,7 @@ export default function PregnancySetupScreen() {
 
       <View style={!selectedDate ? styles.ctaDisabled : undefined}>
         <MiniAppCta
-          label="Save"
+          label={t('apps.pregnancyTracker.setupSave')}
           accent={theme.color}
           soft={theme.backgroundColor}
           index={3}

@@ -12,6 +12,7 @@ import Animated, {
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { completePhaseA } from '@/domains/onboarding';
 import {
   OnboardingPrimaryButton,
@@ -24,6 +25,7 @@ import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 const theme = ONBOARDING_STEP_THEMES[5];
 
 export default function OnboardingNextScreen() {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const burst = useSharedValue(0.85);
 
@@ -48,8 +50,8 @@ export default function OnboardingNextScreen() {
   return (
     <OnboardingShell
       step={5}
-      title="You're ready"
-      subtitle="Explore as a guest, or create an account so emergency and family data can sync."
+      title={t('onboarding.next.title')}
+      subtitle={t('onboarding.next.subtitle')}
       showBack
       hero={
         <Animated.View style={[styles.heroShell, shadow.card, burstStyle]}>
@@ -72,20 +74,20 @@ export default function OnboardingNextScreen() {
       footer={
         <>
           <OnboardingPrimaryButton
-            label={busy ? 'Saving…' : 'Continue exploring'}
+            label={busy ? t('onboarding.next.saving') : t('onboarding.next.continueExploring')}
             accent={theme.accent}
             disabled={busy}
             onPress={() => void finishAndGo('/(app)/(tabs)')}
           />
           <OnboardingSecondaryButton
-            label="Create account"
+            label={t('onboarding.next.createAccount')}
             accent={theme.accent}
             soft={theme.soft}
             disabled={busy}
             onPress={() => void finishAndGo('/(auth)/register')}
           />
           <OnboardingSecondaryButton
-            label="I already have an account"
+            label={t('onboarding.next.haveAccount')}
             accent={theme.title}
             soft="#FFFFFF"
             disabled={busy}
@@ -106,10 +108,10 @@ export default function OnboardingNextScreen() {
           </View>
           <View style={styles.infoCopy}>
             <AppText variant="cardTitle" style={{ color: theme.title }}>
-              Browse freely
+              {t('onboarding.next.browseTitle')}
             </AppText>
             <AppText variant="caption" style={styles.infoHint}>
-              Articles, Nearby, and mini-apps work as a guest
+              {t('onboarding.next.browseHint')}
             </AppText>
           </View>
         </View>
@@ -120,10 +122,10 @@ export default function OnboardingNextScreen() {
           </View>
           <View style={styles.infoCopy}>
             <AppText variant="cardTitle" style={{ color: palette.brandPurpleDark }}>
-              Create to sync
+              {t('onboarding.next.syncTitle')}
             </AppText>
             <AppText variant="caption" style={styles.infoHint}>
-              Account before emergency or family so data isn’t stuck on this device
+              {t('onboarding.next.syncHint')}
             </AppText>
           </View>
         </View>

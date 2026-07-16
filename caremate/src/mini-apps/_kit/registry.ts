@@ -1,6 +1,8 @@
 import type { LucideIcon } from 'lucide-react-native';
 import { Baby, CalendarCheck, CalendarHeart, Pill, Syringe } from 'lucide-react-native';
 
+import type { TranslationParams } from '@/domains/localization/i18n/types';
+
 export type MiniAppId =
   | 'period-tracker'
   | 'pregnancy-tracker'
@@ -10,8 +12,6 @@ export type MiniAppId =
 
 export interface MiniAppDefinition {
   id: MiniAppId;
-  name: string;
-  description: string;
   route: `/(app)/apps/${MiniAppId}`;
   icon: LucideIcon;
   color: string;
@@ -19,11 +19,18 @@ export interface MiniAppDefinition {
   available: boolean;
 }
 
+type TranslateFn = (key: string, params?: TranslationParams) => string;
+
+export function getMiniAppLabel(id: MiniAppId, t: TranslateFn) {
+  return {
+    name: t(`apps.registry.${id}.name`),
+    description: t(`apps.registry.${id}.description`),
+  };
+}
+
 export const MINI_APPS: MiniAppDefinition[] = [
   {
     id: 'medication-tracker',
-    name: 'Medication Tracker',
-    description: 'Track medicines, daily doses, and adherence for you or your family.',
     route: '/(app)/apps/medication-tracker',
     icon: Pill,
     color: '#EA580C',
@@ -32,8 +39,6 @@ export const MINI_APPS: MiniAppDefinition[] = [
   },
   {
     id: 'checkup-planner',
-    name: 'Checkup Planner',
-    description: 'See recommended medical checkups by age, gender, and region.',
     route: '/(app)/apps/checkup-planner',
     icon: CalendarCheck,
     color: '#0F766E',
@@ -42,8 +47,6 @@ export const MINI_APPS: MiniAppDefinition[] = [
   },
   {
     id: 'immunization-tracker',
-    name: 'Immunization Tracker',
-    description: "Track vaccines, due dates, and your child's immunization record.",
     route: '/(app)/apps/immunization-tracker',
     icon: Syringe,
     color: '#059669',
@@ -52,8 +55,6 @@ export const MINI_APPS: MiniAppDefinition[] = [
   },
   {
     id: 'pregnancy-tracker',
-    name: 'Pregnancy Tracker',
-    description: 'Follow your pregnancy week by week, log symptoms, and track milestones.',
     route: '/(app)/apps/pregnancy-tracker',
     icon: Baby,
     color: '#0284C7',
@@ -62,8 +63,6 @@ export const MINI_APPS: MiniAppDefinition[] = [
   },
   {
     id: 'period-tracker',
-    name: 'Period Tracker',
-    description: 'Track cycles, log period days, and see simple predictions.',
     route: '/(app)/apps/period-tracker',
     icon: CalendarHeart,
     color: '#DB2777',

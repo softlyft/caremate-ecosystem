@@ -1,0 +1,32 @@
+{
+  "title": "Apps",
+  "subtitle": "Herramientas de salud personales que funcionan sin conexión",
+  "readyCount": "{{count}} herramientas listas",
+  "comingSoon": "Próximamente",
+  "registry": {
+    "medication-tracker": {
+      "name": "Seguimiento de medicamentos",
+      "description": "Controla medicamentos, dosis diarias y adherencia para ti o tu familia."
+    },
+    "checkup-planner": {
+      "name": "Planificador de chequeos",
+      "description": "Consulta chequeos médicos recomendados según edad, género y región."
+    },
+    "immunization-tracker": {
+      "name": "Seguimiento de vacunas",
+      "description": "Controla vacunas, fechas de vencimiento y el registro de vacunación de tu hijo."
+    },
+    "pregnancy-tracker": {
+      "name": "Seguimiento del embarazo",
+      "description": "Sigue tu embarazo semana a semana, registra síntomas y hitos."
+    },
+    "period-tracker": {
+      "name": "Seguimiento del periodo",
+      "description": "Controla ciclos, registra días de menstruación y ve predicciones simples."
+    }
+  },
+  "signInRequired": "Inicia sesión para sincronizar esta herramienta entre dispositivos",
+  "save": "Guardar",
+  "log": "Registrar entrada",
+  "setup": "Configurar"
+}

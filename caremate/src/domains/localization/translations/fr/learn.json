@@ -1,0 +1,28 @@
+{
+  "title": "Apprendre",
+  "subtitle": "Conseils santé et actualités de confiance, adaptés à votre parcours",
+  "articleCount": "{{count}} articles",
+  "searchPlaceholder": "Rechercher des articles",
+  "bookmarks": "Voir les favoris",
+  "featured": "À la une",
+  "allTopics": "Tous les thèmes",
+  "loading": "Chargement des articles...",
+  "empty": {
+    "title": "Aucun article trouvé",
+    "categoryTitle": "Aucun article {{category}}",
+    "message": "Essayez une autre recherche ou catégorie."
+  },
+  "bookmarksTitle": "Favoris",
+  "bookmarksEmpty": {
+    "title": "Aucun favori pour l'instant",
+    "message": "Enregistrez des articles pour les lire hors ligne plus tard."
+  },
+  "article": "Article",
+  "news": "Actualités",
+  "backToLearn": "Retour à Apprendre",
+  "goBack": "Retour",
+  "notFound": {
+    "title": "Article introuvable",
+    "message": "Cet article a peut-être été supprimé."
+  }
+}

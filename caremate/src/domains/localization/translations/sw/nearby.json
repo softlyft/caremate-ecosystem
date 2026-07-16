@@ -1,0 +1,36 @@
+{
+  "title": "Karibu",
+  "subtitle": "Tafuta hospitali, kliniki, maduka ya dawa, na zaidi karibu nawe",
+  "nearbyCount": "{{count}} karibu",
+  "searchPlaceholder": "Tafuta watoa huduma",
+  "loading": "Inapakia watoa huduma...",
+  "empty": {
+    "title": "Hakuna watoa huduma karibu",
+    "message": "Jaribu kichujio kingine au panua utafutaji wako.",
+    "offline": "Inaonyesha watoa huduma waliohifadhiwa ukiwa bila mtandao."
+  },
+  "approximate": "Inatumia eneo la takriban",
+  "outsideArea": "Nje ya eneo lako la kawaida — matokeo yanaweza kuwa machache",
+  "detail": {
+    "loading": "Inapakia mtoa huduma...",
+    "notFound": "Mtoa huduma hakupatikana",
+    "unavailable": "Maelezo hayapatikani",
+    "favorite": "Hifadhi kipendwa",
+    "unfavorite": "Ondoa kipendwa",
+    "call": "Piga simu",
+    "directions": "Maelekezo"
+  },
+  "map": {
+    "loading": "Inapakia ramani...",
+    "empty": "Hakuna maeneo ya ramani"
+  },
+  "types": {
+    "hospital": "Hospitali",
+    "pharmacy": "Duka la dawa",
+    "laboratory": "Maabara",
+    "clinic": "Kliniki",
+    "telemedicine": "Telemedicine",
+    "blood_bank": "Benki ya damu",
+    "ambulance": "Ambulance"
+  }
+}

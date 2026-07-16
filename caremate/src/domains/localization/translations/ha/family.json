@@ -1,0 +1,35 @@
+{
+  "title": "Iyali",
+  "subtitle": "Bayanan gidaje da kula da yara tare",
+  "loading": "Ana lodawa iyali...",
+  "setup": {
+    "title": "A saita kulawar iyali?",
+    "subtitle": "Ƙara yara kuma haɗa ma'aurata don kayan aikin kulawa su kasance a tsari.",
+    "yes": "Eh, saita",
+    "notNow": "Ba yanzu ba"
+  },
+  "kidsCount": {
+    "title": "Yara nawa?",
+    "placeholder": "Adadin yara"
+  },
+  "child": {
+    "title": "Yaro {{index}}",
+    "name": "Cikakken suna",
+    "dob": "Ranar haihuwa",
+    "gender": "Jinsi"
+  },
+  "review": {
+    "title": "Duba gida",
+    "save": "Ajiye gida",
+    "back": "Komawa"
+  },
+  "requests": {
+    "title": "Buƙatun haɗin gwiwa",
+    "accept": "Karɓa",
+    "decline": "Ƙi",
+    "empty": "Babu buƙatu da ke jira"
+  },
+  "invite": "Gayyaci ma'aurata",
+  "addChild": "Ƙara yaro",
+  "searchPlaceholder": "Nemo ta ID ɗin majinyaci ko imel"
+}

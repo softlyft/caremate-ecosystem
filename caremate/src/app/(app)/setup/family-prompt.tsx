@@ -5,10 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import { markFamilyPromptDone } from '@/domains/onboarding';
 import { fontFamily, palette, radius, spacing } from '@/theme';
 
 export default function SetupFamilyPromptScreen() {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
   async function skip() {
@@ -35,25 +37,14 @@ export default function SetupFamilyPromptScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.body}>
         <AppText variant="caption" style={styles.eyebrow}>
-          Account setup
+          {t('profile.menu.family')}
         </AppText>
         <AppText variant="screenTitle" style={styles.title}>
-          Caring for kids?
+          {t('setup.familyPrompt.title')}
         </AppText>
         <AppText variant="subtitle" style={styles.subtitle}>
-          Set up a household so immunization and shared kids care have the profiles they need. You
-          can always do this later from Profile → Family.
+          {t('setup.familyPrompt.subtitle')}
         </AppText>
-
-        <View style={styles.card}>
-          <AppText variant="body" style={styles.cardTitle}>
-            What you’ll do next
-          </AppText>
-          <AppText variant="caption" style={styles.cardCopy}>
-            Confirm you’re a parent, add how many kids, then enter each child’s name and date of
-            birth.
-          </AppText>
-        </View>
       </View>
 
       <View style={styles.footer}>
@@ -63,7 +54,7 @@ export default function SetupFamilyPromptScreen() {
           onPress={() => void startFamily()}
         >
           <AppText variant="button" style={styles.primaryLabel}>
-            Set up family
+            {t('setup.familyPrompt.setup')}
           </AppText>
         </PressableScale>
         <PressableScale
@@ -72,7 +63,7 @@ export default function SetupFamilyPromptScreen() {
           onPress={() => void skip()}
         >
           <AppText variant="button" style={styles.secondaryLabel}>
-            Not right now
+            {t('setup.familyPrompt.notNow')}
           </AppText>
         </PressableScale>
       </View>
@@ -103,21 +94,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.4,
   },
   subtitle: {
-    color: palette.textSecondary,
-  },
-  card: {
-    marginTop: spacing.md,
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.06)',
-    padding: spacing.md,
-    gap: spacing.xs,
-  },
-  cardTitle: {
-    fontFamily: fontFamily.semiBold,
-  },
-  cardCopy: {
     color: palette.textSecondary,
   },
   footer: {

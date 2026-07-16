@@ -1,0 +1,42 @@
+{
+  "loading": "Ana lodawa saituna...",
+  "hero": {
+    "eyebrow": "Zaɓuɓɓuka",
+    "title": "Saituna",
+    "subtitle": "Bayyanar, sanarwa, ƙasa da harshe, da hanyoyin iyali."
+  },
+  "appearance": "Bayyanar",
+  "theme": {
+    "light": "Haske",
+    "dark": "Duhu",
+    "system": "Na'ura",
+    "useSystem": "Yi amfani da jigon na'ura",
+    "darkMode": "Yanayin duhu"
+  },
+  "familySection": {
+    "guest": "Shiga don saita bayanin iyalinka, yara, da haɗin ma'aurata.",
+    "hint": "Ƙara yara kuma haɗa ma'auratanka. Kowane iyaye yana kiyaye bayanan CareMate nasa.",
+    "open": "Buɗe iyali"
+  },
+  "notifications": {
+    "title": "Sanarwa",
+    "push": "Sanarwar push"
+  },
+  "location": {
+    "title": "Wuri",
+    "guestHint": "Shiga don saita ƙasarka da harshenka. Baƙi suna amfani da zaɓin fara.",
+    "hint": "Ana amfani da shi don abubuwan lafiya na yanki da zaɓin harshe.",
+    "country": "Ƙasa",
+    "language": "Harshe",
+    "state": "Jiha / lardi",
+    "statePlaceholder": "misali California, Greater Accra",
+    "selected": "An zaɓa: {{value}}",
+    "notSet": "Ba a saita ba",
+    "save": "Ajiye wuri",
+    "saving": "Ana ajiyewa..."
+  },
+  "family": {
+    "title": "Iyali",
+    "manage": "Sarrafa gida"
+  }
+}

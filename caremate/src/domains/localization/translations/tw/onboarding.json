@@ -1,0 +1,78 @@
+{
+  "welcome": {
+    "title": "Hwɛ a ɛyɛ adwuma a intanɛt nni hɔ",
+    "subtitle": "Nhyɛhyɛe tiawa bi na Bɛn, amanneɛ, ne ahoyɛ nsɛm nneɛma agye so fi da a edi kan.",
+    "cta": "Momma yɛnkɔ",
+    "foot": "Fi ase wɔ ɔman ne kasa a wopaw.",
+    "preview": {
+      "countryLanguage": "Ɔman + kasa",
+      "priorities": "Deɛ ɛho hia wo",
+      "news": "Mpɔtam apɔwmuden amanneɛ",
+      "nearby": "Hwɛ a ɛbɛn"
+    }
+  },
+  "country": {
+    "title": "Wo ɔman ne kasa",
+    "subtitle": "Eyinom na ɛkyerɛ mpɔtam apɔwmuden nsɛm ne ankorankorɛ wɔ CareMate mu.",
+    "field": {
+      "country": "Ɔman",
+      "language": "Kasa",
+      "state": "Mantam / province (wopɛ a)"
+    },
+    "statePlaceholder": "sɛ Greater Accra"
+  },
+  "priorities": {
+    "title": "Deɛn na ɛho hia sen biara?",
+    "subtitle": "Mia deɛ wohwɛ ho — yɛbɛyɛ anammɔn a edi hɔ no sɛnea ɛsɛ.",
+    "continueSelected": "Toa so · {{count}} a wopaw",
+    "emergency": {
+      "label": "Ahoyɛ",
+      "description": "Apɔwmuden kaade a intanɛt nni so ma wɔn a wodi kan boa"
+    },
+    "nearby": {
+      "label": "Hwɛ a ɛbɛn",
+      "description": "Ayaresabea, clinic, ne aduru fie a ɛbɛn wo"
+    },
+    "family": {
+      "label": "Abusua / mma",
+      "description": "Ofie profile ne mma hwɛ a wɔkyɛ"
+    },
+    "learn": {
+      "label": "Sua",
+      "description": "Apɔwmuden nkyerɛkyerɛ a wotumi gye di ne afotu"
+    }
+  },
+  "location": {
+    "title": "Hwehwɛ hwɛ a ɛbɛn",
+    "subtitle": "Fa GPS a ɛyɛ pɛpɛɛpɛ di dwuma ma nea ɛyɛ yiye, anaasɛ sie ɔman so beaeɛ a ɛbɛn.",
+    "enable": "Ma beaeɛ no nyɛ adwuma",
+    "checking": "Ɛrehwehwɛ…",
+    "approximateCta": "Fa beaeɛ a ɛbɛn di dwuma",
+    "precise": {
+      "title": "Pɛpɛɛpɛ",
+      "hint": "Nhyehyɛe a ɛyɛ yiye ma ayaresabea ne clinic a ɛbɛn wo"
+    },
+    "approximate": {
+      "title": "Ɛbɛn",
+      "hint": "Ɔman so mmoa — sesa bere biara akyiri"
+    }
+  },
+  "notifications": {
+    "title": "Tena amanneɛ mu",
+    "subtitle": "Sie wo pɛ ɛnnɛ. Push amanneɛbɔ bɛhyɛ ase sɛ CareMate amanneɛbɔ wie nkitahodie a.",
+    "healthReminders": "Apɔwmuden nkaeɛ",
+    "healthRemindersHint": "Afotu, nhwehwɛmu nkaeɛ, ne nsakrae a ɛho hia"
+  },
+  "next": {
+    "title": "Wo ayɛ krado",
+    "subtitle": "Hwehwɛ sɛ ɔhɔho, anaasɛ yɛ akawnt na ahoyɛ ne abusua data betumi async.",
+    "continueExploring": "Toa so hwehwɛ",
+    "saving": "Ɛresie…",
+    "createAccount": "Yɛ akawnt",
+    "haveAccount": "Mewɔ akawnt dedaw",
+    "browseTitle": "Hwehwɛ freɛ",
+    "browseHint": "Nkyerɛkyerɛ, Bɛn, ne app ketewa yɛ adwuma sɛ ɔhɔho",
+    "syncTitle": "Yɛ akawnt na sync",
+    "syncHint": "Yɛ akawnt ansa na ahoyɛ anaa abusua na data anka wɔ nneɛma yi so nko"
+  }
+}

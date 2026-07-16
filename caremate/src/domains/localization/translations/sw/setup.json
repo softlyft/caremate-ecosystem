@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "Yote yako tayari",
+    "title": "Uko tayari",
+    "subtitle": "Maliza chochote ulichoruka baadaye kutoka Wasifu. CareMate inafanya kazi bila mtandao kwa kile ulichohifadhi kwenye kifaa hiki.",
+    "openHome": "Fungua Nyumbani",
+    "finishLater": " — maliza baadaye",
+    "checks": {
+      "countryLanguage": "Nchi na lugha",
+      "location": "Mapendeleo ya eneo karibu",
+      "notifications": "Mapendeleo ya arifa",
+      "emergency": "Muhimu za dharura",
+      "family": "Usanidi wa familia"
+    }
+  },
+  "emergency": {
+    "title": "Muhimu za dharura",
+    "subtitle": "Aina ya damu, genotype, na anwani moja ya ICE husaidia wahudumu wa kwanza.",
+    "skip": "Ruka kwa sasa",
+    "save": "Hifadhi na uendelee"
+  },
+  "familyPrompt": {
+    "title": "Sanidi kaya yako?",
+    "subtitle": "Ongeza watoto kwa chanjo na zana za huduma zilizoshirikiwa.",
+    "setup": "Sanidi familia",
+    "notNow": "Si sasa hivi"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Weka nchi yako",
+      "subtitle": "Pata habari za afya za eneo kwa nchi yako"
+    },
+    "accountEmergency": {
+      "title": "Hifadhi wasifu wa dharura",
+      "subtitle": "Fungua akaunti ili kadi yako bila mtandao iweze kusawazishwa"
+    },
+    "accountFamily": {
+      "title": "Sanidi huduma ya familia",
+      "subtitle": "Ingia ili kuongeza watoto na kushiriki kaya"
+    },
+    "emergency": {
+      "title": "Maliza muhimu za dharura",
+      "subtitle": "Aina ya damu, genotype, na anwani moja ya ICE"
+    },
+    "family": {
+      "title": "Sanidi kaya yako",
+      "subtitle": "Ongeza watoto kwa chanjo na huduma iliyoshirikiwa"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "done": {
+    "eyebrow": "Ayɛ pɛ",
+    "title": "Wo ayɛ krado",
+    "subtitle": "Wie biribiara a wotwam no akyiri firi Profile. CareMate yɛ adwuma a intanɛt nni hɔ wɔ deɛ woasie wɔ nneɛma yi so.",
+    "openHome": "Bue Fie",
+    "finishLater": " — wie akyiri",
+    "checks": {
+      "countryLanguage": "Ɔman ne kasa",
+      "location": "Bɛn beaeɛ apɛdeɛ",
+      "notifications": "Amanneɛbɔ apɛdeɛ",
+      "emergency": "Ahoyɛ nneɛma a ɛho hia",
+      "family": "Abusua nhyehyɛe"
+    }
+  },
+  "emergency": {
+    "title": "Ahoyɛ nneɛma a ɛho hia",
+    "subtitle": "Mogya kuw, genotype, ne ICE nkitahodie baako boa wɔn a wodi kan boa.",
+    "skip": "Twam seesei",
+    "save": "Sie na toa so"
+  },
+  "familyPrompt": {
+    "title": "Hyehyɛ wo ofie?",
+    "subtitle": "Fa mma ka ho ma ntwamdu ne hwɛ nneɛma a wɔkyɛ.",
+    "setup": "Hyehyɛ abusua",
+    "notNow": "Ɛnyɛ seesei"
+  },
+  "finishItems": {
+    "country": {
+      "title": "Hyehyɛ wo ɔman",
+      "subtitle": "Nya mpɔtam apɔwmuden amanneɛ ma wo ɔman"
+    },
+    "accountEmergency": {
+      "title": "Sie ahoyɛ profile",
+      "subtitle": "Yɛ akawnt na wo kaade a intanɛt nni so betumi async"
+    },
+    "accountFamily": {
+      "title": "Hyehyɛ abusua hwɛ",
+      "subtitle": "Hyɛn mu na fa mma ka ho na kyɛ ofie"
+    },
+    "emergency": {
+      "title": "Wie ahoyɛ nneɛma a ɛho hia",
+      "subtitle": "Mogya kuw, genotype, ne ICE nkitahodie baako"
+    },
+    "family": {
+      "title": "Hyehyɛ wo ofie",
+      "subtitle": "Fa mma ka ho ma ntwamdu ne hwɛ a wɔkyɛ"
+    }
+  }
+}

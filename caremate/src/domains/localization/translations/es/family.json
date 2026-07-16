@@ -1,0 +1,35 @@
+{
+  "title": "Familia",
+  "subtitle": "Perfiles del hogar y cuidados compartidos de niños",
+  "loading": "Cargando familia...",
+  "setup": {
+    "title": "¿Configurar cuidados familiares?",
+    "subtitle": "Añade niños y conecta a tu pareja para mantener organizadas las herramientas de cuidado.",
+    "yes": "Sí, configurar",
+    "notNow": "Ahora no"
+  },
+  "kidsCount": {
+    "title": "¿Cuántos niños?",
+    "placeholder": "Número de hijos"
+  },
+  "child": {
+    "title": "Hijo {{index}}",
+    "name": "Nombre completo",
+    "dob": "Fecha de nacimiento",
+    "gender": "Género"
+  },
+  "review": {
+    "title": "Revisar hogar",
+    "save": "Guardar hogar",
+    "back": "Atrás"
+  },
+  "requests": {
+    "title": "Solicitudes de conexión",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "empty": "No hay solicitudes pendientes"
+  },
+  "invite": "Invitar pareja",
+  "addChild": "Añadir hijo",
+  "searchPlaceholder": "Buscar por ID de paciente o correo"
+}

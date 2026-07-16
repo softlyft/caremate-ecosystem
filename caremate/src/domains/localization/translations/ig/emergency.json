@@ -1,0 +1,40 @@
+{
+  "title": "Mberede",
+  "loading": "Na-ebu profaịlụ mberede...",
+  "empty": {
+    "title": "Enweghị profaịlụ mberede ma",
+    "message": "Tinye ụdị ọbara, allergies, na kọntaktị ICE maka ndị na-enyere aka mbụ.",
+    "cta": "Mepụta profaịlụ"
+  },
+  "fields": {
+    "fullName": "Aha zuru ezu",
+    "bloodGroup": "Ụdị ọbara",
+    "genotype": "Genotype",
+    "allergies": "Allergies",
+    "medications": "Ọgwụ ugbu a",
+    "conditions": "Ọrịa na-adịghị ala ala",
+    "contacts": "Kọntaktị mberede",
+    "hospital": "Ụlọ ọgwụ ọkacha mmasị",
+    "insurance": "Onye na-enye mkpuchi",
+    "notes": "Ndetu"
+  },
+  "edit": {
+    "title": "Dezie profaịlụ mberede",
+    "save": "Chekwaa profaịlụ",
+    "addContact": "Tinye kọntaktị",
+    "contactName": "Aha kọntaktị",
+    "contactPhone": "Ekwentị",
+    "relationship": "Mmekọrịta"
+  },
+  "qr": {
+    "title": "QR mberede",
+    "empty": "Mepụta profaịlụ mberede mbụ"
+  },
+  "lock": {
+    "title": "Kaadị mberede",
+    "call": "Kpọọ ICE",
+    "help": "Gosi kaadị a ma ị nweghị ike ikwu okwu maka onwe gị."
+  },
+  "widget": "Melite widget ihuenyo mkpọchi",
+  "preview": "Lee ihuenyo mkpọchi"
+}

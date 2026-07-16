@@ -1,0 +1,32 @@
+{
+  "title": "Apps",
+  "subtitle": "Outils de santé personnels qui fonctionnent hors ligne",
+  "readyCount": "{{count}} outils prêts",
+  "comingSoon": "Bientôt disponible",
+  "registry": {
+    "medication-tracker": {
+      "name": "Suivi des médicaments",
+      "description": "Suivez les médicaments, doses quotidiennes et observance pour vous ou votre famille."
+    },
+    "checkup-planner": {
+      "name": "Planificateur de bilans",
+      "description": "Voir les bilans médicaux recommandés selon l'âge, le genre et la région."
+    },
+    "immunization-tracker": {
+      "name": "Suivi des vaccinations",
+      "description": "Suivez les vaccins, les échéances et le carnet de vaccination de votre enfant."
+    },
+    "pregnancy-tracker": {
+      "name": "Suivi de grossesse",
+      "description": "Suivez votre grossesse semaine par semaine, notez les symptômes et les étapes."
+    },
+    "period-tracker": {
+      "name": "Suivi des règles",
+      "description": "Suivez les cycles, notez les jours de règles et voyez des prévisions simples."
+    }
+  },
+  "signInRequired": "Connectez-vous pour synchroniser cet outil sur vos appareils",
+  "save": "Enregistrer",
+  "log": "Ajouter une entrée",
+  "setup": "Configurer"
+}

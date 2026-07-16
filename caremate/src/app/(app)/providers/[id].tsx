@@ -12,9 +12,10 @@ import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHea
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { useTranslation } from '@/domains/localization';
 import { getProviderTypeTheme } from '@/domains/providers/components/NearbyProviderCard';
 import { providerRepository } from '@/domains/providers/repository';
-import { formatProviderType, type ProviderType } from '@/domains/providers/types';
+import type { ProviderType } from '@/domains/providers/types';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Provider } from '@/types';
 
@@ -36,6 +37,7 @@ function isVerified(provider: Provider): boolean {
 }
 
 export default function ProviderDetailScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
@@ -63,7 +65,7 @@ export default function ProviderDetailScreen() {
       ? provider.name.length > 26
         ? `${provider.name.slice(0, 26).trim()}…`
         : provider.name
-      : 'Provider';
+      : t('nearby.detail.provider');
 
     navigation.setOptions(
       glossyStackHeaderOptions({
@@ -73,26 +75,29 @@ export default function ProviderDetailScreen() {
         softEnd: theme.softEnd,
         titleColor: theme.accent,
         icon: Icon,
-        backAccessibilityLabel: 'Back to Nearby',
+        backAccessibilityLabel: t('nearby.detail.backToNearby'),
       }),
     );
-  }, [Icon, navigation, provider?.name, theme.accent, theme.soft, theme.softEnd]);
+  }, [Icon, navigation, provider?.name, t, theme.accent, theme.soft, theme.softEnd]);
 
   if (query.isLoading) {
-    return <LoadingState title="Loading provider..." />;
+    return <LoadingState title={t('nearby.detail.loading')} />;
   }
 
   if (!provider) {
-    return <ErrorState title="Provider not found" />;
+    return <ErrorState title={t('nearby.detail.notFound')} />;
   }
 
   const detail = provider;
   const rating = readRating(detail);
   const verified = isVerified(detail);
-  const typeLabel = formatProviderType(detail.type as ProviderType);
+  const typeKey = detail.type as ProviderType;
+  const typeLabel = t(`nearby.types.${typeKey}`);
   const hasCoords = detail.latitude != null && detail.longitude != null;
   const distanceLabel =
-    detail.distanceKm != null ? `${detail.distanceKm.toFixed(1)} km away` : null;
+    detail.distanceKm != null
+      ? t('nearby.detail.distanceKm', { distance: detail.distanceKm.toFixed(1) })
+      : null;
 
   function openDirections() {
     if (!detail.latitude || !detail.longitude) {
@@ -173,7 +178,7 @@ export default function ProviderDetailScreen() {
                       variant="caption"
                       style={{ color: palette.primary, fontWeight: '600' }}
                     >
-                      Verified
+                      {t('nearby.detail.verified')}
                     </AppText>
                   </View>
                 ) : null}
@@ -185,7 +190,7 @@ export default function ProviderDetailScreen() {
         <AnimatedSection index={1}>
           <View style={[styles.card, shadow.soft]}>
             <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-              Contact
+              {t('nearby.detail.contact')}
             </AppText>
 
             <View style={styles.infoRow}>
@@ -194,10 +199,10 @@ export default function ProviderDetailScreen() {
               </View>
               <View style={styles.infoCopy}>
                 <AppText variant="caption" style={styles.infoLabel}>
-                  Address
+                  {t('nearby.detail.address')}
                 </AppText>
                 <AppText variant="body" style={styles.infoValue}>
-                  {detail.address ?? 'Address unavailable'}
+                  {detail.address ?? t('nearby.detail.addressUnavailable')}
                 </AppText>
               </View>
             </View>
@@ -210,13 +215,13 @@ export default function ProviderDetailScreen() {
               </View>
               <View style={styles.infoCopy}>
                 <AppText variant="caption" style={styles.infoLabel}>
-                  Phone
+                  {t('nearby.detail.phone')}
                 </AppText>
                 <AppText
                   variant="body"
                   style={[styles.infoValue, detail.phone ? { color: theme.accent } : null]}
                 >
-                  {detail.phone ?? 'Phone unavailable'}
+                  {detail.phone ?? t('nearby.detail.phoneUnavailable')}
                 </AppText>
               </View>
             </PressableScale>
@@ -229,13 +234,13 @@ export default function ProviderDetailScreen() {
               </View>
               <View style={styles.infoCopy}>
                 <AppText variant="caption" style={styles.infoLabel}>
-                  Email
+                  {t('nearby.detail.email')}
                 </AppText>
                 <AppText
                   variant="body"
                   style={[styles.infoValue, detail.email ? { color: theme.accent } : null]}
                 >
-                  {detail.email ?? 'Email unavailable'}
+                  {detail.email ?? t('nearby.detail.emailUnavailable')}
                 </AppText>
               </View>
             </PressableScale>
@@ -256,7 +261,7 @@ export default function ProviderDetailScreen() {
             >
               <Navigation color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                Get directions
+                {t('nearby.detail.directions')}
               </AppText>
             </PressableScale>
 
@@ -278,7 +283,7 @@ export default function ProviderDetailScreen() {
                 fill={detail.isFavorite ? theme.accent : 'transparent'}
               />
               <AppText variant="button" style={{ color: theme.accent }}>
-                {detail.isFavorite ? 'Remove favorite' : 'Save favorite'}
+                {detail.isFavorite ? t('nearby.detail.unfavorite') : t('nearby.detail.favorite')}
               </AppText>
             </PressableScale>
           </View>

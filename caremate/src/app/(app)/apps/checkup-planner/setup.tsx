@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-nat
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { INTERNATIONAL_COUNTRY_CODE, NEWS_COUNTRIES } from '@/constants/locations';
+import { localizationService, useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -13,18 +13,19 @@ import {
   MonthCalendarGrid,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import { GENDER_OPTIONS } from '@/mini-apps/checkup-planner/constants';
 import {
   useCheckupPlannerHydrated,
   useCheckupPlannerStore,
   type PlannerGender,
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
+import { localizeGenderOptions } from '@/mini-apps/checkup-planner/localize';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
 
 export default function CheckupPlannerSetupScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const today = useMemo(() => new Date(), []);
   const [monthRef, setMonthRef] = useState(
@@ -56,9 +57,9 @@ export default function CheckupPlannerSetupScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      title: profile ? 'Edit Profile' : 'Set Up Planner',
+      title: profile ? t('apps.checkupPlanner.editProfile') : t('apps.checkupPlanner.setUpPlanner'),
     });
-  }, [navigation, profile]);
+  }, [navigation, profile, t]);
 
   const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
@@ -73,13 +74,12 @@ export default function CheckupPlannerSetupScreen() {
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
-        We use your date of birth, gender, and region to suggest standard checkups. Region is
-        optional and defaults to International.
+        {t('apps.checkup.ui.setupIntro')}
       </AppText>
 
-      <MiniAppCard index={1} title="Gender" theme={theme}>
+      <MiniAppCard index={1} title={t('apps.checkup.ui.genderLabel')} theme={theme}>
         <View style={styles.chipRow}>
-          {GENDER_OPTIONS.map((option) => (
+          {localizeGenderOptions(t).map((option) => (
             <MiniAppChip
               key={option.id}
               label={option.label}
@@ -113,7 +113,7 @@ export default function CheckupPlannerSetupScreen() {
           </Pressable>
         </View>
         <AppText variant="caption" style={styles.muted}>
-          Tap your date of birth.
+          {t('apps.checkup.ui.tapDob')}
         </AppText>
         <MonthCalendarGrid
           monthRef={monthRef}
@@ -131,23 +131,28 @@ export default function CheckupPlannerSetupScreen() {
           })}
         />
         {dateOfBirth ? (
-          <AppText variant="body">DOB: {formatDisplayDate(dateOfBirth)}</AppText>
+          <AppText variant="body">
+            {t('apps.checkup.ui.dobLabel', { date: formatDisplayDate(dateOfBirth) })}
+          </AppText>
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={3} title="Region (optional)" theme={theme}>
+      <MiniAppCard index={3} title={t('apps.checkup.ui.regionOptional')} theme={theme}>
         <AppText variant="caption" style={styles.muted}>
-          Used for a few region-aware tips. Leave as International if unsure.
+          {t('apps.checkup.ui.regionHint')}
         </AppText>
         <View style={styles.chipRow}>
           <MiniAppChip
-            label={`International (${INTERNATIONAL_COUNTRY_CODE})`}
+            label={t('apps.checkup.ui.globalOption', { code: localizationService.internationalCountryCode })}
             selected={regionCode === null}
             accent={theme.color}
             soft={theme.backgroundColor}
             onPress={() => setRegionCode(null)}
           />
-          {NEWS_COUNTRIES.map((country) => (
+          {localizationService
+            .listCountryOptions()
+            .filter((country) => country.code !== localizationService.internationalCountryCode)
+            .map((country) => (
             <MiniAppChip
               key={country.code}
               label={country.name}
@@ -161,7 +166,9 @@ export default function CheckupPlannerSetupScreen() {
       </MiniAppCard>
 
       <MiniAppCta
-        label={profile ? 'Save changes' : 'Save and view plan'}
+        label={
+          profile ? t('apps.checkupPlanner.setupSaveEdit') : t('apps.checkupPlanner.setupSave')
+        }
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}
@@ -176,19 +183,19 @@ export default function CheckupPlannerSetupScreen() {
 
       {profile ? (
         <MiniAppCta
-          label="Clear planner data"
+          label={t('apps.checkup.ui.clearData')}
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary
           index={5}
           onPress={() => {
             Alert.alert(
-              'Clear checkup planner?',
-              'Your profile and completion history will be removed.',
+              t('apps.checkup.ui.clearConfirmTitle'),
+              t('apps.checkup.ui.clearConfirmMessage'),
               [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                  text: 'Clear',
+                  text: t('common.clear'),
                   style: 'destructive',
                   onPress: () => {
                     clearProfile();

@@ -1,0 +1,35 @@
+{
+  "title": "Famille",
+  "subtitle": "Profils du foyer et soins partagés pour les enfants",
+  "loading": "Chargement de la famille...",
+  "setup": {
+    "title": "Configurer les soins familiaux ?",
+    "subtitle": "Ajoutez des enfants et connectez un conjoint pour organiser les outils de soins.",
+    "yes": "Oui, configurer",
+    "notNow": "Pas maintenant"
+  },
+  "kidsCount": {
+    "title": "Combien d'enfants ?",
+    "placeholder": "Nombre d'enfants"
+  },
+  "child": {
+    "title": "Enfant {{index}}",
+    "name": "Nom complet",
+    "dob": "Date de naissance",
+    "gender": "Genre"
+  },
+  "review": {
+    "title": "Vérifier le foyer",
+    "save": "Enregistrer le foyer",
+    "back": "Retour"
+  },
+  "requests": {
+    "title": "Demandes de connexion",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "empty": "Aucune demande en attente"
+  },
+  "invite": "Inviter le conjoint",
+  "addChild": "Ajouter un enfant",
+  "searchPlaceholder": "Rechercher par ID patient ou e-mail"
+}

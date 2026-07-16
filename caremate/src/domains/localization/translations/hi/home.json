@@ -1,0 +1,57 @@
+{
+  "greeting": {
+    "morning": "सुप्रभात",
+    "afternoon": "नमस्कार",
+    "evening": "शुभ संध्या"
+  },
+  "greetingNamed": "{{greeting}}, {{name}}",
+  "tagline": "आपकी स्वास्थ्य यात्रा, सुव्यवस्थित",
+  "emergency": {
+    "title": "आपातकालीन प्रोफ़ाइल",
+    "body": "ब्लड ग्रुप, एलर्जी और ICE संपर्क ऑफ़लाइन तैयार रखें।",
+    "cta": "सेट करें"
+  },
+  "featuredArticles": {
+    "title": "आपके लिए",
+    "subtitle": "विश्वसनीय स्वास्थ्य कहानियाँ और सुझाव"
+  },
+  "healthCategories": {
+    "title": "विषय देखें",
+    "subtitle": "स्वास्थ्य क्षेत्र के अनुसार मार्गदर्शन पाएँ"
+  },
+  "nearby": {
+    "title": "नज़दीकी देखभाल",
+    "subtitle": "आपके आसपास अस्पताल, क्लीनिक और फ़ार्मेसी"
+  },
+  "dailyTip": {
+    "label": "आज की जानकारी"
+  },
+  "searchA11y": "CareMate खोजें",
+  "quickActions": {
+    "emergency": {
+      "title": "आपातकाल",
+      "subtitle": "ऑफ़लाइन स्वास्थ्य कार्ड"
+    },
+    "nearby": {
+      "title": "नज़दीक",
+      "subtitle": "पास की देखभाल खोजें"
+    },
+    "symptoms": {
+      "title": "जानें",
+      "subtitle": "स्वास्थ्य लेख"
+    },
+    "medication": {
+      "title": "दवाएँ",
+      "subtitle": "खुराक ट्रैक करें"
+    }
+  },
+  "providerTypes": {
+    "hospital": "अस्पताल",
+    "pharmacy": "फ़ार्मेसी",
+    "laboratory": "लैब",
+    "clinic": "क्लीनिक",
+    "telemedicine": "टेलीमेडिसिन",
+    "blood_bank": "ब्लड बैंक",
+    "ambulance": "एम्बुलेंस"
+  }
+}

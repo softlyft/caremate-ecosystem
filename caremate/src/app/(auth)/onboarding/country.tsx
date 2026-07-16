@@ -7,7 +7,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
-import { NEWS_COUNTRIES, NIGERIA_STATES } from '@/constants/locations';
+import { localizationService, useTranslation } from '@/domains/localization';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
@@ -15,23 +15,25 @@ import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[2];
 
-export default function OnboardingRegionScreen() {
+export default function OnboardingCountryScreen() {
+  const { t } = useTranslation();
   const countryCode = useOnboardingDraftStore((s) => s.countryCode);
+  const languageCode = useOnboardingDraftStore((s) => s.languageCode);
   const state = useOnboardingDraftStore((s) => s.state);
-  const setRegion = useOnboardingDraftStore((s) => s.setRegion);
-  const skipRegion = useOnboardingDraftStore((s) => s.skipRegion);
-
-  function handleSkip() {
-    skipRegion();
-    router.push('/(auth)/onboarding/location');
-  }
+  const setCountry = useOnboardingDraftStore((s) => s.setCountry);
+  const setLanguage = useOnboardingDraftStore((s) => s.setLanguage);
+  const setState = useOnboardingDraftStore((s) => s.setState);
+  const subdivisions = localizationService.getCountrySubdivisions(countryCode);
+  const supportedLanguages = localizationService.getSupportedLanguages(countryCode);
+  const resolvedLanguage = languageCode
+    ? localizationService.normalizeLanguage(countryCode, languageCode)
+    : null;
 
   return (
     <OnboardingShell
-      step={2}
-      title="Your region"
-      subtitle="Local health headlines when you pick a country — or leave unset for international stories."
-      onSkip={handleSkip}
+      step={1}
+      title={t('onboarding.country.title')}
+      subtitle={t('onboarding.country.subtitle')}
       hero={
         <View style={[styles.heroShell, shadow.soft]}>
           <LinearGradientFill
@@ -50,17 +52,18 @@ export default function OnboardingRegionScreen() {
       }
       footer={
         <OnboardingPrimaryButton
-          label="Continue"
+          label={t('common.continue')}
           accent={theme.accent}
-          onPress={() => router.push('/(auth)/onboarding/location')}
+          disabled={!countryCode || !languageCode}
+          onPress={() => router.push('/(auth)/onboarding/priorities')}
         />
       }
     >
       <AppText variant="caption" style={[styles.fieldLabel, { color: theme.accent }]}>
-        Country
+        {t('onboarding.country.field.country')}
       </AppText>
       <View style={styles.chipRow}>
-        {NEWS_COUNTRIES.map((country, index) => {
+        {localizationService.listSelectableCountries().map((country, index) => {
           const selected = countryCode === country.code;
           return (
             <Animated.View
@@ -76,9 +79,16 @@ export default function OnboardingRegionScreen() {
                   },
                 ]}
                 scale={0.95}
-                onPress={() =>
-                  setRegion(selected ? null : country.code, country.code === 'NG' ? state : '')
-                }
+                onPress={() => {
+                  if (selected) {
+                    return;
+                  }
+                  setCountry(country.code);
+                  setLanguage(localizationService.getDefaultLanguage(country.code));
+                  if (!localizationService.getCountrySubdivisions(country.code).includes(state)) {
+                    setState('');
+                  }
+                }}
               >
                 <AppText
                   variant="caption"
@@ -94,17 +104,18 @@ export default function OnboardingRegionScreen() {
         })}
       </View>
 
-      {countryCode === 'NG' ? (
+      {countryCode ? (
         <Animated.View entering={FadeInDown.duration(420)}>
           <AppText variant="caption" style={[styles.fieldLabel, { color: theme.accent }]}>
-            State (optional)
+            {t('onboarding.country.field.language')}
           </AppText>
           <View style={styles.chipRow}>
-            {NIGERIA_STATES.map((item) => {
-              const selected = state === item;
+            {supportedLanguages.map((language) => {
+              const selected = resolvedLanguage === language;
+              const label = localizationService.getLanguageConfig(language);
               return (
                 <PressableScale
-                  key={item}
+                  key={language}
                   style={[
                     styles.chip,
                     selected && {
@@ -113,7 +124,7 @@ export default function OnboardingRegionScreen() {
                     },
                   ]}
                   scale={0.95}
-                  onPress={() => setRegion(countryCode, selected ? '' : item)}
+                  onPress={() => setLanguage(language)}
                 >
                   <AppText
                     variant="caption"
@@ -123,29 +134,62 @@ export default function OnboardingRegionScreen() {
                         : styles.chipText
                     }
                   >
-                    {item}
+                    {label.nativeName}
                   </AppText>
                 </PressableScale>
               );
             })}
           </View>
         </Animated.View>
-      ) : countryCode ? (
+      ) : null}
+
+      {countryCode ? (
         <Animated.View entering={FadeInDown.duration(420)} style={styles.stateBlock}>
           <AppText variant="caption" style={[styles.fieldLabel, { color: theme.accent }]}>
-            State / region (optional)
+            {t('onboarding.country.field.state')}
           </AppText>
-          <View style={styles.inputRow}>
-            <MapPin color={theme.accent} size={16} />
-            <View style={{ flex: 1 }}>
-              <Input
-                placeholder="e.g. Greater Accra"
-                value={state}
-                onChangeText={(value) => setRegion(countryCode, value)}
-                autoCapitalize="words"
-              />
+          {subdivisions.length > 0 ? (
+            <View style={styles.chipRow}>
+              {subdivisions.map((item) => {
+                const selected = state === item;
+                return (
+                  <PressableScale
+                    key={item}
+                    style={[
+                      styles.chip,
+                      selected && {
+                        backgroundColor: theme.soft,
+                        borderColor: theme.accent,
+                      },
+                    ]}
+                    scale={0.95}
+                    onPress={() => setState(selected ? '' : item)}
+                  >
+                    <AppText
+                      variant="caption"
+                      style={
+                        selected ? [styles.chipTextSelected, { color: theme.accent }] : styles.chipText
+                      }
+                    >
+                      {item}
+                    </AppText>
+                  </PressableScale>
+                );
+              })}
             </View>
-          </View>
+          ) : (
+            <View style={styles.inputRow}>
+              <MapPin color={theme.accent} size={16} />
+              <View style={{ flex: 1 }}>
+                <Input
+                  placeholder={t('onboarding.country.statePlaceholder')}
+                  value={state}
+                  onChangeText={setState}
+                  autoCapitalize="words"
+                />
+              </View>
+            </View>
+          )}
         </Animated.View>
       ) : null}
     </OnboardingShell>

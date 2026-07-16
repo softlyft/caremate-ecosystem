@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -13,11 +14,13 @@ import {
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import { usePeriodTrackerHydrated, usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
+import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, spacing } from '@/theme';
 
 const APP_ID = 'period-tracker' as const;
 
 export default function LogPeriodScreen() {
+  const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const [monthRef, setMonthRef] = useState(
@@ -43,12 +46,12 @@ export default function LogPeriodScreen() {
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow="Log days"
-        title="Mark your period"
-        subtitle="Tap the days you were on your period. You can select multiple days across the month."
+        eyebrow={t('apps.periodTracker.logPeriodDays')}
+        title={t('apps.periodTracker.markPeriod')}
+        subtitle={t('apps.periodTracker.markPeriodSubtitle')}
       />
 
-      <MiniAppCard index={1} eyebrow="Calendar" theme={theme}>
+      <MiniAppCard index={1} eyebrow={t('apps.period.ui.calendar')} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -81,18 +84,20 @@ export default function LogPeriodScreen() {
       </MiniAppCard>
 
       <AppText variant="caption" style={styles.selectedCount}>
-        {loggedPeriodDays.length} day(s) selected
+        {t(pluralKey('apps.period.ui.daysSelected', loggedPeriodDays.length), {
+          count: loggedPeriodDays.length,
+        })}
       </AppText>
 
       <MiniAppCta
-        label="Save"
+        label={t('apps.save')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={2}
         onPress={() => router.back()}
       />
       <MiniAppCta
-        label="Clear selection"
+        label={t('apps.clearSelection')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={3}
