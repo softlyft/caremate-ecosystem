@@ -23,14 +23,18 @@ Home renders from SQLite first, then refreshes remote data where supported.
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| `HomeHeader` | `features/home/components/HomeHeader.tsx` | Greeting and profile context |
+| `HomeHeader` | `features/home/components/HomeHeader.tsx` | Greeting, tagline, notifications |
 | `OfflineBanner` | `components/OfflineBanner.tsx` | Connectivity status |
 | `HomeSearchBar` | `features/home/components/HomeSearchBar.tsx` | Opens global search |
 | `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips` |
+| `AdSlot` (`home.tips`) | `features/ads/AdSlot.tsx` | Banner after tip |
 | `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Learn categories |
 | `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending/featured articles |
+| `AdSlot` (`home.feed`) | `features/ads/AdSlot.tsx` | Banner after featured |
 | `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Nearby providers preview |
 | `EmergencyBanner` | `features/home/components/EmergencyBanner.tsx` | Emergency profile CTA |
+
+Spacing between Home sections follows the shared **~16px** rhythm — see [UI & Theme](./ui-and-theme.md#tab-spacing-rhythm). Ads: [Ads](./ads.md).
 
 `QuickActionsGrid` exists in `features/home/components/QuickActionsGrid.tsx` but is not currently mounted on Home.
 
@@ -60,10 +64,16 @@ Learn combines:
 
 | Screen | Route | Notes |
 |--------|-------|-------|
-| Learn feed | `/(app)/(tabs)/articles` | Search + category filter |
-| Article detail | `/(app)/articles/[id]` | Full article view; external sources open in browser |
+| Learn feed | `/(app)/(tabs)/articles` | Search + category filter; Bookmarks pill beside title |
+| Article detail | `/(app)/articles/[id]` | Body + `learn.article_header` / `learn.article_footer` ads |
 | Category page | `/(app)/articles/category/[slug]` | Alternate category route |
 | Bookmarks | `/(app)/articles/bookmarks` | Reads local bookmark rows |
+
+### UX notes
+
+- Category chips are horizontally scrollable; each category has soft tint + **accent** color when selected (same idea as Nearby type filters). “All” uses a grid icon.
+- Clearing “All” uses `setParams({ category: '' })` — does not remount the tab.
+- Tab stays mounted when switching away ([Navigation](./navigation.md#bottom-tabs)).
 
 ### Current limitation
 
@@ -112,9 +122,14 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 
 | Screen | Route | Notes |
 |--------|-------|-------|
-| Nearby tab | `/(app)/(tabs)/providers` | Filters + search; empty state when none nearby |
-| Provider detail | `/(app)/providers/[id]` | Favorite toggle, contact info, Open in Maps |
+| Nearby tab | `/(app)/(tabs)/providers` | Horizontal type chips with icons + search; `nearby.list` ad |
+| Provider detail | `/(app)/providers/[id]` | Favorite, contact, `nearby.provider` ad before contact |
 | Map (legacy) | `/(app)/providers/map` | Redirects to the Nearby tab |
+
+### UX notes
+
+- Provider type filters scroll horizontally (do not wrap); each type uses its theme color + Lucide icon.
+- Tab stays mounted when switching away ([Navigation](./navigation.md#bottom-tabs)).
 
 ### Current limitations
 
@@ -133,6 +148,8 @@ This tab is the launcher for the five registered mini-apps:
 - Immunization Tracker
 - Medication Tracker
 - Checkup Planner
+
+Card grid uses tightened spacing (`spacing.sm` between cards) — see [UI & Theme](./ui-and-theme.md#tab-spacing-rhythm).
 
 See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 

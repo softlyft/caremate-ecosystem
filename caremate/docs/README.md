@@ -49,12 +49,14 @@ docs/
 ├── mini-apps.md           Medication, Checkup, Immunization, Pregnancy, Period
 ├── features.md            Home, Learn, Nearby, Emergency, Profile
 ├── notifications.md       In-app / push / email strategy
-├── ads.md                 House / sponsored / AdMob strategy (locked)
+├── ads.md                 House / sponsored / AdMob (slots, sync, caps, troubleshooting)
 ├── configuration.md       app.json, env, storage keys, sync config
 ├── development.md         Scripts, TypeScript, linting, patterns
-├── qa-test-cases.md       Manual QA suite for core + mini-apps
+├── qa-test-cases.md       Manual QA suite for core + mini-apps + ads
 └── roadmap.md             Phases, known gaps, future work
 ```
+
+UI spacing rhythm for main tabs is documented in [UI & Theme](./ui-and-theme.md#tab-spacing-rhythm). Tab mount persistence is in [Navigation](./navigation.md#bottom-tabs).
 
 ---
 

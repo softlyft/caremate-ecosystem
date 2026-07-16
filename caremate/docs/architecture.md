@@ -122,9 +122,9 @@ Defined in `src/components/AppProviders.tsx` → `BootstrapGate`:
 
 1. **`initializeDatabase()`** — create/open `caremate.db`, apply Drizzle migrations
 2. **`providerRepository.purgeBundledProviders()`** — soft-delete legacy bundled/demo provider rows (no local seed hydration)
-3. **`articleRepository.pullFromRemote()`** / **`healthTipRepository.pullFromRemote()`** — pull Learn catalog and tips from Supabase (guests included)
+3. **Catalog pulls (guests included):** `articleRepository.pullFromRemote()`, `healthTipRepository.pullFromRemote()`, and **`adsRepository.pullFromRemote()`**, then invalidate TanStack Query `ads` keys
 4. **`useAuthStore.initialize()`** — restore Supabase session or default to guest
-5. **`syncEngine.start()`** (background) — begin sync loop after the UI is ready
+5. **`syncEngine.start()`** (background) — begin sync loop after the UI is ready; AdMob consent may init when configured
 
 Nearby providers are **not** seeded at bootstrap. Screens call `providerRepository.findNearby()` → Supabase `nearby_providers` RPC; an empty result shows the Nearby empty state.
 
