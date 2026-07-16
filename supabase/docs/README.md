@@ -1,0 +1,30 @@
+# Supabase Docs
+
+This docs set covers the shared cloud backend used by CareMate services.
+
+## Quick Links
+
+| Topic | Read |
+|------|------|
+| Schema groups and data ownership | [Schema Overview](./schema-overview.md) |
+| Auth, roles, and RLS model | [Auth and RLS](./auth-and-rls.md) |
+| RPCs and Edge Functions | [RPCs and Functions](./rpcs-and-functions.md) |
+| Migrations, seeds, local CLI workflow | [Operations](./operations.md) |
+
+## What This Service Owns
+
+- Shared Postgres schema
+- Row Level Security policies
+- JWT role helpers
+- RPC functions
+- Storage buckets/policies
+- Edge Functions for billing
+
+## Main Source Areas
+
+| Area | Path |
+|------|------|
+| SQL migrations | `supabase/migrations/` |
+| Local CLI config | `supabase/config.toml` |
+| Seed placeholder | `supabase/seed.sql` |
+| Edge Functions | `supabase/functions/` |

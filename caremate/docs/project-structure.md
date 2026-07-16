@@ -2,114 +2,150 @@
 
 [← Back to index](./README.md)
 
-## Repository layout
+## Repository Layout
 
-```
+```text
 caremate/
 ├── assets/
-├── docs/                   # Documentation + ADRs
-├── modules/                # Local native modules (Android emergency widget)
-├── src/                    # Application source
-├── supabase/               # Remote Postgres migrations (CLI)
+├── docs/                   Documentation + ADRs
+├── modules/                Local native modules (Android emergency widget)
+├── src/                    Application source
 ├── app.json
 ├── package.json
 └── …
 ```
 
----
+Cloud migrations and shared backend infrastructure do **not** live inside this app. They live at the monorepo root in `../supabase/`.
 
-## `src/` directory
+## `src/` Directory
 
-```
+```text
 src/
-├── app/                 # Expo Router — thin screens
-├── components/          # Shared UI + AppProviders
-├── constants/           # Config, env, guest, assets
-├── database/            # SQLite client + Drizzle schema (platform)
-├── domains/             # Core vertical slices
-│   ├── articles/        # learn UI helpers, repo, Currents
-│   ├── emergency/       # constants, lock surface, repo
-│   ├── profile/         # settings store + repo
-│   └── providers/       # FHIR seeds + repo
-├── features/            # Shell / platform-adjacent modules
-│   ├── auth/
-│   ├── home/            # Home composition UI
-│   ├── family/          # placeholder
-│   └── notifications/   # placeholder
-├── hooks/
-├── lib/                 # Supabase client, SecureStore adapters
-├── mini-apps/           # Product growth modules
-│   ├── _kit/            # registry, sync storage, hydrate, calendar
-│   ├── medication-tracker/
-│   ├── checkup-planner/
-│   ├── immunization-tracker/
-│   ├── pregnancy-tracker/
-│   └── period-tracker/
-├── repositories/        # BaseRepository only (domain repos live in domains/)
-├── services/            # auth-service (and other cross-cutting APIs)
-├── sync/                # engine, queue, network, handler registry
-├── theme/
-├── types/
-├── utils/
-└── widgets/             # iOS lock widget
+├── app/                 Expo Router screens and layouts
+├── components/          Shared UI, app providers, nav chrome
+├── constants/           Config, env helpers, guest defaults, assets
+├── database/            SQLite client + Drizzle schema
+├── domains/             Vertical slices with repositories and domain logic
+├── features/            Screen-composition and shell-adjacent UI
+├── hooks/               Shared hooks
+├── lib/                 Storage adapters and Supabase client helpers
+├── mini-apps/           Health tracker modules + shared mini-app kit
+├── repositories/        Shared base repository primitives
+├── services/            Cross-cutting services such as auth
+├── sync/                Queue, engine, handlers, background sync
+├── theme/               Colors, typography, layout tokens
+├── types/               Shared app-level types
+├── utils/               Utility helpers
+└── widgets/             iOS emergency widget bridge
 ```
 
-See [ADR-006](./adr/006-core-vs-mini-apps.md) and [Mini-app contract](./mini-app-contract.md).
+## Domains
 
----
+Current domain modules under `src/domains/`:
 
-## Domains (core)
+| Domain | Purpose |
+|--------|---------|
+| `articles/` | Learn content, article querying, Currents refresh |
+| `billing/` | Premium state, checkout helpers, entitlement state |
+| `emergency/` | Emergency profile data and lock-surface sync |
+| `family/` | Household, spouse connection, child profile flows |
+| `onboarding/` | Onboarding flow state, device defaults, setup routing |
+| `profile/` | User profile/settings persistence and helpers |
+| `providers/` | Nearby provider lookup, favorites, location helpers |
+| `search/` | Cross-domain search across articles, providers, and tools |
+| `tips/` | Health tip repository and local cache |
 
-| Domain | Path | Public entry |
-|--------|------|----------------|
-| Articles / Learn | `domains/articles/` | `domains/articles/index.ts` |
-| Emergency | `domains/emergency/` | `domains/emergency/index.ts` |
-| Providers | `domains/providers/` | `domains/providers/index.ts` |
-| Profile | `domains/profile/` | `domains/profile/index.ts` |
+Each domain generally owns:
 
-Each domain owns its repository, seed/helpers, and UI pieces used by routes. Screens import public APIs.
+- Repository logic
+- Query/mapping helpers
+- Domain-specific components where useful
+- Sync hooks where the entity participates in cloud sync
 
----
+## Features
 
-## Mini-apps
+`src/features/` contains UI that composes domain data into screens or shared shell behavior:
 
-| Piece | Path |
+| Feature | Purpose |
+|---------|---------|
+| `auth/` | Zustand auth store and auth-facing UI state |
+| `home/` | Home tab sections and cards |
+| `profile/` | Patient ID card and profile rows |
+| `notifications/` | Placeholder area for future notification-specific UI |
+
+## Mini-Apps
+
+The five mini-apps live under `src/mini-apps/`:
+
+- `period-tracker/`
+- `pregnancy-tracker/`
+- `immunization-tracker/`
+- `medication-tracker/`
+- `checkup-planner/`
+
+Shared mini-app infrastructure lives under `src/mini-apps/_kit/`:
+
+| Piece | File |
 |-------|------|
-| Launcher registry | `mini-apps/_kit/registry.ts` → `MINI_APPS` |
-| Synced Zustand storage | `mini-apps/_kit/synced-storage.ts` |
-| Hydrate / migrate | `mini-apps/_kit/hydrate.ts` |
-| Snapshot repository | `mini-apps/_kit/snapshot-repository.ts` |
-| Shared calendar | `mini-apps/_kit/components/MonthCalendarGrid.tsx` |
-| App modules | `mini-apps/<id>/` |
-| Routes | `app/(app)/apps/<id>/` |
+| Launcher registry | `_kit/registry.ts` |
+| Shared card/header/theme | `_kit/MiniAppCard.tsx`, `_kit/components/*`, `_kit/theme.ts` |
+| Synced Zustand storage | `_kit/synced-storage.ts` |
+| Snapshot repository | `_kit/snapshot-repository.ts` |
+| Rehydrate and migration helpers | `_kit/hydrate.ts`, `_kit/rehydrate-registry.ts` |
 
-New mini-app checklist: [mini-app-contract.md](./mini-app-contract.md).
+Mini-app routes live under `src/app/(app)/apps/<app-id>/`.
 
----
+See [Mini-Apps](./mini-apps.md) and [Mini-app contract](./mini-app-contract.md).
 
-## Sync platform
+## Sync Platform
+
+The sync system lives in `src/sync/`:
 
 | File | Role |
 |------|------|
-| `sync/registry.ts` | `registerSyncHandler` / lookup |
-| `sync/register-default-handlers.ts` | Wires core + mini-app snapshot handlers |
-| `sync/engine.ts` | Orchestrates push/pull; no hard-coded entity map |
-| `sync/queue.ts` | Outbox + requestSync on write |
-| `sync/background-daily-sync.ts` | Closed-app safety net |
+| `registry.ts` | Handler registration and lookup |
+| `register-default-handlers.ts` | Wires repositories into the sync engine |
+| `engine.ts` | Push/pull orchestration and trigger lifecycle |
+| `queue.ts` | Local outbox and write scheduling |
+| `network.ts` | Connectivity checks |
+| `background-daily-sync.ts` | Daily background sync registration |
+| `cloud-types.ts` | Shared remote row typing helpers |
 
----
+## Routing Structure
 
-## `src/app/` — routing
+`src/app/` is organized around Expo Router groups:
 
-Unchanged Expo Router tree (`(auth)`, `(app)/(tabs)`, `apps/*`, `emergency`, `articles`, `providers`, `profile`). Tab screens stay thin.
+| Area | Purpose |
+|------|---------|
+| `src/app/_layout.tsx` | Root layout/bootstrap |
+| `src/app/index.tsx` | Entry redirect based on onboarding/auth state |
+| `src/app/(auth)/` | Login, register, forgot password, onboarding |
+| `src/app/(app)/` | Signed-in or guest app shell |
+| `src/app/(app)/(tabs)/` | Home, Learn, Nearby, Apps, Profile tabs |
+| `src/app/(app)/setup/` | Post-onboarding setup screens |
+| `src/app/(app)/family/` | Family routes |
+| `src/app/(app)/articles/` | Article detail/category/bookmarks routes |
+| `src/app/(app)/providers/` | Provider detail and map placeholder |
+| `src/app/(app)/emergency/` | Emergency detail/edit/QR routes |
+| `src/app/(app)/apps/` | Mini-app screens |
+| `src/app/emergency-lock.tsx` | Public emergency lock card route |
 
----
+See [Navigation](./navigation.md) for the full route map.
 
-## Adding code
+## Adding Code
 
-| Task | Where |
-|------|--------|
-| New mini-app | `src/mini-apps/<id>/` + routes + `_kit` registry + snapshot key (+ Supabase check if needed) |
-| New core entity | Prefer `src/domains/<name>/` + register sync handler |
+| Task | Where to add it |
+|------|-----------------|
+| New mini-app | `src/mini-apps/<id>/` + routes + `_kit` registry wiring |
+| New synced entity | `src/domains/<name>/` + repository + `sync/register-default-handlers.ts` |
 | Shared UI primitive | `src/components/ui/` |
-| Auth / guest | `features/auth`, `services/auth-service`, `constants/guest` |
+| New screen-composition UI | `src/features/` |
+| Auth/guest behavior | `src/features/auth/`, `src/services/auth-service.ts`, `src/constants/guest.ts` |
+| Device-local schema changes | `src/database/schema.ts` and `src/database/client.ts` |
+
+## Related Docs
+
+- [Navigation](./navigation.md)
+- [Architecture](./architecture.md)
+- [Data Layer](./data-layer.md)
+- [Supabase alignment](./supabase-alignment.md)

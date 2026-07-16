@@ -32,7 +32,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| SM-01 | P0 | Fresh install | Launch app | Lands on Home (no forced login). No crash. |
+| SM-01 | P0 | Fresh install | Launch app | Lands in onboarding when incomplete, otherwise enters the app successfully. No crash. |
 | SM-02 | P0 | Running app | Tap all 5 tabs: Home, Learn, Nearby, Apps, Me | Each tab opens; tab bar highlights active tab. |
 | SM-03 | P0 | Signed-in + online | Kill app → relaunch | Session restored; still signed in. |
 | SM-04 | P0 | Any | Force-close during Home load → reopen | Recovers without blank freeze. |
@@ -54,10 +54,21 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | AU-07c | P2 | Expired/invalid reset link | Open stale link or open `/auth/reset-password` cold | Link expired / request-new-link path; no crash. |
 | AU-08 | P0 | Guest | Browse Home / Learn / Nearby / Apps | All usable without account. |
 | AU-09 | P0 | Signed-in | Me → Sign Out | Returns to guest state; CTAs to Sign In / Create Account. |
-| AU-10 | P2 | Signed-in, device with biometrics | Enable biometric unlock on Me | Toggle saves; unlocking behavior matches device support. |
-| AU-11 | P2 | No biometrics hardware/enroll | Enable biometric | Toggle does not incorrectly claim success (or gracefully no-ops). |
+| AU-10 | P2 | Signed-in, device with biometrics | Enable biometric unlock on Me | Preference persists and toggle state is restored after relaunch. |
+| AU-11 | P2 | No biometrics hardware/enroll | Enable biometric | App handles the unsupported case gracefully and does not crash. |
 | AU-12 | P1 | Airplane mode | Attempt login/register | User-facing network failure message (not raw stack trace). |
-| AU-13 | P2 | Supabase unconfigured (dev only) | Login screen demo path if shown | Demo sign-in works locally without remote auth. |
+
+---
+
+## 1b. Onboarding & setup
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| OB-01 | P0 | Fresh install / onboarding incomplete | Launch app | Onboarding intro opens instead of dropping straight into tabs. |
+| OB-02 | P1 | Onboarding flow | Complete priorities, region, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
+| OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Flow completes with fallback/default location behavior. |
+| OB-04 | P1 | Onboarding complete | Relaunch app | Onboarding does not reappear on every launch. |
+| OB-05 | P1 | Newly signed-in user | Complete post-signup setup screens | Emergency, family prompt, and done screens advance correctly. |
 
 ---
 
@@ -102,15 +113,17 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| NB-01 | P0 | First launch | Open Nearby | Provider list seeded (hospitals etc.); sorted by distance. |
-| NB-02 | P1 | List open | Filter Hospitals / Clinics / Pharmacies / Labs / All | List filters correctly. |
+| NB-01 | P0 | Online or previously cached providers | Open Nearby | Provider list loads from nearby results or cached rows; screen does not crash if remote fetch fails. |
+| NB-02 | P1 | List open | Filter All / Hospitals / Clinics / Pharmacies / Labs / Telemedicine / Blood Bank / Ambulance | List filters correctly for the available provider types. |
 | NB-02b | P1 | List open | Search by provider name keyword | Matching providers remain; others hide. |
 | NB-03 | P0 | Any | Open a provider | Detail shows name, type, contact, address as available. |
 | NB-04 | P1 | Signed-in | Toggle favorite on detail | Favorite state persists after leave/reopen. |
 | NB-05 | P2 | Guest | Toggle favorite | Still works locally (guest-scoped) or gated per product rule — confirm no crash. |
 | NB-06 | P1 | Detail with coordinates | Open directions link | External maps URL opens. |
 | NB-07 | P2 | Map entry | Open Map screen | Placeholder/coordinate list loads (not a full interactive map yet). |
-| NB-08 | P1 | Offline | Nearby tab | Seeded/local providers still listed. |
+| NB-08 | P1 | Offline with cached provider data | Nearby tab | Cached providers still list successfully. |
+| NB-09 | P1 | Location permission denied or approximate mode chosen | Open Nearby | App falls back to default supported coordinates and still attempts to show providers. |
+| NB-10 | P1 | Device location outside Nigeria (or emulator default outside service area) | Open Nearby | App falls back to Lagos/default supported coordinates rather than showing a broken empty flow. |
 
 ---
 
@@ -143,7 +156,9 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ME-08 | P1 | Signed-in | Settings → set country (e.g. Nigeria) + state → Save | Saves; Learn/Home news context can use country. |
 | ME-09 | P1 | Guest | Settings location | Explain that sign-in is required / control disabled. |
 | ME-10 | P1 | Settings | Open Family from Settings | Same Family flow as Me entry. |
-| ME-11 | P2 | Signed-in | Me biometric toggle | Persist as AU-10. |
+| ME-11 | P2 | Signed-in | Me biometric toggle | Persist as AU-10; this is preference persistence, not a verified app-lock gate. |
+| ME-12 | P1 | Signed-in | Me → Premium | Premium screen opens and current plan state loads without crash. |
+| ME-13 | P1 | Guest | Me → Premium | Upgrade path prompts sign-in instead of attempting checkout anonymously. |
 
 ---
 
@@ -164,9 +179,23 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | FM-11 | P1 | Account B | Decline request | Status declined; not added as spouse. |
 | FM-12 | P1 | Unknown email/phone | Find → not found | Message + generate/share invite (no automatic SMS/email). |
 | FM-13 | P1 | Share invite | Share sheet | Message contains CareMate invite link/token text. |
+| FM-13b | P2 | Shared invite link opened on another device | Open generated invite URL | Record current behavior: invite link may not complete an in-app redeem flow automatically; no crash or broken navigation. |
 | FM-14 | P1 | Guest | Family entry | Blocked with sign-in. |
 | FM-15 | P1 | Airplane mode | Create household + kids | Saves locally; syncs when back online. |
 | FM-16 | P2 | Not a parent path | “Not right now” | Returns to Family without forcing kids. |
+
+---
+
+## 7b. Premium / billing
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| PM-01 | P1 | Signed-in | Open Premium | Current tier badge/state and pricing options load. |
+| PM-02 | P1 | Signed-in, no household | Choose Family plan | App prompts user to set up family before family checkout. |
+| PM-03 | P1 | Signed-in, household exists | Choose Family plan | Family plan selection is allowed and checkout path can start. |
+| PM-04 | P1 | Signed-in | Choose Personal plan and tap NGN/USD checkout | Hosted checkout is attempted; failures are shown as user-facing errors, not crashes. |
+| PM-05 | P2 | Guest | Open Premium and try upgrade CTA | Guest is routed to login/sign-in path. |
+| PM-06 | P2 | Any | Premium screen copy/state | Treat as informational only: premium entitlements may not yet hard-gate most app features. |
 
 ---
 
@@ -298,8 +327,10 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | Bookmark toggle on Learn cards | Often decorative; bookmarks screen may be empty |
 | Provider map | Placeholder, not full maps SDK |
 | Emergency QR | Preview; may not encode real QR yet |
-| Onboarding carousel | Not auto-shown on first launch |
+| Biometric unlock | Preference exists, but full app-lock enforcement may not be wired |
 | Push notifications | Preference toggle may not deliver OS pushes yet |
+| Premium gating | Pricing and checkout UI exist, but most feature locking may still be soft/incomplete |
+| Family invite links | Share/invite text exists, but deep-link redemption may not be fully wired |
 | Spouse join | Personal mini-app data stays per parent (shared household kids only) |
 
 ---

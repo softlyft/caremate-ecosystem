@@ -4,327 +4,270 @@
 
 ## Overview
 
-Core CareMate features use the **repository + SQLite** stack (with optional Supabase sync). Screens live under `src/app/`; feature UI and data helpers live under `src/features/` (`home`, `learn`, `nearby`, `emergency`).
+CareMate’s core product features are implemented on top of the mobile app’s local-first repository stack:
 
----
+```text
+UI → Repository → SQLite → Sync Engine → Supabase
+```
 
-## Home tab
+Core routes live under `src/app/`. Shared feature composition mostly lives under `src/features/`, while domain-specific behavior lives under `src/domains/`.
 
-**Route:** `/(app)/(tabs)/`  
-**File:** `src/app/(app)/(tabs)/index.tsx`
+## Home Tab
 
-Home is **offline-first**: it renders from SQLite immediately and refreshes Currents news in the background.
+**Route:** `/(app)/(tabs)`  
+**Screen:** `src/app/(app)/(tabs)/index.tsx`
 
-### Data loaded
+Home renders from SQLite first, then refreshes remote data where supported.
+
+### Main sections
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `HomeHeader` | `features/home/components/HomeHeader.tsx` | Greeting and profile context |
+| `OfflineBanner` | `components/OfflineBanner.tsx` | Connectivity status |
+| `HomeSearchBar` | `features/home/components/HomeSearchBar.tsx` | Opens global search |
+| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips` |
+| `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Learn categories |
+| `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending/featured articles |
+| `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Nearby providers preview |
+| `EmergencyBanner` | `features/home/components/EmergencyBanner.tsx` | Emergency profile CTA |
+
+`QuickActionsGrid` exists in `features/home/components/QuickActionsGrid.tsx` but is not currently mounted on Home.
+
+### Data loading
 
 | Query | Source | Purpose |
 |-------|--------|---------|
-| Profile | `profileRepository.findByUserId` | Country code for news (signed-in only) |
-| Trending articles | `articleRepository.getTrendingToday(3, …)` | “Trending Today” row |
-| Providers | `providerRepository.findAll()` | Nearby row (first 4 by distance) |
+| Profile | `profileRepository.findByUserId()` | Country/profile context |
+| Articles | `articleRepository.getTrendingToday()` and article queries | Learn content on Home |
+| Providers | `providerRepository.findAll()` or nearby cache | Nearby row |
+| Health tips | `healthTipRepository` | Daily tip rotation |
 
-After local trending loads, Home calls `articleRepository.refreshTrendingInBackground({ isGuest, countryCode })` and invalidates `QUERY_KEYS.trendingArticles`.
+When online and configured, article refreshes can pull from Currents in the background and invalidate article query keys afterward.
 
-### Component stack (top → bottom)
-
-| Component | File | Description |
-|-----------|------|-------------|
-| `HomeHeader` | `features/home/components/HomeHeader.tsx` | Logo, greeting |
-| `OfflineBanner` | `components/OfflineBanner.tsx` | Shown when offline |
-| `HomeSearchBar` | `features/home/components/HomeSearchBar.tsx` | Opens global Search |
-| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from Supabase → SQLite |
-| `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Category chips → Learn `?category=` |
-| `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending Today (up to 3) |
-| `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Top 4 providers |
-| `EmergencyBanner` | `features/home/components/EmergencyBanner.tsx` | CTA → emergency edit |
-
-`QuickActionsGrid` exists in the codebase but is **not** mounted on Home currently.
-
-### Health categories
-
-Eight categories in `features/home/constants.ts` (`heart`, `child`, `pregnancy`, `mental`, `medication`, `nutrition`, `fitness`, `infectious`). Tapping a chip opens Learn with `/(app)/(tabs)/articles?category=<id>`.
-
----
-
-## Learn tab (Articles)
+## Learn
 
 **Route:** `/(app)/(tabs)/articles`  
-**File:** `src/app/(app)/(tabs)/articles.tsx`  
-**Feature code:** `src/domains/articles/`
+**Domain:** `src/domains/articles/`
 
-### Content model
+Learn combines:
 
-Phase 1 = **articles**. Phase 2 formats (video, podcast, campaign, health alert, FAQ, guide) share one row model — see **[Learn content model](./learn-content-model.md)**.
-
-| Kind | How identified | Source |
-|------|----------------|--------|
-| Evergreen | CareMate catalog from portal → Supabase (`contentType` article/faq/…) | Pulled into SQLite on boot + sync |
-| External (Currents) | `id` starts with `currents-` and/or `sourceUrl` set, `contentType: article` | Currents API → SQLite |
-| Health News category | `categoryId === 'health'` | External articles |
-| Future formats | `contentType` ≠ `article` + `attributes` | Seeds / CMS / Supabase |
-
-Feed ordering (`orderLearnFeed`): daily featured evergreen → external news → remaining evergreen.
-
-### Offline-first flow
-
-1. Screens read SQLite immediately (`findAll` / `findByCategory` / `getTrendingToday`).
-2. Learn and Home kick off `refreshTrendingInBackground` when online and Currents is configured.
-3. On success, TanStack Query keys for articles / trending are invalidated.
-4. If Currents fails or device is offline, evergreen + previously cached external articles still show.
-
-### Currents integration
-
-| Piece | Location |
-|-------|----------|
-| Service | `src/services/currents-service.ts` |
-| Env | `EXPO_PUBLIC_CURRENTS_API_KEY`, `EXPO_PUBLIC_CURRENTS_COUNTRY` |
-| Country resolve | `resolveNewsCountryCode` in `src/constants/locations.ts` |
-
-Country behavior:
-
-- Guest or missing profile country → **INT** (international)
-- Signed-in → profile `countryCode` when set
-- API: `country` query param is **omitted** for `INT` (Currents returns empty for `INT` / many countries)
-- If a country-scoped request returns no news → **fallback to global** English health news
-
-### Learn tab UI
-
-- Search (title / summary / content) — also via Home → **Search** screen
-- Category filter via `HealthCategoriesRow` (`?category=` or in-tab state)
-- Deep link from Search: `/(app)/(tabs)/articles?q=`
-- Unfiltered feed: featured hero (`FeaturedArticleCard`) + compact list
-- Link to bookmarks screen
-- Background Currents refresh on mount (same as Home)
+- Evergreen content managed through the portal and synced from Supabase
+- Cached external health news from Currents
+- Category filtering and search
 
 ### Related screens
 
-| Screen | Route | Behavior |
-|--------|-------|----------|
-| Article detail | `/(app)/articles/[id]` | Full text; **“Read full article”** opens `sourceUrl` in browser when present |
-| Category feed | `/(app)/articles/category/[slug]` | Exists; primary UX is tab `?category=` instead |
-| Bookmarks | `/(app)/articles/bookmarks` | Lists bookmarked articles |
+| Screen | Route | Notes |
+|--------|-------|-------|
+| Learn feed | `/(app)/(tabs)/articles` | Search + category filter |
+| Article detail | `/(app)/articles/[id]` | Full article view; external sources open in browser |
+| Category page | `/(app)/articles/category/[slug]` | Alternate category route |
+| Bookmarks | `/(app)/articles/bookmarks` | Reads local bookmark rows |
 
-### Bookmarks (gap)
+### Current limitation
 
-`articleRepository` supports `toggleBookmark` / `getBookmarks` / sync queue, and the bookmarks screen reads them. **Learn cards and article detail do not call toggle yet** (bookmark icon is decorative). Documented as a known gap.
+Bookmarks are only partially wired today:
 
-### Key files
-
-```
-domains/articles/
-├── components/ArticleCards.tsx
-├── utils/evergreen-articles.ts  # feed helpers (CareMate vs Currents)
-└── repository.ts
-```
-
----
+- `articleRepository.toggleBookmark()` exists
+- The bookmarks screen reads bookmarks successfully
+- Learn cards and article detail do not yet trigger bookmark toggles, so bookmark icons are currently decorative
 
 ## Search
 
 **Route:** `/(app)/search`  
-**File:** `src/app/(app)/search.tsx`  
 **Domain:** `src/domains/search/`
 
-Opened from Home search bar. Queries:
+Global search combines three sources:
 
 | Section | Source |
 |---------|--------|
-| Articles | `articleRepository.findAll(query)` (title / summary / content) |
-| Nearby | `providerRepository.findAll({ search })` |
-| Tools | Mini-app registry name / description |
+| Articles | Local article search |
+| Providers | Local provider cache search |
+| Tools | Mini-app registry metadata |
 
-“See all” deep-links into Learn or Nearby with `?q=`.
+Search deep-links users back into Learn or Nearby using route params like `?q=`.
 
----
-
-## Nearby tab (Providers)
+## Nearby Providers
 
 **Route:** `/(app)/(tabs)/providers`  
-**File:** `src/app/(app)/(tabs)/providers.tsx`  
-**Feature code:** `src/domains/providers/`
+**Domain:** `src/domains/providers/`
 
-### Data source
+Nearby is no longer driven by seeded bundle data as the primary source. The current implementation is:
 
-1. **Seed:** FHIR R4 Bundle in `domains/providers/data/providers.json`, mapped by `mapFhirProviderBundle` / `getProviderSeeds()`.
-2. `providerRepository.seedIfEmpty()` inserts seeds and soft-deletes legacy ids (`provider-1`…`4`).
-3. Optional Supabase pull when sync runs online.
+1. Query the `nearby_providers` Supabase RPC when online
+2. Cache returned rows into SQLite
+3. Fall back to local cached provider rows when offline or when the RPC fails
 
-Distances come from seed FHIR extensions (`distanceKm`) — **not** live GPS.
+### Important implementation details
 
-### List UI
-
-- Text search (name / address / phone / type)
-- Type filters: All / Hospitals / Clinics / Pharmacies / Labs (`PRIMARY_PROVIDER_TYPES`)
-- Deep link from Search: `/(app)/(tabs)/providers?q=`
-- Sorted by `distanceKm`
-- Opens provider detail; link to “map” screen
-
-Seed data may also include types without filter chips (`dentist`, `mental_health`, `ambulance`, `blood_bank`).
+- `providerRepository.purgeBundledProviders()` removes bundled provider seed rows during bootstrap
+- The app does not currently use a `seedIfEmpty()` flow
+- The “Map” route is a coordinate list placeholder, not a native map experience
+- Favorites are toggled on the provider detail screen and sync through `provider_favorites`
 
 ### Related screens
 
-| Screen | Route | Behavior |
-|--------|-------|----------|
-| Provider detail | `/(app)/providers/[id]` | Contact fields, **favorite toggle** (SQLite + sync), Google Maps directions URL |
-| Map | `/(app)/providers/map` | **Coordinate list placeholder** (not `react-native-maps` yet) |
+| Screen | Route | Notes |
+|--------|-------|-------|
+| Nearby tab | `/(app)/(tabs)/providers` | Filters + search |
+| Provider detail | `/(app)/providers/[id]` | Favorite toggle, contact info, directions |
+| Map placeholder | `/(app)/providers/map` | Coordinate list placeholder |
 
-Favorites are toggled on the **detail** screen, not the list.
+### Current limitations
 
-### Home integration
+- Offline fresh installs may have an empty provider experience until cached or remote results exist
+- The map experience is still a placeholder screen
+- The providers tab does not yet surface a dedicated error state
 
-`NearbyProvidersRow` shows the first 4 providers from `findAll()` (distance-ordered seed data).
-
-### Key files
-
-```
-domains/providers/
-├── data/providers.json
-└── utils/fhir-providers.ts
-domains/providers/repository.ts
-```
-
----
-
-## Apps tab
+## Apps Tab
 
 **Route:** `/(app)/(tabs)/apps`  
-**File:** `src/app/(app)/(tabs)/apps.tsx`
+**Screen:** `src/app/(app)/(tabs)/apps.tsx`
 
-Mini-apps launcher. See [Mini-Apps](./mini-apps.md).
+This tab is the launcher for the five registered mini-apps:
 
----
+- Period Tracker
+- Pregnancy Tracker
+- Immunization Tracker
+- Medication Tracker
+- Checkup Planner
 
-## Me tab (Profile)
+See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 
-**Route:** `/(app)/(tabs)/profile`  
-**File:** `src/app/(app)/(tabs)/profile.tsx`
+## Profile, Settings, and Premium
 
-### Features
+**Profile route:** `/(app)/(tabs)/profile`  
+**Settings route:** `/(app)/profile/settings`  
+**Premium route:** `/(app)/profile/premium`
 
-- Guest vs authenticated display
-- Sign-in / create account CTAs for guests (register includes **phone number**)
-- Link to settings
+### Implemented profile features
+
+- Guest vs authenticated profile presentation
+- Register/sign-in CTAs for guests
 - Sign out
+- Patient ID display
+- Settings access
+- Emergency and family entry points
+- Premium status and checkout entry points
 
-### Settings
+### Implemented settings features
 
-**Route:** `/(app)/profile/settings`  
-**File:** `src/app/(app)/profile/settings.tsx`
+- Theme preference (light, dark, system)
+- Notifications preference
+- Region and location-related profile fields
+- Biometric preference toggle
 
-- Theme: light / dark / system
-- Notifications toggle
-- Persisted via settings repository / store
+### Current limitations
 
----
+- The biometric toggle currently stores preference but does not gate app access
+- Notifications are preference-only; push delivery and reminder flows are not fully wired
+- Premium status is surfaced in the UI, but feature locking is still intentionally limited
 
-## Emergency profile
+## Emergency Profile
 
-Critical offline health information for emergencies, plus lock / home screen surfaces.
+Emergency profile data is intended to be available offline and also surfaced through the lock/widget layer.
 
-### In-app routes
+### Routes
 
-| Route | File | Role |
-|-------|------|------|
-| `/(app)/emergency` | `emergency/index.tsx` | View profile |
-| `/(app)/emergency/edit` | `emergency/edit.tsx` | Edit (modal) |
-| `/(app)/emergency/qr` | `emergency/qr.tsx` | QR **preview** (payload shown; real QR encoder is a follow-up) |
-| `/emergency-lock` | `src/app/emergency-lock.tsx` | Public lock-screen card (no auth) |
+| Route | Purpose |
+|-------|---------|
+| `/(app)/emergency` | View profile |
+| `/(app)/emergency/edit` | Edit profile |
+| `/(app)/emergency/qr` | QR preview |
+| `/emergency-lock` | Public emergency card |
 
-Deep link: `caremate://emergency-lock`.
+### Editable data
 
-### Fields
+- Full name
+- Blood group and genotype
+- Allergies, medications, chronic conditions
+- ICE contacts
+- Preferred hospital
+- Insurance provider
+- Notes
 
-Displayed / editable:
+`photoUrl` exists in schema but is not exposed in the current edit flow.
 
-- Full name (edit uses first + last)
-- Blood group, genotype
-- Allergies, medications, chronic conditions (lists)
-- Emergency (ICE) contacts — name, phone, relationship
-- Preferred hospital, insurance, notes
+### Lock and widget surface
 
-`photoUrl` exists on the schema but is **not** exposed in the current UI.
+- iOS: widget/lock-screen support via `expo-widgets`
+- Android: Glance widget module under `modules/emergency-lock-widget`
+- Expo Go: widget updates are stubbed
 
-### Persistence
+### Current limitations
 
-- SQLite via `emergencyRepository.save(userId, input)` + sync queue
-- On save, also updates lock surface: `setEmergencyLockSurfaceEnabled` + `syncEmergencyLockSurface`
+- QR is currently a payload preview rather than a generated QR image
+- The edit flow allows saving without requiring an ICE contact, while setup is stricter
+- Emergency screens do not consistently surface dedicated query error states
 
-### Lock / widget surface
+## Family
 
-Minimal snapshot (AsyncStorage + native widget):
+Family flows live across:
 
-| Field | Notes |
-|-------|-------|
-| Name, blood group, genotype | |
-| Allergies | Up to 3 |
-| First ICE contact | Name, phone, relationship |
+- `/(app)/family/*`
+- `src/domains/family/`
+- `src/app/(app)/setup/family-prompt.tsx`
 
-AsyncStorage keys:
+Implemented capabilities include:
 
-| Key | Purpose |
-|-----|---------|
-| `caremate_emergency_lock_snapshot` | Card JSON |
-| `caremate_emergency_lock_enabled` | Opt-out when `'false'` (default on) |
+- Family setup wizard
+- Child profile capture
+- Household records
+- Spouse/user lookup and connection requests
+- Requests review screens
 
-| Platform | Where it appears |
-|----------|------------------|
-| **iOS** | Lock Screen / Home widgets via `expo-widgets` (`EmergencyLockWidget`) |
-| **Android** | Home Screen Glance widget (`modules/emergency-lock-widget`); tap opens `caremate://emergency-lock` |
-| **Expo Go** | Native widget updates are stubbed |
+### Current limitations
 
-Edit screen includes a toggle to show / hide the lock surface. Bootstrap (`AppProviders`) syncs the widget after DB + auth unlock, without blocking UI.
+- Invite links are generated but not fully redeemable through an in-app deep-link flow
+- Validation differs between inline child entry and dedicated child editing screens
 
-### Home
+See [Family profiles](./family-profiles.md) for the domain-specific flow.
 
-`EmergencyBanner` → `/(app)/emergency/edit`.
+## Onboarding and Setup
 
-### Key files
+CareMate now has:
 
-```
-domains/emergency/
-├── lock-surface.ts
-└── constants.ts
-widgets/EmergencyLockWidget.tsx
-widgets/EmergencyLockWidget.impl.tsx   # iOS layout
-modules/emergency-lock-widget/         # Android Glance widget
-domains/emergency/repository.ts
-```
+- A multi-step onboarding flow under `/(auth)/onboarding/*`
+- Post-signup setup screens under `/(app)/setup/*`
 
----
+This onboarding flow is part of the actual entry experience when onboarding has not been completed.
 
-## Offline behavior
+### Current limitations
+
+- Notifications setup is preference-only today
+- Some onboarding copy is more polished than the underlying implementation (for example push notifications and location copy)
+
+## Offline Behavior Summary
 
 | Feature | Offline behavior |
 |---------|------------------|
-| Home feed | ✅ SQLite immediately; Currents refresh skipped |
-| Articles / Learn | ✅ Evergreen + cached Currents |
-| Providers | ✅ Seeded / cached SQLite |
-| Emergency profile | ✅ Full local read/write |
-| Lock snapshot / widget | ✅ Local snapshot; widget update best-effort |
-| Bookmarks / favorites | ✅ Local + queued for sync |
-| Mini-apps | ✅ Fully local |
-| Auth (new login) | ❌ Needs network |
-| Sync | ⏸ Until online |
+| Home | Local-first render; remote refresh skipped |
+| Learn | Evergreen + cached remote articles |
+| Providers | Cached provider rows only |
+| Emergency | Full local read/write |
+| Family | Local-first data, remote sync when available |
+| Mini-apps | Fully local-first with snapshot sync for signed-in users |
+| Auth | Existing sessions restore; fresh sign-in requires network |
 
----
+## Screen States
 
-## Screen state requirements
+Common state components:
 
 | State | Component |
 |-------|-----------|
 | Loading | `LoadingState` |
 | Empty | `EmptyState` |
 | Error | `ErrorState` |
-| Offline | `OfflineBanner` + local data |
+| Offline | `OfflineBanner` |
 
-Home deliberately avoids a full-screen loader for trending — it shows the shell from cache first.
+Not every screen currently implements all four states consistently; this is one of the active quality gaps in the app.
 
----
+## Related Docs
 
-## Related docs
-
-- [Navigation](./navigation.md) — all routes including `/emergency-lock`
-- [Data Layer](./data-layer.md) — repositories, seeds, Currents-related methods
-- [Configuration](./configuration.md) — Currents + Supabase env
-- [Mini-Apps](./mini-apps.md) — Apps tab tools
-- [Authentication](./authentication.md) — guest vs signed-in
+- [Navigation](./navigation.md)
+- [Authentication](./authentication.md)
+- [Data Layer](./data-layer.md)
+- [Supabase alignment](./supabase-alignment.md)
+- [Provider model](./provider-model.md)
+- [Mini-Apps](./mini-apps.md)

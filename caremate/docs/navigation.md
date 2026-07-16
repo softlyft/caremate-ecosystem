@@ -6,7 +6,7 @@
 
 ```
 Root Stack (src/app/_layout.tsx)
-├── index                    → Redirect to /(app)/(tabs)
+├── index                    → Redirect based on onboarding/auth state
 ├── emergency-lock           → Public emergency card (caremate://emergency-lock)
 ├── auth/reset-password      → New password after email deep link (caremate://auth/reset-password)
 ├── (auth) Stack             → Onboarding, login, register, forgot-password
@@ -15,7 +15,7 @@ Root Stack (src/app/_layout.tsx)
     └── Stack screens        → Detail, modal, mini-app routes
 ```
 
-Auth group and app group are siblings. There is **no automatic redirect to login** — the app opens directly on Home.
+Auth group and app group are siblings. The app does not force login first; it uses guest-first access and onboarding state to decide the first route.
 
 ---
 
@@ -32,9 +32,10 @@ Defined in `src/app/(app)/(tabs)/_layout.tsx`.
 | Me | `profile` | `(tabs)/profile.tsx` | UserRound |
 
 Tab bar styling:
-- Active tint: `#16A34A` (CareMate green)
-- Height: 72px
-- Headers hidden at tab level (each screen manages its own layout)
+
+- Custom floating bar via `components/navigation/CareMateTabBar.tsx`
+- Headers hidden at tab level (stack screens provide their own headers)
+- Scene inset reserved through `TAB_BAR_SCENE_INSET`
 
 ---
 
@@ -44,13 +45,18 @@ Group: `(auth)` — header hidden.
 
 | Route | Screen | Purpose |
 |-------|--------|---------|
-| `/(auth)/onboarding` | `onboarding.tsx` | 3-step intro carousel |
+| `/(auth)/onboarding` | `onboarding/index.tsx` | Intro step |
+| `/(auth)/onboarding/priorities` | `priorities.tsx` | User priorities |
+| `/(auth)/onboarding/region` | `region.tsx` | Region selection |
+| `/(auth)/onboarding/location` | `location.tsx` | Approximate location |
+| `/(auth)/onboarding/notifications` | `notifications.tsx` | Notifications preference |
+| `/(auth)/onboarding/next` | `next.tsx` | Transition step |
 | `/(auth)/login` | `login.tsx` | Email/password, demo, guest continue |
 | `/(auth)/register` | `register.tsx` | Account creation |
 | `/(auth)/forgot-password` | `forgot-password.tsx` | Request password reset email |
 | `/auth/reset-password` | `auth/reset-password.tsx` | Set new password after email link |
 
-**Note:** Onboarding exists but is not wired into the root entry flow. Users land on Home without seeing onboarding unless navigated manually.
+**Note:** Onboarding is wired into the root entry flow when onboarding is incomplete.
 
 ---
 
@@ -95,6 +101,21 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | Route | Title |
 |-------|-------|
 | `/(app)/profile/settings` | Settings |
+| `/(app)/profile/premium` | Premium |
+
+### Family and setup
+
+| Route | Title | Notes |
+|-------|-------|-------|
+| `/(app)/family` | Family | Household overview |
+| `/(app)/family/setup` | Family setup | Parent/spouse setup |
+| `/(app)/family/kids-count` | Kids | Child count step |
+| `/(app)/family/child/[index]` | Child profile | Child detail/edit |
+| `/(app)/family/review` | Review family | Review step |
+| `/(app)/family/requests` | Requests | Connection requests |
+| `/(app)/setup/emergency` | Setup emergency | Post-signup setup |
+| `/(app)/setup/family-prompt` | Family prompt | Post-signup setup |
+| `/(app)/setup/done` | Done | Setup completion |
 
 ---
 
@@ -139,7 +160,7 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | `/(app)/apps/checkup-planner/setup` | modal | Set Up Planner |
 | `/(app)/apps/checkup-planner/log` | modal | Log Checkup |
 
-Mini-apps are launched from the **Apps** tab via `router.push(app.route)` where `route` comes from `MINI_APPS` in `mini-apps/constants.ts`.
+Mini-apps are launched from the **Apps** tab via the registry in `src/mini-apps/_kit/registry.ts`.
 
 ---
 

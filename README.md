@@ -1,150 +1,175 @@
-# CareMate Ecosystem (monorepo)
+# CareMate Ecosystem
 
-Single GitHub repo for CareMate apps that share one Supabase project.
+Monorepo for the CareMate product surface: the offline-first mobile app, the admin portal, the provider ingestion service, the shared Supabase backend, and the shared database types package.
 
-```
+```text
 caremate-ecosystem/
-  supabase/              # Postgres migrations, RLS, RPCs, Storage (source of truth)
-  packages/db-types/     # Shared generated/handwritten TS types
-  caremate/              # Expo mobile app (SQLite + sync)
-  caremate-portal/       # Next.js admin portal
-  provider-ingestion/    # FastAPI CSV/XLSX → Supabase providers (FHIR-ready)
+├── caremate/            Expo mobile app (SQLite + sync + mini-apps)
+├── caremate-portal/     Next.js admin portal
+├── provider-ingestion/  FastAPI Excel/XLSX → Supabase provider ingest
+├── supabase/            Cloud schema, RLS, RPCs, Edge Functions
+└── packages/db-types/   Shared TypeScript database contracts
 ```
 
-## Workspaces
+## Service Docs
 
-Install once from the **repo root** (`npm workspaces`):
+Each service keeps its own README plus a local `docs/` set.
+
+| Service | Purpose | Docs |
+|---------|---------|------|
+| `caremate/` | Mobile experience for patients and families | `caremate/docs/README.md` |
+| `caremate-portal/` | Staff/admin portal for catalogs, users, billing, providers | `caremate-portal/docs/README.md` |
+| `provider-ingestion/` | Provider resource ingest and projection rebuilds | `provider-ingestion/docs/README.md` |
+| `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
+| `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
+
+## Root Workflows
+
+Install dependencies once from the repo root:
 
 ```bash
 npm install
 ```
 
-Root scripts:
+Useful root scripts:
 
-| Script | What it runs |
-|--------|----------------|
-| `npm run lint` | Mobile + portal lint |
-| `npm run typecheck` | Mobile + portal `tsc` |
-| `npm run test` | Mobile Jest + portal RBAC unit tests |
-| `npm run format` | Mobile Prettier check |
-| `npm run portal:dev` / `mobile:start` | App servers via workspace |
-| `npm run ingest:dev` | Provider ingestion FastAPI on `:8090` |
+| Script | What it does |
+|--------|---------------|
+| `npm run lint` | Runs mobile + portal lint |
+| `npm run typecheck` | Runs mobile + portal TypeScript checks |
+| `npm run test` | Runs mobile Jest + portal unit tests |
+| `npm run format` | Formats the mobile app with Prettier (`--write`) |
+| `npm run mobile:start` | Starts the Expo mobile app |
+| `npm run portal:dev` | Starts the Next.js portal |
+| `npm run ingest:dev` | Starts the provider-ingestion FastAPI service on `:8090` |
+| `npm run supabase:link` | Links the local repo to the hosted Supabase project |
+| `npm run supabase:migration:new -- name_here` | Creates a new SQL migration |
+| `npm run supabase:migration:list` | Lists local/remote migration state |
+| `npm run supabase:db:push` | Pushes local migrations to the linked project |
+| `npm run db:types` | Regenerates `packages/db-types/src/database.ts` |
 
 ## Responsibilities
 
 | Path | Owns |
 |------|------|
-| `supabase/` | Cloud schema only — Auth-adjacent tables, catalogs, RLS, Storage |
-| `caremate/src/database/` | Device SQLite (Drizzle). Must stay **aligned** with shared cloud tables via sync mappers |
-| `packages/db-types/` | TypeScript `Database` types consumed by mobile + portal |
-| Apps | UI + feature logic; never fork migration history |
+| `supabase/` | Shared cloud schema, RLS, RPCs, Storage, Edge Functions |
+| `caremate/src/database/` | Device SQLite schema and runtime migrations for the mobile app |
+| `packages/db-types/` | Shared TS contracts used by mobile and portal |
+| `caremate/` | Patient-facing product UX and offline-first data flow |
+| `caremate-portal/` | Staff operations for content, users, providers, billing |
+| `provider-ingestion/` | Provider resource ingest and `providers` projection rebuilds |
 
 ## Prerequisites
 
 - Node 20+
+- Python 3.11+ for `provider-ingestion`
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
-- Linked project ref: `eybakmhqtotoywwgwgjy`
+- Linked Supabase project ref: `eybakmhqtotoywwgwgjy`
 
-## Shared database
+## Shared Database Workflow
 
-From **this repo root**:
+Run from the repo root:
 
 ```bash
-npm run supabase:link          # once per machine
+npm run supabase:link
 npm run supabase:migration:new -- add_something
 npm run supabase:db:push
-npm run db:types               # refresh packages/db-types after schema changes
+npm run db:types
 ```
 
-Do **not** add a second `supabase/migrations` folder under an app.
+Rules:
 
-When you change a table that mobile syncs, update in the same change set:
+1. All cloud schema changes live in `supabase/migrations/`.
+2. Do not add a second `supabase/migrations` folder inside an app.
+3. If a mobile-synced table changes, update the same change set in:
+   - `supabase/migrations/*`
+   - `caremate/src/database/schema.ts`
+   - the relevant mobile repositories / sync handlers
+   - `caremate/docs/supabase-alignment.md`
+   - `packages/db-types` via `npm run db:types`
+4. Portal-only tables such as `admin_audit_events` stay cloud-only and do not need a SQLite mirror.
 
-1. `supabase/migrations/*`
-2. `caremate/src/database/schema.ts` + repository/sync handlers
-3. `caremate/docs/supabase-alignment.md`
-4. `npm run db:types` (shared types for both apps)
+## Billing Overview
 
-Portal-only tables (e.g. `admin_audit_events`) stay cloud-only — no SQLite mirror.
+Premium billing spans multiple services:
 
-## Billing (Premium)
-
-- Cloud tables: `subscription_prices`, `subscriptions` (see `supabase/migrations/20260714180000_billing_subscriptions.sql`)
-- Portal **Billing** (admin): configure Personal/Family × monthly/yearly × NGN/USD; list subscribers
-- Mobile: hosted **Paystack** (NGN) / **Stripe** (USD) checkout via Edge Function `create-checkout`
-- Webhooks: `billing-webhook-paystack`, `billing-webhook-stripe`
-- Secrets are set on **Supabase Edge Functions** (not in portal `.env`):
+- Cloud tables: `subscription_prices`, `subscriptions`
+- Mobile: hosted checkout via Supabase Edge Function `create-checkout`
+- Portal: admin management for prices and subscriber views
+- Edge Functions:
+  - `billing-webhook-stripe`
+  - `billing-webhook-paystack`
+- Secrets live on Supabase Edge Functions, not in the portal runtime env
 
 ```bash
-supabase secrets set STRIPE_SECRET_KEY=sk_... STRIPE_WEBHOOK_SECRET=whsec_... PAYSTACK_SECRET_KEY=sk_...
+supabase secrets set \
+  STRIPE_SECRET_KEY=sk_... \
+  STRIPE_WEBHOOK_SECRET=whsec_... \
+  PAYSTACK_SECRET_KEY=sk_...
 ```
 
-Deep links: `caremate://billing/success`, `caremate://billing/cancel`
+Mobile deep links:
 
-Local `supabase db reset` loads `supabase/seed.sql` (placeholder). Catalog fixtures: `npm run seed:catalogs -w caremate-portal`.
+- `caremate://billing/success`
+- `caremate://billing/cancel`
 
-## Apps
+## Local Development
 
 ### Mobile (`caremate/`)
 
 ```bash
-npm install                    # from repo root
 npm run mobile:start
-# or: npm run start -w caremate
+# or
+npm run start -w caremate
 ```
 
-Proxies for DB ops (still run migrations from root):
+Native debug builds:
 
 ```bash
-npm run supabase:db:push -w caremate   # → repo root
+npm run android -w caremate
+npm run ios -w caremate
 ```
 
-### Admin portal (`caremate-portal/`)
+### Admin Portal (`caremate-portal/`)
 
 ```bash
-cp caremate-portal/.env.example caremate-portal/.env.local   # fill keys
+cp caremate-portal/.env.example caremate-portal/.env.local
 npm run supabase:db:push
 npm run bootstrap:admin -w caremate-portal -- you@example.com admin
 npm run portal:dev
 ```
 
-### Provider ingestion (`provider-ingestion/`)
-
-CSV/XLSX → Supabase `providers` (FHIR publish stubbed). Portal **Upload providers** posts here fire-and-forget.
+### Provider Ingestion (`provider-ingestion/`)
 
 ```bash
-cp provider-ingestion/.env.example provider-ingestion/.env   # SUPABASE_* + INGEST_API_KEY
-npm run ingest:dev                                           # http://127.0.0.1:8090
+cp provider-ingestion/.env.example provider-ingestion/.env
+npm run ingest:dev
 ```
 
-Portal needs matching `PROVIDER_INGEST_URL` and `PROVIDER_INGEST_API_KEY` (see `caremate-portal/.env.example`). Sample workbook: `provider-ingestion/samples/ng_lagos_providers.xlsx`.
+Portal provider upload expects matching values in `caremate-portal/.env.example`:
+
+- `PROVIDER_INGEST_URL`
+- `PROVIDER_INGEST_API_KEY`
+
+## Seeds and Fixtures
+
+- `supabase/seed.sql` is intentionally a safe placeholder.
+- Catalog bootstrap lives in the portal scripts:
+  - `npm run seed:articles -w caremate-portal`
+  - `npm run seed:tips -w caremate-portal`
+  - `npm run seed:catalogs -w caremate-portal`
+- Provider sample workbooks live under `provider-ingestion/samples/`.
 
 ## CI
 
-Workflows live under `.github/workflows/` (repo root):
+Workflows live under `.github/workflows/`:
 
-- `ci.yml` — mobile + portal quality gates
-- `eas-test-release.yml` — EAS test builds (mobile)
+- `ci.yml` — lint, typecheck, test gates for active app surfaces
+- `eas-test-release.yml` — mobile EAS test/release automation
 
-## Former remotes
+## Adding a Future App
 
-Nested app remotes were parked as `.git.bak-pre-monorepo` under each app while consolidating into this monorepo.
-
-- Mobile previously: `https://github.com/softlyft/caremate.git`
-
-After you create / point a new monorepo remote:
-
-```bash
-git remote add origin <new-ecosystem-repo-url>
-git add .
-git commit -m "chore: adopt caremate-ecosystem monorepo"
-git push -u origin main
-```
-
-Then delete `**/.git.bak-pre-monorepo` once you confirm history is where you want it.
-
-## Adding a future app
-
-1. Add `caremate-<name>/` at repo root and list it in root `package.json` `workspaces`.
-2. Consume `@caremate/db-types` and the same Supabase project env vars.
-3. Put any new cloud schema only in `supabase/migrations/`.
+1. Add `caremate-<name>/` at repo root and list it in root `package.json` workspaces.
+2. Reuse `@caremate/db-types` and the same shared Supabase project where appropriate.
+3. Put all new cloud schema only in `supabase/migrations/`.
+4. Add a README and a local `docs/` folder for the new service.
