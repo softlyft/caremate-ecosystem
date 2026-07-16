@@ -29,6 +29,7 @@ import {
   setEmergencyLockSurfaceEnabled,
   syncEmergencyLockSurface,
 } from '@/domains/emergency/lock-surface';
+import { hasRequiredIceContact, isCompleteIceContact } from '@/domains/emergency/validation';
 import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
@@ -139,7 +140,7 @@ export default function EmergencyEditScreen() {
     const phone = draftContact.phone.trim();
     const relationship = draftContact.relationship.trim();
 
-    if (!name || !phone || !relationship) {
+    if (!isCompleteIceContact({ name, phone, relationship })) {
       setContactError(t('emergency.edit.contactRequired'));
       return;
     }
@@ -158,10 +159,47 @@ export default function EmergencyEditScreen() {
   }
 
   function removeContact(index: number) {
+    if (contacts.length <= 1) {
+      setContactError(t('emergency.edit.contactAtLeastOne'));
+      return;
+    }
     setContacts((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setContactError(null);
+  }
+
+  function resolveContactsForSave(): EmergencyContact[] | null {
+    const draft = {
+      name: draftContact.name.trim(),
+      phone: draftContact.phone.trim(),
+      relationship: draftContact.relationship.trim(),
+    };
+
+    let next = contacts;
+    if (isCompleteIceContact(draft)) {
+      const duplicate = contacts.some(
+        (contact) =>
+          contact.phone === draft.phone && contact.name.toLowerCase() === draft.name.toLowerCase(),
+      );
+      if (!duplicate) {
+        next = [...contacts, draft];
+      }
+    }
+
+    if (!hasRequiredIceContact(next)) {
+      setContactError(t('emergency.edit.contactAtLeastOne'));
+      return null;
+    }
+
+    setContactError(null);
+    return next;
   }
 
   async function onSubmit(values: EmergencyForm) {
+    const emergencyContacts = resolveContactsForSave();
+    if (!emergencyContacts) {
+      return;
+    }
+
     try {
       const saved = await emergencyRepository.save(userId, {
         fullName: joinFullName(values.firstName, values.lastName),
@@ -173,7 +211,7 @@ export default function EmergencyEditScreen() {
         preferredHospital: values.preferredHospital || null,
         insuranceProvider: values.insuranceProvider || null,
         notes: values.notes || null,
-        emergencyContacts: contacts,
+        emergencyContacts,
       });
       await setEmergencyLockSurfaceEnabled(lockSurfaceEnabled);
       await syncEmergencyLockSurface(lockSurfaceEnabled ? saved : null);

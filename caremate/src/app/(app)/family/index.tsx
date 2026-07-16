@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
-import { Baby, Link2, Share2, UserPlus, Users } from 'lucide-react-native';
-import { useState } from 'react';
+import { Baby, Copy, Link2, Share2, UserPlus, Users } from 'lucide-react-native';
+import { useMemo, useState } from 'react';
 import { Alert, Share, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,9 +12,15 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
-import { LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
-import { FAMILY_GENDERS, familyConnectionService, familyRepository } from '@/domains/family';
+import {
+  FAMILY_GENDERS,
+  buildSpouseInviteMessage,
+  familyConnectionService,
+  familyRepository,
+  validateChildNameAndDob,
+} from '@/domains/family';
 import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
@@ -61,11 +68,22 @@ export default function FamilyHubScreen() {
   const [matched, setMatched] = useState<FamilyLookupUser | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [inviteText, setInviteText] = useState<string | null>(null);
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   const [childName, setChildName] = useState('');
   const [childDob, setChildDob] = useState('');
   const [childGender, setChildGender] = useState<FamilyMemberGender>('prefer_not_to_say');
+
+  const profileQuery = useQuery({
+    queryKey: [...QUERY_KEYS.profile, userId],
+    queryFn: () => profileRepository.findByUserId(userId),
+    enabled: !isGuest,
+  });
+
+  const outsideInviteMessage = useMemo(() => {
+    const fromName = profileQuery.data?.fullName?.trim() || t('family.defaultParentName');
+    return buildSpouseInviteMessage({ fromName }).message;
+  }, [profileQuery.data?.fullName, t]);
 
   async function refreshAll() {
     await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold });
@@ -77,7 +95,7 @@ export default function FamilyHubScreen() {
     setBusy(true);
     setMatched(null);
     setNotFound(false);
-    setInviteText(null);
+    setInviteCopied(false);
     try {
       const user = await familyConnectionService.lookupUser(lookup);
       if (user) {
@@ -117,46 +135,33 @@ export default function FamilyHubScreen() {
     }
   }
 
-  async function handleInvite() {
-    if (!householdId) return;
-    setBusy(true);
-    try {
-      const profile = await profileRepository.findByUserId(userId);
-      const { invite } = await familyConnectionService.requestConnection({
-        householdId,
-        fromUserId: userId,
-        fromName: profile?.fullName ?? t('family.defaultParentName'),
-        emailOrPhone: lookup,
-        matchedUser: null,
-      });
-      if (invite) {
-        setInviteText(invite.message);
-      }
-      await refreshAll();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t('family.inviteFailedMessage');
-      Alert.alert(t('family.inviteFailed'), message);
-    } finally {
-      setBusy(false);
-    }
+  async function handleCopyInvite() {
+    await Clipboard.setStringAsync(outsideInviteMessage);
+    setInviteCopied(true);
   }
 
   async function handleShareInvite() {
-    if (!inviteText) return;
-    await Share.share({ message: inviteText });
+    await Share.share({ message: outsideInviteMessage });
   }
 
   async function handleAddChild() {
     if (!householdId) return;
-    if (!childName.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(childDob)) {
-      Alert.alert(t('family.missingDetails'), t('family.missingChildDetails'));
+    const validated = validateChildNameAndDob(childName, childDob);
+    if (!validated.ok) {
+      const message =
+        validated.reason === 'name'
+          ? t('family.child.nameRequired')
+          : validated.reason === 'dobFormat'
+            ? t('family.child.dobFormat')
+            : t('family.child.dobInvalid');
+      Alert.alert(t('family.missingDetails'), message);
       return;
     }
     setBusy(true);
     try {
       await familyRepository.addChild(householdId, {
-        fullName: childName.trim(),
-        dateOfBirth: childDob.trim(),
+        fullName: validated.fullName,
+        dateOfBirth: validated.dateOfBirth,
         gender: childGender,
       });
       setChildName('');
@@ -208,6 +213,41 @@ export default function FamilyHubScreen() {
 
   if (householdQuery.isLoading) {
     return <LoadingState title={t('family.loading')} />;
+  }
+
+  if (householdQuery.isError) {
+    return (
+      <ErrorState
+        title={t('family.loadFailed.title')}
+        message={
+          householdQuery.error instanceof Error
+            ? householdQuery.error.message
+            : t('family.loadFailed.message')
+        }
+        actionLabel={t('common.retry')}
+        onAction={() => {
+          void householdQuery.refetch();
+          void requestsQuery.refetch();
+        }}
+      />
+    );
+  }
+
+  if (householdQuery.data && membersQuery.isError && membersQuery.data === undefined) {
+    return (
+      <ErrorState
+        title={t('family.loadFailed.title')}
+        message={
+          membersQuery.error instanceof Error
+            ? membersQuery.error.message
+            : t('family.loadFailed.message')
+        }
+        actionLabel={t('common.retry')}
+        onAction={() => {
+          void membersQuery.refetch();
+        }}
+      />
+    );
   }
 
   if (!householdQuery.data) {
@@ -467,31 +507,34 @@ export default function FamilyHubScreen() {
             {notFound ? (
               <View style={styles.foundCard}>
                 <AppText variant="body">{t('family.notFound')}</AppText>
-                <PressableScale
-                  style={[styles.secondaryCta, busy ? styles.ctaDisabled : null]}
-                  disabled={busy}
-                  onPress={() => void handleInvite()}
-                >
-                  <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
-                  <AppText variant="button" style={styles.secondaryCtaLabel}>
-                    {t('family.generateInvite')}
+                <AppText variant="caption" style={styles.inviteHint}>
+                  {t('family.outsideInviteHint')}
+                </AppText>
+                <View style={styles.inviteMessageBox}>
+                  <AppText variant="caption" style={styles.inviteMessageText}>
+                    {outsideInviteMessage}
                   </AppText>
-                </PressableScale>
-              </View>
-            ) : null}
-
-            {inviteText ? (
-              <View style={styles.foundCard}>
-                <AppText variant="caption">{inviteText}</AppText>
-                <PressableScale
-                  style={styles.secondaryCta}
-                  onPress={() => void handleShareInvite()}
-                >
-                  <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
-                  <AppText variant="button" style={styles.secondaryCtaLabel}>
-                    {t('family.shareInvite')}
-                  </AppText>
-                </PressableScale>
+                </View>
+                <View style={styles.inviteActions}>
+                  <PressableScale
+                    style={styles.secondaryCta}
+                    onPress={() => void handleCopyInvite()}
+                  >
+                    <Copy color={ACCENT} size={16} strokeWidth={2.25} />
+                    <AppText variant="button" style={styles.secondaryCtaLabel}>
+                      {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
+                    </AppText>
+                  </PressableScale>
+                  <PressableScale
+                    style={styles.secondaryCta}
+                    onPress={() => void handleShareInvite()}
+                  >
+                    <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
+                    <AppText variant="button" style={styles.secondaryCtaLabel}>
+                      {t('family.shareInvite')}
+                    </AppText>
+                  </PressableScale>
+                </View>
               </View>
             ) : null}
           </View>
@@ -720,6 +763,25 @@ const styles = StyleSheet.create({
     backgroundColor: SOFT,
     padding: spacing.md,
     gap: spacing.xs,
+  },
+  inviteHint: {
+    color: palette.textSecondary,
+  },
+  inviteMessageBox: {
+    borderRadius: radius.lg,
+    backgroundColor: palette.surface,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    padding: spacing.md,
+    marginTop: spacing.xs,
+  },
+  inviteMessageText: {
+    color: palette.text,
+    lineHeight: 20,
+  },
+  inviteActions: {
+    gap: spacing.sm,
+    marginTop: spacing.sm,
   },
   primaryCta: {
     flexDirection: 'row',

@@ -25,6 +25,8 @@
     "title": "Qu'est-ce qui compte le plus ?",
     "subtitle": "Touchez ce qui vous intéresse — nous adapterons les prochaines étapes facultatives.",
     "continueSelected": "Continuer · {{count}} sélectionné(s)",
+    "minSelectTitle": "Choisissez-en au moins un",
+    "minSelectMessage": "Sélectionnez une priorité pour personnaliser votre expérience CareMate.",
     "emergency": {
       "label": "Urgence",
       "description": "Carte santé hors ligne pour les secours"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "Trouver des soins près de vous",
-    "subtitle": "Utilisez le GPS précis pour les meilleurs résultats, ou conservez un point approximatif basé sur le pays.",
     "enable": "Activer la localisation",
     "checking": "Vérification…",
     "approximateCta": "Utiliser une localisation approximative",
@@ -53,8 +54,7 @@
       "hint": "Meilleur classement des hôpitaux et cliniques autour de vous"
     },
     "approximate": {
-      "title": "Approximative",
-      "hint": "Repli basé sur le pays — modifiable à tout moment"
+      "title": "Approximative"
     }
   },
   "notifications": {

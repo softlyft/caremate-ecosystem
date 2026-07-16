@@ -138,9 +138,10 @@ Expo configuration at project root.
 schema: './src/database/schema.ts'
 out: './src/database/migrations'
 dialect: 'sqlite'
+driver: 'expo'
 ```
 
-Run `npm run db:generate` to generate migration SQL from schema changes.
+After changing `src/database/schema.ts`, run `npm run db:generate` and commit the new files under `src/database/migrations/`. Metro bundles `.sql` via `sourceExts` + `babel-plugin-inline-import`.
 
 ---
 

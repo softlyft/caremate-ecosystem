@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -12,6 +11,7 @@ import {
   MiniAppCta,
   MiniAppScreen,
   MonthCalendarGrid,
+  MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import { type MedicationFrequency } from '@/mini-apps/medication-tracker/constants';
@@ -83,7 +83,6 @@ export default function MedicationSetupScreen() {
     });
   }, [isEditing, navigation, t]);
 
-  const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   const selectedChild =
     familyKids.status === 'ready'
       ? familyKids.children.find((child) => child.id === familyMemberId)
@@ -244,25 +243,11 @@ export default function MedicationSetupScreen() {
       </MiniAppCard>
 
       <MiniAppCard index={5} theme={theme}>
-        <View style={styles.monthHeader}>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() - 1, 1))
-            }
-          >
-            <ChevronLeft color={palette.textSecondary} size={20} />
-          </Pressable>
-          <AppText variant="cardTitle">{monthLabel}</AppText>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1))
-            }
-          >
-            <ChevronRight color={palette.textSecondary} size={20} />
-          </Pressable>
-        </View>
+        <MonthCalendarNavigator
+          accentColor={theme.color}
+          monthRef={monthRef}
+          onMonthChange={setMonthRef}
+        />
         <AppText variant="caption" style={styles.muted}>
           {t('apps.medication.ui.startDateHint')}
         </AppText>
@@ -402,11 +387,6 @@ const styles = StyleSheet.create({
   kidBlock: {
     gap: spacing.sm,
     marginTop: spacing.xs,
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   muted: {
     color: palette.textSecondary,

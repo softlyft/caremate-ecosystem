@@ -25,6 +25,8 @@
     "title": "什么对您最重要？",
     "subtitle": "点选您关心的内容 — 我们将据此调整后续可选步骤。",
     "continueSelected": "继续 · 已选 {{count}} 项",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "急救",
       "description": "供急救人员使用的离线健康卡"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "查找附近的医疗服务",
-    "subtitle": "使用精确 GPS 获得最佳匹配，或保留基于国家的大致位置。",
     "enable": "启用定位",
     "checking": "检查中…",
     "approximateCta": "使用大致位置",
@@ -53,8 +54,7 @@
       "hint": "更好地为您附近的医院和诊所排序"
     },
     "approximate": {
-      "title": "大致",
-      "hint": "基于国家的备用方案 — 之后可随时更改"
+      "title": "大致"
     }
   },
   "notifications": {

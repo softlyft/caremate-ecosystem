@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { formatProviderType } from '@/domains/providers/types';
@@ -115,6 +115,21 @@ export default function SearchScreen() {
           <View style={styles.loading}>
             <ActivityIndicator color={palette.primary} />
           </View>
+        ) : null}
+
+        {hasQuery && searchQuery.isError && !results ? (
+          <ErrorState
+            title={t('common.loadFailed')}
+            message={
+              searchQuery.error instanceof Error
+                ? searchQuery.error.message
+                : t('common.loadFailedMessage')
+            }
+            actionLabel={t('common.retry')}
+            onAction={() => {
+              void searchQuery.refetch();
+            }}
+          />
         ) : null}
 
         {isEmpty ? (

@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -13,6 +12,7 @@ import {
   MiniAppHero,
   MiniAppScreen,
   MonthCalendarGrid,
+  MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import {
@@ -42,7 +42,6 @@ export default function PregnancySetupScreen() {
   const setFromLastPeriod = usePregnancyTrackerStore((state) => state.setFromLastPeriod);
   const setFromDueDate = usePregnancyTrackerStore((state) => state.setFromDueDate);
 
-  const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   const previewDueDate =
     mode === 'lmp' && selectedDate ? calculateDueDateFromLmp(selectedDate) : selectedDate;
 
@@ -96,25 +95,11 @@ export default function PregnancySetupScreen() {
       </MiniAppCard>
 
       <MiniAppCard index={2} eyebrow={t('apps.pregnancy.ui.pickDate')} theme={theme}>
-        <View style={styles.monthHeader}>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() - 1, 1))
-            }
-          >
-            <ChevronLeft color={palette.textSecondary} size={20} />
-          </Pressable>
-          <AppText variant="cardTitle">{monthLabel}</AppText>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1))
-            }
-          >
-            <ChevronRight color={palette.textSecondary} size={20} />
-          </Pressable>
-        </View>
+        <MonthCalendarNavigator
+          accentColor={theme.color}
+          monthRef={monthRef}
+          onMonthChange={setMonthRef}
+        />
 
         <AppText variant="caption" style={styles.muted}>
           {mode === 'lmp' ? t('apps.pregnancy.ui.tapLmp') : t('apps.pregnancy.ui.tapDue')}
@@ -174,11 +159,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   muted: {
     color: palette.textSecondary,

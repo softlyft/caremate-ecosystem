@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -12,6 +11,7 @@ import {
   MiniAppCta,
   MiniAppScreen,
   MonthCalendarGrid,
+  MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import { getFrequencyOption } from '@/mini-apps/medication-tracker/constants';
@@ -78,8 +78,6 @@ export default function MedicationLogScreen() {
             log.slotIndex === slotIndex,
         )
       : undefined;
-
-  const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
   if (!hydrated) {
     return (
@@ -171,25 +169,11 @@ export default function MedicationLogScreen() {
       ) : null}
 
       <MiniAppCard index={3} theme={theme}>
-        <View style={styles.monthHeader}>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() - 1, 1))
-            }
-          >
-            <ChevronLeft color={palette.textSecondary} size={20} />
-          </Pressable>
-          <AppText variant="cardTitle">{monthLabel}</AppText>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1))
-            }
-          >
-            <ChevronRight color={palette.textSecondary} size={20} />
-          </Pressable>
-        </View>
+        <MonthCalendarNavigator
+          accentColor={theme.color}
+          monthRef={monthRef}
+          onMonthChange={setMonthRef}
+        />
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
@@ -286,11 +270,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   muted: {
     color: palette.textSecondary,

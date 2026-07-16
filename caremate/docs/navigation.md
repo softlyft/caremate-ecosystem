@@ -76,7 +76,7 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 |-------|--------------|-------|
 | `/(app)/emergency` | card | Emergency Profile |
 | `/(app)/emergency/edit` | modal | Edit Emergency Profile |
-| `/(app)/emergency/qr` | modal | Emergency QR |
+| `/(app)/emergency/qr` | modal | Redirect → Me (Patient ID QR on card back) |
 | `/emergency-lock` | full screen | Public lock-screen card (root stack) |
 
 ### Articles
@@ -94,7 +94,7 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 |-------|-------|-------|
 | `/(app)/(tabs)/providers` | Nearby | Type filters + text search; optional `?q=` |
 | `/(app)/providers/[id]` | Provider | Favorite toggle lives here |
-| `/(app)/providers/map` | Map | Coordinate list placeholder |
+| `/(app)/providers/map` | Map (legacy) | Redirects to Nearby tab |
 
 ### Profile
 

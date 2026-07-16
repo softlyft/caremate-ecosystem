@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -11,6 +10,7 @@ import {
   MiniAppCta,
   MiniAppScreen,
   MonthCalendarGrid,
+  MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import { CHECKUP_CATALOG } from '@/mini-apps/checkup-planner/constants';
@@ -61,8 +61,6 @@ export default function CheckupPlannerLogScreen() {
     const [y, m] = base.split('-').map(Number);
     return new Date(y, (m || 1) - 1, 1);
   });
-
-  const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
   if (!hydrated) {
     return (
@@ -115,25 +113,11 @@ export default function CheckupPlannerLogScreen() {
       </MiniAppCard>
 
       <MiniAppCard index={2} theme={theme}>
-        <View style={styles.monthHeader}>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() - 1, 1))
-            }
-          >
-            <ChevronLeft color={palette.textSecondary} size={20} />
-          </Pressable>
-          <AppText variant="cardTitle">{monthLabel}</AppText>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1))
-            }
-          >
-            <ChevronRight color={palette.textSecondary} size={20} />
-          </Pressable>
-        </View>
+        <MonthCalendarNavigator
+          accentColor={theme.color}
+          monthRef={monthRef}
+          onMonthChange={setMonthRef}
+        />
         <AppText variant="caption" style={styles.muted}>
           {t('apps.checkup.ui.dateCompleted')}
         </AppText>
@@ -205,11 +189,6 @@ const styles = StyleSheet.create({
   },
   intro: {
     color: palette.textSecondary,
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   muted: {
     color: palette.textSecondary,

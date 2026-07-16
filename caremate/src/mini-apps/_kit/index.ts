@@ -12,6 +12,7 @@ export {
 } from '@/mini-apps/_kit/hydrate';
 export { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 export { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
+export { MonthCalendarNavigator } from '@/mini-apps/_kit/components/MonthCalendarNavigator';
 export {
   MiniAppCard,
   MiniAppChip,

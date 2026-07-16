@@ -8,12 +8,12 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
-import { palette, radius } from '@/theme';
+import { palette } from '@/theme';
+import { fontFamily } from '@/theme/typography';
 
 const TAB_ROUTE_KEYS: Record<string, string> = {
   index: 'tabs.home',
@@ -43,20 +43,11 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
   const Icon = TAB_ICONS[routeName] ?? Home;
   const labelKey = TAB_ROUTE_KEYS[routeName];
   const label = labelKey ? t(labelKey) : routeName;
-  const indicator = useSharedValue(isFocused ? 1 : 0);
 
-  indicator.value = withSpring(isFocused ? 1 : 0, {
-    damping: 18,
-    stiffness: 240,
-  });
-
-  const pillStyle = useAnimatedStyle(() => ({
-    opacity: indicator.value,
-    transform: [{ scale: 0.85 + indicator.value * 0.15 }],
-  }));
-
-  const iconColor = isFocused ? palette.primaryDark : palette.textSecondary;
-  const labelColor = isFocused ? palette.primaryDark : palette.textSecondary;
+  const activeColor = palette.primaryDark;
+  const idleColor = palette.textSecondary;
+  const iconColor = isFocused ? activeColor : idleColor;
+  const labelColor = isFocused ? activeColor : idleColor;
 
   return (
     <PressableScale
@@ -69,12 +60,18 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       scale={0.92}
     >
       <View style={styles.iconSlot}>
-        <Animated.View style={[styles.activePill, pillStyle]} />
-        <Icon color={iconColor} size={22} strokeWidth={isFocused ? 2.5 : 2} />
+        <Icon color={iconColor} size={22} strokeWidth={isFocused ? 2.6 : 2} />
       </View>
       <AppText
         variant="navLabel"
-        style={[styles.label, { color: labelColor, fontWeight: isFocused ? '600' : '500' }]}
+        style={[
+          styles.label,
+          {
+            color: labelColor,
+            fontFamily: isFocused ? fontFamily.bold : fontFamily.medium,
+            fontWeight: isFocused ? '700' : '500',
+          },
+        ]}
       >
         {label}
       </AppText>
@@ -181,11 +178,6 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  activePill: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: radius.full,
-    backgroundColor: palette.primaryLight,
   },
   label: {
     fontSize: 11,

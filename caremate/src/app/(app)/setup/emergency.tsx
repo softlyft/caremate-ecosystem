@@ -11,6 +11,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { isCompleteIceContact } from '@/domains/emergency/validation';
 import { useTranslation } from '@/domains/localization';
 import { markEmergencyEssentialsDone } from '@/domains/onboarding';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
@@ -47,7 +48,13 @@ export default function SetupEmergencyEssentialsScreen() {
       Alert.alert('Missing details', 'Select blood group and genotype to continue.');
       return;
     }
-    if (!iceName.trim() || !icePhone.trim() || !iceRelationship.trim()) {
+    if (
+      !isCompleteIceContact({
+        name: iceName,
+        phone: icePhone,
+        relationship: iceRelationship,
+      })
+    ) {
       Alert.alert(
         'ICE contact',
         'Add name, phone, and relationship for your first emergency contact.',

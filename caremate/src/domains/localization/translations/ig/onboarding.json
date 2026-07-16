@@ -25,6 +25,8 @@
     "title": "Gịnị ka dị mkpa nke ọma?",
     "subtitle": "Pịa ihe ị na-eche banyere ya — anyị ga-eme ka usoro nhọrọ na-esote dabara.",
     "continueSelected": "Gaa n'ihu · ahọpụtara {{count}}",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "Mberede",
       "description": "Kaadị ahụike na-enweghị ịntanetị maka ndị na-enyere aka mbụ"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "Chọta nlekọta nso",
-    "subtitle": "Jiri GPS ziri ezi maka nsonaazụ kacha mma, ma ọ bụ debe pin dabere na obodo.",
     "enable": "Mee ka ebe rụọ ọrụ",
     "checking": "Na-enyocha…",
     "approximateCta": "Jiri ebe dị nso",
@@ -53,8 +54,7 @@
       "hint": "Nhazi kacha mma maka ụlọ ọgwụ na ụlọ ọgwụ nta gburugburu gị"
     },
     "approximate": {
-      "title": "Dị nso",
-      "hint": "Ndabere dabere na obodo — gbanwee mgbe ọ bụla"
+      "title": "Dị nso"
     }
   },
   "notifications": {

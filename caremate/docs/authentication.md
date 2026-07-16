@@ -31,7 +31,7 @@ Implementation spans:
 | Action | Behavior |
 |--------|----------|
 | `initialize()` | Called on app boot. Restores session from SecureStore → Supabase `getSession()`. Falls back to guest. |
-| `signIn(email, password)` | Supabase password auth |
+| `signIn(email, password)` | Supabase password auth + local account bootstrap |
 | `signUp(email, password, fullName, phone)` | Creates Supabase user + local profile + emergency profile |
 | `signOut()` | Clears session → returns to guest |
 | `setBiometricEnabled(enabled)` | Persists preference |
@@ -74,28 +74,21 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 
 ## Biometric unlock
 
-Uses `expo-local-authentication`:
-- `authService.authenticateWithBiometrics()` — shows system prompt ("Unlock CareMate")
-- `setBiometricEnabled(enabled)` persists the preference
-- Preference is stored in SecureStore via `STORAGE_KEYS.biometricEnabled`
-
-Biometrics do **not** currently gate session unlock in the app shell. The setting is implemented as stored preference only.
+`authService` still exposes biometric helpers (`authenticateWithBiometrics`, preference get/set) for a future app-lock flow. The Me-tab toggle is **hidden** until biometrics actually gate launch / sensitive surfaces — the preference alone must not imply security.
 
 ---
 
-## Sign-up side effects
+## Sign-up / sign-in local bootstrap
 
-On successful `signUpWithEmail`, the auth service also creates local SQLite records:
+On successful `signUpWithEmail` or `signInWithEmail`, the auth service:
 
-1. **Profile** — saved locally with name, email, and phone
-2. **Emergency profile** — initial empty profile with full name
-3. **Device defaults** — applied via onboarding/device default helpers
+1. **Migrates guest local data** — copies/merges guest-scoped emergency profile, bookmarks, settings, profile fields, and family ownership onto the account (`migrateGuestLocalData`)
+2. **Bootstraps local account rows** (`bootstrapLocalAccountRecords`) so the app does not wait on sync pull:
+   - **Profile** — created or filled from auth identity (name, email, phone)
+   - **Settings / device defaults** — sign-up always applies onboarding device defaults; sign-in only fills missing country/language/settings
+   - **Emergency profile** — created (or name filled) when missing
 
-This ensures local data exists immediately after registration.
-
-### Current limitation
-
-Guest-created core records such as emergency/profile data are not comprehensively migrated into the new signed-in account during sign-up. Mini-app guest migration is handled separately through the mini-app snapshot flow.
+Both steps are best-effort so a local DB hiccup does not fail auth. Sync pull can still enrich local rows afterward. Mini-app AsyncStorage continues to migrate into account snapshots via `migrateMiniAppsToSnapshots` on sync.
 
 ---
 

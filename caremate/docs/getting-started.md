@@ -111,7 +111,7 @@ Example: `import { palette } from '@/theme'`
 |------|------|
 | `package.json` → `"main": "expo-router/entry"` | Expo Router bootstrap |
 | `src/app/_layout.tsx` | Root layout, fonts, splash, providers |
-| `src/app/index.tsx` | Redirects to `/(app)/(tabs)` |
+| `src/app/index.tsx` | Redirects to onboarding when incomplete, otherwise `/(app)/(tabs)` |
 | `global.css` | Uniwind / Tailwind theme tokens |
 | `metro.config.js` | Uniwind + SQLite WASM for web |
 

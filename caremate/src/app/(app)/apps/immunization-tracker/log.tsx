@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -21,6 +20,7 @@ import {
   MiniAppHero,
   MiniAppScreen,
   MonthCalendarGrid,
+  MonthCalendarNavigator,
   StatusPill,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
@@ -76,8 +76,6 @@ export default function ImmunizationLogScreen() {
     VACCINE_SCHEDULE.find((vaccine) => vaccine.id === selectedVaccineId)!,
     t,
   );
-  const monthLabel = monthRef.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-
   const selectVaccine = (vaccineId: string) => {
     setSelectedVaccineId(vaccineId);
     const record = profileRecords.find((item) => item.vaccineId === vaccineId);
@@ -151,33 +149,13 @@ export default function ImmunizationLogScreen() {
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard
-        index={2}
-        title={monthLabel}
-        eyebrow={t('apps.immunization.ui.administeredDate')}
-        theme={theme}
-      >
-        <View style={styles.monthHeader}>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() - 1, 1))
-            }
-          >
-            <ChevronLeft color={palette.textSecondary} size={20} />
-          </Pressable>
-          <AppText variant="caption" style={styles.muted}>
-            {t('apps.immunization.ui.tapAdministeredDate')}
-          </AppText>
-          <Pressable
-            hitSlop={12}
-            onPress={() =>
-              setMonthRef(new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1))
-            }
-          >
-            <ChevronRight color={palette.textSecondary} size={20} />
-          </Pressable>
-        </View>
+      <MiniAppCard index={2} eyebrow={t('apps.immunization.ui.administeredDate')} theme={theme}>
+        <MonthCalendarNavigator
+          accentColor={theme.color}
+          monthRef={monthRef}
+          onMonthChange={setMonthRef}
+          subtitle={t('apps.immunization.ui.tapAdministeredDate')}
+        />
 
         <MonthCalendarGrid
           monthRef={monthRef}
@@ -268,12 +246,6 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     gap: spacing.sm,
   },
   muted: {

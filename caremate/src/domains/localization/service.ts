@@ -4,6 +4,7 @@ import {
   INTERNATIONAL_COUNTRY_CODE,
   LANGUAGE_CONFIGS,
 } from './config';
+import { NIGERIA_STATE_FALLBACK_COORDS } from './nigeria-state-coords';
 import type {
   CountryConfig,
   CountryOption,
@@ -89,8 +90,24 @@ class LocalizationService {
     return this.getDefaultLanguage(countryCode);
   }
 
-  getFallbackCoords(countryCode: string | null | undefined): CountryConfig['fallbackCoords'] {
-    return this.getCountryConfig(countryCode).fallbackCoords;
+  /**
+   * Approximate pin for Nearby when GPS is off / denied / unavailable.
+   * Prefers the selected subdivision (e.g. Nigerian state capital) when known,
+   * otherwise the country capital-area pin from country config.
+   */
+  getFallbackCoords(
+    countryCode: string | null | undefined,
+    state?: string | null | undefined,
+  ): CountryConfig['fallbackCoords'] {
+    const country = this.getCountryConfig(countryCode);
+    const subdivision = state?.trim();
+    if (country.code === 'NG' && subdivision) {
+      const statePin = NIGERIA_STATE_FALLBACK_COORDS[subdivision];
+      if (statePin) {
+        return statePin;
+      }
+    }
+    return country.fallbackCoords;
   }
 
   getActiveLocale(

@@ -4,6 +4,12 @@ export {
   buildSpouseInviteMessage,
 } from '@/domains/family/connection-service';
 export { useFamilySetupStore } from '@/domains/family/store';
+export {
+  createChildProfileSchema,
+  DATE_OF_BIRTH_PATTERN,
+  isValidPastDateOfBirth,
+  validateChildNameAndDob,
+} from '@/domains/family/child-validation';
 export type {
   ChildProfileDraft,
   FamilyConnectionRequest,

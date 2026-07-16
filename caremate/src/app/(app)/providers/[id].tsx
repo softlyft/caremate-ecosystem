@@ -14,6 +14,7 @@ import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { getProviderTypeTheme } from '@/domains/providers/components/NearbyProviderCard';
+import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-maps';
 import { providerRepository } from '@/domains/providers/repository';
 import type { ProviderType } from '@/domains/providers/types';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -93,18 +94,19 @@ export default function ProviderDetailScreen() {
   const verified = isVerified(detail);
   const typeKey = detail.type as ProviderType;
   const typeLabel = t(`nearby.types.${typeKey}`);
-  const hasCoords = detail.latitude != null && detail.longitude != null;
+  const canOpenMaps = canOpenInMaps(detail);
   const distanceLabel =
     detail.distanceKm != null
       ? t('nearby.detail.distanceKm', { distance: detail.distanceKm.toFixed(1) })
       : null;
 
-  function openDirections() {
-    if (!detail.latitude || !detail.longitude) {
-      return;
-    }
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${detail.latitude},${detail.longitude}`;
-    void Linking.openURL(url);
+  function openInMaps() {
+    void openInExternalMaps({
+      address: detail.address,
+      latitude: detail.latitude,
+      longitude: detail.longitude,
+      label: detail.name,
+    });
   }
 
   function callProvider() {
@@ -193,7 +195,7 @@ export default function ProviderDetailScreen() {
               {t('nearby.detail.contact')}
             </AppText>
 
-            <View style={styles.infoRow}>
+            <PressableScale disabled={!canOpenMaps} onPress={openInMaps} style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <MapPin color={theme.accent} size={18} />
               </View>
@@ -201,11 +203,19 @@ export default function ProviderDetailScreen() {
                 <AppText variant="caption" style={styles.infoLabel}>
                   {t('nearby.detail.address')}
                 </AppText>
-                <AppText variant="body" style={styles.infoValue}>
+                <AppText
+                  variant="body"
+                  style={[styles.infoValue, canOpenMaps ? { color: theme.accent } : null]}
+                >
                   {detail.address ?? t('nearby.detail.addressUnavailable')}
                 </AppText>
+                {canOpenMaps ? (
+                  <AppText variant="caption" style={{ color: theme.accent }}>
+                    {t('nearby.detail.openInMapsHint')}
+                  </AppText>
+                ) : null}
               </View>
-            </View>
+            </PressableScale>
 
             <View style={styles.divider} />
 
@@ -253,15 +263,15 @@ export default function ProviderDetailScreen() {
               style={[
                 styles.primaryCta,
                 { backgroundColor: theme.accent },
-                !hasCoords ? styles.ctaDisabled : null,
+                !canOpenMaps ? styles.ctaDisabled : null,
                 shadow.soft,
               ]}
-              disabled={!hasCoords}
-              onPress={openDirections}
+              disabled={!canOpenMaps}
+              onPress={openInMaps}
             >
               <Navigation color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
-                {t('nearby.detail.directions')}
+                {t('nearby.detail.openInMaps')}
               </AppText>
             </PressableScale>
 

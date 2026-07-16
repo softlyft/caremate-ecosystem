@@ -14,6 +14,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "uniwind-types.d.ts",
-    "css-modules.d.ts"
+    "css-modules.d.ts",
+    "sql-modules.d.ts"
   ]
 }

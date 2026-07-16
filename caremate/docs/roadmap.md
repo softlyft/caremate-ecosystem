@@ -53,8 +53,8 @@ See [Mini-Apps](./mini-apps.md) for routes, storage keys, and feature detail.
 | Gap | Detail | Priority |
 |-----|--------|----------|
 | Mini-apps bypass SQLite | Was AsyncStorage-only | ✅ Snapshots + Supabase (`mini_app_snapshots`) |
-| Drizzle migrations | Hand-written SQL; no generated migrations folder | Low |
-| Onboarding not wired | Route exists but not shown on first launch | Low |
+| Drizzle migrations | Generated under `src/database/migrations/`; apply via Expo migrator | — |
+| Onboarding first launch | Wired via `app/index.tsx` when incomplete | — |
 
 ### Auth
 
@@ -193,7 +193,7 @@ Later (optional): normalize into per-entity tables for family sharing / clinicia
 
 | Bookmark toggle UI | Repo ready; Learn cards not wired yet |
 | Real provider map | Replace coordinate list with maps SDK |
-| Emergency QR encoding | Payload preview exists; render real QR |
+| Emergency / Patient ID QR | Done — QR renders on Patient ID card back |
 
 ---
 
@@ -233,13 +233,12 @@ Later (optional): normalize into per-entity tables for family sharing / clinicia
 
 ## Suggested next engineering priorities
 
-1. **Wire onboarding** into first-launch flow (optional skip)
-2. **Migrate mini-apps to SQLite** for consistency + backup
-3. **Add push notification scaffold** (Expo Notifications) for meds / checkups
-4. **Period tracker depth** — cycle history engine + ovulation
-5. **CI pipeline** — format + lint + typecheck + test (`.github/workflows/ci.yml`)
-6. **EAS Build** configuration for TestFlight / Play Internal
-7. **Wire article bookmark toggle** and real emergency QR
+1. **Migrate mini-apps to SQLite** for consistency + backup
+2. **Add push notification scaffold** (Expo Notifications) for meds / checkups
+3. **Period tracker depth** — cycle history engine + ovulation
+4. **CI pipeline** — format + lint + typecheck + test (`.github/workflows/ci.yml`)
+5. **EAS Build** configuration for TestFlight / Play Internal
+6. **Wire article bookmark toggle** and real emergency QR
 
 ---
 

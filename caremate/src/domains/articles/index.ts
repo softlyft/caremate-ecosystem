@@ -4,6 +4,8 @@ export {
   CompactArticleCard,
   FeaturedArticleCard,
 } from '@/domains/articles/components/ArticleCards';
+export { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
+export { useArticleBookmark } from '@/domains/articles/hooks/use-article-bookmark';
 export {
   ARTICLE_THUMBNAILS,
   estimateReadingTime,

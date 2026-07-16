@@ -25,6 +25,8 @@
     "title": "Nini muhimu zaidi?",
     "subtitle": "Gusa unachojali — tutaweka hatua zinazofuata za hiari kulingana na hilo.",
     "continueSelected": "Endelea · {{count}} zimechaguliwa",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "Dharura",
       "description": "Kadi ya afya bila mtandao kwa wahudumu wa kwanza"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "Tafuta huduma karibu",
-    "subtitle": "Tumia GPS sahihi kwa mechi bora, au weka pini ya takriban kulingana na nchi.",
     "enable": "Washa eneo",
     "checking": "Inakagua…",
     "approximateCta": "Tumia eneo la takriban",
@@ -53,8 +54,7 @@
       "hint": "Uorodheshaji bora kwa hospitali na kliniki karibu nawe"
     },
     "approximate": {
-      "title": "Takriban",
-      "hint": "Mbadala kulingana na nchi — badilisha wakati wowote baadaye"
+      "title": "Takriban"
     }
   },
   "notifications": {

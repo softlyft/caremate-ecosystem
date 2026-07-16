@@ -25,6 +25,8 @@
     "title": "What matters most?",
     "subtitle": "Tap what you care about — we'll tailor the next optional steps.",
     "continueSelected": "Continue · {{count}} selected",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "Emergency",
       "description": "Offline health card for first responders"
@@ -44,7 +46,7 @@
   },
   "location": {
     "title": "Find care nearby",
-    "subtitle": "Use precise GPS for the best matches, or keep an approximate country-based pin.",
+    "subtitle": "Use precise GPS for the best matches, or keep an approximate pin for {{place}}.",
     "enable": "Enable location",
     "checking": "Checking…",
     "approximateCta": "Use approximate location",
@@ -54,7 +56,7 @@
     },
     "approximate": {
       "title": "Approximate",
-      "hint": "Country-based fallback — change anytime later"
+      "hint": "{{place}} fallback pin — change anytime later"
     }
   },
   "notifications": {

@@ -6,7 +6,7 @@
 
 | Layer | Status |
 |-------|--------|
-| SQLite (device) | Complete via `database/schema.ts` + `client.ts` migrations |
+| SQLite (device) | Complete via `database/schema.ts` + generated `database/migrations/` |
 | Sync engine / handlers | Intact (`register-default-handlers.ts`) |
 | Supabase remote | Active across profiles, settings, emergency, providers favorites, articles, tips, bookmarks, family, billing cache, and mini-app snapshots |
 

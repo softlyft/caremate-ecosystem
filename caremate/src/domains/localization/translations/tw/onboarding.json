@@ -25,6 +25,8 @@
     "title": "Deɛn na ɛho hia sen biara?",
     "subtitle": "Mia deɛ wohwɛ ho — yɛbɛyɛ anammɔn a edi hɔ no sɛnea ɛsɛ.",
     "continueSelected": "Toa so · {{count}} a wopaw",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "Ahoyɛ",
       "description": "Apɔwmuden kaade a intanɛt nni so ma wɔn a wodi kan boa"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "Hwehwɛ hwɛ a ɛbɛn",
-    "subtitle": "Fa GPS a ɛyɛ pɛpɛɛpɛ di dwuma ma nea ɛyɛ yiye, anaasɛ sie ɔman so beaeɛ a ɛbɛn.",
     "enable": "Ma beaeɛ no nyɛ adwuma",
     "checking": "Ɛrehwehwɛ…",
     "approximateCta": "Fa beaeɛ a ɛbɛn di dwuma",
@@ -53,8 +54,7 @@
       "hint": "Nhyehyɛe a ɛyɛ yiye ma ayaresabea ne clinic a ɛbɛn wo"
     },
     "approximate": {
-      "title": "Ɛbɛn",
-      "hint": "Ɔman so mmoa — sesa bere biara akyiri"
+      "title": "Ɛbɛn"
     }
   },
   "notifications": {

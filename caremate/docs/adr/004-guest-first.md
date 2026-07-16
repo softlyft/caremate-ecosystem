@@ -24,7 +24,7 @@ Auth uses Supabase when configured; demo sign-in covers offline development with
 
 - Onboarding and navigation must not hard-gate the main tabs behind login.
 - Repositories and mini-app sync must treat guest distinctly: **no push of guest data to Supabase** as an authenticated user row.
-- Migrating guest → signed-in (copy local data into account) is a product concern; today mini-apps migrate AsyncStorage into snapshots on signed-in sync, while account ownership rules stay explicit.
+- Migrating guest → signed-in is required so users do not lose device-local work: `migrateGuestLocalData` copies/merges emergency, bookmarks, settings, profile fields, and family ownership; mini-apps still migrate AsyncStorage into snapshots on signed-in sync.
 - Analytics, rate limits, and abuse controls cannot assume authenticated users.
 - Privacy: device-local guest health data may remain after uninstall/reinstall differently than cloud accounts — communicate clearly in UX where needed.
 

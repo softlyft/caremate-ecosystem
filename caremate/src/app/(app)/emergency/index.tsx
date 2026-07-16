@@ -18,7 +18,7 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { useTranslation } from '@/domains/localization';
@@ -42,6 +42,21 @@ export default function EmergencyViewScreen() {
 
   if (query.isLoading) {
     return <LoadingState title={t('emergency.loading')} />;
+  }
+
+  if (query.isError && query.data === undefined) {
+    return (
+      <ErrorState
+        title={t('emergency.loadFailed.title')}
+        message={
+          query.error instanceof Error ? query.error.message : t('emergency.loadFailed.message')
+        }
+        actionLabel={t('common.retry')}
+        onAction={() => {
+          void query.refetch();
+        }}
+      />
+    );
   }
 
   const profile = query.data;
@@ -229,7 +244,7 @@ export default function EmergencyViewScreen() {
 
             <PressableScale
               style={styles.secondaryCta}
-              onPress={() => router.push('/(app)/emergency/qr')}
+              onPress={() => router.push('/(app)/(tabs)/profile')}
             >
               <QrCode color={ACCENT} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.secondaryCtaLabel}>

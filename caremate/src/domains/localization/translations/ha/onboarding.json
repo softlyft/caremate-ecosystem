@@ -25,6 +25,8 @@
     "title": "Me ya fi muhimmanci?",
     "subtitle": "Taɓa abin da kake damuwa da shi — za mu daidaita matakai na zaɓi masu zuwa.",
     "continueSelected": "Ci gaba · an zaɓi {{count}}",
+    "minSelectTitle": "Pick at least one",
+    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
     "emergency": {
       "label": "Gaggawa",
       "description": "Katin lafiya ba tare da intanet ba don masu agajin farko"
@@ -44,7 +46,6 @@
   },
   "location": {
     "title": "Nemo kulawa kusa",
-    "subtitle": "Yi amfani da GPS daidai don mafi kyawun sakamako, ko ajiye kimanin wurin bisa ƙasa.",
     "enable": "Kunna wuri",
     "checking": "Ana duba…",
     "approximateCta": "Yi amfani da kimanin wuri",
@@ -53,8 +54,7 @@
       "hint": "Mafi kyawun jeri ga asibitoci da clinic a kusa da kai"
     },
     "approximate": {
-      "title": "Kimani",
-      "hint": "Madadin bisa ƙasa — canza kowane lokaci daga baya"
+      "title": "Kimani"
     }
   },
   "notifications": {

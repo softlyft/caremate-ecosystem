@@ -1,5 +1,11 @@
 export const APP_NAME = 'CareMate';
 
+/** Public store listings for spouse invite share text (update when listings go live). */
+export const APP_STORE_URLS = {
+  ios: 'https://apps.apple.com/app/caremate',
+  android: 'https://play.google.com/store/apps/details?id=com.softlyft.caremate',
+} as const;
+
 export const STORAGE_KEYS = {
   onboardingComplete: 'caremate_onboarding_complete',
   biometricEnabled: 'caremate_biometric_enabled',

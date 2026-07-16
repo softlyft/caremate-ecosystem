@@ -5,7 +5,7 @@ Family is a shared **household** for kids and spouse connections. Each parent ke
 ## Flows
 
 1. **Setup** (Me → Family or Settings → Family): “Are you a parent?” → kids count → DOB/gender per child → create household.
-2. **Connect spouse**: email/phone lookup → show full matched profile → Connect (pending request). If not found → shareable invite message + link (no server email/SMS).
+2. **Connect spouse**: email/phone lookup → show full matched profile → Connect (in-app pending request). If not found → copy/share a plain App Store / Play Store message (no invite tokens or deep links; connection happens in-app after they install).
 3. **Accept/decline**: recipient sees Me → Family → requests; accept joins the requester’s household as `spouse`.
 
 ## Data
