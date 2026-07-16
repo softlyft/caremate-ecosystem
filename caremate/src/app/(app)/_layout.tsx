@@ -56,10 +56,10 @@ export default function AppLayout() {
           name="notifications/index"
           options={glossyStackHeaderOptions({
             title: 'Notifications',
-            accent: '#475569',
-            soft: '#F1F5F9',
-            softEnd: '#F8FAFC',
-            titleColor: '#334155',
+            accent: '#4F46E5',
+            soft: '#EEF2FF',
+            softEnd: '#F5F3FF',
+            titleColor: '#4338CA',
             icon: Bell,
             backAccessibilityLabel: 'Back to Home',
           })}

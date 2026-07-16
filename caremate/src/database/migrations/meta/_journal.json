@@ -15,6 +15,20 @@
       "when": 1784219480442,
       "tag": "0001_mighty_living_mummy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784222661871,
+      "tag": "0002_mean_phil_sheldon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784224235841,
+      "tag": "0003_wooden_rogue",
+      "breakpoints": true
     }
   ]
 }

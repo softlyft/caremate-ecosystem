@@ -4,6 +4,7 @@
   "articleCount": "{{count}} लेख",
   "searchPlaceholder": "लेख खोजें",
   "bookmarks": "बुकमार्क देखें",
+  "bookmarksShort": "बुकमार्क",
   "featured": "विशेष",
   "allTopics": "सभी विषय",
   "loading": "लेख लोड हो रहे हैं...",

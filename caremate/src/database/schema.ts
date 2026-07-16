@@ -193,6 +193,71 @@ export const notifications = sqliteTable('notifications', {
   ...syncColumns,
 });
 
+/** Portal kill switches + mix weights (pull-only). */
+export const adRemoteConfig = sqliteTable('ad_remote_config', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+/** House / sponsored campaigns (pull-only catalog). */
+export const adAdvertisers = sqliteTable('ad_advertisers', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  orgType: text('org_type').notNull().default('other'),
+  websiteUrl: text('website_url'),
+  logoUrl: text('logo_url'),
+  verificationStatus: text('verification_status').notNull().default('pending'),
+  verifiedAt: text('verified_at'),
+  ...syncColumns,
+});
+
+export const adCampaigns = sqliteTable('ad_campaigns', {
+  id: text('id').primaryKey(),
+  source: text('source').notNull().default('house'),
+  advertiserId: text('advertiser_id'),
+  name: text('name').notNull(),
+  status: text('status').notNull().default('draft'),
+  priority: integer('priority').notNull().default(0),
+  frequencyCapPerDay: integer('frequency_cap_per_day').notNull().default(6),
+  startsAt: text('starts_at'),
+  endsAt: text('ends_at'),
+  countryCodesJson: text('country_codes_json').notNull().default('[]'),
+  ...syncColumns,
+});
+
+export const adCreatives = sqliteTable('ad_creatives', {
+  id: text('id').primaryKey(),
+  campaignId: text('campaign_id').notNull(),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  ctaLabel: text('cta_label'),
+  ctaHref: text('cta_href'),
+  imageUrl: text('image_url'),
+  badgeLabel: text('badge_label'),
+  ...syncColumns,
+});
+
+export const adPlacements = sqliteTable('ad_placements', {
+  id: text('id').primaryKey(),
+  campaignId: text('campaign_id').notNull(),
+  slotId: text('slot_id').notNull(),
+  ...syncColumns,
+});
+
+/** Local impression/click outbox → sync to public.ad_events. */
+export const adEvents = sqliteTable('ad_events', {
+  id: text('id').primaryKey(),
+  userId: text('user_id'),
+  eventType: text('event_type').notNull(),
+  campaignId: text('campaign_id'),
+  creativeId: text('creative_id'),
+  slotId: text('slot_id').notNull(),
+  source: text('source').notNull().default('house'),
+  adUnitId: text('ad_unit_id'),
+  ...syncColumns,
+});
+
 export const schema = {
   profiles,
   emergencyProfiles,
@@ -209,4 +274,10 @@ export const schema = {
   familyConnectionRequests,
   subscriptionEntitlements,
   notifications,
+  adRemoteConfig,
+  adAdvertisers,
+  adCampaigns,
+  adCreatives,
+  adPlacements,
+  adEvents,
 };

@@ -1,3 +1,4 @@
+import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
 import { billingRepository } from '@/domains/billing/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
@@ -114,5 +115,20 @@ export function registerDefaultSyncHandlers(): void {
       // Entitlements are server-owned (webhooks). Device never pushes.
     },
     pull: () => billingRepository.pullFromRemote(),
+  });
+
+  registerSyncHandler('ad_catalog', {
+    push: async () => {
+      // Campaigns / config / creatives / placements are portal-managed.
+    },
+    pull: () => adsRepository.pullFromRemote(),
+  });
+
+  registerSyncHandler('ad_events', {
+    push: (entityId, operation, payload) =>
+      adsRepository.syncEventToRemote(entityId, operation, payload),
+    pull: async () => {
+      // Events are device → cloud only.
+    },
   });
 }

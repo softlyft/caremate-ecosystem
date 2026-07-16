@@ -50,7 +50,7 @@ export function EmergencyBanner() {
 const styles = StyleSheet.create({
   wrapper: {
     marginHorizontal: layoutSpacing.screenHorizontal,
-    marginBottom: layoutSpacing.betweenSections,
+    marginBottom: layoutSpacing.sectionTitleToContent,
     borderRadius: radius.xxl,
     overflow: 'hidden',
   },

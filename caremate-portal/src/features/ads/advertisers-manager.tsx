@@ -1,0 +1,252 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  saveAdvertiser,
+  setAdvertiserVerification,
+} from '@/domains/ads/actions';
+import type { AdAdvertiser } from '@/types/database';
+
+const ORG_TYPES = [
+  'hospital',
+  'pharmacy',
+  'laboratory',
+  'ngo',
+  'hmo',
+  'public_health',
+  'other',
+] as const;
+
+type FormValues = {
+  name: string;
+  orgType: (typeof ORG_TYPES)[number];
+  websiteUrl: string;
+  logoUrl: string;
+};
+
+function AdvertiserForm({
+  advertiser,
+  onDone,
+}: {
+  advertiser?: AdAdvertiser;
+  onDone: () => void;
+}) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const { register, handleSubmit, setValue } = useForm<FormValues>({
+    defaultValues: {
+      name: advertiser?.name ?? '',
+      orgType: (advertiser?.org_type as FormValues['orgType']) ?? 'other',
+      websiteUrl: advertiser?.website_url ?? '',
+      logoUrl: advertiser?.logo_url ?? '',
+    },
+  });
+
+  const onSubmit = handleSubmit((values) => {
+    start(async () => {
+      try {
+        await saveAdvertiser({
+          id: advertiser?.id,
+          name: values.name,
+          orgType: values.orgType,
+          websiteUrl: values.websiteUrl || null,
+          logoUrl: values.logoUrl || null,
+        });
+        toast.success(advertiser ? 'Advertiser updated' : 'Advertiser submitted for verification');
+        onDone();
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Save failed');
+      }
+    });
+  });
+
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="name">Organization name</Label>
+              <Input id="name" {...register('name', { required: true })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orgType">Type</Label>
+              <Select
+                id="orgType"
+                defaultValue={advertiser?.org_type ?? 'other'}
+                onChange={(e) => setValue('orgType', e.target.value as FormValues['orgType'])}
+              >
+                {ORG_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t.replace('_', ' ')}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="websiteUrl">Website</Label>
+              <Input id="websiteUrl" {...register('websiteUrl')} placeholder="https://" />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="logoUrl">Logo URL</Label>
+              <Input id="logoUrl" {...register('logoUrl')} />
+            </div>
+          </div>
+          <Button type="submit" disabled={pending}>
+            {pending ? 'Saving…' : 'Save advertiser'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function statusBadge(status: string) {
+  if (status === 'verified') return <Badge variant="success">Verified</Badge>;
+  if (status === 'rejected') return <Badge variant="danger">Rejected</Badge>;
+  return <Badge variant="secondary">Pending</Badge>;
+}
+
+export function AdvertisersManager({
+  advertisers,
+  canEdit,
+  canVerify,
+}: {
+  advertisers: AdAdvertiser[];
+  canEdit: boolean;
+  canVerify: boolean;
+}) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
+  const [editing, setEditing] = useState<AdAdvertiser | undefined>();
+
+  const verify = (id: string, status: 'verified' | 'rejected') => {
+    start(async () => {
+      try {
+        await setAdvertiserVerification(id, status);
+        toast.success(status === 'verified' ? 'Advertiser verified' : 'Advertiser rejected');
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Action failed');
+      }
+    });
+  };
+
+  if (mode === 'create' && canEdit) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" onClick={() => setMode('list')}>
+          ← Back
+        </Button>
+        <AdvertiserForm onDone={() => setMode('list')} />
+      </div>
+    );
+  }
+
+  if (mode === 'edit' && editing && canEdit) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" onClick={() => setMode('list')}>
+          ← Back
+        </Button>
+        <AdvertiserForm advertiser={editing} onDone={() => setMode('list')} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {canEdit ? (
+        <Button type="button" onClick={() => setMode('create')}>
+          Register advertiser
+        </Button>
+      ) : null}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                {(canEdit || canVerify) && <TableHead />}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {advertisers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={canEdit || canVerify ? 4 : 3} className="text-muted">
+                    No advertisers yet.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                advertisers.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="font-medium">{a.name}</TableCell>
+                    <TableCell className="text-sm text-muted">{a.org_type}</TableCell>
+                    <TableCell>{statusBadge(a.verification_status)}</TableCell>
+                    {(canEdit || canVerify) && (
+                      <TableCell className="space-x-2">
+                        {canEdit ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditing(a);
+                              setMode('edit');
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        ) : null}
+                        {canVerify && a.verification_status === 'pending' ? (
+                          <>
+                            <Button
+                              size="sm"
+                              disabled={pending}
+                              onClick={() => verify(a.id, 'verified')}
+                            >
+                              Verify
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              disabled={pending}
+                              onClick={() => verify(a.id, 'rejected')}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        ) : null}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

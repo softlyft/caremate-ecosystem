@@ -328,6 +328,26 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 ---
 
+## Ads (banner slots)
+
+Requires portal migration + sync. Use dev client / EAS build for AdMob cases (not Expo Go).
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| AD-01 | P0 | Portal: `ads.enabled` on, slot `home.feed` = house, active house campaign | Open Home | House banner visible with CareMate labeling |
+| AD-02 | P0 | Slot mode = `off` for `home.feed` | Open Home | No banner in feed slot |
+| AD-03 | P0 | Portal: master `ads.enabled` off | Open Home / Learn / Nearby | No ad banners anywhere |
+| AD-04 | P1 | Slot = house, no active house inventory | Open slot surface | Empty slot — no AdMob/house fallback |
+| AD-05 | P1 | Slot = sponsored, verified advertiser + active campaign | Open slot surface | Banner shows **Sponsored** label |
+| AD-06 | P1 | Slot = sponsored, advertiser pending | Open slot surface | Empty slot |
+| AD-07 | P1 | Slot = admob, free user, online, dev build | Open slot surface | AdMob test banner or empty on load failure |
+| AD-08 | P1 | Slot = admob, Premium user | Open slot surface | No AdMob (empty slot) |
+| AD-09 | P1 | Slot = admob, airplane mode | Open slot surface | Empty slot |
+| AD-10 | P2 | Tap house/sponsored CTA | — | In-app navigation; click event queued |
+| AD-11 | P2 | Portal: change slot mode | Pull/sync app | New mode respected after sync |
+
+---
+
 ## Out of scope / known gaps (do not fail unless regression)
 
 | Area | Note |

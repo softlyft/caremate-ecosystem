@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { LayoutGrid } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
@@ -51,7 +52,7 @@ export function HealthCategoriesRow({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isFilterMode ? styles.containerFlush : null]}>
       {showHeader ? (
         <SectionHeader
           title={t('home.healthCategories.title')}
@@ -70,25 +71,41 @@ export function HealthCategoriesRow({
             style={[
               styles.chip,
               styles.allChip,
-              selectedCategoryId === null ? styles.chipSelected : null,
+              selectedCategoryId === null ? styles.allChipSelected : null,
+              shadow.soft,
             ]}
             onPress={handleAllPress}
           >
+            <View style={[styles.emojiWrap, { backgroundColor: palette.primaryLight }]}>
+              <LayoutGrid color={palette.primary} size={15} strokeWidth={2.25} />
+            </View>
             <AppText variant="categoryPill">{t('common.all')}</AppText>
           </PressableScale>
         ) : null}
         {HEALTH_CATEGORIES.map((category) => {
-          const selected = selectedCategoryId === category.id;
+          const selected = isFilterMode && selectedCategoryId === category.id;
           return (
             <PressableScale
               key={category.id}
-              style={[styles.chip, selected ? styles.chipSelected : null, shadow.soft]}
+              style={[
+                styles.chip,
+                selected
+                  ? {
+                      borderWidth: 2,
+                      borderColor: category.accent,
+                      backgroundColor: category.color,
+                    }
+                  : null,
+                shadow.soft,
+              ]}
               onPress={() => handleCategoryPress(category.id)}
             >
               <View style={[styles.emojiWrap, { backgroundColor: category.color }]}>
                 <Text style={styles.emoji}>{category.emoji}</Text>
               </View>
-              <AppText variant="categoryPill">{category.name}</AppText>
+              <AppText variant="categoryPill" style={selected ? { color: category.accent } : null}>
+                {category.name}
+              </AppText>
             </PressableScale>
           );
         })}
@@ -99,7 +116,10 @@ export function HealthCategoriesRow({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: layoutSpacing.betweenSections,
+    marginBottom: layoutSpacing.sectionTitleToContent,
+  },
+  containerFlush: {
+    marginBottom: 0,
   },
   row: {
     gap: 10,
@@ -118,7 +138,7 @@ const styles = StyleSheet.create({
   allChip: {
     backgroundColor: palette.surface,
   },
-  chipSelected: {
+  allChipSelected: {
     borderWidth: 2,
     borderColor: palette.primary,
     backgroundColor: palette.primaryLight,

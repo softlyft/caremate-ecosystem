@@ -5,7 +5,12 @@ import { AppText } from '@/components/ui/AppText';
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { layoutSpacing, palette, radius } from '@/theme';
 
-export function OfflineBanner() {
+type OfflineBannerProps = {
+  /** Skip outer margins when the parent already handles padding/gaps. */
+  flush?: boolean;
+};
+
+export function OfflineBanner({ flush = false }: OfflineBannerProps) {
   const { online } = useNetworkStatus();
 
   if (online) {
@@ -13,7 +18,7 @@ export function OfflineBanner() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, flush ? null : styles.inset]}>
       <View style={styles.iconWrap}>
         <WifiOff color="#B45309" size={16} strokeWidth={2.5} />
       </View>
@@ -29,14 +34,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginHorizontal: layoutSpacing.screenHorizontal,
-    marginBottom: layoutSpacing.betweenSections,
     backgroundColor: '#FFFBEB',
     borderRadius: radius.lg,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
     borderColor: '#FDE68A',
+  },
+  inset: {
+    marginHorizontal: layoutSpacing.screenHorizontal,
+    marginBottom: layoutSpacing.sectionTitleToContent,
   },
   iconWrap: {
     width: 32,

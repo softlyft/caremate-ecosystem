@@ -72,11 +72,10 @@ const styles = StyleSheet.create({
   container: {
     paddingLeft: layoutSpacing.screenHorizontal,
     paddingRight: layoutSpacing.screenHorizontal,
-    marginBottom: spacing.md,
+    marginBottom: layoutSpacing.sectionTitleToContent,
     gap: spacing.md,
     position: 'relative',
     overflow: 'hidden',
-    paddingBottom: spacing.sm,
   },
   meshTop: {
     position: 'absolute',
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   copy: {
-    gap: 6,
+    gap: layoutSpacing.welcomeToSubtitle,
     zIndex: 1,
   },
   greeting: {

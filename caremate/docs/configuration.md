@@ -12,6 +12,17 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
 | `EXPO_PUBLIC_CURRENTS_API_KEY` | No | Currents API key for external health news |
 | `EXPO_PUBLIC_CURRENTS_COUNTRY` | No | Default Currents country (`INT` = international) |
+| `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` | AdMob builds | Google AdMob Android app ID (`app.config.ts`) |
+| `EXPO_PUBLIC_ADMOB_APP_ID_IOS` | AdMob builds | Google AdMob iOS app ID |
+| `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Production AdMob | Banner unit for `home.tips` |
+| `EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED` | Production AdMob | Banner unit for `home.feed` |
+| `EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST` | Production AdMob | Banner unit for `learn.list` |
+| `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER` | Production AdMob | Banner unit for `learn.article_header` |
+| `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER` | Production AdMob | Banner unit for `learn.article_footer` |
+| `EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST` | Production AdMob | Banner unit for `nearby.list` |
+| `EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER` | Production AdMob | Banner unit for `nearby.provider` |
+
+`__DEV__` uses Google sample/test IDs regardless of env. AdMob requires a **dev client or EAS build** (not Expo Go). See [Ads](./ads.md).
 
 Read in `src/constants/env.ts`:
 

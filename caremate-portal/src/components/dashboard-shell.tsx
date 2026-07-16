@@ -11,6 +11,7 @@ import {
   CreditCard,
   LogOut,
   HeartPulse,
+  Megaphone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
@@ -25,6 +26,7 @@ const NAV = [
   { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
   { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
   { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
+  { href: '/dashboard/ads', label: 'Ads', icon: Megaphone },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
 ] as const;
 
