@@ -1,17 +1,17 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppScreen,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import { MOOD_OPTIONS, SYMPTOM_OPTIONS } from '@/mini-apps/pregnancy-tracker/constants';
 import {
   getTodayLog,
@@ -19,9 +19,12 @@ import {
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { palette, radius, spacing } from '@/theme';
+
+const APP_ID = 'pregnancy-tracker' as const;
 
 export default function PregnancyLogScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const todayKey = useMemo(() => toDateKey(new Date()), []);
   const hydrated = usePregnancyTrackerHydrated();
 
@@ -44,85 +47,74 @@ export default function PregnancyLogScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
-        Log how you&apos;re feeling today. This helps you spot patterns over time.
-      </AppText>
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow="Daily log"
+        title="How are you feeling?"
+        subtitle="Log how you're feeling today. This helps you spot patterns over time."
+      />
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Mood</AppText>
+      <MiniAppCard index={1} title="Mood" theme={theme}>
         <View style={styles.chipRow}>
-          {MOOD_OPTIONS.map((option) => {
-            const selected = mood === option;
-            return (
-              <Pressable
-                key={option}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setMood(selected ? undefined : option)}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {option}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          {MOOD_OPTIONS.map((option) => (
+            <MiniAppChip
+              key={option}
+              label={option}
+              selected={mood === option}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => setMood(mood === option ? undefined : option)}
+            />
+          ))}
         </View>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Symptoms</AppText>
+      <MiniAppCard index={2} title="Symptoms" theme={theme}>
         <View style={styles.chipRow}>
-          {SYMPTOM_OPTIONS.map((option) => {
-            const selected = symptoms.includes(option);
-            return (
-              <Pressable
-                key={option}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => toggleSymptom(option)}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {option}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          {SYMPTOM_OPTIONS.map((option) => (
+            <MiniAppChip
+              key={option}
+              label={option}
+              selected={symptoms.includes(option)}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => toggleSymptom(option)}
+            />
+          ))}
         </View>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Baby kicks</AppText>
+      <MiniAppCard index={3} title="Baby kicks" theme={theme}>
         <View style={styles.counterRow}>
           <Pressable
-            style={styles.counterButton}
+            style={[styles.counterButton, { borderColor: theme.color }]}
             onPress={() => setKickCount((count) => Math.max(0, count - 1))}
           >
-            <Minus color={palette.textSecondary} size={18} />
+            <Minus color={theme.color} size={18} />
           </Pressable>
-          <AppText variant="screenTitle">{kickCount}</AppText>
+          <AppText variant="screenTitle" style={{ color: theme.titleColor }}>
+            {kickCount}
+          </AppText>
           <Pressable
-            style={styles.counterButton}
+            style={[styles.counterButton, { borderColor: theme.color }]}
             onPress={() => setKickCount((count) => count + 1)}
           >
-            <Plus color={palette.textSecondary} size={18} />
+            <Plus color={theme.color} size={18} />
           </Pressable>
         </View>
         <AppText variant="caption" style={styles.muted}>
           Tap + each time you feel movement
         </AppText>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Notes</AppText>
+      <MiniAppCard index={4} title="Notes" theme={theme}>
         <TextInput
           value={notes}
           onChangeText={setNotes}
@@ -130,11 +122,15 @@ export default function PregnancyLogScreen() {
           multiline
           style={styles.notesInput}
           textAlignVertical="top"
+          placeholderTextColor={palette.textSecondary}
         />
-      </View>
+      </MiniAppCard>
 
-      <Button
+      <MiniAppCta
         label="Save log"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={5}
         onPress={() => {
           upsertDailyLog({
             ...getTodayLog(todayKey),
@@ -146,53 +142,21 @@ export default function PregnancyLogScreen() {
           router.back();
         }}
       />
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  card: {
     backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: '#E0F2FE',
-    borderColor: '#0284C7',
-  },
-  chipTextSelected: {
-    color: '#0284C7',
   },
   counterRow: {
     flexDirection: 'row',
@@ -201,22 +165,21 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   counterButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: palette.divider,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: palette.background,
   },
   notesInput: {
     minHeight: 110,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: palette.divider,
     padding: spacing.md,
-    backgroundColor: palette.background,
+    backgroundColor: palette.surface,
     fontSize: 15,
     color: palette.text,
   },

@@ -8,6 +8,7 @@ caremate-ecosystem/
   packages/db-types/     # Shared generated/handwritten TS types
   caremate/              # Expo mobile app (SQLite + sync)
   caremate-portal/       # Next.js admin portal
+  provider-ingestion/    # FastAPI CSV/XLSX → Supabase providers (FHIR-ready)
 ```
 
 ## Workspaces
@@ -27,6 +28,7 @@ Root scripts:
 | `npm run test` | Mobile Jest + portal RBAC unit tests |
 | `npm run format` | Mobile Prettier check |
 | `npm run portal:dev` / `mobile:start` | App servers via workspace |
+| `npm run ingest:dev` | Provider ingestion FastAPI on `:8090` |
 
 ## Responsibilities
 
@@ -105,6 +107,17 @@ npm run supabase:db:push
 npm run bootstrap:admin -w caremate-portal -- you@example.com admin
 npm run portal:dev
 ```
+
+### Provider ingestion (`provider-ingestion/`)
+
+CSV/XLSX → Supabase `providers` (FHIR publish stubbed). Portal **Upload providers** posts here fire-and-forget.
+
+```bash
+cp provider-ingestion/.env.example provider-ingestion/.env   # SUPABASE_* + INGEST_API_KEY
+npm run ingest:dev                                           # http://127.0.0.1:8090
+```
+
+Portal needs matching `PROVIDER_INGEST_URL` and `PROVIDER_INGEST_API_KEY` (see `caremate-portal/.env.example`). Sample workbook: `provider-ingestion/samples/ng_lagos_providers.xlsx`.
 
 ## CI
 

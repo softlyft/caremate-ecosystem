@@ -1,0 +1,1 @@
+"""CareMate provider ingestion service."""

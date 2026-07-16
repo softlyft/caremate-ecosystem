@@ -1,6 +1,9 @@
+import { WifiOff } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
+
 import { AppText } from '@/components/ui/AppText';
-import { Box } from '@/components/ui/box';
 import { useNetworkStatus } from '@/hooks/use-network-status';
+import { layoutSpacing, palette, radius } from '@/theme';
 
 export function OfflineBanner() {
   const { online } = useNetworkStatus();
@@ -10,10 +13,43 @@ export function OfflineBanner() {
   }
 
   return (
-    <Box className="bg-amber-100 rounded-lg px-4 py-2">
-      <AppText variant="caption" style={{ color: '#1F2937', textAlign: 'center' }}>
-        You are offline. Changes will sync when you reconnect.
+    <View style={styles.container}>
+      <View style={styles.iconWrap}>
+        <WifiOff color="#B45309" size={16} strokeWidth={2.5} />
+      </View>
+      <AppText variant="caption" style={styles.text}>
+        You&apos;re offline — cached content is available. Changes sync when you reconnect.
       </AppText>
-    </Box>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginHorizontal: layoutSpacing.screenHorizontal,
+    marginBottom: layoutSpacing.betweenSections,
+    backgroundColor: '#FFFBEB',
+    borderRadius: radius.lg,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  iconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    flex: 1,
+    color: palette.text,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+});

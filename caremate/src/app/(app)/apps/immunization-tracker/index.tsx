@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
+import { LoadingState } from '@/components/ui/screen-states';
 import { useFamilyImmunizationChildren } from '@/mini-apps/immunization-tracker/use-family-children';
 import {
   useActiveImmunizationProfile,
@@ -18,7 +18,20 @@ import {
   getStatusLabel,
   VaccineStatus,
 } from '@/mini-apps/immunization-tracker/utils';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppProgress,
+  MiniAppRow,
+  MiniAppScreen,
+  StatusPill,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
+import { spacing } from '@/theme';
+
+const APP_ID = 'immunization-tracker' as const;
 
 const STATUS_COLORS: Record<VaccineStatus, string> = {
   completed: '#059669',
@@ -35,6 +48,7 @@ const STATUS_BACKGROUNDS: Record<VaccineStatus, string> = {
 };
 
 export default function ImmunizationTrackerScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const familySource = useFamilyImmunizationChildren();
 
@@ -49,140 +63,134 @@ export default function ImmunizationTrackerScreen() {
   const hasProfile = Boolean(profile);
 
   if (familySource.status === 'loading') {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
-        <AppText variant="subtitle">Loading children from your family…</AppText>
-      </View>
-    );
+    return <LoadingState title="Loading children from your family…" />;
   }
 
   if (familySource.status === 'guest') {
     return (
-      <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-        <View style={styles.hero}>
-          <AppText variant="caption" style={styles.heroLabel}>
-            Immunization
-          </AppText>
-          <AppText variant="screenTitle" style={styles.heroTitle}>
-            Sign in required
-          </AppText>
-          <AppText variant="subtitle" style={styles.heroSubtitle}>
-            Immunization tracking uses children from your CareMate family profile.
-          </AppText>
-        </View>
-        <Button label="Sign in" onPress={() => router.push('/(auth)/login')} />
-      </ScrollView>
+      <MiniAppScreen>
+        <MiniAppHero
+          appId={APP_ID}
+          eyebrow="Immunization"
+          title="Sign in required"
+          subtitle="Immunization tracking uses children from your CareMate family profile."
+        />
+        <MiniAppCta
+          label="Sign in"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.push('/(auth)/login')}
+        />
+      </MiniAppScreen>
     );
   }
 
   if (familySource.status === 'needs_family_setup' || familySource.status === 'needs_children') {
     const needsSetup = familySource.status === 'needs_family_setup';
     return (
-      <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-        <View style={styles.hero}>
-          <AppText variant="caption" style={styles.heroLabel}>
-            Immunization
-          </AppText>
-          <AppText variant="screenTitle" style={styles.heroTitle}>
-            {needsSetup ? 'Set up your family first' : 'Add children in Family'}
-          </AppText>
-          <AppText variant="subtitle" style={styles.heroSubtitle}>
-            {needsSetup
+      <MiniAppScreen>
+        <MiniAppHero
+          appId={APP_ID}
+          eyebrow="Immunization"
+          title={needsSetup ? 'Set up your family first' : 'Add children in Family'}
+          subtitle={
+            needsSetup
               ? 'Create your family profile and add kids with date of birth. Then their vaccine schedule will appear here.'
-              : 'Your household has no children with a date of birth yet. Add kids in Family to start tracking vaccines.'}
-          </AppText>
-        </View>
-        <Button
+              : 'Your household has no children with a date of birth yet. Add kids in Family to start tracking vaccines.'
+          }
+        />
+        <MiniAppCta
           label={needsSetup ? 'Set up family' : 'Open family'}
+          accent={theme.color}
+          soft={theme.backgroundColor}
           onPress={() => router.push(needsSetup ? '/(app)/family/setup' : '/(app)/family')}
         />
-      </ScrollView>
+      </MiniAppScreen>
     );
   }
 
+  const heroSubtitle = hasProfile
+    ? summary.overdue > 0
+      ? `${summary.overdue} vaccine${summary.overdue === 1 ? '' : 's'} overdue — schedule a visit`
+      : summary.nextDue
+        ? `Next: ${summary.nextDue.vaccine.name} (${summary.nextDue.vaccine.doseLabel})`
+        : 'All scheduled vaccines are up to date'
+    : 'Select a child to see their recommended vaccine schedule';
+
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.hero}>
-        <AppText variant="caption" style={styles.heroLabel}>
-          {hasProfile ? profile!.name : 'Immunization'}
-        </AppText>
-        <AppText variant="screenTitle" style={styles.heroTitle}>
-          {hasProfile
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow={hasProfile ? profile!.name : 'Immunization'}
+        title={
+          hasProfile
             ? `${summary.completed} of ${summary.total} vaccines completed`
-            : 'Track immunizations'}
-        </AppText>
-        <AppText variant="subtitle" style={styles.heroSubtitle}>
-          {hasProfile
-            ? summary.overdue > 0
-              ? `${summary.overdue} vaccine${summary.overdue === 1 ? '' : 's'} overdue — schedule a visit`
-              : summary.nextDue
-                ? `Next: ${summary.nextDue.vaccine.name} (${summary.nextDue.vaccine.doseLabel})`
-                : 'All scheduled vaccines are up to date'
-            : 'Select a child to see their recommended vaccine schedule'}
-        </AppText>
-      </View>
+            : 'Track immunizations'
+        }
+        subtitle={heroSubtitle}
+      />
 
       {profiles.length > 0 ? (
-        <View style={styles.childSwitcher}>
+        <MiniAppCard index={1} title="Children" eyebrow="Family" theme={theme}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.childRow}
+            contentContainerStyle={styles.chipRow}
           >
-            {profiles.map((item) => {
-              const selected = item.id === activeProfileId;
-              return (
-                <Pressable
-                  key={item.id}
-                  style={[styles.childChip, selected && styles.childChipSelected]}
-                  onPress={() => setActiveProfileId(item.id)}
-                >
-                  <AppText
-                    variant="caption"
-                    style={selected ? styles.childChipTextSelected : undefined}
-                  >
-                    {item.name}
-                  </AppText>
-                </Pressable>
-              );
-            })}
+            {profiles.map((item) => (
+              <MiniAppChip
+                key={item.id}
+                label={item.name}
+                selected={item.id === activeProfileId}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => setActiveProfileId(item.id)}
+              />
+            ))}
           </ScrollView>
           <AppText variant="caption" style={styles.muted}>
             Children come from your Family profile.
           </AppText>
-          <Button
+          <MiniAppCta
             label="Manage in Family"
-            variant="secondary"
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            secondary
+            index={2}
             onPress={() => router.push('/(app)/family')}
           />
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasProfile && profile ? (
-        <View style={[styles.card, shadow.soft]}>
-          <View style={styles.summaryRow}>
-            <AppText variant="body">Date of birth</AppText>
-            <AppText variant="body">{formatDisplayDate(profile.dateOfBirth)}</AppText>
-          </View>
-          <View style={styles.summaryRow}>
-            <AppText variant="body">Age</AppText>
-            <AppText variant="body">{getAgeLabel(profile.dateOfBirth, today)}</AppText>
-          </View>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${summary.progress * 100}%` }]} />
-          </View>
-        </View>
+        <MiniAppCard index={3} title="Profile" eyebrow="Details" theme={theme}>
+          <MiniAppRow
+            title="Date of birth"
+            subtitle={formatDisplayDate(profile.dateOfBirth)}
+            soft={theme.backgroundColor}
+          />
+          <MiniAppRow
+            title="Age"
+            subtitle={getAgeLabel(profile.dateOfBirth, today)}
+            soft={theme.backgroundColor}
+          />
+          <MiniAppProgress
+            progress={summary.progress}
+            accent={theme.color}
+            label={`${Math.round(summary.progress * 100)}% complete`}
+          />
+        </MiniAppCard>
       ) : null}
 
       {hasProfile && summary.nextDue ? (
-        <View style={[styles.card, shadow.soft, styles.nextDueCard]}>
-          <AppText variant="cardTitle">Attention needed</AppText>
-          <AppText variant="body">
+        <MiniAppCard
+          index={4}
+          title="Attention needed"
+          eyebrow="Next up"
+          theme={theme}
+          style={styles.nextDueCard}
+        >
+          <AppText variant="body" style={styles.nextDueTitle}>
             {summary.nextDue.vaccine.name} · {summary.nextDue.vaccine.doseLabel}
           </AppText>
           <AppText variant="caption" style={styles.muted}>
@@ -193,8 +201,16 @@ export default function ImmunizationTrackerScreen() {
                 ? ' · Due today'
                 : ` · Due in ${summary.nextDue.daysUntilDue} day${summary.nextDue.daysUntilDue === 1 ? '' : 's'}`}
           </AppText>
-          <Button
+          <StatusPill
+            label={getStatusLabel(summary.nextDue.status)}
+            color={STATUS_COLORS[summary.nextDue.status]}
+            background={STATUS_BACKGROUNDS[summary.nextDue.status]}
+          />
+          <MiniAppCta
             label="Log this vaccine"
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            index={5}
             onPress={() =>
               router.push({
                 pathname: '/(app)/apps/immunization-tracker/log',
@@ -202,166 +218,70 @@ export default function ImmunizationTrackerScreen() {
               })
             }
           />
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasProfile ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Vaccine schedule</AppText>
+        <MiniAppCard index={6} title="Vaccine schedule" eyebrow="Timeline" theme={theme}>
           {schedule.map((item) => (
-            <Pressable
+            <MiniAppRow
               key={item.vaccine.id}
-              style={styles.vaccineRow}
+              title={`${item.vaccine.name} · ${item.vaccine.doseLabel}`}
+              subtitle={
+                item.status === 'completed' && item.record
+                  ? `Given ${formatDisplayDate(item.record.administeredDate)}`
+                  : `Due ${formatDisplayDate(item.recommendedDate)}`
+              }
+              soft={STATUS_BACKGROUNDS[item.status]}
               onPress={() =>
                 router.push({
                   pathname: '/(app)/apps/immunization-tracker/log',
                   params: { vaccineId: item.vaccine.id, profileId: profile!.id },
                 })
               }
-            >
-              <View style={styles.vaccineCopy}>
-                <AppText variant="body">
-                  {item.vaccine.name} · {item.vaccine.doseLabel}
-                </AppText>
-                <AppText variant="caption" style={styles.muted}>
-                  {item.status === 'completed' && item.record
-                    ? `Given ${formatDisplayDate(item.record.administeredDate)}`
-                    : `Due ${formatDisplayDate(item.recommendedDate)}`}
-                </AppText>
-              </View>
-              <View
-                style={[styles.statusBadge, { backgroundColor: STATUS_BACKGROUNDS[item.status] }]}
-              >
-                <AppText variant="caption" style={{ color: STATUS_COLORS[item.status] }}>
-                  {getStatusLabel(item.status)}
-                </AppText>
-              </View>
-            </Pressable>
+              trailing={
+                <StatusPill
+                  label={getStatusLabel(item.status)}
+                  color={STATUS_COLORS[item.status]}
+                  background={STATUS_BACKGROUNDS[item.status]}
+                />
+              }
+            />
           ))}
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasProfile ? (
-        <View style={styles.actions}>
-          <Button
-            label="Log vaccine"
-            variant="secondary"
-            onPress={() =>
-              router.push({
-                pathname: '/(app)/apps/immunization-tracker/log',
-                params: { profileId: profile!.id },
-              })
-            }
-          />
-        </View>
+        <MiniAppCta
+          label="Log vaccine"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={7}
+          onPress={() =>
+            router.push({
+              pathname: '/(app)/apps/immunization-tracker/log',
+              params: { profileId: profile!.id },
+            })
+          }
+        />
       ) : null}
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.background,
-    gap: spacing.md,
-    padding: layoutSpacing.screenHorizontal,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  hero: {
-    backgroundColor: '#D1FAE5',
-    borderRadius: radius.xxl,
-    padding: layoutSpacing.cardPadding,
-    gap: 4,
-  },
-  heroLabel: {
-    color: '#059669',
-  },
-  heroTitle: {
-    color: '#064E3B',
-  },
-  heroSubtitle: {
-    color: '#047857',
-  },
-  childSwitcher: {
-    gap: spacing.sm,
-  },
-  childRow: {
+  chipRow: {
     gap: spacing.sm,
     paddingVertical: 2,
   },
-  childChip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: palette.background,
-  },
-  childChipSelected: {
-    backgroundColor: '#D1FAE5',
-    borderColor: '#059669',
-  },
-  childChipTextSelected: {
-    color: '#059669',
-  },
-  card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
+  muted: {
+    color: '#6B7280',
   },
   nextDueCard: {
     borderColor: '#FCD34D',
   },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  progressTrack: {
-    height: 8,
-    borderRadius: radius.full,
-    backgroundColor: '#A7F3D0',
-    overflow: 'hidden',
-    marginTop: spacing.xs,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radius.full,
-    backgroundColor: '#059669',
-  },
-  vaccineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.divider,
-  },
-  vaccineCopy: {
-    flex: 1,
-    gap: 2,
-  },
-  statusBadge: {
-    borderRadius: radius.full,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  muted: {
-    color: palette.textSecondary,
-  },
-  actions: {
-    gap: spacing.sm,
+  nextDueTitle: {
+    fontWeight: '600',
   },
 });

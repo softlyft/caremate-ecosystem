@@ -32,6 +32,7 @@ export async function saveTip(input: TipInput) {
     body: input.body,
     sort_order: input.sort_order ?? 0,
     is_active: input.is_active ?? true,
+    deleted_at: null,
     updated_at: now,
     ...(input.id ? {} : { created_at: now }),
   };
@@ -52,7 +53,11 @@ export async function saveTip(input: TipInput) {
 export async function deleteTip(id: string) {
   await requireEditor();
   const supabase = await createClient();
-  const { error } = await supabase.from('health_tips').delete().eq('id', id);
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from('health_tips')
+    .update({ deleted_at: now, updated_at: now })
+    .eq('id', id);
   if (error) throw error;
   await writeAuditEvent({ action: 'delete_tip', entityType: 'health_tip', entityId: id });
   revalidatePath('/dashboard/tips');

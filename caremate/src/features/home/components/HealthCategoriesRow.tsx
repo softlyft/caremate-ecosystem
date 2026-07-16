@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PressableScale } from '@/components/motion/PressableScale';
+import { SectionHeader } from '@/components/motion/SectionHeader';
 import { AppText } from '@/components/ui/AppText';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
-import { layoutSpacing, palette, radius } from '@/theme';
+import { layoutSpacing, palette, radius, shadow } from '@/theme';
 
 export type HealthCategoryId = (typeof HEALTH_CATEGORIES)[number]['id'];
 
@@ -49,22 +51,20 @@ export function HealthCategoriesRow({
   return (
     <View style={styles.container}>
       {showHeader ? (
-        <View style={[styles.header, { paddingHorizontal: horizontalPad }]}>
-          <AppText variant="sectionTitle">Health Categories</AppText>
-          {showSeeAll ? (
-            <Pressable onPress={() => router.push('/(app)/(tabs)/articles')}>
-              <AppText variant="seeAll">See All</AppText>
-            </Pressable>
-          ) : null}
-        </View>
+        <SectionHeader
+          title="Explore topics"
+          subtitle="Health categories"
+          onSeeAll={showSeeAll ? () => router.push('/(app)/(tabs)/articles') : undefined}
+        />
       ) : null}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[styles.row, { paddingHorizontal: horizontalPad }]}
+        decelerationRate="fast"
       >
         {showAllOption ? (
-          <Pressable
+          <PressableScale
             style={[
               styles.chip,
               styles.allChip,
@@ -73,23 +73,21 @@ export function HealthCategoriesRow({
             onPress={handleAllPress}
           >
             <AppText variant="categoryPill">All</AppText>
-          </Pressable>
+          </PressableScale>
         ) : null}
         {HEALTH_CATEGORIES.map((category) => {
           const selected = selectedCategoryId === category.id;
           return (
-            <Pressable
+            <PressableScale
               key={category.id}
-              style={[
-                styles.chip,
-                { backgroundColor: category.color },
-                selected ? styles.chipSelected : null,
-              ]}
+              style={[styles.chip, selected ? styles.chipSelected : null, shadow.soft]}
               onPress={() => handleCategoryPress(category.id)}
             >
-              <Text style={styles.emoji}>{category.emoji}</Text>
+              <View style={[styles.emojiWrap, { backgroundColor: category.color }]}>
+                <Text style={styles.emoji}>{category.emoji}</Text>
+              </View>
               <AppText variant="categoryPill">{category.name}</AppText>
-            </Pressable>
+            </PressableScale>
           );
         })}
       </ScrollView>
@@ -101,31 +99,34 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: layoutSpacing.betweenSections,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: layoutSpacing.sectionTitleToContent,
-  },
   row: {
-    gap: 12,
+    gap: 10,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: radius.full,
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: palette.divider,
   },
   allChip: {
     backgroundColor: palette.surface,
-    borderWidth: 1,
-    borderColor: palette.divider,
   },
   chipSelected: {
     borderWidth: 2,
     borderColor: palette.primary,
+    backgroundColor: palette.primaryLight,
+  },
+  emojiWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emoji: {
     fontSize: 16,

@@ -32,7 +32,7 @@ After local trending loads, Home calls `articleRepository.refreshTrendingInBackg
 | `HomeHeader` | `features/home/components/HomeHeader.tsx` | Logo, greeting |
 | `OfflineBanner` | `components/OfflineBanner.tsx` | Shown when offline |
 | `HomeSearchBar` | `features/home/components/HomeSearchBar.tsx` | Opens global Search |
-| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health-tips.json` |
+| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from Supabase → SQLite |
 | `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Category chips → Learn `?category=` |
 | `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending Today (up to 3) |
 | `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Top 4 providers |
@@ -58,7 +58,7 @@ Phase 1 = **articles**. Phase 2 formats (video, podcast, campaign, health alert,
 
 | Kind | How identified | Source |
 |------|----------------|--------|
-| Evergreen | CareMate seed content (`evergreen-*` / no `sourceUrl`), `contentType: article` | `domains/articles/data/learn.json` via `getEvergreenSeeds()` |
+| Evergreen | CareMate catalog from portal → Supabase (`contentType` article/faq/…) | Pulled into SQLite on boot + sync |
 | External (Currents) | `id` starts with `currents-` and/or `sourceUrl` set, `contentType: article` | Currents API → SQLite |
 | Health News category | `categoryId === 'health'` | External articles |
 | Future formats | `contentType` ≠ `article` + `attributes` | Seeds / CMS / Supabase |
@@ -113,10 +113,8 @@ Country behavior:
 ```
 domains/articles/
 ├── components/ArticleCards.tsx
-├── utils/evergreen-articles.ts
-└── data/learn.json
-domains/articles/repository.ts
-services/currents-service.ts
+├── utils/evergreen-articles.ts  # feed helpers (CareMate vs Currents)
+└── repository.ts
 ```
 
 ---

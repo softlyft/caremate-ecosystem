@@ -17,6 +17,7 @@ export const profiles = sqliteTable('profiles', {
   avatarUrl: text('avatar_url'),
   countryCode: text('country_code'),
   state: text('state'),
+  patientId: text('patient_id'),
   ...syncColumns,
 });
 
@@ -71,6 +72,15 @@ export const bookmarks = sqliteTable('bookmarks', {
   id: text('id').primaryKey(),
   articleId: text('article_id').notNull(),
   userId: text('user_id').notNull(),
+  ...syncColumns,
+});
+
+export const healthTips = sqliteTable('health_tips', {
+  id: text('id').primaryKey(),
+  categoryId: text('category_id').notNull(),
+  body: text('body').notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
   ...syncColumns,
 });
 
@@ -168,6 +178,7 @@ export const schema = {
   providers,
   articles,
   bookmarks,
+  healthTips,
   settings,
   syncQueue,
   syncMetadata,

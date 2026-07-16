@@ -1,11 +1,13 @@
 import { PropsWithChildren } from 'react';
+import { StyleSheet, View } from 'react-native';
 
+import { BrandLoader } from '@/components/ui/BrandLoader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { Card } from '@/components/ui/card';
 import { Center } from '@/components/ui/center';
-import { Spinner } from '@/components/ui/spinner';
 import { Box } from '@/components/ui/box';
+import { palette } from '@/theme';
 
 interface ScreenStateProps {
   title: string;
@@ -16,14 +18,14 @@ interface ScreenStateProps {
 
 export function LoadingState({ title }: { title?: string }) {
   return (
-    <Center className="flex-1 p-6 gap-3">
-      <Spinner size="large" className="text-primary" />
+    <View style={styles.loading}>
+      <BrandLoader size="lg" />
       {title ? (
-        <AppText variant="quickActionSubtitle" style={{ textAlign: 'center' }}>
+        <AppText variant="quickActionSubtitle" style={styles.loadingTitle}>
           {title}
         </AppText>
       ) : null}
-    </Center>
+    </View>
   );
 }
 
@@ -68,3 +70,19 @@ export function StateCard({ children }: PropsWithChildren) {
 }
 
 export { StateCard as Card };
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    padding: 24,
+    backgroundColor: palette.surface,
+  },
+  loadingTitle: {
+    textAlign: 'center',
+    color: palette.textSecondary,
+    maxWidth: 260,
+  },
+});

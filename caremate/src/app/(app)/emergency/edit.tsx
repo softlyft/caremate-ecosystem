@@ -33,6 +33,9 @@ import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { Switch } from '@/components/ui/switch';
 import { palette, radius, spacing, useAppTheme } from '@/theme';
+
+const EMERGENCY_ACCENT = palette.brandPurple;
+const EMERGENCY_SOFT = palette.purpleLight;
 import type { EmergencyContact } from '@/types';
 
 const schema = z.object({
@@ -428,11 +431,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chipSelected: {
-    backgroundColor: palette.primaryLight,
-    borderColor: palette.primary,
+    backgroundColor: EMERGENCY_SOFT,
+    borderColor: EMERGENCY_ACCENT,
   },
   chipTextSelected: {
-    color: palette.primaryDark,
+    color: EMERGENCY_ACCENT,
   },
   contactCard: {
     borderWidth: 1,

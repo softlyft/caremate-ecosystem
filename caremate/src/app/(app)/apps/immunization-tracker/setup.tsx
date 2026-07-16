@@ -1,15 +1,22 @@
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import {
+  MiniAppCard,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppScreen,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
+
+const APP_ID = 'immunization-tracker' as const;
 
 /**
  * Children are managed in Family — this route only redirects users there.
  */
 export default function ImmunizationSetupScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -17,41 +24,44 @@ export default function ImmunizationSetupScreen() {
   }, [navigation]);
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Children come from Family</AppText>
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow="Immunization"
+        title="Children come from Family"
+        subtitle="You can’t add a child here. Set up your family profile and add kids with date of birth, then return to Immunization Tracker."
+      />
+
+      <MiniAppCard index={1} title="Where to go" eyebrow="Next steps" theme={theme}>
         <AppText variant="subtitle">
-          You can’t add a child here. Set up your family profile and add kids with date of birth,
-          then return to Immunization Tracker.
+          Family setup collects date of birth for each child — that’s what powers the vaccine
+          schedule.
         </AppText>
-        <Button label="Go to family setup" onPress={() => router.replace('/(app)/family/setup')} />
-        <Button
-          label="Open family"
-          variant="secondary"
-          onPress={() => router.replace('/(app)/family')}
-        />
-        <Button label="Back to tracker" variant="ghost" onPress={() => router.back()} />
-      </View>
-    </ScrollView>
+      </MiniAppCard>
+
+      <MiniAppCta
+        label="Go to family setup"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={2}
+        onPress={() => router.replace('/(app)/family/setup')}
+      />
+      <MiniAppCta
+        label="Open family"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        secondary
+        index={3}
+        onPress={() => router.replace('/(app)/family')}
+      />
+      <MiniAppCta
+        label="Back to tracker"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        secondary
+        index={4}
+        onPress={() => router.back()}
+      />
+    </MiniAppScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
-  },
-});

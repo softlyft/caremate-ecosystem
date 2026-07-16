@@ -1,10 +1,18 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Input } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import {
   FREQUENCY_OPTIONS,
   type MedicationFrequency,
@@ -15,8 +23,9 @@ import {
 } from '@/mini-apps/medication-tracker/store';
 import { useMedicationFamilyKids } from '@/mini-apps/medication-tracker/use-family-kids';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/medication-tracker/utils';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
+
+const theme = getMiniAppTheme('medication-tracker');
 
 export default function MedicationSetupScreen() {
   const { medicationId } = useLocalSearchParams<{ medicationId?: string }>();
@@ -86,7 +95,7 @@ export default function MedicationSetupScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
@@ -95,59 +104,60 @@ export default function MedicationSetupScreen() {
     return (
       <View style={styles.loading}>
         <AppText variant="body">That medicine was not found.</AppText>
-        <Button label="Go back" onPress={() => router.back()} />
+        <MiniAppCta
+          label="Go back"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.back()}
+        />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
+    <MiniAppScreen>
+      <AppText variant="subtitle" style={styles.intro}>
         {isEditing
           ? 'Update dosage, schedule, who this is for, or pause this medicine.'
           : 'Add a medicine for yourself or a child in your family.'}
       </AppText>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Is this for a kid?</AppText>
+      <MiniAppCard index={1} title="Is this for a kid?" theme={theme}>
         <View style={styles.chipRow}>
-          <Pressable
-            style={[styles.chip, !forKid && styles.chipSelected]}
+          <MiniAppChip
+            label="No — for me"
+            selected={!forKid}
+            accent={theme.color}
+            soft={theme.backgroundColor}
             onPress={() => {
               setForKid(false);
               setFamilyMemberId(null);
             }}
-          >
-            <AppText variant="caption" style={!forKid ? styles.chipTextSelected : undefined}>
-              No — for me
-            </AppText>
-          </Pressable>
-          <Pressable
-            style={[styles.chip, forKid && styles.chipSelected]}
+          />
+          <MiniAppChip
+            label="Yes — for a kid"
+            selected={forKid}
+            accent={theme.color}
+            soft={theme.backgroundColor}
             onPress={() => setForKid(true)}
-          >
-            <AppText variant="caption" style={forKid ? styles.chipTextSelected : undefined}>
-              Yes — for a kid
-            </AppText>
-          </Pressable>
+          />
         </View>
 
         {forKid ? (
           <View style={styles.kidBlock}>
             {familyKids.status === 'loading' ? (
-              <ActivityIndicator color={palette.primary} />
+              <ActivityIndicator color={theme.color} />
             ) : familyKids.status === 'guest' ? (
               <>
                 <AppText variant="caption" style={styles.muted}>
                   Sign in and set up your family to assign medicines to kids.
                 </AppText>
-                <Button
+                <MiniAppCta
                   label="Sign in"
-                  variant="secondary"
+                  accent={theme.color}
+                  soft={theme.backgroundColor}
+                  secondary
+                  index={2}
                   onPress={() => router.push('/(auth)/login')}
                 />
               </>
@@ -159,11 +169,14 @@ export default function MedicationSetupScreen() {
                     ? 'Set up your family and add kids first.'
                     : 'Add children in Family before assigning a medicine.'}
                 </AppText>
-                <Button
+                <MiniAppCta
                   label={
                     familyKids.status === 'needs_family_setup' ? 'Set up family' : 'Open family'
                   }
-                  variant="secondary"
+                  accent={theme.color}
+                  soft={theme.backgroundColor}
+                  secondary
+                  index={2}
                   onPress={() =>
                     router.push(
                       familyKids.status === 'needs_family_setup'
@@ -177,23 +190,16 @@ export default function MedicationSetupScreen() {
               <>
                 <AppText variant="body">Which child?</AppText>
                 <View style={styles.chipRow}>
-                  {familyKids.children.map((child) => {
-                    const selected = child.id === familyMemberId;
-                    return (
-                      <Pressable
-                        key={child.id}
-                        style={[styles.chip, selected && styles.chipSelected]}
-                        onPress={() => setFamilyMemberId(child.id)}
-                      >
-                        <AppText
-                          variant="caption"
-                          style={selected ? styles.chipTextSelected : undefined}
-                        >
-                          {child.fullName}
-                        </AppText>
-                      </Pressable>
-                    );
-                  })}
+                  {familyKids.children.map((child) => (
+                    <MiniAppChip
+                      key={child.id}
+                      label={child.fullName}
+                      selected={child.id === familyMemberId}
+                      accent={theme.color}
+                      soft={theme.backgroundColor}
+                      onPress={() => setFamilyMemberId(child.id)}
+                    />
+                  ))}
                 </View>
                 <AppText variant="caption" style={styles.muted}>
                   Any parent in the household can log doses for kids from their CareMate account.
@@ -202,49 +208,42 @@ export default function MedicationSetupScreen() {
             )}
           </View>
         ) : null}
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Name</AppText>
+      <MiniAppCard index={2} title="Name" theme={theme}>
         <Input
           value={name}
           onChangeText={setName}
           placeholder="e.g. Metformin"
           autoCapitalize="words"
         />
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Dosage</AppText>
+      <MiniAppCard index={3} title="Dosage" theme={theme}>
         <Input
           value={dosage}
           onChangeText={setDosage}
           placeholder="e.g. 500mg"
           autoCapitalize="none"
         />
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">How often</AppText>
+      <MiniAppCard index={4} title="How often" theme={theme}>
         <View style={styles.chipRow}>
-          {FREQUENCY_OPTIONS.map((option) => {
-            const selected = option.id === frequency;
-            return (
-              <Pressable
-                key={option.id}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setFrequency(option.id)}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {option.label}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          {FREQUENCY_OPTIONS.map((option) => (
+            <MiniAppChip
+              key={option.id}
+              label={option.label}
+              selected={option.id === frequency}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => setFrequency(option.id)}
+            />
+          ))}
         </View>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
+      <MiniAppCard index={5} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -270,49 +269,48 @@ export default function MedicationSetupScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
           onDayPress={setStartDate}
           getDayState={(dayKey) => ({ selected: dayKey === startDate })}
         />
         {startDate ? <AppText variant="body">Starts {formatDisplayDate(startDate)}</AppText> : null}
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Notes (optional)</AppText>
+      <MiniAppCard index={6} title="Notes (optional)" theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
           placeholder="With food, side effects, etc."
           multiline
         />
-      </View>
+      </MiniAppCard>
 
       {isEditing ? (
-        <View style={styles.card}>
-          <AppText variant="cardTitle">Status</AppText>
+        <MiniAppCard index={7} title="Status" theme={theme}>
           <View style={styles.chipRow}>
-            <Pressable
-              style={[styles.chip, active && styles.chipSelected]}
+            <MiniAppChip
+              label="Active"
+              selected={active}
+              accent={theme.color}
+              soft={theme.backgroundColor}
               onPress={() => setActive(true)}
-            >
-              <AppText variant="caption" style={active ? styles.chipTextSelected : undefined}>
-                Active
-              </AppText>
-            </Pressable>
-            <Pressable
-              style={[styles.chip, !active && styles.chipSelected]}
+            />
+            <MiniAppChip
+              label="Paused"
+              selected={!active}
+              accent={theme.color}
+              soft={theme.backgroundColor}
               onPress={() => setActive(false)}
-            >
-              <AppText variant="caption" style={!active ? styles.chipTextSelected : undefined}>
-                Paused
-              </AppText>
-            </Pressable>
+            />
           </View>
-        </View>
+        </MiniAppCard>
       ) : null}
 
-      <Button
+      <MiniAppCta
         label={isEditing ? 'Save changes' : 'Add medicine'}
-        disabled={!canSave}
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={8}
         onPress={() => {
           if (!canSave || !startDate) {
             return;
@@ -344,9 +342,12 @@ export default function MedicationSetupScreen() {
       />
 
       {isEditing && editing ? (
-        <Button
+        <MiniAppCta
           label="Remove medicine"
-          variant="secondary"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={9}
           onPress={() => {
             Alert.alert(
               'Remove medicine?',
@@ -366,34 +367,25 @@ export default function MedicationSetupScreen() {
           }}
         />
       ) : null}
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
     padding: layoutSpacing.screenHorizontal,
-    backgroundColor: palette.background,
-  },
-  card: {
     backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
+  },
+  intro: {
+    color: palette.textSecondary,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   kidBlock: {
@@ -404,26 +396,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: '#FFEDD5',
-    borderColor: '#EA580C',
-  },
-  chipTextSelected: {
-    color: '#C2410C',
   },
   muted: {
     color: palette.textSecondary,

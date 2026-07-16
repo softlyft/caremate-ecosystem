@@ -4,6 +4,7 @@ import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerRepository } from '@/domains/providers/repository';
+import { healthTipRepository } from '@/domains/tips/repository';
 import { useAuthStore } from '@/features/auth/store';
 import { miniAppSnapshotRepository } from '@/mini-apps/_kit/snapshot-repository';
 import { registerSyncHandler } from '@/sync/registry';
@@ -48,6 +49,13 @@ export function registerDefaultSyncHandlers(): void {
       // Articles are read-mostly from server in Phase 1.
     },
     pull: () => articleRepository.pullFromRemote(),
+  });
+
+  registerSyncHandler('health_tips', {
+    push: async () => {
+      // Tips are portal-managed catalog — pull only.
+    },
+    pull: () => healthTipRepository.pullFromRemote(),
   });
 
   registerSyncHandler('bookmarks', {

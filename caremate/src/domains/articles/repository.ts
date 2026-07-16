@@ -1,10 +1,10 @@
 import { and, desc, eq, inArray, isNull, like, or } from 'drizzle-orm';
 
 import { resolveNewsCountryCode } from '@/constants/locations';
+import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
 import { articles, bookmarks } from '@/database/schema';
 import {
-  getEvergreenSeeds,
   getLegacySeedIds,
   isEvergreenArticle,
   isExternalArticle,
@@ -50,42 +50,18 @@ function toArticleId(currentsId: string): string {
 }
 
 class ArticleRepository extends BaseRepository {
-  async seedIfEmpty(): Promise<void> {
-    const db = getDatabase();
-    const timestamp = nowIso();
-    const seeds = getEvergreenSeeds();
-    if (seeds.length === 0) {
+  /** Soft-delete legacy bundled ids left over from older installs. */
+  async purgeLegacySeeds(): Promise<void> {
+    const legacyIds = getLegacySeedIds();
+    if (legacyIds.length === 0) {
       return;
     }
-
-    const [existingSeed] = await db
-      .select({ id: articles.id })
-      .from(articles)
-      .where(eq(articles.id, seeds[0].id))
-      .limit(1);
-
-    if (!existingSeed) {
-      for (const article of seeds) {
-        await db.insert(articles).values({
-          ...article,
-          contentType: article.contentType ?? 'article',
-          attributes: stringifyJson(article.attributes ?? {}),
-          publishedAt: article.publishedAt || timestamp,
-          syncStatus: 'synced',
-          deletedAt: null,
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        });
-      }
-    }
-
-    const legacyIds = getLegacySeedIds();
-    if (legacyIds.length > 0) {
-      await db
-        .update(articles)
-        .set({ deletedAt: timestamp, updatedAt: timestamp })
-        .where(inArray(articles.id, [...legacyIds]));
-    }
+    const db = getDatabase();
+    const timestamp = nowIso();
+    await db
+      .update(articles)
+      .set({ deletedAt: timestamp, updatedAt: timestamp })
+      .where(inArray(articles.id, [...legacyIds]));
   }
 
   async findAll(search?: string, userKey = 'guest'): Promise<Article[]> {
@@ -367,15 +343,58 @@ class ArticleRepository extends BaseRepository {
   }
 
   async pullFromRemote(): Promise<void> {
+    await this.purgeLegacySeeds();
+
+    if (!config.isSupabaseConfigured) {
+      return;
+    }
+
+    const online = await isOnline();
+    if (!online) {
+      return;
+    }
+
+    // RLS returns published live rows + published soft-deleted tombstones (any role).
     const { data, error } = await supabase.from('articles').select('*');
-    if (error || !data?.length) {
-      await this.seedIfEmpty();
+    if (error || !data) {
       return;
     }
 
     const db = getDatabase();
+    const timestamp = nowIso();
+
     for (const row of data) {
-      const timestamp = nowIso();
+      if (row.deleted_at) {
+        await db
+          .insert(articles)
+          .values({
+            id: row.id,
+            title: row.title,
+            summary: row.summary,
+            content: row.content ?? '',
+            contentType: row.content_type ?? 'article',
+            categoryId: row.category_id,
+            categoryName: row.category_name,
+            imageUrl: row.image_url,
+            sourceUrl: row.source_url ?? null,
+            publishedAt: row.published_at,
+            attributes: stringifyJson(row.attributes ?? {}),
+            syncStatus: 'synced',
+            deletedAt: row.deleted_at,
+            createdAt: row.created_at ?? timestamp,
+            updatedAt: row.updated_at ?? timestamp,
+          })
+          .onConflictDoUpdate({
+            target: articles.id,
+            set: {
+              deletedAt: row.deleted_at,
+              syncStatus: 'synced',
+              updatedAt: row.updated_at ?? timestamp,
+            },
+          });
+        continue;
+      }
+
       await db
         .insert(articles)
         .values({
@@ -409,6 +428,7 @@ class ArticleRepository extends BaseRepository {
             publishedAt: row.published_at,
             attributes: stringifyJson(row.attributes ?? {}),
             syncStatus: 'synced',
+            deletedAt: null,
             updatedAt: row.updated_at ?? timestamp,
           },
         });

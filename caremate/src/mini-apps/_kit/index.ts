@@ -1,4 +1,5 @@
 export { MINI_APPS, type MiniAppDefinition, type MiniAppId } from '@/mini-apps/_kit/registry';
+export { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 export { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 export {
   migrateMiniAppsToSnapshots,
@@ -6,6 +7,17 @@ export {
 } from '@/mini-apps/_kit/hydrate';
 export { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 export { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
+export {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppProgress,
+  MiniAppRow,
+  MiniAppScreen,
+  StatusPill,
+} from '@/mini-apps/_kit/components/MiniAppChrome';
+export { miniAppHeaderOptions } from '@/mini-apps/_kit/components/miniAppHeaderOptions';
 export {
   MINI_APP_KEYS,
   MINI_APP_STORAGE_KEYS,

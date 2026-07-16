@@ -9,6 +9,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
 import { useAuthStore } from '@/features/auth/store';
 import { joinFullName } from '@/domains/emergency/constants';
+import { resolvePostSignupHref } from '@/domains/onboarding';
 import { config } from '@/constants/env';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
@@ -52,7 +53,8 @@ export default function RegisterScreen() {
         joinFullName(values.firstName, values.lastName),
         values.phone.trim(),
       );
-      router.replace('/(app)/(tabs)');
+      const href = await resolvePostSignupHref();
+      router.replace(href);
     } catch (error) {
       const raw = error instanceof Error ? error.message : 'Unable to create account';
       const message =

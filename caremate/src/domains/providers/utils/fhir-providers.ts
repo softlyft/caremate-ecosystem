@@ -193,6 +193,9 @@ export function mapFhirProviderBundle(
     if (!organization?.id || organization.active === false) {
       continue;
     }
+    if (!location.id) {
+      continue;
+    }
     if (location.status && location.status !== 'active') {
       continue;
     }
@@ -201,7 +204,7 @@ export function mapFhirProviderBundle(
     const address = formatAddress(location.address) ?? formatAddress(organization.address?.[0]);
 
     providers.push({
-      id: organization.id,
+      id: location.id,
       name: organization.name?.trim() || location.name?.trim() || 'Unknown provider',
       type: resolveProviderType(organization),
       address,
@@ -211,7 +214,11 @@ export function mapFhirProviderBundle(
       longitude: location.position?.longitude ?? null,
       isFavorite: false,
       distanceKm: distanceKmFromLocation(location),
-      attributes: attributesFromOrganization(organization),
+      attributes: {
+        ...attributesFromOrganization(organization),
+        organization_id: organization.id,
+        location_id: location.id,
+      },
     });
   }
 

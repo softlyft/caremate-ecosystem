@@ -20,7 +20,6 @@ interface AuthState {
   signUp: (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   setBiometricEnabled: (enabled: boolean) => Promise<void>;
-  signInDemo: () => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
   clearPasswordRecovery: () => void;
   updatePassword: (password: string) => Promise<void>;
@@ -145,28 +144,4 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signInDemo: async () => {
-    const demoUser = {
-      id: 'demo-user',
-      email: 'demo@caremate.local',
-      phone: null,
-    };
-    await profileRepository.save(demoUser.id, {
-      fullName: 'Demo User',
-      email: demoUser.email,
-    });
-    await emergencyRepository.save(demoUser.id, {
-      fullName: 'Demo User',
-      bloodGroup: 'O+',
-      allergies: ['Penicillin'],
-      currentMedications: ['Vitamin D'],
-    });
-    await profileRepository.saveSettings(demoUser.id, {});
-    set({
-      user: demoUser,
-      isAuthenticated: true,
-      isGuest: false,
-      passwordRecoveryPending: false,
-    });
-  },
 }));

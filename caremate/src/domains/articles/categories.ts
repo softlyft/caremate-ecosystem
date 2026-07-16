@@ -4,7 +4,7 @@ export const HEALTH_CATEGORIES = [
   { id: 'pregnancy', name: 'Pregnancy', emoji: '🤰', color: '#FCE7F3', slug: 'pregnancy' },
   { id: 'mental', name: 'Mental Health', emoji: '🧠', color: '#EDE9FE', slug: 'mental' },
   { id: 'medication', name: 'Medication', emoji: '💊', color: '#FFEDD5', slug: 'medication' },
-  { id: 'nutrition', name: 'Nutrition', emoji: '🥗', color: '#DCFCE7', slug: 'nutrition' },
+  { id: 'nutrition', name: 'Nutrition', emoji: '🥗', color: '#CCFBF1', slug: 'nutrition' },
   { id: 'fitness', name: 'Fitness', emoji: '🏃', color: '#E0F2FE', slug: 'fitness' },
   {
     id: 'infectious',

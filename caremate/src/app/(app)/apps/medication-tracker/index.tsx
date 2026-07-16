@@ -1,9 +1,19 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppProgress,
+  MiniAppRow,
+  MiniAppScreen,
+  StatusPill,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import {
   useMedicationTrackerHydrated,
   useMedicationTrackerStore,
@@ -19,7 +29,9 @@ import {
   type DoseSlotStatus,
   type Medication,
 } from '@/mini-apps/medication-tracker/utils';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { palette, spacing } from '@/theme';
+
+const theme = getMiniAppTheme('medication-tracker');
 
 const STATUS_COLORS: Record<DoseSlotStatus, string> = {
   taken: '#059669',
@@ -97,35 +109,30 @@ export default function MedicationTrackerScreen() {
     hasMedications &&
     (patientChips.length > 0 || medications.some((medication) => medication.forKid));
 
+  const heroTitle = hasMedications
+    ? summary.expected > 0
+      ? `${summary.taken} of ${summary.expected} doses taken today`
+      : summary.taken > 0
+        ? `${summary.taken} as-needed dose${summary.taken === 1 ? '' : 's'} logged today`
+        : 'Nothing scheduled for today'
+    : 'Track your medications';
+
+  const heroSubtitle = hasMedications
+    ? summary.due > 0
+      ? `${summary.due} dose${summary.due === 1 ? '' : 's'} still due today`
+      : summary.missed > 0
+        ? 'Catch up on any missed doses from earlier'
+        : 'You are up to date for today'
+    : 'Add medicines for yourself or your kids, then log each dose';
+
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.hero}>
-        <AppText variant="caption" style={styles.heroLabel}>
-          Medication
-        </AppText>
-        <AppText variant="screenTitle" style={styles.heroTitle}>
-          {hasMedications
-            ? summary.expected > 0
-              ? `${summary.taken} of ${summary.expected} doses taken today`
-              : summary.taken > 0
-                ? `${summary.taken} as-needed dose${summary.taken === 1 ? '' : 's'} logged today`
-                : 'Nothing scheduled for today'
-            : 'Track your medications'}
-        </AppText>
-        <AppText variant="subtitle" style={styles.heroSubtitle}>
-          {hasMedications
-            ? summary.due > 0
-              ? `${summary.due} dose${summary.due === 1 ? '' : 's'} still due today`
-              : summary.missed > 0
-                ? 'Catch up on any missed doses from earlier'
-                : 'You are up to date for today'
-            : 'Add medicines for yourself or your kids, then log each dose'}
-        </AppText>
-      </View>
+    <MiniAppScreen>
+      <MiniAppHero
+        appId="medication-tracker"
+        eyebrow="Medication"
+        title={heroTitle}
+        subtitle={heroSubtitle}
+      />
 
       {showPatientFilters ? (
         <ScrollView
@@ -139,28 +146,21 @@ export default function MedicationTrackerScreen() {
               { id: 'self' as const, label: 'You' },
               ...patientChips.map((kid) => ({ id: kid.id as PatientFilter, label: kid.name })),
             ] as { id: PatientFilter; label: string }[]
-          ).map((chip) => {
-            const selected = patientFilter === chip.id;
-            return (
-              <Pressable
-                key={String(chip.id)}
-                style={[styles.filterChip, selected && styles.filterChipSelected]}
-                onPress={() => setPatientFilter(chip.id)}
-              >
-                <AppText
-                  variant="caption"
-                  style={selected ? styles.filterChipTextSelected : undefined}
-                >
-                  {chip.label}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          ).map((chip) => (
+            <MiniAppChip
+              key={String(chip.id)}
+              label={chip.label}
+              selected={patientFilter === chip.id}
+              onPress={() => setPatientFilter(chip.id)}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+            />
+          ))}
         </ScrollView>
       ) : null}
 
       {hasMedications ? (
-        <View style={[styles.card, shadow.soft]}>
+        <MiniAppCard index={1} theme={theme}>
           <View style={styles.summaryRow}>
             <AppText variant="body">Today</AppText>
             <AppText variant="body">{formatDisplayDate(todayKey)}</AppText>
@@ -170,16 +170,13 @@ export default function MedicationTrackerScreen() {
             <AppText variant="body">{activeMeds.length}</AppText>
           </View>
           {summary.expected > 0 ? (
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${summary.progress * 100}%` }]} />
-            </View>
+            <MiniAppProgress progress={summary.progress} accent={theme.color} />
           ) : null}
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasMedications ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Today&apos;s doses</AppText>
+        <MiniAppCard index={2} title="Today's doses" theme={theme}>
           {todaySlots.length === 0 ? (
             <AppText variant="caption" style={styles.muted}>
               No doses scheduled for today in this filter. Add a medicine or check start dates.
@@ -191,205 +188,113 @@ export default function MedicationTrackerScreen() {
                 slot.status === 'due' || slot.status === 'taken' || slot.status === 'as-needed';
               const patient = getMedicationPatientLabel(normalizeMed(slot.medication));
               return (
-                <Pressable
+                <MiniAppRow
                   key={key}
-                  style={styles.doseRow}
-                  disabled={!hydrated || !canToggle}
-                  onPress={() => {
-                    if (slot.log) {
-                      removeDoseLog(slot.log.id);
-                      return;
-                    }
-                    logDose({
-                      medicationId: slot.medication.id,
-                      dateKey: slot.dateKey,
-                      slotIndex: slot.slotIndex,
-                    });
-                  }}
-                >
-                  <View style={styles.doseCopy}>
-                    <AppText variant="body">
-                      {slot.medication.name}
-                      {slot.medication.dosage ? ` · ${slot.medication.dosage}` : ''}
-                    </AppText>
-                    <AppText variant="caption" style={styles.muted}>
-                      {patient} · {slot.slotLabel}
-                      {slot.status === 'taken'
-                        ? ' · Tap to undo'
-                        : canToggle
-                          ? ' · Tap to mark taken'
-                          : ''}
-                    </AppText>
-                  </View>
-                  <View
-                    style={[
-                      styles.statusBadge,
-                      { backgroundColor: STATUS_BACKGROUNDS[slot.status] },
-                    ]}
-                  >
-                    <AppText variant="caption" style={{ color: STATUS_COLORS[slot.status] }}>
-                      {getStatusLabel(slot.status)}
-                    </AppText>
-                  </View>
-                </Pressable>
+                  title={`${slot.medication.name}${slot.medication.dosage ? ` · ${slot.medication.dosage}` : ''}`}
+                  subtitle={`${patient} · ${slot.slotLabel}${
+                    slot.status === 'taken'
+                      ? ' · Tap to undo'
+                      : canToggle
+                        ? ' · Tap to mark taken'
+                        : ''
+                  }`}
+                  soft={STATUS_BACKGROUNDS[slot.status]}
+                  onPress={
+                    hydrated && canToggle
+                      ? () => {
+                          if (slot.log) {
+                            removeDoseLog(slot.log.id);
+                            return;
+                          }
+                          logDose({
+                            medicationId: slot.medication.id,
+                            dateKey: slot.dateKey,
+                            slotIndex: slot.slotIndex,
+                          });
+                        }
+                      : undefined
+                  }
+                  trailing={
+                    <StatusPill
+                      label={getStatusLabel(slot.status)}
+                      color={STATUS_COLORS[slot.status]}
+                      background={STATUS_BACKGROUNDS[slot.status]}
+                    />
+                  }
+                />
               );
             })
           )}
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasMedications ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Medicines</AppText>
+        <MiniAppCard index={3} title="Medicines" theme={theme}>
           {filteredMedications.map((medication) => (
-            <Pressable
+            <MiniAppRow
               key={medication.id}
-              style={styles.medRow}
+              title={`${medication.name}${!medication.active ? ' (paused)' : ''}`}
+              subtitle={`${getMedicationPatientLabel(medication)}${
+                medication.dosage ? ` · ${medication.dosage}` : ''
+              } · ${getFrequencyLabel(medication.frequency)}`}
+              soft={theme.backgroundColor}
               onPress={() =>
                 router.push({
                   pathname: '/(app)/apps/medication-tracker/setup',
                   params: { medicationId: medication.id },
                 })
               }
-            >
-              <View style={styles.doseCopy}>
-                <AppText variant="body">
-                  {medication.name}
-                  {!medication.active ? ' (paused)' : ''}
+              trailing={
+                <AppText variant="caption" style={{ color: theme.color, fontWeight: '600' }}>
+                  Edit
                 </AppText>
-                <AppText variant="caption" style={styles.muted}>
-                  {getMedicationPatientLabel(medication)}
-                  {medication.dosage ? ` · ${medication.dosage}` : ''}
-                  {` · ${getFrequencyLabel(medication.frequency)}`}
-                </AppText>
-              </View>
-              <AppText variant="caption" style={styles.link}>
-                Edit
-              </AppText>
-            </Pressable>
+              }
+            />
           ))}
-        </View>
+        </MiniAppCard>
       ) : null}
 
-      <View style={styles.actions}>
-        <Button
-          label="Add medicine"
-          onPress={() => router.push('/(app)/apps/medication-tracker/setup')}
-          disabled={!hydrated}
+      <MiniAppCta
+        label="Add medicine"
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={4}
+        onPress={() => {
+          if (!hydrated) {
+            return;
+          }
+          router.push('/(app)/apps/medication-tracker/setup');
+        }}
+      />
+      {hasMedications ? (
+        <MiniAppCta
+          label="Log a dose"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={5}
+          onPress={() => {
+            if (!hydrated) {
+              return;
+            }
+            router.push('/(app)/apps/medication-tracker/log');
+          }}
         />
-        {hasMedications ? (
-          <Button
-            label="Log a dose"
-            variant="secondary"
-            onPress={() => router.push('/(app)/apps/medication-tracker/log')}
-            disabled={!hydrated}
-          />
-        ) : null}
-      </View>
-    </ScrollView>
+      ) : null}
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  hero: {
-    backgroundColor: '#FFEDD5',
-    borderRadius: radius.xxl,
-    padding: layoutSpacing.cardPadding,
-    gap: 4,
-  },
-  heroLabel: {
-    color: '#C2410C',
-  },
-  heroTitle: {
-    color: '#7C2D12',
-  },
-  heroSubtitle: {
-    color: '#9A3412',
-  },
   filterRow: {
     gap: spacing.sm,
     paddingVertical: 2,
-  },
-  filterChip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: palette.background,
-  },
-  filterChipSelected: {
-    backgroundColor: '#FFEDD5',
-    borderColor: '#EA580C',
-  },
-  filterChipTextSelected: {
-    color: '#C2410C',
-  },
-  card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  progressTrack: {
-    height: 8,
-    borderRadius: radius.full,
-    backgroundColor: '#FED7AA',
-    overflow: 'hidden',
-    marginTop: spacing.xs,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radius.full,
-    backgroundColor: '#EA580C',
-  },
-  doseRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.divider,
-  },
-  medRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.divider,
-  },
-  doseCopy: {
-    flex: 1,
-    gap: 2,
-  },
-  statusBadge: {
-    borderRadius: radius.full,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
   muted: {
     color: palette.textSecondary,
-  },
-  link: {
-    color: '#C2410C',
-  },
-  actions: {
-    gap: spacing.sm,
   },
 });

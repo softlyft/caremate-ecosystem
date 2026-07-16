@@ -1,20 +1,33 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Input } from '@/components/ui/form-controls';
+import { LoadingState } from '@/components/ui/screen-states';
 import { VACCINE_SCHEDULE } from '@/mini-apps/immunization-tracker/constants';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
 import {
   useImmunizationTrackerHydrated,
   useImmunizationTrackerStore,
 } from '@/mini-apps/immunization-tracker/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/immunization-tracker/utils';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  StatusPill,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
+import { palette, spacing } from '@/theme';
+
+const APP_ID = 'immunization-tracker' as const;
 
 export default function ImmunizationLogScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const { vaccineId: initialVaccineId, profileId: paramProfileId } = useLocalSearchParams<{
     vaccineId?: string;
     profileId?: string;
@@ -68,62 +81,61 @@ export default function ImmunizationLogScreen() {
   };
 
   if (!hydrated) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
-      </View>
-    );
+    return <LoadingState title="Loading vaccine log…" />;
   }
 
   if (!profileId) {
     return (
-      <View style={styles.loading}>
-        <AppText variant="body">
-          Add children in your Family profile before logging vaccines.
-        </AppText>
-        <Button label="Open family" onPress={() => router.replace('/(app)/family')} />
-      </View>
+      <MiniAppScreen>
+        <MiniAppHero
+          appId={APP_ID}
+          eyebrow="Log vaccine"
+          title="No child selected"
+          subtitle="Add children in your Family profile before logging vaccines."
+        />
+        <MiniAppCta
+          label="Open family"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.replace('/(app)/family')}
+        />
+      </MiniAppScreen>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
-        Record a vaccine for {profileName ?? 'this child'}. You can update or remove an existing
-        entry.
-      </AppText>
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow="Log vaccine"
+        title={profileName ?? 'Vaccine record'}
+        subtitle={`Record a vaccine for ${profileName ?? 'this child'}. You can update or remove an existing entry.`}
+      />
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Vaccine</AppText>
+      <MiniAppCard index={1} title="Vaccine" eyebrow="Select" theme={theme}>
         <View style={styles.chipRow}>
           {VACCINE_SCHEDULE.map((vaccine) => {
             const selected = vaccine.id === selectedVaccineId;
             const completed = profileRecords.some((record) => record.vaccineId === vaccine.id);
             return (
-              <Pressable
+              <MiniAppChip
                 key={vaccine.id}
-                style={[
-                  styles.chip,
-                  selected && styles.chipSelected,
-                  completed && !selected && styles.chipCompleted,
-                ]}
+                label={`${vaccine.name} ${vaccine.doseLabel}${completed ? ' ✓' : ''}`}
+                selected={selected}
+                accent={theme.color}
+                soft={theme.backgroundColor}
                 onPress={() => selectVaccine(vaccine.id)}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {vaccine.name} {vaccine.doseLabel}
-                </AppText>
-              </Pressable>
+              />
             );
           })}
         </View>
         <AppText variant="quickActionSubtitle">{selectedVaccine.description}</AppText>
-      </View>
+        {existingRecord ? (
+          <StatusPill label="Already logged" color={theme.color} background={theme.backgroundColor} />
+        ) : null}
+      </MiniAppCard>
 
-      <View style={styles.card}>
+      <MiniAppCard index={2} title={monthLabel} eyebrow="Administered date" theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -133,7 +145,9 @@ export default function ImmunizationLogScreen() {
           >
             <ChevronLeft color={palette.textSecondary} size={20} />
           </Pressable>
-          <AppText variant="cardTitle">{monthLabel}</AppText>
+          <AppText variant="caption" style={styles.muted}>
+            Tap the date this vaccine was administered
+          </AppText>
           <Pressable
             hitSlop={12}
             onPress={() =>
@@ -144,121 +158,94 @@ export default function ImmunizationLogScreen() {
           </Pressable>
         </View>
 
-        <AppText variant="caption" style={styles.muted}>
-          Tap the date this vaccine was administered.
-        </AppText>
-
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
           onDayPress={setAdministeredDate}
           getDayState={(dayKey) => ({ selected: dayKey === administeredDate })}
         />
 
         {administeredDate ? (
-          <AppText variant="body">Selected: {formatDisplayDate(administeredDate)}</AppText>
+          <AppText variant="body" style={styles.selectedDate}>
+            Selected: {formatDisplayDate(administeredDate)}
+          </AppText>
         ) : null}
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Provider / clinic</AppText>
+      <MiniAppCard index={3} title="Provider / clinic" eyebrow="Optional" theme={theme}>
         <Input
           value={provider}
           onChangeText={setProvider}
           placeholder="Optional"
           autoCapitalize="words"
         />
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Notes</AppText>
+      <MiniAppCard index={4} title="Notes" eyebrow="Details" theme={theme}>
         <Input value={notes} onChangeText={setNotes} placeholder="Batch number, reactions, etc." />
-      </View>
+      </MiniAppCard>
 
-      <Button
-        label={existingRecord ? 'Update record' : 'Save vaccine'}
-        disabled={!administeredDate}
-        onPress={() => {
-          upsertRecord({
-            profileId,
-            vaccineId: selectedVaccineId,
-            administeredDate,
-            provider: provider.trim() || undefined,
-            notes: notes.trim() || undefined,
-          });
-          router.back();
-        }}
-      />
+      <View style={!administeredDate ? styles.ctaDisabled : undefined}>
+        <MiniAppCta
+          label={existingRecord ? 'Update record' : 'Save vaccine'}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={5}
+          onPress={() => {
+            if (!administeredDate) {
+              return;
+            }
+            upsertRecord({
+              profileId,
+              vaccineId: selectedVaccineId,
+              administeredDate,
+              provider: provider.trim() || undefined,
+              notes: notes.trim() || undefined,
+            });
+            router.back();
+          }}
+        />
+      </View>
 
       {existingRecord ? (
-        <Button
+        <MiniAppCta
           label="Remove record"
-          variant="secondary"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={6}
           onPress={() => {
             removeRecord(profileId, selectedVaccineId);
             router.back();
           }}
         />
       ) : null}
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.background,
-    gap: spacing.md,
-    padding: layoutSpacing.screenHorizontal,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   monthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: '#D1FAE5',
-    borderColor: '#059669',
-  },
-  chipCompleted: {
-    borderColor: '#6EE7B7',
-  },
-  chipTextSelected: {
-    color: '#059669',
   },
   muted: {
     color: palette.textSecondary,
+    flex: 1,
+    textAlign: 'center',
+  },
+  selectedDate: {
+    fontWeight: '600',
+  },
+  ctaDisabled: {
+    opacity: 0.45,
   },
 });

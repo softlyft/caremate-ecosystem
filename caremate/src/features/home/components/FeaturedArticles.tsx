@@ -1,12 +1,11 @@
 import { router } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
-import { Box } from '@/components/ui/box';
-import { Heading } from '@/components/ui/heading';
-import { HStack } from '@/components/ui/hstack';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { SectionHeader } from '@/components/motion/SectionHeader';
 import { ArticleCardList } from '@/domains/articles/components/ArticleCards';
 import type { Article } from '@/types';
+import { layoutSpacing } from '@/theme';
 
 interface FeaturedArticlesProps {
   articles: Article[];
@@ -18,22 +17,24 @@ export function FeaturedArticles({ articles }: FeaturedArticlesProps) {
   }
 
   return (
-    <Box className="px-4 mb-6">
-      <HStack className="items-center justify-between mb-3">
-        <Heading size="md" className="text-foreground">
-          Trending Today
-        </Heading>
-        <Pressable
-          onPress={() => router.push('/(app)/(tabs)/articles')}
-          className="active:opacity-70"
-        >
-          <Text size="sm" bold className="text-primary">
-            See All
-          </Text>
-        </Pressable>
-      </HStack>
-
-      <ArticleCardList articles={articles} featureFirst />
-    </Box>
+    <AnimatedSection index={5} style={styles.section}>
+      <SectionHeader
+        title="Trending today"
+        subtitle="From Learn"
+        onSeeAll={() => router.push('/(app)/(tabs)/articles')}
+      />
+      <View style={styles.list}>
+        <ArticleCardList articles={articles} featureFirst />
+      </View>
+    </AnimatedSection>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    marginBottom: 24,
+  },
+  list: {
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+  },
+});

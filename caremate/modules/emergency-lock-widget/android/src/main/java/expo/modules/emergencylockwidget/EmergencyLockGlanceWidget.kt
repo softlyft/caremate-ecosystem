@@ -44,7 +44,7 @@ class EmergencyLockGlanceWidget : GlanceAppWidget() {
 private fun WidgetContent(snapshot: EmergencyLockSnapshot, openIntent: Intent) {
   val titleColor = ColorProvider(day = Color(0xFF111827), night = Color(0xFFF8FAFC))
   val mutedColor = ColorProvider(day = Color(0xFF6B7280), night = Color(0xFF94A3B8))
-  val accentColor = ColorProvider(day = Color(0xFF16A34A), night = Color(0xFF4ADE80))
+  val accentColor = ColorProvider(day = Color(0xFF0D9488), night = Color(0xFF2DD4BF))
   val background = ColorProvider(day = Color(0xFFFFFFFF), night = Color(0xFF111827))
 
   Column(

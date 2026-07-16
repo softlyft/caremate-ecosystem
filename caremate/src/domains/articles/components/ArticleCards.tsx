@@ -1,158 +1,202 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Bookmark, Clock, ExternalLink, Sparkles } from 'lucide-react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Badge, BadgeText } from '@/components/ui/badge';
-import { Box } from '@/components/ui/box';
-import { Card } from '@/components/ui/card';
-import { Heading } from '@/components/ui/heading';
-import { HStack } from '@/components/ui/hstack';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
-import { VStack } from '@/components/ui/vstack';
+import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
+import { PressableScale } from '@/components/motion/PressableScale';
+import { AppText } from '@/components/ui/AppText';
 import {
   ARTICLE_THUMBNAILS,
   estimateReadingTime,
   HEALTH_CATEGORIES,
 } from '@/domains/articles/categories';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
-import { palette } from '@/theme';
+import { palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
 function getCategoryAccent(categoryId: string): string {
   return HEALTH_CATEGORIES.find((category) => category.id === categoryId)?.color ?? '#CBD5E1';
 }
 
+function getCategoryEmoji(categoryId: string): string {
+  return HEALTH_CATEGORIES.find((category) => category.id === categoryId)?.emoji ?? '✨';
+}
+
 function ArticleThumbnail({
   article,
-  className,
   height,
   width,
+  featured = false,
 }: {
   article: Article;
-  className?: string;
   height: number;
   width?: number | `${number}%`;
+  featured?: boolean;
 }) {
   const fallbackColor = ARTICLE_THUMBNAILS[article.id] ?? getCategoryAccent(article.categoryId);
+  const evergreen = isEvergreenArticle(article);
 
   if (article.imageUrl) {
     return (
       <Image
         source={{ uri: article.imageUrl }}
         style={{ height, width: width ?? '100%' }}
-        className={className}
         contentFit="cover"
       />
     );
   }
 
   return (
-    <Box
-      className={`items-center justify-center ${className ?? ''}`}
-      style={{ height, width: width ?? '100%', backgroundColor: fallbackColor }}
+    <LinearGradientFill
+      colors={[
+        { offset: '0%', color: fallbackColor },
+        { offset: '100%', color: '#FFFFFF' },
+      ]}
+      angle={135}
+      style={{
+        height,
+        width: width ?? '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      {isEvergreenArticle(article) ? <Sparkles color={palette.primaryDark} size={28} /> : null}
-    </Box>
+      <View style={styles.thumbBlob} />
+      <View style={[styles.thumbIcon, featured ? styles.thumbIconFeatured : null]}>
+        {evergreen ? (
+          <Sparkles color={palette.primaryDark} size={featured ? 28 : 22} />
+        ) : (
+          <Text style={{ fontSize: featured ? 28 : 22 }}>
+            {getCategoryEmoji(article.categoryId)}
+          </Text>
+        )}
+      </View>
+    </LinearGradientFill>
   );
 }
 
-function SourceBadge({ article }: { article: Article }) {
+function MetaPills({ article, showRead = true }: { article: Article; showRead?: boolean }) {
   const evergreen = isEvergreenArticle(article);
+  const minutes = estimateReadingTime(article.content);
 
   return (
-    <Badge variant={evergreen ? 'default' : 'secondary'} className="rounded-full px-2.5 py-1">
-      <BadgeText className="normal-case tracking-normal text-[11px]">
-        {evergreen ? 'CareMate' : 'News'}
-      </BadgeText>
-    </Badge>
-  );
-}
-
-function CategoryBadge({ name }: { name: string }) {
-  return (
-    <Badge variant="outline" className="rounded-full px-2.5 py-1 bg-background/80">
-      <BadgeText className="normal-case tracking-normal text-[11px]">{name}</BadgeText>
-    </Badge>
-  );
-}
-
-function ArticleMeta({ article }: { article: Article }) {
-  const external = isExternalArticle(article);
-
-  return (
-    <HStack className="items-center justify-between mt-1">
-      <HStack space="xs" className="items-center">
-        <Clock color={palette.textSecondary} size={14} />
-        <Text size="xs" className="text-muted-foreground font-medium">
-          {estimateReadingTime(article.content)} min read
-        </Text>
-      </HStack>
-      {external ? (
-        <ExternalLink color={palette.textSecondary} size={16} />
-      ) : (
-        <Bookmark color={palette.textSecondary} size={16} />
-      )}
-    </HStack>
+    <View style={styles.metaRow}>
+      <View style={[styles.pill, evergreen ? styles.pillBrand : styles.pillNews]}>
+        <AppText
+          variant="caption"
+          style={[styles.pillText, evergreen ? styles.pillBrandText : styles.pillNewsText]}
+        >
+          {evergreen ? 'CareMate' : 'News'}
+        </AppText>
+      </View>
+      <View style={styles.pillMuted}>
+        <AppText variant="caption" style={styles.pillMutedText} numberOfLines={1}>
+          {article.categoryName}
+        </AppText>
+      </View>
+      {showRead ? (
+        <View style={styles.readPill}>
+          <Clock color={palette.textSecondary} size={12} />
+          <AppText variant="caption" style={styles.readText}>
+            {minutes} min
+          </AppText>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
 export function FeaturedArticleCard({ article }: { article: Article }) {
+  const external = isExternalArticle(article);
+
   return (
-    <Pressable
+    <PressableScale
+      style={[styles.featuredShell, shadow.card]}
       onPress={() => router.push(`/(app)/articles/${article.id}`)}
-      className="active:opacity-90"
+      accessibilityRole="button"
+      accessibilityLabel={article.title}
     >
-      <Card className="p-0 gap-0 overflow-hidden rounded-2xl border-primary/15 shadow-sm">
-        <Box className="relative">
-          <ArticleThumbnail article={article} height={176} />
-          <HStack space="sm" className="absolute left-3 bottom-3 flex-wrap">
-            <SourceBadge article={article} />
-            <CategoryBadge name={article.categoryName} />
-          </HStack>
-        </Box>
-        <VStack className="p-4 gap-2">
-          <Heading size="md" className="text-foreground leading-6" numberOfLines={2}>
-            {article.title}
-          </Heading>
-          {article.summary ? (
-            <Text size="sm" className="text-muted-foreground leading-5" numberOfLines={3}>
-              {article.summary}
-            </Text>
-          ) : null}
-          <ArticleMeta article={article} />
-        </VStack>
-      </Card>
-    </Pressable>
+      <View style={styles.featuredMedia}>
+        <ArticleThumbnail article={article} height={188} featured />
+        <LinearGradientFill
+          colors={[
+            { offset: '0%', color: 'transparent', opacity: 0 },
+            { offset: '100%', color: 'rgba(15, 23, 42, 0.55)', opacity: 1 },
+          ]}
+          angle={180}
+          style={styles.featuredScrim}
+        />
+        <View style={styles.featuredBadges}>
+          <MetaPills article={article} />
+        </View>
+      </View>
+      <View style={styles.featuredBody}>
+        <AppText variant="articleTitle" numberOfLines={2} style={styles.featuredTitle}>
+          {article.title}
+        </AppText>
+        {article.summary ? (
+          <AppText variant="articleDescription" numberOfLines={2} style={styles.featuredSummary}>
+            {article.summary}
+          </AppText>
+        ) : null}
+        <View style={styles.featuredFooter}>
+          <AppText variant="caption" color="brand" style={styles.readCta}>
+            Read article
+          </AppText>
+          {external ? (
+            <ExternalLink color={palette.textSecondary} size={16} />
+          ) : (
+            <Bookmark color={palette.primary} size={16} />
+          )}
+        </View>
+      </View>
+    </PressableScale>
   );
 }
 
 export function CompactArticleCard({ article }: { article: Article }) {
+  const external = isExternalArticle(article);
+  const minutes = estimateReadingTime(article.content);
+  const accent = getCategoryAccent(article.categoryId);
+
   return (
-    <Pressable
+    <PressableScale
+      style={[styles.compactShell, shadow.soft]}
       onPress={() => router.push(`/(app)/articles/${article.id}`)}
-      className="active:opacity-90"
+      accessibilityRole="button"
+      accessibilityLabel={article.title}
     >
-      <Card className="p-3 gap-0 overflow-hidden rounded-2xl">
-        <HStack space="md" className="items-stretch">
-          <Box className="overflow-hidden rounded-xl">
-            <ArticleThumbnail article={article} height={96} width={96} />
-          </Box>
-          <VStack className="flex-1 gap-1.5 justify-between py-0.5">
-            <VStack className="gap-1.5">
-              <HStack space="xs" className="flex-wrap">
-                <SourceBadge article={article} />
-                <CategoryBadge name={article.categoryName} />
-              </HStack>
-              <Heading size="sm" className="text-foreground leading-5" numberOfLines={2}>
-                {article.title}
-              </Heading>
-            </VStack>
-            <ArticleMeta article={article} />
-          </VStack>
-        </HStack>
-      </Card>
-    </Pressable>
+      <View style={styles.compactRow}>
+        <View style={[styles.compactThumbWrap, { borderColor: `${accent}55` }]}>
+          <ArticleThumbnail article={article} height={108} width={108} />
+        </View>
+
+        <View style={styles.compactBody}>
+          <MetaPills article={article} showRead={false} />
+          <AppText variant="providerName" numberOfLines={2} style={styles.compactTitle}>
+            {article.title}
+          </AppText>
+          {article.summary ? (
+            <AppText variant="providerMeta" numberOfLines={2} style={styles.compactSummary}>
+              {article.summary}
+            </AppText>
+          ) : null}
+          <View style={styles.compactFooter}>
+            <View style={styles.readPill}>
+              <Clock color={palette.textSecondary} size={12} />
+              <AppText variant="caption" style={styles.readText}>
+                {minutes} min read
+              </AppText>
+            </View>
+            {external ? (
+              <ExternalLink color={palette.textSecondary} size={15} />
+            ) : (
+              <Bookmark color={palette.textSecondary} size={15} />
+            )}
+          </View>
+        </View>
+      </View>
+    </PressableScale>
   );
 }
 
@@ -169,22 +213,186 @@ export function ArticleCardList({ articles, featureFirst = true }: ArticleCardLi
 
   if (!featureFirst) {
     return (
-      <VStack space="md">
+      <View style={styles.listStack}>
         {articles.map((article) => (
           <CompactArticleCard key={article.id} article={article} />
         ))}
-      </VStack>
+      </View>
     );
   }
 
   const [featured, ...rest] = articles;
 
   return (
-    <VStack space="md">
+    <View style={styles.listStack}>
       {featured ? <FeaturedArticleCard article={featured} /> : null}
       {rest.map((article) => (
         <CompactArticleCard key={article.id} article={article} />
       ))}
-    </VStack>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  thumbBlob: {
+    position: 'absolute',
+    top: -24,
+    right: -18,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255,255,255,0.45)',
+  },
+  thumbIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.xl,
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
+  },
+  thumbIconFeatured: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.xxl,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    alignItems: 'center',
+  },
+  pill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  pillBrand: {
+    backgroundColor: palette.primaryLight,
+  },
+  pillNews: {
+    backgroundColor: palette.blueLight,
+  },
+  pillText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  pillBrandText: {
+    color: palette.primaryDark,
+  },
+  pillNewsText: {
+    color: palette.brandBlue,
+  },
+  pillMuted: {
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+    maxWidth: 120,
+  },
+  pillMutedText: {
+    color: palette.text,
+    fontSize: 11,
+  },
+  readPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: palette.surface,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  readText: {
+    color: palette.textSecondary,
+    fontSize: 11,
+  },
+  featuredShell: {
+    borderRadius: radius.xxl,
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.12)',
+    overflow: 'hidden',
+  },
+  featuredMedia: {
+    position: 'relative',
+  },
+  featuredScrim: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '55%',
+  },
+  featuredBadges: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+    bottom: 14,
+  },
+  featuredBody: {
+    padding: spacing.md,
+    gap: 8,
+  },
+  featuredTitle: {
+    fontSize: 19,
+    lineHeight: 26,
+    letterSpacing: -0.3,
+  },
+  featuredSummary: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  featuredFooter: {
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  readCta: {
+    fontWeight: '600',
+  },
+  compactShell: {
+    borderRadius: radius.xxl,
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    overflow: 'hidden',
+  },
+  compactRow: {
+    flexDirection: 'row',
+    minHeight: 124,
+  },
+  compactThumbWrap: {
+    width: 108,
+    overflow: 'hidden',
+    borderRightWidth: 1,
+  },
+  compactBody: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    gap: 7,
+    justifyContent: 'center',
+  },
+  compactTitle: {
+    fontSize: 15,
+    lineHeight: 20,
+    letterSpacing: -0.2,
+  },
+  compactSummary: {
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  compactFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  listStack: {
+    gap: 12,
+  },
+});

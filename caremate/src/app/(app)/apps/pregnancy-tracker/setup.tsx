@@ -1,21 +1,32 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
+import { Input } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import {
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
 import { calculateDueDateFromLmp, formatDueDate } from '@/mini-apps/pregnancy-tracker/utils';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { palette, radius, spacing } from '@/theme';
 
 type SetupMode = 'lmp' | 'due-date';
 
+const APP_ID = 'pregnancy-tracker' as const;
+
 export default function PregnancySetupScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
@@ -36,61 +47,53 @@ export default function PregnancySetupScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
-        Choose how you want to set up your pregnancy timeline. You can use your last period or a due
-        date from your provider.
-      </AppText>
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow="Setup"
+        title="Set your timeline"
+        subtitle="Choose how you want to set up your pregnancy timeline. You can use your last period or a due date from your provider."
+      />
 
       <View style={styles.modeRow}>
-        <Pressable
-          style={[styles.modeChip, mode === 'lmp' && styles.modeChipActive]}
+        <MiniAppChip
+          label="Last period"
+          selected={mode === 'lmp'}
+          accent={theme.color}
+          soft={theme.backgroundColor}
           onPress={() => {
             setMode('lmp');
             setSelectedDate(null);
           }}
-        >
-          <AppText variant="caption" style={mode === 'lmp' ? styles.modeChipTextActive : undefined}>
-            Last period
-          </AppText>
-        </Pressable>
-        <Pressable
-          style={[styles.modeChip, mode === 'due-date' && styles.modeChipActive]}
+        />
+        <MiniAppChip
+          label="Due date"
+          selected={mode === 'due-date'}
+          accent={theme.color}
+          soft={theme.backgroundColor}
           onPress={() => {
             setMode('due-date');
             setSelectedDate(null);
           }}
-        >
-          <AppText
-            variant="caption"
-            style={mode === 'due-date' ? styles.modeChipTextActive : undefined}
-          >
-            Due date
-          </AppText>
-        </Pressable>
+        />
       </View>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Baby nickname</AppText>
+      <MiniAppCard index={1} title="Baby nickname" theme={theme}>
         <Input
           value={babyNickname}
           onChangeText={setBabyNickname}
           placeholder="Baby"
           autoCapitalize="words"
         />
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
+      <MiniAppCard index={2} eyebrow="Pick a date" theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -120,81 +123,54 @@ export default function PregnancySetupScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
           onDayPress={setSelectedDate}
           getDayState={(dayKey) => ({ selected: dayKey === selectedDate })}
         />
-      </View>
+      </MiniAppCard>
 
       {previewDueDate ? (
-        <View style={styles.preview}>
-          <AppText variant="body">
+        <View style={[styles.preview, { backgroundColor: theme.backgroundColor }]}>
+          <AppText variant="body" style={{ color: theme.titleColor }}>
             {mode === 'lmp' ? 'Estimated due date' : 'Selected due date'}:{' '}
             {formatDueDate(previewDueDate)}
           </AppText>
         </View>
       ) : null}
 
-      <Button
-        label="Save"
-        disabled={!selectedDate}
-        onPress={() => {
-          if (!selectedDate) {
-            return;
-          }
-          if (mode === 'lmp') {
-            setFromLastPeriod(selectedDate);
-          } else {
-            setFromDueDate(selectedDate);
-          }
-          router.back();
-        }}
-      />
-    </ScrollView>
+      <View style={!selectedDate ? styles.ctaDisabled : undefined}>
+        <MiniAppCta
+          label="Save"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={3}
+          onPress={() => {
+            if (!selectedDate) {
+              return;
+            }
+            if (mode === 'lmp') {
+              setFromLastPeriod(selectedDate);
+            } else {
+              setFromDueDate(selectedDate);
+            }
+            router.back();
+          }}
+        />
+      </View>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
+    backgroundColor: palette.surface,
   },
   modeRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  modeChip: {
-    flex: 1,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingVertical: 10,
-    alignItems: 'center',
-    backgroundColor: palette.surface,
-  },
-  modeChipActive: {
-    backgroundColor: '#E0F2FE',
-    borderColor: '#0284C7',
-  },
-  modeChipTextActive: {
-    color: '#0284C7',
-  },
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   monthHeader: {
@@ -206,8 +182,10 @@ const styles = StyleSheet.create({
     color: palette.textSecondary,
   },
   preview: {
-    backgroundColor: '#E0F2FE',
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: spacing.md,
+  },
+  ctaDisabled: {
+    opacity: 0.5,
   },
 });

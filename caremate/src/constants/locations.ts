@@ -56,16 +56,12 @@ export function resolveNewsCountryCode(options: {
   isGuest: boolean;
   countryCode: string | null | undefined;
 }): string {
-  if (options.isGuest) {
-    return INTERNATIONAL_COUNTRY_CODE;
-  }
-
   const code = options.countryCode?.trim().toUpperCase();
-  if (!code) {
-    return INTERNATIONAL_COUNTRY_CODE;
+  if (code) {
+    return code;
   }
 
-  return code;
+  return INTERNATIONAL_COUNTRY_CODE;
 }
 
 export function getCountryName(code: string | null | undefined): string | null {

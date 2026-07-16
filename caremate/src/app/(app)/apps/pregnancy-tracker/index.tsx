@@ -1,9 +1,18 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppCta,
+  MiniAppHero,
+  MiniAppProgress,
+  MiniAppRow,
+  MiniAppScreen,
+  StatusPill,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import { MILESTONES } from '@/mini-apps/pregnancy-tracker/constants';
 import {
   formatDueDate,
@@ -17,9 +26,12 @@ import {
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { palette } from '@/theme';
+
+const APP_ID = 'pregnancy-tracker' as const;
 
 export default function PregnancyTrackerScreen() {
+  const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const hydrated = usePregnancyTrackerHydrated();
@@ -37,71 +49,85 @@ export default function PregnancyTrackerScreen() {
 
   const hasSetup = Boolean(lastMenstrualPeriod && dueDate);
 
+  const heroSubtitle =
+    hasSetup && daysUntilDue !== null
+      ? daysUntilDue > 0
+        ? `${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'} until ${babyNickname}'s due date`
+        : daysUntilDue === 0
+          ? `Today is ${babyNickname}'s due date`
+          : `${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) === 1 ? '' : 's'} past due date`
+      : 'Set your due date or last period to get started';
+
+  let cardIndex = 1;
+
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.hero}>
-        <AppText variant="caption" style={styles.heroLabel}>
-          {hasSetup ? getTrimesterLabel(gestationalAge!.trimester) : 'Pregnancy'}
-        </AppText>
-        <AppText variant="screenTitle" style={styles.heroTitle}>
-          {hasSetup && gestationalAge
+    <MiniAppScreen>
+      <MiniAppHero
+        appId={APP_ID}
+        eyebrow={hasSetup ? getTrimesterLabel(gestationalAge!.trimester) : 'Pregnancy'}
+        title={
+          hasSetup && gestationalAge
             ? `Week ${gestationalAge.weeks}, Day ${gestationalAge.days}`
-            : 'Track your pregnancy journey'}
-        </AppText>
-        <AppText variant="subtitle" style={styles.heroSubtitle}>
-          {hasSetup && daysUntilDue !== null
-            ? daysUntilDue > 0
-              ? `${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'} until ${babyNickname}'s due date`
-              : daysUntilDue === 0
-                ? `Today is ${babyNickname}'s due date`
-                : `${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) === 1 ? '' : 's'} past due date`
-            : 'Set your due date or last period to get started'}
-        </AppText>
-      </View>
+            : 'Track your pregnancy journey'
+        }
+        subtitle={heroSubtitle}
+        trailing={
+          hasSetup && gestationalAge ? (
+            <StatusPill
+              label={`${Math.round(gestationalAge.progress * 100)}%`}
+              color={theme.color}
+              background={`${theme.color}22`}
+            />
+          ) : undefined
+        }
+      />
 
       {hasSetup && gestationalAge ? (
-        <View style={[styles.card, shadow.soft]}>
-          <View style={styles.progressHeader}>
-            <AppText variant="cardTitle">Pregnancy progress</AppText>
-            <AppText variant="caption">{Math.round(gestationalAge.progress * 100)}%</AppText>
-          </View>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${gestationalAge.progress * 100}%` }]} />
-          </View>
+        <MiniAppCard
+          index={cardIndex++}
+          title="Pregnancy progress"
+          eyebrow="Timeline"
+          theme={theme}
+        >
+          <MiniAppProgress
+            progress={gestationalAge.progress}
+            accent={theme.color}
+            label={`${Math.round(gestationalAge.progress * 100)}% complete`}
+          />
           <View style={styles.progressLabels}>
-            <AppText variant="caption">Week 0</AppText>
-            <AppText variant="caption">Week 40</AppText>
+            <AppText variant="caption" style={styles.muted}>
+              Week 0
+            </AppText>
+            <AppText variant="caption" style={styles.muted}>
+              Week 40
+            </AppText>
           </View>
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasSetup && dueDate ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Due date</AppText>
+        <MiniAppCard index={cardIndex++} title="Due date" theme={theme}>
           <AppText variant="body">{formatDueDate(dueDate)}</AppText>
           <AppText variant="caption" style={styles.muted}>
             Estimated from your last menstrual period
           </AppText>
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasSetup ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Today&apos;s log</AppText>
+        <MiniAppCard index={cardIndex++} title="Today's log" eyebrow="Daily" theme={theme}>
           {todayLog?.mood ? (
-            <View style={styles.summaryRow}>
-              <AppText variant="body">Mood</AppText>
-              <AppText variant="body">{todayLog.mood}</AppText>
-            </View>
+            <MiniAppRow
+              title="Mood"
+              soft={theme.backgroundColor}
+              trailing={<AppText variant="body">{todayLog.mood}</AppText>}
+            />
           ) : null}
-          <View style={styles.summaryRow}>
-            <AppText variant="body">Kicks logged</AppText>
-            <AppText variant="body">{todayLog?.kickCount ?? 0}</AppText>
-          </View>
+          <MiniAppRow
+            title="Kicks logged"
+            soft={theme.backgroundColor}
+            trailing={<AppText variant="body">{todayLog?.kickCount ?? 0}</AppText>}
+          />
           {todayLog && todayLog.symptoms.length > 0 ? (
             <AppText variant="caption">{todayLog.symptoms.join(' · ')}</AppText>
           ) : (
@@ -109,143 +135,85 @@ export default function PregnancyTrackerScreen() {
               No symptoms logged yet today
             </AppText>
           )}
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasSetup && nextMilestone ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Coming up</AppText>
-          <AppText variant="body">{nextMilestone.title}</AppText>
-          <AppText variant="caption" style={styles.muted}>
-            Week {nextMilestone.week} ·{' '}
-            {nextMilestone.daysUntil === 0
-              ? 'This week'
-              : `In about ${nextMilestone.daysUntil} day${nextMilestone.daysUntil === 1 ? '' : 's'}`}
-          </AppText>
+        <MiniAppCard index={cardIndex++} title="Coming up" theme={theme}>
+          <MiniAppRow
+            title={nextMilestone.title}
+            subtitle={
+              nextMilestone.daysUntil === 0
+                ? `Week ${nextMilestone.week} · This week`
+                : `Week ${nextMilestone.week} · In about ${nextMilestone.daysUntil} day${nextMilestone.daysUntil === 1 ? '' : 's'}`
+            }
+            soft={theme.backgroundColor}
+          />
           <AppText variant="quickActionSubtitle">{nextMilestone.description}</AppText>
-        </View>
+        </MiniAppCard>
       ) : null}
 
       {hasSetup ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Milestones</AppText>
+        <MiniAppCard index={cardIndex++} title="Milestones" eyebrow="Journey" theme={theme}>
           {MILESTONES.map((milestone) => {
             const status = milestones.find((item) => item.week === milestone.week);
             const isPast = status?.isPast ?? false;
             return (
-              <View key={milestone.week} style={styles.milestoneRow}>
-                <View style={[styles.milestoneDot, isPast && styles.milestoneDotDone]} />
-                <View style={styles.milestoneCopy}>
-                  <AppText variant="body">Week {milestone.week}</AppText>
-                  <AppText variant="caption" style={styles.muted}>
-                    {milestone.title}
-                  </AppText>
-                </View>
-              </View>
+              <MiniAppRow
+                key={milestone.week}
+                title={`Week ${milestone.week}`}
+                subtitle={milestone.title}
+                soft={isPast ? theme.color : theme.backgroundColor}
+              />
             );
           })}
-        </View>
+        </MiniAppCard>
       ) : null}
 
-      <View style={styles.actions}>
-        <Button
+      <View style={!hydrated ? styles.ctaDisabled : undefined}>
+        <MiniAppCta
           label={hasSetup ? 'Update due date' : 'Set up pregnancy'}
-          onPress={() => router.push('/(app)/apps/pregnancy-tracker/setup')}
-          disabled={!hydrated}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={cardIndex++}
+          onPress={() => {
+            if (!hydrated) {
+              return;
+            }
+            router.push('/(app)/apps/pregnancy-tracker/setup');
+          }}
         />
-        {hasSetup ? (
-          <Button
-            label="Log today"
-            variant="secondary"
-            onPress={() => router.push('/(app)/apps/pregnancy-tracker/log')}
-            disabled={!hydrated}
-          />
-        ) : null}
       </View>
-    </ScrollView>
+      {hasSetup ? (
+        <View style={!hydrated ? styles.ctaDisabled : undefined}>
+          <MiniAppCta
+            label="Log today"
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            index={cardIndex}
+            secondary
+            onPress={() => {
+              if (!hydrated) {
+                return;
+              }
+              router.push('/(app)/apps/pregnancy-tracker/log');
+            }}
+          />
+        </View>
+      ) : null}
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  hero: {
-    backgroundColor: '#E0F2FE',
-    borderRadius: radius.xxl,
-    padding: layoutSpacing.cardPadding,
-    gap: 4,
-  },
-  heroLabel: {
-    color: '#0284C7',
-  },
-  heroTitle: {
-    color: '#0C4A6E',
-  },
-  heroSubtitle: {
-    color: '#0369A1',
-  },
-  card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  progressTrack: {
-    height: 10,
-    borderRadius: radius.full,
-    backgroundColor: '#BAE6FD',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radius.full,
-    backgroundColor: '#0284C7',
-  },
   progressLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  milestoneRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    alignItems: 'flex-start',
-  },
-  milestoneDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#BAE6FD',
-    marginTop: 6,
-  },
-  milestoneDotDone: {
-    backgroundColor: '#0284C7',
-  },
-  milestoneCopy: {
-    flex: 1,
-    gap: 2,
-  },
   muted: {
     color: palette.textSecondary,
   },
-  actions: {
-    gap: spacing.sm,
+  ctaDisabled: {
+    opacity: 0.5,
   },
 });

@@ -121,7 +121,7 @@ Routes can stay under `/(app)/articles/...` initially or migrate to `/(app)/lear
 | Currents | Always `contentType: 'article'` | Unchanged |
 | Evergreen seeds | Always `article` | New seed packs per type over time |
 
-Guest/offline rules unchanged: SQLite first, Supabase when signed-in ([SYNC_ENGINE.md](./SYNC_ENGINE.md)).
+Guest/offline rules: SQLite cache first; CareMate Learn catalog pulls from Supabase on boot and via the sync engine (**anon RLS** for published rows — guests included). Currents news stays device-only. See [SYNC_ENGINE.md](./SYNC_ENGINE.md).
 
 ---
 

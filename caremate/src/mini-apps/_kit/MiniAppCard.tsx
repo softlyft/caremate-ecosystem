@@ -1,0 +1,195 @@
+import { router } from 'expo-router';
+import { ChevronRight } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
+
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
+import { PressableScale } from '@/components/motion/PressableScale';
+import { AppText } from '@/components/ui/AppText';
+import type { MiniAppDefinition } from '@/mini-apps/_kit/registry';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+
+type MiniAppCardProps = {
+  app: MiniAppDefinition;
+  index: number;
+};
+
+function lightenForGradient(hex: string): string {
+  // Soft top wash — keep registry pastel as the saturated end of the gradient.
+  return '#FFFFFF';
+}
+
+export function MiniAppCard({ app, index }: MiniAppCardProps) {
+  const Icon = app.icon;
+
+  return (
+    <AnimatedSection index={index + 1}>
+      <PressableScale
+        disabled={!app.available}
+        style={[styles.shell, shadow.soft, !app.available ? styles.unavailable : null]}
+        onPress={() => {
+          if (app.available) {
+            router.push(app.route);
+          }
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={app.name}
+        accessibilityState={{ disabled: !app.available }}
+      >
+        <LinearGradientFill
+          colors={[
+            { offset: '0%', color: app.backgroundColor },
+            { offset: '55%', color: app.backgroundColor },
+            { offset: '100%', color: lightenForGradient(app.backgroundColor) },
+          ]}
+          angle={125}
+          style={styles.card}
+        >
+          <View style={styles.accentBlob} />
+          <View style={[styles.accentBlobSm, { backgroundColor: app.color, opacity: 0.12 }]} />
+
+          <View style={styles.topRow}>
+            <View style={[styles.iconWrap, { borderColor: `${app.color}22` }]}>
+              <View style={[styles.iconInner, { backgroundColor: `${app.color}18` }]}>
+                <Icon color={app.color} size={26} strokeWidth={2.25} />
+              </View>
+            </View>
+
+            {app.available ? (
+              <View style={[styles.openPill, { backgroundColor: palette.background }]}>
+                <AppText variant="caption" style={[styles.openLabel, { color: app.color }]}>
+                  Open
+                </AppText>
+                <ChevronRight color={app.color} size={15} strokeWidth={2.5} />
+              </View>
+            ) : (
+              <View style={styles.soonPill}>
+                <AppText variant="comingSoon">Coming soon</AppText>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.copy}>
+            <AppText variant="quickActionTitle" style={styles.title}>
+              {app.name}
+            </AppText>
+            <AppText variant="quickActionSubtitle" style={styles.description} numberOfLines={3}>
+              {app.description}
+            </AppText>
+          </View>
+
+          <View style={[styles.bottomBar, { backgroundColor: `${app.color}14` }]}>
+            <View style={[styles.dot, { backgroundColor: app.color }]} />
+            <AppText variant="caption" style={{ color: app.color }}>
+              Health tool
+            </AppText>
+          </View>
+        </LinearGradientFill>
+      </PressableScale>
+    </AnimatedSection>
+  );
+}
+
+const styles = StyleSheet.create({
+  shell: {
+    borderRadius: radius.xxl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.06)',
+  },
+  unavailable: {
+    opacity: 0.62,
+  },
+  card: {
+    borderRadius: radius.xxl,
+    padding: layoutSpacing.cardPadding,
+    gap: spacing.md,
+    minHeight: 168,
+  },
+  accentBlob: {
+    position: 'absolute',
+    top: -36,
+    right: -24,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  accentBlobSm: {
+    position: 'absolute',
+    bottom: 36,
+    left: -28,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 1,
+  },
+  iconWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: radius.xl,
+    padding: 3,
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(255,255,255,0.65)',
+  },
+  iconInner: {
+    flex: 1,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.background,
+  },
+  openPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+    ...shadow.soft,
+  },
+  openLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  soonPill: {
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+  },
+  copy: {
+    gap: 6,
+    zIndex: 1,
+    paddingRight: 8,
+  },
+  title: {
+    fontSize: 18,
+    letterSpacing: -0.3,
+  },
+  description: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: palette.textSecondary,
+  },
+  bottomBar: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    zIndex: 1,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+});

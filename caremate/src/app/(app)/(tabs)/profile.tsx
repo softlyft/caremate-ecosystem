@@ -1,19 +1,37 @@
 import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { UserRound } from 'lucide-react-native';
+import { StyleSheet, Switch, View } from 'react-native';
+import {
+  Bell,
+  CircleCheck,
+  Crown,
+  Fingerprint,
+  LogOut,
+  Settings,
+  ShieldPlus,
+  Users,
+  UserRound,
+} from 'lucide-react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
+import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
 import { images } from '@/constants/assets';
 import { getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
+import { emergencyRepository } from '@/domains/emergency/repository';
+import { familyRepository } from '@/domains/family/repository';
+import { getFinishSetupItems, type FinishSetupItem } from '@/domains/onboarding';
+import { PatientIdCard } from '@/features/profile/PatientIdCard';
+import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
 import { authService } from '@/services/auth-service';
-import { palette, radius, shadow, spacing } from '@/theme/colors';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 
 export default function ProfileTabScreen() {
@@ -34,6 +52,35 @@ export default function ProfileTabScreen() {
   });
   const premium = premiumQuery.data ?? null;
 
+  const profileQuery = useQuery({
+    queryKey: ['profile', userId],
+    queryFn: () => profileRepository.findByUserId(userId),
+    enabled: !isGuest,
+  });
+  const displayName = profileQuery.data?.fullName?.trim() || 'CareMate User';
+
+  const finishSetupQuery = useQuery({
+    queryKey: ['finish-setup', userId, isGuest, profileQuery.dataUpdatedAt],
+    queryFn: async (): Promise<FinishSetupItem[]> => {
+      const [emergency, household] = await Promise.all([
+        isGuest ? null : emergencyRepository.findByUserId(userId),
+        isGuest ? null : familyRepository.findHouseholdForUser(userId),
+      ]);
+      const hasEmergencyEssentials = Boolean(
+        emergency?.bloodGroup &&
+          emergency.genotype &&
+          (emergency.emergencyContacts?.length ?? 0) > 0,
+      );
+      return getFinishSetupItems({
+        isGuest,
+        hasCountry: Boolean(profileQuery.data?.countryCode) && !isGuest,
+        hasEmergencyEssentials,
+        hasHousehold: Boolean(household),
+      });
+    },
+  });
+  const finishItems = finishSetupQuery.data ?? [];
+
   async function handleBiometricToggle(value: boolean) {
     const available = await authService.isBiometricAvailable();
     if (value && !available) {
@@ -48,166 +95,395 @@ export default function ProfileTabScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
-    >
-      <Image source={images.logo} style={styles.logo} contentFit="contain" />
+    <View style={styles.screen}>
+      <Animated.ScrollView
+        entering={FadeIn.duration(300)}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+      >
+        <AnimatedSection index={0}>
+          <View style={styles.hero}>
+            <View style={styles.meshTop} />
+            <View style={styles.meshAccent} />
+            <Image source={images.logoHeader} style={styles.logo} contentFit="contain" />
 
-      <View style={[styles.card, shadow.soft]}>
-        <View style={styles.avatar}>
-          <UserRound color={palette.textSecondary} size={28} />
-        </View>
-        <AppText variant="sectionTitle" style={styles.centered}>
-          {isGuest ? 'Guest User' : (user?.email?.split('@')[0] ?? 'CareMate User')}
-        </AppText>
-        <AppText variant="quickActionSubtitle" style={styles.centered}>
-          {isGuest
-            ? 'Browse freely. Sign in anytime to sync your data.'
-            : (user?.email ?? 'Signed in')}
-        </AppText>
+            <View style={[styles.identityCard, shadow.soft]}>
+              <LinearGradientFill
+                colors={[
+                  { offset: '0%', color: '#F0FDFA' },
+                  { offset: '100%', color: '#FFFFFF' },
+                ]}
+                style={styles.identityInner}
+              >
+                <View style={styles.avatarRing}>
+                  <View style={styles.avatar}>
+                    <UserRound color={palette.primary} size={32} strokeWidth={2} />
+                  </View>
+                </View>
+                <AppText variant="heroGreeting" style={styles.name}>
+                  {isGuest ? 'Guest' : displayName}
+                </AppText>
+                <AppText variant="subtitle" style={styles.subtitle}>
+                  {isGuest
+                    ? 'Browse freely. Sign in anytime to sync your data.'
+                    : (user?.email ?? 'Signed in')}
+                </AppText>
+                {!isGuest ? (
+                  <View style={styles.planPill}>
+                    <Crown color={palette.primary} size={13} />
+                    <AppText variant="caption" color="brand">
+                      {premiumLabel(premium?.tier ?? 'free')}
+                    </AppText>
+                  </View>
+                ) : (
+                  <View style={styles.guestActions}>
+                    <PressableScale
+                      style={styles.primaryCta}
+                      onPress={() => router.push('/(auth)/login')}
+                    >
+                      <AppText variant="button" style={styles.primaryCtaLabel}>
+                        Sign in
+                      </AppText>
+                    </PressableScale>
+                    <PressableScale
+                      style={styles.secondaryCta}
+                      onPress={() => router.push('/(auth)/register')}
+                    >
+                      <AppText variant="button" style={styles.secondaryCtaLabel}>
+                        Create account
+                      </AppText>
+                    </PressableScale>
+                  </View>
+                )}
+              </LinearGradientFill>
+            </View>
+          </View>
+        </AnimatedSection>
+
         {!isGuest ? (
-          <AppText variant="quickActionSubtitle" style={styles.centered}>
-            Plan: {premiumLabel(premium?.tier ?? 'free')}
-          </AppText>
+          <AnimatedSection index={1}>
+            <PatientIdCard userId={userId} displayName={displayName} />
+          </AnimatedSection>
         ) : null}
-      </View>
 
-      <View style={[styles.card, shadow.soft]}>
-        <AppText variant="cardTitle">Premium</AppText>
-        <AppText variant="quickActionSubtitle">
-          {isGuest
-            ? 'Sign in to upgrade to Premium Personal or Family.'
-            : 'Manage Free vs Premium Personal or Family (Paystack / Stripe).'}
-        </AppText>
-        <Button
-          label={isGuest ? 'Sign in for Premium' : 'View Premium'}
-          variant="secondary"
-          onPress={() =>
-            isGuest ? router.push('/(auth)/login') : router.push('/(app)/profile/premium' as Href)
-          }
-        />
-      </View>
+        {finishItems.length > 0 ? (
+          <AnimatedSection index={isGuest ? 1 : 2}>
+            <ProfileCard>
+              <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                Finish setup
+              </AppText>
+              {finishItems.map((item, index) => (
+                <View key={item.id}>
+                  {index > 0 ? <View style={styles.divider} /> : null}
+                  <ProfileMenuRow
+                    icon={CircleCheck}
+                    iconColor={palette.primary}
+                    iconBackground={palette.primaryLight}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    onPress={() => router.push(item.href)}
+                  />
+                </View>
+              ))}
+            </ProfileCard>
+          </AnimatedSection>
+        ) : null}
 
-      {isGuest ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="cardTitle">Get more from CareMate</AppText>
-          <AppText variant="quickActionSubtitle">
-            Create an account to sync your emergency profile, bookmarks, and preferences across
-            devices.
-          </AppText>
-          <View style={styles.actions}>
-            <Button label="Sign In" onPress={() => router.push('/(auth)/login')} />
-            <Button
-              label="Create Account"
-              variant="secondary"
-              onPress={() => router.push('/(auth)/register')}
+        <AnimatedSection index={finishItems.length > 0 ? (isGuest ? 2 : 3) : 2}>
+          <ProfileCard>
+            <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+              Account
+            </AppText>
+            <ProfileMenuRow
+              icon={Crown}
+              iconColor="#B45309"
+              iconBackground="#FEF3C7"
+              title="Premium"
+              subtitle={
+                isGuest
+                  ? 'Sign in to unlock Premium Personal or Family'
+                  : 'Manage Free vs Premium Personal or Family'
+              }
+              onPress={() =>
+                isGuest
+                  ? router.push('/(auth)/login')
+                  : router.push('/(app)/profile/premium' as Href)
+              }
             />
-          </View>
-        </View>
-      ) : null}
+            <View style={styles.divider} />
+            <ProfileMenuRow
+              icon={ShieldPlus}
+              iconColor={palette.brandPurple}
+              iconBackground={palette.purpleLight}
+              title="Emergency profile"
+              subtitle="Create or update your offline emergency health card"
+              onPress={() => router.push('/(app)/emergency')}
+            />
+            <View style={styles.divider} />
+            <ProfileMenuRow
+              icon={Users}
+              iconColor={palette.brandBlue}
+              iconBackground={palette.brandBlueLight}
+              title="Family"
+              subtitle={
+                isGuest
+                  ? 'Sign in to set up kids and connect your spouse'
+                  : 'Add kids, connect spouse, manage household'
+              }
+              onPress={() =>
+                isGuest ? router.push('/(auth)/login') : router.push('/(app)/family')
+              }
+            />
+          </ProfileCard>
+        </AnimatedSection>
 
-      <View style={[styles.card, shadow.soft]}>
-        <AppText variant="cardTitle">Emergency Profile</AppText>
-        <AppText variant="quickActionSubtitle">
-          Create or update your offline emergency health card.
-        </AppText>
-        <Button
-          label="Manage Emergency Profile"
-          variant="secondary"
-          onPress={() => router.push('/(app)/emergency')}
-        />
-      </View>
+        <AnimatedSection index={finishItems.length > 0 ? (isGuest ? 3 : 4) : 3}>
+          <ProfileCard>
+            <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+              Preferences
+            </AppText>
+            <View style={styles.toggleRow}>
+              <View style={[styles.toggleIcon, { backgroundColor: palette.blueLight }]}>
+                <Bell color={palette.blueAccent} size={20} strokeWidth={2.25} />
+              </View>
+              <View style={styles.toggleCopy}>
+                <AppText variant="body" style={styles.toggleTitle}>
+                  Notifications
+                </AppText>
+                <AppText variant="caption" style={styles.toggleSubtitle}>
+                  Reminders and health updates
+                </AppText>
+              </View>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={handleNotificationsToggle}
+                trackColor={{ false: palette.divider, true: palette.primaryLight }}
+                thumbColor={notificationsEnabled ? palette.primary : '#F3F4F6'}
+              />
+            </View>
+            {!isGuest ? (
+              <>
+                <View style={styles.divider} />
+                <View style={styles.toggleRow}>
+                  <View style={[styles.toggleIcon, { backgroundColor: palette.primaryLight }]}>
+                    <Fingerprint color={palette.primary} size={20} strokeWidth={2.25} />
+                  </View>
+                  <View style={styles.toggleCopy}>
+                    <AppText variant="body" style={styles.toggleTitle}>
+                      Biometric unlock
+                    </AppText>
+                    <AppText variant="caption" style={styles.toggleSubtitle}>
+                      Use Face ID or fingerprint
+                    </AppText>
+                  </View>
+                  <Switch
+                    value={biometricEnabled}
+                    onValueChange={handleBiometricToggle}
+                    trackColor={{ false: palette.divider, true: palette.primaryLight }}
+                    thumbColor={biometricEnabled ? palette.primary : '#F3F4F6'}
+                  />
+                </View>
+              </>
+            ) : null}
+            <View style={styles.divider} />
+            <ProfileMenuRow
+              icon={Settings}
+              iconColor={palette.textSecondary}
+              iconBackground={palette.surface}
+              title="Settings"
+              subtitle="App preferences and account options"
+              onPress={() => router.push('/(app)/profile/settings')}
+            />
+          </ProfileCard>
+        </AnimatedSection>
 
-      <View style={[styles.card, shadow.soft]}>
-        <AppText variant="cardTitle">Family</AppText>
-        <AppText variant="quickActionSubtitle">
-          {isGuest
-            ? 'Sign in to set up kids and connect your spouse.'
-            : 'Add kids, connect your spouse, and manage your household.'}
-        </AppText>
-        {isGuest ? (
-          <Button
-            label="Sign In"
-            variant="secondary"
-            onPress={() => router.push('/(auth)/login')}
-          />
-        ) : (
-          <Button
-            label="Manage family"
-            variant="secondary"
-            onPress={() => router.push('/(app)/family')}
-          />
-        )}
-      </View>
-
-      <View style={[styles.card, shadow.soft]}>
-        <AppText variant="cardTitle">Preferences</AppText>
-        <View style={styles.row}>
-          <AppText variant="body">Notifications</AppText>
-          <Switch value={notificationsEnabled} onValueChange={handleNotificationsToggle} />
-        </View>
         {!isGuest ? (
-          <View style={styles.row}>
-            <AppText variant="body">Biometric unlock</AppText>
-            <Switch value={biometricEnabled} onValueChange={handleBiometricToggle} />
-          </View>
+          <AnimatedSection index={finishItems.length > 0 ? 5 : 4}>
+            <PressableScale style={styles.signOut} onPress={() => signOut()}>
+              <LogOut color={palette.danger} size={18} strokeWidth={2.25} />
+              <AppText variant="button" style={styles.signOutLabel}>
+                Sign out
+              </AppText>
+            </PressableScale>
+          </AnimatedSection>
         ) : null}
-        <Button
-          label="Settings"
-          variant="secondary"
-          onPress={() => router.push('/(app)/profile/settings')}
-        />
-      </View>
-
-      {!isGuest ? <Button label="Sign Out" variant="secondary" onPress={() => signOut()} /> : null}
-    </ScrollView>
+      </Animated.ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: palette.background,
+    backgroundColor: palette.surface,
   },
   content: {
-    padding: spacing.md,
+    paddingHorizontal: layoutSpacing.screenHorizontal,
     gap: spacing.md,
-    paddingBottom: spacing.xl,
+    paddingBottom: 40,
+  },
+  hero: {
+    position: 'relative',
+    overflow: 'hidden',
+    gap: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  meshTop: {
+    position: 'absolute',
+    top: -60,
+    right: -30,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: palette.primaryLight,
+    opacity: 0.65,
+  },
+  meshAccent: {
+    position: 'absolute',
+    top: 40,
+    left: -50,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: palette.blueLight,
+    opacity: 0.5,
   },
   logo: {
-    width: 140,
-    height: 42,
+    width: 150,
+    height: 40,
     alignSelf: 'center',
-    marginBottom: spacing.sm,
+    zIndex: 1,
   },
-  card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xl,
+  identityCard: {
+    borderRadius: radius.xxl,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: palette.divider,
-    padding: spacing.md,
-    gap: spacing.sm,
+    borderColor: 'rgba(13, 148, 136, 0.12)',
+    zIndex: 1,
+  },
+  identityInner: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    gap: 8,
+  },
+  avatarRing: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    padding: 4,
+    borderWidth: 2,
+    borderColor: 'rgba(13, 148, 136, 0.25)',
+    marginBottom: 4,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.full,
-    backgroundColor: palette.surface,
+    flex: 1,
+    borderRadius: 40,
+    backgroundColor: palette.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
   },
-  centered: {
+  name: {
+    fontSize: 26,
+    lineHeight: 32,
+    letterSpacing: -0.5,
     textAlign: 'center',
   },
-  actions: {
-    gap: spacing.sm,
-    marginTop: spacing.sm,
+  subtitle: {
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
+    color: palette.textSecondary,
+    maxWidth: '90%',
   },
-  row: {
+  planPill: {
+    marginTop: 6,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 6,
+    backgroundColor: palette.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+  },
+  guestActions: {
+    marginTop: 10,
+    width: '100%',
+    gap: 10,
+  },
+  primaryCta: {
+    backgroundColor: palette.primary,
+    borderRadius: radius.full,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryCtaLabel: {
+    color: '#FFFFFF',
+  },
+  secondaryCta: {
+    backgroundColor: palette.background,
+    borderRadius: radius.full,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: palette.divider,
+  },
+  secondaryCtaLabel: {
+    color: palette.text,
+  },
+  sectionEyebrow: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontSize: 11,
+    marginBottom: 4,
+    paddingHorizontal: 4,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: palette.divider,
+    marginLeft: 58,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  toggleIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggleCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  toggleTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  toggleSubtitle: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: palette.textSecondary,
+  },
+  signOut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    minHeight: 52,
+    borderRadius: radius.xxl,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  signOutLabel: {
+    color: palette.danger,
   },
 });

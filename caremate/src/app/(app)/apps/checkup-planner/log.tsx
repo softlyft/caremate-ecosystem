@@ -1,18 +1,26 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Input } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppCta,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import { CHECKUP_CATALOG, getCadenceLabel } from '@/mini-apps/checkup-planner/constants';
 import {
   useCheckupPlannerHydrated,
   useCheckupPlannerStore,
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
+
+const theme = getMiniAppTheme('checkup-planner');
 
 export default function CheckupPlannerLogScreen() {
   const { checkupId: paramCheckupId, year: paramYear } = useLocalSearchParams<{
@@ -56,7 +64,7 @@ export default function CheckupPlannerLogScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
@@ -65,8 +73,10 @@ export default function CheckupPlannerLogScreen() {
     return (
       <View style={styles.loading}>
         <AppText variant="body">Set up your checkup profile first.</AppText>
-        <Button
+        <MiniAppCta
           label="Set up planner"
+          accent={theme.color}
+          soft={theme.backgroundColor}
           onPress={() => router.replace('/(app)/apps/checkup-planner/setup')}
         />
       </View>
@@ -77,29 +87,29 @@ export default function CheckupPlannerLogScreen() {
     return (
       <View style={styles.loading}>
         <AppText variant="body">That checkup was not found.</AppText>
-        <Button label="Go back" onPress={() => router.back()} />
+        <MiniAppCta
+          label="Go back"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.back()}
+        />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
+    <MiniAppScreen>
+      <AppText variant="subtitle" style={styles.intro}>
         Log that you completed this checkup for {year}. You can undo later from this screen.
       </AppText>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">{checkup.name}</AppText>
+      <MiniAppCard index={1} title={checkup.name} theme={theme}>
         <AppText variant="caption" style={styles.muted}>
           {getCadenceLabel(checkup.cadence)} · {checkup.description}
         </AppText>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
+      <MiniAppCard index={2} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -125,6 +135,7 @@ export default function CheckupPlannerLogScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
           onDayPress={setCompletedDate}
           getDayState={(dayKey) => ({
             selected: dayKey === completedDate,
@@ -132,20 +143,22 @@ export default function CheckupPlannerLogScreen() {
           })}
         />
         <AppText variant="body">Completed: {formatDisplayDate(completedDate)}</AppText>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Notes (optional)</AppText>
+      <MiniAppCard index={3} title="Notes (optional)" theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
           placeholder="Clinic name, results to follow up…"
           multiline
         />
-      </View>
+      </MiniAppCard>
 
-      <Button
+      <MiniAppCta
         label={existing ? 'Update log' : `Mark done for ${year}`}
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={4}
         onPress={() => {
           markComplete({
             checkupId: checkup.id,
@@ -158,44 +171,33 @@ export default function CheckupPlannerLogScreen() {
       />
 
       {existing ? (
-        <Button
+        <MiniAppCta
           label="Remove completion"
-          variant="secondary"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={5}
           onPress={() => {
             removeCompletion(checkup.id, year);
             router.back();
           }}
         />
       ) : null}
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
     padding: layoutSpacing.screenHorizontal,
-    backgroundColor: palette.background,
-  },
-  card: {
     backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
+  },
+  intro: {
+    color: palette.textSecondary,
   },
   monthHeader: {
     flexDirection: 'row',

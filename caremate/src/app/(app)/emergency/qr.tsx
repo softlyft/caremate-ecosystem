@@ -1,15 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
+import { QrCode } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
-import { Card, EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
+import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
-import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
-import { useAppTheme } from '@/theme';
+import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+
+const ACCENT = palette.brandPurple;
+const SOFT = palette.purpleLight;
+const SOFT_END = '#F5F3FF';
+const TITLE = palette.brandPurpleDark;
 
 export default function EmergencyQrScreen() {
-  const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
 
   const query = useQuery({
@@ -24,10 +34,12 @@ export default function EmergencyQrScreen() {
   const profile = query.data;
   if (!profile) {
     return (
-      <EmptyState
-        title="No emergency profile"
-        message="Create a profile before generating a QR code."
-      />
+      <View style={styles.screen}>
+        <EmptyState
+          title="No emergency profile"
+          message="Create a profile before generating a QR code."
+        />
+      </View>
     );
   }
 
@@ -40,40 +52,154 @@ export default function EmergencyQrScreen() {
   });
 
   return (
-    <Screen>
-      <Card>
-        <AppText variant="cardTitle">Emergency QR Payload</AppText>
-        <AppText variant="caption">
-          QR rendering will use an Edge Function or on-device encoder in a follow-up. For now, this
-          screen exposes the offline emergency payload.
-        </AppText>
-        <View
-          style={[
-            styles.qrPlaceholder,
-            { borderColor: colors.border, backgroundColor: colors.surface },
-          ]}
-        >
-          <AppText variant="caption" style={styles.preview}>
-            QR preview
-          </AppText>
-        </View>
-        <AppText variant="navLabel" selectable>
-          {payload}
-        </AppText>
-      </Card>
-    </Screen>
+    <View style={styles.screen}>
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
+      >
+        <AnimatedSection index={0}>
+          <View style={[styles.heroShell, shadow.card]}>
+            <LinearGradientFill
+              colors={[
+                { offset: '0%', color: SOFT },
+                { offset: '100%', color: SOFT_END },
+              ]}
+              angle={130}
+              style={styles.hero}
+            >
+              <View style={styles.heroIconRing}>
+                <View style={styles.heroIconInner}>
+                  <QrCode color={ACCENT} size={28} strokeWidth={2.2} />
+                </View>
+              </View>
+              <AppText variant="caption" style={styles.heroEyebrow}>
+                Share offline
+              </AppText>
+              <AppText variant="screenTitle" style={styles.heroTitle}>
+                Emergency QR
+              </AppText>
+              <AppText variant="subtitle" style={styles.heroSubtitle}>
+                First responders can scan for critical details when you cannot speak.
+              </AppText>
+            </LinearGradientFill>
+          </View>
+        </AnimatedSection>
+
+        <AnimatedSection index={1}>
+          <View style={[styles.card, shadow.soft]}>
+            <AppText variant="caption" style={styles.sectionEyebrow}>
+              Preview
+            </AppText>
+            <View style={styles.qrPlaceholder}>
+              <QrCode color={ACCENT} size={64} strokeWidth={1.5} />
+              <AppText variant="caption" style={styles.previewHint}>
+                QR rendering will use an Edge Function or on-device encoder in a follow-up.
+              </AppText>
+            </View>
+          </View>
+        </AnimatedSection>
+
+        <AnimatedSection index={2}>
+          <View style={[styles.card, shadow.soft]}>
+            <AppText variant="caption" style={styles.sectionEyebrow}>
+              Payload
+            </AppText>
+            <AppText variant="navLabel" selectable style={styles.payload}>
+              {payload}
+            </AppText>
+          </View>
+        </AnimatedSection>
+      </Animated.ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  qrPlaceholder: {
-    height: 180,
+  screen: {
+    flex: 1,
+    backgroundColor: palette.surface,
+  },
+  content: {
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.md,
+    gap: spacing.md,
+  },
+  heroShell: {
+    borderRadius: radius.xxl,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderRadius: 12,
+    borderColor: 'rgba(15, 23, 42, 0.06)',
+  },
+  hero: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    gap: spacing.xs,
+  },
+  heroIconRing: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: `${ACCENT}33`,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.55)',
   },
-  preview: {
+  heroIconInner: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: `${ACCENT}18`,
+  },
+  heroEyebrow: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+    fontSize: 11,
+  },
+  heroTitle: {
+    color: TITLE,
+    letterSpacing: -0.4,
+  },
+  heroSubtitle: {
+    color: palette.textSecondary,
+  },
+  card: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.06)',
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  sectionEyebrow: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    letterSpacing: 0.35,
+    textTransform: 'uppercase',
+    fontSize: 11,
+  },
+  qrPlaceholder: {
+    minHeight: 200,
+    borderWidth: 1,
+    borderColor: `${ACCENT}33`,
+    borderRadius: radius.xl,
+    backgroundColor: SOFT_END,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  previewHint: {
     textAlign: 'center',
+    color: palette.textSecondary,
+  },
+  payload: {
+    color: palette.textSecondary,
+    lineHeight: 20,
   },
 });

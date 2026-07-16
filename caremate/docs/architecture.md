@@ -121,7 +121,7 @@ Default query `staleTime` is 30 seconds (`AppProviders.tsx`).
 Defined in `src/components/AppProviders.tsx` → `BootstrapGate`:
 
 1. **`initializeDatabase()`** — create/open `caremate.db`, run `CREATE TABLE IF NOT EXISTS` migrations
-2. **`articleRepository.seedIfEmpty()`** — insert sample articles if table empty
+2. **`articleRepository.pullFromRemote()`** — pull Learn catalog from Supabase (guests included)
 3. **`providerRepository.seedIfEmpty()`** — insert sample providers if table empty
 4. **`useAuthStore.initialize()`** — restore Supabase session or default to guest
 5. **`syncEngine.start()`** — begin background sync loop

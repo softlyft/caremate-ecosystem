@@ -21,7 +21,8 @@ Device-only (never on Supabase): `sync_queue`, `sync_metadata`.
 | `emergency_profiles` | `emergency_profiles` | push + pull |
 | `providers` | `providers` | pull catalog; on favorite push also upserts stub + `provider_favorites` |
 | *(favorite flag on providers row)* | `provider_favorites` | per-user; merged into local `is_favorite` on pull |
-| `articles` | `articles` | pull (push no-op — Currents/evergreen local/seed) |
+| `articles` | `articles` | pull-only from Supabase (portal CMS); guests via anon RLS on published rows |
+| `health_tips` | `health_tips` | pull-only from Supabase (portal CMS); guests via anon RLS |
 | `bookmarks` | `bookmarks` | push + pull |
 | `mini_app_snapshots` | `mini_app_snapshots` | push + pull |
 | `subscription_entitlements` | `subscriptions` (+ `subscription_prices` read) | **pull only** (webhooks own writes) |
@@ -60,6 +61,6 @@ UI → repository → SQLite → sync_queue → handler.push → Supabase
                                          handler.pull → SQLite
 ```
 
-Handlers still registered for: `profiles`, `settings`, `emergency_profiles`, `providers`, `articles`, `bookmarks`, `mini_app_snapshots`, family entities, `subscriptions` (pull-only).
+Handlers still registered for: `profiles`, `settings`, `emergency_profiles`, `providers`, `articles`, `health_tips`, `bookmarks`, `mini_app_snapshots`, family entities, `subscriptions` (pull-only).
 
 Missing remote tables previously caused push/pull to fail quietly (handler catch / empty pull → seed). After `db push`, signed-in sync should succeed for those entities.

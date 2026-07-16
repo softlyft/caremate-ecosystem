@@ -161,7 +161,7 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 
 | Method | Description |
 |--------|-------------|
-| `seedIfEmpty()` | Insert evergreen seeds from `learn.json`; soft-delete legacy `article-1..3` |
+| `purgeLegacySeeds()` / `pullFromRemote()` | Soft-delete legacy local ids; pull published (+ tombstones) from Supabase |
 | `findAll(search?, userKey?)` | Local articles, ordered for Learn feed |
 | `findByCategory(categoryId, userKey?)` | Filter by category id |
 | `findById(id)` | Single article |

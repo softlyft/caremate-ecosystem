@@ -1,17 +1,44 @@
 #!/usr/bin/env node
 /**
- * Seed articles, providers, and health_tips from CareMate mobile JSON bundles.
+ * Seed articles, providers, and health_tips.
+ * Articles come from caremate-portal/data/learn.json; providers/tips from caremate bundles.
  *
- * Usage (from caremate-portal):
- *   NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/seed-catalogs.mjs
+ * Usage:
+ *   npm run seed:catalogs -w caremate-portal
+ * For articles only: npm run seed:articles -w caremate-portal
  */
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const caremateRoot = path.resolve(__dirname, '../../caremate');
+const portalRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const caremateRoot = path.resolve(portalRoot, '../caremate');
+const learnPath = path.join(portalRoot, 'data', 'learn.json');
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  for (const line of fs.readFileSync(filePath, 'utf8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (!(key in process.env)) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFile(path.join(portalRoot, '.env'));
+loadEnvFile(path.join(portalRoot, '.env.local'));
 
 const CATEGORY_NAMES = {
   heart: 'Heart Health',
@@ -28,7 +55,9 @@ const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !key) {
-  console.error('Missing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  console.error(
+    'Missing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in caremate-portal/.env',
+  );
   process.exit(1);
 }
 
@@ -36,16 +65,17 @@ const admin = createClient(url, key, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-function readJson(rel) {
-  return JSON.parse(fs.readFileSync(path.join(caremateRoot, rel), 'utf8'));
+function readJson(absPath) {
+  return JSON.parse(fs.readFileSync(absPath, 'utf8'));
 }
 
 async function seedArticles() {
-  const learn = readJson('src/domains/articles/data/learn.json');
+  const learn = readJson(learnPath);
   const rows = [];
   const now = new Date().toISOString();
 
   for (const [categoryId, items] of Object.entries(learn)) {
+    if (!Array.isArray(items)) continue;
     for (const item of items) {
       rows.push({
         id: item.id,
@@ -58,6 +88,7 @@ async function seedArticles() {
         image_url: null,
         source_url: null,
         published_at: now,
+        deleted_at: null,
         attributes: { readingMinutes: item.readingMinutes ?? undefined, author: 'CareMate' },
         created_at: now,
         updated_at: now,
@@ -71,7 +102,7 @@ async function seedArticles() {
 }
 
 async function seedProviders() {
-  const bundle = readJson('src/domains/providers/data/providers.json');
+  const bundle = readJson(path.join(caremateRoot, 'src/domains/providers/data/providers.json'));
   const entries = Array.isArray(bundle?.entry) ? bundle.entry : [];
   const now = new Date().toISOString();
   const rows = [];
@@ -123,11 +154,12 @@ async function seedProviders() {
 }
 
 async function seedTips() {
-  const tips = readJson('src/features/home/data/health-tips.json');
+  const tips = readJson(path.join(portalRoot, 'data', 'health-tips.json'));
   const now = new Date().toISOString();
   const rows = [];
 
   for (const [categoryId, bodies] of Object.entries(tips)) {
+    if (!Array.isArray(bodies)) continue;
     bodies.forEach((body, index) => {
       rows.push({
         id: `tip-${categoryId}-${index + 1}`,
@@ -135,6 +167,7 @@ async function seedTips() {
         body,
         sort_order: index,
         is_active: true,
+        deleted_at: null,
         created_at: now,
         updated_at: now,
       });

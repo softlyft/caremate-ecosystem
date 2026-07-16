@@ -4,7 +4,15 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'reac
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Input } from '@/components/ui/form-controls';
+import {
+  MiniAppCard,
+  MiniAppChip,
+  MiniAppCta,
+  MiniAppScreen,
+  MonthCalendarGrid,
+  getMiniAppTheme,
+} from '@/mini-apps/_kit';
 import { getFrequencyOption } from '@/mini-apps/medication-tracker/constants';
 import {
   useMedicationTrackerHydrated,
@@ -15,8 +23,9 @@ import {
   nextSlotIndexForAsNeeded,
   toDateKey,
 } from '@/mini-apps/medication-tracker/utils';
-import { MonthCalendarGrid } from '@/mini-apps/_kit/components/MonthCalendarGrid';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
+
+const theme = getMiniAppTheme('medication-tracker');
 
 export default function MedicationLogScreen() {
   const { medicationId: paramMedicationId } = useLocalSearchParams<{ medicationId?: string }>();
@@ -72,7 +81,7 @@ export default function MedicationLogScreen() {
   if (!hydrated) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={palette.primary} />
+        <ActivityIndicator color={theme.color} />
       </View>
     );
   }
@@ -81,8 +90,10 @@ export default function MedicationLogScreen() {
     return (
       <View style={styles.loading}>
         <AppText variant="body">Add a medicine before logging doses.</AppText>
-        <Button
+        <MiniAppCta
           label="Add medicine"
+          accent={theme.color}
+          soft={theme.backgroundColor}
           onPress={() => router.replace('/(app)/apps/medication-tracker/setup')}
         />
       </View>
@@ -92,84 +103,71 @@ export default function MedicationLogScreen() {
   const isAsNeeded = selectedFrequency.dosesPerDay === 0;
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="subtitle">
+    <MiniAppScreen>
+      <AppText variant="subtitle" style={styles.intro}>
         Log a dose you have taken. You can also undo from the home screen.
       </AppText>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Medicine</AppText>
+      <MiniAppCard index={1} title="Medicine" theme={theme}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipRow}
         >
-          {medications.map((item) => {
-            const selected = item.id === selectedMedication.id;
-            return (
-              <Pressable
-                key={item.id}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => {
-                  setSelectedMedicationId(item.id);
-                  setSlotIndex(0);
-                  setNotes('');
-                }}
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {item.name}
-                  {item.forKid && item.patientName
-                    ? ` · ${item.patientName}`
-                    : item.forKid
-                      ? ' · Child'
-                      : ''}
-                </AppText>
-              </Pressable>
-            );
-          })}
+          {medications.map((item) => (
+            <MiniAppChip
+              key={item.id}
+              label={`${item.name}${
+                item.forKid && item.patientName
+                  ? ` · ${item.patientName}`
+                  : item.forKid
+                    ? ' · Child'
+                    : ''
+              }`}
+              selected={item.id === selectedMedication.id}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => {
+                setSelectedMedicationId(item.id);
+                setSlotIndex(0);
+                setNotes('');
+              }}
+            />
+          ))}
         </ScrollView>
         <AppText variant="caption" style={styles.muted}>
           {selectedMedication.dosage ? `${selectedMedication.dosage} · ` : ''}
           {selectedFrequency.label}
         </AppText>
-      </View>
+      </MiniAppCard>
 
       {!isAsNeeded ? (
-        <View style={styles.card}>
-          <AppText variant="cardTitle">Dose</AppText>
+        <MiniAppCard index={2} title="Dose" theme={theme}>
           <View style={styles.chipRow}>
-            {selectedFrequency.slotLabels.map((label, index) => {
-              const selected = index === slotIndex;
-              return (
-                <Pressable
-                  key={label}
-                  style={[styles.chip, selected && styles.chipSelected]}
-                  onPress={() => {
-                    setSlotIndex(index);
-                    const log = logs.find(
-                      (item) =>
-                        item.medicationId === selectedMedication.id &&
-                        item.dateKey === dateKey &&
-                        item.slotIndex === index,
-                    );
-                    setNotes(log?.notes ?? '');
-                  }}
-                >
-                  <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                    {label}
-                  </AppText>
-                </Pressable>
-              );
-            })}
+            {selectedFrequency.slotLabels.map((label, index) => (
+              <MiniAppChip
+                key={label}
+                label={label}
+                selected={index === slotIndex}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => {
+                  setSlotIndex(index);
+                  const log = logs.find(
+                    (item) =>
+                      item.medicationId === selectedMedication.id &&
+                      item.dateKey === dateKey &&
+                      item.slotIndex === index,
+                  );
+                  setNotes(log?.notes ?? '');
+                }}
+              />
+            ))}
           </View>
-        </View>
+        </MiniAppCard>
       ) : null}
 
-      <View style={styles.card}>
+      <MiniAppCard index={3} theme={theme}>
         <View style={styles.monthHeader}>
           <Pressable
             hitSlop={12}
@@ -192,6 +190,7 @@ export default function MedicationLogScreen() {
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
+          accentColor={theme.color}
           onDayPress={(dayKey) => {
             setDateKey(dayKey);
             if (!isAsNeeded) {
@@ -215,20 +214,22 @@ export default function MedicationLogScreen() {
           })}
         />
         <AppText variant="body">Date: {formatDisplayDate(dateKey)}</AppText>
-      </View>
+      </MiniAppCard>
 
-      <View style={styles.card}>
-        <AppText variant="cardTitle">Notes (optional)</AppText>
+      <MiniAppCard index={4} title="Notes (optional)" theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
           placeholder="With food, side effects…"
           multiline
         />
-      </View>
+      </MiniAppCard>
 
-      <Button
+      <MiniAppCta
         label={existingLog && !isAsNeeded ? 'Update dose log' : 'Mark as taken'}
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={5}
         onPress={() => {
           const nextSlot = isAsNeeded
             ? nextSlotIndexForAsNeeded(selectedMedication.id, dateKey, logs)
@@ -244,69 +245,43 @@ export default function MedicationLogScreen() {
       />
 
       {existingLog && !isAsNeeded ? (
-        <Button
+        <MiniAppCta
           label="Remove this dose log"
-          variant="secondary"
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+          index={6}
           onPress={() => {
             removeDoseLog(existingLog.id);
             router.back();
           }}
         />
       ) : null}
-    </ScrollView>
+    </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
-  content: {
-    padding: layoutSpacing.screenHorizontal,
-    gap: spacing.md,
-    paddingBottom: spacing.xl,
-  },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
     padding: layoutSpacing.screenHorizontal,
-    backgroundColor: palette.background,
-  },
-  card: {
     backgroundColor: palette.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
   },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  intro: {
+    color: palette.textSecondary,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: '#FFEDD5',
-    borderColor: '#EA580C',
-  },
-  chipTextSelected: {
-    color: '#C2410C',
+  monthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   muted: {
     color: palette.textSecondary,

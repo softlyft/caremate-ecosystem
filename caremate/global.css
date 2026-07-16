@@ -3,7 +3,7 @@
 
 @layer theme {
   :where(.light, .light *) {
-    --primary: 22 163 74;
+    --primary: 13 148 136;
     --primary-foreground: 255 255 255;
     --card: 255 255 255;
     --secondary: 248 250 252;
@@ -17,14 +17,14 @@
     --foreground: 17 24 39;
     --border: 229 231 235;
     --input: 229 231 235;
-    --ring: 22 163 74;
-    --accent: 220 252 231;
-    --accent-foreground: 21 128 61;
+    --ring: 13 148 136;
+    --accent: 204 251 241;
+    --accent-foreground: 15 118 110;
   }
 
   @media (prefers-color-scheme: light) {
     :root:not(:where(.light, .light *, .dark, .dark *)) {
-      --primary: 22 163 74;
+      --primary: 13 148 136;
       --primary-foreground: 255 255 255;
       --card: 255 255 255;
       --secondary: 248 250 252;
@@ -38,14 +38,14 @@
       --foreground: 17 24 39;
       --border: 229 231 235;
       --input: 229 231 235;
-      --ring: 22 163 74;
-      --accent: 220 252 231;
-      --accent-foreground: 21 128 61;
+      --ring: 13 148 136;
+      --accent: 204 251 241;
+      --accent-foreground: 15 118 110;
     }
   }
 
   :where(.dark, .dark *) {
-    --primary: 74 222 128;
+    --primary: 45 212 191;
     --primary-foreground: 11 18 32;
     --card: 17 24 39;
     --secondary: 31 41 55;
@@ -59,14 +59,14 @@
     --foreground: 248 250 252;
     --border: 31 41 55;
     --input: 31 41 55;
-    --ring: 74 222 128;
-    --accent: 20 83 45;
-    --accent-foreground: 187 247 208;
+    --ring: 45 212 191;
+    --accent: 19 78 74;
+    --accent-foreground: 153 246 228;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not(:where(.light, .light *, .dark, .dark *)) {
-      --primary: 74 222 128;
+      --primary: 45 212 191;
       --primary-foreground: 11 18 32;
       --card: 17 24 39;
       --secondary: 31 41 55;
@@ -80,9 +80,9 @@
       --foreground: 248 250 252;
       --border: 31 41 55;
       --input: 31 41 55;
-      --ring: 74 222 128;
-      --accent: 20 83 45;
-      --accent-foreground: 187 247 208;
+      --ring: 45 212 191;
+      --accent: 19 78 74;
+      --accent-foreground: 153 246 228;
     }
   }
 }

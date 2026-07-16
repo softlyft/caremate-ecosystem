@@ -19,6 +19,7 @@ export type Database = {
           avatar_url: string | null;
           country_code: string | null;
           state: string | null;
+          patient_id: string | null;
         } & Timestamps;
         Insert: {
           id: string;
@@ -30,6 +31,7 @@ export type Database = {
           avatar_url?: string | null;
           country_code?: string | null;
           state?: string | null;
+          patient_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -104,6 +106,14 @@ export type Database = {
           longitude: number | null;
           distance_km: number | null;
           attributes: Json;
+          external_id: string | null;
+          source: string | null;
+          active: boolean;
+          last_ingested_at: string | null;
+          deleted_at: string | null;
+          organization_id: string | null;
+          location_id: string | null;
+          healthcare_service_ids: Json;
         } & Timestamps;
         Insert: {
           id: string;
@@ -116,10 +126,111 @@ export type Database = {
           longitude?: number | null;
           distance_km?: number | null;
           attributes?: Json;
+          external_id?: string | null;
+          source?: string | null;
+          active?: boolean;
+          last_ingested_at?: string | null;
+          deleted_at?: string | null;
+          organization_id?: string | null;
+          location_id?: string | null;
+          healthcare_service_ids?: Json;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['providers']['Insert']>;
+        Relationships: [];
+      };
+      provider_organizations: {
+        Row: {
+          id: string;
+          name: string;
+          active: boolean;
+          resource: Json;
+          source: string | null;
+          last_ingested_at: string | null;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          /** Omit on insert — Postgres gen_random_uuid(). Supply UUID to update via ingest. */
+          id?: string;
+          name: string;
+          active?: boolean;
+          resource?: Json;
+          source?: string | null;
+          last_ingested_at?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['provider_organizations']['Insert']>;
+        Relationships: [];
+      };
+      provider_locations: {
+        Row: {
+          id: string;
+          organization_id: string;
+          name: string;
+          status: string;
+          latitude: number | null;
+          longitude: number | null;
+          address: string | null;
+          phone: string | null;
+          email: string | null;
+          distance_km: number | null;
+          resource: Json;
+          source: string | null;
+          last_ingested_at: string | null;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          organization_id: string;
+          name: string;
+          status?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          address?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          distance_km?: number | null;
+          resource?: Json;
+          source?: string | null;
+          last_ingested_at?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['provider_locations']['Insert']>;
+        Relationships: [];
+      };
+      provider_healthcare_services: {
+        Row: {
+          id: string;
+          organization_id: string;
+          location_id: string | null;
+          name: string;
+          active: boolean;
+          service_type: string | null;
+          resource: Json;
+          source: string | null;
+          last_ingested_at: string | null;
+          deleted_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          organization_id: string;
+          location_id?: string | null;
+          name: string;
+          active?: boolean;
+          service_type?: string | null;
+          resource?: Json;
+          source?: string | null;
+          last_ingested_at?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['provider_healthcare_services']['Insert']>;
         Relationships: [];
       };
       provider_favorites: {
@@ -151,6 +262,7 @@ export type Database = {
           source_url: string | null;
           published_at: string | null;
           attributes: Json;
+          deleted_at: string | null;
         } & Timestamps;
         Insert: {
           id: string;
@@ -164,6 +276,7 @@ export type Database = {
           source_url?: string | null;
           published_at?: string | null;
           attributes?: Json;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -279,6 +392,7 @@ export type Database = {
           body: string;
           sort_order: number;
           is_active: boolean;
+          deleted_at: string | null;
         } & Timestamps;
         Insert: {
           id: string;
@@ -286,6 +400,7 @@ export type Database = {
           body: string;
           sort_order?: number;
           is_active?: boolean;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -383,6 +498,38 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      nearby_providers: {
+        Args: {
+          p_lat: number;
+          p_lng: number;
+          p_radius_km?: number;
+          p_type?: string | null;
+          p_search?: string | null;
+          p_limit?: number;
+        };
+        Returns: {
+          id: string;
+          name: string;
+          type: string;
+          address: string | null;
+          phone: string | null;
+          email: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          distance_km: number;
+          attributes: Json;
+          organization_id: string | null;
+          location_id: string | null;
+          healthcare_service_ids: Json;
+          external_id: string | null;
+          source: string | null;
+          active: boolean;
+          last_ingested_at: string | null;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
       ensure_provider_catalog_stub: {
         Args: {
           p_id: string;
@@ -458,6 +605,10 @@ export type Database = {
 
 export type Article = Database['public']['Tables']['articles']['Row'];
 export type Provider = Database['public']['Tables']['providers']['Row'];
+export type ProviderOrganization = Database['public']['Tables']['provider_organizations']['Row'];
+export type ProviderLocation = Database['public']['Tables']['provider_locations']['Row'];
+export type ProviderHealthcareService =
+  Database['public']['Tables']['provider_healthcare_services']['Row'];
 export type HealthTip = Database['public']['Tables']['health_tips']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];

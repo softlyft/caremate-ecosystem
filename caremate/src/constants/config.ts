@@ -3,6 +3,7 @@ export const APP_NAME = 'CareMate';
 export const STORAGE_KEYS = {
   onboardingComplete: 'caremate_onboarding_complete',
   biometricEnabled: 'caremate_biometric_enabled',
+  deviceDefaults: 'caremate_device_defaults',
 } as const;
 
 export const SYNC_CONFIG = {

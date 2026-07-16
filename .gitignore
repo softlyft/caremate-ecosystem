@@ -37,3 +37,6 @@ GoogleService-Info.plist
 .vscode/*
 !.vscode/extensions.json
 artifacts/
+
+# Python ingest service
+provider-ingestion/.venv/
