@@ -1,11 +1,11 @@
 declare const migrations: {
   journal: {
-    entries: Array<{
+    entries: {
       idx: number;
       when: number;
       tag: string;
       breakpoints: boolean;
-    }>;
+    }[];
   };
   migrations: Record<string, string>;
 };

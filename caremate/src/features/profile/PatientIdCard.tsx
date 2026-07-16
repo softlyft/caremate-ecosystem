@@ -24,10 +24,7 @@ type PatientIdCardProps = {
 };
 
 /** Stable scan payload for CareMate Patient ID cards. */
-export function buildPatientIdQrPayload(params: {
-  patientId: string;
-  fullName: string;
-}): string {
+export function buildPatientIdQrPayload(params: { patientId: string; fullName: string }): string {
   return JSON.stringify({
     v: 1,
     type: 'caremate-patient',
@@ -57,7 +54,8 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
   const profile = profileQuery.data;
   const patientId = profile?.patientId ?? null;
   const hasId = isValidPatientId(patientId);
-  const name = profile?.fullName?.trim() || displayName?.trim() || t('profile.patientId.fallbackName');
+  const name =
+    profile?.fullName?.trim() || displayName?.trim() || t('profile.patientId.fallbackName');
 
   const frontStyle = useAnimatedStyle(() => {
     const rotateY = interpolate(flip.value, [0, 1], [0, 180]);
@@ -78,6 +76,8 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
   });
 
   function toggleFlip() {
+    // Reanimated shared values are mutable by design.
+    // eslint-disable-next-line react-hooks/immutability
     flip.value = withTiming(flip.value > 0.5 ? 0 : 1, { duration: 420 });
   }
 
@@ -151,7 +151,10 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                 </View>
               </Animated.View>
 
-              <Animated.View style={[styles.face, styles.faceBack, backStyle]} pointerEvents="box-none">
+              <Animated.View
+                style={[styles.face, styles.faceBack, backStyle]}
+                pointerEvents="box-none"
+              >
                 <View style={styles.atmClip}>
                   <LinearGradientFill
                     colors={[

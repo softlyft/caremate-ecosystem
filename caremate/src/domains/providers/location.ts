@@ -45,10 +45,7 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
     };
   } catch {
     const defaults = await getDeviceDefaults().catch(() => null);
-    const fallback = localizationService.getFallbackCoords(
-      defaults?.countryCode,
-      defaults?.state,
-    );
+    const fallback = localizationService.getFallbackCoords(defaults?.countryCode, defaults?.state);
     return { ...fallback, isApproximate: true };
   }
 }

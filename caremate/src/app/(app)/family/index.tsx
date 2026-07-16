@@ -516,13 +516,19 @@ export default function FamilyHubScreen() {
                   </AppText>
                 </View>
                 <View style={styles.inviteActions}>
-                  <PressableScale style={styles.secondaryCta} onPress={() => void handleCopyInvite()}>
+                  <PressableScale
+                    style={styles.secondaryCta}
+                    onPress={() => void handleCopyInvite()}
+                  >
                     <Copy color={ACCENT} size={16} strokeWidth={2.25} />
                     <AppText variant="button" style={styles.secondaryCtaLabel}>
                       {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
                     </AppText>
                   </PressableScale>
-                  <PressableScale style={styles.secondaryCta} onPress={() => void handleShareInvite()}>
+                  <PressableScale
+                    style={styles.secondaryCta}
+                    onPress={() => void handleShareInvite()}
+                  >
                     <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
                     <AppText variant="button" style={styles.secondaryCtaLabel}>
                       {t('family.shareInvite')}

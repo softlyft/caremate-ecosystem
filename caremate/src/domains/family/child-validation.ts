@@ -47,7 +47,9 @@ export type ChildValidationFailure = 'name' | 'dobFormat' | 'dobInvalid';
 export function validateChildNameAndDob(
   fullName: string,
   dateOfBirth: string,
-): { ok: true; fullName: string; dateOfBirth: string } | { ok: false; reason: ChildValidationFailure } {
+):
+  | { ok: true; fullName: string; dateOfBirth: string }
+  | { ok: false; reason: ChildValidationFailure } {
   const name = fullName.trim();
   const dob = dateOfBirth.trim();
 

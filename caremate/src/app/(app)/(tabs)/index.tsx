@@ -111,8 +111,7 @@ export default function HomeScreen() {
 
   const articles = articlesQuery.data ?? [];
   const providers = providersQuery.data?.slice(0, 4) ?? [];
-  const feedFailed =
-    localizationReady && articlesQuery.isError && articlesQuery.data === undefined;
+  const feedFailed = localizationReady && articlesQuery.isError && articlesQuery.data === undefined;
 
   if (feedFailed) {
     return (

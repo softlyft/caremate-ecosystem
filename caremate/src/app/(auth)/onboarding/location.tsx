@@ -36,8 +36,7 @@ export default function OnboardingLocationScreen() {
   const [busy, setBusy] = useState(false);
   const ping = useSharedValue(0.4);
 
-  const placeLabel =
-    regionState.trim() || localizationService.getCountryConfig(countryCode).name;
+  const placeLabel = regionState.trim() || localizationService.getCountryConfig(countryCode).name;
 
   useEffect(() => {
     ping.value = withRepeat(

@@ -40,18 +40,10 @@ function ArticleThumbnail({
 }) {
   const fallbackColor = ARTICLE_THUMBNAILS[article.id] ?? getCategoryAccent(article.categoryId);
   const evergreen = isEvergreenArticle(article);
-  const sizeStyle = fill
-    ? styles.thumbFill
-    : { height: height ?? 108, width: width ?? '100%' };
+  const sizeStyle = fill ? styles.thumbFill : { height: height ?? 108, width: width ?? '100%' };
 
   if (article.imageUrl) {
-    return (
-      <Image
-        source={{ uri: article.imageUrl }}
-        style={sizeStyle}
-        contentFit="cover"
-      />
-    );
+    return <Image source={{ uri: article.imageUrl }} style={sizeStyle} contentFit="cover" />;
   }
 
   return (

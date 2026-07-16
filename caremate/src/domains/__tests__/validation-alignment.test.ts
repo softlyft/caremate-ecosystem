@@ -13,9 +13,9 @@ describe('ICE contact validation', () => {
 
   it('requires at least one complete contact on the profile', () => {
     expect(hasRequiredIceContact([])).toBe(false);
-    expect(
-      hasRequiredIceContact([{ name: 'Ada', phone: '+1', relationship: 'Spouse' }]),
-    ).toBe(true);
+    expect(hasRequiredIceContact([{ name: 'Ada', phone: '+1', relationship: 'Spouse' }])).toBe(
+      true,
+    );
   });
 });
 
@@ -45,9 +45,11 @@ describe('child profile validation', () => {
     });
 
     const schema = createChildProfileSchema(messages);
-    expect(schema.safeParse({ fullName: 'Ada', dateOfBirth: '2018-05-01', gender: 'female' }).success)
-      .toBe(true);
-    expect(schema.safeParse({ fullName: 'Ada', dateOfBirth: '2999-01-01', gender: 'female' }).success)
-      .toBe(false);
+    expect(
+      schema.safeParse({ fullName: 'Ada', dateOfBirth: '2018-05-01', gender: 'female' }).success,
+    ).toBe(true);
+    expect(
+      schema.safeParse({ fullName: 'Ada', dateOfBirth: '2999-01-01', gender: 'female' }).success,
+    ).toBe(false);
   });
 });
