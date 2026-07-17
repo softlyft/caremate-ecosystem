@@ -121,5 +121,10 @@
   },
   "invite": "Invite spouse",
   "addChild": "Add child",
-  "searchPlaceholder": "Search by Patient ID or email"
+  "searchPlaceholder": "Search by Patient ID or email",
+  "childLimitTitle": "Child limit reached",
+  "childLimitMessage": "Upgrade to Family Premium to add more children to your household.",
+  "spousePremiumTitle": "Family Premium required",
+  "spousePremiumMessage": "Connecting a spouse is included with Family Premium.",
+  "kidsCountLimitHint": "Free and Standard Premium include one child. Family Premium unlocks more."
 }

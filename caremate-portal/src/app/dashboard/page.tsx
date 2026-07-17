@@ -29,15 +29,34 @@ export default async function DashboardPage() {
   }
 
   const cards = [
-    { label: 'Users', value: metrics.userCount, icon: Users, href: '/dashboard/users' },
-    { label: 'Learn items', value: metrics.articleCount, icon: BookOpen, href: '/dashboard/learn' },
+    {
+      label: 'Users',
+      value: metrics.userCount,
+      icon: Users,
+      href: '/dashboard/users',
+      tint: 'bg-accent-light text-accent',
+    },
+    {
+      label: 'Learn items',
+      value: metrics.articleCount,
+      icon: BookOpen,
+      href: '/dashboard/learn',
+      tint: 'bg-primary-light text-primary-dark',
+    },
     {
       label: 'Providers',
       value: metrics.providerCount,
       icon: MapPin,
       href: '/dashboard/providers',
+      tint: 'bg-warning-light text-warning',
     },
-    { label: 'Health tips', value: metrics.tipCount, icon: Lightbulb, href: '/dashboard/tips' },
+    {
+      label: 'Health tips',
+      value: metrics.tipCount,
+      icon: Lightbulb,
+      href: '/dashboard/tips',
+      tint: 'bg-primary-light text-primary-dark',
+    },
   ];
 
   return (
@@ -48,15 +67,17 @@ export default async function DashboardPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(({ label, value, icon: Icon, href }) => (
-          <Link key={label} href={href}>
-            <Card className="transition-shadow hover:shadow-md">
+        {cards.map(({ label, value, icon: Icon, href, tint }) => (
+          <Link key={label} href={href} className="group">
+            <Card className="transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted">{label}</CardTitle>
-                <Icon className="h-4 w-4 text-primary" />
+                <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tint}`}>
+                  <Icon className="h-4 w-4" />
+                </span>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-semibold">{value}</p>
+                <p className="text-3xl font-semibold tracking-tight text-brand-navy">{value}</p>
               </CardContent>
             </Card>
           </Link>

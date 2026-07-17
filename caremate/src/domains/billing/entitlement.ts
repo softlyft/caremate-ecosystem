@@ -1,6 +1,5 @@
 /**
- * Soft Premium entitlement helpers.
- * Feature locks will wire into these later; for now they power badges and paywall state.
+ * Premium entitlement helpers and billing repository exports.
  */
 export {
   billingRepository,
@@ -9,6 +8,26 @@ export {
   getPremiumState,
   premiumLabel,
 } from '@/domains/billing/repository';
+
+export {
+  FREE_CHECKUP_VISIBLE_COUNT,
+  FREE_FAMILY_CHILD_LIMIT,
+  FREE_IMMUNIZATION_MAX_WEEKS,
+  FREE_MEDICATION_LIMIT,
+  canAddChild,
+  canAddMedication,
+  canConnectSpouse,
+  canUseMiniApps,
+  countActiveMedications,
+  hasFamilyPlan,
+  isCheckupItemUnlocked,
+  isCheckupYearUnlocked,
+  isImmunizationScheduleItemUnlocked,
+  isMiniAppSlotAdFreeForPremium,
+  isPremiumTier,
+  maxChildrenForTier,
+  shouldSuppressAdForUser,
+} from '@/domains/billing/entitlements';
 
 export type {
   BillingCurrency,

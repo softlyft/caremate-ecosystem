@@ -14,8 +14,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CareMate Admin',
+  title: {
+    default: 'CareMate Admin',
+    template: '%s · CareMate Admin',
+  },
   description: 'CareMate administration portal',
+  icons: {
+    icon: '/brand/caremate-icon.png',
+    apple: '/brand/caremate-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

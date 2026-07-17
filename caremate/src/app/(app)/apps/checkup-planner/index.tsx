@@ -3,7 +3,12 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import {
+  isCheckupItemUnlocked,
+  isCheckupYearUnlocked,
+} from '@/domains/billing/entitlements';
 import { localizationService, useTranslation } from '@/domains/localization';
+import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -32,6 +37,7 @@ import {
   localizeCheckupStatus,
   localizeGender,
 } from '@/mini-apps/checkup-planner/localize';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
@@ -58,6 +64,7 @@ export default function CheckupPlannerScreen() {
 
   const profile = useCheckupPlannerStore((state) => state.profile);
   const completions = useCheckupPlannerStore((state) => state.completions);
+  const tier = usePremiumTier();
 
   const schedule = useMemo(
     () => (profile ? buildYearSchedule(profile, completions, selectedYear) : []),
@@ -71,6 +78,7 @@ export default function CheckupPlannerScreen() {
       : (localizationService.getCountryName(region) ?? region);
   const age = profile ? getAgeInYear(profile.dateOfBirth, selectedYear) : null;
   const isNextYear = selectedYear === currentYear + 1;
+  const yearUnlocked = isCheckupYearUnlocked(tier, selectedYear, currentYear);
 
   const heroTitle = profile
     ? summary.actionable > 0
@@ -146,32 +154,67 @@ export default function CheckupPlannerScreen() {
             <AppText variant="caption" style={styles.muted}>
               {t('apps.checkup.ui.emptyYear')}
             </AppText>
+          ) : !yearUnlocked ? (
+            <PremiumLockedOverlay
+              locked
+              title={t('profile.premium.checkupYearLockedTitle')}
+              message={t('profile.premium.checkupYearLockedMessage')}
+            >
+              {schedule.map((item) => (
+                <MiniAppRow
+                  key={item.checkup.id}
+                  title={localizeCheckup(item.checkup, t).name}
+                  subtitle={localizeCadence(item.checkup.cadence, t)}
+                  soft={STATUS_BACKGROUNDS[item.status]}
+                />
+              ))}
+            </PremiumLockedOverlay>
           ) : (
-            schedule.map((item) => (
-              <MiniAppRow
-                key={item.checkup.id}
-                title={localizeCheckup(item.checkup, t).name}
-                subtitle={`${localizeCadence(item.checkup.cadence, t)}${
-                  item.completion
-                    ? ` · ${t('apps.checkup.ui.doneDate', { date: item.completion.completedDate })}`
-                    : ` · ${t('apps.checkup.ui.tapToLog')}`
-                }`}
-                soft={STATUS_BACKGROUNDS[item.status]}
-                onPress={() =>
-                  router.push({
-                    pathname: '/(app)/apps/checkup-planner/log',
-                    params: { checkupId: item.checkup.id, year: String(selectedYear) },
-                  })
-                }
-                trailing={
-                  <StatusPill
-                    label={localizeCheckupStatus(item.status, t)}
-                    color={STATUS_COLORS[item.status]}
-                    background={STATUS_BACKGROUNDS[item.status]}
-                  />
-                }
-              />
-            ))
+            schedule.map((item, index) => {
+              const itemUnlocked = isCheckupItemUnlocked(tier, {
+                year: selectedYear,
+                indexInYear: index,
+                currentYear,
+              });
+              const row = (
+                <MiniAppRow
+                  title={localizeCheckup(item.checkup, t).name}
+                  subtitle={`${localizeCadence(item.checkup.cadence, t)}${
+                    item.completion
+                      ? ` · ${t('apps.checkup.ui.doneDate', { date: item.completion.completedDate })}`
+                      : ` · ${t('apps.checkup.ui.tapToLog')}`
+                  }`}
+                  soft={STATUS_BACKGROUNDS[item.status]}
+                  onPress={
+                    itemUnlocked
+                      ? () =>
+                          router.push({
+                            pathname: '/(app)/apps/checkup-planner/log',
+                            params: { checkupId: item.checkup.id, year: String(selectedYear) },
+                          })
+                      : undefined
+                  }
+                  trailing={
+                    <StatusPill
+                      label={localizeCheckupStatus(item.status, t)}
+                      color={STATUS_COLORS[item.status]}
+                      background={STATUS_BACKGROUNDS[item.status]}
+                    />
+                  }
+                />
+              );
+
+              return (
+                <PremiumLockedOverlay
+                  key={item.checkup.id}
+                  locked={!itemUnlocked}
+                  title={t('profile.premium.checkupLockedTitle')}
+                  message={t('profile.premium.checkupLockedMessage')}
+                >
+                  {row}
+                </PremiumLockedOverlay>
+              );
+            })
           )}
         </MiniAppCard>
       ) : null}

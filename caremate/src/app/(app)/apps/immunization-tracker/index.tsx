@@ -4,7 +4,9 @@ import { ScrollView, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
+import { isImmunizationScheduleItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
 import { useFamilyImmunizationChildren } from '@/mini-apps/immunization-tracker/use-family-children';
 import {
   useActiveImmunizationProfile,
@@ -31,6 +33,7 @@ import {
   StatusPill,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { spacing } from '@/theme';
 
 const APP_ID = 'immunization-tracker' as const;
@@ -53,6 +56,7 @@ export default function ImmunizationTrackerScreen() {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
+  const tier = usePremiumTier();
   const familySource = useFamilyImmunizationChildren();
 
   const profiles = useImmunizationTrackerStore((state) => state.profiles);
@@ -263,35 +267,54 @@ export default function ImmunizationTrackerScreen() {
           eyebrow={t('apps.immunization.ui.timeline')}
           theme={theme}
         >
-          {schedule.map((item) => (
-            <MiniAppRow
-              key={item.vaccine.id}
-              title={`${localizeVaccine(item.vaccine, t).name} · ${localizeVaccine(item.vaccine, t).doseLabel}`}
-              subtitle={
-                item.status === 'completed' && item.record
-                  ? t('apps.immunization.ui.givenOn', {
-                      date: formatDisplayDate(item.record.administeredDate),
-                    })
-                  : t('apps.immunization.ui.dueOn', {
-                      date: formatDisplayDate(item.recommendedDate),
-                    })
-              }
-              soft={STATUS_BACKGROUNDS[item.status]}
-              onPress={() =>
-                router.push({
-                  pathname: '/(app)/apps/immunization-tracker/log',
-                  params: { vaccineId: item.vaccine.id, profileId: profile!.id },
-                })
-              }
-              trailing={
-                <StatusPill
-                  label={localizeVaccineStatus(item.status, t)}
-                  color={STATUS_COLORS[item.status]}
-                  background={STATUS_BACKGROUNDS[item.status]}
-                />
-              }
-            />
-          ))}
+          {schedule.map((item) => {
+            const unlocked = isImmunizationScheduleItemUnlocked(
+              tier,
+              item.vaccine.recommendedAgeWeeks,
+            );
+            const row = (
+              <MiniAppRow
+                title={`${localizeVaccine(item.vaccine, t).name} · ${localizeVaccine(item.vaccine, t).doseLabel}`}
+                subtitle={
+                  item.status === 'completed' && item.record
+                    ? t('apps.immunization.ui.givenOn', {
+                        date: formatDisplayDate(item.record.administeredDate),
+                      })
+                    : t('apps.immunization.ui.dueOn', {
+                        date: formatDisplayDate(item.recommendedDate),
+                      })
+                }
+                soft={STATUS_BACKGROUNDS[item.status]}
+                onPress={
+                  unlocked
+                    ? () =>
+                        router.push({
+                          pathname: '/(app)/apps/immunization-tracker/log',
+                          params: { vaccineId: item.vaccine.id, profileId: profile!.id },
+                        })
+                    : undefined
+                }
+                trailing={
+                  <StatusPill
+                    label={localizeVaccineStatus(item.status, t)}
+                    color={STATUS_COLORS[item.status]}
+                    background={STATUS_BACKGROUNDS[item.status]}
+                  />
+                }
+              />
+            );
+
+            return (
+              <PremiumLockedOverlay
+                key={item.vaccine.id}
+                locked={!unlocked}
+                title={t('profile.premium.immunizationLockedTitle')}
+                message={t('profile.premium.immunizationLockedMessage')}
+              >
+                {row}
+              </PremiumLockedOverlay>
+            );
+          })}
         </MiniAppCard>
       ) : null}
 

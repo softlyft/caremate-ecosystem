@@ -38,7 +38,7 @@ Each domain (profile, emergency, articles, providers) has a repository that abst
 
 ### Guest first
 
-Users can explore without an account; sign-in unlocks cloud backup. See [ADR-004](./adr/004-guest-first.md).
+Users can explore core features without an account; sign-in unlocks cloud backup and mini-apps. See [ADR-004](./adr/004-guest-first.md) and [Premium & plans](./premium-and-plans.md).
 
 ### No custom backend (Phase 1–2)
 

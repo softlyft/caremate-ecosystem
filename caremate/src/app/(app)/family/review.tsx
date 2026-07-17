@@ -7,9 +7,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
+import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { familyRepository, useFamilySetupStore } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
@@ -18,6 +20,7 @@ export default function FamilyReviewScreen() {
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
+  const tier = usePremiumTier();
   const children = useFamilySetupStore((s) => s.children);
   const childCount = useFamilySetupStore((s) => s.childCount);
   const reset = useFamilySetupStore((s) => s.reset);
@@ -26,6 +29,10 @@ export default function FamilyReviewScreen() {
   const draftChildren = children.slice(0, childCount);
 
   async function saveFamily() {
+    if (draftChildren.length > maxChildrenForTier(tier)) {
+      Alert.alert(t('family.childLimitTitle'), t('family.childLimitMessage'));
+      return;
+    }
     setSaving(true);
     try {
       const profile = await profileRepository.findByUserId(userId);

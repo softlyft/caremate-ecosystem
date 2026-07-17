@@ -3,7 +3,12 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import {
+  canAddMedication,
+  countActiveMedications,
+} from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -34,6 +39,7 @@ import {
   localizeMedicationStatus,
 } from '@/mini-apps/medication-tracker/localize';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -71,6 +77,7 @@ export default function MedicationTrackerScreen() {
   const todayKey = toDateKey(today);
   const hydrated = useMedicationTrackerHydrated();
   const [patientFilter, setPatientFilter] = useState<PatientFilter>('all');
+  const tier = usePremiumTier();
 
   const medicationsRaw = useMedicationTrackerStore((state) => state.medications);
   const logs = useMedicationTrackerStore((state) => state.logs);
@@ -78,6 +85,8 @@ export default function MedicationTrackerScreen() {
   const removeDoseLog = useMedicationTrackerStore((state) => state.removeDoseLog);
 
   const medications = useMemo(() => medicationsRaw.map(normalizeMed), [medicationsRaw]);
+  const activeMedicationCount = countActiveMedications(medications);
+  const canAddMoreMedications = canAddMedication(tier, activeMedicationCount);
 
   const patientChips = useMemo(() => {
     const kids = new Map<string, string>();
@@ -265,13 +274,20 @@ export default function MedicationTrackerScreen() {
         </MiniAppCard>
       ) : null}
 
+      {!canAddMoreMedications ? (
+        <UpgradePrompt
+          title={t('profile.premium.medicationLimitTitle')}
+          message={t('profile.premium.medicationLimitMessage')}
+        />
+      ) : null}
+
       <MiniAppCta
         label={t('apps.medicationTracker.addMedicine')}
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}
         onPress={() => {
-          if (!hydrated) {
+          if (!hydrated || !canAddMoreMedications) {
             return;
           }
           router.push('/(app)/apps/medication-tracker/setup');

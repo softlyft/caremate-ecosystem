@@ -7,6 +7,10 @@ export const AD_SLOTS = {
   LEARN_ARTICLE_FOOTER: 'learn.article_footer',
   NEARBY_LIST: 'nearby.list',
   NEARBY_PROVIDER: 'nearby.provider',
+  PREGNANCY_TIMELINE: 'pregnancy.timeline',
+  PREGNANCY_FOOTER: 'pregnancy.footer',
+  PERIOD_WEEK: 'period.week',
+  PERIOD_FOOTER: 'period.footer',
 } as const;
 
 export type AdSlotId = (typeof AD_SLOTS)[keyof typeof AD_SLOTS];
@@ -65,6 +69,10 @@ export const DEFAULT_ADS_REMOTE_CONFIG: AdsRemoteConfig = {
     'learn.article_footer': 'house',
     'nearby.list': 'house',
     'nearby.provider': 'house',
+    'pregnancy.timeline': 'house',
+    'pregnancy.footer': 'house',
+    'period.week': 'house',
+    'period.footer': 'house',
   },
 };
 

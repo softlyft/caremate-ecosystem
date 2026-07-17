@@ -1,18 +1,22 @@
+import { router } from 'expo-router';
 import { LayoutGrid } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { MINI_APPS } from '@/mini-apps/_kit/registry';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function AppsTabScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const isGuest = useIsGuest();
   const availableCount = MINI_APPS.filter((app) => app.available).length;
 
   return (
@@ -42,6 +46,25 @@ export default function AppsTabScreen() {
             </AppText>
           </View>
         </AnimatedSection>
+
+        {isGuest ? (
+          <AnimatedSection index={1}>
+            <View style={styles.guestBanner}>
+              <AppText variant="cardTitle">{t('apps.signInRequiredTitle')}</AppText>
+              <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
+                {t('profile.premium.appsGuestBanner')}
+              </AppText>
+              <PressableScale
+                style={styles.guestCta}
+                onPress={() => router.push('/(auth)/login')}
+              >
+                <AppText variant="caption" style={styles.guestCtaLabel}>
+                  {t('common.signIn')}
+                </AppText>
+              </PressableScale>
+            </View>
+          </AnimatedSection>
+        ) : null}
 
         <View style={styles.grid}>
           {MINI_APPS.map((app, index) => (
@@ -119,5 +142,27 @@ const styles = StyleSheet.create({
   },
   grid: {
     gap: spacing.sm,
+  },
+  guestBanner: {
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.18)',
+    backgroundColor: palette.primaryLight,
+    padding: layoutSpacing.cardPadding,
+    gap: spacing.sm,
+  },
+  guestBannerText: {
+    color: palette.textSecondary,
+  },
+  guestCta: {
+    alignSelf: 'flex-start',
+    backgroundColor: palette.primary,
+    borderRadius: radius.full,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  guestCtaLabel: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });

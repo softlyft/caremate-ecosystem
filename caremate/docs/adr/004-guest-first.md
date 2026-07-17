@@ -28,6 +28,10 @@ Auth uses Supabase when configured; demo sign-in covers offline development with
 - Analytics, rate limits, and abuse controls cannot assume authenticated users.
 - Privacy: device-local guest health data may remain after uninstall/reinstall differently than cloud accounts — communicate clearly in UX where needed.
 
+## Amendment (2026-07-17)
+
+Mini-apps will require a **patient account** (sign-in or register) while core tabs remain guest-accessible. Product rules and plan matrix: [`caremate/docs/premium-and-plans.md`](../premium-and-plans.md). Enforcement is pending; this narrows guest mini-app access from the original decision above without changing guest-first access to Learn, Nearby, or Emergency.
+
 ## Alternatives considered
 
 | Option | Why not |

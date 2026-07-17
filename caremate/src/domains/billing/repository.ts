@@ -187,7 +187,7 @@ export function emptyPremiumState(): PremiumState {
 
 export const billingRepository = new BillingRepository();
 
-/** Soft entitlement helper — no hard feature locks yet. */
+/** Entitlement helper — resolves tier from local cache (pull when online). */
 export async function getPremiumState(userId: string): Promise<PremiumState> {
   try {
     await billingRepository.pullFromRemote();
@@ -198,8 +198,8 @@ export async function getPremiumState(userId: string): Promise<PremiumState> {
 }
 
 export function premiumLabel(tier: PremiumState['tier']): string {
-  if (tier === 'personal') return 'Premium Personal';
-  if (tier === 'family') return 'Premium Family';
+  if (tier === 'personal') return 'Standard Premium';
+  if (tier === 'family') return 'Family Premium';
   return 'Free';
 }
 

@@ -56,8 +56,9 @@ export const GUEST_USER_ID = 'guest';
 
 Guest users can:
 - Browse Home, articles, providers
-- Use all mini-apps
 - Create local emergency profile (not synced until account created)
+
+Guest users **cannot** use mini-apps (Medication, Checkup, Immunization, Pregnancy, Period) — a patient account is required. See [Premium & plans](./premium-and-plans.md).
 
 ---
 

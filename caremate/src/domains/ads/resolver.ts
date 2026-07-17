@@ -2,8 +2,9 @@ import { getDeviceDefaults } from '@/domains/onboarding';
 import { getAdMobBannerUnitId } from '@/domains/ads/admob-config';
 import { canRequestAds, isAdsConsentReady } from '@/domains/ads/consent';
 import { adsRepository } from '@/domains/ads/repository';
-import type { AdSlotId, ResolvedCatalogAd, ResolvedSlotAd } from '@/domains/ads/types';
+import { shouldSuppressAdForUser } from '@/domains/billing/entitlements';
 import { billingRepository } from '@/domains/billing/repository';
+import type { AdSlotId, ResolvedCatalogAd, ResolvedSlotAd } from '@/domains/ads/types';
 import { isOnline } from '@/sync/network';
 
 /**
@@ -23,6 +24,13 @@ export async function resolveAdForSlot(params: {
   const mode = remote.slotMode[params.slotId];
   if (!mode || mode === 'off') {
     return null;
+  }
+
+  if (!params.isGuest && params.userId) {
+    const premium = await billingRepository.getCachedPremiumState(params.userId);
+    if (shouldSuppressAdForUser(premium.tier, params.slotId, params.isGuest)) {
+      return null;
+    }
   }
 
   if (mode === 'admob') {

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -10,7 +11,6 @@ import {
   Lightbulb,
   CreditCard,
   LogOut,
-  HeartPulse,
   Megaphone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,14 +20,27 @@ import { STAFF_ROLE_LABELS, type StaffRole } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-const NAV = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/users', label: 'Users', icon: Users },
-  { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
-  { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
-  { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
-  { href: '/dashboard/ads', label: 'Ads', icon: Megaphone },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+const NAV_GROUPS = [
+  {
+    label: 'General',
+    items: [{ href: '/dashboard', label: 'Overview', icon: LayoutDashboard }],
+  },
+  {
+    label: 'Catalog',
+    items: [
+      { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
+      { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
+      { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
+    ],
+  },
+  {
+    label: 'Growth',
+    items: [
+      { href: '/dashboard/users', label: 'Users', icon: Users },
+      { href: '/dashboard/ads', label: 'Ads', icon: Megaphone },
+      { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+    ],
+  },
 ] as const;
 
 export function DashboardShell({
@@ -52,48 +65,89 @@ export function DashboardShell({
   };
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-white">
-        <div className="flex items-center gap-2 border-b border-border px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-light">
-            <HeartPulse className="h-5 w-5 text-primary" />
+    <div className="flex min-h-screen bg-background">
+      <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-border bg-surface">
+        <div className="flex items-center gap-3 px-5 py-5">
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+            <Image
+              src="/brand/caremate-icon.png"
+              alt="CareMate"
+              width={40}
+              height={40}
+              className="h-9 w-9 object-contain"
+              priority
+            />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">CareMate</p>
+          <div className="leading-tight">
+            <p className="text-sm font-semibold tracking-tight text-brand-navy">CareMate</p>
             <p className="text-xs text-muted">Admin Portal</p>
           </div>
         </div>
-        <nav className="flex flex-1 flex-col gap-1 p-3">
-          {NAV.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                  active
-                    ? 'bg-primary-light text-primary-dark'
-                    : 'text-muted hover:bg-surface hover:text-foreground',
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </Link>
-            );
-          })}
+
+        <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="flex flex-col gap-1">
+              <p className="px-3 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-muted/70">
+                {group.label}
+              </p>
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active =
+                  pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={cn(
+                      'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                      active
+                        ? 'bg-primary-light text-primary-dark'
+                        : 'text-muted hover:bg-surface-muted hover:text-foreground',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-opacity',
+                        active ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    <Icon
+                      className={cn(
+                        'h-4 w-4 transition-colors',
+                        active ? 'text-primary' : 'text-muted group-hover:text-foreground',
+                      )}
+                    />
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
+
         <div className="border-t border-border p-4">
-          <p className="truncate text-sm font-medium">{email}</p>
-          <Badge className="mt-1" variant="secondary">
-            {STAFF_ROLE_LABELS[role]}
-          </Badge>
-          <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}>
+          <div className="flex items-center gap-3 rounded-lg bg-surface-muted p-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold uppercase text-white">
+              {email.charAt(0)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-foreground">{email}</p>
+              <Badge className="mt-0.5" variant="secondary">
+                {STAFF_ROLE_LABELS[role]}
+              </Badge>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-2 w-full justify-start text-muted hover:text-foreground"
+            onClick={signOut}
+          >
             <LogOut className="h-4 w-4" />
             Sign out
           </Button>
         </div>
       </aside>
+
       <main className="flex-1 overflow-auto">
         <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
       </main>

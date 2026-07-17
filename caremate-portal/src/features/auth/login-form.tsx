@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -66,10 +67,22 @@ export function LoginForm() {
   });
 
   return (
-    <Card className="w-full max-w-md border-border shadow-md">
-      <CardHeader>
-        <CardTitle className="text-2xl text-primary-dark">CareMate Admin</CardTitle>
-        <CardDescription>Sign in with a staff account to manage the app.</CardDescription>
+    <Card className="w-full max-w-md border-border shadow-card">
+      <CardHeader className="items-center gap-3 text-center">
+        <Image
+          src="/brand/caremate-wordmark.png"
+          alt="CareMate"
+          width={200}
+          height={54}
+          className="h-12 w-auto object-contain"
+          priority
+        />
+        <div>
+          <CardTitle className="text-xl text-brand-navy">Admin Portal</CardTitle>
+          <CardDescription className="mt-1">
+            Sign in with a staff account to manage the app.
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">

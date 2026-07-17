@@ -38,7 +38,22 @@
     "loadFailed": "Failed to load billing",
     "refresh": "Refresh status",
     "renews": "Renews / ends {{date}}",
-    "error": "Could not start checkout"
+    "error": "Could not start checkout",
+    "upgradeCta": "Upgrade to Premium",
+    "miniAppGuestMessage": "Create a free account or sign in to use health tools. Articles, providers, and your emergency card stay available without an account.",
+    "medicationLimitTitle": "Medication limit reached",
+    "medicationLimitMessage": "Free accounts can track up to 3 medications. Upgrade to Standard or Family Premium for unlimited tracking.",
+    "checkupLockedTitle": "Premium checkups",
+    "checkupLockedMessage": "Upgrade to see your full checkup schedule for this year and beyond.",
+    "checkupYearLockedTitle": "Next year locked",
+    "checkupYearLockedMessage": "Upgrade to Premium to plan checkups for next year.",
+    "immunizationLockedTitle": "More vaccines on Premium",
+    "immunizationLockedMessage": "Free accounts see the first two months of the schedule. Upgrade for the full immunization timeline.",
+    "familyChildLimitTitle": "Add more children with Family Premium",
+    "familyChildLimitMessage": "Free and Standard Premium include one child profile. Upgrade to Family Premium to add more children.",
+    "familySpouseTitle": "Connect spouse on Family Premium",
+    "familySpouseMessage": "Link your partner to a shared household with Family Premium.",
+    "appsGuestBanner": "Sign in to open health tools. Your account is free — Premium unlocks more when you need it."
   },
   "patientId": {
     "eyebrow": "Identity",

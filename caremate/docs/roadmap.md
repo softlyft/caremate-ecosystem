@@ -63,7 +63,21 @@ See [Mini-Apps](./mini-apps.md) for routes, storage keys, and feature detail.
 | Phone OTP | Medium |
 | Google Sign-In | Medium |
 | Apple Sign-In | Medium |
-| Auth gate option | Low (guest-first is intentional) |
+| Auth gate option | Low for core tabs; **mini-app sign-in gate planned** — [Premium & plans](./premium-and-plans.md) |
+
+### Premium & entitlements
+
+Spec: [Premium & plans](./premium-and-plans.md). **Shipped.**
+
+| Feature | Status |
+|---------|--------|
+| Mini-app sign-in gate | Done |
+| Medication 3-med cap (Free) | Done |
+| Checkup blur paywall | Done |
+| Immunization 2-month blur | Done |
+| Pregnancy / Period ad-free (Premium) | Done |
+| Family child + spouse limits | Done |
+| Shared entitlement helpers + upgrade CTAs | Done |
 
 ### Integrations (planned, not in codebase)
 

@@ -2,6 +2,8 @@
 
 Family is a shared **household** for kids and spouse connections. Each parent keeps their own account data (profile, emergency card, settings, mini-apps).
 
+**Plan limits** (how many children, spouse connection): [Premium & plans](./premium-and-plans.md#family-profiles-by-plan). Free and Standard Premium allow **one child**; Family Premium allows **additional children** and **spouse** linking.
+
 ## Flows
 
 1. **Setup** (Me → Family or Settings → Family): “Are you a parent?” → kids count → DOB/gender per child → create household.

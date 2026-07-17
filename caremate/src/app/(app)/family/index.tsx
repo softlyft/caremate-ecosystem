@@ -22,8 +22,11 @@ import {
   validateChildNameAndDob,
 } from '@/domains/family';
 import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
+import { canAddChild, canConnectSpouse } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -42,6 +45,7 @@ export default function FamilyHubScreen() {
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const tier = usePremiumTier();
   const queryClient = useQueryClient();
 
   const householdQuery = useQuery({
@@ -113,6 +117,10 @@ export default function FamilyHubScreen() {
 
   async function handleConnect() {
     if (!householdId || !matched) return;
+    if (!canConnectSpouse(tier)) {
+      Alert.alert(t('family.spousePremiumTitle'), t('family.spousePremiumMessage'));
+      return;
+    }
     setBusy(true);
     try {
       const profile = await profileRepository.findByUserId(userId);
@@ -146,6 +154,12 @@ export default function FamilyHubScreen() {
 
   async function handleAddChild() {
     if (!householdId) return;
+    const currentChildCount = (membersQuery.data ?? []).filter((member) => member.kind === 'child')
+      .length;
+    if (!canAddChild(tier, currentChildCount)) {
+      Alert.alert(t('family.childLimitTitle'), t('family.childLimitMessage'));
+      return;
+    }
     const validated = validateChildNameAndDob(childName, childDob);
     if (!validated.ok) {
       const message =
@@ -292,6 +306,8 @@ export default function FamilyHubScreen() {
   const children = (membersQuery.data ?? []).filter((m) => m.kind === 'child');
   const adults = (membersQuery.data ?? []).filter((m) => m.kind !== 'child');
   const requestCount = requestsQuery.data?.length ?? 0;
+  const canAddAnotherChild = canAddChild(tier, children.length);
+  const spouseConnectAllowed = canConnectSpouse(tier);
 
   return (
     <View style={styles.screen}>
@@ -401,6 +417,13 @@ export default function FamilyHubScreen() {
               </AppText>
             ) : null}
 
+            {!canAddAnotherChild ? (
+              <UpgradePrompt
+                title={t('profile.premium.familyChildLimitTitle')}
+                message={t('profile.premium.familyChildLimitMessage')}
+              />
+            ) : (
+              <>
             <AppText variant="caption" style={[styles.sectionEyebrow, { marginTop: spacing.sm }]}>
               {t('family.addAnotherChild')}
             </AppText>
@@ -445,6 +468,8 @@ export default function FamilyHubScreen() {
                 {busy ? t('common.saving') : t('family.addChild')}
               </AppText>
             </PressableScale>
+              </>
+            )}
           </View>
         </AnimatedSection>
 
@@ -453,6 +478,13 @@ export default function FamilyHubScreen() {
             <AppText variant="caption" style={styles.sectionEyebrow}>
               {t('family.connectSpouse')}
             </AppText>
+            {!spouseConnectAllowed ? (
+              <UpgradePrompt
+                title={t('profile.premium.familySpouseTitle')}
+                message={t('profile.premium.familySpouseMessage')}
+              />
+            ) : (
+              <>
             <AppText variant="caption" style={styles.muted}>
               {t('family.connectSpouseHint')}
             </AppText>
@@ -537,6 +569,8 @@ export default function FamilyHubScreen() {
                 </View>
               </View>
             ) : null}
+              </>
+            )}
           </View>
         </AnimatedSection>
       </Animated.ScrollView>
