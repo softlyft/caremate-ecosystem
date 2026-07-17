@@ -30,9 +30,7 @@ class LocalizationService {
 
   /** All selectable real countries worldwide, sorted A-Z. Global (INT) is internal only. */
   listSelectableCountries(): readonly CountryConfig[] {
-    return COUNTRY_CONFIGS.filter(
-      (country) => country.code !== INTERNATIONAL_COUNTRY_CODE,
-    );
+    return COUNTRY_CONFIGS.filter((country) => country.code !== INTERNATIONAL_COUNTRY_CODE);
   }
 
   listCountryOptions(): CountryOption[] {

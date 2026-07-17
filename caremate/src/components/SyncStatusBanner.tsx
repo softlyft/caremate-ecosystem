@@ -25,8 +25,8 @@ export function SyncStatusBanner() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [summary, setSummary] = useState<SyncQueueSummary>(EMPTY_SUMMARY);
   const [isRetrying, setIsRetrying] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
-  const lastShownKey = useRef<string | null>(null);
+  /** Summary key that was dismissed (manual or auto). New keys re-show the banner. */
+  const [dismissedKey, setDismissedKey] = useState<string | null>(null);
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearDismissTimer = useCallback(() => {
@@ -35,11 +35,6 @@ export function SyncStatusBanner() {
       dismissTimer.current = null;
     }
   }, []);
-
-  const dismiss = useCallback(() => {
-    clearDismissTimer();
-    setDismissed(true);
-  }, [clearDismissTimer]);
 
   const refreshSummary = useCallback(async () => {
     try {
@@ -75,39 +70,25 @@ export function SyncStatusBanner() {
 
   const hasItems = summary.pendingCount + summary.failedCount > 0;
   const key = summaryKey(summary);
-
-  // Re-show when the queue summary changes (new pending/failed work).
-  useEffect(() => {
-    if (!hasItems) {
-      lastShownKey.current = null;
-      setDismissed(false);
-      clearDismissTimer();
-      return;
-    }
-
-    if (lastShownKey.current !== key) {
-      lastShownKey.current = key;
-      setDismissed(false);
-    }
-  }, [clearDismissTimer, hasItems, key]);
+  const visible = isAuthenticated && hasItems && dismissedKey !== key;
 
   // Auto-dismiss a few seconds after becoming visible.
   useEffect(() => {
-    if (!isAuthenticated || !hasItems || dismissed) {
+    if (!visible) {
       clearDismissTimer();
       return;
     }
 
     clearDismissTimer();
     dismissTimer.current = setTimeout(() => {
-      setDismissed(true);
+      setDismissedKey(key);
       dismissTimer.current = null;
     }, AUTO_DISMISS_MS);
 
     return clearDismissTimer;
-  }, [clearDismissTimer, dismissed, hasItems, isAuthenticated, key]);
+  }, [clearDismissTimer, key, visible]);
 
-  if (!isAuthenticated || !hasItems || dismissed) {
+  if (!visible) {
     return null;
   }
 
@@ -163,7 +144,10 @@ export function SyncStatusBanner() {
         accessibilityRole="button"
         accessibilityLabel="Dismiss sync status"
         hitSlop={8}
-        onPress={dismiss}
+        onPress={() => {
+          clearDismissTimer();
+          setDismissedKey(key);
+        }}
         style={styles.dismiss}
       >
         <X color={palette.textSecondary} size={16} strokeWidth={2.5} />

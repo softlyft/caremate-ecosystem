@@ -8,8 +8,7 @@ const LEGACY_SEED_IDS = ['article-1', 'article-2', 'article-3'] as const;
 /** Home featured: 1 CareMate + 2 INT + up to 2 country news. */
 export const HOME_TRENDING_INT_SLOTS = 2;
 export const HOME_TRENDING_COUNTRY_SLOTS = 2;
-export const HOME_TRENDING_MAX_ITEMS =
-  1 + HOME_TRENDING_INT_SLOTS + HOME_TRENDING_COUNTRY_SLOTS;
+export const HOME_TRENDING_MAX_ITEMS = 1 + HOME_TRENDING_INT_SLOTS + HOME_TRENDING_COUNTRY_SLOTS;
 
 export const LEARN_CATEGORIES: ArticleCategory[] = [
   ...HEALTH_CATEGORIES.map((category) => ({
@@ -179,8 +178,7 @@ export function orderTrendingFeed(
       ? []
       : external
           .filter(
-            (article) =>
-              articleMatchesNewsRegion(article, countryCode) && !usedIds.has(article.id),
+            (article) => articleMatchesNewsRegion(article, countryCode) && !usedIds.has(article.id),
           )
           .sort(byNewest)
           .slice(0, countrySlots);
