@@ -33,7 +33,9 @@
     "selected": "Imechaguliwa: {{value}}",
     "notSet": "Haijawekwa",
     "save": "Hifadhi eneo",
-    "saving": "Inahifadhi..."
+    "saving": "Inahifadhi...",
+    "searchPlaceholder": "Tafuta nchi",
+    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo."
   },
   "family": {
     "title": "Familia",

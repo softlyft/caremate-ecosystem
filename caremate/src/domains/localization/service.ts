@@ -28,18 +28,14 @@ class LocalizationService {
     return COUNTRY_CONFIGS;
   }
 
-  /** All African countries plus Global (INT), sorted A–Z with Global last. */
+  /** All selectable real countries worldwide, sorted A-Z. Global (INT) is internal only. */
   listSelectableCountries(): readonly CountryConfig[] {
-    const african = COUNTRY_CONFIGS.filter(
-      (country) => country.code !== INTERNATIONAL_COUNTRY_CODE,
-    );
-    const global = COUNTRY_CONFIGS.find((country) => country.code === INTERNATIONAL_COUNTRY_CODE);
-    return global ? [...african, global] : african;
+    return COUNTRY_CONFIGS.filter((country) => country.code !== INTERNATIONAL_COUNTRY_CODE);
   }
 
   listCountryOptions(): CountryOption[] {
     return this.listSelectableCountries().map((country) => ({
-      name: country.code === INTERNATIONAL_COUNTRY_CODE ? GLOBAL_COUNTRY_LABEL : country.name,
+      name: country.name,
       code: country.code,
     }));
   }

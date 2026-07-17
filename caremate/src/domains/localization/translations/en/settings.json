@@ -33,7 +33,9 @@
     "selected": "Selected: {{value}}",
     "notSet": "Not set",
     "save": "Save location",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "searchPlaceholder": "Search countries",
+    "searchEmpty": "No countries match that search."
   },
   "family": {
     "title": "Family",

@@ -21,6 +21,7 @@ import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { articleRepository } from '@/domains/articles/repository';
+import { HOME_TRENDING_MAX_ITEMS } from '@/domains/articles/utils/evergreen-articles';
 import { profileRepository } from '@/domains/profile/repository';
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
@@ -52,7 +53,7 @@ export default function HomeScreen() {
       languageCode ?? 'en',
     ],
     queryFn: () =>
-      articleRepository.getTrendingToday(3, {
+      articleRepository.getTrendingToday(HOME_TRENDING_MAX_ITEMS, {
         isGuest,
         countryCode,
         userKey,

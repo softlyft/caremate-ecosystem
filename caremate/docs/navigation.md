@@ -51,7 +51,7 @@ Group: `(auth)` — header hidden.
 | Route | Screen | Purpose |
 |-------|--------|---------|
 | `/(auth)/onboarding` | `onboarding/index.tsx` | Intro step |
-| `/(auth)/onboarding/country` | `country.tsx` | Country + language selection (required) |
+| `/(auth)/onboarding/country` | `country.tsx` | Country + language selection (required); searchable worldwide list; state/province not collected in UI yet |
 | `/(auth)/onboarding/priorities` | `priorities.tsx` | User priorities |
 | `/(auth)/onboarding/location` | `location.tsx` | Approximate location |
 | `/(auth)/onboarding/notifications` | `notifications.tsx` | Notifications preference |
@@ -165,7 +165,7 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | `/(app)/apps/checkup-planner/setup` | modal | Set Up Planner |
 | `/(app)/apps/checkup-planner/log` | modal | Log Checkup |
 
-Mini-apps are launched from the **Apps** tab via the registry in `src/mini-apps/_kit/registry.ts`.
+Mini-apps are launched from the **Apps** tab via the registry in `src/mini-apps/_kit/registry.ts`. Header options live on the nested stack in `src/app/(app)/apps/_layout.tsx` (guest gate + themed title/back). The parent app stack only mounts `apps` with `headerShown: false`.
 
 ---
 

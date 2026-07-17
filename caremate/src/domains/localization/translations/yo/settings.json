@@ -33,7 +33,9 @@
     "selected": "Tí a yàn: {{value}}",
     "notSet": "Kò tíì ṣètò",
     "save": "Fi ibùdó pamọ́",
-    "saving": "Ń fi pamọ́..."
+    "saving": "Ń fi pamọ́...",
+    "searchPlaceholder": "Wá orílẹ̀-èdè",
+    "searchEmpty": "Kò sí orílẹ̀-èdè tó bá ìwádìí yìí mu."
   },
   "family": {
     "title": "Ẹbí",

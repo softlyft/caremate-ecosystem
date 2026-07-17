@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Bell, MapPin, Moon, Palette, Settings, Users } from 'lucide-react-native';
-import { useState, type ReactNode } from 'react';
+import { Bell, MapPin, Moon, Palette, Search, Settings, Users } from 'lucide-react-native';
+import { useMemo, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -49,14 +49,26 @@ export default function SettingsScreen() {
   const [countryDraft, setCountryDraft] = useState<string | null | undefined>(undefined);
   const [languageDraft, setLanguageDraft] = useState<string | null | undefined>(undefined);
   const [stateDraft, setStateDraft] = useState<string | undefined>(undefined);
+  const [countryQuery, setCountryQuery] = useState('');
   const [savingLocation, setSavingLocation] = useState(false);
 
   const countryCode = countryDraft !== undefined ? countryDraft : remoteCountryCode;
   const languageCode = languageDraft !== undefined ? languageDraft : remoteLanguageCode;
   const state = stateDraft !== undefined ? stateDraft : remoteState;
-  const subdivisions = localizationService.getCountrySubdivisions(countryCode);
   const languages = localizationService.getSupportedLanguages(countryCode);
   const resolvedLanguage = localizationService.normalizeLanguage(countryCode, languageCode);
+
+  const countries = useMemo(() => {
+    const all = localizationService.listCountryOptions();
+    const query = countryQuery.trim().toLowerCase();
+    if (!query) {
+      return all;
+    }
+    return all.filter(
+      (country) =>
+        country.name.toLowerCase().includes(query) || country.code.toLowerCase().includes(query),
+    );
+  }, [countryQuery]);
 
   async function updateTheme(value: 'light' | 'dark' | 'system') {
     setTheme(value);
@@ -214,8 +226,20 @@ export default function SettingsScreen() {
                 <AppText variant="caption" style={styles.fieldLabel}>
                   {t('settings.location.country')}
                 </AppText>
+                <View style={styles.searchRow}>
+                  <Search color={palette.primary} size={16} strokeWidth={2.25} />
+                  <View style={styles.searchInput}>
+                    <Input
+                      placeholder={t('settings.location.searchPlaceholder')}
+                      value={countryQuery}
+                      onChangeText={setCountryQuery}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                  </View>
+                </View>
                 <View style={styles.chipRow}>
-                  {localizationService.listCountryOptions().map((country) => {
+                  {countries.map((country) => {
                     const selected = countryCode === country.code;
                     return (
                       <PressableScale
@@ -228,13 +252,8 @@ export default function SettingsScreen() {
                           }
                           setCountryDraft(country.code);
                           setLanguageDraft(localizationService.getDefaultLanguage(country.code));
-                          if (
-                            !localizationService
-                              .getCountrySubdivisions(country.code)
-                              .includes(state)
-                          ) {
-                            setStateDraft('');
-                          }
+                          // State stays in schema but is not edited in UI yet.
+                          setStateDraft('');
                         }}
                       >
                         <AppText
@@ -247,6 +266,11 @@ export default function SettingsScreen() {
                     );
                   })}
                 </View>
+                {countryQuery.trim() && countries.length === 0 ? (
+                  <AppText variant="caption" style={styles.muted}>
+                    {t('settings.location.searchEmpty')}
+                  </AppText>
+                ) : null}
 
                 {countryCode ? (
                   <>
@@ -277,53 +301,14 @@ export default function SettingsScreen() {
                 ) : null}
 
                 {countryCode ? (
-                  <>
-                    <AppText variant="caption" style={styles.fieldLabel}>
-                      {t('settings.location.state')}
-                    </AppText>
-                    {subdivisions.length > 0 ? (
-                      <View style={styles.chipRow}>
-                        {subdivisions.map((item) => {
-                          const selected = state === item;
-                          return (
-                            <PressableScale
-                              key={item}
-                              style={[styles.chip, selected && styles.chipSelected]}
-                              scale={0.96}
-                              onPress={() => setStateDraft(selected ? '' : item)}
-                            >
-                              <AppText
-                                variant="caption"
-                                style={selected ? styles.chipTextSelected : styles.chipText}
-                              >
-                                {item}
-                              </AppText>
-                            </PressableScale>
-                          );
-                        })}
-                      </View>
-                    ) : (
-                      <Input
-                        placeholder={t('settings.location.statePlaceholder')}
-                        value={state}
-                        onChangeText={setStateDraft}
-                        autoCapitalize="words"
-                      />
-                    )}
-                  </>
-                ) : null}
-
-                {(countryCode || state) && (
                   <AppText variant="caption" style={styles.muted}>
                     {t('settings.location.selected', {
                       value:
-                        [localizationService.getCountryName(countryCode), state]
-                          .filter(Boolean)
-                          .join(' · ') || t('settings.location.notSet'),
+                        localizationService.getCountryName(countryCode) ||
+                        t('settings.location.notSet'),
                     })}
                   </AppText>
-                )}
-
+                ) : null}
                 <PressableScale
                   style={[
                     styles.primaryCta,
@@ -521,6 +506,14 @@ const styles = StyleSheet.create({
     color: ACCENT,
     fontFamily: fontFamily.semiBold,
     marginTop: spacing.xs,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
   },
   chipRow: {
     flexDirection: 'row',

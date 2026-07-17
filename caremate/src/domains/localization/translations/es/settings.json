@@ -33,7 +33,9 @@
     "selected": "Seleccionado: {{value}}",
     "notSet": "No definido",
     "save": "Guardar ubicación",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "searchPlaceholder": "Buscar países",
+    "searchEmpty": "Ningún país coincide con esa búsqueda."
   },
   "family": {
     "title": "Familia",

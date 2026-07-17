@@ -22,12 +22,19 @@ async function loadAdsModules(): Promise<{
 /** Gather UMP consent and initialize the Mobile Ads SDK. Safe to call multiple times. */
 export async function initializeAdsConsentAndSdk(): Promise<void> {
   if (initStarted) {
+    // Wait for the in-flight init so callers can invalidate ads after consent is ready.
+    while (initStarted && !consentReady) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
     return;
   }
   initStarted = true;
 
   const modules = await loadAdsModules();
   if (!modules) {
+    // Mark ready so resolvers stop waiting; ads simply cannot request.
+    consentReady = true;
+    canRequest = false;
     return;
   }
 
@@ -39,10 +46,10 @@ export async function initializeAdsConsentAndSdk(): Promise<void> {
     if (canRequest) {
       await mobileAds().initialize();
     }
-    consentReady = true;
   } catch {
-    consentReady = true;
     canRequest = false;
+  } finally {
+    consentReady = true;
   }
 }
 

@@ -29,7 +29,7 @@ Home renders from SQLite first, then refreshes remote data where supported.
 | `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips` |
 | `AdSlot` (`home.tips`) | `features/ads/AdSlot.tsx` | Banner after tip |
 | `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Learn categories |
-| `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending/featured articles |
+| `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending: 1 CareMate evergreen + 2 INT news + up to 2 country news |
 | `AdSlot` (`home.feed`) | `features/ads/AdSlot.tsx` | Banner after featured |
 | `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Nearby providers preview |
 | `EmergencyBanner` | `features/home/components/EmergencyBanner.tsx` | Emergency profile CTA |
@@ -47,7 +47,7 @@ Spacing between Home sections follows the shared **~16px** rhythm — see [UI & 
 | Providers | `providerRepository.findAll()` or nearby cache | Nearby row |
 | Health tips | `healthTipRepository` | Daily tip rotation |
 
-When online and configured, article refreshes can pull from Currents in the background and invalidate article query keys afterward.
+When online and configured, Home/Learn refresh Currents in the background as **two** queries (international `INT`, then the user’s selected country), tag each cached row with `attributes.newsRegions`, and invalidate article query keys afterward. Country news is omitted from Home when that query returns nothing — there is no silent INT fallback into the country slots.
 
 ## Learn
 
@@ -116,7 +116,7 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 - When the RPC returns no rows (or the cache is empty offline), Nearby shows an empty state — that is expected
 - Provider detail opens the address in the device’s default maps app (Apple Maps / Google Maps / geo intent) — there is no in-app map SDK
 - Favorites are toggled on the provider detail screen and sync through `provider_favorites`
-- Coordinates for ranking come from live GPS (precise mode) or a **selection-based** approximate pin (country / Nigerian state) — see [Provider model → Geo strategy](./provider-model.md#geo-strategy-nearby-coordinates)
+- Coordinates for ranking come from live GPS (precise mode) or a **selection-based** approximate pin (country capital; Nigerian state pin only if a state value already exists in profile) — see [Provider model → Geo strategy](./provider-model.md#geo-strategy-nearby-coordinates)
 
 ### Related screens
 

@@ -19,7 +19,9 @@
       "language": "Lugha",
       "state": "Jimbo / mkoa (hiari)"
     },
-    "statePlaceholder": "mf. Greater Accra"
+    "statePlaceholder": "mf. Greater Accra",
+    "searchPlaceholder": "Tafuta nchi",
+    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo."
   },
   "priorities": {
     "title": "Nini muhimu zaidi?",

@@ -19,7 +19,9 @@
       "language": "Asụsụ",
       "state": "Steeti / mpaghara (nhọrọ)"
     },
-    "statePlaceholder": "dịka Greater Accra"
+    "statePlaceholder": "dịka Greater Accra",
+    "searchPlaceholder": "Chọọ mba",
+    "searchEmpty": "Enweghị mba dabara n'ọchịchọ a."
   },
   "priorities": {
     "title": "Gịnị ka dị mkpa nke ọma?",

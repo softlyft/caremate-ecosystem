@@ -300,12 +300,29 @@ describe('resolveAdForSlot', () => {
     expect(result).toBeNull();
   });
 
-  it('returns null for AdMob when consent is not ready', async () => {
+  it('throws while AdMob consent is still pending so queries can retry', async () => {
     mockGetRemoteConfig.mockResolvedValue({
       ...baseRemote,
       slotMode: { ...baseRemote.slotMode, 'home.feed': 'admob' },
     });
     mockIsAdsConsentReady.mockReturnValue(false);
+
+    await expect(
+      resolveAdForSlot({
+        slotId,
+        userId: 'user-1',
+        isGuest: false,
+      }),
+    ).rejects.toThrow('ADS_CONSENT_PENDING');
+  });
+
+  it('returns null for AdMob when consent is ready but ads cannot be requested', async () => {
+    mockGetRemoteConfig.mockResolvedValue({
+      ...baseRemote,
+      slotMode: { ...baseRemote.slotMode, 'home.feed': 'admob' },
+    });
+    mockIsAdsConsentReady.mockReturnValue(true);
+    mockCanRequestAds.mockResolvedValue(false);
 
     const result = await resolveAdForSlot({
       slotId,

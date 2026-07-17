@@ -19,7 +19,9 @@
       "language": "Idioma",
       "state": "Estado / provincia (opcional)"
     },
-    "statePlaceholder": "ej. Gran Accra"
+    "statePlaceholder": "ej. Gran Accra",
+    "searchPlaceholder": "Buscar países",
+    "searchEmpty": "Ningún país coincide con esa búsqueda."
   },
   "priorities": {
     "title": "¿Qué es lo más importante?",

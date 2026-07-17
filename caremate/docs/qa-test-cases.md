@@ -67,7 +67,8 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | OB-01 | P0 | Fresh install / onboarding incomplete | Launch app | Onboarding intro opens instead of dropping straight into tabs. |
 | OB-02 | P1 | Onboarding flow | Complete priorities, region, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
 | OB-02b | P1 | Priorities step with nothing selected | Tap Continue | Soft toast asks for at least one priority; navigation is blocked until a choice is made (Skip still allowed). |
-| OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Copy reflects selected country/state; Nearby later uses that region’s approximate pin (state capital when set, else country capital). |
+| OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Copy reflects selected country; Nearby later uses that country’s capital approximate pin (state not collected in UI yet). |
+| OB-03b | P0 | Onboarding country step | Search/select Mexico, United States, Nigeria, then search Global | MX, US, and NG appear; Global does **not** appear in the country picker; MX offers English+Spanish; US English only; NG existing local languages. State field is not shown. |
 | OB-04 | P1 | Onboarding complete | Relaunch app | Onboarding does not reappear on every launch. |
 | OB-05 | P1 | Newly signed-in user | Complete post-signup setup screens | Emergency, family prompt, and done screens advance correctly. |
 
@@ -80,7 +81,8 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | HM-01 | P0 | Any | Open Home | Logo, greeting, tip, categories, articles row, providers row, emergency banner visible. |
 | HM-02 | P0 | Signed-in with profile full name | Open Home | Greeting includes first name (e.g. “Good Morning, Ada! 👋”). |
 | HM-03 | P0 | Guest | Open Home | Greeting without personal name (time-of-day only). |
-| HM-04 | P1 | Online | Wait on Home | Trending articles populate or keep evergreen if Currents fails. |
+| HM-04 | P1 | Online + country selected | Wait on Home | Featured shows 1 CareMate article, then up to 2 INT news, then up to 2 country news. If country news is empty, only CareMate + INT appear. |
+| HM-04b | P1 | Online; Currents country empty | Wait on Home | Country slots hidden; INT news still shown when available. |
 | HM-05 | P1 | Offline | Open Home | Offline banner; previously cached / evergreen content still shown. |
 | HM-05b | P1 | Article feed query fails with no cache | Open Home | ErrorState with Retry; Retry reloads feed. |
 | HM-06 | P1 | Any | Tap search bar | Opens Search screen with focused input. |
@@ -100,7 +102,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | LN-01 | P0 | Any | Open Learn tab | Feed shows (evergreen and/or news). |
-| LN-02 | P1 | Online + Currents configured | Signed-in with country NG | Local/country news attempt; feed still not empty if API empty (fallback). |
+| LN-02 | P1 | Online + Currents configured | Signed-in with country NG | Refresh pulls INT + NG news (tagged); Home country block uses NG only when available. |
 | LN-03 | P1 | Guest | Learn tab | International-oriented news behavior; evergreen present. |
 | LN-04 | P1 | Any | Search by keyword in title | Matching articles filter. |
 | LN-05 | P1 | Any | Clear search | Full feed returns. |
@@ -159,7 +161,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ME-05 | P0 | Any | Me → Settings | Settings screen opens. |
 | ME-06 | P1 | Settings | Toggle system / dark theme | UI theme updates. |
 | ME-07 | P1 | Settings | Toggle notifications | State persists after relaunch. |
-| ME-08 | P1 | Signed-in | Settings → set country (e.g. Nigeria) + state → Save | Saves; Learn/Home news context can use country. |
+| ME-08 | P1 | Signed-in | Settings → set country (e.g. Mexico) + language → Save | Saves; Learn/Home news context can use country. State/province is not shown in Settings UI. |
 | ME-09 | P1 | Guest | Settings location | Explain that sign-in is required / control disabled. |
 | ME-10 | P1 | Settings | Open Family from Settings | Same Family flow as Me entry. |
 | ME-11 | P2 | Signed-in | Me preferences | Biometric unlock toggle is not shown until app-lock is enforced. |

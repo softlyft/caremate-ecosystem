@@ -61,7 +61,13 @@ async function resolveAdMobSlot(params: {
     return null;
   }
 
-  if (!isAdsConsentReady() || !(await canRequestAds())) {
+  if (!isAdsConsentReady()) {
+    // Not a permanent miss — consent init is still running. Throw so React Query retries
+    // instead of caching null for staleTime.
+    throw new Error('ADS_CONSENT_PENDING');
+  }
+
+  if (!(await canRequestAds())) {
     return null;
   }
 

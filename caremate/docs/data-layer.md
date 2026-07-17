@@ -169,10 +169,10 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 | `findAll(search?, userKey?)` | Local articles, ordered for Learn feed |
 | `findByCategory(categoryId, userKey?)` | Filter by category id |
 | `findById(id)` | Single article |
-| `findTrending(limit, userKey?)` | Mix evergreen + Currents health news from SQLite |
-| `getTrendingToday(limit, options)` | Offline-first trending (local only) |
-| `refreshTrendingInBackground(options)` | Fetch Currents when online; upsert into SQLite |
-| `refreshHealthNewsFromCurrents(limit, countryCode)` | Currents write path |
+| `findTrending(limit, userKey?, countryCode?)` | Home mix: 1 evergreen + 2 INT + up to 2 country news from SQLite |
+| `getTrendingToday(limit, options)` | Offline-first trending (local only; passes `countryCode`) |
+| `refreshTrendingInBackground(options)` | Dual Currents fetch (`INT` + selected country); upsert into SQLite with region tags |
+| `refreshHealthNewsFromCurrents(limit, countryCode)` | Currents write path for one region (no cross-region fallback) |
 | `toggleBookmark(userId, articleId)` | Add/remove bookmark + sync queue |
 | `getBookmarks(userId)` | Bookmarked articles |
 | `isBookmarked(userId, articleId)` | Bookmark check |

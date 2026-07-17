@@ -21,9 +21,15 @@ export {
   type LearnContentType,
 } from '@/domains/articles/content-types';
 export {
+  articleMatchesNewsRegion,
+  getNewsRegions,
+  HOME_TRENDING_COUNTRY_SLOTS,
+  HOME_TRENDING_INT_SLOTS,
+  HOME_TRENDING_MAX_ITEMS,
   isEvergreenArticle,
   isExternalArticle,
   LEARN_CATEGORIES,
+  mergeNewsRegions,
   orderLearnFeed,
   orderTrendingFeed,
 } from '@/domains/articles/utils/evergreen-articles';

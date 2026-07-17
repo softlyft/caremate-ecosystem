@@ -19,7 +19,9 @@
       "language": "Èdè",
       "state": "Ìpínlẹ̀ / agbègbè (àyànfẹ́)"
     },
-    "statePlaceholder": "bíi Greater Accra"
+    "statePlaceholder": "bíi Greater Accra",
+    "searchPlaceholder": "Wá orílẹ̀-èdè",
+    "searchEmpty": "Kò sí orílẹ̀-èdè tó bá ìwádìí yìí mu."
   },
   "priorities": {
     "title": "Kí ni ó ṣe pàtàkì jùlọ?",

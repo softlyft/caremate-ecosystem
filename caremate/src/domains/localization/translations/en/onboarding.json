@@ -19,7 +19,9 @@
       "language": "Language",
       "state": "State / province (optional)"
     },
-    "statePlaceholder": "e.g. Greater Accra"
+    "statePlaceholder": "e.g. Greater Accra",
+    "searchPlaceholder": "Search countries",
+    "searchEmpty": "No countries match that search."
   },
   "priorities": {
     "title": "What matters most?",

@@ -1,8 +1,8 @@
 import type { AdSlotId } from '@/domains/ads/types';
 import { config } from '@/constants/env';
 
-/** Google sample banner unit — safe for development only. */
-export const ADMOB_TEST_BANNER_UNIT = 'ca-app-pub-3940256099942544/6300978111';
+/** Google sample adaptive banner unit — safe for development only. */
+export const ADMOB_TEST_BANNER_UNIT = 'ca-app-pub-3940256099942544/9214589741';
 
 const SLOT_ENV_KEYS: Record<AdSlotId, keyof typeof config> = {
   'home.tips': 'admobBannerHomeTips',

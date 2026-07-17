@@ -19,7 +19,9 @@
       "language": "Kasa",
       "state": "Mantam / province (wopɛ a)"
     },
-    "statePlaceholder": "sɛ Greater Accra"
+    "statePlaceholder": "sɛ Greater Accra",
+    "searchPlaceholder": "Hwehwɛ nman",
+    "searchEmpty": "Ɔman biara nni hɔ a ɛne nhwehwɛmu no hyia."
   },
   "priorities": {
     "title": "Deɛn na ɛho hia sen biara?",
