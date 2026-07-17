@@ -3,7 +3,9 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
+import { AdSlot } from '@/features/ads/AdSlot';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -81,6 +83,8 @@ export default function PeriodTrackerScreen() {
           ) : undefined
         }
       />
+
+      <AdSlot slotId={AD_SLOTS.PERIOD_WEEK} />
 
       <MiniAppCard index={1} title={t('apps.period.ui.thisWeek')} theme={theme}>
         <ScrollView
@@ -191,6 +195,8 @@ export default function PeriodTrackerScreen() {
           trailing={<AppText variant="body">{loggedPeriodDays.length}</AppText>}
         />
       </MiniAppCard>
+
+      <AdSlot slotId={AD_SLOTS.PERIOD_FOOTER} />
 
       <MiniAppCta
         label={t('apps.periodTracker.logPeriodDays')}

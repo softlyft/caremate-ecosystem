@@ -21,6 +21,10 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER` | Production AdMob | Banner unit for `learn.article_footer` |
 | `EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST` | Production AdMob | Banner unit for `nearby.list` |
 | `EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER` | Production AdMob | Banner unit for `nearby.provider` |
+| `EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_TIMELINE` | Production AdMob | Banner unit for `pregnancy.timeline` |
+| `EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER` | Production AdMob | Banner unit for `pregnancy.footer` |
+| `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK` | Production AdMob | Banner unit for `period.week` |
+| `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER` | Production AdMob | Banner unit for `period.footer` |
 
 `__DEV__` uses Google sample/test IDs regardless of env. AdMob requires a **dev client or EAS build** (not Expo Go). See [Ads](./ads.md).
 

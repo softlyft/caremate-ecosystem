@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { AD_SLOTS } from '@/domains/ads';
+import { AdSlot } from '@/features/ads/AdSlot';
 import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
@@ -101,6 +103,8 @@ export default function PregnancyTrackerScreen() {
           ) : undefined
         }
       />
+
+      <AdSlot slotId={AD_SLOTS.PREGNANCY_TIMELINE} />
 
       {hasSetup && gestationalAge ? (
         <MiniAppCard
@@ -208,6 +212,8 @@ export default function PregnancyTrackerScreen() {
           })}
         </MiniAppCard>
       ) : null}
+
+      <AdSlot slotId={AD_SLOTS.PREGNANCY_FOOTER} />
 
       <View style={!hydrated ? styles.ctaDisabled : undefined}>
         <MiniAppCta

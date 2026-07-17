@@ -338,18 +338,42 @@ Requires portal migration + sync. Use dev client / EAS build for AdMob cases (no
 | AD-01b | P0 | Welcome campaign placements synced | Open Home | Tip ad (`home.tips`) and feed ad (`home.feed`) both can show |
 | AD-01c | P0 | `learn.article_header` + `learn.article_footer` placements | Open any article | Ads before and after body |
 | AD-01d | P0 | `nearby.provider` placement | Open provider detail | Ad before contact card |
+| AD-01e | P0 | `pregnancy.timeline` + `pregnancy.footer` placements | Open Pregnancy Tracker (set up) | Ads before timeline and before update due date |
+| AD-01f | P0 | `period.week` + `period.footer` placements | Open Period Tracker | Ads before this week calendar and before log period days |
 | AD-02 | P0 | Slot mode = `off` for `home.feed` | Open Home | No banner in feed slot |
 | AD-03 | P0 | Portal: master `ads.enabled` off | Open Home / Learn / Nearby | No ad banners anywhere |
 | AD-04 | P1 | Slot = house, no active house inventory | Open slot surface | Empty slot — no AdMob/house fallback |
 | AD-05 | P1 | Slot = sponsored, verified advertiser + active campaign | Open slot surface | Banner shows **Sponsored** label |
 | AD-06 | P1 | Slot = sponsored, advertiser pending | Open slot surface | Empty slot |
 | AD-07 | P1 | Slot = admob, free user, online, dev build | Open slot surface | AdMob test banner or empty on load failure |
+| AD-07b | P1 | `pregnancy.timeline` or `period.week` = admob in portal | Open respective mini-app | AdMob banner in slot (same rules as Home/Learn) |
 | AD-08 | P1 | Slot = admob, Premium user | Open slot surface | No AdMob (empty slot) |
 | AD-09 | P1 | Slot = admob, airplane mode | Open slot surface | Empty slot |
 | AD-10 | P2 | Tap house/sponsored CTA | — | In-app navigation; click event queued |
 | AD-11 | P2 | Portal: change slot mode | Pull/sync app | New mode respected after sync |
 | AD-12 | P1 | Same house campaign on Home + Learn article | View Home then open article | Article ads still eligible (per-slot frequency cap) |
 | AD-13 | P2 | Fresh install / clear SQLite | Cold start online | Ad catalog present without waiting for manual sync |
+
+---
+
+## Premium & plans (planned enforcement)
+
+Spec: [Premium & plans](./premium-and-plans.md). Run when entitlement gates ship.
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| PM-01 | P0 | Guest | Open Apps tab; tap any mini-app | Sign-in / register prompt; no tracker UI |
+| PM-02 | P0 | Free signed-in | Add 4th medication | Blocked; upgrade CTA |
+| PM-03 | P0 | Free signed-in | Checkup planner with 3+ items this year | First 2 visible; rest blurred |
+| PM-04 | P0 | Free signed-in | Checkup planner next year | Year blurred |
+| PM-05 | P0 | Standard Premium | Checkup + immunization | No blur; full schedule |
+| PM-06 | P0 | Free signed-in | Immunization schedule | First 2 months clear; rest blurred |
+| PM-07 | P1 | Free signed-in | Pregnancy / Period with ads enabled | Catalog or AdMob in slots |
+| PM-08 | P1 | Standard Premium | Pregnancy / Period | No ads in mini-app slots |
+| PM-09 | P0 | Free household | Add 2nd child | Blocked; Family upgrade CTA |
+| PM-10 | P0 | Free / Standard | Connect spouse | Blocked; Family upgrade CTA |
+| PM-11 | P0 | Family Premium | Add multiple children + spouse | Allowed per family flows |
+| PM-12 | P1 | Guest | Learn + Nearby + Emergency | Full access without account |
 
 ---
 
@@ -372,7 +396,7 @@ Requires portal migration + sync. Use dev client / EAS build for AdMob cases (no
 | Emergency Patient ID QR | On-device QR on the back of the Me → Patient ID card (tap to flip) |
 | Biometric unlock | Hidden in UI until app-lock gate is implemented |
 | Push notifications | Preference toggle may not deliver OS pushes yet |
-| Premium gating | Pricing and checkout UI exist, but most feature locking may still be soft/incomplete |
+| Premium gating | Enforced per [Premium & plans](./premium-and-plans.md); run PM-01–PM-12 in QA |
 | Family spouse invites | In-app request when account exists; otherwise copy/share store download message (no redeemable invite links) |
 | Spouse join | Personal mini-app data stays per parent (shared household kids only) |
 

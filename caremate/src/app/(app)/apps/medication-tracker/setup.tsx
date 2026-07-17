@@ -4,7 +4,9 @@ import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
+import { canAddMedication, countActiveMedications } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -22,6 +24,7 @@ import {
 import { useMedicationFamilyKids } from '@/mini-apps/medication-tracker/use-family-kids';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/medication-tracker/utils';
 import { localizeFrequencyOptions } from '@/mini-apps/medication-tracker/localize';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -37,6 +40,7 @@ export default function MedicationSetupScreen() {
   );
   const hydrated = useMedicationTrackerHydrated();
   const familyKids = useMedicationFamilyKids();
+  const tier = usePremiumTier();
 
   const medications = useMedicationTrackerStore((state) => state.medications);
   const addMedication = useMedicationTrackerStore((state) => state.addMedication);
@@ -90,6 +94,8 @@ export default function MedicationSetupScreen() {
 
   const canSave =
     Boolean(name.trim() && startDate) && (!forKid || Boolean(familyMemberId && selectedChild));
+  const activeMedicationCount = countActiveMedications(medications);
+  const atMedicationLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
 
   if (!hydrated) {
     return (
@@ -295,6 +301,13 @@ export default function MedicationSetupScreen() {
         </MiniAppCard>
       ) : null}
 
+      {atMedicationLimit ? (
+        <UpgradePrompt
+          title={t('profile.premium.medicationLimitTitle')}
+          message={t('profile.premium.medicationLimitMessage')}
+        />
+      ) : null}
+
       <MiniAppCta
         label={
           isEditing
@@ -305,7 +318,7 @@ export default function MedicationSetupScreen() {
         soft={theme.backgroundColor}
         index={8}
         onPress={() => {
-          if (!canSave || !startDate) {
+          if (!canSave || !startDate || atMedicationLimit) {
             return;
           }
           if (forKid && !selectedChild) {

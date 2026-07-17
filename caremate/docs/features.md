@@ -159,6 +159,8 @@ See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 **Settings route:** `/(app)/profile/settings`  
 **Premium route:** `/(app)/profile/premium`
 
+Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **[Premium & plans](./premium-and-plans.md)** (product spec; enforcement in progress).
+
 ### Implemented profile features
 
 - Guest vs authenticated profile presentation
@@ -179,7 +181,7 @@ See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 
 - Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
 - Notifications are preference-only; push delivery and reminder flows are not fully wired
-- Premium status is surfaced in the UI, but feature locking is still intentionally limited
+- Premium tier detection, AdMob suppression, mini-app account gate, usage caps, blur paywalls, and family profile limits are enforced — see [Premium & plans](./premium-and-plans.md)
 
 ## Emergency Profile
 

@@ -12,6 +12,10 @@ const SLOT_ENV_KEYS: Record<AdSlotId, keyof typeof config> = {
   'learn.article_footer': 'admobBannerLearnArticleFooter',
   'nearby.list': 'admobBannerNearbyList',
   'nearby.provider': 'admobBannerNearbyProvider',
+  'pregnancy.timeline': 'admobBannerPregnancyTimeline',
+  'pregnancy.footer': 'admobBannerPregnancyFooter',
+  'period.week': 'admobBannerPeriodWeek',
+  'period.footer': 'admobBannerPeriodFooter',
 };
 
 /** Banner unit ID for a slot. Dev builds always use Google test IDs. */

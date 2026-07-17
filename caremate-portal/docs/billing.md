@@ -61,6 +61,8 @@ Billing spans multiple services:
 - Supabase stores prices/subscriptions and handles webhooks
 - Portal manages pricing and subscriber visibility
 
+**Product rules** (what Free vs Standard vs Family Premium unlocks on mobile): [`caremate/docs/premium-and-plans.md`](../../caremate/docs/premium-and-plans.md).
+
 ## Important Boundaries
 
 - Payment processor secrets are **not** stored in the portal `.env`

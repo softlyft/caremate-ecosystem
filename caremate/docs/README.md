@@ -17,7 +17,8 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Find where code lives | [Project Structure](./project-structure.md) |
 | Understand screens and routes | [Navigation & Routes](./navigation.md) |
 | Work on auth, guest mode, biometrics | [Authentication](./authentication.md) |
-| Set up kids / spouse household | [Family profiles](./family-profiles.md) |
+| Understand Free vs Premium plans & mini-app limits | [Premium & plans](./premium-and-plans.md) |
+| Set up kids / spouse household | [Family profiles](./family-profiles.md) · plan limits in [Premium & plans](./premium-and-plans.md) |
 | Work on SQLite, repositories, sync | [Data Layer](./data-layer.md) · [Sync Engine](./SYNC_ENGINE.md) · [Supabase alignment](./supabase-alignment.md) |
 | Work on UI, fonts, theming | [UI & Theme](./ui-and-theme.md) |
 | Work on mini-apps (Medication, Checkup, Immunization, Pregnancy, Period) | [Mini-Apps](./mini-apps.md) · [Contract](./mini-app-contract.md) |
@@ -42,6 +43,7 @@ docs/
 ├── project-structure.md   Folder layout and conventions
 ├── navigation.md          Expo Router routes and tab structure
 ├── authentication.md      Auth, guest mode, sessions, biometrics
+├── premium-and-plans.md   Free / Standard / Family Premium matrix (spec)
 ├── family-profiles.md     Household, kids, spouse connection
 ├── data-layer.md          SQLite, Drizzle, repositories
 ├── SYNC_ENGINE.md         Offline outbox, triggers, flow diagrams

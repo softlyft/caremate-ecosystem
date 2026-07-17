@@ -54,6 +54,10 @@ const baseRemote = {
     'learn.article_footer': 'house' as const,
     'nearby.list': 'house' as const,
     'nearby.provider': 'house' as const,
+    'pregnancy.timeline': 'house' as const,
+    'pregnancy.footer': 'house' as const,
+    'period.week': 'house' as const,
+    'period.footer': 'house' as const,
   },
 };
 
@@ -237,6 +241,33 @@ describe('resolveAdForSlot', () => {
     expect(mockGetCachedPremiumState).not.toHaveBeenCalled();
   });
 
+  it.each([
+    AD_SLOTS.PREGNANCY_TIMELINE,
+    AD_SLOTS.PREGNANCY_FOOTER,
+    AD_SLOTS.PERIOD_WEEK,
+    AD_SLOTS.PERIOD_FOOTER,
+  ] as const)('returns AdMob for mini-app slot %s when mode is admob', async (miniAppSlot) => {
+    mockGetRemoteConfig.mockResolvedValue({
+      ...baseRemote,
+      slotMode: { ...baseRemote.slotMode, [miniAppSlot]: 'admob' },
+    });
+
+    const result = await resolveAdForSlot({
+      slotId: miniAppSlot,
+      userId: 'user-1',
+      isGuest: false,
+    });
+
+    expect(result).toMatchObject({
+      kind: 'admob',
+      source: 'admob',
+      slotId: miniAppSlot,
+      unitId: 'ca-app-pub-test/unit',
+    });
+    expect(mockGetAdMobBannerUnitId).toHaveBeenCalledWith(miniAppSlot);
+    expect(mockListEligibleForSlot).not.toHaveBeenCalled();
+  });
+
   it('returns null for AdMob when user is Premium', async () => {
     mockGetRemoteConfig.mockResolvedValue({
       ...baseRemote,
@@ -316,5 +347,23 @@ describe('resolveAdForSlot', () => {
 
     expect(result).toBeNull();
     expect(mockGetAdMobBannerUnitId).not.toHaveBeenCalled();
+  });
+
+  it('returns null for catalog ads on pregnancy slots when user is Premium', async () => {
+    mockGetRemoteConfig.mockResolvedValue({
+      ...baseRemote,
+      slotMode: { ...baseRemote.slotMode, [AD_SLOTS.PREGNANCY_TIMELINE]: 'house' },
+    });
+    mockGetCachedPremiumState.mockResolvedValue({ tier: 'personal' });
+    mockListEligibleForSlot.mockResolvedValue([catalogItem]);
+
+    const result = await resolveAdForSlot({
+      slotId: AD_SLOTS.PREGNANCY_TIMELINE,
+      userId: 'user-1',
+      isGuest: false,
+    });
+
+    expect(result).toBeNull();
+    expect(mockListEligibleForSlot).not.toHaveBeenCalled();
   });
 });

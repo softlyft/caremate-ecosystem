@@ -1,23 +1,32 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input } from '@/components/ui/form-controls';
+import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { useFamilySetupStore } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function FamilyKidsCountScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const tier = usePremiumTier();
+  const maxKids = maxChildrenForTier(tier);
   const childCount = useFamilySetupStore((s) => s.childCount);
   const setChildCount = useFamilySetupStore((s) => s.setChildCount);
   const [value, setValue] = useState(String(childCount));
 
   function continueNext() {
-    const count = Math.max(0, Math.min(12, Number.parseInt(value, 10) || 0));
+    const parsed = Number.parseInt(value, 10) || 0;
+    if (parsed > maxKids) {
+      Alert.alert(t('family.childLimitTitle'), t('family.kidsCountLimitHint'));
+      return;
+    }
+    const count = Math.max(0, Math.min(maxKids, parsed));
     setChildCount(count);
     if (count === 0) {
       router.push('/(app)/family/review');
@@ -34,6 +43,9 @@ export default function FamilyKidsCountScreen() {
     >
       <AppText variant="sectionTitle">{t('family.kidsCount.title')}</AppText>
       <AppText variant="subtitle">{t('family.kidsCount.subtitle')}</AppText>
+      <AppText variant="caption" style={styles.hint}>
+        {t('family.kidsCountLimitHint')}
+      </AppText>
 
       <View style={styles.card}>
         <Input
@@ -61,5 +73,8 @@ const styles = StyleSheet.create({
     borderColor: palette.divider,
     padding: layoutSpacing.cardPadding,
     gap: spacing.sm,
+  },
+  hint: {
+    color: palette.textSecondary,
   },
 });

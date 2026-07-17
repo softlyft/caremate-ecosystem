@@ -8,6 +8,7 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { getMiniAppLabel, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 type MiniAppCardProps = {
@@ -22,6 +23,7 @@ function lightenForGradient(_hex: string): string {
 
 export function MiniAppCard({ app, index }: MiniAppCardProps) {
   const { t } = useTranslation();
+  const isGuest = useIsGuest();
   const Icon = app.icon;
   const { name, description } = getMiniAppLabel(app.id, t);
 
@@ -31,9 +33,14 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
         disabled={!app.available}
         style={[styles.shell, shadow.soft, !app.available ? styles.unavailable : null]}
         onPress={() => {
-          if (app.available) {
-            router.push(app.route);
+          if (!app.available) {
+            return;
           }
+          if (isGuest) {
+            router.push('/(auth)/login');
+            return;
+          }
+          router.push(app.route);
         }}
         accessibilityRole="button"
         accessibilityLabel={name}

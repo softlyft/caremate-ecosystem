@@ -1,33 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #111827;
+  /* Neutrals */
+  --background: #f6f8fb;
+  --foreground: #0f172a;
   --surface: #ffffff;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --primary: #16a34a;
-  --primary-light: #dcfce7;
-  --primary-dark: #15803d;
+  --surface-muted: #f1f5f9;
+  --muted: #64748b;
+  --border: #e6eaf0;
+
+  /* Brand — teal primary (matches mobile #0D9488) */
+  --primary: #0d9488;
+  --primary-light: #ccfbf1;
+  --primary-dark: #0f766e;
+
+  /* Brand — blue accent (from logo) */
+  --accent: #2563eb;
+  --accent-light: #dbeafe;
+
+  /* Brand — deep navy (wordmark text) */
+  --brand-navy: #0b2f5c;
+
+  /* Status */
+  --success: #059669;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
   --danger: #ef4444;
+
+  /* Effects */
+  --ring: rgba(13, 148, 136, 0.35);
+  --shadow-color: 15, 23, 42;
+  --radius: 0.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-muted: var(--muted);
   --color-border: var(--border);
+
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
   --color-primary-dark: var(--primary-dark);
+
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+
+  --color-brand-navy: var(--brand-navy);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
   --color-danger: var(--danger);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --radius-lg: var(--radius);
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Shared soft elevation for cards / panels */
+.shadow-card {
+  box-shadow:
+    0 1px 2px rgba(var(--shadow-color), 0.04),
+    0 8px 24px -12px rgba(var(--shadow-color), 0.12);
+}
+
+/* Subtle brand scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

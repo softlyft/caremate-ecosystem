@@ -19,6 +19,10 @@ const SLOTS = [
   { id: 'learn.article_footer' as const, label: 'Learn article footer' },
   { id: 'nearby.list' as const, label: 'Nearby list' },
   { id: 'nearby.provider' as const, label: 'Nearby provider (before contact)' },
+  { id: 'pregnancy.timeline' as const, label: 'Pregnancy tracker (before timeline)' },
+  { id: 'pregnancy.footer' as const, label: 'Pregnancy tracker (before update due date)' },
+  { id: 'period.week' as const, label: 'Period tracker (before this week)' },
+  { id: 'period.footer' as const, label: 'Period tracker (before log period days)' },
 ] as const;
 
 const MODES: { value: AdSlotMode; label: string }[] = [

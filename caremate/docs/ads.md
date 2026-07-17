@@ -46,6 +46,12 @@
 | `learn.article_footer` | Article detail — immediately after body card (before Read full CTA on news) | `house` |
 | `nearby.list` | Nearby list — after type filters | `house` |
 | `nearby.provider` | Provider detail — before contact card | `house` |
+| `pregnancy.timeline` | Pregnancy Tracker — before the timeline/progress card | `house` |
+| `pregnancy.footer` | Pregnancy Tracker — before the "Update due date" CTA | `house` |
+| `period.week` | Period Tracker — before the "This week" calendar | `house` |
+| `period.footer` | Period Tracker — before the "Log period days" CTA | `house` |
+
+Every slot supports the same four portal modes: `off`, `house`, `sponsored`, and `admob`. Default seed mode is `house` for new slots; switch to `off` or any other mode in `/dashboard/ads`.
 
 Slots are registered in mobile (`AD_SLOTS` in `src/domains/ads/types.ts`) and portal (`caremate-portal/src/domains/ads/constants.ts`). **Source per slot** comes from portal remote config (`ads.slots.<id>.mode`).
 
@@ -54,12 +60,10 @@ Slots are registered in mobile (`AD_SLOTS` in `src/domains/ads/types.ts`) and po
 | Surface | Reason |
 |---------|--------|
 | Emergency profile / QR / lock-screen emergency | Safety-critical |
-| Period Tracker (all screens) | Sensitive reproductive health |
-| Pregnancy Tracker (all screens) | Sensitive reproductive health |
 | Active **child** profile contexts | Play Families / kids-policy risk |
 | Auth, onboarding, password recovery | Conversion / trust |
 
-Portal cannot override the hard blocklist.
+Portal cannot override the hard blocklist. Mini-app tracker slots (`pregnancy.*`, `period.*`) are **not** blocklisted — they use the same resolver and mode picker as Home, Learn, and Nearby.
 
 ---
 
@@ -150,6 +154,8 @@ Reporting separates events by `source` (`house`, `sponsored`, `admob`).
 | `20260716194500_ads_article_header_slot.sql` | `learn.article_header` |
 | `20260716200000_ads_nearby_provider_slot.sql` | `nearby.provider` |
 | `20260716203000_ads_article_footer_slot.sql` | `learn.article_footer` |
+| `20260717091500_ads_pregnancy_tracker_slots.sql` | `pregnancy.timeline` + `pregnancy.footer` |
+| `20260717092500_ads_period_tracker_slots.sql` | `period.week` + `period.footer` |
 
 Seed campaign id: `camp_house_welcome` (creative `cre_house_welcome`). New slots need both a **mode** row and a **placement** row or house mode will show nothing.
 
@@ -160,7 +166,7 @@ Seed campaign id: `camp_house_welcome` (creative `cre_house_welcome`). New slots
 Environment variables (see [Configuration](./configuration.md) and `.env.example`):
 
 - `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` / `EXPO_PUBLIC_ADMOB_APP_ID_IOS` — wired via `app.config.ts` (must run `npx expo prebuild` so the native manifest gets `APPLICATION_ID`)
-- `EXPO_PUBLIC_ADMOB_BANNER_<SLOT>` — one production unit per slot
+- `EXPO_PUBLIC_ADMOB_BANNER_<SLOT>` — one production unit per slot (all 11 slots, including `PREGNANCY_TIMELINE`, `PREGNANCY_FOOTER`, `PERIOD_WEEK`, `PERIOD_FOOTER` — see [Configuration](./configuration.md))
 
 Pinned package: `react-native-google-mobile-ads@16.0.0` (compatible with Expo 57 / Kotlin 2.1). `__DEV__` builds use Google test banner IDs. Rebuild the native app after changing AdMob config.
 
@@ -170,8 +176,10 @@ Pinned package: `react-native-google-mobile-ads@16.0.0` (compatible with Expo 57
 
 | Entitlement | Ads behavior |
 |-------------|--------------|
-| Free / guest | Full resolver per slot mode |
-| Premium | **No AdMob**; house + sponsored still allowed per slot mode |
+| Guest / Free | Full resolver per slot mode (house, sponsored, AdMob) |
+| Standard / Family Premium | **No AdMob**; pregnancy & period mini-app slots should show **no ads** (planned); other slots follow portal catalog mode unless product narrows further |
+
+Full plan matrix: [Premium & plans](./premium-and-plans.md).
 
 ---
 
@@ -191,6 +199,7 @@ Pinned package: `react-native-google-mobile-ads@16.0.0` (compatible with Expo 57
 
 | Doc / area | Link |
 |------------|------|
+| Premium & plans matrix | [Premium & plans](./premium-and-plans.md) |
 | Env / AdMob IDs | [Configuration](./configuration.md) |
 | Layout spacing (Home/Learn/Nearby) | [UI & Theme](./ui-and-theme.md#tab-spacing-rhythm) |
 | Tab persistence | [Navigation](./navigation.md#bottom-tabs) |

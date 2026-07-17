@@ -22,8 +22,11 @@ import {
   validateChildNameAndDob,
 } from '@/domains/family';
 import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
+import { canAddChild, canConnectSpouse } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -42,6 +45,7 @@ export default function FamilyHubScreen() {
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const tier = usePremiumTier();
   const queryClient = useQueryClient();
 
   const householdQuery = useQuery({
@@ -113,6 +117,10 @@ export default function FamilyHubScreen() {
 
   async function handleConnect() {
     if (!householdId || !matched) return;
+    if (!canConnectSpouse(tier)) {
+      Alert.alert(t('family.spousePremiumTitle'), t('family.spousePremiumMessage'));
+      return;
+    }
     setBusy(true);
     try {
       const profile = await profileRepository.findByUserId(userId);
@@ -146,6 +154,13 @@ export default function FamilyHubScreen() {
 
   async function handleAddChild() {
     if (!householdId) return;
+    const currentChildCount = (membersQuery.data ?? []).filter(
+      (member) => member.kind === 'child',
+    ).length;
+    if (!canAddChild(tier, currentChildCount)) {
+      Alert.alert(t('family.childLimitTitle'), t('family.childLimitMessage'));
+      return;
+    }
     const validated = validateChildNameAndDob(childName, childDob);
     if (!validated.ok) {
       const message =
@@ -292,6 +307,8 @@ export default function FamilyHubScreen() {
   const children = (membersQuery.data ?? []).filter((m) => m.kind === 'child');
   const adults = (membersQuery.data ?? []).filter((m) => m.kind !== 'child');
   const requestCount = requestsQuery.data?.length ?? 0;
+  const canAddAnotherChild = canAddChild(tier, children.length);
+  const spouseConnectAllowed = canConnectSpouse(tier);
 
   return (
     <View style={styles.screen}>
@@ -401,50 +418,62 @@ export default function FamilyHubScreen() {
               </AppText>
             ) : null}
 
-            <AppText variant="caption" style={[styles.sectionEyebrow, { marginTop: spacing.sm }]}>
-              {t('family.addAnotherChild')}
-            </AppText>
-            <Input
-              placeholder={t('family.child.name')}
-              value={childName}
-              onChangeText={setChildName}
-            />
-            <Input
-              placeholder={t('family.dobPlaceholder')}
-              value={childDob}
-              onChangeText={setChildDob}
-              autoCapitalize="none"
-            />
-            <View style={styles.chipRow}>
-              {FAMILY_GENDERS.map((g) => {
-                const selected = childGender === g.value;
-                return (
-                  <PressableScale
-                    key={g.value}
-                    style={[styles.chip, selected && styles.chipSelected]}
-                    onPress={() => setChildGender(g.value)}
-                    scale={0.96}
-                  >
-                    <AppText
-                      variant="caption"
-                      style={selected ? styles.chipTextSelected : styles.chipText}
-                    >
-                      {g.label}
-                    </AppText>
-                  </PressableScale>
-                );
-              })}
-            </View>
-            <PressableScale
-              style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
-              disabled={busy}
-              onPress={() => void handleAddChild()}
-            >
-              <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
-              <AppText variant="button" style={styles.primaryCtaLabel}>
-                {busy ? t('common.saving') : t('family.addChild')}
-              </AppText>
-            </PressableScale>
+            {!canAddAnotherChild ? (
+              <UpgradePrompt
+                title={t('profile.premium.familyChildLimitTitle')}
+                message={t('profile.premium.familyChildLimitMessage')}
+              />
+            ) : (
+              <>
+                <AppText
+                  variant="caption"
+                  style={[styles.sectionEyebrow, { marginTop: spacing.sm }]}
+                >
+                  {t('family.addAnotherChild')}
+                </AppText>
+                <Input
+                  placeholder={t('family.child.name')}
+                  value={childName}
+                  onChangeText={setChildName}
+                />
+                <Input
+                  placeholder={t('family.dobPlaceholder')}
+                  value={childDob}
+                  onChangeText={setChildDob}
+                  autoCapitalize="none"
+                />
+                <View style={styles.chipRow}>
+                  {FAMILY_GENDERS.map((g) => {
+                    const selected = childGender === g.value;
+                    return (
+                      <PressableScale
+                        key={g.value}
+                        style={[styles.chip, selected && styles.chipSelected]}
+                        onPress={() => setChildGender(g.value)}
+                        scale={0.96}
+                      >
+                        <AppText
+                          variant="caption"
+                          style={selected ? styles.chipTextSelected : styles.chipText}
+                        >
+                          {g.label}
+                        </AppText>
+                      </PressableScale>
+                    );
+                  })}
+                </View>
+                <PressableScale
+                  style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
+                  disabled={busy}
+                  onPress={() => void handleAddChild()}
+                >
+                  <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
+                  <AppText variant="button" style={styles.primaryCtaLabel}>
+                    {busy ? t('common.saving') : t('family.addChild')}
+                  </AppText>
+                </PressableScale>
+              </>
+            )}
           </View>
         </AnimatedSection>
 
@@ -453,90 +482,100 @@ export default function FamilyHubScreen() {
             <AppText variant="caption" style={styles.sectionEyebrow}>
               {t('family.connectSpouse')}
             </AppText>
-            <AppText variant="caption" style={styles.muted}>
-              {t('family.connectSpouseHint')}
-            </AppText>
-            <Input
-              placeholder={t('family.emailOrPhone')}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={lookup}
-              onChangeText={setLookup}
-            />
-            <PressableScale
-              style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
-              disabled={busy || !lookup.trim()}
-              onPress={() => void handleLookup()}
-            >
-              <AppText variant="button" style={styles.secondaryCtaLabel}>
-                {busy ? t('family.searching') : t('family.find')}
-              </AppText>
-            </PressableScale>
-
-            {matched ? (
-              <View style={styles.foundCard}>
-                <AppText variant="cardTitle" style={{ color: TITLE }}>
-                  {matched.fullName}
+            {!spouseConnectAllowed ? (
+              <UpgradePrompt
+                title={t('profile.premium.familySpouseTitle')}
+                message={t('profile.premium.familySpouseMessage')}
+              />
+            ) : (
+              <>
+                <AppText variant="caption" style={styles.muted}>
+                  {t('family.connectSpouseHint')}
                 </AppText>
-                <AppText variant="caption">
-                  {t('family.emailLabel', { value: matched.email ?? '—' })}
-                </AppText>
-                <AppText variant="caption">
-                  {t('family.phoneLabel', { value: matched.phone ?? '—' })}
-                </AppText>
-                <AppText variant="caption">
-                  {t('family.dobValue', { value: formatDob(matched.dateOfBirth) })}
-                </AppText>
-                <AppText variant="caption">
-                  {t('family.locationLabel', {
-                    value: [matched.state, matched.countryCode].filter(Boolean).join(', ') || '—',
-                  })}
-                </AppText>
+                <Input
+                  placeholder={t('family.emailOrPhone')}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  value={lookup}
+                  onChangeText={setLookup}
+                />
                 <PressableScale
-                  style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
-                  disabled={busy}
-                  onPress={() => void handleConnect()}
+                  style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
+                  disabled={busy || !lookup.trim()}
+                  onPress={() => void handleLookup()}
                 >
-                  <AppText variant="button" style={styles.primaryCtaLabel}>
-                    {t('family.connect')}
+                  <AppText variant="button" style={styles.secondaryCtaLabel}>
+                    {busy ? t('family.searching') : t('family.find')}
                   </AppText>
                 </PressableScale>
-              </View>
-            ) : null}
 
-            {notFound ? (
-              <View style={styles.foundCard}>
-                <AppText variant="body">{t('family.notFound')}</AppText>
-                <AppText variant="caption" style={styles.inviteHint}>
-                  {t('family.outsideInviteHint')}
-                </AppText>
-                <View style={styles.inviteMessageBox}>
-                  <AppText variant="caption" style={styles.inviteMessageText}>
-                    {outsideInviteMessage}
-                  </AppText>
-                </View>
-                <View style={styles.inviteActions}>
-                  <PressableScale
-                    style={styles.secondaryCta}
-                    onPress={() => void handleCopyInvite()}
-                  >
-                    <Copy color={ACCENT} size={16} strokeWidth={2.25} />
-                    <AppText variant="button" style={styles.secondaryCtaLabel}>
-                      {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
+                {matched ? (
+                  <View style={styles.foundCard}>
+                    <AppText variant="cardTitle" style={{ color: TITLE }}>
+                      {matched.fullName}
                     </AppText>
-                  </PressableScale>
-                  <PressableScale
-                    style={styles.secondaryCta}
-                    onPress={() => void handleShareInvite()}
-                  >
-                    <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
-                    <AppText variant="button" style={styles.secondaryCtaLabel}>
-                      {t('family.shareInvite')}
+                    <AppText variant="caption">
+                      {t('family.emailLabel', { value: matched.email ?? '—' })}
                     </AppText>
-                  </PressableScale>
-                </View>
-              </View>
-            ) : null}
+                    <AppText variant="caption">
+                      {t('family.phoneLabel', { value: matched.phone ?? '—' })}
+                    </AppText>
+                    <AppText variant="caption">
+                      {t('family.dobValue', { value: formatDob(matched.dateOfBirth) })}
+                    </AppText>
+                    <AppText variant="caption">
+                      {t('family.locationLabel', {
+                        value:
+                          [matched.state, matched.countryCode].filter(Boolean).join(', ') || '—',
+                      })}
+                    </AppText>
+                    <PressableScale
+                      style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
+                      disabled={busy}
+                      onPress={() => void handleConnect()}
+                    >
+                      <AppText variant="button" style={styles.primaryCtaLabel}>
+                        {t('family.connect')}
+                      </AppText>
+                    </PressableScale>
+                  </View>
+                ) : null}
+
+                {notFound ? (
+                  <View style={styles.foundCard}>
+                    <AppText variant="body">{t('family.notFound')}</AppText>
+                    <AppText variant="caption" style={styles.inviteHint}>
+                      {t('family.outsideInviteHint')}
+                    </AppText>
+                    <View style={styles.inviteMessageBox}>
+                      <AppText variant="caption" style={styles.inviteMessageText}>
+                        {outsideInviteMessage}
+                      </AppText>
+                    </View>
+                    <View style={styles.inviteActions}>
+                      <PressableScale
+                        style={styles.secondaryCta}
+                        onPress={() => void handleCopyInvite()}
+                      >
+                        <Copy color={ACCENT} size={16} strokeWidth={2.25} />
+                        <AppText variant="button" style={styles.secondaryCtaLabel}>
+                          {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
+                        </AppText>
+                      </PressableScale>
+                      <PressableScale
+                        style={styles.secondaryCta}
+                        onPress={() => void handleShareInvite()}
+                      >
+                        <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
+                        <AppText variant="button" style={styles.secondaryCtaLabel}>
+                          {t('family.shareInvite')}
+                        </AppText>
+                      </PressableScale>
+                    </View>
+                  </View>
+                ) : null}
+              </>
+            )}
           </View>
         </AnimatedSection>
       </Animated.ScrollView>
