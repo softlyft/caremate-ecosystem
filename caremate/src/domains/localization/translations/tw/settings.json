@@ -33,7 +33,9 @@
     "selected": "Wopaw: {{value}}",
     "notSet": "Wonnnhyehyɛeɛ",
     "save": "Sie beaeɛ",
-    "saving": "Ɛresie..."
+    "saving": "Ɛresie...",
+    "searchPlaceholder": "Hwehwɛ nman",
+    "searchEmpty": "Ɔman biara nni hɔ a ɛne nhwehwɛmu no hyia."
   },
   "family": {
     "title": "Abusua",

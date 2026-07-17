@@ -33,7 +33,9 @@
     "selected": "已选择：{{value}}",
     "notSet": "未设置",
     "save": "保存位置",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "searchPlaceholder": "搜索国家",
+    "searchEmpty": "没有匹配的国家。"
   },
   "family": {
     "title": "家庭",

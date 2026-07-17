@@ -33,7 +33,9 @@
     "selected": "चयनित: {{value}}",
     "notSet": "सेट नहीं",
     "save": "स्थान सहेजें",
-    "saving": "सहेजा जा रहा है..."
+    "saving": "सहेजा जा रहा है...",
+    "searchPlaceholder": "देश खोजें",
+    "searchEmpty": "कोई देश इस खोज से मेल नहीं खाता।"
   },
   "family": {
     "title": "परिवार",

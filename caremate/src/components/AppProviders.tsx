@@ -64,7 +64,9 @@ async function runBackgroundStartupTasks() {
     await syncEngine.start();
     await registerDailyBackgroundSync();
     if (config.isAdMobConfigured || __DEV__) {
-      void initializeAdsConsentAndSdk();
+      await initializeAdsConsentAndSdk();
+      // Ad slots may have resolved (and cached null) while UMP was still pending.
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
     }
   } catch {
     // Background sync failures should not affect local-first startup.

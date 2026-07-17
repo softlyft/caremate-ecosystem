@@ -16,7 +16,6 @@ import {
   learnArticleHeaderOptions,
 } from '@/components/navigation/glossyStackHeader';
 import { SyncStatusBanner } from '@/components/SyncStatusBanner';
-import { miniAppHeaderOptions } from '@/mini-apps/_kit/components/miniAppHeaderOptions';
 import { palette } from '@/theme';
 
 const premiumHeader = {
@@ -202,131 +201,8 @@ export default function AppLayout() {
           })}
         />
 
-        <Stack.Screen
-          name="apps/period-tracker/index"
-          options={miniAppHeaderOptions({
-            appId: 'period-tracker',
-            title: 'Period Tracker',
-            backAccessibilityLabel: 'Back to Apps',
-          })}
-        />
-        <Stack.Screen
-          name="apps/period-tracker/log"
-          options={miniAppHeaderOptions({
-            appId: 'period-tracker',
-            title: 'Log Period',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-
-        <Stack.Screen
-          name="apps/pregnancy-tracker/index"
-          options={miniAppHeaderOptions({
-            appId: 'pregnancy-tracker',
-            title: 'Pregnancy Tracker',
-            backAccessibilityLabel: 'Back to Apps',
-          })}
-        />
-        <Stack.Screen
-          name="apps/pregnancy-tracker/setup"
-          options={miniAppHeaderOptions({
-            appId: 'pregnancy-tracker',
-            title: 'Set Up Pregnancy',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-        <Stack.Screen
-          name="apps/pregnancy-tracker/log"
-          options={miniAppHeaderOptions({
-            appId: 'pregnancy-tracker',
-            title: 'Daily Log',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-
-        <Stack.Screen
-          name="apps/immunization-tracker/index"
-          options={miniAppHeaderOptions({
-            appId: 'immunization-tracker',
-            title: 'Immunization Tracker',
-            backAccessibilityLabel: 'Back to Apps',
-          })}
-        />
-        <Stack.Screen
-          name="apps/immunization-tracker/setup"
-          options={miniAppHeaderOptions({
-            appId: 'immunization-tracker',
-            title: 'Family children',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-        <Stack.Screen
-          name="apps/immunization-tracker/log"
-          options={miniAppHeaderOptions({
-            appId: 'immunization-tracker',
-            title: 'Log Vaccine',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-
-        <Stack.Screen
-          name="apps/medication-tracker/index"
-          options={miniAppHeaderOptions({
-            appId: 'medication-tracker',
-            title: 'Medication Tracker',
-            backAccessibilityLabel: 'Back to Apps',
-          })}
-        />
-        <Stack.Screen
-          name="apps/medication-tracker/setup"
-          options={miniAppHeaderOptions({
-            appId: 'medication-tracker',
-            title: 'Add Medicine',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-        <Stack.Screen
-          name="apps/medication-tracker/log"
-          options={miniAppHeaderOptions({
-            appId: 'medication-tracker',
-            title: 'Log Dose',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-
-        <Stack.Screen
-          name="apps/checkup-planner/index"
-          options={miniAppHeaderOptions({
-            appId: 'checkup-planner',
-            title: 'Checkup Planner',
-            backAccessibilityLabel: 'Back to Apps',
-          })}
-        />
-        <Stack.Screen
-          name="apps/checkup-planner/setup"
-          options={miniAppHeaderOptions({
-            appId: 'checkup-planner',
-            title: 'Set Up Planner',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
-        <Stack.Screen
-          name="apps/checkup-planner/log"
-          options={miniAppHeaderOptions({
-            appId: 'checkup-planner',
-            title: 'Log Checkup',
-            modal: true,
-            backAccessibilityLabel: 'Close',
-          })}
-        />
+        {/* Nested navigator owns mini-app headers — see apps/_layout.tsx */}
+        <Stack.Screen name="apps" options={{ headerShown: false }} />
       </Stack>
     </View>
   );

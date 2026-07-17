@@ -50,11 +50,11 @@ Onboarding locationMode
 
 | Selection | Pin used |
 |-----------|----------|
-| Country + Nigerian state | That state's capital / major-city coords (`nigeria-state-coords.ts`) |
-| Country only | Country capital-area coords from `african-countries.ts` / country config |
+| Country + Nigerian state (if stored) | That state's capital / major-city coords (`nigeria-state-coords.ts`) — state is still in the profile schema but not collected in onboarding/settings UI yet |
+| Country only | Country capital-area coords from `african-countries.ts` / `world-countries.ts` via country config |
 | No country yet (Global / unset) | International fallback (`0, 0`) — Nearby may be empty until region is chosen |
 
-There is **no** Nigeria bounding-box gate. When precise GPS is available, it is used even if the device is outside the selected country. Approximate mode deliberately uses the user's onboarding country/state so results stay relevant without sharing live location.
+There is **no** Nigeria bounding-box gate. When precise GPS is available, it is used even if the device is outside the selected country. Approximate mode uses the user's selected country capital (and a stored state pin when present) so results stay relevant without sharing live location.
 
 Permission UX lives in onboarding (`/(auth)/onboarding/location`): enable precise GPS or continue with the selected-region approximate pin. Nearby shows a caption when results are ranked from that approximate pin.
 

@@ -1,5 +1,5 @@
-import { RefreshCw } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { RefreshCw, X } from 'lucide-react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
@@ -14,11 +14,32 @@ import {
 import { palette } from '@/theme';
 
 const EMPTY_SUMMARY: SyncQueueSummary = { pendingCount: 0, failedCount: 0 };
+/** Auto-hide the banner after this many ms once it appears. */
+const AUTO_DISMISS_MS = 5_000;
+
+function summaryKey(summary: SyncQueueSummary): string {
+  return `${summary.pendingCount}:${summary.failedCount}`;
+}
 
 export function SyncStatusBanner() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [summary, setSummary] = useState<SyncQueueSummary>(EMPTY_SUMMARY);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const lastShownKey = useRef<string | null>(null);
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearDismissTimer = useCallback(() => {
+    if (dismissTimer.current) {
+      clearTimeout(dismissTimer.current);
+      dismissTimer.current = null;
+    }
+  }, []);
+
+  const dismiss = useCallback(() => {
+    clearDismissTimer();
+    setDismissed(true);
+  }, [clearDismissTimer]);
 
   const refreshSummary = useCallback(async () => {
     try {
@@ -52,7 +73,41 @@ export function SyncStatusBanner() {
     };
   }, [isAuthenticated, refreshSummary]);
 
-  if (!isAuthenticated || summary.pendingCount + summary.failedCount === 0) {
+  const hasItems = summary.pendingCount + summary.failedCount > 0;
+  const key = summaryKey(summary);
+
+  // Re-show when the queue summary changes (new pending/failed work).
+  useEffect(() => {
+    if (!hasItems) {
+      lastShownKey.current = null;
+      setDismissed(false);
+      clearDismissTimer();
+      return;
+    }
+
+    if (lastShownKey.current !== key) {
+      lastShownKey.current = key;
+      setDismissed(false);
+    }
+  }, [clearDismissTimer, hasItems, key]);
+
+  // Auto-dismiss a few seconds after becoming visible.
+  useEffect(() => {
+    if (!isAuthenticated || !hasItems || dismissed) {
+      clearDismissTimer();
+      return;
+    }
+
+    clearDismissTimer();
+    dismissTimer.current = setTimeout(() => {
+      setDismissed(true);
+      dismissTimer.current = null;
+    }, AUTO_DISMISS_MS);
+
+    return clearDismissTimer;
+  }, [clearDismissTimer, dismissed, hasItems, isAuthenticated, key]);
+
+  if (!isAuthenticated || !hasItems || dismissed) {
     return null;
   }
 
@@ -104,6 +159,15 @@ export function SyncStatusBanner() {
           {isRetrying ? 'Syncing' : hasFailures ? 'Retry' : 'Sync now'}
         </AppText>
       </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss sync status"
+        hitSlop={8}
+        onPress={dismiss}
+        style={styles.dismiss}
+      >
+        <X color={palette.textSecondary} size={16} strokeWidth={2.5} />
+      </Pressable>
     </View>
   );
 }
@@ -116,7 +180,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   pendingContainer: {
     backgroundColor: palette.primaryLight,
@@ -137,5 +201,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+  },
+  dismiss: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
   },
 });

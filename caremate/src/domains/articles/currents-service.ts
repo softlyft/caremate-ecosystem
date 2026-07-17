@@ -47,8 +47,8 @@ async function searchHealthNews(
     language: languageCode,
   });
 
-  // Currents often returns an empty list for `INT` and many country codes (including NG).
-  // Only send `country` for concrete ISO codes; omit it for international/global results.
+  // Currents often returns an empty list for `INT`. Only send `country` for concrete ISO codes;
+  // omit it for international/global results.
   const normalized = countryCode?.trim().toUpperCase();
   if (normalized && normalized !== localizationService.internationalCountryCode) {
     params.set('country', normalized);
@@ -77,6 +77,11 @@ export const currentsService = {
     return config.isCurrentsConfigured;
   },
 
+  /**
+   * Fetch health news for a single region. Does **not** fall back to INT when a
+   * country query is empty — callers that need both INT and local news should
+   * request each region separately.
+   */
   async fetchHealthNews(
     limit = 10,
     countryCode = config.currentsCountry,
@@ -86,17 +91,6 @@ export const currentsService = {
       return [];
     }
 
-    const primary = await searchHealthNews(limit, countryCode, languageCode);
-    if (primary.length > 0) {
-      return primary;
-    }
-
-    // Country-scoped health feeds are frequently empty — fall back to global English health news.
-    const normalized = countryCode?.trim().toUpperCase();
-    if (normalized && normalized !== localizationService.internationalCountryCode) {
-      return searchHealthNews(limit, localizationService.internationalCountryCode, languageCode);
-    }
-
-    return [];
+    return searchHealthNews(limit, countryCode, languageCode);
   },
 };

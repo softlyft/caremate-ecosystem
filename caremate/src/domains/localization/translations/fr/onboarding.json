@@ -19,7 +19,9 @@
       "language": "Langue",
       "state": "État / province (facultatif)"
     },
-    "statePlaceholder": "ex. Grand Accra"
+    "statePlaceholder": "ex. Grand Accra",
+    "searchPlaceholder": "Rechercher des pays",
+    "searchEmpty": "Aucun pays ne correspond à cette recherche."
   },
   "priorities": {
     "title": "Qu'est-ce qui compte le plus ?",

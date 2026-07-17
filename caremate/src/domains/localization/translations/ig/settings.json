@@ -33,7 +33,9 @@
     "selected": "Ahọpụtara: {{value}}",
     "notSet": "Edebeghị",
     "save": "Chekwaa ebe",
-    "saving": "Na-echekwa..."
+    "saving": "Na-echekwa...",
+    "searchPlaceholder": "Chọọ mba",
+    "searchEmpty": "Enweghị mba dabara n'ọchịchọ a."
   },
   "family": {
     "title": "Ezinụlọ",

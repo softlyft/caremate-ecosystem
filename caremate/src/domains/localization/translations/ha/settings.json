@@ -33,7 +33,9 @@
     "selected": "An zaɓa: {{value}}",
     "notSet": "Ba a saita ba",
     "save": "Ajiye wuri",
-    "saving": "Ana ajiyewa..."
+    "saving": "Ana ajiyewa...",
+    "searchPlaceholder": "Nemo ƙasashe",
+    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike."
   },
   "family": {
     "title": "Iyali",

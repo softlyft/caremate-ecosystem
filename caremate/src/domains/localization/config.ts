@@ -1,5 +1,12 @@
 import { AFRICAN_COUNTRIES, FRANCOPHONE_AFRICA_CODES } from './african-countries';
 import type { CountryConfig, LanguageCode, LanguageConfig } from './types';
+import {
+  FRANCOPHONE_WORLD_CODES,
+  HINDI_COUNTRY_CODES,
+  MANDARIN_COUNTRY_CODES,
+  SPANISH_COUNTRY_CODES,
+  WORLD_COUNTRIES,
+} from './world-countries';
 
 /** News / international fallback country code (Currents API). Display name: Global. */
 export const INTERNATIONAL_COUNTRY_CODE = 'INT';
@@ -79,6 +86,7 @@ export const LANGUAGE_CONFIGS: Record<LanguageCode, LanguageConfig> = {
   },
 };
 
+/** Kept for future UI / approximate-pin use — not surfaced in onboarding or settings yet. */
 const NIGERIA_STATES = [
   'Abia',
   'Adamawa',
@@ -119,6 +127,10 @@ const NIGERIA_STATES = [
   'Zamfara',
 ] as const;
 
+/**
+ * Language sets use only existing LanguageCode catalogs — never invent new locales.
+ * Default for any unlisted country is English only.
+ */
 function supportedLanguagesForCountry(code: string): LanguageCode[] {
   if (code === INTERNATIONAL_COUNTRY_CODE) {
     return ['en', 'es', 'fr', 'zh', 'hi'];
@@ -132,21 +144,34 @@ function supportedLanguagesForCountry(code: string): LanguageCode[] {
   if (code === 'KE' || code === 'TZ') {
     return ['en', 'sw'];
   }
-  if (FRANCOPHONE_AFRICA_CODES.has(code)) {
+  if (FRANCOPHONE_AFRICA_CODES.has(code) || FRANCOPHONE_WORLD_CODES.has(code)) {
     return ['en', 'fr'];
+  }
+  if (SPANISH_COUNTRY_CODES.has(code)) {
+    return ['en', 'es'];
+  }
+  if (MANDARIN_COUNTRY_CODES.has(code)) {
+    return ['en', 'zh'];
+  }
+  if (HINDI_COUNTRY_CODES.has(code)) {
+    return ['en', 'hi'];
   }
   return ['en'];
 }
 
-function buildAfricanCountryConfigs(): CountryConfig[] {
-  return AFRICAN_COUNTRIES.map((country) => ({
+function buildCountryConfig(country: {
+  code: string;
+  name: string;
+  fallbackCoords: { latitude: number; longitude: number };
+}): CountryConfig {
+  return {
     code: country.code,
     name: country.name,
     supportedLanguages: supportedLanguagesForCountry(country.code),
-    defaultLanguage: 'en' as LanguageCode,
+    defaultLanguage: 'en',
     fallbackCoords: country.fallbackCoords,
     ...(country.code === 'NG' ? { subdivisions: NIGERIA_STATES } : {}),
-  }));
+  };
 }
 
 const GLOBAL_CONFIG: CountryConfig = {
@@ -157,8 +182,9 @@ const GLOBAL_CONFIG: CountryConfig = {
   fallbackCoords: { latitude: 0, longitude: 0 },
 };
 
-/** All configs: African countries (A–Z) + Global (INT). */
-export const COUNTRY_CONFIGS: readonly CountryConfig[] = [
-  ...buildAfricanCountryConfigs(),
-  GLOBAL_CONFIG,
-];
+const REGIONAL_COUNTRIES = [...AFRICAN_COUNTRIES, ...WORLD_COUNTRIES]
+  .map(buildCountryConfig)
+  .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+
+/** All configs: real countries (A-Z by name) + internal Global (INT) fallback last. */
+export const COUNTRY_CONFIGS: readonly CountryConfig[] = [...REGIONAL_COUNTRIES, GLOBAL_CONFIG];

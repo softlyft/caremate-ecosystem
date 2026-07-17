@@ -18,5 +18,13 @@ export function useAdForSlot(slotId: AdSlotId) {
         isGuest,
       }),
     staleTime: 60_000,
+    // Consent/SDK init can lag behind first paint — keep retrying briefly.
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message === 'ADS_CONSENT_PENDING') {
+        return failureCount < 20;
+      }
+      return failureCount < 2;
+    },
+    retryDelay: (attempt) => Math.min(250 * 2 ** attempt, 2_000),
   });
 }

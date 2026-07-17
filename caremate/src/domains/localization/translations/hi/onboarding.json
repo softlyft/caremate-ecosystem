@@ -19,7 +19,9 @@
       "language": "भाषा",
       "state": "राज्य / प्रांत (वैकल्पिक)"
     },
-    "statePlaceholder": "उदा. ग्रेटर आक्रा"
+    "statePlaceholder": "उदा. ग्रेटर आक्रा",
+    "searchPlaceholder": "देश खोजें",
+    "searchEmpty": "कोई देश इस खोज से मेल नहीं खाता।"
   },
   "priorities": {
     "title": "सबसे ज़्यादा क्या मायने रखता है?",

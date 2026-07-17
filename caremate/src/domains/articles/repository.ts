@@ -6,12 +6,17 @@ import { getDatabase } from '@/database/client';
 import { articles, bookmarks } from '@/database/schema';
 import {
   getLegacySeedIds,
+  HOME_TRENDING_COUNTRY_SLOTS,
+  HOME_TRENDING_INT_SLOTS,
+  HOME_TRENDING_MAX_ITEMS,
   isEvergreenArticle,
   isExternalArticle,
   LEARN_CATEGORIES,
+  mergeNewsRegions,
   orderLearnFeed,
   orderTrendingFeed,
 } from '@/domains/articles/utils/evergreen-articles';
+import { INTERNATIONAL_COUNTRY_CODE } from '@/domains/localization/config';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { currentsService } from '@/domains/articles/currents-service';
@@ -87,7 +92,11 @@ class ArticleRepository extends BaseRepository {
     return orderLearnFeed(mapped, userKey);
   }
 
-  async findTrending(limit = 3, userKey = 'guest'): Promise<Article[]> {
+  async findTrending(
+    limit = HOME_TRENDING_MAX_ITEMS,
+    userKey = 'guest',
+    countryCode: string | null | undefined = null,
+  ): Promise<Article[]> {
     const db = getDatabase();
     const rows = await db
       .select()
@@ -101,17 +110,24 @@ class ArticleRepository extends BaseRepository {
       (article) => isExternalArticle(article) && article.categoryId === HEALTH_CATEGORY_ID,
     );
 
-    const ordered = orderTrendingFeed(evergreen, external, limit, userKey);
+    const resolvedCountry = localizationService.resolveNewsCountryCode(countryCode);
+    const ordered = orderTrendingFeed(evergreen, external, {
+      userKey,
+      countryCode: resolvedCountry,
+      intSlots: HOME_TRENDING_INT_SLOTS,
+      countrySlots: HOME_TRENDING_COUNTRY_SLOTS,
+    });
+
     if (ordered.length > 0) {
-      return ordered;
+      return ordered.slice(0, limit);
     }
 
-    return mapped.slice(0, limit);
+    return mapped.slice(0, Math.min(limit, 1));
   }
 
   async refreshHealthNewsFromCurrents(
     limit = 10,
-    countryCode = 'INT',
+    countryCode = INTERNATIONAL_COUNTRY_CODE,
     languageCode: 'en' | 'fr' | 'es' = 'en',
   ): Promise<void> {
     if (!currentsService.isConfigured()) {
@@ -123,7 +139,8 @@ class ArticleRepository extends BaseRepository {
       return;
     }
 
-    const news = await currentsService.fetchHealthNews(limit, countryCode, languageCode);
+    const regionCode = countryCode.trim().toUpperCase() || INTERNATIONAL_COUNTRY_CODE;
+    const news = await currentsService.fetchHealthNews(limit, regionCode, languageCode);
     if (news.length === 0) {
       return;
     }
@@ -138,6 +155,12 @@ class ArticleRepository extends BaseRepository {
       const imageUrl = item.image || null;
       const publishedAt = item.published || timestamp;
 
+      const [existing] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
+      const existingAttributes = existing
+        ? parseJson<Record<string, unknown>>(existing.attributes, {})
+        : {};
+      const attributes = stringifyJson(mergeNewsRegions(existingAttributes, regionCode));
+
       await db
         .insert(articles)
         .values({
@@ -151,7 +174,7 @@ class ArticleRepository extends BaseRepository {
           imageUrl,
           sourceUrl: item.url || null,
           publishedAt,
-          attributes: stringifyJson({}),
+          attributes,
           syncStatus: 'synced',
           deletedAt: null,
           createdAt: timestamp,
@@ -169,6 +192,7 @@ class ArticleRepository extends BaseRepository {
             imageUrl,
             sourceUrl: item.url || null,
             publishedAt,
+            attributes,
             syncStatus: 'synced',
             updatedAt: timestamp,
           },
@@ -177,14 +201,18 @@ class ArticleRepository extends BaseRepository {
   }
 
   async getTrendingToday(
-    limit = 3,
+    limit = HOME_TRENDING_MAX_ITEMS,
     options: { isGuest: boolean; countryCode?: string | null; userKey?: string } = {
       isGuest: true,
     },
   ): Promise<Article[]> {
     // Offline-first: always return local/cached articles immediately.
     // Callers can refresh Currents in the background and invalidate queries.
-    return this.findTrending(limit, options.userKey ?? (options.isGuest ? 'guest' : 'user'));
+    return this.findTrending(
+      limit,
+      options.userKey ?? (options.isGuest ? 'guest' : 'user'),
+      options.countryCode,
+    );
   }
 
   async refreshTrendingInBackground(
@@ -197,7 +225,13 @@ class ArticleRepository extends BaseRepository {
     );
 
     try {
-      await this.refreshHealthNewsFromCurrents(10, countryCode, languageCode);
+      // Always pull international news for everyone.
+      await this.refreshHealthNewsFromCurrents(10, INTERNATIONAL_COUNTRY_CODE, languageCode);
+
+      // Then pull the user's selected country — empty results stay empty (no INT fallback).
+      if (countryCode !== INTERNATIONAL_COUNTRY_CODE) {
+        await this.refreshHealthNewsFromCurrents(10, countryCode, languageCode);
+      }
     } catch {
       // Keep showing cached/seeded articles when Currents is unavailable.
     }

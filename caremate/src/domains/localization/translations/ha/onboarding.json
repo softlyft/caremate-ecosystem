@@ -19,7 +19,9 @@
       "language": "Harshe",
       "state": "Jiha / lardi (na zaɓi)"
     },
-    "statePlaceholder": "misali Greater Accra"
+    "statePlaceholder": "misali Greater Accra",
+    "searchPlaceholder": "Nemo ƙasashe",
+    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike."
   },
   "priorities": {
     "title": "Me ya fi muhimmanci?",

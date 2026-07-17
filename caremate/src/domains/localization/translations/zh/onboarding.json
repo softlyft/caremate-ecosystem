@@ -19,7 +19,9 @@
       "language": "语言",
       "state": "州 / 省（可选）"
     },
-    "statePlaceholder": "例如：大阿克拉"
+    "statePlaceholder": "例如：大阿克拉",
+    "searchPlaceholder": "搜索国家",
+    "searchEmpty": "没有匹配的国家。"
   },
   "priorities": {
     "title": "什么对您最重要？",
