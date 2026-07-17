@@ -54,10 +54,7 @@ export default function AppsTabScreen() {
               <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
                 {t('profile.premium.appsGuestBanner')}
               </AppText>
-              <PressableScale
-                style={styles.guestCta}
-                onPress={() => router.push('/(auth)/login')}
-              >
+              <PressableScale style={styles.guestCta} onPress={() => router.push('/(auth)/login')}>
                 <AppText variant="caption" style={styles.guestCtaLabel}>
                   {t('common.signIn')}
                 </AppText>

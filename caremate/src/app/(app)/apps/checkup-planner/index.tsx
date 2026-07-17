@@ -3,10 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import {
-  isCheckupItemUnlocked,
-  isCheckupYearUnlocked,
-} from '@/domains/billing/entitlements';
+import { isCheckupItemUnlocked, isCheckupYearUnlocked } from '@/domains/billing/entitlements';
 import { localizationService, useTranslation } from '@/domains/localization';
 import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
 import {

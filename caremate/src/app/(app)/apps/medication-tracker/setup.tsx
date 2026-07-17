@@ -4,10 +4,7 @@ import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
-import {
-  canAddMedication,
-  countActiveMedications,
-} from '@/domains/billing/entitlements';
+import { canAddMedication, countActiveMedications } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import {
@@ -98,8 +95,7 @@ export default function MedicationSetupScreen() {
   const canSave =
     Boolean(name.trim() && startDate) && (!forKid || Boolean(familyMemberId && selectedChild));
   const activeMedicationCount = countActiveMedications(medications);
-  const atMedicationLimit =
-    !isEditing && !canAddMedication(tier, activeMedicationCount);
+  const atMedicationLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
 
   if (!hydrated) {
     return (

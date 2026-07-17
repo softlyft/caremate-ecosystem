@@ -25,10 +25,7 @@ export function MiniAppGuestGate() {
             {t('common.signIn')}
           </AppText>
         </PressableScale>
-        <PressableScale
-          style={styles.secondaryCta}
-          onPress={() => router.push('/(auth)/register')}
-        >
+        <PressableScale style={styles.secondaryCta} onPress={() => router.push('/(auth)/register')}>
           <AppText variant="button" style={styles.secondaryLabel}>
             {t('profile.guest.createAccount')}
           </AppText>

@@ -33,9 +33,9 @@ describe('billing entitlements', () => {
     expect(isCheckupItemUnlocked('free', { year: currentYear, indexInYear: 2, currentYear })).toBe(
       false,
     );
-    expect(isCheckupItemUnlocked('personal', { year: currentYear, indexInYear: 9, currentYear })).toBe(
-      true,
-    );
+    expect(
+      isCheckupItemUnlocked('personal', { year: currentYear, indexInYear: 9, currentYear }),
+    ).toBe(true);
   });
 
   it('limits immunization schedule months on free tier', () => {

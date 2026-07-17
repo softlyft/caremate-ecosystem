@@ -3,10 +3,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import {
-  canAddMedication,
-  countActiveMedications,
-} from '@/domains/billing/entitlements';
+import { canAddMedication, countActiveMedications } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import {
