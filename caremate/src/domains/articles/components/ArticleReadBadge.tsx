@@ -16,10 +16,7 @@ export function ArticleReadBadge({ articleId }: { articleId: string }) {
 
   return (
     <View style={[styles.badge, isRead ? styles.badgeRead : styles.badgeReading]}>
-      <AppText
-        variant="caption"
-        style={isRead ? styles.textRead : styles.textReading}
-      >
+      <AppText variant="caption" style={isRead ? styles.textRead : styles.textReading}>
         {isRead ? t('learn.readBadge') : t('learn.readingBadge')}
       </AppText>
     </View>

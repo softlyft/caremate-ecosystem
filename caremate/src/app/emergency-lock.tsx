@@ -125,9 +125,7 @@ export default function EmergencyLockScreen() {
                       <>
                         <AppText variant="body" style={styles.iceName} numberOfLines={1}>
                           {snapshot.contactName}
-                          {snapshot.contactRelationship
-                            ? ` · ${snapshot.contactRelationship}`
-                            : ''}
+                          {snapshot.contactRelationship ? ` · ${snapshot.contactRelationship}` : ''}
                         </AppText>
                         {snapshot.contactPhone ? (
                           <AppText variant="cardTitle" style={styles.icePhone}>

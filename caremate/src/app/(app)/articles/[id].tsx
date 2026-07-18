@@ -73,8 +73,7 @@ export default function ArticleDetailScreen() {
     if (!article || isRead || didAutoComplete.current) return;
     const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
     if (contentSize.height <= 0) return;
-    const progress =
-      (contentOffset.y + layoutMeasurement.height) / Math.max(contentSize.height, 1);
+    const progress = (contentOffset.y + layoutMeasurement.height) / Math.max(contentSize.height, 1);
     if (progress >= 0.88) {
       didAutoComplete.current = true;
       markRead();

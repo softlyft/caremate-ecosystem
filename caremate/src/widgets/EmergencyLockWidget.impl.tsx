@@ -57,10 +57,7 @@ const EmergencyLockWidgetLayout = (
     );
   }
 
-  const bloodLine = [
-    props.bloodGroup || 'Blood n/a',
-    props.genotype ? props.genotype : null,
-  ]
+  const bloodLine = [props.bloodGroup || 'Blood n/a', props.genotype ? props.genotype : null]
     .filter(Boolean)
     .join(' · ');
 

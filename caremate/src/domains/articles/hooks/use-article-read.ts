@@ -18,10 +18,7 @@ function useArticleReadQueries(articleId: string | undefined) {
   });
 
   const invalidateReads = async (status: ArticleReadStatus | null) => {
-    queryClient.setQueryData(
-      [...QUERY_KEYS.articleReads, 'status', userId, articleId],
-      status,
-    );
+    queryClient.setQueryData([...QUERY_KEYS.articleReads, 'status', userId, articleId], status);
     await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.articleReads });
   };
 
@@ -46,9 +43,7 @@ function useArticleReadQueries(articleId: string | undefined) {
     status: (statusQuery.data ?? null) as ArticleReadStatus | null,
     isLoading: statusQuery.isLoading,
     isBusy:
-      markReadingMutation.isPending ||
-      markReadMutation.isPending ||
-      toggleReadMutation.isPending,
+      markReadingMutation.isPending || markReadMutation.isPending || toggleReadMutation.isPending,
     markReadingMutation,
     markReadMutation,
     toggleReadMutation,
@@ -57,14 +52,8 @@ function useArticleReadQueries(articleId: string | undefined) {
 
 /** Status + mark/toggle — safe for feed cards (does not auto-mark reading). */
 export function useArticleReadStatus(articleId: string | undefined) {
-  const {
-    enabled,
-    status,
-    isLoading,
-    isBusy,
-    markReadMutation,
-    toggleReadMutation,
-  } = useArticleReadQueries(articleId);
+  const { enabled, status, isLoading, isBusy, markReadMutation, toggleReadMutation } =
+    useArticleReadQueries(articleId);
 
   return {
     status,

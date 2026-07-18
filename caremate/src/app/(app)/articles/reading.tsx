@@ -47,15 +47,9 @@ export default function ReadingHistoryScreen() {
 
       {articles.length === 0 ? (
         <EmptyState
-          title={
-            tab === 'reading'
-              ? t('learn.readingEmpty.title')
-              : t('learn.readEmpty.title')
-          }
+          title={tab === 'reading' ? t('learn.readingEmpty.title') : t('learn.readEmpty.title')}
           message={
-            tab === 'reading'
-              ? t('learn.readingEmpty.message')
-              : t('learn.readEmpty.message')
+            tab === 'reading' ? t('learn.readingEmpty.message') : t('learn.readEmpty.message')
           }
         />
       ) : (

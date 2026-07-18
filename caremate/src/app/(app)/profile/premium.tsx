@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Crown, RefreshCw, Sparkles, Users } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -77,11 +77,13 @@ export default function PremiumScreen() {
   const prices = pricesQuery.data ?? [];
   const isPersonalActive = premium?.tier === 'personal';
   const isFamilyActive = premium?.tier === 'family';
-  const showUpgrade = isPersonalActive && planType === 'family';
+  // Active Standard can only upgrade to Family — derive selection (no effect sync).
+  const selectedPlanType: PlanType = isPersonalActive ? 'family' : planType;
+  const showUpgrade = isPersonalActive;
 
   const selectedPrices = prices.filter(
     (p) =>
-      p.planType === planType &&
+      p.planType === selectedPlanType &&
       p.billingInterval === billingInterval &&
       p.currency === billingCurrency,
   );
@@ -106,12 +108,6 @@ export default function PremiumScreen() {
         householdId,
       }),
   });
-
-  useEffect(() => {
-    if (isPersonalActive && planType === 'personal') {
-      setPlanType('family');
-    }
-  }, [isPersonalActive, planType]);
 
   async function refresh() {
     setError(null);
@@ -147,7 +143,7 @@ export default function PremiumScreen() {
       setError(t('profile.premium.alreadyPersonal'));
       return;
     }
-    if (planType === 'family' && !householdId) {
+    if (selectedPlanType === 'family' && !householdId) {
       setError(t('profile.premium.familyRequired'));
       return;
     }
@@ -155,7 +151,7 @@ export default function PremiumScreen() {
     setPaying(true);
     setError(null);
     try {
-      if (isPersonalActive && planType === 'family') {
+      if (isPersonalActive) {
         await billingRepository.startFamilyUpgrade({
           billingInterval,
           currency,
@@ -163,10 +159,10 @@ export default function PremiumScreen() {
         });
       } else {
         await billingRepository.startCheckout({
-          planType,
+          planType: selectedPlanType,
           billingInterval,
           currency,
-          householdId: planType === 'family' ? householdId : null,
+          householdId: selectedPlanType === 'family' ? householdId : null,
           patientId,
         });
       }
@@ -282,7 +278,7 @@ export default function PremiumScreen() {
                       <Chip
                         label={t('profile.premium.personal')}
                         icon={Crown}
-                        active={planType === 'personal'}
+                        active={selectedPlanType === 'personal'}
                         onPress={() => setPlanType('personal')}
                       />
                       <Chip
@@ -292,12 +288,12 @@ export default function PremiumScreen() {
                             : t('profile.premium.family')
                         }
                         icon={Users}
-                        active={planType === 'family'}
+                        active={selectedPlanType === 'family'}
                         onPress={() => setPlanType('family')}
                       />
                     </View>
 
-                    {planType === 'family' && !householdId ? (
+                    {selectedPlanType === 'family' && !householdId ? (
                       <View style={styles.familyHint}>
                         <AppText variant="caption" style={styles.muted}>
                           {isPersonalActive
@@ -333,9 +329,7 @@ export default function PremiumScreen() {
               <AnimatedSection index={3}>
                 <View style={[styles.card, shadow.soft]}>
                   <AppText variant="caption" style={styles.sectionEyebrow}>
-                    {showUpgrade
-                      ? t('profile.premium.upgradeTitle')
-                      : t('profile.premium.pay')}
+                    {showUpgrade ? t('profile.premium.upgradeTitle') : t('profile.premium.pay')}
                   </AppText>
                   <AppText variant="caption" style={styles.muted}>
                     {t('profile.premium.payInCurrency', { currency: billingCurrency })}
@@ -363,10 +357,7 @@ export default function PremiumScreen() {
                   ) : (
                     <View style={styles.payStack}>
                       {selectedPrices.map((price) => {
-                        const disabled =
-                          paying ||
-                          (planType === 'family' && !householdId) ||
-                          (isPersonalActive && planType === 'personal');
+                        const disabled = paying || (selectedPlanType === 'family' && !householdId);
                         return (
                           <PressableScale
                             key={price.id}
@@ -457,9 +448,7 @@ function UpgradeQuoteBlock({
   }
 
   const intervalLabel =
-    quote.billingInterval === 'yearly'
-      ? t('profile.premium.yearly')
-      : t('profile.premium.monthly');
+    quote.billingInterval === 'yearly' ? t('profile.premium.yearly') : t('profile.premium.monthly');
   const disabled = paying;
 
   return (
@@ -511,10 +500,7 @@ function QuoteRow({
 }) {
   return (
     <View style={styles.quoteRow}>
-      <AppText
-        variant="caption"
-        style={emphasize ? styles.quoteLabelEmphasize : styles.muted}
-      >
+      <AppText variant="caption" style={emphasize ? styles.quoteLabelEmphasize : styles.muted}>
         {label}
       </AppText>
       <AppText

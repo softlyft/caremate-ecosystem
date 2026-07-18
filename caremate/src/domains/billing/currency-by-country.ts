@@ -30,9 +30,7 @@ const PROVIDER_BY_CURRENCY: Readonly<Record<BillingCurrency, Exclude<BillingProv
  * Resolve the checkout currency for a profile / device country code.
  * Unknown, empty, and `INT` (Global) use {@link DEFAULT_BILLING_CURRENCY}.
  */
-export function billingCurrencyForCountry(
-  countryCode: string | null | undefined,
-): BillingCurrency {
+export function billingCurrencyForCountry(countryCode: string | null | undefined): BillingCurrency {
   const code = countryCode?.trim().toUpperCase();
   if (!code || code === 'INT') {
     return DEFAULT_BILLING_CURRENCY;

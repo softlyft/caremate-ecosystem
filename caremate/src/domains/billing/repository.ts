@@ -45,7 +45,9 @@ function mapUpgradeQuote(raw: Record<string, unknown>): FamilyUpgradeQuote {
     familyListPriceMinor: Number(raw.familyListPriceMinor ?? raw.family_list_price_minor ?? 0),
     chargeMinor: Number(raw.chargeMinor ?? raw.charge_minor ?? 0),
     currency: String(raw.currency ?? 'NGN') as BillingCurrency,
-    billingInterval: String(raw.billingInterval ?? raw.billing_interval ?? 'monthly') as BillingInterval,
+    billingInterval: String(
+      raw.billingInterval ?? raw.billing_interval ?? 'monthly',
+    ) as BillingInterval,
     householdId: String(raw.householdId ?? raw.household_id ?? ''),
     newPeriodStart: String(raw.newPeriodStart ?? raw.new_period_start ?? ''),
     newPeriodEnd: String(raw.newPeriodEnd ?? raw.new_period_end ?? ''),
@@ -283,10 +285,12 @@ class BillingRepository extends BaseRepository {
     return { activated: false, url: data.url as string, quote };
   }
 
-  async verifyCheckout(input: {
-    reference?: string | null;
-    paymentId?: string | null;
-  } = {}): Promise<{ status: string; subscriptionId?: string }> {
+  async verifyCheckout(
+    input: {
+      reference?: string | null;
+      paymentId?: string | null;
+    } = {},
+  ): Promise<{ status: string; subscriptionId?: string }> {
     const body: Record<string, string> = {};
     if (input.paymentId) body.payment_id = input.paymentId;
     if (input.reference) body.reference = input.reference;
@@ -307,10 +311,12 @@ class BillingRepository extends BaseRepository {
   }
 
   /** Confirm provider charge, pull entitlements, ready for UI refresh. */
-  async syncAfterCheckout(input: {
-    reference?: string | null;
-    paymentId?: string | null;
-  } = {}): Promise<PremiumState> {
+  async syncAfterCheckout(
+    input: {
+      reference?: string | null;
+      paymentId?: string | null;
+    } = {},
+  ): Promise<PremiumState> {
     try {
       await this.verifyCheckout(input);
     } catch {

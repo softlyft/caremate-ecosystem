@@ -366,18 +366,12 @@ class ArticleRepository extends BaseRepository {
     return Boolean(existing);
   }
 
-  async getReadStatus(
-    userId: string,
-    articleId: string,
-  ): Promise<ArticleReadStatus | null> {
+  async getReadStatus(userId: string, articleId: string): Promise<ArticleReadStatus | null> {
     const row = await this.findActiveRead(userId, articleId);
     return row ? (row.status as ArticleReadStatus) : null;
   }
 
-  async getArticlesByReadStatus(
-    userId: string,
-    status: ArticleReadStatus,
-  ): Promise<Article[]> {
+  async getArticlesByReadStatus(userId: string, status: ArticleReadStatus): Promise<Article[]> {
     const db = getDatabase();
     const rows = await db
       .select({ article: articles })
