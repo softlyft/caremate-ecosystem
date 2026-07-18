@@ -9,7 +9,7 @@ This docs set covers the implemented behavior of the CareMate admin portal.
 | Service overview and structure | [Architecture](./architecture.md) |
 | Staff auth, roles, middleware, audit | [Auth & RBAC](./auth-rbac.md) |
 | Articles, tips, providers, media workflows | [Catalogs](./catalogs.md) |
-| Premium price management and subscribers | [Billing](./billing.md) |
+| Premium pricing, transactions, subscribers, admin grants | [Billing](./billing.md) |
 | Ads kill switches + campaigns | Mobile strategy: [`caremate/docs/ads.md`](../../caremate/docs/ads.md) · `/dashboard/ads` · slot constants in `src/domains/ads/constants.ts` |
 | Premium product matrix (mobile) | [`caremate/docs/premium-and-plans.md`](../../caremate/docs/premium-and-plans.md) |
 | Local setup, env vars, scripts, tests | [Development](./development.md) |
@@ -25,7 +25,7 @@ The portal is the staff-facing web surface for:
 - Provider upload/archive workflows
 - Premium price management
 - Subscriber visibility
-- Admin audit event writes
+- Admin audit event writes and browse UI (`/dashboard/audit`)
 - Ads: per-slot source modes (`off` \| `house` \| `sponsored` \| `admob` for every slot, including mini-apps), advertiser verification, house + sponsored campaign CRUD (`/dashboard/ads`). Slot ids must stay aligned with mobile `AD_SLOTS`. Do not export non-async constants from `"use server"` action modules — use `src/domains/ads/constants.ts`.
 
 ## Source Areas

@@ -85,11 +85,13 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | HM-04b | P1 | Online; Currents country empty | Wait on Home | Country slots hidden; INT news still shown when available. |
 | HM-05 | P1 | Offline | Open Home | Offline banner; previously cached / evergreen content still shown. |
 | HM-05b | P1 | Article feed query fails with no cache | Open Home | ErrorState with Retry; Retry reloads feed. |
-| HM-06 | P1 | Any | Tap search bar | Opens Search screen with focused input. |
+| HM-06 | P1 | Any | Tap search bar | Opens Search screen with focused input; glossy back + teal search shell. |
 | HM-06b | P0 | Seeded content | Search for a known article keyword | Article results shown; tap opens detail. |
 | HM-06c | P1 | Seeded providers | Search for a provider name | Nearby results shown; tap opens detail. |
 | HM-06d | P1 | Any | Search “medication” | Medication Tracker appears under Tools. |
 | HM-06e | P1 | Search query fails | Search with a keyword while search backend errors | ErrorState with Retry (not empty “No results”). |
+| HM-06f | P2 | Idle search | Open Search with empty query | Idle card + Articles / Nearby / Tools hint chips. |
+| HM-06g | P2 | Results present | Tap “See all in Learn / Nearby” | Opens tab with `?q=` applied. |
 | HM-07 | P1 | Any | Tap a health category chip | Opens Learn filtered by that category. |
 | HM-08 | P1 | Any | Tap a featured article | Opens article detail. |
 | HM-09 | P1 | Any | Tap a nearby provider card | Opens provider detail. |
@@ -109,7 +111,10 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | LN-06 | P1 | Category filter | Select category | Only that category shown. |
 | LN-07 | P0 | Any | Open article detail | Title + body readable. |
 | LN-08 | P1 | Article with `sourceUrl` | Tap “Read full article” if present | Opens external browser/link. |
-| LN-09 | P2 | Bookmarks screen | Open Bookmarks from Learn | Screen opens; list empty or shows bookmarks. **Note:** toggle may be decorative on cards — record as gap if cannot bookmark. |
+| LN-09 | P1 | Bookmarks | Toggle bookmark on card/detail → open Bookmarks | Article appears; toggle off removes it. |
+| LN-09b | P0 | Any | Open article detail | Status becomes Reading; appears under Learn → Reading. |
+| LN-09c | P0 | Open article | Scroll near end or tap mark-as-read | Status becomes Read; shows under Reading → Read tab. |
+| LN-09d | P1 | Read article | Tap mark-as-read again | Cleared / unread; removed from Read list. |
 | LN-10 | P1 | Offline | Open Learn / open saved article | Cached content readable; no crash. |
 
 ---
@@ -203,9 +208,17 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | PM-01 | P1 | Signed-in | Open Premium | Current tier badge/state and pricing options load. |
 | PM-02 | P1 | Signed-in, no household | Choose Family plan | App prompts user to set up family before family checkout. |
 | PM-03 | P1 | Signed-in, household exists | Choose Family plan | Family plan selection is allowed and checkout path can start. |
-| PM-04 | P1 | Signed-in | Choose Personal plan and tap NGN/USD checkout | Hosted checkout is attempted; failures are shown as user-facing errors, not crashes. |
-| PM-05 | P2 | Guest | Open Premium and try upgrade CTA | Guest is routed to login/sign-in path. |
-| PM-06 | P2 | Any | Premium screen copy/state | Treat as informational only: premium entitlements may not yet hard-gate most app features. |
+| PM-04 | P1 | Signed-in, country ≠ NG | Choose Personal plan and tap checkout | Opens hosted payment in **USD** (Stripe); failures are shown as user-facing errors, not crashes. |
+| PM-04a | P1 | Signed-in, country = NG | Choose Personal plan and tap checkout | Opens hosted payment in **NGN** (Paystack). |
+| PM-04b | P1 | Signed-in, payment web open | Confirm Pay on payment site | Redirects to Paystack (NGN) or Stripe (USD); success returns via `caremate://billing/success`. |
+| PM-05 | P1 | Signed-in, active Premium | Airplane mode for remainder of paid period | Profile still shows Premium; AdMob stays suppressed until `current_period_end`. |
+| PM-06 | P1 | Signed-in, Premium period ended offline | Open app offline after period end | Tier falls back to Free locally without needing network. |
+| PM-06b | P2 | Guest | Open Premium and try upgrade CTA | Guest is routed to login/sign-in path. |
+| PM-07 | P0 | Active Standard + household | Premium → Upgrade to Family | Quote shows Family list price, Standard credit (days left), amount due; new Family end date is a full period from today. |
+| PM-08 | P0 | Active Standard + household, charge > 0 | Confirm upgrade payment | Standard canceled; Family active from today; Premium shows Family. |
+| PM-09 | P1 | Active Standard, credit covers Family | Upgrade with amount due 0 | Activates Family without gateway; Standard canceled. |
+| PM-10 | P1 | Active Standard, no household | Choose Family upgrade | Prompts to set up family before upgrade. |
+| PM-11 | P1 | Active Standard | Try normal Family checkout | Blocked; must use upgrade path (credit). |
 
 ---
 
@@ -358,24 +371,24 @@ Requires portal migration + sync. Use dev client / EAS build for AdMob cases (no
 
 ---
 
-## Premium & plans (planned enforcement)
+## Premium & plans (entitlement gates)
 
-Spec: [Premium & plans](./premium-and-plans.md). Run when entitlement gates ship.
+Spec: [Premium & plans](./premium-and-plans.md). Gates are enforced — run these after billing QA above.
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| PM-01 | P0 | Guest | Open Apps tab; tap any mini-app | Sign-in / register prompt; no tracker UI |
-| PM-02 | P0 | Free signed-in | Add 4th medication | Blocked; upgrade CTA |
-| PM-03 | P0 | Free signed-in | Checkup planner with 3+ items this year | First 2 visible; rest blurred |
-| PM-04 | P0 | Free signed-in | Checkup planner next year | Year blurred |
-| PM-05 | P0 | Standard Premium | Checkup + immunization | No blur; full schedule |
-| PM-06 | P0 | Free signed-in | Immunization schedule | First 2 months clear; rest blurred |
-| PM-07 | P1 | Free signed-in | Pregnancy / Period with ads enabled | Catalog or AdMob in slots |
-| PM-08 | P1 | Standard Premium | Pregnancy / Period | No ads in mini-app slots |
-| PM-09 | P0 | Free household | Add 2nd child | Blocked; Family upgrade CTA |
-| PM-10 | P0 | Free / Standard | Connect spouse | Blocked; Family upgrade CTA |
-| PM-11 | P0 | Family Premium | Add multiple children + spouse | Allowed per family flows |
-| PM-12 | P1 | Guest | Learn + Nearby + Emergency | Full access without account |
+| PG-01 | P0 | Guest | Open Apps tab; tap any mini-app | Sign-in / register prompt; no tracker UI |
+| PG-02 | P0 | Free signed-in | Add 4th medication | Blocked; upgrade CTA |
+| PG-03 | P0 | Free signed-in | Checkup planner with 3+ items this year | First 2 visible; rest blurred |
+| PG-04 | P0 | Free signed-in | Checkup planner next year | Year blurred |
+| PG-05 | P0 | Standard Premium | Checkup + immunization | No blur; full schedule |
+| PG-06 | P0 | Free signed-in | Immunization schedule | First 2 months clear; rest blurred |
+| PG-07 | P1 | Free signed-in | Pregnancy / Period with ads enabled | Catalog or AdMob in slots |
+| PG-08 | P1 | Standard Premium | Pregnancy / Period | No ads in mini-app slots |
+| PG-09 | P0 | Free household | Add 2nd child | Blocked; Family upgrade CTA |
+| PG-10 | P0 | Free / Standard | Connect spouse | Blocked; Family upgrade CTA |
+| PG-11 | P0 | Family Premium | Add multiple children + spouse | Allowed per family flows |
+| PG-12 | P1 | Guest | Learn + Nearby + Emergency | Full access without account |
 
 ---
 
@@ -393,12 +406,13 @@ Spec: [Premium & plans](./premium-and-plans.md). Run when entitlement gates ship
 
 | Area | Note |
 |------|------|
-| Bookmark toggle on Learn cards | Often decorative; bookmarks screen may be empty |
+| Bookmark toggle on Learn cards | Wired (local + sync when signed in) |
+| Mark as read / reading history | Wired (`article_reads`) |
 | Provider map | No in-app map; Open in Maps uses system maps |
 | Emergency Patient ID QR | On-device QR on the back of the Me → Patient ID card (tap to flip) |
 | Biometric unlock | Hidden in UI until app-lock gate is implemented |
 | Push notifications | Preference toggle may not deliver OS pushes yet |
-| Premium gating | Enforced per [Premium & plans](./premium-and-plans.md); run PM-01–PM-12 in QA |
+| Premium gating | Enforced per [Premium & plans](./premium-and-plans.md); run PG-01–PG-12 in QA |
 | Family spouse invites | In-app request when account exists; otherwise copy/share store download message (no redeemable invite links) |
 | Spouse join | Personal mini-app data stays per parent (shared household kids only) |
 

@@ -65,7 +65,8 @@
   "lock": {
     "title": "Emergency card",
     "loading": "Loading emergency info...",
-    "badge": "EMERGENCY · LOCK SCREEN CARD",
+    "badge": "FOR FIRST RESPONDERS",
+    "cardBadge": "EMERGENCY",
     "call": "Call ICE",
     "callContact": "Call emergency contact",
     "help": "Show this card if you cannot speak for yourself.",

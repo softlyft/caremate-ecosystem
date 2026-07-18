@@ -301,6 +301,28 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['bookmarks']['Insert']>;
         Relationships: [];
       };
+      article_reads: {
+        Row: {
+          id: string;
+          article_id: string;
+          user_id: string;
+          status: 'reading' | 'read';
+          opened_at: string;
+          read_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id: string;
+          article_id: string;
+          user_id: string;
+          status: 'reading' | 'read';
+          opened_at?: string;
+          read_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['article_reads']['Insert']>;
+        Relationships: [];
+      };
       mini_app_snapshots: {
         Row: {
           id: string;
@@ -607,6 +629,48 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['subscription_prices']['Insert']>;
         Relationships: [];
       };
+      payments: {
+        Row: {
+          id: string;
+          user_id: string;
+          household_id: string | null;
+          subscription_id: string | null;
+          plan_type: string;
+          billing_interval: string;
+          currency: string;
+          provider: string;
+          amount_minor: number;
+          status: string;
+          provider_reference: string;
+          provider_transaction_id: string | null;
+          provider_customer_id: string | null;
+          paid_at: string | null;
+          failure_reason: string | null;
+          metadata: Json;
+        } & Timestamps;
+        Insert: {
+          id: string;
+          user_id: string;
+          household_id?: string | null;
+          subscription_id?: string | null;
+          plan_type: string;
+          billing_interval: string;
+          currency: string;
+          provider: string;
+          amount_minor: number;
+          status?: string;
+          provider_reference: string;
+          provider_transaction_id?: string | null;
+          provider_customer_id?: string | null;
+          paid_at?: string | null;
+          failure_reason?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['payments']['Insert']>;
+        Relationships: [];
+      };
       subscriptions: {
         Row: {
           id: string;
@@ -617,6 +681,7 @@ export type Database = {
           currency: string;
           provider: string;
           status: string;
+          payment_id: string | null;
           provider_customer_id: string | null;
           provider_subscription_id: string | null;
           provider_ref: string | null;
@@ -632,6 +697,7 @@ export type Database = {
           currency: string;
           provider: string;
           status?: string;
+          payment_id?: string | null;
           provider_customer_id?: string | null;
           provider_subscription_id?: string | null;
           provider_ref?: string | null;
@@ -768,9 +834,12 @@ export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];
 export type EmergencyProfile = Database['public']['Tables']['emergency_profiles']['Row'];
 export type Bookmark = Database['public']['Tables']['bookmarks']['Row'];
+export type ArticleRead = Database['public']['Tables']['article_reads']['Row'];
 export type MiniAppSnapshot = Database['public']['Tables']['mini_app_snapshots']['Row'];
 export type SubscriptionPrice = Database['public']['Tables']['subscription_prices']['Row'];
+export type Payment = Database['public']['Tables']['payments']['Row'];
 export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
+export type AdminAuditEvent = Database['public']['Tables']['admin_audit_events']['Row'];
 export type Tables<T extends keyof Database['public']['Tables']> =
   Database['public']['Tables'][T]['Row'];
 export type TablesInsert<T extends keyof Database['public']['Tables']> =

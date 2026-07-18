@@ -3,6 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { isDatabaseInitialized, getDatabase } from '@/database/client';
 import {
+  articleReads,
   bookmarks,
   familyConnectionRequests,
   familyHouseholds,
@@ -109,6 +110,26 @@ async function migrateBookmarks(toUserId: string): Promise<void> {
       continue;
     }
     await articleRepository.toggleBookmark(toUserId, row.articleId);
+  }
+}
+
+async function migrateArticleReads(toUserId: string): Promise<void> {
+  const db = getDatabase();
+  const guestRows = await db
+    .select()
+    .from(articleReads)
+    .where(and(eq(articleReads.userId, GUEST_USER_ID), isNull(articleReads.deletedAt)));
+
+  for (const row of guestRows) {
+    const existing = await articleRepository.getReadStatus(toUserId, row.articleId);
+    if (existing === 'read') {
+      continue;
+    }
+    if (row.status === 'read') {
+      await articleRepository.markRead(toUserId, row.articleId);
+    } else if (!existing) {
+      await articleRepository.markReading(toUserId, row.articleId);
+    }
   }
 }
 
@@ -272,6 +293,7 @@ export async function migrateGuestLocalData(toUserId: string): Promise<void> {
 
   await migrateEmergencyProfile(toUserId);
   await migrateBookmarks(toUserId);
+  await migrateArticleReads(toUserId);
   await migrateSettings(toUserId);
   await migrateProfileFields(toUserId);
   await migrateFamily(toUserId);

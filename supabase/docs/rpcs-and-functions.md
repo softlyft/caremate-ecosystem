@@ -37,14 +37,19 @@ Edge Functions live under `supabase/functions/`.
 
 | Function | Purpose | JWT |
 |----------|---------|-----|
-| `create-checkout` | Start hosted checkout for Premium | required |
-| `billing-webhook-stripe` | Stripe subscription lifecycle updates | disabled |
-| `billing-webhook-paystack` | Paystack payment lifecycle updates | disabled |
+| `create-checkout` | Create pending `payments` row + hosted Paystack/Stripe checkout | required |
+| `quote-upgrade` | Quote Standard → Family credit and amount due | required |
+| `create-upgrade` | Pending upgrade payment (or zero-charge activate) | required |
+| `verify-checkout` | Confirm charge with provider and activate subscription (app return) | required |
+| `billing-webhook-stripe` | Stripe payment + subscription lifecycle updates | disabled |
+| `billing-webhook-paystack` | Paystack charge success / failure | disabled |
 
 Shared helpers:
 
 - `_shared/cors.ts`
 - `_shared/supabase.ts`
+- `_shared/billing.ts` — finalize payment → create/renew subscription (or upgrade finalize)
+- `_shared/upgrade.ts` — Standard → Family quote math + finalize swap
 
 ## `create-checkout`
 
@@ -53,14 +58,24 @@ Implemented responsibilities:
 - Validate authenticated user
 - Resolve requested plan/interval/currency
 - Look up active `subscription_prices`
-- Create an initial `subscriptions` row
+- Insert a **pending** `payments` row (no subscription yet)
+- Block Family checkout when the user already has active Standard (must use `create-upgrade`)
 - Start Paystack or Stripe hosted checkout
-- Return checkout URL and subscription metadata
+- Return checkout URL + `payment_id` / `reference`
 
 Family plans can derive or require a household ID.
 
-## Webhook Functions
+## `quote-upgrade` / `create-upgrade`
+
+- Quote unused Standard credit against full Family list price; new Family period starts today
+- `create-upgrade` charges the difference (or activates at zero) and cancels Standard on success
+
+## `verify-checkout` / webhooks
+
+On successful charge:
+
+1. Mark `payments` as `succeeded`
+2. Create or renew an **active** `subscriptions` entitlement (or finalize Family upgrade when `metadata.intent === 'upgrade'`)
+3. Link `payments.subscription_id` ↔ `subscriptions.payment_id`
 
 Webhook functions are configured without JWT enforcement so external payment providers can reach them.
-
-These functions are part of the billing lifecycle rather than user-facing app routing.

@@ -12,6 +12,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
@@ -25,6 +26,10 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 
+/**
+ * Home-screen emergency glance styled like the in-app Patient ID / emergency card
+ * (teal panel, CareMate brand, clear medical hierarchy).
+ */
 class EmergencyLockGlanceWidget : GlanceAppWidget() {
   override suspend fun provideGlance(context: Context, id: GlanceId) {
     val snapshot = EmergencyLockSnapshot.read(context)
@@ -42,84 +47,106 @@ class EmergencyLockGlanceWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContent(snapshot: EmergencyLockSnapshot, openIntent: Intent) {
-  val titleColor = ColorProvider(day = Color(0xFF111827), night = Color(0xFFF8FAFC))
-  val mutedColor = ColorProvider(day = Color(0xFF6B7280), night = Color(0xFF94A3B8))
-  val accentColor = ColorProvider(day = Color(0xFF0D9488), night = Color(0xFF2DD4BF))
-  val background = ColorProvider(day = Color(0xFFFFFFFF), night = Color(0xFF111827))
+  // Teal card palette (aligned with Patient ID card).
+  val brandOnTeal = ColorProvider(day = Color(0xFFCCFBF1), night = Color(0xFFCCFBF1))
+  val titleOnTeal = ColorProvider(day = Color(0xFFFFFFFF), night = Color(0xFFFFFFFF))
+  val mutedOnTeal = ColorProvider(day = Color(0xFF99F6E4), night = Color(0xFF99F6E4))
+  val accentOnTeal = ColorProvider(day = Color(0xFF5EEAD4), night = Color(0xFF5EEAD4))
+  val cardBackground = ColorProvider(day = Color(0xFF0F766E), night = Color(0xFF115E59))
 
   Column(
     modifier =
       GlanceModifier
         .fillMaxSize()
-        .background(background)
-        .padding(12.dp)
+        .cornerRadius(16.dp)
+        .background(cardBackground)
+        .padding(14.dp)
         .clickable(actionStartActivity(openIntent)),
     verticalAlignment = Alignment.Top,
     horizontalAlignment = Alignment.Start,
   ) {
+    Text(
+      text = "CAREMATE  ·  EMERGENCY",
+      style = TextStyle(color = brandOnTeal, fontSize = 10.sp, fontWeight = FontWeight.Bold),
+    )
+
+    Spacer(GlanceModifier.height(8.dp))
+
     if (!snapshot.hasProfile) {
       Text(
-        text = "CareMate Emergency",
-        style = TextStyle(color = titleColor, fontSize = 14.sp, fontWeight = FontWeight.Bold),
+        text = "Emergency",
+        style = TextStyle(color = titleOnTeal, fontSize = 16.sp, fontWeight = FontWeight.Bold),
       )
       Spacer(GlanceModifier.height(4.dp))
       Text(
         text = "Add your emergency profile in the app",
-        style = TextStyle(color = mutedColor, fontSize = 12.sp),
+        style = TextStyle(color = mutedOnTeal, fontSize = 12.sp),
       )
       return@Column
     }
 
     Text(
       text = snapshot.fullName.ifBlank { "CareMate user" },
-      style = TextStyle(color = titleColor, fontSize = 14.sp, fontWeight = FontWeight.Bold),
+      style = TextStyle(color = titleOnTeal, fontSize = 17.sp, fontWeight = FontWeight.Bold),
       maxLines = 1,
     )
-    Spacer(GlanceModifier.height(4.dp))
+    Spacer(GlanceModifier.height(6.dp))
 
     val bloodLine =
       buildString {
-        append(if (snapshot.bloodGroup.isNotBlank()) snapshot.bloodGroup else "Blood n/a")
+        append("Blood ")
+        append(if (snapshot.bloodGroup.isNotBlank()) snapshot.bloodGroup else "n/a")
         if (snapshot.genotype.isNotBlank()) {
-          append(" · ")
+          append("  ·  Genotype ")
           append(snapshot.genotype)
         }
       }
     Text(
       text = bloodLine,
-      style = TextStyle(color = accentColor, fontSize = 13.sp, fontWeight = FontWeight.Bold),
+      style = TextStyle(color = accentOnTeal, fontSize = 13.sp, fontWeight = FontWeight.Bold),
       maxLines = 1,
     )
 
-    if (snapshot.allergies.isNotBlank()) {
-      Spacer(GlanceModifier.height(2.dp))
+    Spacer(GlanceModifier.height(4.dp))
+    Text(
+      text =
+        if (snapshot.allergies.isNotBlank()) {
+          "Allergies · ${snapshot.allergies}"
+        } else {
+          "Allergies · none listed"
+        },
+      style = TextStyle(color = mutedOnTeal, fontSize = 11.sp),
+      maxLines = 1,
+    )
+
+    Spacer(GlanceModifier.height(8.dp))
+    if (snapshot.contactName.isNotBlank()) {
       Text(
-        text = "Allergies: ${snapshot.allergies}",
-        style = TextStyle(color = mutedColor, fontSize = 11.sp),
+        text =
+          buildString {
+            append("ICE · ")
+            append(snapshot.contactName)
+            if (snapshot.contactRelationship.isNotBlank()) {
+              append(" (")
+              append(snapshot.contactRelationship)
+              append(")")
+            }
+          },
+        style = TextStyle(color = titleOnTeal, fontSize = 12.sp, fontWeight = FontWeight.Bold),
         maxLines = 1,
       )
-    }
-
-    Spacer(GlanceModifier.height(4.dp))
-    if (snapshot.contactName.isNotBlank()) {
-      val ice =
-        buildString {
-          append("ICE: ")
-          append(snapshot.contactName)
-          if (snapshot.contactPhone.isNotBlank()) {
-            append(" ")
-            append(snapshot.contactPhone)
-          }
-        }
-      Text(
-        text = ice,
-        style = TextStyle(color = mutedColor, fontSize = 11.sp),
-        maxLines = 2,
-      )
+      if (snapshot.contactPhone.isNotBlank()) {
+        Spacer(GlanceModifier.height(2.dp))
+        Text(
+          text = snapshot.contactPhone,
+          style = TextStyle(color = accentOnTeal, fontSize = 14.sp, fontWeight = FontWeight.Bold),
+          maxLines = 1,
+        )
+      }
     } else {
       Text(
         text = "No ICE contact",
-        style = TextStyle(color = mutedColor, fontSize = 11.sp),
+        style = TextStyle(color = mutedOnTeal, fontSize = 11.sp),
       )
     }
   }

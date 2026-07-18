@@ -9,6 +9,10 @@ export {
   premiumLabel,
 } from '@/domains/billing/repository';
 
+export { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
+
+export { isLocalEntitlementActive } from '@/domains/billing/period';
+
 export {
   FREE_CHECKUP_VISIBLE_COUNT,
   FREE_FAMILY_CHILD_LIMIT,

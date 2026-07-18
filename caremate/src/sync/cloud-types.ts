@@ -14,6 +14,7 @@ export type {
   Article as CloudArticle,
   Provider as CloudProvider,
   Bookmark as CloudBookmark,
+  ArticleRead as CloudArticleRead,
   MiniAppSnapshot as CloudMiniAppSnapshot,
 } from '@caremate/db-types';
 

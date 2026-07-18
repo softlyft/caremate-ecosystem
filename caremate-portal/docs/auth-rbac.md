@@ -17,6 +17,7 @@ Role helpers live in `src/constants/roles.ts`.
 | `canEditCatalog()` | `admin` or `editor` |
 | `canAssignRoles()` | `admin` only |
 | `canManageBilling()` | `admin` only |
+| `canViewAuditLogs()` | Any staff role |
 
 ## Session Model
 
@@ -85,15 +86,16 @@ Support can manage users, but only admins can assign roles.
 It captures:
 
 - Actor user ID and email
-- Action string
+- Action string (`create_*` / `update_*` / `delete_*` and related verbs)
 - Entity type and entity ID
 - Optional JSON payload
 
 Implemented behavior:
 
-- Audit writes are triggered from mutating server actions
-- There is no portal UI to browse audit events yet
-- Audit insert failures are not surfaced separately
+- Audit writes are triggered from mutating server actions (create, update, delete, and privileged side-effects)
+- Insert failures **fail closed** (the mutation throws if the audit row cannot be written)
+- Staff can browse events at `/dashboard/audit` (filters: operation, action, entity, actor email)
+- Action/entity string catalog: `src/lib/audit-catalog.ts`
 
 ## Current Constraints
 

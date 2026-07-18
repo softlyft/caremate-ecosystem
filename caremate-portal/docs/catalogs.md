@@ -106,5 +106,5 @@ These are intended for initial bootstrap and fixture loading, not as a primary c
 ## Current Constraints
 
 - Provider upload depends on the external `provider-ingestion` service being configured and running
-- The portal does not currently expose an audit log browser
+- The portal exposes an audit log browser at `/dashboard/audit`
 - Some validation still lives mostly in forms/UI rather than in a shared server-side validation layer

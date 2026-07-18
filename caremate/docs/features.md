@@ -64,37 +64,46 @@ Learn combines:
 
 | Screen | Route | Notes |
 |--------|-------|-------|
-| Learn feed | `/(app)/(tabs)/articles` | Search + category filter; Bookmarks pill beside title |
-| Article detail | `/(app)/articles/[id]` | Body + `learn.article_header` / `learn.article_footer` ads |
+| Learn feed | `/(app)/(tabs)/articles` | Search + category filter; Reading + Bookmarks pills |
+| Article detail | `/(app)/articles/[id]` | Body, bookmark, mark-as-read; header/footer ads |
 | Category page | `/(app)/articles/category/[slug]` | Alternate category route |
-| Bookmarks | `/(app)/articles/bookmarks` | Reads local bookmark rows |
+| Bookmarks | `/(app)/articles/bookmarks` | Saved articles |
+| Reading history | `/(app)/articles/reading` | Tabs: currently reading + finished |
+
+### Article reading state
+
+- Opening an article marks it **Reading** (unless already **Read**)
+- Scroll near the end (~88%) or tap mark-as-read → **Read**
+- Tap again to clear / mark unread
+- Syncs as `article_reads` when signed in (guest stays local until migrate)
 
 ### UX notes
 
 - Category chips are horizontally scrollable; each category has soft tint + **accent** color when selected (same idea as Nearby type filters). “All” uses a grid icon.
 - Clearing “All” uses `setParams({ category: '' })` — does not remount the tab.
 - Tab stays mounted when switching away ([Navigation](./navigation.md#bottom-tabs)).
-
-### Current limitation
-
-Bookmarks are only partially wired today:
-
-- `articleRepository.toggleBookmark()` exists
-- The bookmarks screen reads bookmarks successfully
-- Learn cards and article detail do not yet trigger bookmark toggles, so bookmark icons are currently decorative
+- Bookmark and mark-as-read toggles work on Learn cards and article detail.
 
 ## Search
 
 **Route:** `/(app)/search`  
-**Domain:** `src/domains/search/`
+**Domain:** `src/domains/search/`  
+**Copy:** `domains/localization/translations/*/search.json` (namespace `search`)
 
 Global search combines three sources:
 
 | Section | Source |
 |---------|--------|
-| Articles | Local article search |
-| Providers | Local provider cache search |
+| Articles | Local article search (`CompactArticleCard`) |
+| Providers | Local provider cache (`NearbyProviderCard`) |
 | Tools | Mini-app registry metadata |
+
+### UX
+
+- Custom chrome (`headerShown: false`): glossy teal back button + Learn-style search shell
+- Idle state with Articles / Nearby / Tools hint chips; clear control when typing
+- Results grouped by section with “See all in Learn / Nearby” deep links (`?q=`)
+- Query is deferred (`useDeferredValue`) while searching
 
 Search deep-links users back into Learn or Nearby using route params like `?q=`.
 
@@ -159,7 +168,7 @@ See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 **Settings route:** `/(app)/profile/settings`  
 **Premium route:** `/(app)/profile/premium`
 
-Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **[Premium & plans](./premium-and-plans.md)** (product spec; enforcement in progress).
+Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **[Premium & plans](./premium-and-plans.md)** (product spec; **enforced** in app).
 
 ### Implemented profile features
 
@@ -210,13 +219,14 @@ Emergency profile data is intended to be available offline and also surfaced thr
 
 ### Lock and widget surface
 
-- iOS: widget/lock-screen support via `expo-widgets`
-- Android: Glance widget module under `modules/emergency-lock-widget`
+- iOS: widget/lock-screen support via `expo-widgets` (CareMate + EMERGENCY hierarchy with teal ink; lock accessories stay minimal)
+- Android: Glance home widget under `modules/emergency-lock-widget` (teal card panel matching Patient ID palette)
+- In-app `/emergency-lock`: teal ATM-style emergency card (same visual family as Patient ID; no flip/QR)
 - Expo Go: widget updates are stubbed
 
 ### Current limitations
 
-- QR is currently a payload preview rather than a generated QR image
+- Scannable Patient ID QR lives on the Me → Patient ID card (not on the emergency widget)
 
 ## Family
 

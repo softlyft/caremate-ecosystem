@@ -2,24 +2,31 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 const TABS = [
-  { href: '/dashboard/billing', label: 'Price catalog', match: 'exact' as const },
+  { href: '/dashboard/billing', label: 'Price catalog', key: 'prices' as const },
+  {
+    href: '/dashboard/billing/transactions',
+    label: 'Transactions',
+    key: 'transactions' as const,
+  },
   {
     href: '/dashboard/billing/subscribers',
     label: 'Subscribers',
-    match: 'prefix' as const,
+    key: 'subscribers' as const,
   },
 ] as const;
 
-export function BillingNav({ current }: { current: 'prices' | 'subscribers' }) {
+export function BillingNav({
+  current,
+}: {
+  current: 'prices' | 'transactions' | 'subscribers';
+}) {
   return (
     <nav
       className="mb-6 flex gap-1 border-b border-border"
       aria-label="Billing sections"
     >
       {TABS.map((tab) => {
-        const active =
-          (tab.match === 'exact' && current === 'prices') ||
-          (tab.match === 'prefix' && current === 'subscribers');
+        const active = tab.key === current;
         return (
           <Link
             key={tab.href}

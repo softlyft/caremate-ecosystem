@@ -38,7 +38,8 @@ export function SubscribersTable({ rows }: { rows: SubscriberRow[] }) {
             <th className="px-4 py-3 font-medium">Plan</th>
             <th className="px-4 py-3 font-medium">Provider</th>
             <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium">Renews / ends</th>
+            <th className="px-4 py-3 font-medium">Period</th>
+            <th className="px-4 py-3 font-medium">Payment</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +62,11 @@ export function SubscribersTable({ rows }: { rows: SubscriberRow[] }) {
                 <div className="text-xs text-muted">{row.currency}</div>
               </td>
               <td className="px-4 py-3">
-                <Badge className="capitalize">{row.provider}</Badge>
+                {row.provider === 'admin' ? (
+                  <Badge variant="warning">Admin activated</Badge>
+                ) : (
+                  <Badge className="capitalize">{row.provider}</Badge>
+                )}
               </td>
               <td className="px-4 py-3">
                 <Badge
@@ -71,7 +76,19 @@ export function SubscribersTable({ rows }: { rows: SubscriberRow[] }) {
                   {row.status.replace('_', ' ')}
                 </Badge>
               </td>
-              <td className="px-4 py-3 text-muted">{formatDate(row.current_period_end)}</td>
+              <td className="px-4 py-3 text-muted">
+                <div>{formatDate(row.current_period_start)}</div>
+                <div className="text-xs">→ {formatDate(row.current_period_end)}</div>
+              </td>
+              <td className="px-4 py-3">
+                {row.provider === 'admin' ? (
+                  <span className="text-xs text-muted">No payment</span>
+                ) : row.payment_id ? (
+                  <code className="break-all text-xs text-muted">{row.payment_id.slice(0, 8)}…</code>
+                ) : (
+                  <span className="text-muted">—</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

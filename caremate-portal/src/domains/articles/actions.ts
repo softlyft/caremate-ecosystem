@@ -58,7 +58,12 @@ export async function saveArticle(input: ArticleInput) {
     action: input.id ? 'update_article' : 'create_article',
     entityType: 'article',
     entityId: id,
-    payload: { title: input.title },
+    payload: {
+      title: input.title,
+      content_type: input.content_type,
+      category_id: categoryId,
+      operation: input.id ? 'update' : 'create',
+    },
   });
 
   revalidatePath('/dashboard/learn');
@@ -75,6 +80,11 @@ export async function deleteArticle(id: string) {
     .update({ deleted_at: now, updated_at: now })
     .eq('id', id);
   if (error) throw error;
-  await writeAuditEvent({ action: 'delete_article', entityType: 'article', entityId: id });
+  await writeAuditEvent({
+    action: 'delete_article',
+    entityType: 'article',
+    entityId: id,
+    payload: { operation: 'delete' },
+  });
   revalidatePath('/dashboard/learn');
 }

@@ -86,6 +86,16 @@ export interface Bookmark extends BaseEntity {
   userId: string;
 }
 
+export type ArticleReadStatus = 'reading' | 'read';
+
+export interface ArticleRead extends BaseEntity {
+  articleId: string;
+  userId: string;
+  status: ArticleReadStatus;
+  openedAt: string;
+  readAt: string | null;
+}
+
 export interface ArticleCategory {
   id: string;
   name: string;

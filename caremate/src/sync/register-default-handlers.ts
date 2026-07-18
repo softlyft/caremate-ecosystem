@@ -65,6 +65,12 @@ export function registerDefaultSyncHandlers(): void {
     pull: () => articleRepository.pullBookmarksFromRemote(),
   });
 
+  registerSyncHandler('article_reads', {
+    push: (entityId, operation, payload) =>
+      articleRepository.syncArticleReadToRemote(entityId, operation, payload),
+    pull: () => articleRepository.pullArticleReadsFromRemote(),
+  });
+
   registerSyncHandler('settings', {
     push: (entityId, operation, payload) =>
       profileRepository.syncSettingsToRemote(entityId, operation, payload),

@@ -73,7 +73,14 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 
 | Route | Presentation | Title |
 |-------|--------------|-------|
-| `/(app)/search` | card | Search (articles, providers, tools) |
+| `/(app)/search` | card | Search (articles, providers, tools); custom glossy back + search shell |
+
+### Billing deep links
+
+| Route | Notes |
+|-------|-------|
+| `billing/success` | After Paystack/Stripe (`caremate://billing/success`) |
+| `billing/cancel` | Cancelled checkout (`caremate://billing/cancel`) |
 
 ### Emergency
 
@@ -91,7 +98,8 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | `/(app)/(tabs)/articles` | Learn | Optional `?category=<id>` and `?q=` |
 | `/(app)/articles/[id]` | Article | Optional external `sourceUrl` |
 | `/(app)/articles/category/[slug]` | Category | Prefer tab query param for filtering |
-| `/(app)/articles/bookmarks` | Bookmarks | List only; toggle UI not wired yet |
+| `/(app)/articles/bookmarks` | Bookmarks | Saved articles |
+| `/(app)/articles/reading` | Reading history | Reading + Read tabs |
 
 ### Providers
 

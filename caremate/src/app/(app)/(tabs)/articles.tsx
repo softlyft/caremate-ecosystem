@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Bookmark, BookOpen, Search } from 'lucide-react-native';
+import { Bookmark, BookOpen, CheckCheck, Search } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -164,15 +164,26 @@ export default function ArticlesTabScreen() {
                   <AppText variant="screenTitle" style={styles.title}>
                     {t('learn.title')}
                   </AppText>
-                  <PressableScale
-                    style={styles.bookmarksCta}
-                    onPress={() => router.push('/(app)/articles/bookmarks')}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('learn.bookmarks')}
-                  >
-                    <Bookmark color={palette.primary} size={15} strokeWidth={2.25} />
-                    <AppText variant="seeAll">{t('learn.bookmarksShort')}</AppText>
-                  </PressableScale>
+                  <View style={styles.libraryActions}>
+                    <PressableScale
+                      style={styles.bookmarksCta}
+                      onPress={() => router.push('/(app)/articles/reading')}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('learn.reading')}
+                    >
+                      <CheckCheck color={palette.primary} size={15} strokeWidth={2.25} />
+                      <AppText variant="seeAll">{t('learn.readingShort')}</AppText>
+                    </PressableScale>
+                    <PressableScale
+                      style={styles.bookmarksCta}
+                      onPress={() => router.push('/(app)/articles/bookmarks')}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('learn.bookmarks')}
+                    >
+                      <Bookmark color={palette.primary} size={15} strokeWidth={2.25} />
+                      <AppText variant="seeAll">{t('learn.bookmarksShort')}</AppText>
+                    </PressableScale>
+                  </View>
                 </View>
                 <AppText variant="subtitle" style={styles.subtitle}>
                   {t('learn.subtitle')}
@@ -307,6 +318,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.sm,
     zIndex: 1,
+  },
+  libraryActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
   },
   title: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { Subscription, SubscriptionPrice } from '@/types/database';
+import type { Payment, Subscription, SubscriptionPrice } from '@/types/database';
 
 export async function listSubscriptionPrices(): Promise<SubscriptionPrice[]> {
   const supabase = await createClient();
@@ -17,6 +17,16 @@ export async function listSubscriptionPrices(): Promise<SubscriptionPrice[]> {
 export type SubscriberRow = Subscription & {
   email: string | null;
 };
+
+export type PaymentRow = Payment & {
+  email: string | null;
+};
+
+async function emailByUserIdMap(): Promise<Map<string, string | null>> {
+  const admin = createAdminClient();
+  const { data: usersData } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  return new Map((usersData?.users ?? []).map((u) => [u.id, u.email ?? null] as const));
+}
 
 export async function listSubscriptions(filters?: {
   status?: string;
@@ -42,12 +52,42 @@ export async function listSubscriptions(filters?: {
   const rows = (data ?? []) as Subscription[];
   if (rows.length === 0) return [];
 
-  const admin = createAdminClient();
-  const { data: usersData } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  const emailById = new Map(
-    (usersData?.users ?? []).map((u) => [u.id, u.email ?? null] as const),
-  );
+  const emailById = await emailByUserIdMap();
+  return rows.map((row) => ({
+    ...row,
+    email: emailById.get(row.user_id) ?? null,
+  }));
+}
 
+export async function listPayments(filters?: {
+  status?: string;
+  provider?: string;
+  planType?: string;
+}): Promise<PaymentRow[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from('payments')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if (filters?.status) {
+    query = query.eq('status', filters.status);
+  }
+  if (filters?.provider) {
+    query = query.eq('provider', filters.provider);
+  }
+  if (filters?.planType) {
+    query = query.eq('plan_type', filters.planType);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const rows = (data ?? []) as Payment[];
+  if (rows.length === 0) return [];
+
+  const emailById = await emailByUserIdMap();
   return rows.map((row) => ({
     ...row,
     email: emailById.get(row.user_id) ?? null,

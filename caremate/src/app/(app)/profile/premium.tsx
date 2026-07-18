@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Crown, RefreshCw, Sparkles, Users } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,11 +12,15 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import { formatPriceAmount, getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
+import { billingCurrencyForCountry } from '@/domains/billing/currency-by-country';
 import { billingRepository } from '@/domains/billing/repository';
 import type { BillingCurrency, BillingInterval, PlanType } from '@/domains/billing/types';
 import { familyRepository } from '@/domains/family/repository';
 import { useTranslation } from '@/domains/localization';
+import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
+import { QUERY_KEYS } from '@/constants/config';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = '#B45309';
@@ -29,7 +33,9 @@ export default function PremiumScreen() {
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const { countryCode } = useLocalizationPreferences();
   const queryClient = useQueryClient();
+  const billingCurrency = billingCurrencyForCountry(countryCode);
 
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +46,22 @@ export default function PremiumScreen() {
     queryKey: ['billing', 'premium', userId, isGuest],
     queryFn: async () => {
       if (isGuest) {
-        return { premium: null, householdId: null as string | null };
+        return {
+          premium: null,
+          householdId: null as string | null,
+          patientId: null as string | null,
+        };
       }
-      const household = await familyRepository.findHouseholdForUser(userId);
-      const premium = await getPremiumState(userId);
-      return { premium, householdId: household?.id ?? null };
+      const [household, premium, profile] = await Promise.all([
+        familyRepository.findHouseholdForUser(userId),
+        getPremiumState(userId),
+        profileRepository.findByUserId(userId),
+      ]);
+      return {
+        premium,
+        householdId: household?.id ?? null,
+        patientId: profile?.patientId ?? null,
+      };
     },
   });
 
@@ -56,23 +73,78 @@ export default function PremiumScreen() {
   const loading = premiumQuery.isLoading || pricesQuery.isLoading;
   const premium = premiumQuery.data?.premium ?? null;
   const householdId = premiumQuery.data?.householdId ?? null;
+  const patientId = premiumQuery.data?.patientId ?? null;
   const prices = pricesQuery.data ?? [];
+  const isPersonalActive = premium?.tier === 'personal';
+  const isFamilyActive = premium?.tier === 'family';
+  const showUpgrade = isPersonalActive && planType === 'family';
 
   const selectedPrices = prices.filter(
-    (p) => p.planType === planType && p.billingInterval === billingInterval,
+    (p) =>
+      p.planType === planType &&
+      p.billingInterval === billingInterval &&
+      p.currency === billingCurrency,
   );
+
+  const upgradeCurrency = billingCurrency;
+
+  const upgradeQuoteQuery = useQuery({
+    queryKey: [
+      'billing',
+      'upgrade-quote',
+      userId,
+      billingInterval,
+      upgradeCurrency,
+      householdId,
+      isPersonalActive,
+    ],
+    enabled: !isGuest && showUpgrade && Boolean(householdId),
+    queryFn: () =>
+      billingRepository.quoteFamilyUpgrade({
+        billingInterval,
+        currency: upgradeCurrency,
+        householdId,
+      }),
+  });
+
+  useEffect(() => {
+    if (isPersonalActive && planType === 'personal') {
+      setPlanType('family');
+    }
+  }, [isPersonalActive, planType]);
 
   async function refresh() {
     setError(null);
+    if (!isGuest) {
+      try {
+        await billingRepository.syncAfterCheckout();
+      } catch {
+        try {
+          await billingRepository.pullFromRemote();
+        } catch {
+          // Query invalidation still refreshes from cache.
+        }
+      }
+    }
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] }),
       queryClient.invalidateQueries({ queryKey: ['billing', 'prices'] }),
+      queryClient.invalidateQueries({ queryKey: ['billing', 'upgrade-quote'] }),
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads }),
     ]);
   }
 
   async function pay(currency: BillingCurrency) {
     if (isGuest) {
       router.push('/(auth)/login');
+      return;
+    }
+    if (isFamilyActive) {
+      setError(t('profile.premium.checkoutFailed'));
+      return;
+    }
+    if (isPersonalActive && planType === 'personal') {
+      setError(t('profile.premium.alreadyPersonal'));
       return;
     }
     if (planType === 'family' && !householdId) {
@@ -83,15 +155,30 @@ export default function PremiumScreen() {
     setPaying(true);
     setError(null);
     try {
-      await billingRepository.startCheckout({
-        planType,
-        billingInterval,
-        currency,
-        householdId: planType === 'family' ? householdId : null,
-      });
+      if (isPersonalActive && planType === 'family') {
+        await billingRepository.startFamilyUpgrade({
+          billingInterval,
+          currency,
+          householdId,
+        });
+      } else {
+        await billingRepository.startCheckout({
+          planType,
+          billingInterval,
+          currency,
+          householdId: planType === 'family' ? householdId : null,
+          patientId,
+        });
+      }
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('profile.premium.checkoutFailed'));
+      setError(
+        err instanceof Error
+          ? err.message
+          : showUpgrade
+            ? t('profile.premium.upgradeFailed')
+            : t('profile.premium.checkoutFailed'),
+      );
     } finally {
       setPaying(false);
     }
@@ -185,80 +272,120 @@ export default function PremiumScreen() {
                 <AppText variant="caption" style={styles.sectionEyebrow}>
                   {t('profile.premium.choosePlan')}
                 </AppText>
-                <View style={styles.chipRow}>
-                  <Chip
-                    label={t('profile.premium.personal')}
-                    icon={Crown}
-                    active={planType === 'personal'}
-                    onPress={() => setPlanType('personal')}
-                  />
-                  <Chip
-                    label={t('profile.premium.family')}
-                    icon={Users}
-                    active={planType === 'family'}
-                    onPress={() => setPlanType('family')}
-                  />
-                </View>
-
-                {planType === 'family' && !householdId ? (
-                  <View style={styles.familyHint}>
-                    <AppText variant="caption" style={styles.muted}>
-                      {t('profile.premium.noHousehold')}
-                    </AppText>
-                    <PressableScale onPress={() => router.push('/(app)/family')}>
-                      <AppText variant="body" style={styles.link}>
-                        {t('profile.premium.setUpFamily')}
-                      </AppText>
-                    </PressableScale>
-                  </View>
-                ) : null}
-
-                <View style={styles.chipRow}>
-                  <Chip
-                    label={t('profile.premium.monthly')}
-                    active={billingInterval === 'monthly'}
-                    onPress={() => setBillingInterval('monthly')}
-                  />
-                  <Chip
-                    label={t('profile.premium.yearly')}
-                    active={billingInterval === 'yearly'}
-                    onPress={() => setBillingInterval('yearly')}
-                  />
-                </View>
-              </View>
-            </AnimatedSection>
-
-            <AnimatedSection index={3}>
-              <View style={[styles.card, shadow.soft]}>
-                <AppText variant="caption" style={styles.sectionEyebrow}>
-                  {t('profile.premium.pay')}
-                </AppText>
-                {selectedPrices.length === 0 ? (
+                {isFamilyActive ? (
                   <AppText variant="caption" style={styles.muted}>
-                    {t('profile.premium.noPrices')}
+                    {t('profile.premium.yourPlan')}: {t('profile.premium.family')}
                   </AppText>
                 ) : (
-                  <View style={styles.payStack}>
-                    {selectedPrices.map((price) => {
-                      const disabled = paying || (planType === 'family' && !householdId);
-                      return (
-                        <PressableScale
-                          key={price.id}
-                          disabled={disabled}
-                          style={[styles.secondaryCta, disabled ? styles.ctaDisabled : null]}
-                          onPress={() => void pay(price.currency)}
-                        >
-                          <AppText variant="button" style={styles.secondaryCtaLabel}>
-                            {price.provider === 'paystack' ? 'Paystack' : 'Stripe'} ·{' '}
-                            {formatPriceAmount(price.amountMinor, price.currency)}
+                  <>
+                    <View style={styles.chipRow}>
+                      <Chip
+                        label={t('profile.premium.personal')}
+                        icon={Crown}
+                        active={planType === 'personal'}
+                        onPress={() => setPlanType('personal')}
+                      />
+                      <Chip
+                        label={
+                          isPersonalActive
+                            ? t('profile.premium.upgradeToFamily')
+                            : t('profile.premium.family')
+                        }
+                        icon={Users}
+                        active={planType === 'family'}
+                        onPress={() => setPlanType('family')}
+                      />
+                    </View>
+
+                    {planType === 'family' && !householdId ? (
+                      <View style={styles.familyHint}>
+                        <AppText variant="caption" style={styles.muted}>
+                          {isPersonalActive
+                            ? t('profile.premium.upgradeNeedsHousehold')
+                            : t('profile.premium.noHousehold')}
+                        </AppText>
+                        <PressableScale onPress={() => router.push('/(app)/family')}>
+                          <AppText variant="body" style={styles.link}>
+                            {t('profile.premium.setUpFamily')}
                           </AppText>
                         </PressableScale>
-                      );
-                    })}
-                  </View>
+                      </View>
+                    ) : null}
+
+                    <View style={styles.chipRow}>
+                      <Chip
+                        label={t('profile.premium.monthly')}
+                        active={billingInterval === 'monthly'}
+                        onPress={() => setBillingInterval('monthly')}
+                      />
+                      <Chip
+                        label={t('profile.premium.yearly')}
+                        active={billingInterval === 'yearly'}
+                        onPress={() => setBillingInterval('yearly')}
+                      />
+                    </View>
+                  </>
                 )}
               </View>
             </AnimatedSection>
+
+            {!isFamilyActive ? (
+              <AnimatedSection index={3}>
+                <View style={[styles.card, shadow.soft]}>
+                  <AppText variant="caption" style={styles.sectionEyebrow}>
+                    {showUpgrade
+                      ? t('profile.premium.upgradeTitle')
+                      : t('profile.premium.pay')}
+                  </AppText>
+                  <AppText variant="caption" style={styles.muted}>
+                    {t('profile.premium.payInCurrency', { currency: billingCurrency })}
+                  </AppText>
+
+                  {showUpgrade ? (
+                    <UpgradeQuoteBlock
+                      quote={upgradeQuoteQuery.data ?? null}
+                      loading={upgradeQuoteQuery.isLoading}
+                      error={
+                        upgradeQuoteQuery.error instanceof Error
+                          ? upgradeQuoteQuery.error.message
+                          : upgradeQuoteQuery.isError
+                            ? t('profile.premium.upgradeQuoteFailed')
+                            : null
+                      }
+                      householdId={householdId}
+                      paying={paying}
+                      onPay={(currency) => void pay(currency)}
+                    />
+                  ) : selectedPrices.length === 0 ? (
+                    <AppText variant="caption" style={styles.muted}>
+                      {t('profile.premium.noPrices')}
+                    </AppText>
+                  ) : (
+                    <View style={styles.payStack}>
+                      {selectedPrices.map((price) => {
+                        const disabled =
+                          paying ||
+                          (planType === 'family' && !householdId) ||
+                          (isPersonalActive && planType === 'personal');
+                        return (
+                          <PressableScale
+                            key={price.id}
+                            disabled={disabled}
+                            style={[styles.secondaryCta, disabled ? styles.ctaDisabled : null]}
+                            onPress={() => void pay(price.currency)}
+                          >
+                            <AppText variant="button" style={styles.secondaryCtaLabel}>
+                              {price.provider === 'paystack' ? 'Paystack' : 'Stripe'} ·{' '}
+                              {formatPriceAmount(price.amountMinor, price.currency)}
+                            </AppText>
+                          </PressableScale>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
+              </AnimatedSection>
+            ) : null}
           </>
         )}
 
@@ -284,6 +411,118 @@ export default function PremiumScreen() {
           </PressableScale>
         </AnimatedSection>
       </Animated.ScrollView>
+    </View>
+  );
+}
+
+function UpgradeQuoteBlock({
+  quote,
+  loading,
+  error,
+  householdId,
+  paying,
+  onPay,
+}: {
+  quote: Awaited<ReturnType<typeof billingRepository.quoteFamilyUpgrade>> | null;
+  loading: boolean;
+  error: string | null;
+  householdId: string | null;
+  paying: boolean;
+  onPay: (currency: BillingCurrency) => void;
+}) {
+  const { t } = useTranslation();
+
+  if (!householdId) {
+    return (
+      <AppText variant="caption" style={styles.muted}>
+        {t('profile.premium.upgradeNeedsHousehold')}
+      </AppText>
+    );
+  }
+
+  if (loading) {
+    return (
+      <AppText variant="caption" style={styles.muted}>
+        {t('profile.premium.loading')}
+      </AppText>
+    );
+  }
+
+  if (error || !quote) {
+    return (
+      <AppText variant="caption" style={styles.error}>
+        {error ?? t('profile.premium.upgradeQuoteFailed')}
+      </AppText>
+    );
+  }
+
+  const intervalLabel =
+    quote.billingInterval === 'yearly'
+      ? t('profile.premium.yearly')
+      : t('profile.premium.monthly');
+  const disabled = paying;
+
+  return (
+    <View style={styles.payStack}>
+      <AppText variant="caption" style={styles.muted}>
+        {t('profile.premium.upgradeSubtitle')}
+      </AppText>
+      <QuoteRow
+        label={t('profile.premium.upgradeFamilyPrice', { interval: intervalLabel })}
+        value={formatPriceAmount(quote.familyListPriceMinor, quote.currency)}
+      />
+      <QuoteRow
+        label={t('profile.premium.upgradeCredit', { days: quote.daysRemaining })}
+        value={`− ${formatPriceAmount(quote.creditMinor, quote.currency)}`}
+      />
+      <QuoteRow
+        label={t('profile.premium.upgradeDue')}
+        value={formatPriceAmount(quote.chargeMinor, quote.currency)}
+        emphasize
+      />
+      <AppText variant="caption" style={styles.muted}>
+        {t('profile.premium.upgradeNewEnd', {
+          date: new Date(quote.newPeriodEnd).toLocaleDateString(),
+        })}
+      </AppText>
+      <PressableScale
+        disabled={disabled}
+        style={[styles.secondaryCta, disabled ? styles.ctaDisabled : null]}
+        onPress={() => onPay(quote.currency)}
+      >
+        <AppText variant="button" style={styles.secondaryCtaLabel}>
+          {quote.chargeMinor === 0
+            ? t('profile.premium.upgradeZeroCharge')
+            : `${quote.provider === 'paystack' ? 'Paystack' : 'Stripe'} · ${formatPriceAmount(quote.chargeMinor, quote.currency)}`}
+        </AppText>
+      </PressableScale>
+    </View>
+  );
+}
+
+function QuoteRow({
+  label,
+  value,
+  emphasize,
+}: {
+  label: string;
+  value: string;
+  emphasize?: boolean;
+}) {
+  return (
+    <View style={styles.quoteRow}>
+      <AppText
+        variant="caption"
+        style={emphasize ? styles.quoteLabelEmphasize : styles.muted}
+      >
+        {label}
+      </AppText>
+      <AppText
+        variant={emphasize ? 'cardTitle' : 'body'}
+        style={emphasize ? styles.quoteValueEmphasize : styles.quoteValue}
+      >
+        {value}
+      </AppText>
     </View>
   );
 }
@@ -463,6 +702,23 @@ const styles = StyleSheet.create({
   },
   payStack: {
     gap: spacing.sm,
+  },
+  quoteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  quoteValue: {
+    color: palette.text,
+    fontFamily: fontFamily.semiBold,
+  },
+  quoteLabelEmphasize: {
+    color: TITLE,
+    fontFamily: fontFamily.semiBold,
+  },
+  quoteValueEmphasize: {
+    color: ACCENT,
   },
   primaryCta: {
     backgroundColor: ACCENT,

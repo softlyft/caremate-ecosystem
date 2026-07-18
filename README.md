@@ -6,6 +6,7 @@ Monorepo for the CareMate product surface: the offline-first mobile app, the adm
 caremate-ecosystem/
 ├── caremate/            Expo mobile app (SQLite + sync + mini-apps)
 ├── caremate-portal/     Next.js admin portal
+├── payment/             Vite hosted checkout (Paystack / Stripe)
 ├── provider-ingestion/  FastAPI Excel/XLSX → Supabase provider ingest
 ├── supabase/            Cloud schema, RLS, RPCs, Edge Functions
 └── packages/db-types/   Shared TypeScript database contracts
@@ -19,6 +20,7 @@ Each service keeps its own README plus a local `docs/` set.
 |---------|---------|------|
 | `caremate/` | Mobile experience for patients and families | `caremate/docs/README.md` |
 | `caremate-portal/` | Staff/admin portal for catalogs, users, billing, providers | `caremate-portal/docs/README.md` |
+| `payment/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `payment/README.md` |
 | `provider-ingestion/` | Provider resource ingest and projection rebuilds | `provider-ingestion/docs/README.md` |
 | `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
@@ -41,6 +43,7 @@ Useful root scripts:
 | `npm run format` | Formats the mobile app with Prettier (`--write`) |
 | `npm run mobile:start` | Starts the Expo mobile app |
 | `npm run portal:dev` | Starts the Next.js portal |
+| `npm run payment:dev` | Starts the hosted checkout app on `:5174` |
 | `npm run ingest:dev` | Starts the provider-ingestion FastAPI service on `:8090` |
 | `npm run supabase:link` | Links the local repo to the hosted Supabase project |
 | `npm run supabase:migration:new -- name_here` | Creates a new SQL migration |
@@ -57,6 +60,7 @@ Useful root scripts:
 | `packages/db-types/` | Shared TS contracts used by mobile and portal |
 | `caremate/` | Patient-facing product UX and offline-first data flow |
 | `caremate-portal/` | Staff operations for content, users, providers, billing |
+| `payment/` | Browser checkout handoff for Paystack / Stripe |
 | `provider-ingestion/` | Provider resource ingest and `providers` projection rebuilds |
 
 ## Prerequisites
@@ -93,10 +97,17 @@ Rules:
 
 Premium billing spans multiple services:
 
-- Cloud tables: `subscription_prices`, `subscriptions`
-- Mobile: hosted checkout via Supabase Edge Function `create-checkout`
-- Portal: admin management for prices and subscriber views
+- Cloud tables: `subscription_prices`, `payments` (transactions), `subscriptions` (entitlements)
+- Mobile currency: Nigeria → NGN/Paystack; otherwise USD/Stripe (`caremate/src/domains/billing/currency-by-country.ts`)
+- New checkout: opens hosted `payment/` app → `create-checkout` (pending payment)
+- Standard → Family upgrade: `quote-upgrade` / `create-upgrade` (credit + new period; gateway URL opened directly; `payment/` used for success/cancel return)
+- After charge success: webhook or `verify-checkout` marks payment succeeded and creates/renews subscription (or finalizes upgrade)
+- Portal: price catalog, transactions, subscribers, admin grants, admin Family upgrade, audit logs
 - Edge Functions:
+  - `create-checkout`
+  - `quote-upgrade`
+  - `create-upgrade`
+  - `verify-checkout`
   - `billing-webhook-stripe`
   - `billing-webhook-paystack`
 - Secrets live on Supabase Edge Functions, not in the portal runtime env
@@ -138,6 +149,16 @@ npm run supabase:db:push
 npm run bootstrap:admin -w caremate-portal -- you@example.com admin
 npm run portal:dev
 ```
+
+### Payment (`payment/`)
+
+```bash
+cp payment/.env.example payment/.env
+# Same Supabase URL + anon key as the mobile app
+npm run payment:dev
+```
+
+Set `EXPO_PUBLIC_PAYMENT_URL` in `caremate/.env` (local default: `http://localhost:5174`).
 
 ### Provider Ingestion (`provider-ingestion/`)
 

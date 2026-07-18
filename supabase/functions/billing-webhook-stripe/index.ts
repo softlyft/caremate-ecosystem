@@ -1,5 +1,6 @@
+import { finalizeSuccessfulPayment, markPaymentFailed } from '../_shared/billing.ts';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
-import { createServiceClient, periodEndIso } from '../_shared/supabase.ts';
+import { createServiceClient } from '../_shared/supabase.ts';
 
 async function verifyStripeSignature(
   payload: string,
@@ -62,28 +63,35 @@ Deno.serve(async (req) => {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const subscriptionId =
-        session.metadata?.subscription_id || session.client_reference_id;
-      if (!subscriptionId) {
+      const paymentId = session.metadata?.payment_id || session.client_reference_id;
+      if (!paymentId && !session.id) {
         return jsonResponse({ received: true, skipped: true });
       }
 
-      const billingInterval = session.metadata?.billing_interval || 'monthly';
-      const periodStart = now;
-      const periodEnd = periodEndIso(billingInterval);
+      try {
+        await finalizeSuccessfulPayment(service, {
+          paymentId: paymentId ?? null,
+          providerReference: session.id as string,
+          provider: 'stripe',
+          providerTransactionId: session.payment_intent ?? null,
+          providerCustomerId: session.customer ?? null,
+          providerSubscriptionId: session.subscription ?? null,
+          amountMinor:
+            typeof session.amount_total === 'number' ? session.amount_total : null,
+          paidAt: now,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Finalize failed';
+        console.error('stripe checkout.session.completed finalize', message);
+        return jsonResponse({ error: message }, 500);
+      }
+    }
 
-      await service
-        .from('subscriptions')
-        .update({
-          status: 'active',
-          provider_customer_id: session.customer ?? null,
-          provider_subscription_id: session.subscription ?? null,
-          provider_ref: session.id,
-          current_period_start: periodStart,
-          current_period_end: periodEnd,
-          updated_at: now,
-        })
-        .eq('id', subscriptionId);
+    if (event.type === 'checkout.session.expired') {
+      const session = event.data.object;
+      if (session?.id) {
+        await markPaymentFailed(service, 'stripe', session.id, 'checkout.session.expired');
+      }
     }
 
     if (

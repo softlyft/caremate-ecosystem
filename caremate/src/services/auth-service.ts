@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '@/constants/config';
 import { identityFromAuthUser } from '@/domains/auth/auth-identity';
 import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-account';
 import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
+import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
 import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { authStorage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
@@ -42,6 +43,13 @@ export class AuthService {
       );
     } catch {
       // Local stubs are best-effort; auth must still succeed.
+    }
+
+    // New device / fresh SQLite: pull Premium entitlement before first UI paint races ads.
+    try {
+      await hydrateAccountEntitlements(user.id);
+    } catch {
+      // Sync engine will retry; auth must still succeed.
     }
   }
 

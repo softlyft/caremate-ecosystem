@@ -206,9 +206,10 @@ Later (optional): normalize into per-entity tables for family sharing / clinicia
 | Reminder engine | `features/notifications/` placeholder; meds + checkups |
 | Mini-app SQLite + cloud backup | ✅ Snapshot sync for all five mini-apps |
 
-| Bookmark toggle UI | Repo ready; Learn cards not wired yet |
+| Bookmark + mark-as-read toggles | Done (Learn cards + detail; `/(app)/articles/reading`) |
 | Real provider map | Replace coordinate list with maps SDK |
 | Emergency / Patient ID QR | Done — QR renders on Patient ID card back |
+| Emergency lock teal card / widgets | Done — `/emergency-lock` + Glance / iOS hierarchy |
 
 ---
 
@@ -253,7 +254,7 @@ Later (optional): normalize into per-entity tables for family sharing / clinicia
 3. **Period tracker depth** — cycle history engine + ovulation
 4. **CI pipeline** — format + lint + typecheck + test (`.github/workflows/ci.yml`)
 5. **EAS Build** configuration for TestFlight / Play Internal
-6. **Wire article bookmark toggle** and real emergency QR
+6. **Push notification delivery** beyond preference toggles
 
 ---
 

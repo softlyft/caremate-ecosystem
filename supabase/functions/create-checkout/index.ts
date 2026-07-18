@@ -42,6 +42,45 @@ Deno.serve(async (req) => {
 
     const service = createServiceClient();
 
+    // Active Standard members must use create-upgrade for Family (credit + new period).
+    if (plan_type === 'family') {
+      const { data: personalActive } = await service
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('plan_type', 'personal')
+        .in('status', ['active', 'trialing'])
+        .limit(1)
+        .maybeSingle();
+      if (personalActive) {
+        return jsonResponse(
+          {
+            error:
+              'You already have Standard Premium. Use Upgrade to Family to apply your unused credit.',
+          },
+          400,
+        );
+      }
+    }
+
+    // Block duplicate active entitlement of the same plan type.
+    {
+      let activeQuery = service
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('plan_type', plan_type)
+        .in('status', ['active', 'trialing'])
+        .limit(1);
+      const { data: already } = await activeQuery.maybeSingle();
+      if (already) {
+        return jsonResponse(
+          { error: 'You already have an active subscription for this plan.' },
+          400,
+        );
+      }
+    }
+
     let householdId: string | null = null;
     if (plan_type === 'family') {
       householdId = body.household_id ?? null;
@@ -75,20 +114,27 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Price not found or inactive' }, 404);
     }
 
-    const subscriptionId = crypto.randomUUID();
-    const providerRef = `cm_${subscriptionId.replace(/-/g, '').slice(0, 24)}`;
+    // Payment row first — subscription is created only after charge succeeds.
+    const paymentId = crypto.randomUUID();
+    const providerReference = `cm_${paymentId.replace(/-/g, '').slice(0, 24)}`;
     const now = new Date().toISOString();
 
-    const { error: insertError } = await service.from('subscriptions').insert({
-      id: subscriptionId,
+    const { error: insertError } = await service.from('payments').insert({
+      id: paymentId,
       user_id: user.id,
       household_id: householdId,
       plan_type,
       billing_interval,
       currency,
       provider: price.provider,
-      status: 'incomplete',
-      provider_ref: providerRef,
+      amount_minor: price.amount_minor,
+      status: 'pending',
+      provider_reference: providerReference,
+      metadata: {
+        price_id: price.id,
+        cancel_url,
+        success_url,
+      },
       created_at: now,
       updated_at: now,
     });
@@ -113,14 +159,14 @@ Deno.serve(async (req) => {
           email: user.email,
           amount: price.amount_minor,
           currency: 'NGN',
-          reference: providerRef,
+          reference: providerReference,
           callback_url: success_url,
           metadata: {
-            subscription_id: subscriptionId,
+            payment_id: paymentId,
             user_id: user.id,
             plan_type,
             billing_interval,
-            household_id: householdId,
+            household_id: householdId ?? '',
             cancel_url,
           },
         }),
@@ -128,6 +174,14 @@ Deno.serve(async (req) => {
 
       const paystackJson = await paystackRes.json();
       if (!paystackRes.ok || !paystackJson?.status) {
+        await service
+          .from('payments')
+          .update({
+            status: 'failed',
+            failure_reason: paystackJson?.message ?? 'Paystack initialize failed',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', paymentId);
         return jsonResponse(
           { error: paystackJson?.message ?? 'Paystack initialize failed' },
           502,
@@ -136,13 +190,12 @@ Deno.serve(async (req) => {
 
       return jsonResponse({
         url: paystackJson.data.authorization_url as string,
-        subscription_id: subscriptionId,
+        payment_id: paymentId,
         provider: 'paystack',
-        reference: providerRef,
+        reference: providerReference,
       });
     }
 
-    // Stripe hosted Checkout (subscription with price_data)
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       return jsonResponse({ error: 'Stripe is not configured' }, 500);
@@ -152,12 +205,9 @@ Deno.serve(async (req) => {
     params.set('mode', 'subscription');
     params.set('success_url', success_url);
     params.set('cancel_url', cancel_url);
-    params.set('client_reference_id', subscriptionId);
+    params.set('client_reference_id', paymentId);
     params.set('customer_email', user.email ?? '');
-    params.set(
-      'line_items[0][price_data][currency]',
-      'usd',
-    );
+    params.set('line_items[0][price_data][currency]', 'usd');
     params.set('line_items[0][price_data][unit_amount]', String(price.amount_minor));
     params.set(
       'line_items[0][price_data][product_data][name]',
@@ -168,24 +218,22 @@ Deno.serve(async (req) => {
       billing_interval === 'yearly' ? 'year' : 'month',
     );
     params.set('line_items[0][quantity]', '1');
-    params.set('metadata[subscription_id]', subscriptionId);
+    params.set('metadata[payment_id]', paymentId);
     params.set('metadata[user_id]', user.id);
     params.set('metadata[plan_type]', plan_type);
     params.set('metadata[billing_interval]', billing_interval);
-    params.set('metadata[provider_ref]', providerRef);
+    params.set('metadata[provider_ref]', providerReference);
     if (householdId) {
       params.set('metadata[household_id]', householdId);
     }
-    params.set('subscription_data[metadata][subscription_id]', subscriptionId);
+    params.set('subscription_data[metadata][payment_id]', paymentId);
     params.set('subscription_data[metadata][user_id]', user.id);
     params.set('subscription_data[metadata][plan_type]', plan_type);
     params.set('subscription_data[metadata][billing_interval]', billing_interval);
-    params.set('subscription_data[metadata][provider_ref]', providerRef);
     if (householdId) {
       params.set('subscription_data[metadata][household_id]', householdId);
     }
 
-    // Avoid empty customer_email param
     if (!user.email) {
       params.delete('customer_email');
     }
@@ -201,6 +249,14 @@ Deno.serve(async (req) => {
 
     const stripeJson = await stripeRes.json();
     if (!stripeRes.ok || !stripeJson?.url) {
+      await service
+        .from('payments')
+        .update({
+          status: 'failed',
+          failure_reason: stripeJson?.error?.message ?? 'Stripe checkout failed',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', paymentId);
       return jsonResponse(
         { error: stripeJson?.error?.message ?? 'Stripe checkout failed' },
         502,
@@ -208,19 +264,18 @@ Deno.serve(async (req) => {
     }
 
     await service
-      .from('subscriptions')
+      .from('payments')
       .update({
-        provider_ref: stripeJson.id,
+        provider_reference: stripeJson.id,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', subscriptionId);
+      .eq('id', paymentId);
 
     return jsonResponse({
       url: stripeJson.url as string,
-      subscription_id: subscriptionId,
+      payment_id: paymentId,
       provider: 'stripe',
       reference: stripeJson.id as string,
-      // Helper for local testing of period math when webhooks are delayed
       preview_period_end: periodEndIso(billing_interval),
     });
   } catch (err) {

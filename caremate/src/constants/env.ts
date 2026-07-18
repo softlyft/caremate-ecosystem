@@ -4,6 +4,7 @@ const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const currentsApiKey = process.env.EXPO_PUBLIC_CURRENTS_API_KEY ?? '';
 const currentsCountry = process.env.EXPO_PUBLIC_CURRENTS_COUNTRY ?? 'INT';
+const paymentUrl = process.env.EXPO_PUBLIC_PAYMENT_URL ?? '';
 
 export const config = {
   supabaseUrl,
@@ -12,6 +13,7 @@ export const config = {
   currentsApiKey,
   isCurrentsConfigured: Boolean(currentsApiKey),
   currentsCountry,
+  paymentUrl,
   appVersion: Constants.expoConfig?.version ?? '1.0.0',
   admobAppIdAndroid: process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID ?? '',
   admobAppIdIos: process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS ?? '',

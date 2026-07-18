@@ -29,7 +29,9 @@ Routes live under `src/app/`.
 | `/dashboard/providers/new` | Redirect to upload |
 | `/dashboard/providers/[id]` | Provider detail / archive |
 | `/dashboard/billing` | Subscription price management |
-| `/dashboard/billing/subscribers` | Subscriber list |
+| `/dashboard/billing/transactions` | Payment ledger |
+| `/dashboard/billing/subscribers` | Subscriber list + admin grant / Family upgrade |
+| `/dashboard/audit` | Staff create / update / delete audit trail |
 
 ## Layering
 
@@ -47,7 +49,8 @@ Route/Page
 | Domain | Purpose |
 |-------|---------|
 | `articles` | Article CRUD and article listing |
-| `billing` | Subscription price updates and subscriber queries |
+| `audit` | List/filter `admin_audit_events` for `/dashboard/audit` |
+| `billing` | Prices, transactions, subscribers, admin grants / Family upgrade |
 | `dashboard` | Summary counts and dashboard metrics |
 | `media` | Learn media upload |
 | `providers` | Provider listing, ingest upload, archive |
@@ -104,5 +107,5 @@ It is responsible for operating on shared cloud data such as:
 ## Current Architectural Constraints
 
 - TanStack Query is installed but not a major data-fetching mechanism yet
-- Audit events are written but there is no portal UI to browse them
+- Audit events are written; staff browse them at `/dashboard/audit`
 - Provider upload depends on the external `provider-ingestion` service

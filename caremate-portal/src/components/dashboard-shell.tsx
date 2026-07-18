@@ -12,6 +12,7 @@ import {
   CreditCard,
   LogOut,
   Megaphone,
+  ScrollText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
@@ -39,6 +40,7 @@ const NAV_GROUPS = [
       { href: '/dashboard/users', label: 'Users', icon: Users },
       { href: '/dashboard/ads', label: 'Ads', icon: Megaphone },
       { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+      { href: '/dashboard/audit', label: 'Audit logs', icon: ScrollText },
     ],
   },
 ] as const;

@@ -165,13 +165,29 @@ Expected:
 - Edit a subscription price
 - Save changes
 - Verify changes persist after reload
-- Open `/dashboard/billing/subscribers`
+- Open `/dashboard/billing/transactions` and `/dashboard/billing/subscribers`
+- Add a subscriber (Patient ID + plan) when no active entitlement exists
+- Upgrade to Family for a Standard subscriber with a household
 
 Expected:
 
 - admins can update prices
-- non-admins cannot manage billing
-- subscriber list loads when subscription rows exist
+- non-admins cannot manage billing transactions/subscribers
+- transactions and subscriber lists load when rows exist
+- admin grant / upgrade write `subscriptions` and audit events
+
+## Audit log Tests
+
+- Open `/dashboard/audit` as staff
+- Create or update an article (or tip)
+- Reload Audit logs and confirm a create/update row appears
+- Filter by operation, action, entity, and actor email
+
+Expected:
+
+- events list newest-first
+- filters narrow the table
+- non-staff cannot access dashboard (middleware); staff can browse audit
 
 ## Commands
 
@@ -186,6 +202,6 @@ npm run test -w caremate-portal
 ## Known Constraints
 
 - Automated test coverage is currently minimal
-- Audit events are written server-side but not browsable in the portal UI
+- Audit events are written server-side and browsable at `/dashboard/audit`
 - Provider upload depends on the external ingestion service and matching API key configuration
 - Large user/subscriber sets may be limited by current list-query caps

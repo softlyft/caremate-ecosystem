@@ -3,7 +3,7 @@ import { and, desc, eq, inArray, isNull, like, or } from 'drizzle-orm';
 import { localizationService } from '@/domains/localization';
 import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
-import { articles, bookmarks } from '@/database/schema';
+import { articles, articleReads, bookmarks } from '@/database/schema';
 import {
   getLegacySeedIds,
   HOME_TRENDING_COUNTRY_SLOTS,
@@ -21,7 +21,7 @@ import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { currentsService } from '@/domains/articles/currents-service';
 import { isOnline } from '@/sync/network';
-import type { Article, ArticleCategory, Bookmark } from '@/types';
+import type { Article, ArticleCategory, ArticleRead, ArticleReadStatus, Bookmark } from '@/types';
 import { createId, nowIso, parseJson, stringifyJson } from '@/utils/helpers';
 import type { LearnContentType } from '@/domains/articles/content-types';
 import { isLearnContentType } from '@/domains/articles/content-types';
@@ -366,6 +366,255 @@ class ArticleRepository extends BaseRepository {
     return Boolean(existing);
   }
 
+  async getReadStatus(
+    userId: string,
+    articleId: string,
+  ): Promise<ArticleReadStatus | null> {
+    const row = await this.findActiveRead(userId, articleId);
+    return row ? (row.status as ArticleReadStatus) : null;
+  }
+
+  async getArticlesByReadStatus(
+    userId: string,
+    status: ArticleReadStatus,
+  ): Promise<Article[]> {
+    const db = getDatabase();
+    const rows = await db
+      .select({ article: articles })
+      .from(articleReads)
+      .innerJoin(articles, eq(articleReads.articleId, articles.id))
+      .where(
+        and(
+          eq(articleReads.userId, userId),
+          eq(articleReads.status, status),
+          isNull(articleReads.deletedAt),
+          isNull(articles.deletedAt),
+        ),
+      )
+      .orderBy(desc(articleReads.updatedAt));
+
+    return rows.map((row) => mapArticle(row.article));
+  }
+
+  /**
+   * Opened an article: mark as `reading` unless already `read`
+   * (reopening a finished article keeps it read).
+   */
+  async markReading(userId: string, articleId: string): Promise<ArticleReadStatus> {
+    const existing = await this.findActiveRead(userId, articleId);
+    if (existing?.status === 'read') {
+      return 'read';
+    }
+    if (existing?.status === 'reading') {
+      return 'reading';
+    }
+
+    await this.upsertReadRow(userId, articleId, {
+      status: 'reading',
+      openedAt: nowIso(),
+      readAt: null,
+    });
+    return 'reading';
+  }
+
+  async markRead(userId: string, articleId: string): Promise<ArticleReadStatus> {
+    const existing = await this.findActiveRead(userId, articleId);
+    const timestamp = nowIso();
+    if (existing) {
+      await this.touchReadRow(existing.id, {
+        status: 'read',
+        openedAt: existing.openedAt,
+        readAt: timestamp,
+        updatedAt: timestamp,
+      });
+      return 'read';
+    }
+
+    await this.upsertReadRow(userId, articleId, {
+      status: 'read',
+      openedAt: timestamp,
+      readAt: timestamp,
+    });
+    return 'read';
+  }
+
+  /** Toggle finished state: read ↔ clear. Reading (or none) → read. */
+  async toggleMarkRead(userId: string, articleId: string): Promise<ArticleReadStatus | null> {
+    const existing = await this.findActiveRead(userId, articleId);
+    if (existing?.status === 'read') {
+      await this.clearRead(userId, articleId, existing.id);
+      return null;
+    }
+    return this.markRead(userId, articleId);
+  }
+
+  private async findActiveRead(userId: string, articleId: string) {
+    const db = getDatabase();
+    const [existing] = await db
+      .select()
+      .from(articleReads)
+      .where(
+        and(
+          eq(articleReads.userId, userId),
+          eq(articleReads.articleId, articleId),
+          isNull(articleReads.deletedAt),
+        ),
+      )
+      .limit(1);
+    return existing ?? null;
+  }
+
+  private async clearRead(userId: string, articleId: string, rowId: string): Promise<void> {
+    const db = getDatabase();
+    const timestamp = nowIso();
+    await db
+      .update(articleReads)
+      .set({ deletedAt: timestamp, syncStatus: 'pending', updatedAt: timestamp })
+      .where(eq(articleReads.id, rowId));
+
+    await this.queueSync({
+      entityType: 'article_reads',
+      entityId: rowId,
+      operation: 'delete',
+      payload: { id: rowId, articleId, userId },
+    });
+  }
+
+  private async upsertReadRow(
+    userId: string,
+    articleId: string,
+    fields: { status: ArticleReadStatus; openedAt: string; readAt: string | null },
+  ): Promise<ArticleRead> {
+    const db = getDatabase();
+    const timestamp = nowIso();
+
+    // Revive a soft-deleted row for the same article if present.
+    const [softDeleted] = await db
+      .select()
+      .from(articleReads)
+      .where(and(eq(articleReads.userId, userId), eq(articleReads.articleId, articleId)))
+      .limit(1);
+
+    if (softDeleted) {
+      const row: ArticleRead = {
+        id: softDeleted.id,
+        articleId,
+        userId,
+        status: fields.status,
+        openedAt: fields.openedAt,
+        readAt: fields.readAt,
+        syncStatus: 'pending',
+        deletedAt: null,
+        createdAt: softDeleted.createdAt,
+        updatedAt: timestamp,
+      };
+      await db
+        .update(articleReads)
+        .set({
+          status: row.status,
+          openedAt: row.openedAt,
+          readAt: row.readAt,
+          syncStatus: 'pending',
+          deletedAt: null,
+          updatedAt: timestamp,
+        })
+        .where(eq(articleReads.id, softDeleted.id));
+
+      await this.queueSync({
+        entityType: 'article_reads',
+        entityId: row.id,
+        operation: 'update',
+        payload: row,
+      });
+      return row;
+    }
+
+    const id = await createId();
+    const row: ArticleRead = {
+      id,
+      articleId,
+      userId,
+      status: fields.status,
+      openedAt: fields.openedAt,
+      readAt: fields.readAt,
+      syncStatus: 'pending',
+      deletedAt: null,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+
+    await db.insert(articleReads).values({
+      id: row.id,
+      articleId: row.articleId,
+      userId: row.userId,
+      status: row.status,
+      openedAt: row.openedAt,
+      readAt: row.readAt,
+      syncStatus: 'pending',
+      deletedAt: null,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
+    await this.queueSync({
+      entityType: 'article_reads',
+      entityId: row.id,
+      operation: 'create',
+      payload: row,
+    });
+    return row;
+  }
+
+  private async touchReadRow(
+    rowId: string,
+    fields: {
+      status: ArticleReadStatus;
+      openedAt: string;
+      readAt: string | null;
+      updatedAt: string;
+    },
+  ): Promise<void> {
+    const db = getDatabase();
+    const [existing] = await db
+      .select()
+      .from(articleReads)
+      .where(eq(articleReads.id, rowId))
+      .limit(1);
+    if (!existing) return;
+
+    const row: ArticleRead = {
+      id: existing.id,
+      articleId: existing.articleId,
+      userId: existing.userId,
+      status: fields.status,
+      openedAt: fields.openedAt,
+      readAt: fields.readAt,
+      syncStatus: 'pending',
+      deletedAt: null,
+      createdAt: existing.createdAt,
+      updatedAt: fields.updatedAt,
+    };
+
+    await db
+      .update(articleReads)
+      .set({
+        status: row.status,
+        openedAt: row.openedAt,
+        readAt: row.readAt,
+        syncStatus: 'pending',
+        deletedAt: null,
+        updatedAt: fields.updatedAt,
+      })
+      .where(eq(articleReads.id, rowId));
+
+    await this.queueSync({
+      entityType: 'article_reads',
+      entityId: row.id,
+      operation: 'update',
+      payload: row,
+    });
+  }
+
   async syncBookmarkToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {
     if (operation === 'delete') {
       await supabase.from('bookmarks').delete().eq('id', entityId);
@@ -378,6 +627,28 @@ class ArticleRepository extends BaseRepository {
       article_id: bookmark.articleId,
       user_id: bookmark.userId,
       updated_at: bookmark.updatedAt,
+    });
+  }
+
+  async syncArticleReadToRemote(
+    entityId: string,
+    operation: string,
+    payload: unknown,
+  ): Promise<void> {
+    if (operation === 'delete') {
+      await supabase.from('article_reads').delete().eq('id', entityId);
+      return;
+    }
+
+    const row = payload as ArticleRead;
+    await supabase.from('article_reads').upsert({
+      id: row.id,
+      article_id: row.articleId,
+      user_id: row.userId,
+      status: row.status,
+      opened_at: row.openedAt,
+      read_at: row.readAt,
+      updated_at: row.updatedAt,
     });
   }
 
@@ -500,6 +771,45 @@ class ArticleRepository extends BaseRepository {
             articleId: row.article_id,
             userId: row.user_id,
             syncStatus: 'synced',
+            updatedAt: row.updated_at ?? timestamp,
+          },
+        });
+    }
+  }
+
+  async pullArticleReadsFromRemote(): Promise<void> {
+    const { data, error } = await supabase.from('article_reads').select('*');
+    if (error || !data) {
+      return;
+    }
+
+    const db = getDatabase();
+    for (const row of data) {
+      const timestamp = nowIso();
+      await db
+        .insert(articleReads)
+        .values({
+          id: row.id,
+          articleId: row.article_id,
+          userId: row.user_id,
+          status: row.status,
+          openedAt: row.opened_at ?? timestamp,
+          readAt: row.read_at ?? null,
+          syncStatus: 'synced',
+          deletedAt: null,
+          createdAt: row.created_at ?? timestamp,
+          updatedAt: row.updated_at ?? timestamp,
+        })
+        .onConflictDoUpdate({
+          target: articleReads.id,
+          set: {
+            articleId: row.article_id,
+            userId: row.user_id,
+            status: row.status,
+            openedAt: row.opened_at ?? timestamp,
+            readAt: row.read_at ?? null,
+            syncStatus: 'synced',
+            deletedAt: null,
             updatedAt: row.updated_at ?? timestamp,
           },
         });
