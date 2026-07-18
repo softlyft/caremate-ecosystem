@@ -4,9 +4,13 @@
   "readyCount": "Zana {{count}} ziko tayari",
   "comingSoon": "Inakuja hivi karibuni",
   "registry": {
+    "vitals-tracker": {
+      "name": "Vipimo muhimu",
+      "description": "Rekodi shinikizo la damu, sukari, mapigo ya moyo na zaidi — afya yako kwa mtazamo mmoja."
+    },
     "medication-tracker": {
-      "name": "Kifuatiliaji cha Dawa",
-      "description": "Fuatilia dawa, dozi za kila siku, na ufuataji kwa ajili yako au familia yako."
+      "name": "Msaidizi wa Dawa",
+      "description": "Panga dozi, thibitisha ulizomezwa, na pokea vikumbusho vya kujaza tena — msaidizi wako wa kila siku."
     },
     "checkup-planner": {
       "name": "Mpangaji wa Uchunguzi",
@@ -28,5 +32,170 @@
   "signInRequired": "Ingia ili kusawazisha zana hii kati ya vifaa",
   "save": "Hifadhi",
   "log": "Rekodi ingizo",
-  "setup": "Sanidi"
+  "setup": "Sanidi",
+  "medicationTracker": {
+    "eyebrow": "Msaidizi",
+    "emptyTitle": "Msaidizi wako wa dawa",
+    "emptySubtitle": "Ongeza dawa, weka saa, na thibitisha dozi unapomezwa",
+    "addMedicine": "Ongeza dawa",
+    "logDose": "Rekodi dozi",
+    "todaysDoses": "Dozi za leo",
+    "medicines": "Dawa",
+    "setupSave": "Ongeza dawa",
+    "setupSaveEdit": "Hifadhi mabadiliko",
+    "history": "Historia",
+    "screenTitle": "Msaidizi wa Dawa",
+    "setupTitle": "Ongeza dawa",
+    "logTitle": "Rekodi dozi",
+    "historyTitle": "Historia ya dawa",
+    "backToApps": "Rudi Apps",
+    "close": "Funga",
+    "back": "Rudi"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Mara moja kwa siku",
+        "slots": {
+          "0": "Dozi ya kila siku"
+        }
+      },
+      "twice-daily": {
+        "label": "Mara mbili kwa siku",
+        "slots": {
+          "0": "Asubuhi",
+          "1": "Jioni"
+        }
+      },
+      "three-times-daily": {
+        "label": "Mara tatu kwa siku",
+        "slots": {
+          "0": "Asubuhi",
+          "1": "Mchana",
+          "2": "Jioni"
+        }
+      },
+      "as-needed": {
+        "label": "Inapohitajika",
+        "slots": {
+          "0": "Dozi"
+        }
+      }
+    },
+    "ui": {
+      "you": "Wewe",
+      "child": "Mtoto",
+      "nothingToday": "Hakuna kilichopangwa leo",
+      "catchUp": "Kamilisha dozi zilizokosekana mapema",
+      "upToDate": "Uko sawa kwa leo",
+      "paused": "Imesimamishwa",
+      "editMedicine": "Hariri dawa",
+      "addMedicine": "Ongeza dawa",
+      "updateHint": "Sasisha dozi, ratiba, maelekezo, kujaza tena, au simamisha dawa hii.",
+      "addHint": "Ongeza dawa kwa ajili yako au mtoto — weka saa na jinsi ya kumeza.",
+      "forKid": "Je, hii ni ya mtoto?",
+      "forMe": "Hapana — yangu",
+      "forKidYes": "Ndiyo — ya mtoto",
+      "setupFamilyFirst": "Kwanza sanidi familia yako na ongeza watoto.",
+      "addChildrenFirst": "Ongeza watoto katika Familia kabla ya kutoa dawa.",
+      "howOften": "Mara ngapi",
+      "notesOptional": "Maelezo (si lazima)",
+      "notesPlaceholder": "Na chakula, madhara, n.k.",
+      "notesPlaceholderLog": "Na chakula, madhara…",
+      "selectChildTitle": "Chagua mtoto",
+      "selectChildMessage": "Chagua mtoto ambaye dawa hii ni yake.",
+      "removeMedicine": "Ondoa dawa",
+      "removeConfirmTitle": "Ondoa dawa?",
+      "removeConfirmMessage": "Historia ya dozi ya dawa hii pia itafutwa.",
+      "updateDoseLog": "Sasisha rekodi ya dozi",
+      "markTaken": "Weka alama kuwa umemeza",
+      "removeDoseLog": "Ondoa rekodi hii ya dozi",
+      "dosesTakenToday": "{{taken}} kati ya {{expected}} dozi zimechukuliwa leo",
+      "asNeededLoggedToday": "Dozi {{count}} inayohitajika imerekodiwa leo",
+      "asNeededLoggedToday_other": "Dozi {{count}} zinazohitajika zimerekodiwa leo",
+      "dosesStillDue": "Dozi {{count}} bado inadaiwa leo",
+      "dosesStillDue_other": "Dozi {{count}} bado zinadaiwa leo",
+      "doseN": "Dozi {{n}}",
+      "today": "Leo",
+      "activeMedicines": "Dawa zinazotumika",
+      "emptyFilter": "Hakuna dozi zilizopangwa leo kwenye kichujio hiki. Ongeza dawa au angalia tarehe za kuanza.",
+      "tapToUndo": "Gusa kutengua",
+      "tapToMarkTaken": "Gusa kuweka alama umemeza",
+      "pausedSuffix": "(imesimamishwa)",
+      "notFound": "Dawa hiyo haikupatikana.",
+      "addBeforeLogging": "Ongeza dawa kabla ya kurekodi dozi.",
+      "logIntro": "Rekodi dozi uliyomeza. Unaweza pia kutengua kutoka skrini ya nyumbani.",
+      "medicine": "Dawa",
+      "dose": "Dozi",
+      "dateLabel": "Tarehe: {{date}}",
+      "name": "Jina",
+      "dosage": "Kipimo",
+      "namePlaceholder": "mf. Metformin",
+      "dosagePlaceholder": "mf. 500mg",
+      "startDateHint": "Tarehe ya kuanza — dozi zinafuatiliwa kuanzia siku hii.",
+      "startsOn": "Inaanza {{date}}",
+      "status": "Hali",
+      "active": "Inatumika",
+      "whichChild": "Mtoto yupi?",
+      "signInFamilyKids": "Ingia na sanidi familia yako ili kutoa dawa kwa watoto.",
+      "anyParentCanLog": "Mzazi yeyote nyumbani anaweza kurekodi dozi za watoto kutoka CareMate.",
+      "dueNow": "Zinadaiwa sasa",
+      "upcoming": "Zijazo",
+      "takenToday": "Zimechukuliwa leo",
+      "dueNowCount": "Dozi {{count}} inadaiwa sasa",
+      "dueNowCount_other": "Dozi {{count}} zinadaiwa sasa",
+      "nextUp": "Ifuatayo: {{name}} · {{slot}}",
+      "freeCap": "Nafasi za mpango wa bure",
+      "instructions": "Maelekezo ya dozi",
+      "instructionsPlaceholder": "mf. epuka maziwa, meza na maji",
+      "scheduleTimes": "Saa za dozi",
+      "scheduleTimesHint": "Tumia saa za saa 24 kama 08:00 au 20:30.",
+      "startDate": "Tarehe ya kuanza",
+      "refillDueDate": "Tarehe ya kujaza tena",
+      "refill": "Ufuatiliaji wa kujaza tena",
+      "quantityRemaining": "Vidonge / dozi zilizobaki (si lazima)",
+      "quantityPlaceholder": "mf. 30",
+      "refillThreshold": "Kumbusha wakati iko au chini ya",
+      "refillOn": "Jaza tena {{date}}",
+      "refillDateOptional": "Tarehe ya kujaza tena si lazima — gusa tena kufuta",
+      "historySubtitle": "Dozi za hivi karibuni ulizorekodi",
+      "historyEmpty": "Bado hakuna dozi. Weka alama umemeza ili kujenga historia.",
+      "unknownMedicine": "Dawa isiyojulikana"
+    },
+    "status": {
+      "taken": "Imechukuliwa",
+      "due": "Inadaiwa",
+      "missed": "Imekosekana",
+      "upcoming": "Ijayo",
+      "as-needed": "Inapohitajika"
+    },
+    "instructions": {
+      "none": "Hakuna",
+      "with_food": "Na chakula",
+      "empty_stomach": "Tumbo tupu",
+      "other": "Nyingine"
+    },
+    "alerts": {
+      "doseDueTitle": "Dozi inadaiwa: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} inadaiwa. Weka alama katika Msaidizi wa Dawa.",
+      "doseMissedTitle": "Dozi imekosekana: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} imekosekana. Kamilisha unapoweza.",
+      "refillTitle": "Jaza tena hivi karibuni: {{name}}",
+      "refillBody": "{{name}} inakaribia kuisha au ni wakati wa kujaza tena."
+    }
+  },
+  "edit": "Hariri",
+  "openFamily": "Fungua familia",
+  "setUpFamily": "Sanidi familia",
+  "setUpFamilyFirst": "Sanidi familia kwanza",
+  "addChildren": "Ongeza watoto",
+  "manageInFamily": "Simamia katika Familia",
+  "goToFamilySetup": "Nenda usanidi wa familia",
+  "backToTracker": "Rudi kwenye kifuatiliaji",
+  "clearSelection": "Futa uteuzi",
+  "remove": "Ondoa",
+  "saveChanges": "Hifadhi mabadiliko",
+  "loading": "Inapakia…",
+  "editProfile": "Hariri wasifu",
+  "signInRequiredTitle": "Kuingia kunahitajika"
 }

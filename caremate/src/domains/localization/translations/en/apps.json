@@ -4,9 +4,13 @@
   "readyCount": "{{count}} tools ready",
   "comingSoon": "Coming soon",
   "registry": {
+    "vitals-tracker": {
+      "name": "Vitals",
+      "description": "Log blood pressure, sugar, heart rate, and more — your health balance at a glance."
+    },
     "medication-tracker": {
-      "name": "Medication Tracker",
-      "description": "Track medicines, daily doses, and adherence for you or your family."
+      "name": "Medication Assistant",
+      "description": "Schedule doses, track what you took, and get refill reminders — your daily medication helper."
     },
     "checkup-planner": {
       "name": "Checkup Planner",
@@ -44,15 +48,23 @@
   "clearSelection": "Clear selection",
   "remove": "Remove",
   "medicationTracker": {
-    "eyebrow": "Medication",
-    "emptyTitle": "Track your medications",
-    "emptySubtitle": "Add medicines for yourself or your kids, then log each dose",
+    "eyebrow": "Assistant",
+    "emptyTitle": "Your medication assistant",
+    "emptySubtitle": "Add medicines, set times, and confirm doses as you take them",
     "addMedicine": "Add medicine",
     "logDose": "Log a dose",
     "todaysDoses": "Today's doses",
     "medicines": "Medicines",
     "setupSave": "Add medicine",
-    "setupSaveEdit": "Save changes"
+    "setupSaveEdit": "Save changes",
+    "history": "History",
+    "screenTitle": "Medication Assistant",
+    "setupTitle": "Add Medicine",
+    "logTitle": "Log Dose",
+    "historyTitle": "Medication History",
+    "backToApps": "Back to Apps",
+    "close": "Close",
+    "back": "Back"
   },
   "checkupPlanner": {
     "eyebrow": "Checkup Planner",
@@ -422,8 +434,8 @@
       "paused": "Paused",
       "editMedicine": "Edit Medicine",
       "addMedicine": "Add Medicine",
-      "updateHint": "Update dosage, schedule, who this is for, or pause this medicine.",
-      "addHint": "Add a medicine for yourself or a child in your family.",
+      "updateHint": "Update dosage, schedule, instructions, refill, or pause this medicine.",
+      "addHint": "Add a medicine for yourself or a child — set times and how to take it.",
       "forKid": "Is this for a kid?",
       "forMe": "No — for me",
       "forKidYes": "Yes — for a kid",
@@ -469,7 +481,29 @@
       "active": "Active",
       "whichChild": "Which child?",
       "signInFamilyKids": "Sign in and set up your family to assign medicines to kids.",
-      "anyParentCanLog": "Any parent in the household can log doses for kids from their CareMate account."
+      "anyParentCanLog": "Any parent in the household can log doses for kids from their CareMate account.",
+      "dueNow": "Due now",
+      "upcoming": "Upcoming",
+      "takenToday": "Taken today",
+      "dueNowCount": "{{count}} dose due now",
+      "dueNowCount_other": "{{count}} doses due now",
+      "nextUp": "Next: {{name}} · {{slot}}",
+      "freeCap": "Free plan slots",
+      "instructions": "Dosage instructions",
+      "instructionsPlaceholder": "e.g. avoid dairy, take with water",
+      "scheduleTimes": "Dose times",
+      "scheduleTimesHint": "Use 24-hour times like 08:00 or 20:30.",
+      "startDate": "Start date",
+      "refillDueDate": "Refill date",
+      "refill": "Refill tracking",
+      "quantityRemaining": "Pills / doses left (optional)",
+      "quantityPlaceholder": "e.g. 30",
+      "refillThreshold": "Remind when at or below",
+      "refillOn": "Refill due {{date}}",
+      "refillDateOptional": "Optional refill due date — tap again to clear",
+      "historySubtitle": "Recent doses you have logged",
+      "historyEmpty": "No doses logged yet. Mark a dose taken to build history.",
+      "unknownMedicine": "Unknown medicine"
     },
     "status": {
       "taken": "Taken",
@@ -477,6 +511,20 @@
       "missed": "Missed",
       "upcoming": "Upcoming",
       "as-needed": "As needed"
+    },
+    "instructions": {
+      "none": "None",
+      "with_food": "With food",
+      "empty_stomach": "Empty stomach",
+      "other": "Other"
+    },
+    "alerts": {
+      "doseDueTitle": "Dose due: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} is due. Mark it taken in Medication Assistant.",
+      "doseMissedTitle": "Missed dose: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} was missed. Catch up when you can.",
+      "refillTitle": "Refill soon: {{name}}",
+      "refillBody": "{{name}} is running low or due for a refill."
     }
   },
   "pregnancy": {
@@ -595,6 +643,61 @@
       "daysCount": "{{count}} days",
       "daysSelected": "{{count}} day selected",
       "daysSelected_other": "{{count}} days selected"
+    }
+  },
+  "vitalsTracker": {
+    "eyebrow": "Vitals",
+    "emptyTitle": "Your vitals, at a glance",
+    "emptySubtitle": "Log a reading in seconds — like checking your account balance.",
+    "titleWithData": "Latest vitals",
+    "subtitleWithData": "Quick to open, easy to update",
+    "logVital": "Log vital",
+    "logTitle": "Log a vital",
+    "logSubtitle": "Pick a measurement, enter the value, and save.",
+    "saveLog": "Save reading"
+  },
+  "vitals": {
+    "types": {
+      "blood_pressure": "Blood pressure",
+      "blood_sugar": "Blood sugar",
+      "heart_rate": "Heart rate",
+      "body_temperature": "Body temperature",
+      "weight": "Weight",
+      "height": "Height",
+      "oxygen_saturation": "Oxygen saturation",
+      "respiratory_rate": "Respiratory rate"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "ft / in",
+      "percent": "%",
+      "breaths_min": "breaths/min"
+    },
+    "ui": {
+      "balance": "Snapshot",
+      "latest": "Latest readings",
+      "recent": "Recent",
+      "noReading": "No reading yet",
+      "emptyHint": "Start with blood pressure, heart rate, or weight — whatever you measure most.",
+      "vital": "Vital",
+      "unit": "Unit",
+      "reading": "Reading",
+      "systolic": "Systolic",
+      "diastolic": "Diastolic",
+      "feet": "Feet",
+      "inches": "Inches",
+      "valuePlaceholder": "Enter value",
+      "bpHint": "Enter systolic / diastolic in mmHg",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "e.g. after morning walk"
     }
   }
 }

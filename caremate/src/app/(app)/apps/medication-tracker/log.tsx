@@ -22,6 +22,8 @@ import {
 import {
   formatDisplayDate,
   nextSlotIndexForAsNeeded,
+  normalizeMedication,
+  resolveSlotTimes,
   toDateKey,
 } from '@/mini-apps/medication-tracker/utils';
 import { localizeFrequencyLabel, localizeSlotLabel } from '@/mini-apps/medication-tracker/localize';
@@ -39,8 +41,10 @@ export default function MedicationLogScreen() {
   );
   const hydrated = useMedicationTrackerHydrated();
 
-  const medications = useMedicationTrackerStore((state) => state.medications);
+  const medicationsRaw = useMedicationTrackerStore((state) => state.medications);
+  const medications = useMemo(() => medicationsRaw.map(normalizeMedication), [medicationsRaw]);
   const activeMedicationId = useMedicationTrackerStore((state) => state.activeMedicationId);
+  const setActiveMedicationId = useMedicationTrackerStore((state) => state.setActiveMedicationId);
   const logs = useMedicationTrackerStore((state) => state.logs);
   const logDose = useMedicationTrackerStore((state) => state.logDose);
   const removeDoseLog = useMedicationTrackerStore((state) => state.removeDoseLog);
@@ -48,22 +52,22 @@ export default function MedicationLogScreen() {
   const activeMeds = medications.filter((medication) => medication.active);
   const medicationId =
     (typeof paramMedicationId === 'string' &&
-    medications.some((medication) => medication.id === paramMedicationId)
+    activeMeds.some((medication) => medication.id === paramMedicationId)
       ? paramMedicationId
       : null) ??
-    activeMedicationId ??
+    (activeMedicationId && activeMeds.some((medication) => medication.id === activeMedicationId)
+      ? activeMedicationId
+      : null) ??
     activeMeds[0]?.id ??
-    medications[0]?.id ??
     null;
-
-  const medication = medications.find((item) => item.id === medicationId);
 
   const [selectedMedicationId, setSelectedMedicationId] = useState(medicationId);
   const selectedMedication =
-    medications.find((item) => item.id === selectedMedicationId) ?? medication;
+    activeMeds.find((item) => item.id === selectedMedicationId) ?? activeMeds[0];
   const selectedFrequency = selectedMedication
     ? getFrequencyOption(selectedMedication.frequency)
     : null;
+  const slotTimes = selectedMedication ? resolveSlotTimes(selectedMedication) : [];
 
   const [dateKey, setDateKey] = useState(todayKey);
   const [slotIndex, setSlotIndex] = useState(0);
@@ -115,7 +119,7 @@ export default function MedicationLogScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipRow}
         >
-          {medications.map((item) => (
+          {activeMeds.map((item) => (
             <MiniAppChip
               key={item.id}
               label={`${item.name}${
@@ -130,6 +134,7 @@ export default function MedicationLogScreen() {
               soft={theme.backgroundColor}
               onPress={() => {
                 setSelectedMedicationId(item.id);
+                setActiveMedicationId(item.id);
                 setSlotIndex(0);
                 setNotes('');
               }}
@@ -148,7 +153,9 @@ export default function MedicationLogScreen() {
             {selectedFrequency.slotLabels.map((label, index) => (
               <MiniAppChip
                 key={label}
-                label={localizeSlotLabel(selectedMedication.frequency, index, t, label)}
+                label={`${localizeSlotLabel(selectedMedication.frequency, index, t, label)}${
+                  slotTimes[index] ? ` · ${slotTimes[index]}` : ''
+                }`}
                 selected={index === slotIndex}
                 accent={theme.color}
                 soft={theme.backgroundColor}

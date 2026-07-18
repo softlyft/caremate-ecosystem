@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -9,6 +8,7 @@ import type {
 } from '@/mini-apps/checkup-planner/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
+import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 
 interface CheckupPlannerState {
   profile: CheckupPlannerProfile | null;
@@ -81,21 +81,7 @@ registerMiniAppRehydrate(async () => {
 });
 
 export function useCheckupPlannerHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() => useCheckupPlannerStore.persist.hasHydrated());
-
-  useEffect(() => {
-    if (hydrated) {
-      return;
-    }
-
-    const unsubscribe = useCheckupPlannerStore.persist.onFinishHydration(() => {
-      setHydrated(true);
-    });
-
-    return unsubscribe;
-  }, [hydrated]);
-
-  return hydrated;
+  return usePersistHydrated(useCheckupPlannerStore.persist);
 }
 
 export type { CheckupCompletion, CheckupPlannerProfile, PlannerGender };

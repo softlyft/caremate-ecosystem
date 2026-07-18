@@ -23,7 +23,9 @@
     "monthly": "Kwa ọnwa",
     "yearly": "Kwa afọ",
     "guestCta": "Banye iji debanye aha",
-    "error": "Enweghị ike ịmalite ịkwụ ụgwọ"
+    "error": "Enweghị ike ịmalite ịkwụ ụgwọ",
+    "medicationLimitTitle": "Erutela oke ọgwụ",
+    "medicationLimitMessage": "Akaụntụ efu nwere ike ịsoro ọgwụ 3. Kwalite gaa Standard ma ọ bụ Family Premium maka nsuso enweghị oke."
   },
   "patientId": {
     "title": "ID Onye Ọrịa CareMate",

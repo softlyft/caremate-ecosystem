@@ -43,6 +43,14 @@ Or from monorepo root: `npm run ingest:dev`
 
 Auth: `Authorization: Bearer $INGEST_API_KEY`
 
-## Samples
+## Tests
 
-See [`samples/README.md`](samples/README.md). Manual Org→Location→HS reference prep in Excel for now.
+```bash
+cd provider-ingestion
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest --cov=app --cov-report=term-missing
+```
+
+Or from the monorepo root: `npm run ingest:test`

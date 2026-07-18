@@ -40,9 +40,21 @@ From the monorepo root:
 npm run ingest:dev
 ```
 
-## Samples
+## Tests
 
-The sample workbooks live under `provider-ingestion/samples/`.
+```bash
+cd provider-ingestion
+source .venv/bin/activate   # or: python3.12 -m venv .venv && pip install -r requirements.txt
+pytest --cov=app --cov-report=term-missing
+```
+
+From the monorepo root:
+
+```bash
+npm run ingest:test
+```
+
+Coverage target is 80%+ on app logic (Supabase writer + full pipeline orchestration are excluded; they need live/integration fixtures).
 
 Use order:
 

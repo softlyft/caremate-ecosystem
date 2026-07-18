@@ -6,6 +6,7 @@ import m0001 from './0001_mighty_living_mummy.sql';
 import m0002 from './0002_mean_phil_sheldon.sql';
 import m0003 from './0003_wooden_rogue.sql';
 import m0004 from './0004_ordinary_carmella_unuscione.sql';
+import m0005 from './0005_broken_iron_lad.sql';
 
 export default {
   journal,
@@ -15,5 +16,6 @@ export default {
     m0002,
     m0003,
     m0004,
+    m0005,
   },
 };

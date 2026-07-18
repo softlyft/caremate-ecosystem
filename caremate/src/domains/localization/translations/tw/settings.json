@@ -40,5 +40,24 @@
   "family": {
     "title": "Abusua",
     "manage": "Hwɛ ofie so"
+  },
+  "legal": {
+    "title": "Mmara mmaranim",
+    "privacy": "Privacy nhyehyɛe",
+    "terms": "Dwumadie nhyehyɛe",
+    "openFailed": "Antumi ammue link no. Hwɛ wo connection."
+  },
+  "account": {
+    "title": "Akaunt",
+    "delete": "Popa akaunt",
+    "deleteHint": "Ɛbɛpopa wo CareMate akaunt ne data a wɔakyekyɛ mu koraa. Worrentumi nsane.",
+    "deleteConfirmTitle": "Popa wo akaunt?",
+    "deleteConfirmMessage": "Wo profile, emergency card, abusua nkitahodi, ne health tools a wɔakyekyɛ mu bɛpopa koraa. Subscriptions a ɛreyɛ adwuma bɛtwa mu sɛ ɛbɛyɛ a.",
+    "deleteConfirmAction": "Popa koraa",
+    "cancel": "Gyae",
+    "deleting": "Ɛrepopa…",
+    "deleteFailed": "Antumi ampopa akaunt",
+    "deleteSuccessTitle": "Wɔapopa akaunt",
+    "deleteSuccessMessage": "Wɔapopa wo CareMate akaunt. Wobetumi abɔ foforo bere biara."
   }
 }

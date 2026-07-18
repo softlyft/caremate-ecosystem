@@ -1,6 +1,7 @@
 import { APP_NAME, APP_STORE_URLS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
 import type { FamilyConnectionRequest, FamilyLookupUser } from '@/domains/family/types';
+import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { supabase } from '@/lib/supabase';
 import { createId, nowIso } from '@/utils/helpers';
 
@@ -128,6 +129,15 @@ class FamilyConnectionService {
     };
 
     await familyRepository.saveConnectionRequestLocal(request);
+    trackEvent(AnalyticsEvents.familyRequestSent, { channel: 'remote' });
+
+    // Best-effort SES email to the receiver (Edge Function; never blocks request create).
+    void supabase.functions
+      .invoke('notify-family-email', { body: { requestId: request.id } })
+      .catch(() => {
+        // Email is optional; offline / missing SES must not fail the connection flow.
+      });
+
     return { request };
   }
 

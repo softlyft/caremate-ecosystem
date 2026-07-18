@@ -212,8 +212,16 @@ export async function markPaymentFailed(
   provider: BillingProvider,
   providerReference: string,
   reason: string,
-) {
+): Promise<{ paymentId: string; userId: string; planType: string } | null> {
   const now = new Date().toISOString();
+  const { data: pending } = await service
+    .from('payments')
+    .select('id, user_id, plan_type')
+    .eq('provider', provider)
+    .eq('provider_reference', providerReference)
+    .eq('status', 'pending')
+    .maybeSingle();
+
   await service
     .from('payments')
     .update({
@@ -224,4 +232,13 @@ export async function markPaymentFailed(
     .eq('provider', provider)
     .eq('provider_reference', providerReference)
     .eq('status', 'pending');
+
+  if (!pending?.id || !pending.user_id) {
+    return null;
+  }
+  return {
+    paymentId: pending.id as string,
+    userId: pending.user_id as string,
+    planType: (pending.plan_type as string) ?? 'personal',
+  };
 }

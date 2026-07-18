@@ -49,4 +49,56 @@ describe('country language configuration', () => {
     expect(localizationService.getCountryName('INT')).toBe('Global');
     expect(localizationService.resolveNewsCountryCode('INT')).toBe('INT');
   });
+
+  it('lists configs and country options', () => {
+    expect(localizationService.listCountryConfigs().length).toBeGreaterThan(10);
+    expect(localizationService.listCountryOptions()[0]).toEqual(
+      expect.objectContaining({ name: expect.any(String), code: expect.any(String) }),
+    );
+  });
+
+  it('falls back to Global for unknown or empty country codes', () => {
+    expect(localizationService.getCountryConfig(null).code).toBe('INT');
+    expect(localizationService.getCountryConfig('  ').code).toBe('INT');
+    expect(localizationService.getCountryConfig('ZZ').code).toBe('INT');
+    expect(localizationService.getCountryName(null)).toBeNull();
+  });
+
+  it('normalizes language against country support', () => {
+    expect(localizationService.normalizeLanguage('NG', 'yo')).toBe('yo');
+    expect(localizationService.normalizeLanguage('NG', 'fr')).toBe('en');
+    expect(localizationService.normalizeLanguage('NG', null)).toBe('en');
+    expect(localizationService.getLanguageConfig('en').locale).toBeTruthy();
+  });
+
+  it('resolves fallback coords for Nigeria states and country capital', () => {
+    const lagos = localizationService.getFallbackCoords('NG', 'Lagos');
+    expect(lagos.latitude).toBeCloseTo(6.5244, 1);
+    const unknownState = localizationService.getFallbackCoords('NG', 'Atlantis');
+    expect(unknownState).toEqual(localizationService.getCountryConfig('NG').fallbackCoords);
+    expect(localizationService.getFallbackCoords('GH')).toEqual(
+      localizationService.getCountryConfig('GH').fallbackCoords,
+    );
+  });
+
+  it('resolves active locale and news language preferences', () => {
+    expect(localizationService.getActiveLocale('MX', 'es')).toMatch(/es/i);
+    expect(localizationService.resolveNewsLanguageCode('CN', 'zh')).toBe('en');
+    expect(localizationService.resolveNewsLanguageCode('MX', 'es')).toBe('es');
+    expect(localizationService.resolveNewsCountryCode(null)).toBe('INT');
+    expect(
+      localizationService.resolvePreferences({
+        countryCode: 'NG',
+        languageCode: 'yo',
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        countryCode: 'NG',
+        languageCode: 'yo',
+        newsCountryCode: 'NG',
+        newsLanguageCode: 'en',
+        locale: expect.any(String),
+      }),
+    );
+  });
 });

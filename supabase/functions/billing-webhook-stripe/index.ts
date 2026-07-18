@@ -1,5 +1,9 @@
 import { finalizeSuccessfulPayment, markPaymentFailed } from '../_shared/billing.ts';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import {
+  sendBillingActivatedEmail,
+  sendBillingPaymentFailedEmail,
+} from '../_shared/email.ts';
 import { createServiceClient } from '../_shared/supabase.ts';
 
 async function verifyStripeSignature(
@@ -69,7 +73,7 @@ Deno.serve(async (req) => {
       }
 
       try {
-        await finalizeSuccessfulPayment(service, {
+        const result = await finalizeSuccessfulPayment(service, {
           paymentId: paymentId ?? null,
           providerReference: session.id as string,
           provider: 'stripe',
@@ -80,6 +84,27 @@ Deno.serve(async (req) => {
             typeof session.amount_total === 'number' ? session.amount_total : null,
           paidAt: now,
         });
+        if (!result.alreadyFinalized) {
+          const { data: payment } = await service
+            .from('payments')
+            .select('user_id, plan_type')
+            .eq('id', result.paymentId)
+            .maybeSingle();
+          const { data: sub } = await service
+            .from('subscriptions')
+            .select('current_period_end')
+            .eq('id', result.subscriptionId)
+            .maybeSingle();
+          if (payment?.user_id) {
+            await sendBillingActivatedEmail(service, {
+              userId: payment.user_id as string,
+              paymentId: result.paymentId,
+              subscriptionId: result.subscriptionId,
+              planType: (payment.plan_type as string) ?? 'personal',
+              periodEnd: (sub?.current_period_end as string | null) ?? null,
+            });
+          }
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Finalize failed';
         console.error('stripe checkout.session.completed finalize', message);
@@ -90,10 +115,22 @@ Deno.serve(async (req) => {
     if (event.type === 'checkout.session.expired') {
       const session = event.data.object;
       if (session?.id) {
-        await markPaymentFailed(service, 'stripe', session.id, 'checkout.session.expired');
+        const failed = await markPaymentFailed(
+          service,
+          'stripe',
+          session.id,
+          'checkout.session.expired',
+        );
+        if (failed) {
+          await sendBillingPaymentFailedEmail(service, {
+            userId: failed.userId,
+            paymentId: failed.paymentId,
+            planType: failed.planType,
+            reason: 'checkout.session.expired',
+          });
+        }
       }
     }
-
     if (
       event.type === 'customer.subscription.updated' ||
       event.type === 'customer.subscription.deleted'

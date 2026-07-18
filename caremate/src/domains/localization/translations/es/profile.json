@@ -23,7 +23,9 @@
     "monthly": "Mensual",
     "yearly": "Anual",
     "guestCta": "Inicia sesión para suscribirte",
-    "error": "No se pudo iniciar el pago"
+    "error": "No se pudo iniciar el pago",
+    "medicationLimitTitle": "Límite de medicamentos alcanzado",
+    "medicationLimitMessage": "Las cuentas gratuitas pueden seguir hasta 3 medicamentos. Mejora a Standard o Family Premium para seguimiento ilimitado."
   },
   "patientId": {
     "title": "ID de paciente CareMate",

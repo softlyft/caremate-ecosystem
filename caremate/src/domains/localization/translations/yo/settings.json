@@ -40,5 +40,24 @@
   "family": {
     "title": "Ẹbí",
     "manage": "Ṣàkóso ilé"
+  },
+  "legal": {
+    "title": "Òfin",
+    "privacy": "Ètò ìpamọ́",
+    "terms": "Àwọn òfin iṣẹ́",
+    "openFailed": "Kò le ṣí ìtàkurọ̀sọ. Ṣàyẹ̀wò àsopọ̀ rẹ."
+  },
+  "account": {
+    "title": "Àkọọ́lẹ̀",
+    "delete": "Pa àkọọ́lẹ̀ rẹ́",
+    "deleteHint": "Yóò pa àkọọ́lẹ̀ CareMate àti data tí a ṣàmúisọpọ̀ rẹ́ títí láí. Kò ṣe é dápadà.",
+    "deleteConfirmTitle": "Pa àkọọ́lẹ̀ rẹ rẹ́?",
+    "deleteConfirmMessage": "Profáìlì, káàdì pájáwìrì, àsopọ̀ ìdílé, àti àwọn irinṣẹ́ ìlera tí a ṣàmúisọpọ̀ yóò parẹ́. Àwọn ìforúkọsílẹ̀ tí ń ṣiṣẹ́ yóò dìde nígbà tí ó bá ṣeé ṣe.",
+    "deleteConfirmAction": "Pa rẹ́ títí láí",
+    "cancel": "Fagilé",
+    "deleting": "Ń pa…",
+    "deleteFailed": "Kò le pa àkọọ́lẹ̀",
+    "deleteSuccessTitle": "A ti pa àkọọ́lẹ̀",
+    "deleteSuccessMessage": "A ti pa àkọọ́lẹ̀ CareMate rẹ. O lè ṣẹ̀dá tuntun nígbàkúgbà."
   }
 }

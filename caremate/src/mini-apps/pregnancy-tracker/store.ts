@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -9,6 +8,7 @@ import {
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
+import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 
 export interface PregnancyDailyLog {
   dateKey: string;
@@ -73,21 +73,7 @@ registerMiniAppRehydrate(async () => {
 });
 
 export function usePregnancyTrackerHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() => usePregnancyTrackerStore.persist.hasHydrated());
-
-  useEffect(() => {
-    if (hydrated) {
-      return;
-    }
-
-    const unsubscribe = usePregnancyTrackerStore.persist.onFinishHydration(() => {
-      setHydrated(true);
-    });
-
-    return unsubscribe;
-  }, [hydrated]);
-
-  return hydrated;
+  return usePersistHydrated(usePregnancyTrackerStore.persist);
 }
 
 export function getTodayLog(dateKey = toDateKey(new Date())): PregnancyDailyLog {

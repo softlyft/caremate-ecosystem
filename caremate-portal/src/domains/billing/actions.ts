@@ -6,11 +6,49 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePortalSession } from '@/lib/auth';
 import { canManageBilling } from '@/constants/roles';
 import { writeAuditEvent } from '@/lib/audit';
+import {
+  isSubscriptionPeriodActive,
+  isValidPatientId,
+  normalizePatientId,
+  periodEndIso,
+} from '@/domains/billing/utils';
 
 async function requireBillingAdmin() {
   const session = await requirePortalSession();
   if (!canManageBilling(session.role)) throw new Error('Forbidden');
   return session;
+}
+
+/** Best-effort SES activated email via Edge Function (service role). */
+async function notifyBillingActivatedEmail(params: {
+  userId: string;
+  subscriptionId: string;
+  planType: string;
+  periodEnd: string;
+}): Promise<void> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return;
+
+  try {
+    await fetch(`${url.replace(/\/$/, '')}/functions/v1/send-billing-email`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        apikey: key,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: params.userId,
+        subscriptionId: params.subscriptionId,
+        planType: params.planType,
+        periodEnd: params.periodEnd,
+        paymentId: `admin:${params.subscriptionId}`,
+      }),
+    });
+  } catch {
+    // Email must not fail admin grant.
+  }
 }
 
 export async function updateSubscriptionPrice(input: {
@@ -52,20 +90,6 @@ export async function updateSubscriptionPrice(input: {
   revalidatePath('/dashboard/billing');
 }
 
-function periodEndIso(interval: string, from = new Date()): string {
-  const d = new Date(from);
-  if (interval === 'yearly') {
-    d.setFullYear(d.getFullYear() + 1);
-  } else {
-    d.setMonth(d.getMonth() + 1);
-  }
-  return d.toISOString();
-}
-
-function normalizePatientId(raw: string): string {
-  return raw.replace(/\s+/g, '').trim();
-}
-
 /**
  * Grant Premium from the portal without a payment gateway charge.
  * Creates/renews an active subscription with provider = admin (no payments row).
@@ -76,7 +100,7 @@ export async function createAdminSubscription(input: {
 }): Promise<{ subscriptionId: string }> {
   const session = await requireBillingAdmin();
   const patientId = normalizePatientId(input.patientId);
-  if (!/^\d{12}$/.test(patientId)) {
+  if (!isValidPatientId(patientId)) {
     throw new Error('Patient ID must be exactly 12 digits');
   }
   if (!input.priceId?.trim()) {
@@ -188,6 +212,13 @@ export async function createAdminSubscription(input: {
     },
   });
 
+  await notifyBillingActivatedEmail({
+    userId: profile.user_id,
+    subscriptionId,
+    planType: price.plan_type,
+    periodEnd,
+  });
+
   revalidatePath('/dashboard/billing/subscribers');
   revalidatePath('/dashboard/billing/transactions');
   return { subscriptionId };
@@ -203,7 +234,7 @@ export async function adminUpgradeToFamily(input: {
 }): Promise<{ subscriptionId: string }> {
   const session = await requireBillingAdmin();
   const patientId = normalizePatientId(input.patientId);
-  if (!/^\d{12}$/.test(patientId)) {
+  if (!isValidPatientId(patientId)) {
     throw new Error('Patient ID must be exactly 12 digits');
   }
   if (!input.priceId?.trim()) {
@@ -250,10 +281,9 @@ export async function adminUpgradeToFamily(input: {
 
   if (personalError) throw new Error(personalError.message);
 
-  const personal = (personalRows ?? []).find((row) => {
-    if (!row.current_period_end) return true;
-    return new Date(row.current_period_end).getTime() > now.getTime();
-  });
+  const personal = (personalRows ?? []).find((row) =>
+    isSubscriptionPeriodActive(row.current_period_end, now),
+  );
 
   if (!personal) {
     throw new Error(
@@ -269,11 +299,7 @@ export async function adminUpgradeToFamily(input: {
     .in('status', ['active', 'trialing'])
     .maybeSingle();
 
-  if (
-    familyExisting &&
-    (!familyExisting.current_period_end ||
-      new Date(familyExisting.current_period_end).getTime() > now.getTime())
-  ) {
+  if (familyExisting && isSubscriptionPeriodActive(familyExisting.current_period_end, now)) {
     throw new Error('This user already has an active Family subscription');
   }
 
@@ -340,6 +366,13 @@ export async function adminUpgradeToFamily(input: {
       actor_email: session.user.email ?? null,
       note: 'admin_upgraded_to_family',
     },
+  });
+
+  await notifyBillingActivatedEmail({
+    userId: profile.user_id,
+    subscriptionId,
+    planType: 'family',
+    periodEnd,
   });
 
   revalidatePath('/dashboard/billing/subscribers');

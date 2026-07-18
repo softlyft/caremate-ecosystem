@@ -4,9 +4,13 @@
   "readyCount": "Kayan aiki {{count}} sun shirya",
   "comingSoon": "Yana zuwa nan ba da jimawa ba",
   "registry": {
+    "vitals-tracker": {
+      "name": "Vitals",
+      "description": "Rubuta matsin jini, sugar, bugun zuciya da sauransu — lafiyarka a kallo guda."
+    },
     "medication-tracker": {
-      "name": "Mai Bi Diggin Magunguna",
-      "description": "Bi diggin magunguna, allurai na yau da kullum, da bin doka a gare ka ko iyalinka."
+      "name": "Mataimakin Magani",
+      "description": "Tsara allurai, tabbatar da abin da ka sha, kuma karɓi tunatarwar sake cikawa — mataimakin magani na yau da kullum."
     },
     "checkup-planner": {
       "name": "Mai Tsara Bincike",
@@ -28,5 +32,170 @@
   "signInRequired": "Shiga don daidaita wannan kayan aiki a duk na'urori",
   "save": "Ajiye",
   "log": "Rubuta shigarwa",
-  "setup": "Saita"
+  "setup": "Saita",
+  "medicationTracker": {
+    "eyebrow": "Mataimaki",
+    "emptyTitle": "Mataimakin magani naka",
+    "emptySubtitle": "Ƙara magunguna, saita lokuta, kuma tabbatar yayin da kake sha",
+    "addMedicine": "Ƙara magani",
+    "logDose": "Rubuta allura",
+    "todaysDoses": "Allurai na yau",
+    "medicines": "Magunguna",
+    "setupSave": "Ƙara magani",
+    "setupSaveEdit": "Ajiye canje-canje",
+    "history": "Tarihi",
+    "screenTitle": "Mataimakin Magani",
+    "setupTitle": "Ƙara magani",
+    "logTitle": "Rubuta allura",
+    "historyTitle": "Tarihin magani",
+    "backToApps": "Koma Apps",
+    "close": "Rufe",
+    "back": "Baya"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Sau ɗaya a rana",
+        "slots": {
+          "0": "Allurar yau da kullum"
+        }
+      },
+      "twice-daily": {
+        "label": "Sau biyu a rana",
+        "slots": {
+          "0": "Safiya",
+          "1": "Yamma"
+        }
+      },
+      "three-times-daily": {
+        "label": "Sau uku a rana",
+        "slots": {
+          "0": "Safiya",
+          "1": "Rana",
+          "2": "Yamma"
+        }
+      },
+      "as-needed": {
+        "label": "Idan ana bukata",
+        "slots": {
+          "0": "Allura"
+        }
+      }
+    },
+    "ui": {
+      "you": "Kai",
+      "child": "Yaro",
+      "nothingToday": "Babu abin da aka tsara don yau",
+      "catchUp": "Cika allurai da aka rasa a baya",
+      "upToDate": "Kun cika na yau",
+      "paused": "An dakatar",
+      "editMedicine": "Gyara magani",
+      "addMedicine": "Ƙara magani",
+      "updateHint": "Sabunta allura, jadawali, umarni, sake cikawa, ko dakatar da wannan magani.",
+      "addHint": "Ƙara magani don kai ko yaro — saita lokuta da yadda ake sha.",
+      "forKid": "Shin wannan na yaro ne?",
+      "forMe": "A'a — nawa",
+      "forKidYes": "Eh — na yaro",
+      "setupFamilyFirst": "Da farko saita iyali kuma ƙara yara.",
+      "addChildrenFirst": "Ƙara yara a Iyali kafin ka ba da magani.",
+      "howOften": "Sau nawa",
+      "notesOptional": "Bayani (na zaɓi)",
+      "notesPlaceholder": "Tare da abinci, illoli, da sauransu",
+      "notesPlaceholderLog": "Tare da abinci, illoli…",
+      "selectChildTitle": "Zaɓi yaro",
+      "selectChildMessage": "Zaɓi wane yaro wannan magani yake nashi.",
+      "removeMedicine": "Cire magani",
+      "removeConfirmTitle": "A cire magani?",
+      "removeConfirmMessage": "Hakanan za a share tarihin allurai na wannan magani.",
+      "updateDoseLog": "Sabunta rubutun allura",
+      "markTaken": "Yi alama an sha",
+      "removeDoseLog": "Cire wannan rubutun allura",
+      "dosesTakenToday": "{{taken}} daga {{expected}} allurai an sha yau",
+      "asNeededLoggedToday": "Allura {{count}} ta bukata an rubuta yau",
+      "asNeededLoggedToday_other": "Allurai {{count}} na bukata an rubuta yau",
+      "dosesStillDue": "Allura {{count}} har yanzu ake bukata yau",
+      "dosesStillDue_other": "Allurai {{count}} har yanzu ake bukata yau",
+      "doseN": "Allura {{n}}",
+      "today": "Yau",
+      "activeMedicines": "Magunguna masu aiki",
+      "emptyFilter": "Babu allurai da aka tsara yau a wannan tacewa. Ƙara magani ko duba kwanakin farawa.",
+      "tapToUndo": "Taɓa don soke",
+      "tapToMarkTaken": "Taɓa don yi alama an sha",
+      "pausedSuffix": "(an dakatar)",
+      "notFound": "Ba a sami wannan magani ba.",
+      "addBeforeLogging": "Ƙara magani kafin rubuta allurai.",
+      "logIntro": "Rubuta allurar da ka sha. Hakanan za ka iya soke daga allon gida.",
+      "medicine": "Magani",
+      "dose": "Allura",
+      "dateLabel": "Kwanan wata: {{date}}",
+      "name": "Suna",
+      "dosage": "Allura",
+      "namePlaceholder": "misali Metformin",
+      "dosagePlaceholder": "misali 500mg",
+      "startDateHint": "Ranar farawa — ana bin allurai daga wannan rana.",
+      "startsOn": "Yana farawa {{date}}",
+      "status": "Matsayi",
+      "active": "Yana aiki",
+      "whichChild": "Wane yaro?",
+      "signInFamilyKids": "Shiga kuma saita iyali don ba da magunguna ga yara.",
+      "anyParentCanLog": "Kowane iyaye a gida na iya rubuta allurai na yara daga CareMate.",
+      "dueNow": "Ake bukata yanzu",
+      "upcoming": "Masu zuwa",
+      "takenToday": "An sha yau",
+      "dueNowCount": "Allura {{count}} ake bukata yanzu",
+      "dueNowCount_other": "Allurai {{count}} ake bukata yanzu",
+      "nextUp": "Na gaba: {{name}} · {{slot}}",
+      "freeCap": "Wuraren shirin kyauta",
+      "instructions": "Umarnin allura",
+      "instructionsPlaceholder": "misali guje wa madara, sha da ruwa",
+      "scheduleTimes": "Lokutan allura",
+      "scheduleTimesHint": "Yi amfani da lokacin awa 24 kamar 08:00 ko 20:30.",
+      "startDate": "Ranar farawa",
+      "refillDueDate": "Ranar sake cikawa",
+      "refill": "Bin sake cikawa",
+      "quantityRemaining": "Kwayoyi / allurai da suka rage (na zaɓi)",
+      "quantityPlaceholder": "misali 30",
+      "refillThreshold": "Tunatar lokacin da yake ko ƙasa da",
+      "refillOn": "Sake cikawa {{date}}",
+      "refillDateOptional": "Ranar sake cikawa na zaɓi — taɓa kuma don share",
+      "historySubtitle": "Allurai na kwanan nan da ka rubuta",
+      "historyEmpty": "Har yanzu babu allurai. Yi alama an sha don gina tarihi.",
+      "unknownMedicine": "Magani da ba a sani ba"
+    },
+    "status": {
+      "taken": "An sha",
+      "due": "Ake bukata",
+      "missed": "An rasa",
+      "upcoming": "Mai zuwa",
+      "as-needed": "Idan ana bukata"
+    },
+    "instructions": {
+      "none": "Babu",
+      "with_food": "Tare da abinci",
+      "empty_stomach": "Ciki mara komai",
+      "other": "Sauran"
+    },
+    "alerts": {
+      "doseDueTitle": "Allura ake bukata: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} ake bukata. Yi alama a Mataimakin Magani.",
+      "doseMissedTitle": "Allura da aka rasa: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} an rasa. Cika lokacin da za ka iya.",
+      "refillTitle": "Sake cikawa nan ba da jimawa: {{name}}",
+      "refillBody": "{{name}} yana ƙarewa ko lokacin sake cikawa ya zo."
+    }
+  },
+  "edit": "Gyara",
+  "openFamily": "Buɗe iyali",
+  "setUpFamily": "Saita iyali",
+  "setUpFamilyFirst": "Saita iyali da farko",
+  "addChildren": "Ƙara yara",
+  "manageInFamily": "Sarrafa a Iyali",
+  "goToFamilySetup": "Je zuwa saitawar iyali",
+  "backToTracker": "Koma zuwa mai bi",
+  "clearSelection": "Share zaɓi",
+  "remove": "Cire",
+  "saveChanges": "Ajiye canje-canje",
+  "loading": "Ana lodawa…",
+  "editProfile": "Gyara bayanin martaba",
+  "signInRequiredTitle": "Ana buƙatar shiga"
 }

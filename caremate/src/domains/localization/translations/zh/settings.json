@@ -40,5 +40,24 @@
   "family": {
     "title": "家庭",
     "manage": "管理家庭"
+  },
+  "legal": {
+    "title": "法律信息",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "openFailed": "无法打开链接。请检查网络后重试。"
+  },
+  "account": {
+    "title": "账户",
+    "delete": "删除账户",
+    "deleteHint": "将永久删除您的 CareMate 账户及已同步数据。此操作无法撤销。",
+    "deleteConfirmTitle": "删除账户？",
+    "deleteConfirmMessage": "您的个人资料、紧急卡片、家庭关联以及已同步的健康工具将被永久删除。如有可能，将取消有效订阅。",
+    "deleteConfirmAction": "永久删除",
+    "cancel": "取消",
+    "deleting": "正在删除…",
+    "deleteFailed": "无法删除账户",
+    "deleteSuccessTitle": "账户已删除",
+    "deleteSuccessMessage": "您的 CareMate 账户已删除。您可以随时重新注册。"
   }
 }

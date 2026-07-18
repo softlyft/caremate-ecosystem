@@ -4,9 +4,13 @@
   "readyCount": "Irinṣẹ́ {{count}} ti ṣetan",
   "comingSoon": "Ń bọ̀ láìpẹ́",
   "registry": {
+    "vitals-tracker": {
+      "name": "Vitals",
+      "description": "Ṣe àkọsílẹ̀ ẹ̀jẹ̀, suga, ọkàn àti ohun mìíràn — ìlera rẹ ní ìwò kan."
+    },
     "medication-tracker": {
-      "name": "Atọpinpin Òògùn",
-      "description": "Tọpinpin àwọn òògùn, ìwọ̀n ojoojúmọ́, àti ìmúṣẹ fún ọ tàbí ẹbí rẹ."
+      "name": "Olùrànlọ́wọ́ Òògùn",
+      "description": "Ṣètò àwọn ìwọ̀n, jẹ́rìí ohun tí o mu, kí o sì gba ìránnilétí àtúntẹ̀ — olùrànlọ́wọ́ òògùn ojoojúmọ́ rẹ."
     },
     "checkup-planner": {
       "name": "Olùṣètò Àyẹ̀wò",
@@ -28,5 +32,170 @@
   "signInRequired": "Wọlé láti ṣàmúisọpọ̀ irinṣẹ́ yìí káàkiri àwọn ẹ̀rọ",
   "save": "Fi pamọ́",
   "log": "Ṣàkọsílẹ̀",
-  "setup": "Ṣètò"
+  "setup": "Ṣètò",
+  "medicationTracker": {
+    "eyebrow": "Olùrànlọ́wọ́",
+    "emptyTitle": "Olùrànlọ́wọ́ òògùn rẹ",
+    "emptySubtitle": "Fi òògùn kún un, ṣètò àkókò, kí o sì jẹ́rìí nígbà tí o bá mu",
+    "addMedicine": "Fi òògùn kún un",
+    "logDose": "Ṣàkọsílẹ̀ ìwọ̀n",
+    "todaysDoses": "Àwọn ìwọ̀n òní",
+    "medicines": "Àwọn òògùn",
+    "setupSave": "Fi òògùn kún un",
+    "setupSaveEdit": "Fi àyípadà pamọ́",
+    "history": "Ìtàn",
+    "screenTitle": "Olùrànlọ́wọ́ Òògùn",
+    "setupTitle": "Fi òògùn kún un",
+    "logTitle": "Ṣàkọsílẹ̀ ìwọ̀n",
+    "historyTitle": "Ìtàn òògùn",
+    "backToApps": "Padà sí Àwọn áàpù",
+    "close": "Pa á",
+    "back": "Padà"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Lẹ́ẹ̀kan lójúmọ́",
+        "slots": {
+          "0": "Ìwọ̀n ojoojúmọ́"
+        }
+      },
+      "twice-daily": {
+        "label": "Lẹ́ẹ̀mejì lójúmọ́",
+        "slots": {
+          "0": "Àárọ̀",
+          "1": "Alẹ́"
+        }
+      },
+      "three-times-daily": {
+        "label": "Lẹ́ẹ̀mẹta lójúmọ́",
+        "slots": {
+          "0": "Àárọ̀",
+          "1": "Ọ̀sán",
+          "2": "Alẹ́"
+        }
+      },
+      "as-needed": {
+        "label": "Bí ó ṣe yẹ",
+        "slots": {
+          "0": "Ìwọ̀n"
+        }
+      }
+    },
+    "ui": {
+      "you": "Ìwọ",
+      "child": "Ọmọ",
+      "nothingToday": "Kò sí nǹkan tí a ṣètò fún òní",
+      "catchUp": "Ṣe àtúnṣe àwọn ìwọ̀n tí o pàdánù tẹ́lẹ̀",
+      "upToDate": "O ti wà ní ìpele tó yẹ fún òní",
+      "paused": "Dá dúró",
+      "editMedicine": "Ṣàtúnṣe òògùn",
+      "addMedicine": "Fi òògùn kún un",
+      "updateHint": "Ṣe àtúnṣe ìwọ̀n, ìṣètò, ìtọ́nisọ́nà, àtúntẹ̀, tàbí dá òògùn yìí dúró.",
+      "addHint": "Fi òògùn kún un fún ara rẹ tàbí ọmọ — ṣètò àkókò àti bí a ṣe ń mu.",
+      "forKid": "Ṣé èyí jẹ́ ti ọmọ?",
+      "forMe": "Rárá — ti èmi",
+      "forKidYes": "Bẹ́ẹ̀ni — ti ọmọ",
+      "setupFamilyFirst": "Kọ́kọ́ ṣètò ìdílé rẹ kí o sì fi àwọn ọmọ kún un.",
+      "addChildrenFirst": "Fi àwọn ọmọ kún un nínú Ìdílé kí o tó yàn òògùn.",
+      "howOften": "Bí ó ṣe yẹ",
+      "notesOptional": "Àkọsílẹ̀ (kò pọn dandan)",
+      "notesPlaceholder": "Pẹ̀lú oúnjẹ, àwọn ipa ẹ̀gbẹ́, àti bẹ́ẹ̀bẹ́ẹ̀ lọ",
+      "notesPlaceholderLog": "Pẹ̀lú oúnjẹ, àwọn ipa ẹ̀gbẹ́…",
+      "selectChildTitle": "Yan ọmọ",
+      "selectChildMessage": "Yan ọmọ tí òògùn yìí jẹ́ tirẹ̀.",
+      "removeMedicine": "Yọ òògùn kúrò",
+      "removeConfirmTitle": "Yọ òògùn kúrò?",
+      "removeConfirmMessage": "Ìtàn ìwọ̀n ti òògùn yìí yóò tún parẹ́.",
+      "updateDoseLog": "Ṣe àtúnṣe àkọsílẹ̀ ìwọ̀n",
+      "markTaken": "Samisi pé a ti mu",
+      "removeDoseLog": "Yọ àkọsílẹ̀ ìwọ̀n yìí",
+      "dosesTakenToday": "{{taken}} nínú {{expected}} ìwọ̀n tí a mu lónìí",
+      "asNeededLoggedToday": "{{count}} ìwọ̀n bí ó ṣe yẹ tí a kọ sílẹ̀ lónìí",
+      "asNeededLoggedToday_other": "{{count}} àwọn ìwọ̀n bí ó ṣe yẹ tí a kọ sílẹ̀ lónìí",
+      "dosesStillDue": "{{count}} ìwọ̀n ṣì wà lónìí",
+      "dosesStillDue_other": "{{count}} àwọn ìwọ̀n ṣì wà lónìí",
+      "doseN": "Ìwọ̀n {{n}}",
+      "today": "Òní",
+      "activeMedicines": "Àwọn òògùn tí ń ṣiṣẹ́",
+      "emptyFilter": "Kò sí ìwọ̀n tí a ṣètò lónìí nínú àṣàyàn yìí. Fi òògùn kún un tàbí ṣàyẹ̀wò ọjọ́ ìbẹ̀rẹ̀.",
+      "tapToUndo": "Tẹ̀ ẹ́ láti dápadà",
+      "tapToMarkTaken": "Tẹ̀ ẹ́ láti samisi pé a ti mu",
+      "pausedSuffix": "(dá dúró)",
+      "notFound": "A kò rí òògùn yẹn.",
+      "addBeforeLogging": "Fi òògùn kún un kí o tó ṣàkọsílẹ̀ àwọn ìwọ̀n.",
+      "logIntro": "Ṣàkọsílẹ̀ ìwọ̀n tí o ti mu. O tún lè dápadà láti ojú-ìwé ilé.",
+      "medicine": "Òògùn",
+      "dose": "Ìwọ̀n",
+      "dateLabel": "Ọjọ́: {{date}}",
+      "name": "Orúkọ",
+      "dosage": "Ìwọ̀n",
+      "namePlaceholder": "àpẹẹrẹ Metformin",
+      "dosagePlaceholder": "àpẹẹrẹ 500mg",
+      "startDateHint": "Ọjọ́ ìbẹ̀rẹ̀ — a ń tọpinpin àwọn ìwọ̀n láti ọjọ́ yìí lọ.",
+      "startsOn": "Bẹ̀rẹ̀ ní {{date}}",
+      "status": "Ipò",
+      "active": "Ń ṣiṣẹ́",
+      "whichChild": "Ọmọ wo?",
+      "signInFamilyKids": "Wọlé kí o sì ṣètò ìdílé láti fi òògùn fun àwọn ọmọ.",
+      "anyParentCanLog": "Ìyá tàbí bàbá èyíkéyìí nínú ìdílé lè ṣàkọsílẹ̀ ìwọ̀n àwọn ọmọ láti CareMate.",
+      "dueNow": "Ó yẹ nísinsinyí",
+      "upcoming": "Ń bọ̀",
+      "takenToday": "A ti mu lónìí",
+      "dueNowCount": "{{count}} ìwọ̀n yẹ nísinsinyí",
+      "dueNowCount_other": "{{count}} àwọn ìwọ̀n yẹ nísinsinyí",
+      "nextUp": "Tókàn: {{name}} · {{slot}}",
+      "freeCap": "Àwọn ààyè ètò ọ̀fẹ́",
+      "instructions": "Ìtọ́nisọ́nà ìwọ̀n",
+      "instructionsPlaceholder": "àpẹẹrẹ yẹra fún wàrà, mu pẹ̀lú omi",
+      "scheduleTimes": "Àkókò àwọn ìwọ̀n",
+      "scheduleTimesHint": "Lo àkókò wákàtí 24 bíi 08:00 tàbí 20:30.",
+      "startDate": "Ọjọ́ ìbẹ̀rẹ̀",
+      "refillDueDate": "Ọjọ́ àtúntẹ̀",
+      "refill": "Títọpinpin àtúntẹ̀",
+      "quantityRemaining": "Àwọn òògùn / ìwọ̀n tí ó kù (kò pọn dandan)",
+      "quantityPlaceholder": "àpẹẹrẹ 30",
+      "refillThreshold": "Ránlétí nígbà tí ó bá jẹ́ tàbí kéré sí",
+      "refillOn": "Àtúntẹ̀ ní {{date}}",
+      "refillDateOptional": "Ọjọ́ àtúntẹ̀ tí kò pọn dandan — tẹ̀ ẹ́ lẹ́ẹ̀kan sí i láti pa á rẹ́",
+      "historySubtitle": "Àwọn ìwọ̀n àìpẹ́ tí o ṣàkọsílẹ̀",
+      "historyEmpty": "Kò sí ìwọ̀n síbẹ̀. Samisi pé a ti mu láti kọ́ ìtàn.",
+      "unknownMedicine": "Òògùn tí a kò mọ̀"
+    },
+    "status": {
+      "taken": "A ti mu",
+      "due": "Ó yẹ",
+      "missed": "A pàdánù",
+      "upcoming": "Ń bọ̀",
+      "as-needed": "Bí ó ṣe yẹ"
+    },
+    "instructions": {
+      "none": "Kò sí",
+      "with_food": "Pẹ̀lú oúnjẹ",
+      "empty_stomach": "Ikùn tó ṣofo",
+      "other": "Òmíràn"
+    },
+    "alerts": {
+      "doseDueTitle": "Ìwọ̀n yẹ: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} yẹ. Samisi nínú Olùrànlọ́wọ́ Òògùn.",
+      "doseMissedTitle": "Ìwọ̀n tí a pàdánù: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} ni a pàdánù. Ṣe àtúnṣe nígbà tí o bá lè.",
+      "refillTitle": "Àtúntẹ̀ láìpẹ́: {{name}}",
+      "refillBody": "{{name}} ń kéré tàbí ó yẹ fún àtúntẹ̀."
+    }
+  },
+  "edit": "Ṣàtúnṣe",
+  "openFamily": "Ṣí ìdílé",
+  "setUpFamily": "Ṣètò ìdílé",
+  "setUpFamilyFirst": "Kọ́kọ́ ṣètò ìdílé",
+  "addChildren": "Fi àwọn ọmọ kún un",
+  "manageInFamily": "Ṣàkóso nínú Ìdílé",
+  "goToFamilySetup": "Lọ sí ìṣètò ìdílé",
+  "backToTracker": "Padà sí atọpinpin",
+  "clearSelection": "Pa àṣàyàn rẹ́",
+  "remove": "Yọ kúrò",
+  "saveChanges": "Fi àyípadà pamọ́",
+  "loading": "Ń kojọ…",
+  "editProfile": "Ṣàtúnṣe profáìlì",
+  "signInRequiredTitle": "Wíwọlé pọn dandan"
 }

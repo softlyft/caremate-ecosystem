@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { captureException } from '@/lib/monitoring/sentry';
 import { palette } from '@/theme/colors';
 
 interface ErrorBoundaryProps {
@@ -28,6 +29,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (__DEV__) {
       console.error('Unhandled render error caught by ErrorBoundary', error, info.componentStack);
     }
+    captureException(error, {
+      componentStack: info.componentStack ?? undefined,
+      source: 'ErrorBoundary',
+    });
   }
 
   private handleRestart = (): void => {

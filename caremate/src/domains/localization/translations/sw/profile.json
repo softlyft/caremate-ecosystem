@@ -23,7 +23,9 @@
     "monthly": "Kila mwezi",
     "yearly": "Kila mwaka",
     "guestCta": "Ingia ili kujisajili",
-    "error": "Haikuweza kuanza malipo"
+    "error": "Haikuweza kuanza malipo",
+    "medicationLimitTitle": "Kikomo cha dawa kimefikiwa",
+    "medicationLimitMessage": "Akaunti za bure zinaweza kufuatilia dawa hadi 3. Panda hadi Standard au Family Premium kwa ufuatiliaji usio na kikomo."
   },
   "patientId": {
     "title": "Kitambulisho cha Mgonjwa cha CareMate",

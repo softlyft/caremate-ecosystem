@@ -78,18 +78,20 @@ All mini-apps require a **signed-in patient account**. Limits below apply after 
 
 | Mini-app | Guest | Free (signed-in) | Standard Premium | Family Premium |
 |----------|-------|------------------|------------------|----------------|
-| **Medication Tracker** | Blocked (sign-in required) | **Up to 3 medications total** (self or assigned to a child) | Unlimited medications | Unlimited medications |
+| **Vitals** | Blocked (sign-in required) | Full logging; **ads may show** if slots configured later | Full logging; **no ads** | Full logging; **no ads** |
+| **Medication Assistant** | Blocked (sign-in required) | **Up to 3 active medications total** (self or assigned to a child) | Unlimited medications | Unlimited medications |
 | **Checkup Planner** | Blocked | **This calendar year:** first **2** checkups visible; remaining this year **blurred**. **Next calendar year:** entire schedule **blurred** | Full schedule (all years, no blur) | Full schedule |
 | **Immunization Tracker** | Blocked | **First 2 months** of schedule visible; remainder **blurred** | Full schedule (no blur) | Full schedule |
 | **Pregnancy Tracker** | Blocked | Full tracking features; **ads may show** in configured slots | Full tracking; **no ads** in pregnancy slots | Full tracking; **no ads** |
 | **Period Tracker** | Blocked | Full tracking features; **ads may show** in configured slots | Full tracking; **no ads** in period slots | Full tracking; **no ads** |
 
-### Medication Tracker (detail)
+### Medication Assistant (detail)
 
-- Count **active medication entries** toward the limit of **3** on Free.
+- Count **active medication entries** toward the limit of **3** on Free (create and reactivate).
 - Count includes medications logged for **self** or **any child** in the household (one shared cap, not 3 per person).
-- At limit: block adding another medication; show upgrade CTA to Standard or Family Premium.
+- At limit: block adding or reactivating another medication; show upgrade CTA to Standard or Family Premium.
 - Premium: no medication count cap.
+- Reminders in this MVP are **in-app inbox only** (dose due / missed / refill).
 
 ### Checkup Planner (detail)
 

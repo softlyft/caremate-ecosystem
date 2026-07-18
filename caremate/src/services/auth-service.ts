@@ -4,9 +4,11 @@ import { STORAGE_KEYS } from '@/constants/config';
 import { identityFromAuthUser } from '@/domains/auth/auth-identity';
 import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-account';
 import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
+import { wipeLocalAccountData } from '@/domains/auth/wipe-local-account';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
 import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { authStorage } from '@/lib/storage';
+import { config } from '@/constants/env';
 import { supabase } from '@/lib/supabase';
 import type { AuthUser } from '@/types';
 
@@ -119,6 +121,40 @@ export class AuthService {
     const { error } = await supabase.auth.signOut();
     if (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Permanently delete the signed-in account (cloud + local).
+   * Requires a configured Supabase project and the `delete-account` edge function.
+   */
+  async deleteAccount(userId: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error('Account deletion requires a configured CareMate backend.');
+    }
+
+    const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>(
+      'delete-account',
+      { body: {} },
+    );
+
+    if (error) {
+      throw error;
+    }
+    if (data && typeof data === 'object' && 'error' in data && data.error) {
+      throw new Error(String(data.error));
+    }
+
+    try {
+      await wipeLocalAccountData(userId);
+    } catch {
+      // Cloud delete already succeeded; local wipe is best-effort.
+    }
+
+    try {
+      await this.signOut();
+    } catch {
+      // Session may already be invalid after auth.users delete.
     }
   }
 

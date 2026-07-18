@@ -1,0 +1,68 @@
+.page {
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at top left, rgba(13, 148, 136, 0.1), transparent 40%),
+    var(--cm-surface);
+  padding: calc(5.5rem + env(safe-area-inset-top, 0px)) var(--space-lg) var(--space-3xl);
+}
+
+.article {
+  max-width: 42rem;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-md);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--cm-primary-dark);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.article h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.lead,
+.article p {
+  margin: 0;
+  color: var(--cm-text-secondary);
+}
+
+.lead {
+  font-size: 1.1rem;
+  color: var(--cm-text);
+}
+
+.article h2 {
+  margin: var(--space-md) 0 0;
+  font-size: 1.15rem;
+  color: var(--cm-text);
+}
+
+.article a {
+  color: var(--cm-primary-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.meta {
+  margin-top: var(--space-lg) !important;
+  font-size: 0.9rem;
+}
+
+.back {
+  margin-top: var(--space-sm) !important;
+}
+
+.back a {
+  text-decoration: none;
+}

@@ -34,6 +34,28 @@ The same path applies whether the user was online for the whole edit or worked o
 
 ---
 
+## Analytics outbox
+
+Product analytics follows the same offline-first idea, but targets **PostHog** (not Supabase) via a separate SQLite table:
+
+```
+User action (sign-in, checkout, screen, …)
+      ↓
+trackEvent / trackScreen
+      ↓
+SQLite `analytics_queue`
+      ↓
+Network available + PostHog bound? ──no──→ wait
+      ↓ yes
+flushAnalyticsQueue() → PostHog capture / screen
+      ↓
+Queue row removed
+```
+
+Flush triggers: debounced enqueue, PostHog client bind, and every sync-engine cycle when online (including reconnect / foreground). Failures increment `attempts` up to `ANALYTICS_QUEUE_CONFIG.maxRetries` and never block health-data sync.
+
+---
+
 ## Example: Edit Emergency Profile
 
 ```

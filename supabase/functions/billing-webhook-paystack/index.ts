@@ -1,5 +1,9 @@
 import { finalizeSuccessfulPayment, markPaymentFailed } from '../_shared/billing.ts';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import {
+  sendBillingActivatedEmail,
+  sendBillingPaymentFailedEmail,
+} from '../_shared/email.ts';
 import { createServiceClient } from '../_shared/supabase.ts';
 
 async function verifyPaystackSignature(
@@ -52,7 +56,7 @@ Deno.serve(async (req) => {
       const paymentId = typeof meta.payment_id === 'string' ? meta.payment_id : null;
 
       try {
-        await finalizeSuccessfulPayment(service, {
+        const result = await finalizeSuccessfulPayment(service, {
           paymentId,
           providerReference: reference,
           provider: 'paystack',
@@ -61,6 +65,27 @@ Deno.serve(async (req) => {
           amountMinor: typeof data.amount === 'number' ? data.amount : null,
           paidAt: now,
         });
+        if (!result.alreadyFinalized) {
+          const { data: payment } = await service
+            .from('payments')
+            .select('user_id, plan_type')
+            .eq('id', result.paymentId)
+            .maybeSingle();
+          const { data: sub } = await service
+            .from('subscriptions')
+            .select('current_period_end')
+            .eq('id', result.subscriptionId)
+            .maybeSingle();
+          if (payment?.user_id) {
+            await sendBillingActivatedEmail(service, {
+              userId: payment.user_id as string,
+              paymentId: result.paymentId,
+              subscriptionId: result.subscriptionId,
+              planType: (payment.plan_type as string) ?? 'personal',
+              periodEnd: (sub?.current_period_end as string | null) ?? null,
+            });
+          }
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Finalize failed';
         console.error('paystack charge.success finalize', message);
@@ -72,12 +97,20 @@ Deno.serve(async (req) => {
       const data = event.data;
       const reference = String(data.reference ?? '');
       if (reference) {
-        await markPaymentFailed(
+        const failed = await markPaymentFailed(
           service,
           'paystack',
           reference,
           data.gateway_response ?? data.message ?? 'charge.failed',
         );
+        if (failed) {
+          await sendBillingPaymentFailedEmail(service, {
+            userId: failed.userId,
+            paymentId: failed.paymentId,
+            planType: failed.planType,
+            reason: data.gateway_response ?? data.message ?? 'charge.failed',
+          });
+        }
       }
     }
 

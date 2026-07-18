@@ -8,6 +8,11 @@ export type MiniAppTheme = MiniAppDefinition & {
 };
 
 const TITLE_TONES: Record<MiniAppId, { title: string; subtitle: string; softEnd: string }> = {
+  'vitals-tracker': {
+    title: '#1E3A8A',
+    subtitle: '#1D4ED8',
+    softEnd: '#EFF6FF',
+  },
   'medication-tracker': {
     title: '#9A3412',
     subtitle: '#C2410C',

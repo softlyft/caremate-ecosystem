@@ -138,6 +138,8 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 
 | Route | Presentation | Title |
 |-------|--------------|-------|
+| `/(app)/apps/vitals-tracker` | push | Vitals |
+| `/(app)/apps/vitals-tracker/log` | modal | Log Vital |
 | `/(app)/apps/period-tracker` | push | Period Tracker |
 | `/(app)/apps/period-tracker/log` | modal | Log Period |
 
@@ -157,13 +159,14 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | `/(app)/apps/immunization-tracker/setup` | modal | Family children (redirect) |
 | `/(app)/apps/immunization-tracker/log` | modal | Log Vaccine |
 
-### Medication Tracker
+### Medication Assistant
 
 | Route | Presentation | Title |
 |-------|--------------|-------|
-| `/(app)/apps/medication-tracker` | push | Medication Tracker |
+| `/(app)/apps/medication-tracker` | push | Medication Assistant |
 | `/(app)/apps/medication-tracker/setup` | modal | Add Medicine |
 | `/(app)/apps/medication-tracker/log` | modal | Log Dose |
+| `/(app)/apps/medication-tracker/history` | push | Medication History |
 
 ### Checkup Planner
 

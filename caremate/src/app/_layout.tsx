@@ -12,10 +12,12 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { useAuthStore } from '@/features/auth/store';
 import { useAppFonts } from '@/hooks/use-app-fonts';
+import { initSentry, Sentry } from '@/lib/monitoring/sentry';
 
 SplashScreen.preventAutoHideAsync();
+initSentry();
 
-export default function RootLayout() {
+function RootLayout() {
   const colorScheme = useColorScheme();
   const { fontsLoaded } = useAppFonts();
   const isInitialized = useAuthStore((state) => state.isInitialized);
@@ -62,3 +64,5 @@ export default function RootLayout() {
     </ErrorBoundary>
   );
 }
+
+export default Sentry.wrap(RootLayout);

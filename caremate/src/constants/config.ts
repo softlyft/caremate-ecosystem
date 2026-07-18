@@ -6,6 +6,15 @@ export const APP_STORE_URLS = {
   android: 'https://play.google.com/store/apps/details?id=com.softlyft.caremate',
 } as const;
 
+/**
+ * Hosted legal pages (SoftLyft). Update if the live paths change.
+ * App Store / Play Console listings should use the same URLs.
+ */
+export const LEGAL_URLS = {
+  privacy: 'https://caremate.app/privacy',
+  terms: 'https://caremate.app/terms',
+} as const;
+
 export const STORAGE_KEYS = {
   onboardingComplete: 'caremate_onboarding_complete',
   biometricEnabled: 'caremate_biometric_enabled',
@@ -19,6 +28,13 @@ export const SYNC_CONFIG = {
   pullIntervalMs: 60_000,
   /** Coalesce bursts of local writes into one push when online. */
   writeDebounceMs: 1_500,
+} as const;
+
+/** Offline PostHog outbox — mirrors sync retry policy, separate destination. */
+export const ANALYTICS_QUEUE_CONFIG = {
+  maxRetries: 5,
+  /** Coalesce bursts of track/screen calls into one flush when online. */
+  flushDebounceMs: 750,
 } as const;
 
 export const QUERY_KEYS = {

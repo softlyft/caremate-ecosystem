@@ -4,9 +4,13 @@
   "readyCount": "Ngwaọrụ {{count}} dị njikere",
   "comingSoon": "Na-abịa n'oge na-adịghị anya",
   "registry": {
+    "vitals-tracker": {
+      "name": "Vitals",
+      "description": "Debanye ọbara mgbali, sugar, obi na ndị ọzọ — ahụ ike gị n’otu nlele."
+    },
     "medication-tracker": {
-      "name": "Onye Nchịkwa Ọgwụ",
-      "description": "Soro ọgwụ, dose kwa ụbọchị, na nnabata maka gị ma ọ bụ ezinụlọ gị."
+      "name": "Onye Nnyemaka Ọgwụ",
+      "description": "Hazie ọgwụ, gosi nke ịṅụrụ, ma nata ncheta nkeji ọzọ — onye nnyemaka ọgwụ gị kwa ụbọchị."
     },
     "checkup-planner": {
       "name": "Onye Nhazi Nyocha",
@@ -28,5 +32,170 @@
   "signInRequired": "Banye iji mekọrịta ngwaọrụ a n'ofe ngwaọrụ",
   "save": "Chekwaa",
   "log": "Dekọọ ntinye",
-  "setup": "Hazie"
+  "setup": "Hazie",
+  "medicationTracker": {
+    "eyebrow": "Onye nnyemaka",
+    "emptyTitle": "Onye nnyemaka ọgwụ gị",
+    "emptySubtitle": "Tinye ọgwụ, setịpụ oge, ma kwado mgbe ị na-aṅụ",
+    "addMedicine": "Tinye ọgwụ",
+    "logDose": "Dekọọ ọgwụ",
+    "todaysDoses": "Ọgwụ taa",
+    "medicines": "Ọgwụ",
+    "setupSave": "Tinye ọgwụ",
+    "setupSaveEdit": "Chekwaa mgbanwe",
+    "history": "Akụkọ",
+    "screenTitle": "Onye Nnyemaka Ọgwụ",
+    "setupTitle": "Tinye ọgwụ",
+    "logTitle": "Dekọọ ọgwụ",
+    "historyTitle": "Akụkọ ọgwụ",
+    "backToApps": "Laghachi Apps",
+    "close": "Mechie",
+    "back": "Azụ"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Otu ugboro kwa ụbọchị",
+        "slots": {
+          "0": "Ọgwụ kwa ụbọchị"
+        }
+      },
+      "twice-daily": {
+        "label": "Ugboro abụọ kwa ụbọchị",
+        "slots": {
+          "0": "Ụtụtụ",
+          "1": "Mgbede"
+        }
+      },
+      "three-times-daily": {
+        "label": "Ugboro atọ kwa ụbọchị",
+        "slots": {
+          "0": "Ụtụtụ",
+          "1": "Ehihie",
+          "2": "Mgbede"
+        }
+      },
+      "as-needed": {
+        "label": "Mgbe ọ dị mkpa",
+        "slots": {
+          "0": "Ọgwụ"
+        }
+      }
+    },
+    "ui": {
+      "you": "Gị",
+      "child": "Nwa",
+      "nothingToday": "Onweghị ihe ahaziri maka taa",
+      "catchUp": "Mechie ọgwụ ndị furu efu tupu",
+      "upToDate": "Ị dị ugbu a maka taa",
+      "paused": "Kwụsịtụrụ",
+      "editMedicine": "Dezie ọgwụ",
+      "addMedicine": "Tinye ọgwụ",
+      "updateHint": "Melite ọgwụ, nhazi oge, ntuziaka, nkeji ọzọ, ma ọ bụ kwụsịtụ ọgwụ a.",
+      "addHint": "Tinye ọgwụ maka gị ma ọ bụ nwa — hazie oge na otú e si aṅụ.",
+      "forKid": "Ònye nwa ka nke a?",
+      "forMe": "Mba — maka m",
+      "forKidYes": "Ee — maka nwa",
+      "setupFamilyFirst": "Buruzie hazie ezinụlọ gị ma tinye ụmụaka.",
+      "addChildrenFirst": "Tinye ụmụaka na Ezinụlọ tupu ịnye ọgwụ.",
+      "howOften": "Ugboro ole",
+      "notesOptional": "Ndetu (ọbụghị iwu)",
+      "notesPlaceholder": "Na nri, mmetụta dị n'akụkụ, wdg.",
+      "notesPlaceholderLog": "Na nri, mmetụta dị n'akụkụ…",
+      "selectChildTitle": "Họrọ nwa",
+      "selectChildMessage": "Họrọ nwa nke ọgwụ a dịiri.",
+      "removeMedicine": "Wepụ ọgwụ",
+      "removeConfirmTitle": "Wepụ ọgwụ?",
+      "removeConfirmMessage": "A ga-ehichapụkwa akụkọ ọgwụ nke ọgwụ a.",
+      "updateDoseLog": "Melite ndekọ ọgwụ",
+      "markTaken": "Gosi na aṅụrụla",
+      "removeDoseLog": "Wepụ ndekọ ọgwụ a",
+      "dosesTakenToday": "{{taken}} n'ime {{expected}} ọgwụ aṅụrụ taa",
+      "asNeededLoggedToday": "Ọgwụ {{count}} dị mkpa edekọrọ taa",
+      "asNeededLoggedToday_other": "Ọgwụ {{count}} dị mkpa edekọrọ taa",
+      "dosesStillDue": "Ọgwụ {{count}} ka dị taa",
+      "dosesStillDue_other": "Ọgwụ {{count}} ka dị taa",
+      "doseN": "Ọgwụ {{n}}",
+      "today": "Taa",
+      "activeMedicines": "Ọgwụ na-arụ ọrụ",
+      "emptyFilter": "Onweghị ọgwụ ahaziri taa na nzacha a. Tinye ọgwụ ma ọ bụ lelee ụbọchị mmalite.",
+      "tapToUndo": "Kpatụ iji weghachi",
+      "tapToMarkTaken": "Kpatụ iji gosi aṅụrụla",
+      "pausedSuffix": "(kwụsịtụrụ)",
+      "notFound": "Ahụghị ọgwụ ahụ.",
+      "addBeforeLogging": "Tinye ọgwụ tupu ịdekọ ọgwụ.",
+      "logIntro": "Dekọọ ọgwụ ịṅụrụ. Ị nwekwara ike weghachi site na ihuenyo ụlọ.",
+      "medicine": "Ọgwụ",
+      "dose": "Ọgwụ",
+      "dateLabel": "Ụbọchị: {{date}}",
+      "name": "Aha",
+      "dosage": "Ọgwụ",
+      "namePlaceholder": "dịka Metformin",
+      "dosagePlaceholder": "dịka 500mg",
+      "startDateHint": "Ụbọchị mmalite — a na-eso ọgwụ site n'ụbọchị a gawa.",
+      "startsOn": "Na-amalite {{date}}",
+      "status": "Ọnọdụ",
+      "active": "Na-arụ ọrụ",
+      "whichChild": "Nwa ole?",
+      "signInFamilyKids": "Banye ma hazie ezinụlọ iji nye ụmụaka ọgwụ.",
+      "anyParentCanLog": "Nne ma ọ bụ nna ọ bụla n'ezinụlọ nwere ike idekọ ọgwụ ụmụaka site na CareMate.",
+      "dueNow": "Kwụsịrị ugbu a",
+      "upcoming": "Na-abịa",
+      "takenToday": "Aṅụrụ taa",
+      "dueNowCount": "Ọgwụ {{count}} kwụsịrị ugbu a",
+      "dueNowCount_other": "Ọgwụ {{count}} kwụsịrị ugbu a",
+      "nextUp": "Ọzọ: {{name}} · {{slot}}",
+      "freeCap": "Ohere atụmatụ efu",
+      "instructions": "Ntuziaka ọgwụ",
+      "instructionsPlaceholder": "dịka zere mmiri ara ehi, ṅụọ na mmiri",
+      "scheduleTimes": "Oge ọgwụ",
+      "scheduleTimesHint": "Jiri oge awa 24 dịka 08:00 ma ọ bụ 20:30.",
+      "startDate": "Ụbọchị mmalite",
+      "refillDueDate": "Ụbọchị nkeji ọzọ",
+      "refill": "Nsuso nkeji ọzọ",
+      "quantityRemaining": "Mkpụrụ / ọgwụ fọdụrụ (ọbụghị iwu)",
+      "quantityPlaceholder": "dịka 30",
+      "refillThreshold": "Cheta mgbe ọ dị ma ọ bụ dị n'okpuru",
+      "refillOn": "Nkeji ọzọ {{date}}",
+      "refillDateOptional": "Ụbọchị nkeji ọzọ enweghị iwu — kpatụ ọzọ iji hichapụ",
+      "historySubtitle": "Ọgwụ ndị na-adịbeghị anya ị dekọrọ",
+      "historyEmpty": "Onweghị ọgwụ ma. Gosi aṅụrụla iji wuo akụkọ.",
+      "unknownMedicine": "Ọgwụ amaghị"
+    },
+    "status": {
+      "taken": "Aṅụrụla",
+      "due": "Kwụsịrị",
+      "missed": "Furu efu",
+      "upcoming": "Na-abịa",
+      "as-needed": "Mgbe ọ dị mkpa"
+    },
+    "instructions": {
+      "none": "Ọ nweghị",
+      "with_food": "Na nri",
+      "empty_stomach": "Afọ efu",
+      "other": "Ọzọ"
+    },
+    "alerts": {
+      "doseDueTitle": "Ọgwụ kwụsịrị: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} kwụsịrị. Gosi na Onye Nnyemaka Ọgwụ.",
+      "doseMissedTitle": "Ọgwụ furu efu: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} furu efu. Mechie mgbe ị nwere ike.",
+      "refillTitle": "Nkeji ọzọ n'oge na-adịghị anya: {{name}}",
+      "refillBody": "{{name}} na-agwụ ma ọ bụ oge nkeji ọzọ eruola."
+    }
+  },
+  "edit": "Dezie",
+  "openFamily": "Meghee ezinụlọ",
+  "setUpFamily": "Hazie ezinụlọ",
+  "setUpFamilyFirst": "Hazie ezinụlọ buru ụzọ",
+  "addChildren": "Tinye ụmụaka",
+  "manageInFamily": "Jikwaa na Ezinụlọ",
+  "goToFamilySetup": "Gaa nhazi ezinụlọ",
+  "backToTracker": "Laghachi na nchọpụta",
+  "clearSelection": "Hichapụ nhọrọ",
+  "remove": "Wepụ",
+  "saveChanges": "Chekwaa mgbanwe",
+  "loading": "Na-ebugo…",
+  "editProfile": "Dezie profaịlụ",
+  "signInRequiredTitle": "Ịbanye dị mkpa"
 }

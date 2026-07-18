@@ -10,12 +10,19 @@ def iter_resource_xlsx_rows(content: bytes) -> list[dict[str, Any]]:
     """Read all letter sheets; each data row is a dict of FHIR-field columns."""
     import math
 
+    def is_present(value: Any) -> bool:
+        if value is None:
+            return False
+        if isinstance(value, float) and math.isnan(value):
+            return False
+        return bool(str(value).strip())
+
     book = pd.read_excel(io.BytesIO(content), sheet_name=None, engine="openpyxl")
     rows: list[dict[str, Any]] = []
     for sheet_name, df in book.items():
         cleaned = df.where(pd.notnull(df), None)
         for index, raw in enumerate(cleaned.to_dict(orient="records"), start=2):
-            if not any(v is not None and str(v).strip() for v in raw.values()):
+            if not any(is_present(v) for v in raw.values()):
                 continue
             normalized: dict[str, Any] = {}
             for key, value in raw.items():

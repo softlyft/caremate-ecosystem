@@ -9,6 +9,7 @@ import { toJson } from '@/sync/cloud-types';
 import { nowIso, parseJson, stringifyJson } from '@/utils/helpers';
 
 export const MINI_APP_KEYS = [
+  'vitals',
   'medication',
   'checkup',
   'immunization',
@@ -19,6 +20,7 @@ export const MINI_APP_KEYS = [
 export type MiniAppKey = (typeof MINI_APP_KEYS)[number];
 
 export const MINI_APP_STORAGE_KEYS: Record<MiniAppKey, string> = {
+  vitals: 'caremate-vitals-tracker',
   medication: 'caremate-medication-tracker',
   checkup: 'caremate-checkup-planner',
   immunization: 'caremate-immunization-tracker',

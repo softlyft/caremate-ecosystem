@@ -42,7 +42,7 @@
     },
     "medication": {
       "title": "Médicaments",
-      "subtitle": "Suivre les doses"
+      "subtitle": "Suivre les prises"
     }
   },
   "providerTypes": {

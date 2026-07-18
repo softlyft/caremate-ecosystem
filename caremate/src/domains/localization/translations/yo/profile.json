@@ -23,7 +23,9 @@
     "monthly": "Oṣooṣù",
     "yearly": "Ọdọọdún",
     "guestCta": "Wọlé láti ṣe àkọsílẹ̀",
-    "error": "Kò le bẹ̀rẹ̀ ìsanwó"
+    "error": "Kò le bẹ̀rẹ̀ ìsanwó",
+    "medicationLimitTitle": "Ó ti dé ààlà òògùn",
+    "medicationLimitMessage": "Àwọn àkọọ́lẹ̀ ọ̀fẹ́ lè tọpinpin òògùn mẹ́ta. Ṣe àgbéga sí Standard tàbí Family Premium fún títọpinpin aláìlópin."
   },
   "patientId": {
     "title": "ID Aláìsàn CareMate",

@@ -50,6 +50,16 @@ describe('isLocalEntitlementActive', () => {
     ).toBe(false);
   });
 
+  it('denies unparseable period ends', () => {
+    expect(
+      isLocalEntitlementActive({
+        status: 'active',
+        currentPeriodEnd: 'not-a-date',
+        now,
+      }),
+    ).toBe(false);
+  });
+
   it('allows trialing within period', () => {
     expect(
       isLocalEntitlementActive({

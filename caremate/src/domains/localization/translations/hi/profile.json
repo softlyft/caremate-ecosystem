@@ -23,7 +23,9 @@
     "monthly": "मासिक",
     "yearly": "वार्षिक",
     "guestCta": "सदस्यता लेने के लिए साइन इन करें",
-    "error": "चेकआउट शुरू नहीं हो सका"
+    "error": "चेकआउट शुरू नहीं हो सका",
+    "medicationLimitTitle": "दवा सीमा पूरी",
+    "medicationLimitMessage": "मुफ़्त खाते 3 दवाएँ तक ट्रैक कर सकते हैं। असीमित ट्रैकिंग के लिए Standard या Family Premium अपग्रेड करें।"
   },
   "patientId": {
     "title": "CareMate रोगी ID",

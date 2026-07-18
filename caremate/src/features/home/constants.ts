@@ -10,7 +10,7 @@ type GreetingLabels = {
   evening: string;
 };
 
-export function getGreeting(labels?: GreetingLabels): string {
+export function getGreeting(labels?: Partial<GreetingLabels>): string {
   const hour = new Date().getHours();
   if (hour < 12) return labels?.morning ?? 'Good Morning';
   if (hour < 17) return labels?.afternoon ?? 'Good Afternoon';

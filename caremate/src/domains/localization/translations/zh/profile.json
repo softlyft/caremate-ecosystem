@@ -23,7 +23,9 @@
     "monthly": "月付",
     "yearly": "年付",
     "guestCta": "登录以订阅",
-    "error": "无法开始结账"
+    "error": "无法开始结账",
+    "medicationLimitTitle": "已达药品数量上限",
+    "medicationLimitMessage": "免费账户最多跟踪 3 种药品。升级标准版或家庭高级版可无限跟踪。"
   },
   "patientId": {
     "title": "CareMate 患者 ID",

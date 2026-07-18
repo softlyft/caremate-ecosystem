@@ -4,9 +4,13 @@
   "readyCount": "{{count}} outils prêts",
   "comingSoon": "Bientôt disponible",
   "registry": {
+    "vitals-tracker": {
+      "name": "Signes vitaux",
+      "description": "Enregistrez tension, glycémie, pouls et plus — votre bilan santé en un coup d’œil."
+    },
     "medication-tracker": {
-      "name": "Suivi des médicaments",
-      "description": "Suivez les médicaments, doses quotidiennes et observance pour vous ou votre famille."
+      "name": "Assistant médicaments",
+      "description": "Planifiez les doses, confirmez les prises et suivez les renouvellements — votre aide quotidienne."
     },
     "checkup-planner": {
       "name": "Planificateur de bilans",
@@ -28,5 +32,170 @@
   "signInRequired": "Connectez-vous pour synchroniser cet outil sur vos appareils",
   "save": "Enregistrer",
   "log": "Ajouter une entrée",
-  "setup": "Configurer"
+  "setup": "Configurer",
+  "medicationTracker": {
+    "eyebrow": "Assistant",
+    "emptyTitle": "Votre assistant médicaments",
+    "emptySubtitle": "Ajoutez des médicaments, définissez les horaires et confirmez les prises",
+    "addMedicine": "Ajouter un médicament",
+    "logDose": "Enregistrer une prise",
+    "todaysDoses": "Prises d'aujourd'hui",
+    "medicines": "Médicaments",
+    "setupSave": "Ajouter un médicament",
+    "setupSaveEdit": "Enregistrer",
+    "history": "Historique",
+    "screenTitle": "Assistant médicaments",
+    "setupTitle": "Ajouter un médicament",
+    "logTitle": "Enregistrer une prise",
+    "historyTitle": "Historique des médicaments",
+    "backToApps": "Retour aux apps",
+    "close": "Fermer",
+    "back": "Retour"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Une fois par jour",
+        "slots": {
+          "0": "Dose quotidienne"
+        }
+      },
+      "twice-daily": {
+        "label": "Deux fois par jour",
+        "slots": {
+          "0": "Matin",
+          "1": "Soir"
+        }
+      },
+      "three-times-daily": {
+        "label": "Trois fois par jour",
+        "slots": {
+          "0": "Matin",
+          "1": "Après-midi",
+          "2": "Soir"
+        }
+      },
+      "as-needed": {
+        "label": "Au besoin",
+        "slots": {
+          "0": "Dose"
+        }
+      }
+    },
+    "ui": {
+      "you": "Vous",
+      "child": "Enfant",
+      "nothingToday": "Rien de prévu aujourd'hui",
+      "catchUp": "Rattrapez les doses manquées plus tôt",
+      "upToDate": "Vous êtes à jour pour aujourd'hui",
+      "paused": "En pause",
+      "editMedicine": "Modifier le médicament",
+      "addMedicine": "Ajouter un médicament",
+      "updateHint": "Modifiez le dosage, le planning, les consignes, le renouvellement ou mettez en pause.",
+      "addHint": "Ajoutez un médicament pour vous ou un enfant — horaires et mode de prise.",
+      "forKid": "Est-ce pour un enfant ?",
+      "forMe": "Non — pour moi",
+      "forKidYes": "Oui — pour un enfant",
+      "setupFamilyFirst": "Créez d'abord votre famille et ajoutez des enfants.",
+      "addChildrenFirst": "Ajoutez des enfants dans Famille avant d’assigner un médicament.",
+      "howOften": "Fréquence",
+      "notesOptional": "Notes (facultatif)",
+      "notesPlaceholder": "Avec de la nourriture, effets secondaires, etc.",
+      "notesPlaceholderLog": "Avec de la nourriture, effets secondaires…",
+      "selectChildTitle": "Choisir un enfant",
+      "selectChildMessage": "Choisissez pour quel enfant est ce médicament.",
+      "removeMedicine": "Supprimer le médicament",
+      "removeConfirmTitle": "Supprimer le médicament ?",
+      "removeConfirmMessage": "L'historique des prises de ce médicament sera aussi supprimé.",
+      "updateDoseLog": "Mettre à jour la prise",
+      "markTaken": "Marquer comme pris",
+      "removeDoseLog": "Supprimer cette prise",
+      "dosesTakenToday": "{{taken}} sur {{expected}} prises aujourd'hui",
+      "asNeededLoggedToday": "{{count}} prise au besoin aujourd'hui",
+      "asNeededLoggedToday_other": "{{count}} prises au besoin aujourd'hui",
+      "dosesStillDue": "{{count}} prise encore due aujourd'hui",
+      "dosesStillDue_other": "{{count}} prises encore dues aujourd'hui",
+      "doseN": "Dose {{n}}",
+      "today": "Aujourd'hui",
+      "activeMedicines": "Médicaments actifs",
+      "emptyFilter": "Aucune prise prévue aujourd'hui dans ce filtre. Ajoutez un médicament ou vérifiez les dates de début.",
+      "tapToUndo": "Appuyer pour annuler",
+      "tapToMarkTaken": "Appuyer pour marquer pris",
+      "pausedSuffix": "(en pause)",
+      "notFound": "Ce médicament est introuvable.",
+      "addBeforeLogging": "Ajoutez un médicament avant d'enregistrer des prises.",
+      "logIntro": "Enregistrez une prise. Vous pouvez aussi annuler depuis l'écran d'accueil.",
+      "medicine": "Médicament",
+      "dose": "Dose",
+      "dateLabel": "Date : {{date}}",
+      "name": "Nom",
+      "dosage": "Dosage",
+      "namePlaceholder": "ex. Metformine",
+      "dosagePlaceholder": "ex. 500 mg",
+      "startDateHint": "Date de début — les prises sont suivies à partir de ce jour.",
+      "startsOn": "Commence le {{date}}",
+      "status": "Statut",
+      "active": "Actif",
+      "whichChild": "Quel enfant ?",
+      "signInFamilyKids": "Connectez-vous et configurez votre famille pour assigner des médicaments aux enfants.",
+      "anyParentCanLog": "Tout parent du foyer peut enregistrer les prises des enfants depuis CareMate.",
+      "dueNow": "Dû maintenant",
+      "upcoming": "À venir",
+      "takenToday": "Pris aujourd'hui",
+      "dueNowCount": "{{count}} dose due maintenant",
+      "dueNowCount_other": "{{count}} doses dues maintenant",
+      "nextUp": "Ensuite : {{name}} · {{slot}}",
+      "freeCap": "Places du forfait gratuit",
+      "instructions": "Consignes de prise",
+      "instructionsPlaceholder": "ex. éviter les produits laitiers, prendre avec de l’eau",
+      "scheduleTimes": "Horaires des doses",
+      "scheduleTimesHint": "Utilisez l’heure sur 24 h, comme 08:00 ou 20:30.",
+      "startDate": "Date de début",
+      "refillDueDate": "Date de renouvellement",
+      "refill": "Suivi du renouvellement",
+      "quantityRemaining": "Comprimés / doses restantes (facultatif)",
+      "quantityPlaceholder": "ex. 30",
+      "refillThreshold": "Rappeler à ou en dessous de",
+      "refillOn": "Renouvellement le {{date}}",
+      "refillDateOptional": "Date de renouvellement facultative — appuyer à nouveau pour effacer",
+      "historySubtitle": "Prises récentes enregistrées",
+      "historyEmpty": "Aucune prise encore. Marquez une dose pour créer l'historique.",
+      "unknownMedicine": "Médicament inconnu"
+    },
+    "status": {
+      "taken": "Pris",
+      "due": "Dû",
+      "missed": "Manqué",
+      "upcoming": "À venir",
+      "as-needed": "Au besoin"
+    },
+    "instructions": {
+      "none": "Aucune",
+      "with_food": "Avec de la nourriture",
+      "empty_stomach": "À jeun",
+      "other": "Autre"
+    },
+    "alerts": {
+      "doseDueTitle": "Dose due : {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} est due. Marquez-la dans Assistant médicaments.",
+      "doseMissedTitle": "Dose manquée : {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} a été manquée. Rattrapez quand vous pouvez.",
+      "refillTitle": "Renouveler bientôt : {{name}}",
+      "refillBody": "{{name}} est bientôt épuisé ou à renouveler."
+    }
+  },
+  "edit": "Modifier",
+  "openFamily": "Ouvrir la famille",
+  "setUpFamily": "Configurer la famille",
+  "setUpFamilyFirst": "Configurez d'abord la famille",
+  "addChildren": "Ajouter des enfants",
+  "manageInFamily": "Gérer dans Famille",
+  "goToFamilySetup": "Aller à la configuration famille",
+  "backToTracker": "Retour au suivi",
+  "clearSelection": "Effacer la sélection",
+  "remove": "Supprimer",
+  "saveChanges": "Enregistrer les modifications",
+  "loading": "Chargement…",
+  "editProfile": "Modifier le profil",
+  "signInRequiredTitle": "Connexion requise"
 }

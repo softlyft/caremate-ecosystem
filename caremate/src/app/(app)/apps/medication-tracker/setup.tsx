@@ -4,9 +4,14 @@ import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
-import { canAddMedication, countActiveMedications } from '@/domains/billing/entitlements';
+import {
+  canActivateMedication,
+  canAddMedication,
+  countActiveMedications,
+} from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -16,15 +21,28 @@ import {
   MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import { type MedicationFrequency } from '@/mini-apps/medication-tracker/constants';
+import {
+  DEFAULT_REFILL_THRESHOLD,
+  defaultSlotTimesForFrequency,
+  getFrequencyOption,
+  type MedicationFrequency,
+  type MedicationInstructionKind,
+} from '@/mini-apps/medication-tracker/constants';
+import {
+  localizeFrequencyOptions,
+  localizeInstructionOptions,
+} from '@/mini-apps/medication-tracker/localize';
 import {
   useMedicationTrackerHydrated,
   useMedicationTrackerStore,
 } from '@/mini-apps/medication-tracker/store';
 import { useMedicationFamilyKids } from '@/mini-apps/medication-tracker/use-family-kids';
-import { formatDisplayDate, toDateKey } from '@/mini-apps/medication-tracker/utils';
-import { localizeFrequencyOptions } from '@/mini-apps/medication-tracker/localize';
-import { usePremiumTier } from '@/hooks/use-premium-state';
+import {
+  formatDisplayDate,
+  normalizeMedication,
+  toDateKey,
+  type MedicationInstructions,
+} from '@/mini-apps/medication-tracker/utils';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -47,10 +65,11 @@ export default function MedicationSetupScreen() {
   const updateMedication = useMedicationTrackerStore((state) => state.updateMedication);
   const removeMedication = useMedicationTrackerStore((state) => state.removeMedication);
 
-  const editing =
+  const editingRaw =
     typeof medicationId === 'string'
       ? medications.find((medication) => medication.id === medicationId)
       : undefined;
+  const editing = editingRaw ? normalizeMedication(editingRaw) : undefined;
   const isEditing = Boolean(editing);
 
   const [name, setName] = useState(editing?.name ?? '');
@@ -58,6 +77,20 @@ export default function MedicationSetupScreen() {
   const [frequency, setFrequency] = useState<MedicationFrequency>(
     editing?.frequency ?? 'once-daily',
   );
+  const [slotTimes, setSlotTimes] = useState<string[]>(
+    editing?.slotTimes ?? defaultSlotTimesForFrequency(editing?.frequency ?? 'once-daily'),
+  );
+  const [instructionKind, setInstructionKind] = useState<MedicationInstructionKind>(
+    editing?.instructions.kind ?? 'none',
+  );
+  const [instructionText, setInstructionText] = useState(editing?.instructions.text ?? '');
+  const [quantityText, setQuantityText] = useState(
+    editing?.quantityRemaining != null ? String(editing.quantityRemaining) : '',
+  );
+  const [refillThresholdText, setRefillThresholdText] = useState(
+    String(editing?.refillAtThreshold ?? DEFAULT_REFILL_THRESHOLD),
+  );
+  const [refillDueDate, setRefillDueDate] = useState<string | null>(editing?.refillDueDate ?? null);
   const [startDate, setStartDate] = useState<string | null>(editing?.startDate ?? todayKey);
   const [notes, setNotes] = useState(editing?.notes ?? '');
   const [active, setActive] = useState(editing?.active ?? true);
@@ -66,12 +99,19 @@ export default function MedicationSetupScreen() {
     editing?.familyMemberId ?? null,
   );
   const [editingSnapshotId, setEditingSnapshotId] = useState(editing?.id);
+  const [refillCalendarMode, setRefillCalendarMode] = useState(false);
 
   if (editing && editing.id !== editingSnapshotId) {
     setEditingSnapshotId(editing.id);
     setName(editing.name);
     setDosage(editing.dosage);
     setFrequency(editing.frequency);
+    setSlotTimes(editing.slotTimes);
+    setInstructionKind(editing.instructions.kind);
+    setInstructionText(editing.instructions.text ?? '');
+    setQuantityText(editing.quantityRemaining != null ? String(editing.quantityRemaining) : '');
+    setRefillThresholdText(String(editing.refillAtThreshold ?? DEFAULT_REFILL_THRESHOLD));
+    setRefillDueDate(editing.refillDueDate);
     setStartDate(editing.startDate);
     setNotes(editing.notes ?? '');
     setActive(editing.active);
@@ -95,7 +135,33 @@ export default function MedicationSetupScreen() {
   const canSave =
     Boolean(name.trim() && startDate) && (!forKid || Boolean(familyMemberId && selectedChild));
   const activeMedicationCount = countActiveMedications(medications);
-  const atMedicationLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
+  const atCreateLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
+  const atActivateLimit =
+    isEditing && editing && !canActivateMedication(tier, medications, editing.id, active);
+  const blockedByCap = atCreateLimit || Boolean(atActivateLimit);
+
+  const frequencyOption = getFrequencyOption(frequency);
+  const showSchedule = frequencyOption.dosesPerDay > 0;
+
+  const applyFrequency = (next: MedicationFrequency) => {
+    setFrequency(next);
+    setSlotTimes(defaultSlotTimesForFrequency(next));
+  };
+
+  const buildInstructions = (): MedicationInstructions => ({
+    kind: instructionKind,
+    text:
+      instructionKind === 'other' || instructionKind === 'none'
+        ? instructionText.trim() || undefined
+        : undefined,
+  });
+
+  const parseOptionalNumber = (raw: string): number | null => {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+    const value = Number(trimmed);
+    return Number.isFinite(value) && value >= 0 ? value : null;
+  };
 
   if (!hydrated) {
     return (
@@ -206,9 +272,6 @@ export default function MedicationSetupScreen() {
                     />
                   ))}
                 </View>
-                <AppText variant="caption" style={styles.muted}>
-                  {t('apps.medication.ui.anyParentCanLog')}
-                </AppText>
               </>
             )}
           </View>
@@ -233,7 +296,31 @@ export default function MedicationSetupScreen() {
         />
       </MiniAppCard>
 
-      <MiniAppCard index={4} title={t('apps.medication.ui.howOften')} theme={theme}>
+      <MiniAppCard index={4} title={t('apps.medication.ui.instructions')} theme={theme}>
+        <View style={styles.chipRow}>
+          {localizeInstructionOptions(t).map((option) => (
+            <MiniAppChip
+              key={option.id}
+              label={option.label}
+              selected={option.id === instructionKind}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => setInstructionKind(option.id)}
+            />
+          ))}
+        </View>
+        {instructionKind === 'other' || instructionKind === 'none' ? (
+          <View style={styles.spacedInput}>
+            <Input
+              value={instructionText}
+              onChangeText={setInstructionText}
+              placeholder={t('apps.medication.ui.instructionsPlaceholder')}
+            />
+          </View>
+        ) : null}
+      </MiniAppCard>
+
+      <MiniAppCard index={5} title={t('apps.medication.ui.howOften')} theme={theme}>
         <View style={styles.chipRow}>
           {localizeFrequencyOptions(t).map((option) => (
             <MiniAppChip
@@ -242,36 +329,111 @@ export default function MedicationSetupScreen() {
               selected={option.id === frequency}
               accent={theme.color}
               soft={theme.backgroundColor}
-              onPress={() => setFrequency(option.id)}
+              onPress={() => applyFrequency(option.id)}
             />
           ))}
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={5} theme={theme}>
+      {showSchedule ? (
+        <MiniAppCard index={6} title={t('apps.medication.ui.scheduleTimes')} theme={theme}>
+          {frequencyOption.slotLabels.map((label, index) => (
+            <View key={`${label}-${index}`} style={styles.timeRow}>
+              <AppText variant="caption" style={styles.muted}>
+                {label}
+              </AppText>
+              <Input
+                value={slotTimes[index] ?? ''}
+                onChangeText={(value) => {
+                  const next = [...slotTimes];
+                  next[index] = value;
+                  setSlotTimes(next);
+                }}
+                placeholder="08:00"
+                autoCapitalize="none"
+                keyboardType="numbers-and-punctuation"
+              />
+            </View>
+          ))}
+          <AppText variant="caption" style={styles.muted}>
+            {t('apps.medication.ui.scheduleTimesHint')}
+          </AppText>
+        </MiniAppCard>
+      ) : null}
+
+      <MiniAppCard index={7} theme={theme}>
+        <View style={styles.chipRow}>
+          <MiniAppChip
+            label={t('apps.medication.ui.startDate')}
+            selected={!refillCalendarMode}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => setRefillCalendarMode(false)}
+          />
+          <MiniAppChip
+            label={t('apps.medication.ui.refillDueDate')}
+            selected={refillCalendarMode}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => setRefillCalendarMode(true)}
+          />
+        </View>
         <MonthCalendarNavigator
           accentColor={theme.color}
           monthRef={monthRef}
           onMonthChange={setMonthRef}
         />
-        <AppText variant="caption" style={styles.muted}>
-          {t('apps.medication.ui.startDateHint')}
-        </AppText>
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
           accentColor={theme.color}
-          onDayPress={setStartDate}
-          getDayState={(dayKey) => ({ selected: dayKey === startDate })}
+          onDayPress={(dayKey) => {
+            if (refillCalendarMode) {
+              setRefillDueDate(dayKey === refillDueDate ? null : dayKey);
+              return;
+            }
+            setStartDate(dayKey);
+          }}
+          getDayState={(dayKey) => ({
+            selected: refillCalendarMode ? dayKey === refillDueDate : dayKey === startDate,
+          })}
         />
-        {startDate ? (
+        {!refillCalendarMode && startDate ? (
           <AppText variant="body">
             {t('apps.medication.ui.startsOn', { date: formatDisplayDate(startDate) })}
           </AppText>
         ) : null}
+        {refillCalendarMode ? (
+          <AppText variant="body">
+            {refillDueDate
+              ? t('apps.medication.ui.refillOn', { date: formatDisplayDate(refillDueDate) })
+              : t('apps.medication.ui.refillDateOptional')}
+          </AppText>
+        ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={6} title={t('apps.medication.ui.notesOptional')} theme={theme}>
+      <MiniAppCard index={8} title={t('apps.medication.ui.refill')} theme={theme}>
+        <AppText variant="caption" style={styles.muted}>
+          {t('apps.medication.ui.quantityRemaining')}
+        </AppText>
+        <Input
+          value={quantityText}
+          onChangeText={setQuantityText}
+          placeholder={t('apps.medication.ui.quantityPlaceholder')}
+          keyboardType="number-pad"
+        />
+        <AppText variant="caption" style={[styles.muted, styles.spacedInput]}>
+          {t('apps.medication.ui.refillThreshold')}
+        </AppText>
+        <Input
+          value={refillThresholdText}
+          onChangeText={setRefillThresholdText}
+          placeholder={String(DEFAULT_REFILL_THRESHOLD)}
+          keyboardType="number-pad"
+        />
+      </MiniAppCard>
+
+      <MiniAppCard index={9} title={t('apps.medication.ui.notesOptional')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
@@ -281,7 +443,7 @@ export default function MedicationSetupScreen() {
       </MiniAppCard>
 
       {isEditing ? (
-        <MiniAppCard index={7} title={t('apps.medication.ui.status')} theme={theme}>
+        <MiniAppCard index={10} title={t('apps.medication.ui.status')} theme={theme}>
           <View style={styles.chipRow}>
             <MiniAppChip
               label={t('apps.medication.ui.active')}
@@ -301,7 +463,7 @@ export default function MedicationSetupScreen() {
         </MiniAppCard>
       ) : null}
 
-      {atMedicationLimit ? (
+      {blockedByCap ? (
         <UpgradePrompt
           title={t('profile.premium.medicationLimitTitle')}
           message={t('profile.premium.medicationLimitMessage')}
@@ -316,9 +478,9 @@ export default function MedicationSetupScreen() {
         }
         accent={theme.color}
         soft={theme.backgroundColor}
-        index={8}
+        index={11}
         onPress={() => {
-          if (!canSave || !startDate || atMedicationLimit) {
+          if (!canSave || !startDate || blockedByCap) {
             return;
           }
           if (forKid && !selectedChild) {
@@ -333,18 +495,26 @@ export default function MedicationSetupScreen() {
             familyMemberId: forKid ? familyMemberId : null,
             patientName: forKid ? (selectedChild?.fullName ?? null) : null,
           };
+          const payload = {
+            name,
+            dosage,
+            frequency,
+            startDate,
+            notes,
+            slotTimes: showSchedule ? slotTimes : [],
+            instructions: buildInstructions(),
+            quantityRemaining: parseOptionalNumber(quantityText),
+            refillAtThreshold: parseOptionalNumber(refillThresholdText) ?? DEFAULT_REFILL_THRESHOLD,
+            refillDueDate,
+            ...patientPayload,
+          };
           if (isEditing && editing) {
             updateMedication(editing.id, {
-              name,
-              dosage,
-              frequency,
-              startDate,
-              notes,
+              ...payload,
               active,
-              ...patientPayload,
             });
           } else {
-            addMedication({ name, dosage, frequency, startDate, notes, ...patientPayload });
+            addMedication(payload);
           }
           router.back();
         }}
@@ -356,7 +526,7 @@ export default function MedicationSetupScreen() {
           accent={theme.color}
           soft={theme.backgroundColor}
           secondary
-          index={9}
+          index={12}
           onPress={() => {
             Alert.alert(
               t('apps.medication.ui.removeConfirmTitle'),
@@ -403,5 +573,12 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: palette.textSecondary,
+  },
+  timeRow: {
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  spacedInput: {
+    marginTop: spacing.sm,
   },
 });

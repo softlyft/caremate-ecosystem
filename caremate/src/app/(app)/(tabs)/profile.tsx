@@ -20,7 +20,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
-import { getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
+import { premiumLabel } from '@/domains/billing/entitlement';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
 import { getFinishSetupItems, type FinishSetupItem } from '@/domains/onboarding';
@@ -32,6 +32,7 @@ import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import { usePremiumState } from '@/hooks/use-premium-state';
 
 export default function ProfileTabScreen() {
   const { t } = useTranslation();
@@ -43,12 +44,9 @@ export default function ProfileTabScreen() {
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
 
-  const premiumQuery = useQuery({
-    queryKey: ['billing', 'premium', userId, isGuest],
-    enabled: !isGuest,
-    queryFn: () => getPremiumState(userId),
-  });
-  const premium = premiumQuery.data ?? null;
+  // Canonical ['billing','premium'] cache — flat PremiumState only (see usePremiumState).
+  const premiumQuery = usePremiumState();
+  const premiumReady = isGuest || Boolean(premiumQuery.data) || !premiumQuery.isPending;
 
   const profileQuery = useQuery({
     queryKey: ['profile', userId],
@@ -118,11 +116,18 @@ export default function ProfileTabScreen() {
                     ? t('profile.guest.subtitle')
                     : (user?.email ?? t('profile.guest.signIn'))}
                 </AppText>
-                {!isGuest ? (
+                {!isGuest && premiumReady ? (
                   <View style={styles.planPill}>
                     <Crown color={palette.primary} size={13} />
                     <AppText variant="caption" color="brand">
-                      {premiumLabel(premium?.tier ?? 'free')}
+                      {premiumLabel(premiumQuery.tier)}
+                    </AppText>
+                  </View>
+                ) : !isGuest ? (
+                  <View style={styles.planPill}>
+                    <Crown color={palette.primary} size={13} />
+                    <AppText variant="caption" color="secondary">
+                      …
                     </AppText>
                   </View>
                 ) : (

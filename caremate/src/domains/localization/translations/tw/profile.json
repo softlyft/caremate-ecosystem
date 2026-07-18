@@ -23,7 +23,9 @@
     "monthly": "Bosome biara",
     "yearly": "Afe biara",
     "guestCta": "Hyɛn mu na kyɛɛ",
-    "error": "Antumi anhye ase sika tua"
+    "error": "Antumi anhye ase sika tua",
+    "medicationLimitTitle": "Woduruu aduru ahye",
+    "medicationLimitMessage": "Akaunt a ɛyɛ kwa betumi adi nnuru 3 akyi. Ma so kɔ Standard anaa Family Premium na woanya akyi a ɛnni ahye."
   },
   "patientId": {
     "title": "CareMate Oyarefo ID",

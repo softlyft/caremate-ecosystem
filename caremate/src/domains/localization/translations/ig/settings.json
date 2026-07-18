@@ -40,5 +40,24 @@
   "family": {
     "title": "Ezinụlọ",
     "manage": "Jikwaa ezinụlọ"
+  },
+  "legal": {
+    "title": "Iwu",
+    "privacy": "Amụma nzuzo",
+    "terms": "Usoro ọrụ",
+    "openFailed": "Enweghị ike imepe njikọ. Lelee njikọ gị."
+  },
+  "account": {
+    "title": "Akaụntụ",
+    "delete": "Hichapụ akaụntụ",
+    "deleteHint": "Na-ehichapụ akaụntụ CareMate gị na data ejikọtara kpamkpam. Enweghị ike ịweghachi ya.",
+    "deleteConfirmTitle": "Hichapụ akaụntụ gị?",
+    "deleteConfirmMessage": "Profaịlụ gị, kaadị mberede, njikọ ezinụlọ, na ngwaọrụ ahụike ejikọtara ga-ehichapụ kpamkpam. A ga-akagbu ndenye aha na-arụ ọrụ ma ọ bụrụ na o kwe omume.",
+    "deleteConfirmAction": "Hichapụ kpamkpam",
+    "cancel": "Kagbuo",
+    "deleting": "Na-ehichapụ…",
+    "deleteFailed": "Enweghị ike ihichapụ akaụntụ",
+    "deleteSuccessTitle": "Ehichapụrụ akaụntụ",
+    "deleteSuccessMessage": "Ehichapụrụ akaụntụ CareMate gị. Ị nwere ike ịmepụta nke ọhụrụ oge ọ bụla."
   }
 }

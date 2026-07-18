@@ -1,9 +1,10 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { Baby, CalendarCheck, CalendarHeart, Pill, Syringe } from 'lucide-react-native';
+import { Activity, Baby, CalendarCheck, CalendarHeart, Pill, Syringe } from 'lucide-react-native';
 
 import type { TranslationParams } from '@/domains/localization/i18n/types';
 
 export type MiniAppId =
+  | 'vitals-tracker'
   | 'period-tracker'
   | 'pregnancy-tracker'
   | 'immunization-tracker'
@@ -29,6 +30,14 @@ export function getMiniAppLabel(id: MiniAppId, t: TranslateFn) {
 }
 
 export const MINI_APPS: MiniAppDefinition[] = [
+  {
+    id: 'vitals-tracker',
+    route: '/(app)/apps/vitals-tracker',
+    icon: Activity,
+    color: '#1D4ED8',
+    backgroundColor: '#DBEAFE',
+    available: true,
+  },
   {
     id: 'medication-tracker',
     route: '/(app)/apps/medication-tracker',

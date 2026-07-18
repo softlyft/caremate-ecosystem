@@ -4,9 +4,13 @@
   "readyCount": "Nneɛma {{count}} ayɛ krado",
   "comingSoon": "Ɛrebɛba nnansa yi",
   "registry": {
+    "vitals-tracker": {
+      "name": "Vitals",
+      "description": "Kyerɛw mogya mframa, sugar, akoma ne bio — wo apɔmuden wɔ hwɛ baako mu."
+    },
     "medication-tracker": {
-      "name": "Aduru Di Akyi",
-      "description": "Di aduru, da biara doze, ne di so akyi ma wo anaa wo abusua."
+      "name": "Aduru Boafo",
+      "description": "Hyehyɛ aduru bere, si so sɛ woanom, na gye nkae a ɛfa aduru foforo ho — wo da biara aduru boafo."
     },
     "checkup-planner": {
       "name": "Nhwehwɛmu Nhyehyɛefo",
@@ -28,5 +32,170 @@
   "signInRequired": "Hyɛn mu na sync nneɛma yi wɔ nneɛma so",
   "save": "Sie",
   "log": "Kyerɛw nkyerɛw",
-  "setup": "Hyehyɛ"
+  "setup": "Hyehyɛ",
+  "medicationTracker": {
+    "eyebrow": "Boafo",
+    "emptyTitle": "Wo aduru boafo",
+    "emptySubtitle": "Fa aduru ka ho, hyehyɛ bere, na si so bere a woanom",
+    "addMedicine": "Fa aduru ka ho",
+    "logDose": "Kyerɛw dose",
+    "todaysDoses": "Nnɛ doses",
+    "medicines": "Nnuru",
+    "setupSave": "Fa aduru ka ho",
+    "setupSaveEdit": "Sie nsesae",
+    "history": "Abakɔsɛm",
+    "screenTitle": "Aduru Boafo",
+    "setupTitle": "Fa aduru ka ho",
+    "logTitle": "Kyerɛw dose",
+    "historyTitle": "Aduru abakɔsɛm",
+    "backToApps": "San kɔ Apps",
+    "close": "To mu",
+    "back": "San"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "Dapɛn biara",
+        "slots": {
+          "0": "Dose a ɛda biara"
+        }
+      },
+      "twice-daily": {
+        "label": "Mpɛn mmienu dapɛn",
+        "slots": {
+          "0": "Anɔpa",
+          "1": "Anwummere"
+        }
+      },
+      "three-times-daily": {
+        "label": "Mpɛn mmiɛnsa dapɛn",
+        "slots": {
+          "0": "Anɔpa",
+          "1": "Awia",
+          "2": "Anwummere"
+        }
+      },
+      "as-needed": {
+        "label": "Sɛ́ ɛhia a",
+        "slots": {
+          "0": "Dose"
+        }
+      }
+    },
+    "ui": {
+      "you": "Wo",
+      "child": "Abofra",
+      "nothingToday": "Biribiara nni hɔ a wɔahyɛ ama nnɛ",
+      "catchUp": "Diyi doses a woanyae kan no",
+      "upToDate": "Woayɛ nnɛ de",
+      "paused": "Wogyinae",
+      "editMedicine": "Sesa aduru",
+      "addMedicine": "Fa aduru ka ho",
+      "updateHint": "Sesa dosage, nhyehyɛe, nkyerɛkyerɛmu, refill, anaa gyae aduru yi.",
+      "addHint": "Fa aduru ka ho ma wo anaa abofra — hyehyɛ bere ne sɛnea wɔnom.",
+      "forKid": "Yei yɛ abofra dea?",
+      "forMe": "Dabi — me dea",
+      "forKidYes": "Aane — abofra dea",
+      "setupFamilyFirst": "Di kan hyehyɛ wo abusua na fa mma ka ho.",
+      "addChildrenFirst": "Fa mma ka ho wɔ Abusua mu ansa na woakyekyɛ aduru.",
+      "howOften": "Mpɛn ahe",
+      "notesOptional": "Nkyerɛw (ɛnyɛ ɔhyɛ)",
+      "notesPlaceholder": "Ne aduan, side effects, ne deɛ ɛkeka ho",
+      "notesPlaceholderLog": "Ne aduan, side effects…",
+      "selectChildTitle": "Paw abofra",
+      "selectChildMessage": "Paw abofra a aduru yi yɛ ne dea.",
+      "removeMedicine": "Yi aduru",
+      "removeConfirmTitle": "Yi aduru?",
+      "removeConfirmMessage": "Wobɛpopa aduru yi dose abakɔsɛm nso.",
+      "updateDoseLog": "Sesa dose krataa",
+      "markTaken": "Hyɛ sɛ woanom",
+      "removeDoseLog": "Yi dose krataa yi",
+      "dosesTakenToday": "{{taken}} wɔ {{expected}} doses a woanom nnɛ",
+      "asNeededLoggedToday": "Dose {{count}} a ɛhia a wɔakyerɛw nnɛ",
+      "asNeededLoggedToday_other": "Doses {{count}} a ɛhia a wɔakyerɛw nnɛ",
+      "dosesStillDue": "Dose {{count}} da so nnɛ",
+      "dosesStillDue_other": "Doses {{count}} da so nnɛ",
+      "doseN": "Dose {{n}}",
+      "today": "Nnɛ",
+      "activeMedicines": "Nnuru a ɛreyɛ adwuma",
+      "emptyFilter": "Doses biara nni hɔ nnɛ wɔ filter yi mu. Fa aduru ka ho anaa hwɛ mfiase da.",
+      "tapToUndo": "Ka so na woasane",
+      "tapToMarkTaken": "Ka so na woahyɛ sɛ woanom",
+      "pausedSuffix": "(wogyinae)",
+      "notFound": "Wonhuu aduru no.",
+      "addBeforeLogging": "Fa aduru ka ho ansa na woakyerɛw doses.",
+      "logIntro": "Kyerɛw dose a woanom. Wobetumi nso asane afi fie screen so.",
+      "medicine": "Aduru",
+      "dose": "Dose",
+      "dateLabel": "Da: {{date}}",
+      "name": "Din",
+      "dosage": "Dosage",
+      "namePlaceholder": "sɛ́ Metformin",
+      "dosagePlaceholder": "sɛ́ 500mg",
+      "startDateHint": "Mfiase da — wɔdi doses akyi firi da yi so.",
+      "startsOn": "Efi {{date}}",
+      "status": "Tebea",
+      "active": "Ɛreyɛ adwuma",
+      "whichChild": "Abofra bɛn?",
+      "signInFamilyKids": "Kɔ mu na hyehyɛ wo abusua na woakyekyɛ nnuru ama mma.",
+      "anyParentCanLog": "Awofoɔ biara wɔ fie no mu betumi akyerɛw mma doses wɔ CareMate so.",
+      "dueNow": "Ɛsɛ sɛ́ nnɛ",
+      "upcoming": "Ɛreba",
+      "takenToday": "Woanom nnɛ",
+      "dueNowCount": "Dose {{count}} da so seesei",
+      "dueNowCount_other": "Doses {{count}} da so seesei",
+      "nextUp": "Deɛ ɛdi so: {{name}} · {{slot}}",
+      "freeCap": "Free plan slots",
+      "instructions": "Dose nkyerɛkyerɛmu",
+      "instructionsPlaceholder": "sɛ́ kwati nufusu, nom ne nsuo",
+      "scheduleTimes": "Dose bere",
+      "scheduleTimesHint": "Fa nnɔnhwere 24 te sɛ 08:00 anaa 20:30.",
+      "startDate": "Mfiase da",
+      "refillDueDate": "Refill da",
+      "refill": "Refill akyi di",
+      "quantityRemaining": "Pills / doses a aka (ɛnyɛ ɔhyɛ)",
+      "quantityPlaceholder": "sɛ́ 30",
+      "refillThreshold": "Kae bere a ɛyɛ anaa ɛwɔ ase",
+      "refillOn": "Refill {{date}}",
+      "refillDateOptional": "Refill da a ɛnyɛ ɔhyɛ — ka so bio na woapopa",
+      "historySubtitle": "Doses a nnansa yi woakyerɛw",
+      "historyEmpty": "Dose biara nni hɔ. Hyɛ sɛ woanom na woasi abakɔsɛm.",
+      "unknownMedicine": "Aduru a wonnim"
+    },
+    "status": {
+      "taken": "Woanom",
+      "due": "Ɛsɛ",
+      "missed": "Wonyaee",
+      "upcoming": "Ɛreba",
+      "as-needed": "Sɛ́ ɛhia a"
+    },
+    "instructions": {
+      "none": "Biara nni hɔ",
+      "with_food": "Ne aduan",
+      "empty_stomach": "Yafunu a ɛyɛ kwa",
+      "other": "Foforo"
+    },
+    "alerts": {
+      "doseDueTitle": "Dose a ɛsɛ: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} da so. Hyɛ wɔ Aduru Boafo mu.",
+      "doseMissedTitle": "Dose a wonyaee: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} wonyaee. Diyi bere a wobetumi.",
+      "refillTitle": "Refill nnansa yi: {{name}}",
+      "refillBody": "{{name}} reyɛ akyɛ anaa refill bere adu."
+    }
+  },
+  "edit": "Sesa",
+  "openFamily": "Bue abusua",
+  "setUpFamily": "Hyehyɛ abusua",
+  "setUpFamilyFirst": "Di kan hyehyɛ abusua",
+  "addChildren": "Fa mma ka ho",
+  "manageInFamily": "Hwɛ so wɔ Abusua mu",
+  "goToFamilySetup": "Kɔ abusua nhyehyɛe",
+  "backToTracker": "San kɔ tracker",
+  "clearSelection": "Popa npaw",
+  "remove": "Yi",
+  "saveChanges": "Sie nsesae",
+  "loading": "Ɛreloode…",
+  "editProfile": "Sesa profile",
+  "signInRequiredTitle": "Ɛsɛ sɛ wokɔ mu"
 }

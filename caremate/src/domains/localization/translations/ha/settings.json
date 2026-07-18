@@ -40,5 +40,24 @@
   "family": {
     "title": "Iyali",
     "manage": "Sarrafa gida"
+  },
+  "legal": {
+    "title": "Dokoki",
+    "privacy": "Dokar sirri",
+    "terms": "Sharuɗɗan sabis",
+    "openFailed": "An kasa buɗe hanyar haɗi. Duba haɗin kai."
+  },
+  "account": {
+    "title": "Asusu",
+    "delete": "Share asusu",
+    "deleteHint": "Zai share asusun CareMate da bayanan da aka haɗa har abada. Ba za a iya mayar da shi ba.",
+    "deleteConfirmTitle": "A share asusunka?",
+    "deleteConfirmMessage": "Bayanan martaba, katin gaggawa, hanyoyin iyali, da kayan aikin lafiya da aka haɗa za a share su har abada. Biyan kuɗi masu aiki za a soke su idan ya yiwu.",
+    "deleteConfirmAction": "Share har abada",
+    "cancel": "Soke",
+    "deleting": "Ana sharewa…",
+    "deleteFailed": "An kasa share asusu",
+    "deleteSuccessTitle": "An share asusu",
+    "deleteSuccessMessage": "An share asusun CareMate ɗinka. Za ka iya ƙirƙira sabo kowane lokaci."
   }
 }

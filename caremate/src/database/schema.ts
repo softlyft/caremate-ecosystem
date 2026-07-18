@@ -120,6 +120,23 @@ export const syncQueue = sqliteTable('sync_queue', {
   updatedAt: text('updated_at').notNull(),
 });
 
+/**
+ * Offline-first PostHog outbox. Product events land here immediately;
+ * flushed to PostHog when the device is online (independent of Supabase sync).
+ */
+export const analyticsQueue = sqliteTable('analytics_queue', {
+  id: text('id').primaryKey(),
+  kind: text('kind').notNull(), // 'event' | 'screen'
+  name: text('name').notNull(),
+  properties: text('properties').notNull().default('{}'),
+  distinctId: text('distinct_id'),
+  occurredAt: text('occurred_at').notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  lastError: text('last_error'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 export const syncMetadata = sqliteTable('sync_metadata', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
