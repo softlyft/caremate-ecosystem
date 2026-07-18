@@ -3,8 +3,8 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Clock, ExternalLink, Sparkles } from 'lucide-react-native';
-import { useLayoutEffect, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useLayoutEffect, useMemo, useRef } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -21,6 +21,8 @@ import {
   HEALTH_CATEGORIES,
 } from '@/domains/articles/categories';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
+import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
+import { useArticleReadTracking } from '@/domains/articles/hooks/use-article-read';
 import { articleRepository } from '@/domains/articles/repository';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { useTranslation } from '@/domains/localization';
@@ -55,6 +57,8 @@ export default function ArticleDetailScreen() {
 
   const article = query.data ?? null;
   const paragraphs = useMemo(() => (article ? splitParagraphs(article.content) : []), [article]);
+  const { isRead, markRead } = useArticleReadTracking(id);
+  const didAutoComplete = useRef(false);
 
   useLayoutEffect(() => {
     const shortTitle = article?.title
@@ -64,6 +68,17 @@ export default function ArticleDetailScreen() {
       : t('learn.article');
     navigation.setOptions(learnArticleHeaderOptions(shortTitle));
   }, [article?.title, navigation, t]);
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    if (!article || isRead || didAutoComplete.current) return;
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    if (contentSize.height <= 0) return;
+    const progress = (contentOffset.y + layoutMeasurement.height) / Math.max(contentSize.height, 1);
+    if (progress >= 0.88) {
+      didAutoComplete.current = true;
+      markRead();
+    }
+  }
 
   if (query.isLoading) {
     return <LoadingState title={t('learn.loadingArticle')} />;
@@ -84,6 +99,8 @@ export default function ArticleDetailScreen() {
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        onScroll={onScroll}
+        scrollEventThrottle={200}
       >
         <AnimatedSection index={0}>
           <View style={[styles.heroShell, shadow.card]}>
@@ -170,6 +187,7 @@ export default function ArticleDetailScreen() {
                   </AppText>
                 </View>
               )}
+              <MarkAsReadToggleButton articleId={article.id} size={15} style={styles.bookmarkBtn} />
               <BookmarkToggleButton articleId={article.id} size={15} style={styles.bookmarkBtn} />
             </View>
           </View>

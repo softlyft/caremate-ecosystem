@@ -27,3 +27,8 @@ export function canAssignRoles(role: StaffRole | null | undefined): boolean {
 export function canManageBilling(role: StaffRole | null | undefined): boolean {
   return role === 'admin';
 }
+
+/** All staff can browse audit events (RLS: is_staff SELECT). */
+export function canViewAuditLogs(role: StaffRole | null | undefined): boolean {
+  return isStaffRole(role);
+}

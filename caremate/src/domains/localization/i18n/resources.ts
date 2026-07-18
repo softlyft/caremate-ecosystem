@@ -11,6 +11,7 @@ import enLearn from '../translations/en/learn.json';
 import enNearby from '../translations/en/nearby.json';
 import enOnboarding from '../translations/en/onboarding.json';
 import enProfile from '../translations/en/profile.json';
+import enSearch from '../translations/en/search.json';
 import enSettings from '../translations/en/settings.json';
 import enSetup from '../translations/en/setup.json';
 import enTabs from '../translations/en/tabs.json';
@@ -176,6 +177,7 @@ const ENGLISH_CATALOG = buildCatalog({
   family: enFamily,
   setup: enSetup,
   apps: enApps,
+  search: enSearch,
 });
 
 type CatalogParts = Partial<Record<TranslationNamespace, TranslationNode>>;

@@ -28,6 +28,7 @@ export const QUERY_KEYS = {
   trendingArticles: ['trending-articles'] as const,
   articleCategories: ['article-categories'] as const,
   bookmarks: ['bookmarks'] as const,
+  articleReads: ['article-reads'] as const,
   providers: ['providers'] as const,
   settings: ['settings'] as const,
   search: ['search'] as const,

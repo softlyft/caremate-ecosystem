@@ -39,6 +39,9 @@ Deploy functions with:
 
 ```bash
 supabase functions deploy create-checkout
+supabase functions deploy quote-upgrade
+supabase functions deploy create-upgrade
+supabase functions deploy verify-checkout
 supabase functions deploy billing-webhook-stripe
 supabase functions deploy billing-webhook-paystack
 ```

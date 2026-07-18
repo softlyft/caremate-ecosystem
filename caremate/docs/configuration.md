@@ -74,7 +74,7 @@ export const APP_NAME = 'CareMate';
 
 ### `QUERY_KEYS`
 
-TanStack Query cache keys for articles, providers, profile, emergency, bookmarks, settings. Use these constants — do not inline string keys.
+TanStack Query cache keys for articles, providers, profile, emergency, bookmarks, article reads, settings, ads, family, notifications. Use these constants — do not inline string keys.
 
 ---
 
@@ -222,7 +222,7 @@ npm run supabase:db:push
 
 Cloud migrations: `../supabase/migrations/` (shared monorepo folder).
 
-Tables to mirror: `profiles`, `emergency_profiles`, `articles`, `bookmarks`, `providers`, `provider_favorites`, `settings`, `mini_app_snapshots`.
+Tables to mirror: `profiles`, `emergency_profiles`, `articles`, `bookmarks`, `article_reads`, `providers`, `provider_favorites`, `settings`, `mini_app_snapshots`, family tables, `subscription_entitlements`.
 
 ---
 

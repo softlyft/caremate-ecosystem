@@ -82,8 +82,19 @@ User bookmarked articles.
 
 | Column | Type | Notes |
 |--------|------|-------|
-| article_id | text | FK to articles |
+| article_id | text | Content id (no FK — Currents/local articles OK) |
 | user_id | text | Owner |
+
+#### `article_reads`
+Reading progress: currently reading or finished.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| article_id | text | Content id (no FK) |
+| user_id | text | Owner |
+| status | text | `reading` \| `read` |
+| opened_at | text | First open |
+| read_at | text | When marked read (nullable) |
 
 #### `settings`
 Per-user app preferences.
@@ -176,6 +187,9 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 | `toggleBookmark(userId, articleId)` | Add/remove bookmark + sync queue |
 | `getBookmarks(userId)` | Bookmarked articles |
 | `isBookmarked(userId, articleId)` | Bookmark check |
+| `markReading` / `markRead` / `toggleMarkRead` | Reading state + sync (`article_reads`) |
+| `getArticlesByReadStatus(userId, status)` | Reading history lists |
+| `getReadStatus(userId, articleId)` | `reading` \| `read` \| null |
 
 ### Provider repository
 
@@ -215,7 +229,7 @@ Exact 12:00 AM while the process is dead is **not** guaranteed by iOS/Android; t
 - `requestSync()` — debounced or immediate cycle request
 - `runSyncCycle()` — push queue then pull (also used by headless background task)
 - `stop()` — cleans up timers/subscriptions
-- Handlers: profiles, emergency_profiles, providers, articles, bookmarks, settings, **mini_app_snapshots**
+- Handlers: profiles, emergency_profiles, providers, articles, health_tips, bookmarks, article_reads, settings, **mini_app_snapshots**, family, subscriptions (pull)
 - Respects `SYNC_CONFIG`:
   - `maxRetries: 5`
   - `retryDelayMs: 2000`

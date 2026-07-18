@@ -44,6 +44,11 @@ export async function saveTip(input: TipInput) {
     action: input.id ? 'update_tip' : 'create_tip',
     entityType: 'health_tip',
     entityId: id,
+    payload: {
+      category_id: input.category_id,
+      is_active: input.is_active ?? true,
+      body_preview: input.body.slice(0, 120),
+    },
   });
 
   revalidatePath('/dashboard/tips');
@@ -59,6 +64,11 @@ export async function deleteTip(id: string) {
     .update({ deleted_at: now, updated_at: now })
     .eq('id', id);
   if (error) throw error;
-  await writeAuditEvent({ action: 'delete_tip', entityType: 'health_tip', entityId: id });
+  await writeAuditEvent({
+    action: 'delete_tip',
+    entityType: 'health_tip',
+    entityId: id,
+    payload: { operation: 'delete' },
+  });
   revalidatePath('/dashboard/tips');
 }

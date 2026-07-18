@@ -76,6 +76,18 @@ export const bookmarks = sqliteTable('bookmarks', {
   ...syncColumns,
 });
 
+/** User reading state: currently reading or finished. Soft-delete clears the row. */
+export const articleReads = sqliteTable('article_reads', {
+  id: text('id').primaryKey(),
+  articleId: text('article_id').notNull(),
+  userId: text('user_id').notNull(),
+  /** `reading` | `read` */
+  status: text('status').notNull().default('reading'),
+  openedAt: text('opened_at').notNull(),
+  readAt: text('read_at'),
+  ...syncColumns,
+});
+
 export const healthTips = sqliteTable('health_tips', {
   id: text('id').primaryKey(),
   categoryId: text('category_id').notNull(),
@@ -264,6 +276,7 @@ export const schema = {
   providers,
   articles,
   bookmarks,
+  articleReads,
   healthTips,
   settings,
   syncQueue,

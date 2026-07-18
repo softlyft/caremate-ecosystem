@@ -1,0 +1,23 @@
+{
+  "placeholder": "Search articles, providers, tools…",
+  "clearA11y": "Clear search",
+  "loading": "Searching…",
+  "idle": {
+    "title": "Search CareMate",
+    "message": "Find health articles, nearby providers, and health tools."
+  },
+  "empty": {
+    "title": "No results",
+    "message": "Try another keyword or check spelling."
+  },
+  "sections": {
+    "articles": "Articles",
+    "nearby": "Nearby",
+    "tools": "Tools"
+  },
+  "seeAllLearn": "See all in Learn",
+  "seeAllNearby": "See all in Nearby",
+  "hintArticles": "Articles",
+  "hintNearby": "Nearby",
+  "hintTools": "Tools"
+}

@@ -54,6 +54,8 @@ export default function RootLayout() {
               name="auth/reset-password"
               options={{ headerShown: true, title: 'New password', presentation: 'card' }}
             />
+            <Stack.Screen name="billing/success" options={{ headerShown: false }} />
+            <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />
           </Stack>
         </AppProviders>
       </GluestackUIProvider>

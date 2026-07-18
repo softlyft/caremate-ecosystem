@@ -1,18 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useDeferredValue, useEffect, useRef, useState, type ReactNode } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  ArrowLeft,
   BookOpen,
+  ChevronLeft,
   LayoutGrid,
   MapPin,
   Search,
@@ -20,16 +13,22 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 
+import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, ErrorState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
+import { CompactArticleCard } from '@/domains/articles/components/ArticleCards';
 import { useTranslation } from '@/domains/localization';
-import { formatProviderType } from '@/domains/providers/types';
+import { NearbyProviderCard } from '@/domains/providers/components/NearbyProviderCard';
 import { normalizeSearchQuery, runGlobalSearch } from '@/domains/search';
 import { getMiniAppLabel } from '@/mini-apps/_kit/registry';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
-import { fontFamily, textColors } from '@/theme/typography';
+import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { textColors } from '@/theme/typography';
+
+const ACCENT = palette.primary;
+const SOFT = palette.primaryLight;
 
 export default function SearchScreen() {
   const { t } = useTranslation();
@@ -65,37 +64,48 @@ export default function SearchScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <View style={styles.meshTop} pointerEvents="none" />
+      <View style={styles.meshAccent} pointerEvents="none" />
+
       <View style={styles.header}>
-        <Pressable
+        <PressableScale
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('common.goBack')}
           onPress={() => router.back()}
-          style={styles.iconButton}
+          style={[styles.backButton, shadow.soft]}
+          scale={0.94}
+          hitSlop={8}
         >
-          <ArrowLeft color={palette.text} size={22} />
-        </Pressable>
-        <View style={styles.searchField}>
-          <Search color={textColors.placeholder} size={18} />
+          <ChevronLeft color={ACCENT} size={22} strokeWidth={2.4} />
+        </PressableScale>
+
+        <View style={[styles.searchShell, shadow.soft]}>
+          <View style={styles.searchIcon}>
+            <Search color={ACCENT} size={16} strokeWidth={2.5} />
+          </View>
           <TextInput
             ref={inputRef}
             value={query}
             onChangeText={setQuery}
-            placeholder="Search articles, providers, tools..."
+            placeholder={t('search.placeholder')}
             placeholderTextColor={textColors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="search"
             style={styles.input}
+            accessibilityLabel={t('common.search')}
           />
           {query.length > 0 ? (
-            <Pressable
+            <PressableScale
               accessibilityRole="button"
-              accessibilityLabel="Clear search"
+              accessibilityLabel={t('search.clearA11y')}
               onPress={() => setQuery('')}
+              style={styles.clearButton}
               hitSlop={8}
+              scale={0.92}
             >
-              <X color={textColors.placeholder} size={18} />
-            </Pressable>
+              <X color={palette.textSecondary} size={16} strokeWidth={2.4} />
+            </PressableScale>
           ) : null}
         </View>
       </View>
@@ -103,18 +113,32 @@ export default function SearchScreen() {
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
       >
         {!hasQuery ? (
-          <EmptyState
-            title="Search CareMate"
-            message="Find health articles, nearby providers, and health tools."
-          />
+          <AnimatedSection index={0}>
+            <View style={[styles.idleCard, shadow.soft]}>
+              <View style={styles.idleIconRing}>
+                <Search color={ACCENT} size={22} strokeWidth={2.25} />
+              </View>
+              <AppText variant="cardTitle" style={styles.idleTitle}>
+                {t('search.idle.title')}
+              </AppText>
+              <AppText variant="subtitle" style={styles.idleMessage}>
+                {t('search.idle.message')}
+              </AppText>
+              <View style={styles.hintRow}>
+                <HintChip icon={BookOpen} label={t('search.hintArticles')} />
+                <HintChip icon={MapPin} label={t('search.hintNearby')} />
+                <HintChip icon={LayoutGrid} label={t('search.hintTools')} />
+              </View>
+            </View>
+          </AnimatedSection>
         ) : null}
 
         {hasQuery && searchQuery.isFetching && !results ? (
-          <View style={styles.loading}>
-            <ActivityIndicator color={palette.primary} />
-          </View>
+          <LoadingState title={t('search.loading')} />
         ) : null}
 
         {hasQuery && searchQuery.isError && !results ? (
@@ -133,92 +157,105 @@ export default function SearchScreen() {
         ) : null}
 
         {isEmpty ? (
-          <EmptyState title="No results" message="Try another keyword or check spelling." />
+          <AnimatedSection index={0}>
+            <EmptyState title={t('search.empty.title')} message={t('search.empty.message')} />
+          </AnimatedSection>
         ) : null}
 
         {results && results.articles.length > 0 ? (
-          <Section title="Articles" icon={BookOpen}>
-            {results.articles.map((article) => (
-              <Pressable
-                key={article.id}
-                style={styles.row}
-                onPress={() => router.push(`/(app)/articles/${article.id}`)}
+          <AnimatedSection index={0}>
+            <Section title={t('search.sections.articles')} icon={BookOpen}>
+              {results.articles.map((article) => (
+                <CompactArticleCard key={article.id} article={article} />
+              ))}
+              <PressableScale
+                onPress={() =>
+                  router.push({
+                    pathname: '/(app)/(tabs)/articles',
+                    params: { q: results.query },
+                  })
+                }
+                style={styles.seeAll}
+                scale={0.97}
               >
-                <AppText variant="cardTitle">{article.title}</AppText>
-                {article.summary ? (
-                  <AppText variant="caption" numberOfLines={2}>
-                    {article.summary}
-                  </AppText>
-                ) : null}
-              </Pressable>
-            ))}
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: '/(app)/(tabs)/articles',
-                  params: { q: results.query },
-                })
-              }
-            >
-              <AppText variant="seeAll">See all in Learn</AppText>
-            </Pressable>
-          </Section>
+                <AppText variant="seeAll" color="brand">
+                  {t('search.seeAllLearn')}
+                </AppText>
+              </PressableScale>
+            </Section>
+          </AnimatedSection>
         ) : null}
 
         {results && results.providers.length > 0 ? (
-          <Section title="Nearby" icon={MapPin}>
-            {results.providers.map((provider) => (
-              <Pressable
-                key={provider.id}
-                style={styles.row}
-                onPress={() => router.push(`/(app)/providers/${provider.id}`)}
+          <AnimatedSection index={1}>
+            <Section title={t('search.sections.nearby')} icon={MapPin}>
+              {results.providers.map((provider) => (
+                <NearbyProviderCard
+                  key={provider.id}
+                  provider={provider}
+                  onPress={() => router.push(`/(app)/providers/${provider.id}`)}
+                />
+              ))}
+              <PressableScale
+                onPress={() =>
+                  router.push({
+                    pathname: '/(app)/(tabs)/providers',
+                    params: { q: results.query },
+                  })
+                }
+                style={styles.seeAll}
+                scale={0.97}
               >
-                <AppText variant="providerName">{provider.name}</AppText>
-                <AppText variant="providerMeta">{formatProviderType(provider.type)}</AppText>
-                {provider.address ? (
-                  <AppText variant="caption" numberOfLines={1}>
-                    {provider.address}
-                  </AppText>
-                ) : null}
-              </Pressable>
-            ))}
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: '/(app)/(tabs)/providers',
-                  params: { q: results.query },
-                })
-              }
-            >
-              <AppText variant="seeAll">See all in Nearby</AppText>
-            </Pressable>
-          </Section>
+                <AppText variant="seeAll" color="brand">
+                  {t('search.seeAllNearby')}
+                </AppText>
+              </PressableScale>
+            </Section>
+          </AnimatedSection>
         ) : null}
 
         {results && results.tools.length > 0 ? (
-          <Section title="Tools" icon={LayoutGrid}>
-            {results.tools.map((tool) => {
-              const Icon = tool.icon;
-              const { name, description } = getMiniAppLabel(tool.id, t);
-              return (
-                <Pressable key={tool.id} style={styles.row} onPress={() => router.push(tool.route)}>
-                  <View style={styles.toolRow}>
+          <AnimatedSection index={2}>
+            <Section title={t('search.sections.tools')} icon={LayoutGrid}>
+              {results.tools.map((tool) => {
+                const Icon = tool.icon;
+                const { name, description } = getMiniAppLabel(tool.id, t);
+                return (
+                  <PressableScale
+                    key={tool.id}
+                    style={[styles.toolCard, shadow.soft]}
+                    onPress={() => router.push(tool.route)}
+                    accessibilityRole="button"
+                    accessibilityLabel={name}
+                    scale={0.98}
+                  >
                     <View style={[styles.toolIcon, { backgroundColor: tool.backgroundColor }]}>
-                      <Icon color={tool.color} size={18} />
+                      <Icon color={tool.color} size={18} strokeWidth={2.25} />
                     </View>
                     <View style={styles.toolCopy}>
                       <AppText variant="cardTitle">{name}</AppText>
-                      <AppText variant="caption" numberOfLines={2}>
+                      <AppText variant="caption" numberOfLines={2} style={styles.toolDescription}>
                         {description}
                       </AppText>
                     </View>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </Section>
+                  </PressableScale>
+                );
+              })}
+            </Section>
+          </AnimatedSection>
         ) : null}
       </ScrollView>
+    </View>
+  );
+}
+
+function HintChip({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
+  return (
+    <View style={styles.hintChip}>
+      <Icon color={ACCENT} size={13} strokeWidth={2.25} />
+      <AppText variant="caption" style={styles.hintChipText}>
+        {label}
+      </AppText>
     </View>
   );
 }
@@ -235,8 +272,12 @@ function Section({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Icon color={palette.primary} size={18} />
-        <AppText variant="sectionTitle">{title}</AppText>
+        <View style={styles.sectionIcon}>
+          <Icon color={ACCENT} size={15} strokeWidth={2.4} />
+        </View>
+        <AppText variant="sectionTitle" style={styles.sectionTitle}>
+          {title}
+        </AppText>
       </View>
       <View style={styles.sectionBody}>{children}</View>
     </View>
@@ -246,50 +287,137 @@ function Section({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: palette.background,
+    backgroundColor: palette.surface,
+  },
+  meshTop: {
+    position: 'absolute',
+    top: -40,
+    right: -30,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: SOFT,
+    opacity: 0.55,
+  },
+  meshAccent: {
+    position: 'absolute',
+    top: 80,
+    left: -50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(13, 148, 136, 0.08)',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: palette.divider,
+    zIndex: 1,
   },
-  iconButton: {
+  backButton: {
     width: 40,
     height: 40,
+    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: SOFT,
+    borderWidth: 1,
+    borderColor: `${ACCENT}33`,
   },
-  searchField: {
+  searchShell: {
     flex: 1,
     minHeight: 48,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    backgroundColor: palette.surface,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
+    gap: 10,
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  searchIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: SOFT,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   input: {
     flex: 1,
     fontFamily: fontFamily.regular,
     fontSize: 16,
     color: palette.text,
-    paddingVertical: spacing.sm,
+    paddingVertical: 6,
+  },
+  clearButton: {
+    width: 30,
+    height: 30,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.sm,
     gap: spacing.lg,
   },
-  loading: {
-    paddingVertical: spacing.xl,
+  idleCard: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.1)',
+    padding: spacing.lg,
     alignItems: 'center',
+    gap: spacing.sm,
+  },
+  idleIconRing: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: SOFT,
+    borderWidth: 1,
+    borderColor: `${ACCENT}28`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  idleTitle: {
+    textAlign: 'center',
+    color: palette.primaryDark,
+  },
+  idleMessage: {
+    textAlign: 'center',
+    color: palette.textSecondary,
+  },
+  hintRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: spacing.sm,
+  },
+  hintChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+    backgroundColor: SOFT,
+    borderWidth: 1,
+    borderColor: `${ACCENT}22`,
+  },
+  hintChipText: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    fontSize: 12,
   },
   section: {
     gap: spacing.sm,
@@ -299,31 +427,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
+  sectionIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.md,
+    backgroundColor: SOFT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionTitle: {
+    color: palette.primaryDark,
+  },
   sectionBody: {
     gap: spacing.sm,
   },
-  row: {
+  seeAll: {
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+  },
+  toolCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
     borderWidth: 1,
     borderColor: palette.divider,
-    backgroundColor: palette.surface,
-    borderRadius: radius.lg,
     padding: spacing.md,
-    gap: 4,
-  },
-  toolRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    alignItems: 'flex-start',
   },
   toolIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
+    width: 40,
+    height: 40,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   toolCopy: {
     flex: 1,
-    gap: 2,
+    gap: 3,
+  },
+  toolDescription: {
+    color: palette.textSecondary,
   },
 });

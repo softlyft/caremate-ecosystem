@@ -15,7 +15,8 @@ export type TranslationNamespace =
   | 'emergency'
   | 'family'
   | 'setup'
-  | 'apps';
+  | 'apps'
+  | 'search';
 
 export type TranslationCatalog = Record<TranslationNamespace, TranslationNode>;
 

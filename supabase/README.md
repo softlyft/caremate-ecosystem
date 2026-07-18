@@ -32,14 +32,20 @@ npm run db:types
 
 | Function | JWT | Purpose |
 |----------|-----|---------|
-| `create-checkout` | required | Start Paystack or Stripe hosted checkout |
-| `billing-webhook-stripe` | off | Stripe subscription lifecycle |
-| `billing-webhook-paystack` | off | Paystack charge success |
+| `create-checkout` | required | Create pending payment + Paystack/Stripe hosted checkout |
+| `quote-upgrade` | required | Quote Standard → Family credit and amount due |
+| `create-upgrade` | required | Pending upgrade payment (or zero-charge activate) |
+| `verify-checkout` | required | Confirm charge and activate subscription (app return fallback) |
+| `billing-webhook-stripe` | off | Stripe payment + subscription lifecycle |
+| `billing-webhook-paystack` | off | Paystack charge success / failure |
 
 Deploy:
 
 ```bash
 supabase functions deploy create-checkout
+supabase functions deploy quote-upgrade
+supabase functions deploy create-upgrade
+supabase functions deploy verify-checkout
 supabase functions deploy billing-webhook-stripe
 supabase functions deploy billing-webhook-paystack
 supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... PAYSTACK_SECRET_KEY=...

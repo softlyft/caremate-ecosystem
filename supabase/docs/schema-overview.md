@@ -26,8 +26,9 @@ These support the mobile app’s local-first sync model:
 
 ### Billing
 
-- `subscription_prices`
-- `subscriptions`
+- `subscription_prices` — catalog of Premium plans / amounts
+- `payments` — Paystack/Stripe transaction ledger (money collected)
+- `subscriptions` — entitlement after a successful payment **or** portal admin grant (`provider = admin`)
 
 ### Providers / FHIR ingest
 
@@ -50,7 +51,8 @@ Current migrations cluster into these domains:
 | Core sync schema | `20260713210000_core_sync_schema.sql` |
 | Family | `20260713233000_family_profiles.sql` |
 | Portal RBAC, tips, audit, storage | `20260714160000_admin_portal_rbac.sql` |
-| Billing | `20260714180000_billing_subscriptions.sql`, `20260714210000_billing_interval_rename.sql` |
+| Billing | `20260714180000_billing_subscriptions.sql`, `20260714210000_billing_interval_rename.sql`, `20260717190000_payments_ledger.sql`, `20260717193000_admin_activated_subscriptions.sql` |
+| Article reads | `20260718010000_article_reads.sql` |
 | Articles and tips read/soft-delete | `20260715100000_articles_public_read_soft_delete.sql`, `20260715110000_health_tips_public_read_soft_delete.sql` |
 | Profiles patient ID | `20260715120000_profiles_patient_id.sql` |
 | Providers ingest / FHIR / geo | `20260715130000_providers_ingest_fhir_ready.sql`, `20260715140000_provider_fhir_resources.sql`, `20260715180000_provider_resource_uuid_pks.sql`, `20260715190000_provider_organizations_unique_name.sql`, `20260715200000_nearby_providers_rpc.sql` |

@@ -5,6 +5,13 @@
   "searchPlaceholder": "Search articles",
   "bookmarks": "View bookmarks",
   "bookmarksShort": "Bookmarks",
+  "reading": "Reading history",
+  "readingShort": "Reading",
+  "readingBadge": "Reading",
+  "readBadge": "Read",
+  "readingTab": "Reading",
+  "readTab": "Read",
+  "loadingReading": "Loading reading history...",
   "featured": "Featured",
   "allTopics": "All topics",
   "loading": "Loading articles...",
@@ -22,6 +29,14 @@
   "bookmarksEmpty": {
     "title": "No bookmarks yet",
     "message": "Save articles to read them offline later."
+  },
+  "readingEmpty": {
+    "title": "Nothing in progress",
+    "message": "Open an article to start tracking what you’re reading."
+  },
+  "readEmpty": {
+    "title": "No finished articles yet",
+    "message": "Mark articles as read, or scroll to the end while reading."
   },
   "article": "Article",
   "news": "News",

@@ -14,7 +14,7 @@ Unlike core CareMate screens (TanStack Query + repositories), mini-apps use:
 
 They work fully offline. Guests stay device-local; signed-in users get cloud backup / restore.
 
-**Access (planned):** Mini-apps require a signed-in patient account; Free vs Premium limits are in [Premium & plans](./premium-and-plans.md).
+**Access:** Mini-apps require a signed-in patient account; Free vs Premium limits are enforced per [Premium & plans](./premium-and-plans.md).
 
 Registry: `src/mini-apps/_kit/registry.ts` → `MINI_APPS`. Contract: [mini-app-contract.md](./mini-app-contract.md).
 

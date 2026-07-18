@@ -1,5 +1,6 @@
+import { finalizeSuccessfulPayment, markPaymentFailed } from '../_shared/billing.ts';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
-import { createServiceClient, periodEndIso } from '../_shared/supabase.ts';
+import { createServiceClient } from '../_shared/supabase.ts';
 
 async function verifyPaystackSignature(
   payload: string,
@@ -46,39 +47,37 @@ Deno.serve(async (req) => {
 
     if (event.event === 'charge.success') {
       const data = event.data;
-      const reference = data.reference as string;
+      const reference = String(data.reference ?? '');
       const meta = data.metadata ?? {};
-      const billingInterval = (meta.billing_interval as string) || 'monthly';
+      const paymentId = typeof meta.payment_id === 'string' ? meta.payment_id : null;
 
-      const { data: existing } = await service
-        .from('subscriptions')
-        .select('id, billing_interval')
-        .eq('provider_ref', reference)
-        .maybeSingle();
+      try {
+        await finalizeSuccessfulPayment(service, {
+          paymentId,
+          providerReference: reference,
+          provider: 'paystack',
+          providerTransactionId: data.id != null ? String(data.id) : null,
+          providerCustomerId: data.customer?.customer_code ?? data.customer?.id ?? null,
+          amountMinor: typeof data.amount === 'number' ? data.amount : null,
+          paidAt: now,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Finalize failed';
+        console.error('paystack charge.success finalize', message);
+        return jsonResponse({ error: message }, 500);
+      }
+    }
 
-      if (existing) {
-        await service
-          .from('subscriptions')
-          .update({
-            status: 'active',
-            provider_customer_id: data.customer?.customer_code ?? data.customer?.id ?? null,
-            current_period_start: now,
-            current_period_end: periodEndIso(existing.billing_interval || billingInterval),
-            updated_at: now,
-          })
-          .eq('id', existing.id);
-      } else if (meta.subscription_id) {
-        await service
-          .from('subscriptions')
-          .update({
-            status: 'active',
-            provider_ref: reference,
-            provider_customer_id: data.customer?.customer_code ?? null,
-            current_period_start: now,
-            current_period_end: periodEndIso(billingInterval),
-            updated_at: now,
-          })
-          .eq('id', meta.subscription_id);
+    if (event.event === 'charge.failed') {
+      const data = event.data;
+      const reference = String(data.reference ?? '');
+      if (reference) {
+        await markPaymentFailed(
+          service,
+          'paystack',
+          reference,
+          data.gateway_response ?? data.message ?? 'charge.failed',
+        );
       }
     }
 

@@ -186,7 +186,9 @@ runSyncCycle
 | `emergency_profiles` | `domains/emergency` |
 | `providers` | `domains/providers` |
 | `articles` | `domains/articles` (pull-focused) |
+| `health_tips` | `domains/tips` (pull-only) |
 | `bookmarks` | `domains/articles` |
+| `article_reads` | `domains/articles` |
 | `mini_app_snapshots` | `mini-apps/_kit` |
 
 Handlers are registered in `src/sync/register-default-handlers.ts` via `registerSyncHandler` (`src/sync/registry.ts`). New domains should **register**, not edit a hard-coded map inside `engine.ts`.
@@ -263,9 +265,9 @@ Supabase .delete().eq('id', entityId)
 Queue row removed → Synced
 ```
 
-**Soft delete (device):** Entity tables include `deleted_at`. Reads filter `deleted_at IS NULL` (bookmarks, providers, articles, profiles, …). Soft-deleted rows can still be present for undo/debug until purged.
+**Soft delete (device):** Entity tables include `deleted_at`. Reads filter `deleted_at IS NULL` (bookmarks, article_reads, providers, articles, profiles, …). Soft-deleted rows can still be present for undo/debug until purged.
 
-**Hard delete (cloud on push):** Handlers treat `operation === 'delete'` as a remote delete by primary key (e.g. bookmarks, emergency_profiles, mini_app_snapshots).
+**Hard delete (cloud on push):** Handlers treat `operation === 'delete'` as a remote delete by primary key (e.g. bookmarks, article_reads, emergency_profiles, mini_app_snapshots).
 
 **Not fully symmetric yet:** Pull paths generally **upsert** remote rows and clear `deleted_at`; they do not always tombstone local rows when a remote row disappears. Treat “delete on another device → this device” as an area to harden when multi-device becomes critical.
 

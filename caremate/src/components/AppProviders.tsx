@@ -20,6 +20,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { initializeAdsConsentAndSdk } from '@/domains/ads/consent';
 import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
+import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
@@ -133,8 +134,24 @@ function BootstrapGate({ children }: PropsWithChildren) {
     if (!dbReady || !isAuthenticated || !userId) {
       return;
     }
-    // Fresh sign-in / session restore: migrate local mini-apps and sync immediately.
-    syncEngine.requestSync({ reason: 'auth', immediate: true });
+    // Fresh sign-in / session restore / new device: hydrate Premium before ads race free cache.
+    let cancelled = false;
+    void (async () => {
+      try {
+        await hydrateAccountEntitlements(userId);
+      } catch {
+        // Background sync still runs.
+      }
+      if (cancelled) return;
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads }),
+      ]);
+      syncEngine.requestSync({ reason: 'auth', immediate: true });
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [dbReady, isAuthenticated, userId]);
 
   if (bootstrapError) {

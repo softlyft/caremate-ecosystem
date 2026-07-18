@@ -5,7 +5,13 @@ export {
   FeaturedArticleCard,
 } from '@/domains/articles/components/ArticleCards';
 export { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
+export { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
+export { ArticleReadBadge } from '@/domains/articles/components/ArticleReadBadge';
 export { useArticleBookmark } from '@/domains/articles/hooks/use-article-bookmark';
+export {
+  useArticleReadStatus,
+  useArticleReadTracking,
+} from '@/domains/articles/hooks/use-article-read';
 export {
   ARTICLE_THUMBNAILS,
   estimateReadingTime,

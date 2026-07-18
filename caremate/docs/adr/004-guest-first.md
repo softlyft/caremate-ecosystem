@@ -30,7 +30,7 @@ Auth uses Supabase when configured; demo sign-in covers offline development with
 
 ## Amendment (2026-07-17)
 
-Mini-apps will require a **patient account** (sign-in or register) while core tabs remain guest-accessible. Product rules and plan matrix: [`caremate/docs/premium-and-plans.md`](../premium-and-plans.md). Enforcement is pending; this narrows guest mini-app access from the original decision above without changing guest-first access to Learn, Nearby, or Emergency.
+Mini-apps require a **patient account** (sign-in or register) while core tabs remain guest-accessible. Product rules and plan matrix: [`caremate/docs/premium-and-plans.md`](../premium-and-plans.md). **Enforcement is shipped** (Apps tab gate + Free/Premium caps); this narrows guest mini-app access from the original decision above without changing guest-first access to Learn, Nearby, or Emergency.
 
 ## Alternatives considered
 

@@ -150,7 +150,43 @@ First launch → Guest
                  → Upgrade → Standard or Family Premium
 ```
 
-Premium checkout: `/(app)/profile/premium` → Supabase Edge Function `create-checkout` → webhook updates `subscriptions` / entitlements. Portal admins manage prices at `/dashboard/billing` ([Portal billing](../../caremate-portal/docs/billing.md)).
+Premium checkout: `/(app)/profile/premium` → hosted **payment** web app → `create-checkout` (pending `payments` row) → Paystack/Stripe → webhook or `verify-checkout` marks payment succeeded and creates/renews an active `subscriptions` row. Portal admins manage prices at `/dashboard/billing` ([Portal billing](../../caremate-portal/docs/billing.md)).
+
+### Checkout currency by country
+
+Currency is chosen from the signed-in member’s **profile country** (device default while browsing as a guest — guests cannot check out), not a manual NGN/USD picker:
+
+| Country | Currency | Gateway |
+|---------|----------|---------|
+| Nigeria (`NG`) | NGN | Paystack |
+| All others (incl. Global / unset) | USD | Stripe |
+
+Overrides live in `caremate/src/domains/billing/currency-by-country.ts` (`BILLING_CURRENCY_BY_COUNTRY` + `DEFAULT_BILLING_CURRENCY`). Add or change a country code there to retarget payments; catalog must still have an active `subscription_prices` row for that currency.
+
+### Standard → Family upgrade
+
+Members with **active Standard** (`personal`) who have a household can upgrade on the Premium screen:
+
+1. App calls `quote-upgrade`. Period day counts use rounded day lengths; credit = `floor(personalPaid × daysRemaining / daysTotal)`.
+2. `personalPaid` comes from the linked succeeded payment when present; otherwise the Standard catalog price for that interval/currency.
+3. Charge = `max(0, full Family list price − credit)` (not a prorated Family period).
+4. `create-upgrade` creates a pending payment and opens Paystack/Stripe directly (not the Vite checkout confirm page). Amount due `0` activates immediately.
+5. On success, Standard is canceled and a **new Family period starts today** for the selected monthly/yearly interval. Success/cancel deep links still use the hosted `payment/` return pages.
+
+Active Standard members cannot buy Family via normal `create-checkout`; they must use this upgrade path.
+
+### Offline entitlement
+
+Premium is mirrored into local SQLite (`subscription_entitlements`) after a successful charge / login hydrate.
+
+| Situation | Behavior |
+|-----------|----------|
+| Device goes offline mid-period | Keep Premium from local cache until `current_period_end` |
+| Period ends while offline | Local gate treats plan as Free (no network required) |
+| Online again | Sync pull refreshes status / period from Supabase |
+| Failed / skipped pull while offline | **Never wipe** the local entitlement cache |
+
+Ads and mini-app limits read the same local gate (`isLocalEntitlementActive`), so AdMob stays suppressed offline for the paid month.
 
 ---
 
@@ -161,6 +197,7 @@ Use this when wiring code; items are **open** unless marked done.
 | Area | Spec | Status |
 |------|------|--------|
 | Tier detection (`free` / `personal` / `family`) | `src/domains/billing/` | Done |
+| Offline Premium until `current_period_end` | `isLocalEntitlementActive` + SQLite cache | Done |
 | AdMob hidden for Premium | `resolveAdForSlot` | Done |
 | Mini-app gate: require sign-in | `apps/_layout.tsx`, `MiniAppCard` | Done |
 | Medication cap (3) on Free | Medication store / UI | Done |
@@ -170,9 +207,10 @@ Use this when wiring code; items are **open** unless marked done.
 | Family: 1 child on Free/Standard | Family setup + hub | Done |
 | Family: spouse + extra children on Family | Family hub + setup caps | Done |
 | Paywall / upgrade CTAs | `UpgradePrompt`, `PremiumLockedOverlay` | Done |
+| Standard → Family upgrade (credit + new period) | `quote-upgrade` / `create-upgrade` + Premium screen | Done |
 | QA cases | [QA Test Cases](./qa-test-cases.md) § Premium | Ready to run |
 
-Centralize checks in `src/domains/billing/entitlement.ts` (or a sibling module) so mini-apps call `canUseFeature(...)` rather than duplicating tier logic.
+Centralize checks in `src/domains/billing/entitlements.ts` (`canAddMedication`, `canAddChild`, etc.) so mini-apps share tier logic.
 
 ---
 

@@ -83,13 +83,14 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 
 On successful `signUpWithEmail` or `signInWithEmail`, the auth service:
 
-1. **Migrates guest local data** — copies/merges guest-scoped emergency profile, bookmarks, settings, profile fields, and family ownership onto the account (`migrateGuestLocalData`)
+1. **Migrates guest local data** — copies/merges guest-scoped emergency profile, bookmarks, article reads, settings, profile fields, and family ownership onto the account (`migrateGuestLocalData`)
 2. **Bootstraps local account rows** (`bootstrapLocalAccountRecords`) so the app does not wait on sync pull:
    - **Profile** — created or filled from auth identity (name, email, phone)
    - **Settings / device defaults** — sign-up always applies onboarding device defaults; sign-in only fills missing country/language/settings
    - **Emergency profile** — created (or name filled) when missing
+3. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
 
-Both steps are best-effort so a local DB hiccup does not fail auth. Sync pull can still enrich local rows afterward. Mini-app AsyncStorage continues to migrate into account snapshots via `migrateMiniAppsToSnapshots` on sync.
+Both local stub steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs entitlement hydrate and invalidates Premium/ads queries, then triggers a full sync.
 
 ---
 
