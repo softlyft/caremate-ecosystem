@@ -40,5 +40,24 @@
   "family": {
     "title": "Familia",
     "manage": "Simamia kaya"
+  },
+  "legal": {
+    "title": "Kisheria",
+    "privacy": "Sera ya faragha",
+    "terms": "Sheria na masharti",
+    "openFailed": "Imeshindwa kufungua kiungo. Angalia muunganisho wako."
+  },
+  "account": {
+    "title": "Akaunti",
+    "delete": "Futa akaunti",
+    "deleteHint": "Inafuta kabisa akaunti yako ya CareMate na data iliyosawazishwa. Haiwezi kutenduliwa.",
+    "deleteConfirmTitle": "Futa akaunti yako?",
+    "deleteConfirmMessage": "Wasifu wako, kadi ya dharura, viungo vya familia, na zana za afya zilizosawazishwa zitafutwa kabisa. Usajili unaoendelea utaghairiwa inapowezekana.",
+    "deleteConfirmAction": "Futa kabisa",
+    "cancel": "Ghairi",
+    "deleting": "Inafuta…",
+    "deleteFailed": "Imeshindwa kufuta akaunti",
+    "deleteSuccessTitle": "Akaunti imefutwa",
+    "deleteSuccessMessage": "Akaunti yako ya CareMate imefutwa. Unaweza kuunda mpya wakati wowote."
   }
 }

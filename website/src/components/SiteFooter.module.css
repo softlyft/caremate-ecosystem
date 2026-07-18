@@ -1,0 +1,72 @@
+.footer {
+  background: #0b1220;
+  color: #e2e8f0;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: 1.15rem;
+  color: #fff;
+}
+
+.byline {
+  margin: 0.15rem 0 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md) var(--space-xl);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.links a {
+  color: #ccfbf1;
+  transition: color 160ms ease;
+}
+
+.links a:hover {
+  color: #fff;
+}
+
+.copy {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+
+  .copy {
+    grid-column: 1 / -1;
+  }
+}

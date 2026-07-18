@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 
 import { GUEST_USER } from '@/constants/guest';
+import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
+import { queryClient } from '@/lib/query-client';
 import { authService } from '@/services/auth-service';
 import type { AuthUser } from '@/types';
 
@@ -17,6 +19,7 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   setBiometricEnabled: (enabled: boolean) => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
   clearPasswordRecovery: () => void;
@@ -92,6 +95,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isGuest: false,
         passwordRecoveryPending: false,
       });
+      if (mapped) {
+        trackEvent(AnalyticsEvents.signIn);
+      }
     } finally {
       set({ isLoading: false });
     }
@@ -108,6 +114,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isGuest: false,
         passwordRecoveryPending: false,
       });
+      if (mapped) {
+        trackEvent(AnalyticsEvents.signUp);
+      }
     } finally {
       set({ isLoading: false });
     }
@@ -115,6 +124,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     await authService.signOut();
+    trackEvent(AnalyticsEvents.signOut);
+    // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.
+    queryClient.removeQueries({ queryKey: ['billing', 'premium'] });
+    setGuestState(set);
+  },
+
+  deleteAccount: async () => {
+    const userId = get().user?.id;
+    if (!userId || get().isGuest) {
+      throw new Error('Sign in to delete your account.');
+    }
+    await authService.deleteAccount(userId);
+    trackEvent(AnalyticsEvents.deleteAccount);
+    queryClient.clear();
     setGuestState(set);
   },
 

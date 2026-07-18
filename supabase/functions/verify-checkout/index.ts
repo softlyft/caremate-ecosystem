@@ -1,5 +1,6 @@
 import { finalizeSuccessfulPayment, type BillingInterval, type PlanType } from '../_shared/billing.ts';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import { sendBillingActivatedEmail } from '../_shared/email.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
 
 type PaystackVerifyData = {
@@ -37,6 +38,41 @@ function metaString(meta: Record<string, unknown> | undefined, key: string): str
   if (typeof value === 'string' && value.trim()) return value.trim();
   if (typeof value === 'number') return String(value);
   return null;
+}
+
+async function respondAfterFinalize(
+  service: ReturnType<typeof createServiceClient>,
+  result: { paymentId: string; subscriptionId: string; alreadyFinalized: boolean },
+  extra: Record<string, unknown> = {},
+) {
+  if (!result.alreadyFinalized) {
+    const { data: payment } = await service
+      .from('payments')
+      .select('user_id, plan_type')
+      .eq('id', result.paymentId)
+      .maybeSingle();
+    const { data: sub } = await service
+      .from('subscriptions')
+      .select('current_period_end')
+      .eq('id', result.subscriptionId)
+      .maybeSingle();
+    if (payment?.user_id) {
+      await sendBillingActivatedEmail(service, {
+        userId: payment.user_id as string,
+        paymentId: result.paymentId,
+        subscriptionId: result.subscriptionId,
+        planType: (payment.plan_type as string) ?? 'personal',
+        periodEnd: (sub?.current_period_end as string | null) ?? null,
+      });
+    }
+  }
+  return jsonResponse({
+    status: 'succeeded',
+    payment_id: result.paymentId,
+    subscription_id: result.subscriptionId,
+    already_finalized: result.alreadyFinalized,
+    ...extra,
+  });
 }
 
 /**
@@ -168,13 +204,7 @@ Deno.serve(async (req) => {
         amountMinor: typeof verified.data.amount === 'number' ? verified.data.amount : null,
       });
 
-      return jsonResponse({
-        status: 'succeeded',
-        payment_id: result.paymentId,
-        subscription_id: result.subscriptionId,
-        already_finalized: result.alreadyFinalized,
-        recovered: true,
-      });
+      return respondAfterFinalize(service, result, { recovered: true });
     }
 
     if (!payment) {
@@ -219,12 +249,7 @@ Deno.serve(async (req) => {
         amountMinor: typeof verified.data.amount === 'number' ? verified.data.amount : null,
       });
 
-      return jsonResponse({
-        status: 'succeeded',
-        payment_id: result.paymentId,
-        subscription_id: result.subscriptionId,
-        already_finalized: result.alreadyFinalized,
-      });
+      return respondAfterFinalize(service, result);
     }
 
     // Stripe
@@ -263,12 +288,7 @@ Deno.serve(async (req) => {
       amountMinor: typeof session.amount_total === 'number' ? session.amount_total : null,
     });
 
-    return jsonResponse({
-      status: 'succeeded',
-      payment_id: result.paymentId,
-      subscription_id: result.subscriptionId,
-      already_finalized: result.alreadyFinalized,
-    });
+    return respondAfterFinalize(service, result);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unexpected error';
     return jsonResponse({ error: message }, 500);

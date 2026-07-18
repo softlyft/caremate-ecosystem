@@ -88,7 +88,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | HM-06 | P1 | Any | Tap search bar | Opens Search screen with focused input; glossy back + teal search shell. |
 | HM-06b | P0 | Seeded content | Search for a known article keyword | Article results shown; tap opens detail. |
 | HM-06c | P1 | Seeded providers | Search for a provider name | Nearby results shown; tap opens detail. |
-| HM-06d | P1 | Any | Search “medication” | Medication Tracker appears under Tools. |
+| HM-06d | P1 | Any | Search “medication” | Medication Assistant appears under Tools. |
 | HM-06e | P1 | Search query fails | Search with a keyword while search backend errors | ErrorState with Retry (not empty “No results”). |
 | HM-06f | P2 | Idle search | Open Search with empty query | Idle card + Articles / Nearby / Tools hint chips. |
 | HM-06g | P2 | Results present | Tap “See all in Learn / Nearby” | Opens tab with `?q=` applied. |
@@ -172,6 +172,9 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ME-11 | P2 | Signed-in | Me preferences | Biometric unlock toggle is not shown until app-lock is enforced. |
 | ME-12 | P1 | Signed-in | Me → Premium | Premium screen opens and current plan state loads without crash. |
 | ME-13 | P1 | Guest | Me → Premium | Upgrade path prompts sign-in instead of attempting checkout anonymously. |
+| ME-14 | P0 | Any | Settings → Privacy policy / Terms | Opens SoftLyft legal URLs in the system browser. |
+| ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. |
+| ME-16 | P1 | Guest | Settings account section | Delete account is hidden. |
 
 ---
 
@@ -238,29 +241,34 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| AP-01 | P0 | Any | Open Apps | All 5 mini-apps listed with icons. |
+| AP-01 | P0 | Any | Open Apps | All 6 mini-apps listed with icons. |
 | AP-02 | P0 | Any | Open each mini-app | Each opens its home screen without crash. |
 | AP-03 | P2 | Coming soon flag (if any) | Tap disabled card | Cannot open / shows coming soon. |
 
 ---
 
-## 10. Medication Tracker
+## 10. Medication Assistant
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| MD-01 | P0 | Any | Apps → Medication Tracker | Dashboard opens. |
-| MD-02 | P0 | — | Add medicine → Name, dosage, once daily, start today → save | Appears in list; today’s dose slot shown. |
+| MD-01 | P0 | Any | Apps → Medication Assistant | Dashboard opens (Due now / Upcoming / Taken). |
+| MD-02 | P0 | — | Add medicine → Name, dosage, once daily, start today → save | Appears in list; today’s dose slot shown with time. |
 | MD-03 | P0 | Add medicine screen | See **Is this for a kid?** | Field visible with No / Yes options **above** name/dosage. |
 | MD-04 | P0 | Family kids exist | Yes — for a kid → select child → save | Medicine shows child name on list/doses. |
 | MD-05 | P1 | No family kids | Yes — for a kid | CTA to set up / open Family; cannot save for kid without selection. |
 | MD-06 | P1 | Guest | Yes — for a kid | Sign-in / family setup messaging. |
 | MD-07 | P0 | Due dose today | Tap dose row | Marks taken; tap again undoes. |
-| MD-08 | P1 | Twice / three times daily | Add & view today | Correct number of slots/labels. |
-| MD-09 | P1 | As needed | Log multiple doses same day | Allowed. |
+| MD-08 | P1 | Twice / three times daily | Add & view today | Correct number of slots/labels and times. |
+| MD-09 | P1 | As needed | Log multiple doses same day | Allowed; open “as needed” row remains after first log. |
 | MD-10 | P1 | Filter chips | After kid meds exist | All / You / child filters work. |
 | MD-11 | P1 | Edit medicine | Pause / remove | Pause hides from active today; remove clears logs. |
-| MD-12 | P1 | Log dose modal | Pick medicine/date/slot → save | Log recorded. |
+| MD-12 | P1 | Log dose modal | Pick medicine/date/slot → save | Log recorded; paused meds not listed. |
 | MD-13 | P1 | Offline | Add + log doses | Works offline. |
+| MD-14 | P1 | Scheduled med | Before slot time | Slot shows Upcoming; at/after time → Due. |
+| MD-15 | P1 | Due dose untaken >60 min | Open app / Home | Inbox shows dose due then missed (no duplicates on re-open). |
+| MD-16 | P1 | Medicine with quantity + threshold | Take doses until at/below threshold | Inbox refill reminder; History shows past logs. |
+| MD-17 | P0 | Free, 3 active, 1 paused | Reactivate paused medicine | Blocked; upgrade CTA (cannot bypass 3-active cap). |
+| MD-18 | P1 | Any with logs | Open History | Logs grouped by date; filter by medicine works. |
 
 ---
 
@@ -378,7 +386,7 @@ Spec: [Premium & plans](./premium-and-plans.md). Gates are enforced — run thes
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | PG-01 | P0 | Guest | Open Apps tab; tap any mini-app | Sign-in / register prompt; no tracker UI |
-| PG-02 | P0 | Free signed-in | Add 4th medication | Blocked; upgrade CTA |
+| PG-02 | P0 | Free signed-in | Add 4th active medication (or reactivate when already at 3) | Blocked; upgrade CTA |
 | PG-03 | P0 | Free signed-in | Checkup planner with 3+ items this year | First 2 visible; rest blurred |
 | PG-04 | P0 | Free signed-in | Checkup planner next year | Year blurred |
 | PG-05 | P0 | Standard Premium | Checkup + immunization | No blur; full schedule |

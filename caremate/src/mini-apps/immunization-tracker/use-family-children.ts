@@ -5,17 +5,16 @@ import { QUERY_KEYS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import {
+  resolveFamilyImmunizationSource,
+  type FamilyImmunizationSource,
+} from '@/mini-apps/immunization-tracker/family-source';
+import {
   useImmunizationTrackerHydrated,
   useImmunizationTrackerStore,
 } from '@/mini-apps/immunization-tracker/store';
 import type { ImmunizationProfile } from '@/mini-apps/immunization-tracker/utils';
 
-export type FamilyImmunizationSource =
-  | { status: 'loading' }
-  | { status: 'guest' }
-  | { status: 'needs_family_setup' }
-  | { status: 'needs_children' }
-  | { status: 'ready'; children: ImmunizationProfile[] };
+export type { FamilyImmunizationSource };
 
 /**
  * Loads family household children into the immunization tracker.
@@ -72,21 +71,12 @@ export function useFamilyImmunizationChildren(): FamilyImmunizationSource {
     syncProfilesFromFamily,
   ]);
 
-  if (isGuest) {
-    return { status: 'guest' };
-  }
-
-  if (!hydrated || householdQuery.isLoading || (householdId && childrenQuery.isLoading)) {
-    return { status: 'loading' };
-  }
-
-  if (!householdId) {
-    return { status: 'needs_family_setup' };
-  }
-
-  if (children.length === 0) {
-    return { status: 'needs_children' };
-  }
-
-  return { status: 'ready', children };
+  return resolveFamilyImmunizationSource({
+    isGuest,
+    hydrated,
+    householdLoading: householdQuery.isLoading,
+    childrenLoading: childrenQuery.isLoading,
+    householdId,
+    children,
+  });
 }

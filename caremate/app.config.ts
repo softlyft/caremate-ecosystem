@@ -38,6 +38,27 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ]);
   }
 
+  if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-localization')) {
+    plugins.push('expo-localization');
+  }
+
+  if (
+    !plugins.some((p) => {
+      const name = Array.isArray(p) ? p[0] : p;
+      return name === '@sentry/react-native' || name === '@sentry/react-native/expo';
+    })
+  ) {
+    plugins.push([
+      '@sentry/react-native/expo',
+      {
+        url: 'https://sentry.io/',
+        organization: process.env.SENTRY_ORG ?? 'softlyft',
+        project: process.env.SENTRY_PROJECT ?? 'caremate',
+        // Auth token via SENTRY_AUTH_TOKEN env / EAS secret — never embed in config.
+      },
+    ]);
+  }
+
   return {
     ...base,
     plugins,

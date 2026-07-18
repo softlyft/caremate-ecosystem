@@ -23,6 +23,6 @@ Local: SQLite + sync queue. Remote: Supabase + RPCs `lookup_user_for_family_conn
 ## Code
 
 - Domain: `src/domains/family/`
-- Immunization Tracker loads children from `family_members` (no add-child in the mini-app). Medication Tracker can assign meds to family kids.
+- Immunization Tracker loads children from `family_members` (no add-child in the mini-app). Medication Assistant can assign meds to family kids.
 - Screens: `src/app/(app)/family/*`
 - QA: [QA Test Cases](./qa-test-cases.md) § Family / Immunization / Medication

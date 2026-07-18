@@ -1,12 +1,12 @@
 const path = require('path');
-const { getDefaultConfig } = require('expo/metro-config');
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 const { withUniwindConfig } = require('uniwind/metro');
 
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, '..');
 
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(projectRoot);
+const config = getSentryExpoConfig(projectRoot);
 
 // Monorepo: resolve hoisted deps + watch shared packages.
 config.watchFolders = [workspaceRoot];

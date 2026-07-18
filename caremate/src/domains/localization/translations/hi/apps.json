@@ -4,9 +4,13 @@
   "readyCount": "{{count}} टूल तैयार",
   "comingSoon": "जल्द आ रहा है",
   "registry": {
+    "vitals-tracker": {
+      "name": "वाइटल्स",
+      "description": "ब्लड प्रेशर, शुगर, हार्ट रेट आदि दर्ज करें — स्वास्थ्य बैलेंस एक नज़र में।"
+    },
     "medication-tracker": {
-      "name": "दवा ट्रैकर",
-      "description": "अपने या परिवार की दवाएँ, दैनिक खुराक और अनुपालन ट्रैक करें।"
+      "name": "दवा सहायक",
+      "description": "खुराक शेड्यूल करें, ली गई दवा ट्रैक करें, और रिफिल रिमाइंडर पाएँ — आपका दैनिक दवा सहायक।"
     },
     "checkup-planner": {
       "name": "जाँच प्लानर",
@@ -28,5 +32,170 @@
   "signInRequired": "इस टूल को उपकरणों पर सिंक करने के लिए साइन इन करें",
   "save": "सहेजें",
   "log": "प्रविष्टि दर्ज करें",
-  "setup": "सेट करें"
+  "setup": "सेट करें",
+  "medicationTracker": {
+    "eyebrow": "सहायक",
+    "emptyTitle": "आपका दवा सहायक",
+    "emptySubtitle": "दवाएँ जोड़ें, समय सेट करें, और लेते समय पुष्टि करें",
+    "addMedicine": "दवा जोड़ें",
+    "logDose": "खुराक दर्ज करें",
+    "todaysDoses": "आज की खुराक",
+    "medicines": "दवाएँ",
+    "setupSave": "दवा जोड़ें",
+    "setupSaveEdit": "बदलाव सहेजें",
+    "history": "इतिहास",
+    "screenTitle": "दवा सहायक",
+    "setupTitle": "दवा जोड़ें",
+    "logTitle": "खुराक दर्ज करें",
+    "historyTitle": "दवा इतिहास",
+    "backToApps": "ऐप्स पर वापस",
+    "close": "बंद करें",
+    "back": "वापस"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "दिन में एक बार",
+        "slots": {
+          "0": "दैनिक खुराक"
+        }
+      },
+      "twice-daily": {
+        "label": "दिन में दो बार",
+        "slots": {
+          "0": "सुबह",
+          "1": "शाम"
+        }
+      },
+      "three-times-daily": {
+        "label": "दिन में तीन बार",
+        "slots": {
+          "0": "सुबह",
+          "1": "दोपहर",
+          "2": "शाम"
+        }
+      },
+      "as-needed": {
+        "label": "ज़रूरत पड़ने पर",
+        "slots": {
+          "0": "खुराक"
+        }
+      }
+    },
+    "ui": {
+      "you": "आप",
+      "child": "बच्चा",
+      "nothingToday": "आज कुछ निर्धारित नहीं",
+      "catchUp": "पहले छूटी खुराक पूरी करें",
+      "upToDate": "आज आप अप टू डेट हैं",
+      "paused": "रोकी गई",
+      "editMedicine": "दवा संपादित करें",
+      "addMedicine": "दवा जोड़ें",
+      "updateHint": "खुराक, शेड्यूल, निर्देश, रिफिल अपडेट करें या दवा रोकें।",
+      "addHint": "अपने या बच्चे के लिए दवा जोड़ें — समय और लेने का तरीका सेट करें।",
+      "forKid": "क्या यह बच्चे के लिए है?",
+      "forMe": "नहीं — मेरे लिए",
+      "forKidYes": "हाँ — बच्चे के लिए",
+      "setupFamilyFirst": "पहले परिवार सेट करें और बच्चे जोड़ें।",
+      "addChildrenFirst": "दवा असाइन करने से पहले परिवार में बच्चे जोड़ें।",
+      "howOften": "कितनी बार",
+      "notesOptional": "नोट्स (वैकल्पिक)",
+      "notesPlaceholder": "खाना के साथ, साइड इफ़ेक्ट आदि",
+      "notesPlaceholderLog": "खाना के साथ, साइड इफ़ेक्ट…",
+      "selectChildTitle": "बच्चा चुनें",
+      "selectChildMessage": "यह दवा किस बच्चे के लिए है चुनें।",
+      "removeMedicine": "दवा हटाएँ",
+      "removeConfirmTitle": "दवा हटाएँ?",
+      "removeConfirmMessage": "इस दवा का खुराक इतिहास भी हट जाएगा।",
+      "updateDoseLog": "खुराक लॉग अपडेट करें",
+      "markTaken": "ली गई चिह्नित करें",
+      "removeDoseLog": "यह खुराक लॉग हटाएँ",
+      "dosesTakenToday": "आज {{taken}} में से {{expected}} खुराक ली गई",
+      "asNeededLoggedToday": "आज {{count}} ज़रूरत की खुराक दर्ज",
+      "asNeededLoggedToday_other": "आज {{count}} ज़रूरत की खुराकें दर्ज",
+      "dosesStillDue": "आज अभी {{count}} खुराक बाकी",
+      "dosesStillDue_other": "आज अभी {{count}} खुराकें बाकी",
+      "doseN": "खुराक {{n}}",
+      "today": "आज",
+      "activeMedicines": "सक्रिय दवाएँ",
+      "emptyFilter": "इस फ़िल्टर में आज कोई खुराक नहीं। दवा जोड़ें या शुरू तारीख जाँचें।",
+      "tapToUndo": "पूर्ववत करने के लिए टैप करें",
+      "tapToMarkTaken": "ली गई चिह्नित करने के लिए टैप करें",
+      "pausedSuffix": "(रोकी गई)",
+      "notFound": "वह दवा नहीं मिली।",
+      "addBeforeLogging": "खुराक दर्ज करने से पहले दवा जोड़ें।",
+      "logIntro": "ली गई खुराक दर्ज करें। होम स्क्रीन से पूर्ववत भी कर सकते हैं।",
+      "medicine": "दवा",
+      "dose": "खुराक",
+      "dateLabel": "तारीख: {{date}}",
+      "name": "नाम",
+      "dosage": "खुराक",
+      "namePlaceholder": "जैसे मेटफॉर्मिन",
+      "dosagePlaceholder": "जैसे 500mg",
+      "startDateHint": "शुरू तारीख — इसी दिन से खुराक ट्रैक होती है।",
+      "startsOn": "{{date}} से शुरू",
+      "status": "स्थिति",
+      "active": "सक्रिय",
+      "whichChild": "कौन सा बच्चा?",
+      "signInFamilyKids": "बच्चों को दवा देने के लिए साइन इन करें और परिवार सेट करें।",
+      "anyParentCanLog": "परिवार का कोई भी अभिभावक CareMate से बच्चों की खुराक दर्ज कर सकता है।",
+      "dueNow": "अभी देय",
+      "upcoming": "आगामी",
+      "takenToday": "आज ली गई",
+      "dueNowCount": "अभी {{count}} खुराक देय",
+      "dueNowCount_other": "अभी {{count}} खुराकें देय",
+      "nextUp": "अगली: {{name}} · {{slot}}",
+      "freeCap": "मुफ़्त योजना स्लॉट",
+      "instructions": "खुराक निर्देश",
+      "instructionsPlaceholder": "जैसे डेयरी से बचें, पानी के साथ लें",
+      "scheduleTimes": "खुराक का समय",
+      "scheduleTimesHint": "24-घंटे समय जैसे 08:00 या 20:30 उपयोग करें।",
+      "startDate": "शुरू तारीख",
+      "refillDueDate": "रिफिल तारीख",
+      "refill": "रिफिल ट्रैकिंग",
+      "quantityRemaining": "बची गोलियाँ / खुराक (वैकल्पिक)",
+      "quantityPlaceholder": "जैसे 30",
+      "refillThreshold": "इस या इससे कम पर याद दिलाएँ",
+      "refillOn": "{{date}} को रिफिल",
+      "refillDateOptional": "वैकल्पिक रिफिल तारीख — साफ़ करने के लिए फिर टैप करें",
+      "historySubtitle": "हाल ही में दर्ज की गई खुराकें",
+      "historyEmpty": "अभी कोई खुराक नहीं। इतिहास बनाने के लिए ली गई चिह्नित करें।",
+      "unknownMedicine": "अज्ञात दवा"
+    },
+    "status": {
+      "taken": "ली गई",
+      "due": "देय",
+      "missed": "छूटी",
+      "upcoming": "आगामी",
+      "as-needed": "ज़रूरत पर"
+    },
+    "instructions": {
+      "none": "कोई नहीं",
+      "with_food": "खाना के साथ",
+      "empty_stomach": "खाली पेट",
+      "other": "अन्य"
+    },
+    "alerts": {
+      "doseDueTitle": "खुराक देय: {{name}}",
+      "doseDueBody": "{{name}} — {{slot}} देय है। दवा सहायक में ली गई चिह्नित करें।",
+      "doseMissedTitle": "छूटी खुराक: {{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} छूट गई। जब हो सके पूरी करें।",
+      "refillTitle": "जल्द रिफिल: {{name}}",
+      "refillBody": "{{name}} कम पड़ रही है या रिफिल की तारीख आ गई है।"
+    }
+  },
+  "edit": "संपादित करें",
+  "openFamily": "परिवार खोलें",
+  "setUpFamily": "परिवार सेट करें",
+  "setUpFamilyFirst": "पहले परिवार सेट करें",
+  "addChildren": "बच्चे जोड़ें",
+  "manageInFamily": "परिवार में प्रबंधित करें",
+  "goToFamilySetup": "परिवार सेटअप पर जाएँ",
+  "backToTracker": "ट्रैकर पर वापस",
+  "clearSelection": "चयन साफ़ करें",
+  "remove": "हटाएँ",
+  "saveChanges": "बदलाव सहेजें",
+  "loading": "लोड हो रहा है…",
+  "editProfile": "प्रोफ़ाइल संपादित करें",
+  "signInRequiredTitle": "साइन इन आवश्यक"
 }

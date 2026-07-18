@@ -43,6 +43,29 @@ export function canAddMedication(tier: PremiumTier, activeCount: number): boolea
   return activeCount < FREE_MEDICATION_LIMIT;
 }
 
+/**
+ * Whether a medicine may become (or stay) active under Free tier caps.
+ * Pausing is always allowed; reactivating counts toward the active limit.
+ */
+export function canActivateMedication(
+  tier: PremiumTier,
+  medications: { id: string; active: boolean }[],
+  medicationId: string,
+  nextActive: boolean,
+): boolean {
+  if (!nextActive) {
+    return true;
+  }
+  if (isPremiumTier(tier)) {
+    return true;
+  }
+  const current = medications.find((medication) => medication.id === medicationId);
+  if (current?.active) {
+    return true;
+  }
+  return countActiveMedications(medications) < FREE_MEDICATION_LIMIT;
+}
+
 export function isCheckupYearUnlocked(
   tier: PremiumTier,
   year: number,

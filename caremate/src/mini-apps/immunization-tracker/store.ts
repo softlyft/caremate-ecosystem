@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -6,8 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { ImmunizationProfile, ImmunizationRecord } from '@/mini-apps/immunization-tracker/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
-
-const EMPTY_RECORDS: ImmunizationRecord[] = [];
+import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 
 interface ImmunizationTrackerState {
   profiles: ImmunizationProfile[];
@@ -28,7 +26,7 @@ type LegacyPersistedState = {
   records?: (ImmunizationRecord & { profileId?: string })[];
 };
 
-function migratePersistedState(persisted: unknown): Partial<ImmunizationTrackerState> {
+export function migratePersistedState(persisted: unknown): Partial<ImmunizationTrackerState> {
   const state = (persisted ?? {}) as LegacyPersistedState;
 
   if (Array.isArray(state.profiles)) {
@@ -128,44 +126,8 @@ registerMiniAppRehydrate(async () => {
   await useImmunizationTrackerStore.persist.rehydrate();
 });
 
-export function useActiveImmunizationProfile(): ImmunizationProfile | null {
-  const activeProfileId = useImmunizationTrackerStore((state) => state.activeProfileId);
-  const profiles = useImmunizationTrackerStore((state) => state.profiles);
-
-  return useMemo(
-    () => profiles.find((profile) => profile.id === activeProfileId) ?? null,
-    [activeProfileId, profiles],
-  );
-}
-
-export function useActiveImmunizationRecords(): ImmunizationRecord[] {
-  const activeProfileId = useImmunizationTrackerStore((state) => state.activeProfileId);
-  const records = useImmunizationTrackerStore((state) => state.records);
-
-  return useMemo(() => {
-    if (!activeProfileId) {
-      return EMPTY_RECORDS;
-    }
-    return records.filter((record) => record.profileId === activeProfileId);
-  }, [activeProfileId, records]);
-}
-
 export function useImmunizationTrackerHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() => useImmunizationTrackerStore.persist.hasHydrated());
-
-  useEffect(() => {
-    if (hydrated) {
-      return;
-    }
-
-    const unsubscribe = useImmunizationTrackerStore.persist.onFinishHydration(() => {
-      setHydrated(true);
-    });
-
-    return unsubscribe;
-  }, [hydrated]);
-
-  return hydrated;
+  return usePersistHydrated(useImmunizationTrackerStore.persist);
 }
 
 export type { ImmunizationProfile, ImmunizationRecord };

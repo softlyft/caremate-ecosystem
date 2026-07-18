@@ -1,8 +1,19 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Bell, MapPin, Moon, Palette, Search, Settings, Users } from 'lucide-react-native';
+import {
+  Bell,
+  FileText,
+  MapPin,
+  Moon,
+  Palette,
+  Search,
+  Settings,
+  Shield,
+  Trash2,
+  Users,
+} from 'lucide-react-native';
 import { useMemo, useState, type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,10 +24,11 @@ import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
-import { QUERY_KEYS } from '@/constants/config';
+import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
 import { localizationService, useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
+import { useAuthStore } from '@/features/auth/store';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -31,6 +43,7 @@ export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const deleteAccount = useAuthStore((state) => state.deleteAccount);
 
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
@@ -51,6 +64,7 @@ export default function SettingsScreen() {
   const [stateDraft, setStateDraft] = useState<string | undefined>(undefined);
   const [countryQuery, setCountryQuery] = useState('');
   const [savingLocation, setSavingLocation] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const countryCode = countryDraft !== undefined ? countryDraft : remoteCountryCode;
   const languageCode = languageDraft !== undefined ? languageDraft : remoteLanguageCode;
@@ -100,6 +114,55 @@ export default function SettingsScreen() {
     } finally {
       setSavingLocation(false);
     }
+  }
+
+  async function openLegalUrl(url: string) {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (!supported) {
+        Alert.alert(t('settings.legal.openFailed'));
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert(t('settings.legal.openFailed'));
+    }
+  }
+
+  function confirmDeleteAccount() {
+    if (isGuest || deletingAccount) {
+      return;
+    }
+    Alert.alert(
+      t('settings.account.deleteConfirmTitle'),
+      t('settings.account.deleteConfirmMessage'),
+      [
+        { text: t('settings.account.cancel'), style: 'cancel' },
+        {
+          text: t('settings.account.deleteConfirmAction'),
+          style: 'destructive',
+          onPress: () => {
+            void (async () => {
+              setDeletingAccount(true);
+              try {
+                await deleteAccount();
+                Alert.alert(
+                  t('settings.account.deleteSuccessTitle'),
+                  t('settings.account.deleteSuccessMessage'),
+                  [{ text: 'OK', onPress: () => router.replace('/(app)/(tabs)/profile') }],
+                );
+              } catch (error) {
+                const message =
+                  error instanceof Error ? error.message : t('settings.account.deleteFailed');
+                Alert.alert(t('settings.account.deleteFailed'), message);
+              } finally {
+                setDeletingAccount(false);
+              }
+            })();
+          },
+        },
+      ],
+    );
   }
 
   if (!isGuest && profileQuery.isLoading) {
@@ -327,6 +390,60 @@ export default function SettingsScreen() {
             )}
           </View>
         </AnimatedSection>
+
+        <AnimatedSection index={5}>
+          <View style={[styles.card, shadow.soft]}>
+            <SectionLabel icon={Shield} title={t('settings.legal.title')} />
+            <PressableScale
+              style={styles.linkRow}
+              onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
+            >
+              <View style={styles.rowLeading}>
+                <View style={styles.rowIcon}>
+                  <Shield color={ACCENT} size={16} strokeWidth={2.2} />
+                </View>
+                <AppText variant="body" style={styles.rowLabel}>
+                  {t('settings.legal.privacy')}
+                </AppText>
+              </View>
+            </PressableScale>
+            <View style={styles.divider} />
+            <PressableScale
+              style={styles.linkRow}
+              onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
+            >
+              <View style={styles.rowLeading}>
+                <View style={styles.rowIcon}>
+                  <FileText color={ACCENT} size={16} strokeWidth={2.2} />
+                </View>
+                <AppText variant="body" style={styles.rowLabel}>
+                  {t('settings.legal.terms')}
+                </AppText>
+              </View>
+            </PressableScale>
+          </View>
+        </AnimatedSection>
+
+        {!isGuest ? (
+          <AnimatedSection index={6}>
+            <View style={[styles.card, shadow.soft]}>
+              <SectionLabel icon={Trash2} title={t('settings.account.title')} />
+              <AppText variant="caption" style={styles.muted}>
+                {t('settings.account.deleteHint')}
+              </AppText>
+              <PressableScale
+                style={[styles.dangerCta, deletingAccount ? styles.ctaDisabled : null, shadow.soft]}
+                disabled={deletingAccount}
+                onPress={confirmDeleteAccount}
+              >
+                <Trash2 color="#FFFFFF" size={16} strokeWidth={2.25} />
+                <AppText variant="button" style={styles.primaryCtaLabel}>
+                  {deletingAccount ? t('settings.account.deleting') : t('settings.account.delete')}
+                </AppText>
+              </PressableScale>
+            </View>
+          </AnimatedSection>
+        ) : null}
       </Animated.ScrollView>
     </View>
   );
@@ -542,6 +659,9 @@ const styles = StyleSheet.create({
   muted: {
     color: palette.textSecondary,
   },
+  linkRow: {
+    paddingVertical: 4,
+  },
   primaryCta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -554,6 +674,16 @@ const styles = StyleSheet.create({
   },
   primaryCtaLabel: {
     color: '#FFFFFF',
+  },
+  dangerCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#DC2626',
+    borderRadius: radius.xl,
+    paddingVertical: 16,
+    marginTop: spacing.xs,
   },
   secondaryCta: {
     flexDirection: 'row',

@@ -11,7 +11,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
-import { formatPriceAmount, getPremiumState, premiumLabel } from '@/domains/billing/entitlement';
+import { formatPriceAmount, premiumLabel } from '@/domains/billing/entitlement';
 import { billingCurrencyForCountry } from '@/domains/billing/currency-by-country';
 import { billingRepository } from '@/domains/billing/repository';
 import type { BillingCurrency, BillingInterval, PlanType } from '@/domains/billing/types';
@@ -20,6 +20,7 @@ import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
+import { usePremiumState } from '@/hooks/use-premium-state';
 import { QUERY_KEYS } from '@/constants/config';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -42,27 +43,17 @@ export default function PremiumScreen() {
   const [planType, setPlanType] = useState<PlanType>('personal');
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly');
 
-  const premiumQuery = useQuery({
-    queryKey: ['billing', 'premium', userId, isGuest],
-    queryFn: async () => {
-      if (isGuest) {
-        return {
-          premium: null,
-          householdId: null as string | null,
-          patientId: null as string | null,
-        };
-      }
-      const [household, premium, profile] = await Promise.all([
-        familyRepository.findHouseholdForUser(userId),
-        getPremiumState(userId),
-        profileRepository.findByUserId(userId),
-      ]);
-      return {
-        premium,
-        householdId: household?.id ?? null,
-        patientId: profile?.patientId ?? null,
-      };
-    },
+  // Canonical flat PremiumState under ['billing','premium'] — do not wrap other fields in this key.
+  const premiumQuery = usePremiumState();
+  const householdQuery = useQuery({
+    queryKey: [...QUERY_KEYS.familyHousehold, userId],
+    enabled: !isGuest,
+    queryFn: () => familyRepository.findHouseholdForUser(userId),
+  });
+  const profileQuery = useQuery({
+    queryKey: [...QUERY_KEYS.profile, userId],
+    enabled: !isGuest,
+    queryFn: () => profileRepository.findByUserId(userId),
   });
 
   const pricesQuery = useQuery({
@@ -70,10 +61,14 @@ export default function PremiumScreen() {
     queryFn: () => billingRepository.listPrices(),
   });
 
-  const loading = premiumQuery.isLoading || pricesQuery.isLoading;
-  const premium = premiumQuery.data?.premium ?? null;
-  const householdId = premiumQuery.data?.householdId ?? null;
-  const patientId = premiumQuery.data?.patientId ?? null;
+  const loading =
+    (!isGuest && premiumQuery.isPending) ||
+    pricesQuery.isLoading ||
+    (!isGuest && householdQuery.isPending) ||
+    (!isGuest && profileQuery.isPending);
+  const premium = isGuest ? null : (premiumQuery.data ?? premiumQuery.state);
+  const householdId = householdQuery.data?.id ?? null;
+  const patientId = profileQuery.data?.patientId ?? null;
   const prices = pricesQuery.data ?? [];
   const isPersonalActive = premium?.tier === 'personal';
   const isFamilyActive = premium?.tier === 'family';
@@ -126,6 +121,8 @@ export default function PremiumScreen() {
       queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] }),
       queryClient.invalidateQueries({ queryKey: ['billing', 'prices'] }),
       queryClient.invalidateQueries({ queryKey: ['billing', 'upgrade-quote'] }),
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold }),
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile }),
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads }),
     ]);
   }

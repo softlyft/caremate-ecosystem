@@ -4,19 +4,13 @@ import { useMemo } from 'react';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import {
+  resolveMedicationFamilyKidsSource,
+  type FamilyChildOption,
+  type MedicationFamilyKidsSource,
+} from '@/mini-apps/medication-tracker/family-source';
 
-export type FamilyChildOption = {
-  id: string;
-  fullName: string;
-  dateOfBirth: string | null;
-};
-
-export type MedicationFamilyKidsSource =
-  | { status: 'guest' }
-  | { status: 'loading' }
-  | { status: 'needs_family_setup' }
-  | { status: 'needs_children' }
-  | { status: 'ready'; children: FamilyChildOption[] };
+export type { FamilyChildOption, MedicationFamilyKidsSource };
 
 /** Family children available to assign medicines to (parents share the household list). */
 export function useMedicationFamilyKids(): MedicationFamilyKidsSource {
@@ -45,21 +39,11 @@ export function useMedicationFamilyKids(): MedicationFamilyKidsSource {
     }));
   }, [childrenQuery.data]);
 
-  if (isGuest) {
-    return { status: 'guest' };
-  }
-
-  if (householdQuery.isLoading || (householdId && childrenQuery.isLoading)) {
-    return { status: 'loading' };
-  }
-
-  if (!householdId) {
-    return { status: 'needs_family_setup' };
-  }
-
-  if (children.length === 0) {
-    return { status: 'needs_children' };
-  }
-
-  return { status: 'ready', children };
+  return resolveMedicationFamilyKidsSource({
+    isGuest,
+    householdLoading: householdQuery.isLoading,
+    childrenLoading: childrenQuery.isLoading,
+    householdId,
+    children,
+  });
 }

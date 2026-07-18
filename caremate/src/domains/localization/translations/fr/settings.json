@@ -40,5 +40,24 @@
   "family": {
     "title": "Famille",
     "manage": "Gérer le foyer"
+  },
+  "legal": {
+    "title": "Mentions légales",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "openFailed": "Impossible d'ouvrir le lien. Vérifiez votre connexion."
+  },
+  "account": {
+    "title": "Compte",
+    "delete": "Supprimer le compte",
+    "deleteHint": "Supprime définitivement votre compte CareMate et vos données synchronisées. Irréversible.",
+    "deleteConfirmTitle": "Supprimer votre compte ?",
+    "deleteConfirmMessage": "Votre profil, carte d’urgence, liens familiaux et outils de santé synchronisés seront définitivement supprimés. Les abonnements actifs seront annulés si possible.",
+    "deleteConfirmAction": "Supprimer définitivement",
+    "cancel": "Annuler",
+    "deleting": "Suppression…",
+    "deleteFailed": "Impossible de supprimer le compte",
+    "deleteSuccessTitle": "Compte supprimé",
+    "deleteSuccessMessage": "Votre compte CareMate a été supprimé. Vous pouvez en créer un nouveau à tout moment."
   }
 }

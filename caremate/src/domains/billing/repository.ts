@@ -6,6 +6,7 @@ import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase } from '@/database/client';
 import { subscriptionEntitlements } from '@/database/schema';
 import { familyRepository } from '@/domains/family/repository';
+import { emptyPremiumState } from '@/domains/billing/format';
 import { isLocalEntitlementActive } from '@/domains/billing/period';
 import {
   type BillingCurrency,
@@ -14,10 +15,13 @@ import {
   type PremiumState,
   type SubscriptionPriceRow,
 } from '@/domains/billing/types';
+import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { isOnline } from '@/sync/network';
 import { nowIso } from '@/utils/helpers';
+
+export { emptyPremiumState, formatPriceAmount, premiumLabel } from '@/domains/billing/format';
 
 export type FamilyUpgradeQuote = {
   fromSubscriptionId: string;
@@ -223,6 +227,11 @@ class BillingRepository extends BaseRepository {
     });
 
     const url = `${paymentBase}/?${query.toString()}#${hash.toString()}`;
+    trackEvent(AnalyticsEvents.checkoutStart, {
+      plan_type: input.planType,
+      billing_interval: input.billingInterval,
+      currency: input.currency,
+    });
     await WebBrowser.openBrowserAsync(url);
     return { url };
   }
@@ -281,6 +290,12 @@ class BillingRepository extends BaseRepository {
       throw new Error('Upgrade did not return a payment URL');
     }
 
+    trackEvent(AnalyticsEvents.checkoutStart, {
+      plan_type: 'family',
+      billing_interval: input.billingInterval,
+      currency: input.currency,
+      flow: 'family_upgrade',
+    });
     await WebBrowser.openBrowserAsync(data.url as string);
     return { activated: false, url: data.url as string, quote };
   }
@@ -319,6 +334,9 @@ class BillingRepository extends BaseRepository {
   ): Promise<PremiumState> {
     try {
       await this.verifyCheckout(input);
+      trackEvent(AnalyticsEvents.checkoutSuccess, {
+        has_reference: Boolean(input.reference),
+      });
     } catch {
       // Webhook may have already finalized; still pull.
     }
@@ -333,20 +351,6 @@ class BillingRepository extends BaseRepository {
   }
 }
 
-export function emptyPremiumState(): PremiumState {
-  return {
-    tier: 'free',
-    status: null,
-    planType: null,
-    billingInterval: null,
-    currency: null,
-    provider: null,
-    householdId: null,
-    currentPeriodEnd: null,
-    subscriptionId: null,
-  };
-}
-
 export const billingRepository = new BillingRepository();
 
 /** Entitlement helper — local SQLite is authoritative offline; pull only when online. */
@@ -359,23 +363,4 @@ export async function getPremiumState(userId: string): Promise<PremiumState> {
     // Fall back to cache when offline / request fails.
   }
   return billingRepository.getCachedPremiumState(userId);
-}
-
-export function premiumLabel(tier: PremiumState['tier']): string {
-  if (tier === 'personal') return 'Standard Premium';
-  if (tier === 'family') return 'Family Premium';
-  return 'Free';
-}
-
-export function formatPriceAmount(amountMinor: number, currency: string): string {
-  const major = amountMinor / 100;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(major);
-  } catch {
-    return `${major} ${currency}`;
-  }
 }

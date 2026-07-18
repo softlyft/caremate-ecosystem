@@ -12,6 +12,13 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
 | `EXPO_PUBLIC_CURRENTS_API_KEY` | No | Currents API key for external health news |
 | `EXPO_PUBLIC_CURRENTS_COUNTRY` | No | Default Currents country (`INT` = international) |
+| `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL |
+| `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |
+| `EXPO_PUBLIC_SENTRY_DSN` | Prod monitoring | Sentry DSN; omit to disable crash reporting |
+| `EXPO_PUBLIC_SENTRY_ENABLE_IN_DEV` | No | Set `1` to send Sentry events from `__DEV__` (default off) |
+| `EXPO_PUBLIC_POSTHOG_API_KEY` | Prod analytics | PostHog project API key; omit to disable analytics |
+| `EXPO_PUBLIC_POSTHOG_HOST` | No | PostHog host (default `https://us.i.posthog.com`) |
+| `EXPO_PUBLIC_POSTHOG_ENABLE_IN_DEV` | No | Set `1` to send PostHog events from `__DEV__` (default off) |
 | `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` | AdMob builds | Google AdMob Android app ID (`app.config.ts`) |
 | `EXPO_PUBLIC_ADMOB_APP_ID_IOS` | AdMob builds | Google AdMob iOS app ID |
 | `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Production AdMob | Banner unit for `home.tips` |
@@ -28,23 +35,31 @@ File: `.env` (copy from `.env.example`)
 
 `__DEV__` uses Google sample/test IDs regardless of env. AdMob requires a **dev client or EAS build** (not Expo Go). See [Ads](./ads.md).
 
-Read in `src/constants/env.ts`:
+### Monitoring (Sentry + PostHog)
+
+| Concern | Module | Notes |
+|---------|--------|-------|
+| Crash / exception reporting | `src/lib/monitoring/sentry.ts` | `initSentry()` in root layout; `ErrorBoundary` + `Sentry.wrap` |
+| Product analytics | `src/lib/monitoring/analytics.ts` | `MonitoringProvider` in `AppProviders`; screen views via pathname |
+| Offline analytics outbox | `src/lib/monitoring/analytics-queue.ts` | SQLite `analytics_queue`; flush on online / reconnect / PostHog bind |
+| Identity | Both | Signed-in users identified; guests reset |
+
+EAS secrets (not `EXPO_PUBLIC_*`): `SENTRY_AUTH_TOKEN`, optionally `SENTRY_ORG` / `SENTRY_PROJECT` for native source-map upload during builds. Set `EXPO_PUBLIC_SENTRY_DSN` and `EXPO_PUBLIC_POSTHOG_API_KEY` as EAS env for release profiles.
+
+Read in `src/constants/env.ts` (excerpt):
 
 ```typescript
 export const config = {
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
-  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
-  isSupabaseConfigured: Boolean(
-    process.env.EXPO_PUBLIC_SUPABASE_URL && process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-  ),
-  currentsApiKey: process.env.EXPO_PUBLIC_CURRENTS_API_KEY ?? '',
-  isCurrentsConfigured: Boolean(process.env.EXPO_PUBLIC_CURRENTS_API_KEY),
-  currentsCountry: process.env.EXPO_PUBLIC_CURRENTS_COUNTRY ?? 'INT',
-  appVersion: Constants.expoConfig?.version ?? '1.0.0',
+  // …
+  sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN ?? '',
+  isSentryConfigured: Boolean(process.env.EXPO_PUBLIC_SENTRY_DSN),
+  posthogApiKey: process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? '',
+  isPostHogConfigured: Boolean(process.env.EXPO_PUBLIC_POSTHOG_API_KEY),
 };
 ```
 
-Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app runs without Supabase or Currents (guest + evergreen/seed content).
+Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app runs without Supabase, Currents, Sentry, or PostHog configured (guest + evergreen content; monitoring no-ops).
 
 ---
 
@@ -55,6 +70,17 @@ Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app 
 ```typescript
 export const APP_NAME = 'CareMate';
 ```
+
+### `LEGAL_URLS`
+
+Hosted CareMate legal pages opened from Settings → Legal:
+
+| Key | Default URL |
+|-----|-------------|
+| `privacy` | `https://caremate.app/privacy` |
+| `terms` | `https://caremate.app/terms` |
+
+Source pages live in the monorepo [`website/`](../website/) package. Keep App Store / Play Console listing URLs aligned. Publish the site before relying on these links in production.
 
 ### `STORAGE_KEYS`
 
@@ -137,6 +163,8 @@ Expo configuration at project root.
 | `expo-secure-store` | — |
 | `expo-splash-screen` | White bg, `caremate-splash-icon.png`, width 160 |
 | `expo-local-authentication` | Face ID permission string |
+| `expo-localization` | Added via `app.config.ts` when missing |
+| `@sentry/react-native/expo` | Org/project via `SENTRY_ORG` / `SENTRY_PROJECT` (auth token env only) |
 
 ### Experiments
 
@@ -162,9 +190,11 @@ After changing `src/database/schema.ts`, run `npm run db:generate` and commit th
 
 ## Metro (`metro.config.js`)
 
+- Sentry Expo Metro config (`getSentryExpoConfig`) for source maps
 - Uniwind CSS processing with `global.css` as cssEntryFile
 - `expo-sqlite` WASM support for web
 - COOP/COEP headers for SharedArrayBuffer on web
+- Monorepo `watchFolders` + `nodeModulesPaths`
 
 ---
 

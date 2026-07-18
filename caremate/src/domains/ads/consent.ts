@@ -6,13 +6,20 @@ let initStarted = false;
 
 type AdsConsentModule = typeof import('react-native-google-mobile-ads').AdsConsent;
 type MobileAdsModule = typeof import('react-native-google-mobile-ads').default;
+type AdsBundle = typeof import('react-native-google-mobile-ads');
+
+function requireAdsBundle(): AdsBundle {
+  // Sync require so Jest stubs apply; dynamic import misses the mock.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('react-native-google-mobile-ads');
+}
 
 async function loadAdsModules(): Promise<{
   AdsConsent: AdsConsentModule;
   mobileAds: MobileAdsModule;
 } | null> {
   try {
-    const mod = await import('react-native-google-mobile-ads');
+    const mod = requireAdsBundle();
     return { AdsConsent: mod.AdsConsent, mobileAds: mod.default };
   } catch {
     return null;

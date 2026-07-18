@@ -1,11 +1,13 @@
 import { Stack } from 'expo-router';
 
+import { useTranslation } from '@/domains/localization';
 import { MiniAppGuestGate } from '@/features/premium/MiniAppGuestGate';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { miniAppHeaderOptions } from '@/mini-apps/_kit/components/miniAppHeaderOptions';
 
 export default function AppsLayout() {
   const isGuest = useIsGuest();
+  const { t } = useTranslation();
 
   if (isGuest) {
     return <MiniAppGuestGate />;
@@ -17,6 +19,24 @@ export default function AppsLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
+      <Stack.Screen
+        name="vitals-tracker/index"
+        options={miniAppHeaderOptions({
+          appId: 'vitals-tracker',
+          title: 'Vitals',
+          backAccessibilityLabel: 'Back to Apps',
+        })}
+      />
+      <Stack.Screen
+        name="vitals-tracker/log"
+        options={miniAppHeaderOptions({
+          appId: 'vitals-tracker',
+          title: 'Log Vital',
+          modal: true,
+          backAccessibilityLabel: 'Close',
+        })}
+      />
+
       <Stack.Screen
         name="period-tracker/index"
         options={miniAppHeaderOptions({
@@ -93,26 +113,34 @@ export default function AppsLayout() {
         name="medication-tracker/index"
         options={miniAppHeaderOptions({
           appId: 'medication-tracker',
-          title: 'Medication Tracker',
-          backAccessibilityLabel: 'Back to Apps',
+          title: t('apps.medicationTracker.screenTitle'),
+          backAccessibilityLabel: t('apps.medicationTracker.backToApps'),
         })}
       />
       <Stack.Screen
         name="medication-tracker/setup"
         options={miniAppHeaderOptions({
           appId: 'medication-tracker',
-          title: 'Add Medicine',
+          title: t('apps.medicationTracker.setupTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.medicationTracker.close'),
         })}
       />
       <Stack.Screen
         name="medication-tracker/log"
         options={miniAppHeaderOptions({
           appId: 'medication-tracker',
-          title: 'Log Dose',
+          title: t('apps.medicationTracker.logTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.medicationTracker.close'),
+        })}
+      />
+      <Stack.Screen
+        name="medication-tracker/history"
+        options={miniAppHeaderOptions({
+          appId: 'medication-tracker',
+          title: t('apps.medicationTracker.historyTitle'),
+          backAccessibilityLabel: t('apps.medicationTracker.back'),
         })}
       />
 

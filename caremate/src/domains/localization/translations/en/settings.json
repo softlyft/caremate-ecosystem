@@ -40,5 +40,24 @@
   "family": {
     "title": "Family",
     "manage": "Manage household"
+  },
+  "legal": {
+    "title": "Legal",
+    "privacy": "Privacy policy",
+    "terms": "Terms of service",
+    "openFailed": "Couldn't open the link. Check your connection and try again."
+  },
+  "account": {
+    "title": "Account",
+    "delete": "Delete account",
+    "deleteHint": "Permanently deletes your CareMate account and synced data. This cannot be undone.",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmMessage": "Your profile, emergency card, family links, and synced health tools for this account will be permanently removed. Active subscriptions will be cancelled when possible.",
+    "deleteConfirmAction": "Delete permanently",
+    "cancel": "Cancel",
+    "deleting": "Deleting account…",
+    "deleteFailed": "Couldn't delete account",
+    "deleteSuccessTitle": "Account deleted",
+    "deleteSuccessMessage": "Your CareMate account has been removed. You can create a new one anytime."
   }
 }

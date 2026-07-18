@@ -1,6 +1,12 @@
 import { joinFullName, splitFullName } from '@/domains/emergency/constants';
 import { getMedicationPatientLabel, type Medication } from '@/mini-apps/medication-tracker/utils';
-import { parseJson, parseJsonArray, stringifyJson } from '@/utils/helpers';
+import { createId, nowIso, parseJson, parseJsonArray, stringifyJson } from '@/utils/helpers';
+
+jest.mock('expo-crypto', () => ({
+  getRandomBytesAsync: jest.fn(async (size: number) =>
+    Uint8Array.from({ length: size }, (_, i) => i),
+  ),
+}));
 
 describe('splitFullName / joinFullName', () => {
   test('splits a two-part name', () => {
@@ -33,7 +39,16 @@ describe('helpers JSON parsers', () => {
   test('parseJson and stringifyJson round-trip', () => {
     expect(parseJson('{"ok":true}', { ok: false })).toEqual({ ok: true });
     expect(parseJson(undefined, { ok: false })).toEqual({ ok: false });
+    expect(parseJson('not-json', { ok: false })).toEqual({ ok: false });
     expect(stringifyJson({ a: 1 })).toBe('{"a":1}');
+  });
+
+  test('createId formats 16 random bytes as a UUID-like string', async () => {
+    await expect(createId()).resolves.toBe('00010203-0405-0607-0809-0a0b0c0d0e0f');
+  });
+
+  test('nowIso returns an ISO timestamp', () => {
+    expect(nowIso()).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 });
 
@@ -48,6 +63,11 @@ describe('getMedicationPatientLabel', () => {
     forKid: false,
     familyMemberId: null,
     patientName: null,
+    slotTimes: ['08:00'],
+    instructions: { kind: 'none' },
+    quantityRemaining: null,
+    refillAtThreshold: 5,
+    refillDueDate: null,
   };
 
   test('labels adult medicines as You', () => {

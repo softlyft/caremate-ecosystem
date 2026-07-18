@@ -147,6 +147,40 @@ class SyncEngine {
   private async executeSyncCycle(): Promise<void> {
     const online = await isOnline();
     this.wasOnline = online;
+
+    // Medication Assistant in-app due/missed/refill cards (never blocks sync).
+    try {
+      const auth = useAuthStore.getState();
+      const userId = auth.user?.id;
+      if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
+        const [{ useMedicationTrackerStore }, { useSettingsStore }, { evaluateMedicationAlerts }] =
+          await Promise.all([
+            import('@/mini-apps/medication-tracker/store'),
+            import('@/domains/profile/store'),
+            import('@/mini-apps/medication-tracker/alerts'),
+          ]);
+        const medState = useMedicationTrackerStore.getState();
+        await evaluateMedicationAlerts({
+          userId,
+          medications: medState.medications,
+          logs: medState.logs,
+          notificationsEnabled: useSettingsStore.getState().notificationsEnabled,
+        });
+      }
+    } catch {
+      // Best-effort inbox updates.
+    }
+
+    // Analytics outbox is independent of Supabase — flush whenever we regain network.
+    if (online) {
+      try {
+        const { flushAnalyticsQueue } = await import('@/lib/monitoring/analytics-queue');
+        await flushAnalyticsQueue();
+      } catch {
+        // Analytics must not block health-data sync.
+      }
+    }
+
     if (!online || !config.isSupabaseConfigured) {
       return;
     }

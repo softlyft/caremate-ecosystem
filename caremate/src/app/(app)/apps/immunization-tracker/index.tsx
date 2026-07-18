@@ -11,8 +11,8 @@ import { useFamilyImmunizationChildren } from '@/mini-apps/immunization-tracker/
 import {
   useActiveImmunizationProfile,
   useActiveImmunizationRecords,
-  useImmunizationTrackerStore,
-} from '@/mini-apps/immunization-tracker/store';
+} from '@/mini-apps/immunization-tracker/selectors';
+import { useImmunizationTrackerStore } from '@/mini-apps/immunization-tracker/store';
 import {
   buildSchedule,
   formatDisplayDate,

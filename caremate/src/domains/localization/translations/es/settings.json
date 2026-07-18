@@ -40,5 +40,24 @@
   "family": {
     "title": "Familia",
     "manage": "Gestionar hogar"
+  },
+  "legal": {
+    "title": "Legal",
+    "privacy": "Política de privacidad",
+    "terms": "Términos del servicio",
+    "openFailed": "No se pudo abrir el enlace. Revisa tu conexión."
+  },
+  "account": {
+    "title": "Cuenta",
+    "delete": "Eliminar cuenta",
+    "deleteHint": "Elimina permanentemente tu cuenta CareMate y los datos sincronizados. No se puede deshacer.",
+    "deleteConfirmTitle": "¿Eliminar tu cuenta?",
+    "deleteConfirmMessage": "Tu perfil, tarjeta de emergencia, vínculos familiares y herramientas de salud sincronizadas se eliminarán de forma permanente. Las suscripciones activas se cancelarán cuando sea posible.",
+    "deleteConfirmAction": "Eliminar permanentemente",
+    "cancel": "Cancelar",
+    "deleting": "Eliminando…",
+    "deleteFailed": "No se pudo eliminar la cuenta",
+    "deleteSuccessTitle": "Cuenta eliminada",
+    "deleteSuccessMessage": "Tu cuenta CareMate se eliminó. Puedes crear una nueva en cualquier momento."
   }
 }

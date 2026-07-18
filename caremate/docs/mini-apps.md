@@ -26,13 +26,14 @@ Order matches `MINI_APPS` in code:
 
 | # | Id | Name | Theme | Focus |
 |---|----|------|-------|-------|
-| 1 | `medication-tracker` | Medication Tracker | Orange `#EA580C` / `#FFEDD5` | Daily dose adherence |
-| 2 | `checkup-planner` | Checkup Planner | Teal `#0F766E` / `#CCFBF1` | Age/gender/region checkup schedule |
-| 3 | `immunization-tracker` | Immunization Tracker | Green `#059669` / `#D1FAE5` | Childhood vaccine schedule |
-| 4 | `pregnancy-tracker` | Pregnancy Tracker | Blue `#0284C7` / `#E0F2FE` | Pregnancy week + daily log |
-| 5 | `period-tracker` | Period Tracker | Pink `#DB2777` / `#FCE7F3` | Cycle tracking + predictions |
+| 1 | `vitals-tracker` | Vitals | Blue `#1D4ED8` / `#DBEAFE` | Manual vitals log (BP, sugar, HR, …) |
+| 2 | `medication-tracker` | Medication Assistant | Orange `#EA580C` / `#FFEDD5` | Schedule, taken confirm, history, refill, in-app alerts |
+| 3 | `checkup-planner` | Checkup Planner | Teal `#0F766E` / `#CCFBF1` | Age/gender/region checkup schedule |
+| 4 | `immunization-tracker` | Immunization Tracker | Green `#059669` / `#D1FAE5` | Childhood vaccine schedule |
+| 5 | `pregnancy-tracker` | Pregnancy Tracker | Blue `#0284C7` / `#E0F2FE` | Pregnancy week + daily log |
+| 6 | `period-tracker` | Period Tracker | Pink `#DB2777` / `#FCE7F3` | Cycle tracking + predictions |
 
-Icons: `Pill`, `CalendarCheck`, `Syringe`, `Baby`, `CalendarHeart` (Lucide).
+Icons: `Activity`, `Pill`, `CalendarCheck`, `Syringe`, `Baby`, `CalendarHeart` (Lucide).
 
 Entitlement by plan (Free limits, Premium unlocks, guest blocked): [Premium & plans — Mini-apps matrix](./premium-and-plans.md#mini-apps-entitlement-matrix).
 
@@ -90,55 +91,61 @@ Country list for Checkup Planner comes from `localizationService.listCountryOpti
 
 ---
 
-## Medication Tracker
+## Medication Assistant
 
-**Storage key:** `caremate-medication-tracker`
+**Storage key:** `caremate-medication-tracker` · UI name **Medication Assistant** (route id stays `medication-tracker`)
 
 ### Routes
 
 | Route | Screen |
 |-------|--------|
-| `/(app)/apps/medication-tracker` | Today’s doses + medicine list |
+| `/(app)/apps/medication-tracker` | Due now / upcoming / taken + medicine list |
 | `/(app)/apps/medication-tracker/setup` | Add / edit medicine (modal) |
 | `/(app)/apps/medication-tracker/log` | Log a dose (modal) |
+| `/(app)/apps/medication-tracker/history` | Medication history |
 
 ### Store
 
 | Field | Description |
 |-------|-------------|
-| `medications` | Medicines (`id`, `name`, `dosage`, `frequency`, `startDate`, `active`, `forKid`, `familyMemberId`, `patientName`, `notes?`) |
+| `medications` | Medicines including `slotTimes`, `instructions`, refill fields, family assignment |
 | `activeMedicationId` | Last selected medicine |
-| `logs` | Dose logs (`id`, `medicationId`, `dateKey`, `slotIndex`, `notes?`) |
+| `logs` | Dose logs (`id`, `medicationId`, `dateKey`, `slotIndex`, `notes?`, `takenAt?`) |
 
-Hooks: `useMedicationTrackerStore`, `useMedicationTrackerHydrated`.
+Hooks: `useMedicationTrackerStore`, `useMedicationTrackerHydrated`. Alerts: `evaluateMedicationAlerts` → in-app inbox only.
 
 ### Frequencies
 
 | Id | Slots |
 |----|-------|
-| `once-daily` | Daily dose |
-| `twice-daily` | Morning / Evening |
+| `once-daily` | Daily dose (default 08:00) |
+| `twice-daily` | Morning / Evening (08:00 / 20:00) |
 | `three-times-daily` | Morning / Afternoon / Evening |
-| `as-needed` | Log when taken (multiple per day allowed) |
+| `as-needed` | Log when taken (open row always available) |
 
 ### Features
 
-- Today adherence summary + progress
-- Tap due / as-needed row to mark taken; tap again to undo
-- Add, edit, pause, or remove medicines
-- Calendar log for any date / slot
+- Clock-aware schedule (upcoming → due → missed with grace)
+- Dosage instructions + taken confirmation on Today
+- Refill quantity / due date + in-app refill reminder
+- History by day / medicine
+- Free tier: max 3 **active** medicines (create + reactivate gated)
 
 ### Files
 
 ```
 mini-apps/medication-tracker/
+├── alerts.ts
 ├── store.ts
 ├── utils.ts
-└── constants.ts
+├── constants.ts
+├── localize.ts
+└── …
 app/(app)/apps/medication-tracker/
 ├── index.tsx
 ├── setup.tsx
-└── log.tsx
+├── log.tsx
+└── history.tsx
 ```
 
 ---
@@ -371,6 +378,39 @@ app/(app)/apps/pregnancy-tracker/
 
 ---
 
+## Vitals
+
+**Storage key:** `caremate-vitals-tracker` · snapshot `app_key`: `vitals`
+
+Quick manual log for common vitals — designed like a banking “balance” screen: open, see latest readings, log a new one in seconds.
+
+### Routes
+
+| Route | Screen |
+|-------|--------|
+| `/(app)/apps/vitals-tracker` | Latest snapshot + recent history |
+| `/(app)/apps/vitals-tracker/log` | Log a reading (modal) |
+
+### Supported vitals (MVP)
+
+Blood pressure (mmHg), blood sugar (mmol/L or mg/dL), heart rate (bpm), body temperature (°C / °F), weight (kg / lbs), height (cm / ft+in), oxygen saturation (%), respiratory rate (breaths/min).
+
+### Files
+
+```
+mini-apps/vitals-tracker/
+├── constants.ts
+├── localize.ts
+├── store.ts
+├── utils.ts
+└── __tests__/
+app/(app)/apps/vitals-tracker/
+├── index.tsx
+└── log.tsx
+```
+
+---
+
 ## Period Tracker
 
 **Storage key:** `caremate-period-tracker`
@@ -417,7 +457,8 @@ app/(app)/apps/period-tracker/
 
 | Key | Mini-app |
 |-----|----------|
-| `caremate-medication-tracker` | Medication Tracker |
+| `caremate-vitals-tracker` | Vitals |
+| `caremate-medication-tracker` | Medication Assistant |
 | `caremate-checkup-planner` | Checkup Planner |
 | `caremate-immunization-tracker` | Immunization Tracker |
 | `caremate-pregnancy-tracker` | Pregnancy Tracker |

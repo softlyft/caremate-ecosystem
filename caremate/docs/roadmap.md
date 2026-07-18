@@ -17,7 +17,7 @@ From [`CareMate.md`](../CareMate.md), updated for current shipping scope:
 
 | Mini-app | Status |
 |----------|--------|
-| Medication Tracker | ✅ |
+| Medication Assistant | ✅ |
 | Checkup Planner | ✅ |
 | Immunization Tracker | ✅ (multi-child) |
 | Pregnancy Tracker | ✅ |
@@ -39,7 +39,7 @@ See [Mini-Apps](./mini-apps.md) for routes, storage keys, and feature detail.
 | Discover providers | ✅ FHIR-seeded nearby list |
 | Offline core features | ✅ |
 | Auto sync when online | ✅ When Supabase configured |
-| Medication tracking | ✅ Medication Tracker mini-app |
+| Medication tracking | ✅ Medication Assistant mini-app |
 | Vaccination / immunization records | ✅ Immunization Tracker mini-app |
 | Preventive checkup planning | ✅ Checkup Planner mini-app |
 | Pregnancy & period tools | ✅ Pregnancy + Period mini-apps |
@@ -79,12 +79,12 @@ Spec: [Premium & plans](./premium-and-plans.md). **Shipped.**
 | Family child + spouse limits | Done |
 | Shared entitlement helpers + upgrade CTAs | Done |
 
-### Integrations (planned, not in codebase)
+### Integrations
 
 | Integration | Phase |
 |-------------|-------|
-| PostHog analytics | Phase 1+ |
-| Sentry error monitoring | Phase 1+ |
+| PostHog analytics | Shipped — `src/lib/monitoring` + `EXPO_PUBLIC_POSTHOG_*` |
+| Sentry error monitoring | Shipped — `src/lib/monitoring` + `EXPO_PUBLIC_SENTRY_*` |
 | Expo Notifications + FCM | Phase 1+ |
 | Ads (per-slot house / sponsored / AdMob) | Shipped — see [Ads](./ads.md); portal `/dashboard/ads`; per-slot frequency caps; bootstrap catalog pull |
 | Apple Health / Health Connect | Phase 4 |
@@ -112,15 +112,17 @@ Spec: [Premium & plans](./premium-and-plans.md). **Shipped.**
 
 All five Phase 1 mini-apps ship on AsyncStorage today. Depth / parity work below is Phase 1 polish or Phase 2 depending on sync needs.
 
-### Medication Tracker
+### Medication Assistant
 
 | Feature | Status |
 |---------|--------|
 | Add / edit / pause medicines | ✅ |
-| Frequencies (1× / 2× / 3× / as-needed) | ✅ |
-| Today dose list + tap to log/undo | ✅ |
-| Calendar dose log | ✅ |
-| Reminders / notifications | ❌ |
+| Frequencies (1× / 2× / 3× / as-needed) + slot times | ✅ |
+| Today: due / upcoming / taken + tap to log/undo | ✅ |
+| Dosage instructions + refill tracking | ✅ |
+| History by day / medicine | ✅ |
+| In-app inbox reminders (due / missed / refill) | ✅ |
+| OS push / local notifications | ❌ |
 | SQLite + sync | ✅ Snapshot → Supabase |
 
 

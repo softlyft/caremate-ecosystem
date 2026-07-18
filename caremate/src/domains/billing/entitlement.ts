@@ -1,13 +1,9 @@
 /**
  * Premium entitlement helpers and billing repository exports.
  */
-export {
-  billingRepository,
-  emptyPremiumState,
-  formatPriceAmount,
-  getPremiumState,
-  premiumLabel,
-} from '@/domains/billing/repository';
+export { billingRepository, getPremiumState } from '@/domains/billing/repository';
+
+export { emptyPremiumState, formatPriceAmount, premiumLabel } from '@/domains/billing/format';
 
 export { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
 

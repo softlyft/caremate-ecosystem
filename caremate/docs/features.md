@@ -150,13 +150,14 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 **Route:** `/(app)/(tabs)/apps`  
 **Screen:** `src/app/(app)/(tabs)/apps.tsx`
 
-This tab is the launcher for the five registered mini-apps:
+This tab is the launcher for the six registered mini-apps:
 
-- Period Tracker
-- Pregnancy Tracker
-- Immunization Tracker
-- Medication Tracker
+- Vitals
+- Medication Assistant
 - Checkup Planner
+- Immunization Tracker
+- Pregnancy Tracker
+- Period Tracker
 
 Card grid uses tightened spacing (`spacing.sm` between cards) — see [UI & Theme](./ui-and-theme.md#tab-spacing-rhythm).
 
@@ -185,11 +186,14 @@ Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **
 - Theme preference (light, dark, system)
 - Notifications preference
 - Region and location-related profile fields
+- Privacy policy and terms of service links (`LEGAL_URLS`)
+- In-app account deletion (signed-in; cloud erase + local wipe)
 
 ### Current limitations
 
 - Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
 - Notifications are preference-only; push delivery and reminder flows are not fully wired
+- Hosted CareMate privacy/terms pages live in `website/` (deploy to `caremate.app` before store submission)
 - Premium tier detection, AdMob suppression, mini-app account gate, usage caps, blur paywalls, and family profile limits are enforced — see [Premium & plans](./premium-and-plans.md)
 
 ## Emergency Profile

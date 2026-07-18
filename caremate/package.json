@@ -11,11 +11,13 @@
     "@gluestack-ui/utils": "^5.0.6",
     "@hookform/resolvers": "^5.4.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@sentry/react-native": "~7.11.0",
     "@supabase/supabase-js": "^2.110.5",
     "@tanstack/react-query": "^5.101.2",
     "drizzle-orm": "^0.45.1",
     "emergency-lock-widget": "file:modules/emergency-lock-widget",
     "expo": "~57.0.4",
+    "expo-application": "~57.0.2",
     "expo-background-task": "~57.0.2",
     "expo-build-properties": "~57.0.5",
     "expo-clipboard": "~57.0.1",
@@ -27,6 +29,7 @@
     "expo-image": "~57.0.0",
     "expo-linking": "~57.0.2",
     "expo-local-authentication": "~57.0.0",
+    "expo-localization": "~57.0.1",
     "expo-location": "~57.0.4",
     "expo-network": "~57.0.0",
     "expo-router": "~57.0.4",
@@ -40,6 +43,7 @@
     "expo-web-browser": "~57.0.0",
     "expo-widgets": "~57.0.3",
     "lucide-react-native": "^1.24.0",
+    "posthog-react-native": "^4.57.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.81.0",
@@ -63,6 +67,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@react-native/jest-preset": "^0.86.0",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
     "babel-plugin-inline-import": "^3.0.0",
@@ -88,6 +93,9 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watchAll",
+    "test:mini-apps": "jest --testPathPattern=src/mini-apps --coverage --collectCoverageFrom='src/mini-apps/**/*.{ts,tsx}' --collectCoverageFrom='!src/mini-apps/**/__tests__/**' --collectCoverageFrom='!src/mini-apps/_kit/components/**' --collectCoverageFrom='!src/mini-apps/_kit/MiniAppCard.tsx' --collectCoverageFrom='!src/mini-apps/_kit/bootstrap.ts' --collectCoverageFrom='!src/mini-apps/_kit/index.ts' --collectCoverageFrom='!src/mini-apps/test-utils.ts' --collectCoverageFrom='!src/mini-apps/**/use-*.ts' --collectCoverageFrom='!src/mini-apps/**/selectors.ts' --collectCoverageFrom='!src/mini-apps/_kit/use-persist-hydrated.ts' --collectCoverageFrom='!src/mini-apps/_kit/hydrate.ts' --collectCoverageFrom='!src/mini-apps/_kit/synced-storage.ts' --collectCoverageFrom='!src/mini-apps/_kit/snapshot-repository.ts' --coverageThreshold='{\"global\":{\"statements\":80,\"branches\":70,\"functions\":80,\"lines\":80}}'",
+    "test:core": "jest --testPathPattern='src/domains/(articles|providers|emergency)' --coverage --collectCoverageFrom='src/domains/articles/**/*.{ts,tsx}' --collectCoverageFrom='src/domains/providers/**/*.{ts,tsx}' --collectCoverageFrom='src/domains/emergency/**/*.{ts,tsx}' --collectCoverageFrom='!src/domains/**/__tests__/**' --collectCoverageFrom='!src/domains/**/components/**' --collectCoverageFrom='!src/domains/**/hooks/**' --collectCoverageFrom='!src/domains/**/repository.ts' --collectCoverageFrom='!src/domains/**/index.ts' --collectCoverageFrom='!src/domains/providers/data/**' --coverageThreshold='{\"global\":{\"statements\":80,\"branches\":70,\"functions\":80,\"lines\":80}}'",
+    "test:logic": "jest --coverage --collectCoverageFrom='src/domains/**/*.{ts,tsx}' --collectCoverageFrom='src/utils/**/*.{ts,tsx}' --collectCoverageFrom='src/lib/**/*.{ts,tsx}' --collectCoverageFrom='src/sync/network.ts' --collectCoverageFrom='src/features/home/**/*.{ts,tsx}' --collectCoverageFrom='!src/**/__tests__/**' --collectCoverageFrom='!src/**/*.test.ts' --collectCoverageFrom='!src/**/components/**' --collectCoverageFrom='!src/**/hooks.ts' --collectCoverageFrom='!src/**/hooks/**' --collectCoverageFrom='!src/**/repository.ts' --collectCoverageFrom='!src/**/OnboardingShell.tsx' --collectCoverageFrom='!src/domains/**/I18nProvider.tsx' --collectCoverageFrom='!src/domains/**/use-*.ts' --collectCoverageFrom='!src/domains/**/index.ts' --collectCoverageFrom='!src/domains/**/types.ts' --collectCoverageFrom='!src/domains/billing/entitlement.ts' --coverageThreshold='{\"global\":{\"statements\":80,\"branches\":70,\"functions\":80,\"lines\":80}}'",
     "db:generate": "drizzle-kit generate",
     "supabase:link": "npm run supabase:link --prefix ..",
     "supabase:migration:new": "npm run supabase:migration:new --prefix .. --",
@@ -99,6 +107,9 @@
   },
   "jest": {
     "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ],
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/android/",

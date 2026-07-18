@@ -23,7 +23,9 @@
     "monthly": "Mensuel",
     "yearly": "Annuel",
     "guestCta": "Connectez-vous pour vous abonner",
-    "error": "Impossible de démarrer le paiement"
+    "error": "Impossible de démarrer le paiement",
+    "medicationLimitTitle": "Limite de médicaments atteinte",
+    "medicationLimitMessage": "Les comptes gratuits peuvent suivre jusqu’à 3 médicaments. Passez à Standard ou Famille Premium pour un suivi illimité."
   },
   "patientId": {
     "title": "ID patient CareMate",

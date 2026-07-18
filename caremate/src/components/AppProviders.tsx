@@ -25,6 +25,7 @@ import { emergencyRepository } from '@/domains/emergency/repository';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
 import { queryClient } from '@/lib/query-client';
+import { MonitoringProvider } from '@/lib/monitoring/MonitoringProvider';
 import { authService } from '@/services/auth-service';
 import { registerDailyBackgroundSync } from '@/sync/background-daily-sync';
 import { syncEngine } from '@/sync/engine';
@@ -216,9 +217,11 @@ function LocalizedApp({ children }: PropsWithChildren) {
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
-      <BootstrapGate>
-        <LocalizedApp>{children}</LocalizedApp>
-      </BootstrapGate>
+      <MonitoringProvider>
+        <BootstrapGate>
+          <LocalizedApp>{children}</LocalizedApp>
+        </BootstrapGate>
+      </MonitoringProvider>
     </QueryClientProvider>
   );
 }

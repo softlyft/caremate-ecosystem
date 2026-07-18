@@ -4,9 +4,13 @@
   "readyCount": "{{count}} 个工具可用",
   "comingSoon": "即将推出",
   "registry": {
+    "vitals-tracker": {
+      "name": "生命体征",
+      "description": "记录血压、血糖、心率等——一眼查看你的健康余额。"
+    },
     "medication-tracker": {
-      "name": "用药追踪",
-      "description": "追踪您或家人的药物、每日剂量和依从性。"
+      "name": "用药助手",
+      "description": "安排服药时间、确认已服剂量，并收到补药提醒——您的日常用药帮手。"
     },
     "checkup-planner": {
       "name": "体检规划",
@@ -28,5 +32,170 @@
   "signInRequired": "登录以在各设备间同步此工具",
   "save": "保存",
   "log": "记录条目",
-  "setup": "设置"
+  "setup": "设置",
+  "medicationTracker": {
+    "eyebrow": "助手",
+    "emptyTitle": "您的用药助手",
+    "emptySubtitle": "添加药品、设置时间，并在服药时确认",
+    "addMedicine": "添加药品",
+    "logDose": "记录剂量",
+    "todaysDoses": "今日剂量",
+    "medicines": "药品",
+    "setupSave": "添加药品",
+    "setupSaveEdit": "保存更改",
+    "history": "历史记录",
+    "screenTitle": "用药助手",
+    "setupTitle": "添加药品",
+    "logTitle": "记录剂量",
+    "historyTitle": "用药历史",
+    "backToApps": "返回应用",
+    "close": "关闭",
+    "back": "返回"
+  },
+  "medication": {
+    "frequency": {
+      "once-daily": {
+        "label": "每日一次",
+        "slots": {
+          "0": "每日剂量"
+        }
+      },
+      "twice-daily": {
+        "label": "每日两次",
+        "slots": {
+          "0": "早晨",
+          "1": "晚上"
+        }
+      },
+      "three-times-daily": {
+        "label": "每日三次",
+        "slots": {
+          "0": "早晨",
+          "1": "下午",
+          "2": "晚上"
+        }
+      },
+      "as-needed": {
+        "label": "按需",
+        "slots": {
+          "0": "剂量"
+        }
+      }
+    },
+    "ui": {
+      "you": "自己",
+      "child": "孩子",
+      "nothingToday": "今天没有安排",
+      "catchUp": "补上之前漏服的剂量",
+      "upToDate": "今天已全部完成",
+      "paused": "已暂停",
+      "editMedicine": "编辑药品",
+      "addMedicine": "添加药品",
+      "updateHint": "更新剂量、时间表、服用说明、补药信息，或暂停此药。",
+      "addHint": "为自己或孩子添加药品——设置时间与服用方式。",
+      "forKid": "这是给孩子的吗？",
+      "forMe": "否 — 给我自己",
+      "forKidYes": "是 — 给孩子",
+      "setupFamilyFirst": "请先设置家庭并添加孩子。",
+      "addChildrenFirst": "请先在“家庭”中添加孩子，再分配药品。",
+      "howOften": "服用频率",
+      "notesOptional": "备注（可选）",
+      "notesPlaceholder": "随餐、副作用等",
+      "notesPlaceholderLog": "随餐、副作用…",
+      "selectChildTitle": "选择孩子",
+      "selectChildMessage": "选择这药是给哪个孩子的。",
+      "removeMedicine": "删除药品",
+      "removeConfirmTitle": "删除药品？",
+      "removeConfirmMessage": "该药品的服药记录也将被删除。",
+      "updateDoseLog": "更新服药记录",
+      "markTaken": "标记为已服",
+      "removeDoseLog": "删除此记录",
+      "dosesTakenToday": "今天已服 {{taken}} / {{expected}} 次",
+      "asNeededLoggedToday": "今天已记录 {{count}} 次按需剂量",
+      "asNeededLoggedToday_other": "今天已记录 {{count}} 次按需剂量",
+      "dosesStillDue": "今天还有 {{count}} 次待服",
+      "dosesStillDue_other": "今天还有 {{count}} 次待服",
+      "doseN": "第 {{n}} 次",
+      "today": "今天",
+      "activeMedicines": "在用药",
+      "emptyFilter": "此筛选下今天没有安排。请添加药品或检查开始日期。",
+      "tapToUndo": "点按撤销",
+      "tapToMarkTaken": "点按标记已服",
+      "pausedSuffix": "（已暂停）",
+      "notFound": "未找到该药品。",
+      "addBeforeLogging": "记录剂量前请先添加药品。",
+      "logIntro": "记录已服用的剂量。也可在主页撤销。",
+      "medicine": "药品",
+      "dose": "剂量",
+      "dateLabel": "日期：{{date}}",
+      "name": "名称",
+      "dosage": "剂量",
+      "namePlaceholder": "例如：二甲双胍",
+      "dosagePlaceholder": "例如：500mg",
+      "startDateHint": "开始日期 — 从此日开始跟踪剂量。",
+      "startsOn": "{{date}} 开始",
+      "status": "状态",
+      "active": "启用",
+      "whichChild": "哪个孩子？",
+      "signInFamilyKids": "登录并设置家庭，以便为孩子分配药品。",
+      "anyParentCanLog": "家庭中的任何家长都可在 CareMate 中为孩子记录服药。",
+      "dueNow": "现在到期",
+      "upcoming": "即将到来",
+      "takenToday": "今日已服",
+      "dueNowCount": "现在有 {{count}} 次待服",
+      "dueNowCount_other": "现在有 {{count}} 次待服",
+      "nextUp": "下一次：{{name}} · {{slot}}",
+      "freeCap": "免费方案名额",
+      "instructions": "服用说明",
+      "instructionsPlaceholder": "例如：避免乳制品，用水送服",
+      "scheduleTimes": "服药时间",
+      "scheduleTimesHint": "使用 24 小时制，如 08:00 或 20:30。",
+      "startDate": "开始日期",
+      "refillDueDate": "补药日期",
+      "refill": "补药跟踪",
+      "quantityRemaining": "剩余片数/次数（可选）",
+      "quantityPlaceholder": "例如：30",
+      "refillThreshold": "达到或低于时提醒",
+      "refillOn": "{{date}} 需补药",
+      "refillDateOptional": "可选补药日期 — 再点一次可清除",
+      "historySubtitle": "最近记录的服药",
+      "historyEmpty": "尚无记录。标记已服以建立历史。",
+      "unknownMedicine": "未知药品"
+    },
+    "status": {
+      "taken": "已服",
+      "due": "到期",
+      "missed": "漏服",
+      "upcoming": "即将",
+      "as-needed": "按需"
+    },
+    "instructions": {
+      "none": "无",
+      "with_food": "随餐",
+      "empty_stomach": "空腹",
+      "other": "其他"
+    },
+    "alerts": {
+      "doseDueTitle": "该服药了：{{name}}",
+      "doseDueBody": "{{name}} — {{slot}} 已到期。请在用药助手中标记已服。",
+      "doseMissedTitle": "漏服：{{name}}",
+      "doseMissedBody": "{{name}} — {{slot}} 已漏服。有空时请补上。",
+      "refillTitle": "即将补药：{{name}}",
+      "refillBody": "{{name}} 所剩不多或到了补药时间。"
+    }
+  },
+  "edit": "编辑",
+  "openFamily": "打开家庭",
+  "setUpFamily": "设置家庭",
+  "setUpFamilyFirst": "请先设置家庭",
+  "addChildren": "添加孩子",
+  "manageInFamily": "在家庭中管理",
+  "goToFamilySetup": "前往家庭设置",
+  "backToTracker": "返回跟踪器",
+  "clearSelection": "清除选择",
+  "remove": "删除",
+  "saveChanges": "保存更改",
+  "loading": "加载中…",
+  "editProfile": "编辑资料",
+  "signInRequiredTitle": "需要登录"
 }

@@ -1,6 +1,7 @@
 import { AD_SLOTS } from '@/domains/ads/types';
 import {
   FREE_MEDICATION_LIMIT,
+  canActivateMedication,
   canAddChild,
   canAddMedication,
   canConnectSpouse,
@@ -21,6 +22,18 @@ describe('billing entitlements', () => {
     expect(canAddMedication('free', FREE_MEDICATION_LIMIT - 1)).toBe(true);
     expect(canAddMedication('free', FREE_MEDICATION_LIMIT)).toBe(false);
     expect(canAddMedication('personal', FREE_MEDICATION_LIMIT)).toBe(true);
+  });
+
+  it('blocks reactivating medications beyond free limit', () => {
+    const meds = [
+      { id: 'a', active: true },
+      { id: 'b', active: true },
+      { id: 'c', active: true },
+      { id: 'd', active: false },
+    ];
+    expect(canActivateMedication('free', meds, 'd', true)).toBe(false);
+    expect(canActivateMedication('free', meds, 'a', true)).toBe(true);
+    expect(canActivateMedication('personal', meds, 'd', true)).toBe(true);
   });
 
   it('limits checkups on free tier', () => {

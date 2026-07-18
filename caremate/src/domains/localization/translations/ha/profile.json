@@ -23,7 +23,9 @@
     "monthly": "Na wata-wata",
     "yearly": "Na shekara-shekara",
     "guestCta": "Shiga don biyan kuɗi",
-    "error": "Ba a iya fara biyan kuɗi ba"
+    "error": "Ba a iya fara biyan kuɗi ba",
+    "medicationLimitTitle": "An kai iyakar magani",
+    "medicationLimitMessage": "Asusun kyauta na iya bin magunguna 3. Haɓaka zuwa Standard ko Family Premium don bin babu iyaka."
   },
   "patientId": {
     "title": "ID ɗin Majinyaci na CareMate",

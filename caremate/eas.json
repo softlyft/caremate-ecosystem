@@ -16,7 +16,8 @@
       },
       "channel": "internal",
       "env": {
-        "APP_ENV": "internal"
+        "APP_ENV": "internal",
+        "EXPO_PUBLIC_APP_ENV": "internal"
       }
     },
     "testflight": {
@@ -26,7 +27,8 @@
       },
       "channel": "testflight",
       "env": {
-        "APP_ENV": "testflight"
+        "APP_ENV": "testflight",
+        "EXPO_PUBLIC_APP_ENV": "testflight"
       }
     },
     "staging": {
@@ -34,7 +36,8 @@
       "channel": "staging",
       "autoIncrement": true,
       "env": {
-        "APP_ENV": "staging"
+        "APP_ENV": "staging",
+        "EXPO_PUBLIC_APP_ENV": "staging"
       }
     }
   },

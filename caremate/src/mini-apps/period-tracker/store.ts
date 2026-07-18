@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { parseDateKey, toDateKey } from '@/mini-apps/period-tracker/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
+import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 
 interface PeriodTrackerState {
   cycleLength: number;
@@ -18,11 +18,27 @@ interface PeriodTrackerState {
   clearAll: () => void;
 }
 
-function deriveLastPeriodStart(days: string[]): string | null {
+/**
+ * Start date of the most recent contiguous logged streak.
+ * Used as the cycle anchor for next-period predictions.
+ */
+export function deriveLastPeriodStart(days: string[]): string | null {
   if (days.length === 0) {
     return null;
   }
-  return [...days].sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime())[0];
+  const sorted = [...days].sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime());
+  let streakStart = sorted[sorted.length - 1]!;
+  for (let i = sorted.length - 1; i > 0; i -= 1) {
+    const current = parseDateKey(sorted[i]!);
+    const previous = parseDateKey(sorted[i - 1]!);
+    const gapDays = Math.round((current.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24));
+    if (gapDays <= 1) {
+      streakStart = sorted[i - 1]!;
+    } else {
+      break;
+    }
+  }
+  return streakStart;
 }
 
 export const usePeriodTrackerStore = create<PeriodTrackerState>()(
@@ -68,21 +84,7 @@ registerMiniAppRehydrate(async () => {
 });
 
 export function usePeriodTrackerHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() => usePeriodTrackerStore.persist.hasHydrated());
-
-  useEffect(() => {
-    if (hydrated) {
-      return;
-    }
-
-    const unsubscribe = usePeriodTrackerStore.persist.onFinishHydration(() => {
-      setHydrated(true);
-    });
-
-    return unsubscribe;
-  }, [hydrated]);
-
-  return hydrated;
+  return usePersistHydrated(usePeriodTrackerStore.persist);
 }
 
 export function isPredictedPeriodDay(

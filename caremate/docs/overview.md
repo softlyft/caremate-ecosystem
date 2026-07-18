@@ -61,21 +61,25 @@ Use Supabase directly plus Edge Functions for privileged operations. A NestJS in
 | Offline banner & bootstrap error handling | ✅ |
 | Background sync to Supabase | ✅ (when configured) |
 
-### Mini-apps (local only, AsyncStorage)
+### Mini-apps (local + signed-in snapshots)
 
 | Mini-app | Status |
 |----------|--------|
-| Period Tracker | ✅ MVP |
-| Pregnancy Tracker | ✅ MVP |
+| Vitals | ✅ MVP |
+| Medication Assistant | ✅ MVP |
+| Checkup Planner | ✅ MVP |
 | Immunization Tracker | ✅ MVP |
+| Pregnancy Tracker | ✅ MVP |
+| Period Tracker | ✅ MVP |
 
 ### Not yet implemented
 
 - Phone / Google / Apple sign-in
 - Push notifications (FCM / Expo Notifications)
-- PostHog analytics, Sentry error monitoring
-- Family profiles, medication tracking (Phase 2)
+- Family profiles, household sharing (Phase 2)
 - FHIR, telemedicine, wearables (Phase 3–4)
+
+Monitoring: Sentry + PostHog are wired in `src/lib/monitoring` (enable via env — see [Configuration](./configuration.md)).
 
 See [Roadmap & Gaps](./roadmap.md) for the full phase plan.
 

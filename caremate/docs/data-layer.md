@@ -118,6 +118,21 @@ Outbound sync operations.
 | attempts | integer | Retry count |
 | last_error | text | Last failure message |
 
+#### `analytics_queue`
+Offline-first PostHog outbox (independent of Supabase).
+
+| Column | Type | Notes |
+|--------|------|-------|
+| kind | text | `event` \| `screen` |
+| name | text | Event or screen name |
+| properties | text | JSON props |
+| distinct_id | text | Signed-in user id at enqueue time (nullable for guests) |
+| occurred_at | text | Original local timestamp |
+| attempts | integer | Retry count (max in `ANALYTICS_QUEUE_CONFIG`) |
+| last_error | text | Last flush failure |
+
+`trackEvent` / `trackScreen` enqueue here immediately. The queue drains to PostHog when online (sync-engine reconnect/cycle, PostHog client bind, or debounced flush after enqueue). See [Sync Engine](./SYNC_ENGINE.md#analytics-outbox).
+
 #### `sync_metadata`
 Key-value store for sync cursors and timestamps.
 
@@ -278,7 +293,8 @@ UI stores remain Zustand + AsyncStorage for snappy offline UX. For **signed-in**
 
 | App key | AsyncStorage key | Contents |
 |---------|------------------|----------|
-| `medication` | `caremate-medication-tracker` | Medicines, dose logs |
+| `vitals` | `caremate-vitals-tracker` | Vital readings + unit preferences |
+| `medication` | `caremate-medication-tracker` | Medicines, schedule, dose logs, refill |
 | `checkup` | `caremate-checkup-planner` | DOB/gender/region, completions |
 | `immunization` | `caremate-immunization-tracker` | Child profiles, vaccine records |
 | `pregnancy` | `caremate-pregnancy-tracker` | Pregnancy profile, daily logs |
