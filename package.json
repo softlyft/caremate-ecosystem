@@ -36,7 +36,9 @@
     "typecheck": "npm run typecheck -w caremate && npm run typecheck -w caremate-portal && npm run typecheck -w caremate-provider-portal && npm run typecheck -w caremate-payment && npm run typecheck -w caremate-website",
     "test": "npm run test -w caremate && npm run test -w caremate-portal && npm run test -w caremate-payment && npm run ingest:test && npm run test:email-templates",
     "test:email-templates": "npx tsx --test supabase/functions/_shared/email-templates/templates.test.ts",
-    "format": "npm run format:write -w caremate",
+    "format": "npm run format:write",
+    "format:write": "prettier --write --config caremate/.prettierrc --ignore-path caremate/.prettierignore caremate",
+    "format:check": "prettier --check --config caremate/.prettierrc --ignore-path caremate/.prettierignore caremate",
     "seed:articles": "npm run seed:articles -w caremate-portal",
     "seed:tips": "npm run seed:tips -w caremate-portal",
     "seed:catalogs": "npm run seed:catalogs -w caremate-portal"

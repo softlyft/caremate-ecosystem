@@ -234,9 +234,7 @@ export default function ProfileTabScreen() {
               iconBackground={palette.primaryLight}
               title={t('profile.menu.connections')}
               subtitle={
-                isGuest
-                  ? t('profile.connections.guestSubtitle')
-                  : t('profile.connections.subtitle')
+                isGuest ? t('profile.connections.guestSubtitle') : t('profile.connections.subtitle')
               }
               onPress={() =>
                 isGuest
@@ -251,9 +249,7 @@ export default function ProfileTabScreen() {
               iconBackground="#CCFBF1"
               title={t('profile.menu.documents')}
               subtitle={
-                isGuest
-                  ? t('profile.documents.guestSubtitle')
-                  : t('profile.documents.menuSubtitle')
+                isGuest ? t('profile.documents.guestSubtitle') : t('profile.documents.menuSubtitle')
               }
               onPress={() =>
                 isGuest

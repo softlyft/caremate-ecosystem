@@ -370,8 +370,7 @@ export default function FamilyHubScreen() {
   const requestCount = requestsQuery.data?.length ?? 0;
   const canAddAnotherChild = canAddChild(tier, children.length);
   const familyPlanAllowsInvite = canConnectSpouse(tier);
-  const canSendInvite =
-    isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
+  const canSendInvite = isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
 
   return (
     <View style={styles.screen}>

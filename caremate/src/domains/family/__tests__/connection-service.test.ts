@@ -83,7 +83,10 @@ describe('familyConnectionService', () => {
   });
 
   it('throws when RPC fails (owner/seat rules are server-enforced)', async () => {
-    mockRpc.mockResolvedValue({ data: null, error: { message: 'Family Premium allows up to 3 invited members' } });
+    mockRpc.mockResolvedValue({
+      data: null,
+      error: { message: 'Family Premium allows up to 3 invited members' },
+    });
 
     await expect(
       familyConnectionService.requestConnection({

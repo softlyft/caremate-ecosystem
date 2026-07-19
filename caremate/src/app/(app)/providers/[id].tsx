@@ -171,9 +171,7 @@ export default function ProviderDetailScreen() {
   const orgVerified = orgVerifiedQuery.data === true;
   const connection = connectionQuery.data;
   const showConnectCard =
-    !isGuest &&
-    Boolean(organizationId) &&
-    (Boolean(connection) || orgVerified);
+    !isGuest && Boolean(organizationId) && (Boolean(connection) || orgVerified);
   const typeKey = detail.type as ProviderType;
   const typeLabel = t(`nearby.types.${typeKey}`);
   const canOpenMaps = canOpenInMaps(detail);

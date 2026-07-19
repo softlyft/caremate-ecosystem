@@ -28,11 +28,8 @@ export default function ProviderConnectionRequestsScreen() {
   });
 
   const respondMutation = useMutation({
-    mutationFn: (params: {
-      connectionId: string;
-      accept: boolean;
-      rejectionReason?: string;
-    }) => providerConnectionService.respondToRequest(params),
+    mutationFn: (params: { connectionId: string; accept: boolean; rejectionReason?: string }) =>
+      providerConnectionService.respondToRequest(params),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setDecliningId(null);
@@ -49,9 +46,7 @@ export default function ProviderConnectionRequestsScreen() {
     onError: (error) => {
       Alert.alert(
         t('nearby.connectionRequests.failedTitle'),
-        error instanceof Error
-          ? error.message
-          : t('nearby.connectionRequests.failedMessage'),
+        error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );
     },
     onSettled: () => {

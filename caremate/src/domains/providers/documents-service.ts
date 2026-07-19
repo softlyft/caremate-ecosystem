@@ -62,9 +62,7 @@ const ALLOWED_MIME = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-async function loadOrganizationNames(
-  organizationIds: string[],
-): Promise<Map<string, string>> {
+async function loadOrganizationNames(organizationIds: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(organizationIds.filter(Boolean))];
   if (unique.length === 0) {
     return new Map();
@@ -82,10 +80,7 @@ async function loadOrganizationNames(
   return new Map((data ?? []).map((row) => [row.id as string, (row.name as string) ?? 'Provider']));
 }
 
-function mapRow(
-  row: RemoteDocumentRow,
-  organizationName: string | null,
-): ProviderDocument {
+function mapRow(row: RemoteDocumentRow, organizationName: string | null): ProviderDocument {
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -272,10 +267,7 @@ class ProviderDocumentsService {
     const names = row.organization_id
       ? await loadOrganizationNames([row.organization_id])
       : new Map<string, string>();
-    return mapRow(
-      row,
-      row.organization_id ? (names.get(row.organization_id) ?? null) : null,
-    );
+    return mapRow(row, row.organization_id ? (names.get(row.organization_id) ?? null) : null);
   }
 }
 

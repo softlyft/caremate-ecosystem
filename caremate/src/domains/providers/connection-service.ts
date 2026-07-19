@@ -65,9 +65,7 @@ export function getProviderOrganizationId(provider: Provider): string | null {
   return null;
 }
 
-async function loadOrganizationNames(
-  organizationIds: string[],
-): Promise<Map<string, string>> {
+async function loadOrganizationNames(organizationIds: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(organizationIds.filter(Boolean))];
   if (unique.length === 0) {
     return new Map();
@@ -244,9 +242,7 @@ class ProviderConnectionService {
       patient_id: row.patient_id,
       connection_id: row.id,
       event_type: params.accept ? 'connection_approved' : 'connection_rejected',
-      summary: params.accept
-        ? 'Patient approved connection'
-        : 'Patient rejected connection',
+      summary: params.accept ? 'Patient approved connection' : 'Patient rejected connection',
       metadata: {
         initiated_by: 'provider',
         responded_by: 'patient',

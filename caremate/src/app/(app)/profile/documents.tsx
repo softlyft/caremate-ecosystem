@@ -1,15 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FilePlus2, FileText, Link2 } from 'lucide-react-native';
 import { useState } from 'react';
-import {
-  Alert,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -92,7 +84,10 @@ export default function ProviderDocumentsScreen() {
       setTitle('');
       setDocumentType('prescription');
       setUploadOrgId(null);
-      Alert.alert(t('profile.documents.uploadSuccessTitle'), t('profile.documents.uploadSuccessMessage'));
+      Alert.alert(
+        t('profile.documents.uploadSuccessTitle'),
+        t('profile.documents.uploadSuccessMessage'),
+      );
     },
     onError: (error) => {
       if (error instanceof Error && error.message === 'UPLOAD_CANCELLED') {
@@ -111,7 +106,10 @@ export default function ProviderDocumentsScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerDocuments });
       setLinkDoc(null);
-      Alert.alert(t('profile.documents.linkSuccessTitle'), t('profile.documents.linkSuccessMessage'));
+      Alert.alert(
+        t('profile.documents.linkSuccessTitle'),
+        t('profile.documents.linkSuccessMessage'),
+      );
     },
     onError: (error) => {
       Alert.alert(
@@ -160,10 +158,7 @@ export default function ProviderDocumentsScreen() {
         <AppText variant="sectionTitle">{t('profile.documents.title')}</AppText>
         <AppText variant="subtitle">{t('profile.documents.subtitle')}</AppText>
 
-        <PressableScale
-          style={[styles.uploadCta, shadow.soft]}
-          onPress={() => setUploadOpen(true)}
-        >
+        <PressableScale style={[styles.uploadCta, shadow.soft]} onPress={() => setUploadOpen(true)}>
           <FilePlus2 color="#FFFFFF" size={18} strokeWidth={2.25} />
           <AppText variant="button" style={styles.uploadCtaLabel}>
             {t('profile.documents.uploadCta')}
@@ -180,7 +175,9 @@ export default function ProviderDocumentsScreen() {
             const canLink = doc.source === 'patient';
             const providerLabel =
               doc.organizationName ??
-              (canLink ? t('profile.documents.noProviderYet') : t('profile.documents.providerFallback'));
+              (canLink
+                ? t('profile.documents.noProviderYet')
+                : t('profile.documents.providerFallback'));
             return (
               <View key={doc.id} style={[styles.card, shadow.soft]}>
                 <PressableScale
@@ -239,7 +236,12 @@ export default function ProviderDocumentsScreen() {
         )}
       </ScrollView>
 
-      <Modal visible={uploadOpen} animationType="slide" transparent onRequestClose={() => setUploadOpen(false)}>
+      <Modal
+        visible={uploadOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setUploadOpen(false)}
+      >
         <View style={styles.modalBackdrop}>
           <View style={[styles.modalCard, { paddingBottom: insets.bottom + spacing.md }]}>
             <AppText variant="sectionTitle">{t('profile.documents.uploadTitle')}</AppText>
@@ -261,7 +263,11 @@ export default function ProviderDocumentsScreen() {
             <AppText variant="caption" style={styles.fieldLabel}>
               {t('profile.documents.typeField')}
             </AppText>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.chipRow}
+            >
               {PROVIDER_DOCUMENT_TYPES.map((type) => {
                 const active = type === documentType;
                 return (
