@@ -10,8 +10,8 @@ From [`CareMate.md`](../CareMate.md), updated for current shipping scope:
 |-------|-------|--------|
 | **Phase 1** | MVP — auth, emergency, articles, providers, profile, **5 mini-apps** | ✅ Mostly complete |
 | **Phase 2** | Family profiles, appointments, reminders, mini-app SQLite/sync depth | 🔜 Next |
-| **Phase 3** | Provider portal, NestJS, FHIR APIs, hospital/lab/pharmacy integrations | ❌ Not started |
-| **Phase 4** | Telemedicine, AI, wearables, insurance, **payments (Premium Paystack/Stripe — in progress)** | 🚧 Billing infra started |
+| **Phase 3** | Provider engagement portal + NestJS/FHIR hospital integrations | 🚧 Portal MVP live (`caremate-provider-portal`: claim, connections, docs/broadcasts scaffold); deep HMS integrations not started |
+| **Phase 4** | Telemedicine, AI, wearables, insurance claims, **payments (Premium Paystack/Stripe — in progress)** | 🚧 Billing infra started |
 
 ### Phase 1 mini-apps (shipped)
 

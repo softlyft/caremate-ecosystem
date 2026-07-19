@@ -10,15 +10,19 @@ export { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlemen
 export { isLocalEntitlementActive } from '@/domains/billing/period';
 
 export {
+  FAMILY_ADULT_INVITE_LIMIT,
   FREE_CHECKUP_VISIBLE_COUNT,
   FREE_FAMILY_CHILD_LIMIT,
   FREE_IMMUNIZATION_MAX_WEEKS,
   FREE_MEDICATION_LIMIT,
+  canActivateMedication,
   canAddChild,
   canAddMedication,
   canConnectSpouse,
+  canInviteFamilyMember,
   canUseMiniApps,
   countActiveMedications,
+  familyAdultInviteSeatsRemaining,
   hasFamilyPlan,
   isCheckupItemUnlocked,
   isCheckupYearUnlocked,

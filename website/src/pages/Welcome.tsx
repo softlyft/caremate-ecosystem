@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
-import { APP_STORE_URLS, BRAND, CORE_FEATURES, MINI_APPS } from '@/lib/brand';
+import { APP_STORE_URLS, BRAND, CORE_FEATURES, MINI_APPS, PROVIDER_CAPABILITIES } from '@/lib/brand';
 import styles from './Welcome.module.css';
 
 export function WelcomePage() {
@@ -20,7 +20,8 @@ export function WelcomePage() {
             </h1>
             <p className={styles.support}>
               CareMate is your offline-first companion for emergencies, nearby care, trusted
-              reading, and personal trackers — built for patients, not clinics.
+              reading, and personal trackers — and a trusted channel for the care organizations
+              patients connect with.
             </p>
             <div className={styles.ctaGroup}>
               <a className={styles.ctaPrimary} href={APP_STORE_URLS.ios}>
@@ -35,7 +36,10 @@ export function WelcomePage() {
                 See what is inside
               </a>
               <Link className={styles.heroJump} to="/guide">
-                Read the patient guide
+                Patient guide
+              </Link>
+              <Link className={styles.heroJump} to="/providers">
+                For providers
               </Link>
             </div>
           </div>
@@ -131,7 +135,50 @@ export function WelcomePage() {
         </div>
       </section>
 
-      <section className={styles.section} aria-labelledby="flow-heading">
+      <section id="providers" className={styles.section} aria-labelledby="providers-heading">
+        <div className={styles.sectionIntro}>
+          <p className={styles.eyebrow}>Healthcare organizations</p>
+          <h2 id="providers-heading">CareMate for providers</h2>
+          <p className={styles.sectionLead}>
+            Hospitals, clinics, pharmacies, and labs keep their own systems. The Provider Portal is
+            how they connect with CareMate patients — connections, documents, broadcasts, and
+            appointment requests. Not an EHR.
+          </p>
+        </div>
+
+        <div className={styles.coreList}>
+          {PROVIDER_CAPABILITIES.map((item, index) => (
+            <article
+              key={item.id}
+              className={styles.coreItem}
+              style={
+                {
+                  '--accent': item.accent,
+                  '--soft': item.soft,
+                  '--delay': `${index * 40}ms`,
+                } as CSSProperties
+              }
+            >
+              <span className={styles.coreIndex}>{String(index + 1).padStart(2, '0')}</span>
+              <div className={styles.coreBody}>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.providerCtas}>
+          <Link className={styles.providerCtaPrimary} to="/providers">
+            Explore for providers
+          </Link>
+          <Link className={styles.providerCtaSecondary} to="/providers/guide">
+            Provider guide
+          </Link>
+        </div>
+      </section>
+
+      <section className={styles.sectionAlt} aria-labelledby="flow-heading">
         <div className={styles.sectionIntro}>
           <p className={styles.eyebrow}>How it works</p>
           <h2 id="flow-heading">Start light. Go deeper when you need to.</h2>

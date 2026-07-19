@@ -27,6 +27,7 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Follow dev conventions and scripts | [Development Guide](./development.md) |
 | Run QA / manual regression | [QA Test Cases](./qa-test-cases.md) |
 | See what's planned next | [Roadmap & Gaps](./roadmap.md) |
+| Provider engagement portal (connections, docs) | [Provider Portal](../../caremate-provider-portal/docs/README.md) · [Provider model](./provider-model.md) |
 
 ---
 

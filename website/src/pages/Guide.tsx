@@ -17,7 +17,8 @@ const CORE_HOW_TO: Record<(typeof CORE_FEATURES)[number]['id'], string[]> = {
   ],
   nearby: [
     'Open the Nearby tab (or the nearby row on Home) to find hospitals, pharmacies, labs, and clinics around you.',
-    'Filter by type, search by name, open a provider for details, save favorites, and launch Maps for directions.',
+    'Open a provider for details, save favorites, and launch Maps for directions. If the organization has claimed CareMate and is verified, signed-in patients can request a connection from the detail screen.',
+    'Manage Connected providers and inbound provider requests under Me → Connections.',
     'Results cache on your device after a successful online search, so you can revisit them offline.',
   ],
   family: [
@@ -226,6 +227,8 @@ export function GuidePage() {
         <p className={styles.meta}>Last updated: July 18, 2026</p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
+          {' · '}
+          <Link to="/providers/guide">Provider guide</Link>
         </p>
       </article>
     </main>

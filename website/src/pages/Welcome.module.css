@@ -443,6 +443,52 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.providerCtas {
+  max-width: var(--max-width);
+  margin: 2rem auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.providerCtaPrimary,
+.providerCtaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.8rem 1.35rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.providerCtaPrimary {
+  background: var(--cm-primary);
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(13, 148, 136, 0.25);
+}
+
+.providerCtaPrimary:hover {
+  transform: translateY(-2px);
+  background: var(--cm-primary-dark);
+}
+
+.providerCtaSecondary {
+  color: var(--cm-primary-dark);
+  border: 1.5px solid rgba(13, 148, 136, 0.35);
+  background: #fff;
+}
+
+.providerCtaSecondary:hover {
+  transform: translateY(-2px);
+  background: var(--cm-primary-light);
+}
+
 @media (min-width: 720px) {
   .stripInner {
     grid-template-columns: repeat(3, 1fr);

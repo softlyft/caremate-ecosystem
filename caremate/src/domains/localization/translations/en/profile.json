@@ -13,7 +13,9 @@
     "premium": "Premium",
     "emergency": "Emergency profile",
     "family": "Family",
-    "settings": "Settings"
+    "settings": "Settings",
+    "connections": "Connections",
+    "documents": "Documents"
   },
   "premium": {
     "title": "Premium",
@@ -64,8 +66,8 @@
     "immunizationLockedMessage": "Free accounts see the first two months of the schedule. Upgrade for the full immunization timeline.",
     "familyChildLimitTitle": "Add more children with Family Premium",
     "familyChildLimitMessage": "Free and Standard Premium include one child profile. Upgrade to Family Premium to add more children.",
-    "familySpouseTitle": "Connect spouse on Family Premium",
-    "familySpouseMessage": "Link your partner to a shared household with Family Premium.",
+    "familySpouseTitle": "Invite family on Family Premium",
+    "familySpouseMessage": "Invite up to 3 adults to your household with Family Premium. Only the plan owner can invite or remove members.",
     "appsGuestBanner": "Sign in to open health tools. Your account is free — Premium unlocks more when you need it."
   },
   "patientId": {
@@ -85,5 +87,63 @@
     "flipA11y": "Flip Patient ID card"
   },
   "signOut": "Sign out",
-  "biometrics": "Unlock with biometrics"
+  "biometrics": "Unlock with biometrics",
+  "connections": {
+    "subtitle": "Connected providers and connection requests",
+    "guestSubtitle": "Sign in to manage provider connections"
+  },
+  "documents": {
+    "menuSubtitle": "Your files and shared documents",
+    "guestSubtitle": "Sign in to manage your documents",
+    "title": "Documents",
+    "subtitle": "Upload your own files or open documents shared by connected providers. You can link a provider later if they are not on CareMate yet.",
+    "loading": "Loading documents...",
+    "empty": "No documents yet. Upload a file yourself, or wait for a connected provider to share one.",
+    "guest": "Sign in to upload and view your documents.",
+    "providerFallback": "Provider",
+    "noProviderYet": "No provider linked yet",
+    "sharedOn": "Shared {{date}}",
+    "uploadedOn": "Uploaded {{date}}",
+    "tapToOpen": "Tap to open",
+    "opening": "Opening…",
+    "openFailedTitle": "Couldn't open document",
+    "openFailedMessage": "Please try again.",
+    "uploadCta": "Upload document",
+    "uploadTitle": "Upload document",
+    "uploadHint": "PDF, Word, or image — up to 15 MB. Provider is optional.",
+    "titleField": "Title",
+    "titlePlaceholder": "e.g. Blood test results",
+    "typeField": "Type",
+    "providerField": "Provider (optional)",
+    "providerOptionalHint": "If your clinic is not listed yet, choose “Assign later” and come back after you connect.",
+    "assignLater": "Assign later",
+    "noConnectionsHint": "No approved connections yet. Upload now and link a provider when you connect.",
+    "chooseFile": "Choose file",
+    "uploading": "Uploading…",
+    "uploadSuccessTitle": "Document uploaded",
+    "uploadSuccessMessage": "Your file is saved. You can link a provider anytime.",
+    "uploadFailedTitle": "Upload failed",
+    "uploadFailedMessage": "Please try again.",
+    "linkProvider": "Link provider",
+    "changeProvider": "Change provider",
+    "linkTitle": "Link provider",
+    "linkHint": "Choose who can see “{{title}}”. Only approved connections can access it.",
+    "clearProvider": "No provider (private)",
+    "linkSuccessTitle": "Provider updated",
+    "linkSuccessMessage": "Document sharing settings saved.",
+    "linkFailedTitle": "Couldn't update provider",
+    "linkFailedMessage": "Please try again.",
+    "loadFailed": {
+      "title": "Couldn't load documents",
+      "message": "Check your connection and try again."
+    },
+    "types": {
+      "prescription": "Prescription",
+      "lab_result": "Lab result",
+      "imaging_report": "Imaging report",
+      "referral_letter": "Referral letter",
+      "discharge_summary": "Discharge summary",
+      "invoice": "Invoice"
+    }
+  }
 }

@@ -106,8 +106,11 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | Route | Title | Notes |
 |-------|-------|-------|
 | `/(app)/(tabs)/providers` | Nearby | Type filters + text search; optional `?q=` |
-| `/(app)/providers/[id]` | Provider | Favorite toggle lives here |
+| `/(app)/providers/[id]` | Provider | Favorite + **Connect** (verified claimed orgs only) |
 | `/(app)/providers/map` | Map (legacy) | Redirects to Nearby tab |
+| `/(app)/providers/connections` | Connections hub | Me → Connections |
+| `/(app)/providers/connections/connected` | Connected providers | Approved org links |
+| `/(app)/providers/connections/requests` | Provider connection requests | Inbound pending (approve / decline + reason) |
 
 ### Profile
 
@@ -115,6 +118,9 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 |-------|-------|
 | `/(app)/profile/settings` | Settings |
 | `/(app)/profile/premium` | Premium |
+| `/(app)/profile/documents` | Patient uploads + documents shared by providers |
+
+Me account menu includes **Connections** → `/(app)/providers/connections` and **Documents** → `/(app)/profile/documents` (see [Provider Portal connections](../../caremate-provider-portal/docs/connections.md)).
 
 ### Family and setup
 

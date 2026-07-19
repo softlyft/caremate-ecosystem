@@ -125,6 +125,7 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 - When the RPC returns no rows (or the cache is empty offline), Nearby shows an empty state — that is expected
 - Provider detail opens the address in the device’s default maps app (Apple Maps / Google Maps / geo intent) — there is no in-app map SDK
 - Favorites are toggled on the provider detail screen and sync through `provider_favorites`
+- **Connect with provider** appears on detail only when the catalog org is claim-verified (`is_provider_org_verified`); managed under Me → Connections — see [Provider model](./provider-model.md#provider-portal-engagement) and [Provider Portal connections](../../caremate-provider-portal/docs/connections.md)
 - Coordinates for ranking come from live GPS (precise mode) or a **selection-based** approximate pin (country capital; Nigerian state pin only if a state value already exists in profile) — see [Provider model → Geo strategy](./provider-model.md#geo-strategy-nearby-coordinates)
 
 ### Related screens
@@ -132,7 +133,8 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 | Screen | Route | Notes |
 |--------|-------|-------|
 | Nearby tab | `/(app)/(tabs)/providers` | Horizontal type chips with icons + search; `nearby.list` ad |
-| Provider detail | `/(app)/providers/[id]` | Favorite, contact, `nearby.provider` ad before contact |
+| Provider detail | `/(app)/providers/[id]` | Favorite, Connect (verified orgs), contact, `nearby.provider` ad |
+| Connections | `/(app)/providers/connections/*` | Me → Connections: approved list + inbound requests |
 | Map (legacy) | `/(app)/providers/map` | Redirects to the Nearby tab |
 
 ### UX notes

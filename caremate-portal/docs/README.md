@@ -17,16 +17,18 @@ This docs set covers the implemented behavior of the CareMate admin portal.
 
 ## What the Portal Does
 
-The portal is the staff-facing web surface for:
+The portal is the **SoftLyft staff-facing** web surface for:
 
 - User administration
 - Learn article management
 - Health tip management
-- Provider upload/archive workflows
+- Provider catalog upload/archive and FHIR view workflows
 - Premium price management
 - Subscriber visibility
 - Admin audit event writes and browse UI (`/dashboard/audit`)
 - Ads: per-slot source modes (`off` \| `house` \| `sponsored` \| `admob` for every slot, including mini-apps), advertiser verification, house + sponsored campaign CRUD (`/dashboard/ads`). Slot ids must stay aligned with mobile `AD_SLOTS`. Do not export non-async constants from `"use server"` action modules — use `src/domains/ads/constants.ts`.
+
+Provider organizations that engage patients use the separate **[Provider Portal](../../caremate-provider-portal/docs/README.md)** (`caremate-provider-portal/`) — not this admin console. Start with [connections](../../caremate-provider-portal/docs/connections.md) and [auth/claim](../../caremate-provider-portal/docs/auth-claim.md).
 
 ## Source Areas
 

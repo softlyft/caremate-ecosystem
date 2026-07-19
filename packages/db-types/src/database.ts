@@ -709,6 +709,104 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['subscriptions']['Insert']>;
         Relationships: [];
       };
+      patient_provider_connections: {
+        Row: {
+          id: string;
+          patient_id: string;
+          organization_id: string;
+          status: 'pending' | 'approved' | 'rejected';
+          initiated_by: 'patient' | 'provider';
+          shared_scopes: string[];
+          patient_note: string | null;
+          provider_note: string | null;
+          rejection_reason: string | null;
+          approved_at: string | null;
+          rejected_at: string | null;
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          patient_id: string;
+          organization_id: string;
+          status?: 'pending' | 'approved' | 'rejected';
+          initiated_by?: 'patient' | 'provider';
+          shared_scopes?: string[];
+          patient_note?: string | null;
+          provider_note?: string | null;
+          rejection_reason?: string | null;
+          approved_at?: string | null;
+          rejected_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['patient_provider_connections']['Insert']>;
+        Relationships: [];
+      };
+      patient_provider_activities: {
+        Row: {
+          id: string;
+          organization_id: string;
+          patient_id: string;
+          connection_id: string | null;
+          event_type: string;
+          summary: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          patient_id: string;
+          connection_id?: string | null;
+          event_type: string;
+          summary: string;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['patient_provider_activities']['Insert']>;
+        Relationships: [];
+      };
+      provider_documents: {
+        Row: {
+          id: string;
+          organization_id: string | null;
+          patient_id: string;
+          document_type:
+            | 'prescription'
+            | 'lab_result'
+            | 'imaging_report'
+            | 'referral_letter'
+            | 'discharge_summary'
+            | 'invoice';
+          title: string;
+          file_url: string;
+          file_name: string | null;
+          mime_type: string | null;
+          uploaded_by: string | null;
+          source: 'provider' | 'patient';
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          organization_id?: string | null;
+          patient_id: string;
+          document_type:
+            | 'prescription'
+            | 'lab_result'
+            | 'imaging_report'
+            | 'referral_letter'
+            | 'discharge_summary'
+            | 'invoice';
+          title: string;
+          file_url: string;
+          file_name?: string | null;
+          mime_type?: string | null;
+          uploaded_by?: string | null;
+          source?: 'provider' | 'patient';
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['provider_documents']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -791,6 +889,18 @@ export type Database = {
         };
         Returns: Database['public']['Tables']['family_connection_requests']['Row'];
       };
+      family_adult_invite_seats_used: {
+        Args: { p_household_id: string };
+        Returns: number;
+      };
+      cancel_family_connection_request: {
+        Args: { p_request_id: string };
+        Returns: Database['public']['Tables']['family_connection_requests']['Row'];
+      };
+      remove_family_adult_member: {
+        Args: { p_member_id: string };
+        Returns: undefined;
+      };
       is_household_member: {
         Args: { p_household_id: string };
         Returns: boolean;
@@ -809,6 +919,25 @@ export type Database = {
       };
       can_edit_catalog: {
         Args: Record<string, never>;
+        Returns: boolean;
+      };
+      request_patient_provider_connection: {
+        Args: {
+          p_organization_id: string;
+          p_patient_note?: string | null;
+        };
+        Returns: Database['public']['Tables']['patient_provider_connections']['Row'];
+      };
+      request_provider_connection_by_caremate_id: {
+        Args: {
+          p_organization_id: string;
+          p_caremate_id: string;
+          p_provider_note?: string | null;
+        };
+        Returns: Database['public']['Tables']['patient_provider_connections']['Row'];
+      };
+      is_provider_org_verified: {
+        Args: { p_org_id: string };
         Returns: boolean;
       };
     };
