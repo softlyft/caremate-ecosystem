@@ -29,6 +29,7 @@ import {
   usePeriodTrackerHydrated,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
+import { usePregnancyTrackerStore } from '@/mini-apps/pregnancy-tracker/store';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, radius, spacing } from '@/theme';
 
@@ -48,15 +49,34 @@ export default function PeriodTrackerScreen() {
   const periodLength = usePeriodTrackerStore((state) => state.periodLength);
   const loggedPeriodDays = usePeriodTrackerStore((state) => state.loggedPeriodDays);
   const lastPeriodStart = usePeriodTrackerStore((state) => state.lastPeriodStart);
+  const paused = usePeriodTrackerStore((state) => state.paused);
+  const pausedReason = usePeriodTrackerStore((state) => state.pausedReason);
   const togglePeriodDay = usePeriodTrackerStore((state) => state.togglePeriodDay);
+  const pauseForPregnancy = usePeriodTrackerStore((state) => state.pauseForPregnancy);
+  const resume = usePeriodTrackerStore((state) => state.resume);
 
-  const cycleDay = getCycleDay(lastPeriodStart, today);
-  const nextPeriod = predictNextPeriodStart(lastPeriodStart, cycleLength);
+  const pregnancyLmp = usePregnancyTrackerStore((state) => state.lastMenstrualPeriod);
+  const pregnancyDue = usePregnancyTrackerStore((state) => state.dueDate);
+  const isPregnant = Boolean(pregnancyLmp && pregnancyDue);
+
+  const cycleDay = paused ? null : getCycleDay(lastPeriodStart, today);
+  const nextPeriod = paused ? null : predictNextPeriodStart(lastPeriodStart, cycleLength);
   const daysUntil =
     nextPeriod && lastPeriodStart ? Math.max(0, daysBetween(today, nextPeriod)) : null;
   const weekStrip = getWeekStrip(today);
-  const heroSubtitle =
-    daysUntil !== null
+  const interactive = hydrated && !paused;
+
+  const heroTitle = paused
+    ? t('apps.period.ui.pausedTitle')
+    : cycleDay
+      ? t('apps.period.ui.dayOfCycle', { day: cycleDay })
+      : t('apps.periodTracker.emptyTitle');
+
+  const heroSubtitle = paused
+    ? pausedReason === 'pregnancy'
+      ? t('apps.period.ui.pausedBecausePregnant')
+      : t('apps.period.ui.pausedSubtitle')
+    : daysUntil !== null
       ? daysUntil === 0
         ? t('apps.period.ui.nextMayStartToday')
         : t(pluralKey('apps.period.ui.daysUntilPeriod', daysUntil), { count: daysUntil })
@@ -67,14 +87,16 @@ export default function PeriodTrackerScreen() {
       <MiniAppHero
         appId={APP_ID}
         eyebrow={t('apps.periodTracker.eyebrow')}
-        title={
-          cycleDay
-            ? t('apps.period.ui.dayOfCycle', { day: cycleDay })
-            : t('apps.periodTracker.emptyTitle')
-        }
+        title={heroTitle}
         subtitle={heroSubtitle}
         trailing={
-          cycleDay ? (
+          paused ? (
+            <StatusPill
+              label={t('apps.period.ui.pausedPill')}
+              color={theme.color}
+              background={`${theme.color}22`}
+            />
+          ) : cycleDay ? (
             <StatusPill
               label={t('apps.period.ui.dayPill', { day: cycleDay })}
               color={theme.color}
@@ -83,6 +105,46 @@ export default function PeriodTrackerScreen() {
           ) : undefined
         }
       />
+
+      {paused ? (
+        <MiniAppCard index={0} title={t('apps.period.ui.pausedCardTitle')} theme={theme}>
+          <AppText variant="caption" style={styles.pausedBody}>
+            {t('apps.period.ui.pausedCardBody')}
+          </AppText>
+          <MiniAppCta
+            label={t('apps.period.ui.resumeTracking')}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            index={0}
+            onPress={resume}
+          />
+          {isPregnant ? (
+            <Pressable
+              style={styles.pregnancyLink}
+              onPress={() => router.push('/(app)/apps/pregnancy-tracker')}
+            >
+              <AppText variant="caption" style={{ color: theme.color }}>
+                {t('apps.period.ui.openPregnancyTracker')}
+              </AppText>
+            </Pressable>
+          ) : null}
+        </MiniAppCard>
+      ) : null}
+
+      {!paused && isPregnant ? (
+        <MiniAppCard index={0} title={t('apps.period.ui.pauseWhilePregnantTitle')} theme={theme}>
+          <AppText variant="caption" style={styles.pausedBody}>
+            {t('apps.period.ui.pauseWhilePregnantBody')}
+          </AppText>
+          <MiniAppCta
+            label={t('apps.period.ui.pauseTracking')}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            index={0}
+            onPress={pauseForPregnancy}
+          />
+        </MiniAppCard>
+      ) : null}
 
       <AdSlot slotId={AD_SLOTS.PERIOD_WEEK} />
 
@@ -102,11 +164,12 @@ export default function PeriodTrackerScreen() {
               cycleLength,
               periodLength,
               loggedPeriodDays,
+              paused,
             );
             return (
               <Pressable
                 key={key}
-                disabled={!hydrated}
+                disabled={!interactive}
                 style={styles.stripDay}
                 onPress={() => togglePeriodDay(key)}
               >
@@ -140,7 +203,7 @@ export default function PeriodTrackerScreen() {
 
         <MonthCalendarGrid
           monthRef={monthRef}
-          interactive={hydrated}
+          interactive={interactive}
           accentColor={theme.color}
           predictedColor="#FBCFE8"
           predictedBorderColor="#F472B6"
@@ -153,6 +216,7 @@ export default function PeriodTrackerScreen() {
               cycleLength,
               periodLength,
               loggedPeriodDays,
+              paused,
             ),
             today: dayKey === todayKey,
           })}
@@ -163,10 +227,12 @@ export default function PeriodTrackerScreen() {
             <View style={[styles.legendDot, { backgroundColor: theme.color }]} />
             <AppText variant="caption">{t('apps.period.ui.loggedPeriod')}</AppText>
           </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.predictedDay]} />
-            <AppText variant="caption">{t('apps.period.ui.predicted')}</AppText>
-          </View>
+          {!paused ? (
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, styles.predictedDay]} />
+              <AppText variant="caption">{t('apps.period.ui.predicted')}</AppText>
+            </View>
+          ) : null}
         </View>
       </MiniAppCard>
 
@@ -198,18 +264,29 @@ export default function PeriodTrackerScreen() {
 
       <AdSlot slotId={AD_SLOTS.PERIOD_FOOTER} />
 
-      <MiniAppCta
-        label={t('apps.periodTracker.logPeriodDays')}
-        accent={theme.color}
-        soft={theme.backgroundColor}
-        index={4}
-        onPress={() => router.push('/(app)/apps/period-tracker/log')}
-      />
+      {!paused ? (
+        <MiniAppCta
+          label={t('apps.periodTracker.logPeriodDays')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={4}
+          onPress={() => router.push('/(app)/apps/period-tracker/log')}
+        />
+      ) : null}
     </MiniAppScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  pausedBody: {
+    color: palette.textSecondary,
+    marginBottom: spacing.sm,
+  },
+  pregnancyLink: {
+    alignSelf: 'center',
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
+  },
   strip: {
     gap: spacing.sm,
     paddingVertical: spacing.xs,

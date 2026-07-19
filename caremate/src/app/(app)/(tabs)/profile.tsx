@@ -6,6 +6,8 @@ import {
   Bell,
   CircleCheck,
   Crown,
+  FileText,
+  Link2,
   LogOut,
   Settings,
   ShieldPlus,
@@ -223,6 +225,40 @@ export default function ProfileTabScreen() {
               }
               onPress={() =>
                 isGuest ? router.push('/(auth)/login') : router.push('/(app)/family')
+              }
+            />
+            <View style={styles.divider} />
+            <ProfileMenuRow
+              icon={Link2}
+              iconColor={palette.primary}
+              iconBackground={palette.primaryLight}
+              title={t('profile.menu.connections')}
+              subtitle={
+                isGuest
+                  ? t('profile.connections.guestSubtitle')
+                  : t('profile.connections.subtitle')
+              }
+              onPress={() =>
+                isGuest
+                  ? router.push('/(auth)/login')
+                  : router.push('/(app)/providers/connections' as Href)
+              }
+            />
+            <View style={styles.divider} />
+            <ProfileMenuRow
+              icon={FileText}
+              iconColor="#0F766E"
+              iconBackground="#CCFBF1"
+              title={t('profile.menu.documents')}
+              subtitle={
+                isGuest
+                  ? t('profile.documents.guestSubtitle')
+                  : t('profile.documents.menuSubtitle')
+              }
+              onPress={() =>
+                isGuest
+                  ? router.push('/(auth)/login')
+                  : router.push('/(app)/profile/documents' as Href)
               }
             />
           </ProfileCard>

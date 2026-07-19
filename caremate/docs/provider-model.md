@@ -86,6 +86,22 @@ Mirrored in portal `constants/content.ts` and ingest `PROVIDER_TYPES`.
 
 `PRIMARY_PROVIDER_TYPES` drives the Nearby chip row (order matches the product list above).
 
+## Provider Portal (engagement)
+
+Patient ↔ provider **connections**, documents, broadcasts, and appointment requests live in [`caremate-provider-portal`](../../caremate-provider-portal/). Catalog discovery (`providers` / FHIR resources) stays in ingest + admin portal; engagement reuses `provider_organizations` and does not replace Nearby pins.
+
+| Topic | Doc |
+|-------|-----|
+| Docs index | [`docs/README.md`](../../caremate-provider-portal/docs/README.md) |
+| Bidirectional connections | [`docs/connections.md`](../../caremate-provider-portal/docs/connections.md) |
+| Claim + verification | [`docs/auth-claim.md`](../../caremate-provider-portal/docs/auth-claim.md) |
+
+**Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
+
+**Documents (shipped):** patients upload under **Me → Documents** (org optional; link later after connect); providers upload to connected patients; both appear in the same list (signed URL open). Patient-sourced files are visible to a provider only after the patient links that org and the connection is approved.
+
+Still future: broadcast inbox / push delivery.
+
 ## Flexible attributes
 
 Column: `providers.attributes` (SQLite text JSON, default `{}`).

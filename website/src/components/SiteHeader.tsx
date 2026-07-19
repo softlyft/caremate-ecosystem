@@ -25,10 +25,17 @@ export function SiteHeader({ tone = 'hero' }: Props) {
             <>
               <a href="#core">Core</a>
               <a href="#tools">Mini-apps</a>
+              <a href="#providers">Providers</a>
             </>
           ) : null}
           <NavLink to="/guide" className={({ isActive }) => (isActive ? styles.active : undefined)}>
-            Guide
+            Patient guide
+          </NavLink>
+          <NavLink
+            to="/providers"
+            className={({ isActive }) => (isActive ? styles.active : undefined)}
+          >
+            For providers
           </NavLink>
           <NavLink to="/privacy" className={({ isActive }) => (isActive ? styles.active : undefined)}>
             Privacy

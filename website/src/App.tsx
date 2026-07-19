@@ -4,6 +4,8 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { GuidePage } from '@/pages/Guide';
 import { PrivacyPage } from '@/pages/Privacy';
+import { ProviderGuidePage } from '@/pages/ProviderGuide';
+import { ProvidersPage } from '@/pages/Providers';
 import { TermsPage } from '@/pages/Terms';
 import { WelcomePage } from '@/pages/Welcome';
 
@@ -17,6 +19,8 @@ function Shell() {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/guide" element={<GuidePage />} />
+        <Route path="/providers" element={<ProvidersPage />} />
+        <Route path="/providers/guide" element={<ProviderGuidePage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

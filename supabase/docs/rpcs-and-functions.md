@@ -9,18 +9,28 @@ The shared schema currently exposes several important RPCs.
 Defined by the family migrations:
 
 - `lookup_user_for_family_connect`
-- `create_family_connection_request`
+- `create_family_connection_request` (owner-only; max 3 invited adults + pending)
 - `respond_family_connection_request`
+- `cancel_family_connection_request` (owner-only)
+- `remove_family_adult_member` (owner-only)
+- `family_adult_invite_seats_used`
 - `is_household_member`
 
-These support spouse/user discovery and household connection flows.
+These support family-member discovery, household invites, and owner-managed seats.
 
 ### Provider RPCs
 
 - `ensure_provider_catalog_stub`
 - `nearby_providers`
+- `is_provider_org_verified`
+- `request_patient_provider_connection`
+- `request_provider_connection_by_caremate_id`
 
 `nearby_providers` powers the mobile Nearby experience by returning a geospatially filtered provider projection page.
+
+Connection RPCs power patient ↔ org engagement (portal + mobile). Details: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md) · [data model](../../caremate-provider-portal/docs/data-model.md).
+
+Also portal RLS helpers (security definer): `is_provider_org_member`, `provider_org_role`, `can_write_provider_org`, `can_manage_provider_org`.
 
 ### Role helper functions
 

@@ -73,6 +73,10 @@ describe('period-tracker/isPredictedPeriodDay', () => {
     expect(isPredictedPeriodDay('2026-07-29', '2026-07-01', 28, 5, ['2026-07-29'])).toBe(false);
     expect(isPredictedPeriodDay('2026-07-29', null, 28, 5, [])).toBe(false);
   });
+
+  it('returns false when tracking is paused', () => {
+    expect(isPredictedPeriodDay('2026-07-29', '2026-07-01', 28, 5, [], true)).toBe(false);
+  });
 });
 
 describe('period-tracker/store', () => {
@@ -104,10 +108,28 @@ describe('period-tracker/store', () => {
     expect(usePeriodTrackerStore.getState().lastPeriodStart).toBe('2026-02-01');
   });
 
-  it('clears logged days', () => {
+  it('clears logged days and pause state', () => {
     usePeriodTrackerStore.getState().setLoggedPeriodDays(['2026-07-01']);
+    usePeriodTrackerStore.getState().pauseForPregnancy();
     usePeriodTrackerStore.getState().clearAll();
     expect(usePeriodTrackerStore.getState().loggedPeriodDays).toEqual([]);
     expect(usePeriodTrackerStore.getState().lastPeriodStart).toBeNull();
+    expect(usePeriodTrackerStore.getState().paused).toBe(false);
+    expect(usePeriodTrackerStore.getState().pausedReason).toBeNull();
+  });
+
+  it('pauses for pregnancy, blocks toggles, and can resume', () => {
+    usePeriodTrackerStore.getState().togglePeriodDay('2026-07-01');
+    usePeriodTrackerStore.getState().pauseForPregnancy();
+    expect(usePeriodTrackerStore.getState().paused).toBe(true);
+    expect(usePeriodTrackerStore.getState().pausedReason).toBe('pregnancy');
+
+    usePeriodTrackerStore.getState().togglePeriodDay('2026-07-02');
+    expect(usePeriodTrackerStore.getState().loggedPeriodDays).toEqual(['2026-07-01']);
+
+    usePeriodTrackerStore.getState().resume();
+    expect(usePeriodTrackerStore.getState().paused).toBe(false);
+    usePeriodTrackerStore.getState().togglePeriodDay('2026-07-02');
+    expect(usePeriodTrackerStore.getState().loggedPeriodDays).toEqual(['2026-07-01', '2026-07-02']);
   });
 });

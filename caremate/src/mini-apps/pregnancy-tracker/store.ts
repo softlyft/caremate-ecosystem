@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import {
   calculateDueDateFromLmp,
   calculateLmpFromDueDate,
@@ -31,6 +32,10 @@ interface PregnancyTrackerState {
   clearAll: () => void;
 }
 
+function pausePeriodTrackerForPregnancy(): void {
+  usePeriodTrackerStore.getState().pauseForPregnancy();
+}
+
 export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
   persist(
     (set, get) => ({
@@ -38,16 +43,20 @@ export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
       dueDate: null,
       babyNickname: 'Baby',
       dailyLogs: {},
-      setFromLastPeriod: (lmpKey) =>
+      setFromLastPeriod: (lmpKey) => {
         set({
           lastMenstrualPeriod: lmpKey,
           dueDate: calculateDueDateFromLmp(lmpKey),
-        }),
-      setFromDueDate: (dueDateKey) =>
+        });
+        pausePeriodTrackerForPregnancy();
+      },
+      setFromDueDate: (dueDateKey) => {
         set({
           dueDate: dueDateKey,
           lastMenstrualPeriod: calculateLmpFromDueDate(dueDateKey),
-        }),
+        });
+        pausePeriodTrackerForPregnancy();
+      },
       setBabyNickname: (babyNickname) => set({ babyNickname }),
       upsertDailyLog: (log) => {
         const dailyLogs = { ...get().dailyLogs, [log.dateKey]: log };

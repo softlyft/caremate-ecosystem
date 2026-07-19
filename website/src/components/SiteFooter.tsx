@@ -18,6 +18,8 @@ export function SiteFooter() {
         </div>
         <nav className={styles.links} aria-label="Footer">
           <Link to="/guide">Patient guide</Link>
+          <Link to="/providers">For providers</Link>
+          <Link to="/providers/guide">Provider guide</Link>
           <Link to="/privacy">Privacy policy</Link>
           <Link to="/terms">Terms of service</Link>
         </nav>

@@ -22,7 +22,13 @@ import {
   validateChildNameAndDob,
 } from '@/domains/family';
 import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
-import { canAddChild, canConnectSpouse } from '@/domains/billing/entitlements';
+import {
+  FAMILY_ADULT_INVITE_LIMIT,
+  canAddChild,
+  canConnectSpouse,
+  canInviteFamilyMember,
+  familyAdultInviteSeatsRemaining,
+} from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
@@ -66,6 +72,12 @@ export default function FamilyHubScreen() {
     queryKey: [...QUERY_KEYS.familyRequests, userId],
     queryFn: () => familyRepository.listIncomingRequests(userId),
     enabled: !isGuest,
+  });
+
+  const pendingOutgoingQuery = useQuery({
+    queryKey: [...QUERY_KEYS.familyRequests, 'outgoing', householdId],
+    queryFn: () => familyRepository.listPendingRequestsForHousehold(householdId!),
+    enabled: Boolean(householdId),
   });
 
   const [lookup, setLookup] = useState('');
@@ -121,6 +133,12 @@ export default function FamilyHubScreen() {
       Alert.alert(t('family.spousePremiumTitle'), t('family.spousePremiumMessage'));
       return;
     }
+    const invitedCount = (membersQuery.data ?? []).filter((m) => m.kind === 'spouse').length;
+    const pendingCount = pendingOutgoingQuery.data?.length ?? 0;
+    if (!canInviteFamilyMember(tier, invitedCount + pendingCount)) {
+      Alert.alert(t('family.spousePremiumTitle'), t('family.inviteSeatsFull'));
+      return;
+    }
     setBusy(true);
     try {
       const profile = await profileRepository.findByUserId(userId);
@@ -138,6 +156,44 @@ export default function FamilyHubScreen() {
     } catch (error) {
       const message = error instanceof Error ? error.message : t('family.connectionFailedMessage');
       Alert.alert(t('family.connectionFailed'), message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemoveMember(memberId: string) {
+    Alert.alert(t('family.removeMemberTitle'), t('family.removeMemberMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('family.removeMember'),
+        style: 'destructive',
+        onPress: () => {
+          void (async () => {
+            setBusy(true);
+            try {
+              await familyConnectionService.removeAdultMember({ memberId, userId });
+              await refreshAll();
+            } catch (error) {
+              const message =
+                error instanceof Error ? error.message : t('family.removeMemberFailed');
+              Alert.alert(t('family.removeMemberFailed'), message);
+            } finally {
+              setBusy(false);
+            }
+          })();
+        },
+      },
+    ]);
+  }
+
+  async function handleCancelInvite(requestId: string) {
+    setBusy(true);
+    try {
+      await familyConnectionService.cancelRequest({ requestId, userId });
+      await refreshAll();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t('family.cancelInviteFailed');
+      Alert.alert(t('family.cancelInviteFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -306,9 +362,16 @@ export default function FamilyHubScreen() {
 
   const children = (membersQuery.data ?? []).filter((m) => m.kind === 'child');
   const adults = (membersQuery.data ?? []).filter((m) => m.kind !== 'child');
+  const invitedAdults = adults.filter((m) => m.kind === 'spouse');
+  const pendingOutgoing = pendingOutgoingQuery.data ?? [];
+  const usedInviteSeats = invitedAdults.length + pendingOutgoing.length;
+  const inviteSeatsRemaining = familyAdultInviteSeatsRemaining(usedInviteSeats);
+  const isHouseholdOwner = householdQuery.data?.createdByUserId === userId;
   const requestCount = requestsQuery.data?.length ?? 0;
   const canAddAnotherChild = canAddChild(tier, children.length);
-  const spouseConnectAllowed = canConnectSpouse(tier);
+  const familyPlanAllowsInvite = canConnectSpouse(tier);
+  const canSendInvite =
+    isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
 
   return (
     <View style={styles.screen}>
@@ -372,9 +435,20 @@ export default function FamilyHubScreen() {
                       {member.fullName}
                     </AppText>
                     <AppText variant="caption" style={styles.muted}>
-                      {member.kind}
+                      {member.kind === 'self' ? t('family.kindSelf') : t('family.kindMember')}
                     </AppText>
                   </View>
+                  {isHouseholdOwner && member.kind === 'spouse' ? (
+                    <PressableScale
+                      style={styles.removeChip}
+                      disabled={busy}
+                      onPress={() => void handleRemoveMember(member.id)}
+                    >
+                      <AppText variant="caption" style={styles.removeChipLabel}>
+                        {t('family.removeMember')}
+                      </AppText>
+                    </PressableScale>
+                  ) : null}
                 </View>
               </View>
             ))}
@@ -382,6 +456,41 @@ export default function FamilyHubScreen() {
               <AppText variant="caption" style={styles.muted}>
                 {t('family.noAdults')}
               </AppText>
+            ) : null}
+
+            {isHouseholdOwner && pendingOutgoing.length > 0 ? (
+              <>
+                <AppText
+                  variant="caption"
+                  style={[styles.sectionEyebrow, { marginTop: spacing.md }]}
+                >
+                  {t('family.pendingInvites')}
+                </AppText>
+                {pendingOutgoing.map((invite) => (
+                  <View key={invite.id} style={styles.memberRow}>
+                    <View style={styles.avatar}>
+                      <UserPlus color={ACCENT} size={16} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <AppText variant="body" style={styles.memberName}>
+                        {invite.toEmail || invite.toPhone || invite.toUserId || '—'}
+                      </AppText>
+                      <AppText variant="caption" style={styles.muted}>
+                        {t('family.pendingInviteMeta')}
+                      </AppText>
+                    </View>
+                    <PressableScale
+                      style={styles.removeChip}
+                      disabled={busy}
+                      onPress={() => void handleCancelInvite(invite.id)}
+                    >
+                      <AppText variant="caption" style={styles.removeChipLabel}>
+                        {t('family.cancelInvite')}
+                      </AppText>
+                    </PressableScale>
+                  </View>
+                ))}
+              </>
             ) : null}
           </View>
         </AnimatedSection>
@@ -482,15 +591,39 @@ export default function FamilyHubScreen() {
             <AppText variant="caption" style={styles.sectionEyebrow}>
               {t('family.connectSpouse')}
             </AppText>
-            {!spouseConnectAllowed ? (
+            {!familyPlanAllowsInvite ? (
               <UpgradePrompt
                 title={t('profile.premium.familySpouseTitle')}
                 message={t('profile.premium.familySpouseMessage')}
               />
+            ) : !isHouseholdOwner ? (
+              <AppText variant="caption" style={styles.muted}>
+                {t('family.memberOnlyHint')}
+              </AppText>
+            ) : !canSendInvite ? (
+              <>
+                <AppText variant="caption" style={styles.muted}>
+                  {t('family.inviteSeats', {
+                    used: usedInviteSeats,
+                    limit: FAMILY_ADULT_INVITE_LIMIT,
+                    remaining: inviteSeatsRemaining,
+                  })}
+                </AppText>
+                <AppText variant="body" style={{ marginTop: spacing.xs }}>
+                  {t('family.inviteSeatsFull')}
+                </AppText>
+              </>
             ) : (
               <>
                 <AppText variant="caption" style={styles.muted}>
                   {t('family.connectSpouseHint')}
+                </AppText>
+                <AppText variant="caption" style={[styles.muted, { marginTop: spacing.xs }]}>
+                  {t('family.inviteSeats', {
+                    used: usedInviteSeats,
+                    limit: FAMILY_ADULT_INVITE_LIMIT,
+                    remaining: inviteSeatsRemaining,
+                  })}
                 </AppText>
                 <Input
                   placeholder={t('family.emailOrPhone')}
@@ -755,6 +888,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: 6,
+  },
+  removeChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    backgroundColor: '#FEE2E2',
+  },
+  removeChipLabel: {
+    color: '#B91C1C',
+    fontFamily: fontFamily.semiBold,
   },
   avatar: {
     width: 36,
