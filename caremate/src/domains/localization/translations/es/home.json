@@ -47,11 +47,20 @@
   },
   "providerTypes": {
     "hospital": "Hospitales",
+    "clinic": "Clínicas",
     "pharmacy": "Farmacias",
     "laboratory": "Laboratorios",
-    "clinic": "Clínicas",
-    "telemedicine": "Telemedicina",
+    "imaging_centre": "Imaging",
     "blood_bank": "Bancos de sangre",
-    "ambulance": "Ambulancia"
+    "ambulance": "Ambulancia",
+    "telemedicine": "Telemedicina",
+    "insurance": "Insurance",
+    "mental_health": "Mental health",
+    "dentist": "Dental",
+    "eye_care": "Eye care",
+    "home_care": "Home care",
+    "medical_equipment": "Equipment",
+    "government_health": "Gov health",
+    "ngo": "NGO"
   }
 }

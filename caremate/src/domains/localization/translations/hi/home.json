@@ -47,11 +47,20 @@
   },
   "providerTypes": {
     "hospital": "अस्पताल",
+    "clinic": "क्लीनिक",
     "pharmacy": "फ़ार्मेसी",
     "laboratory": "लैब",
-    "clinic": "क्लीनिक",
-    "telemedicine": "टेलीमेडिसिन",
+    "imaging_centre": "Imaging",
     "blood_bank": "ब्लड बैंक",
-    "ambulance": "एम्बुलेंस"
+    "ambulance": "एम्बुलेंस",
+    "telemedicine": "टेलीमेडिसिन",
+    "insurance": "Insurance",
+    "mental_health": "Mental health",
+    "dentist": "Dental",
+    "eye_care": "Eye care",
+    "home_care": "Home care",
+    "medical_equipment": "Equipment",
+    "government_health": "Gov health",
+    "ngo": "NGO"
   }
 }

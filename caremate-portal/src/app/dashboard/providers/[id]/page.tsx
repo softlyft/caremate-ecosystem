@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProvider } from '@/domains/providers/repository';
+import { getProvider, getProviderFhirBundle } from '@/domains/providers/repository';
+import { emptyFhirBundle } from '@/domains/providers/fhir-bundle';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { PROVIDER_TYPE_LABELS } from '@/constants/content';
@@ -8,6 +9,7 @@ import { PageHeader } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArchiveProviderButton } from '@/features/providers/archive-provider-button';
+import { ProviderFhirViewButton } from '@/features/providers/provider-fhir-view-button';
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -20,11 +22,14 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 export default async function ProviderDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ fhir?: string }>;
 }) {
   const session = await getPortalSession();
   const { id } = await params;
+  const { fhir } = await searchParams;
 
   let provider;
   try {
@@ -34,18 +39,34 @@ export default async function ProviderDetailPage({
   }
   if (!provider || provider.deleted_at) notFound();
 
+  let fhirBundle;
+  try {
+    fhirBundle = await getProviderFhirBundle(provider);
+  } catch {
+    fhirBundle = emptyFhirBundle();
+  }
+
   const canEdit = canEditCatalog(session?.role);
   const typeLabel =
     provider.type in PROVIDER_TYPE_LABELS
       ? PROVIDER_TYPE_LABELS[provider.type as keyof typeof PROVIDER_TYPE_LABELS]
       : provider.type;
+  const bundleJson = JSON.stringify(fhirBundle, null, 2);
+  const openFhir = fhir === '1' || fhir === 'true';
 
   return (
     <div>
       <PageHeader
         title={provider.name}
-        description="Copy these UUIDs into Excel identifier / references to update on re-upload."
+        description="Copy these UUIDs into Excel identifier / references to update on re-upload. FHIR view is read-only from ingested catalog resources."
       >
+        <ProviderFhirViewButton
+          subjectName={provider.name}
+          subtitle={`Read-only Organization + Location + HealthcareService for ${provider.name}`}
+          bundleJson={bundleJson}
+          resourceCount={fhirBundle.total}
+          initialOpen={openFhir}
+        />
         <Link href="/dashboard/providers" className="text-sm text-muted hover:text-foreground">
           Back to list
         </Link>
@@ -93,6 +114,19 @@ export default async function ProviderDetailPage({
               <pre className="overflow-x-auto rounded-md bg-muted/40 p-2 text-xs">
                 {JSON.stringify(provider.attributes ?? {}, null, 2)}
               </pre>
+            </Row>
+            <Row label="FHIR resources">
+              {fhirBundle.total > 0 ? (
+                <span className="text-muted">
+                  {fhirBundle.entry.map((item) => item.resource.resourceType).join(', ')} — use{' '}
+                  <strong className="font-medium text-foreground">View FHIR</strong> above
+                </span>
+              ) : (
+                <span className="text-muted">
+                  No catalog `resource` JSON found for this pin yet. Re-ingest Organization /
+                  Location / HealthcareService workbooks.
+                </span>
+              )}
             </Row>
           </dl>
 

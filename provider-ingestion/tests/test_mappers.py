@@ -25,8 +25,14 @@ class TestSheetType:
 
     def test_eye_specialty_attributes(self):
         provider_type, attrs = sheet_name_to_type("Eye / Ophthalmology Clinic")
-        assert provider_type == "clinic"
+        assert provider_type == "eye_care"
         assert attrs["specialty"] == "ophthalmology"
+        assert sheet_name_to_type("Imaging Centre")[0] == "imaging_centre"
+        assert sheet_name_to_type("HMO Plans")[0] == "insurance"
+        assert sheet_name_to_type("Home Care Nurses")[0] == "home_care"
+        assert sheet_name_to_type("Medical Equipment")[0] == "medical_equipment"
+        assert sheet_name_to_type("Government Health Office")[0] == "government_health"
+        assert sheet_name_to_type("Community NGO")[0] == "ngo"
 
     def test_defaults_unknown_to_clinic(self):
         assert sheet_name_to_type("Miscellaneous") == ("clinic", {})
@@ -133,6 +139,9 @@ class TestFhirColumns:
         assert canonical.attributes == {}
 
     def test_provider_types_catalog(self):
+        assert "imaging_centre" in PROVIDER_TYPES
+        assert "insurance" in PROVIDER_TYPES
+        assert "ngo" in PROVIDER_TYPES
         assert "hospital" in PROVIDER_TYPES
         row = ProviderCanonical(
             id="1",

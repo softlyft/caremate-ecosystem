@@ -9,25 +9,40 @@ export const PROVIDER_TYPES = [
   'clinic',
   'pharmacy',
   'laboratory',
-  'telemedicine',
+  'imaging_centre',
   'blood_bank',
   'ambulance',
-  // Secondary / specialty labels (kept for seeds & future filters)
-  'dentist',
+  'telemedicine',
+  'insurance',
   'mental_health',
+  'dentist',
+  'eye_care',
+  'home_care',
+  'medical_equipment',
+  'government_health',
+  'ngo',
 ] as const;
 
 export type ProviderType = (typeof PROVIDER_TYPES)[number];
 
-/** Primary catalog filters shown in Nearby (order = UI). */
+/** Nearby filter chips (order = UI). */
 export const PRIMARY_PROVIDER_TYPES = [
   'hospital',
   'clinic',
   'pharmacy',
   'laboratory',
-  'telemedicine',
+  'imaging_centre',
   'blood_bank',
   'ambulance',
+  'telemedicine',
+  'insurance',
+  'mental_health',
+  'dentist',
+  'eye_care',
+  'home_care',
+  'medical_equipment',
+  'government_health',
+  'ngo',
 ] as const satisfies readonly ProviderType[];
 
 export type PrimaryProviderType = (typeof PRIMARY_PROVIDER_TYPES)[number];
@@ -37,11 +52,18 @@ export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
   clinic: 'Clinic',
   pharmacy: 'Pharmacy',
   laboratory: 'Laboratory',
-  telemedicine: 'Telemedicine',
+  imaging_centre: 'Imaging Centre',
   blood_bank: 'Blood Bank',
-  ambulance: 'Ambulance',
-  dentist: 'Dentist',
+  ambulance: 'Ambulance Service',
+  telemedicine: 'Telemedicine',
+  insurance: 'Insurance / HMO',
   mental_health: 'Mental Health',
+  dentist: 'Dental Clinic',
+  eye_care: 'Eye Care',
+  home_care: 'Home Care',
+  medical_equipment: 'Medical Equipment & Supplies',
+  government_health: 'Government Health Services',
+  ngo: 'NGO',
 };
 
 export function isProviderType(value: string): value is ProviderType {
@@ -64,5 +86,7 @@ export function formatProviderType(type: string): string {
  * - telemedicine: { platforms?: string[]; languages?: string[] }
  * - ambulance: { coverageArea?: string; advancedLifeSupport?: boolean }
  * - blood_bank: { components?: string[]; appointmentRequired?: boolean }
+ * - insurance: { plans?: string[]; networks?: string[] }
+ * - imaging_centre: { modalities?: string[] }
  */
 export type ProviderAttributes = Record<string, unknown>;

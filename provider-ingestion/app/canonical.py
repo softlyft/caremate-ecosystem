@@ -12,11 +12,19 @@ PROVIDER_TYPES = frozenset(
         "clinic",
         "pharmacy",
         "laboratory",
-        "telemedicine",
-        "blood_bank",
+        "imaging_centre",
         "ambulance",
+        "telemedicine",
+        "insurance",
         "dentist",
+        "eye_care",
         "mental_health",
+        "home_care",
+        "medical_equipment",
+        "government_health",
+        "ngo",
+        # Legacy — remain accepted for existing rows / sheets
+        "blood_bank",
     }
 )
 

@@ -26,11 +26,20 @@
   },
   "types": {
     "hospital": "Ilé-ìwòsàn",
+    "clinic": "Ilé-ìtọ́jú",
     "pharmacy": "Ilé-òògùn",
     "laboratory": "Ilé-ìṣàyẹ̀wò",
-    "clinic": "Ilé-ìtọ́jú",
-    "telemedicine": "Ìwòsàn láti òkèèrè",
+    "imaging_centre": "Imaging Centre",
     "blood_bank": "Ibi ìfipamọ́ ẹ̀jẹ̀",
-    "ambulance": "Ambulansi"
+    "ambulance": "Ambulansi",
+    "telemedicine": "Ìwòsàn láti òkèèrè",
+    "insurance": "Insurance / HMO",
+    "mental_health": "Mental Health",
+    "dentist": "Dental Clinic",
+    "eye_care": "Eye Care",
+    "home_care": "Home Care",
+    "medical_equipment": "Medical Equipment & Supplies",
+    "government_health": "Government Health Services",
+    "ngo": "NGO"
   }
 }
