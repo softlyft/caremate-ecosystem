@@ -39,8 +39,10 @@
 
 .nav {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: var(--space-md);
+  gap: 0.65rem var(--space-md);
   font-size: 0.95rem;
   font-weight: 600;
 }

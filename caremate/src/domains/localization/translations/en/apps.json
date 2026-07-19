@@ -642,7 +642,19 @@
       "predicted": "Predicted",
       "daysCount": "{{count}} days",
       "daysSelected": "{{count}} day selected",
-      "daysSelected_other": "{{count}} days selected"
+      "daysSelected_other": "{{count}} days selected",
+      "pausedTitle": "Period tracking paused",
+      "pausedSubtitle": "Predictions and logging are on hold.",
+      "pausedBecausePregnant": "Paused while you're pregnant. Your logged history is still here.",
+      "pausedPill": "Paused",
+      "pausedCardTitle": "Tracking on hold",
+      "pausedCardBody": "Cycle predictions and period logging are paused. Resume anytime — or continue in Pregnancy Tracker.",
+      "resumeTracking": "Resume period tracking",
+      "pauseTracking": "Pause period tracking",
+      "pauseWhilePregnantTitle": "Pregnant?",
+      "pauseWhilePregnantBody": "You can pause cycle predictions while you're pregnant. Your history stays saved.",
+      "openPregnancyTracker": "Open Pregnancy Tracker",
+      "backToTracker": "Back"
     }
   },
   "vitalsTracker": {

@@ -6,15 +6,21 @@ import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 
+export type PeriodPauseReason = 'pregnancy';
+
 interface PeriodTrackerState {
   cycleLength: number;
   periodLength: number;
   loggedPeriodDays: string[];
   lastPeriodStart: string | null;
+  paused: boolean;
+  pausedReason: PeriodPauseReason | null;
   setCycleLength: (value: number) => void;
   setPeriodLength: (value: number) => void;
   setLoggedPeriodDays: (days: string[]) => void;
   togglePeriodDay: (dayKey: string) => void;
+  pauseForPregnancy: () => void;
+  resume: () => void;
   clearAll: () => void;
 }
 
@@ -48,6 +54,8 @@ export const usePeriodTrackerStore = create<PeriodTrackerState>()(
       periodLength: 5,
       loggedPeriodDays: [],
       lastPeriodStart: null,
+      paused: false,
+      pausedReason: null,
       setCycleLength: (cycleLength) => set({ cycleLength }),
       setPeriodLength: (periodLength) => set({ periodLength }),
       setLoggedPeriodDays: (loggedPeriodDays) =>
@@ -56,6 +64,9 @@ export const usePeriodTrackerStore = create<PeriodTrackerState>()(
           lastPeriodStart: deriveLastPeriodStart(loggedPeriodDays),
         }),
       togglePeriodDay: (dayKey) => {
+        if (get().paused) {
+          return;
+        }
         const current = get().loggedPeriodDays;
         const exists = current.includes(dayKey);
         const loggedPeriodDays = exists
@@ -66,10 +77,22 @@ export const usePeriodTrackerStore = create<PeriodTrackerState>()(
           lastPeriodStart: deriveLastPeriodStart(loggedPeriodDays),
         });
       },
+      pauseForPregnancy: () =>
+        set({
+          paused: true,
+          pausedReason: 'pregnancy',
+        }),
+      resume: () =>
+        set({
+          paused: false,
+          pausedReason: null,
+        }),
       clearAll: () =>
         set({
           loggedPeriodDays: [],
           lastPeriodStart: null,
+          paused: false,
+          pausedReason: null,
         }),
     }),
     {
@@ -93,8 +116,9 @@ export function isPredictedPeriodDay(
   cycleLength: number,
   periodLength: number,
   loggedDays: string[],
+  paused = false,
 ): boolean {
-  if (loggedDays.includes(dayKey) || !lastPeriodStart) {
+  if (paused || loggedDays.includes(dayKey) || !lastPeriodStart) {
     return false;
   }
   const predictedStart = parseDateKey(lastPeriodStart);

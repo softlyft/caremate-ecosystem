@@ -46,6 +46,8 @@ export const QUERY_KEYS = {
   bookmarks: ['bookmarks'] as const,
   articleReads: ['article-reads'] as const,
   providers: ['providers'] as const,
+  providerConnections: ['provider-connections'] as const,
+  providerDocuments: ['provider-documents'] as const,
   settings: ['settings'] as const,
   search: ['search'] as const,
   familyHousehold: ['family-household'] as const,

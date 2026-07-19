@@ -155,6 +155,42 @@ class FamilyRepository extends BaseRepository {
     return rows.map(mapRequest);
   }
 
+  async listPendingRequestsForHousehold(householdId: string): Promise<FamilyConnectionRequest[]> {
+    const db = getDatabase();
+    const rows = await db
+      .select()
+      .from(familyConnectionRequests)
+      .where(
+        and(
+          eq(familyConnectionRequests.householdId, householdId),
+          eq(familyConnectionRequests.status, 'pending'),
+          isNull(familyConnectionRequests.deletedAt),
+        ),
+      );
+    return rows.map(mapRequest);
+  }
+
+  async markConnectionRequestStatus(
+    requestId: string,
+    status: FamilyConnectionStatus,
+  ): Promise<void> {
+    const db = getDatabase();
+    const timestamp = nowIso();
+    await db
+      .update(familyConnectionRequests)
+      .set({ status, updatedAt: timestamp, syncStatus: 'synced' })
+      .where(eq(familyConnectionRequests.id, requestId));
+  }
+
+  async softDeleteMemberLocal(memberId: string): Promise<void> {
+    const db = getDatabase();
+    const timestamp = nowIso();
+    await db
+      .update(familyMembers)
+      .set({ deletedAt: timestamp, updatedAt: timestamp, syncStatus: 'synced' })
+      .where(eq(familyMembers.id, memberId));
+  }
+
   async createHouseholdWithChildren(params: {
     userId: string;
     selfFullName: string;

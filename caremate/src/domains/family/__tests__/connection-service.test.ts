@@ -82,33 +82,32 @@ describe('familyConnectionService', () => {
     await expect(familyConnectionService.lookupUser('   ')).rejects.toThrow(/email or phone/i);
   });
 
-  it('falls back to a local pending request when RPC fails', async () => {
-    mockRpc.mockResolvedValue({ data: null, error: { message: 'offline' } });
-    mockSaveConnectionRequestLocal.mockResolvedValue(undefined);
-
-    const result = await familyConnectionService.requestConnection({
-      householdId: 'hh-1',
-      fromUserId: 'u1',
-      fromName: 'Ada',
-      emailOrPhone: 'spouse@example.com',
-      matchedUser: {
-        userId: 'u2',
-        fullName: 'Grace',
-        email: 'spouse@example.com',
-        phone: null,
-        dateOfBirth: null,
-        countryCode: null,
-        state: null,
-        avatarUrl: null,
-      },
+  it('throws when RPC fails (owner/seat rules are server-enforced)', async () => {
+    mockRpc.mockResolvedValue({
+      data: null,
+      error: { message: 'Family Premium allows up to 3 invited members' },
     });
 
-    expect(result.request.id).toBe('local-id');
-    expect(result.request.status).toBe('pending');
-    expect(mockSaveConnectionRequestLocal).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'local-id' }),
-      { queue: true },
-    );
+    await expect(
+      familyConnectionService.requestConnection({
+        householdId: 'hh-1',
+        fromUserId: 'u1',
+        fromName: 'Ada',
+        emailOrPhone: 'spouse@example.com',
+        matchedUser: {
+          userId: 'u2',
+          fullName: 'Grace',
+          email: 'spouse@example.com',
+          phone: null,
+          dateOfBirth: null,
+          countryCode: null,
+          state: null,
+          avatarUrl: null,
+        },
+      }),
+    ).rejects.toMatchObject({ message: /up to 3 invited members/i });
+
+    expect(mockSaveConnectionRequestLocal).not.toHaveBeenCalled();
     expect(mockInvoke).not.toHaveBeenCalled();
   });
 

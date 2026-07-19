@@ -25,6 +25,7 @@ import {
   getUpcomingMilestones,
   toDateKey,
 } from '@/mini-apps/pregnancy-tracker/utils';
+import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import { identityTranslate, mockCreateMemoryStorage } from '@/mini-apps/test-utils';
 
@@ -109,6 +110,7 @@ describe('pregnancy-tracker/localize', () => {
 describe('pregnancy-tracker/store', () => {
   beforeEach(() => {
     usePregnancyTrackerStore.getState().clearAll();
+    usePeriodTrackerStore.getState().clearAll();
   });
 
   it('sets pregnancy from LMP or due date', () => {
@@ -121,6 +123,14 @@ describe('pregnancy-tracker/store', () => {
     expect(usePregnancyTrackerStore.getState().lastMenstrualPeriod).toBe(
       calculateLmpFromDueDate('2026-10-08'),
     );
+  });
+
+  it('auto-pauses the period tracker when pregnancy is set up', () => {
+    usePeriodTrackerStore.getState().togglePeriodDay('2026-06-01');
+    usePregnancyTrackerStore.getState().setFromLastPeriod('2026-01-01');
+    expect(usePeriodTrackerStore.getState().paused).toBe(true);
+    expect(usePeriodTrackerStore.getState().pausedReason).toBe('pregnancy');
+    expect(usePeriodTrackerStore.getState().loggedPeriodDays).toEqual(['2026-06-01']);
   });
 
   it('stores nickname and daily logs', () => {

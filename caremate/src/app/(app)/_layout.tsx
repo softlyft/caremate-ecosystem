@@ -2,6 +2,8 @@ import { Stack } from 'expo-router';
 import {
   Bell,
   Crown,
+  FileText,
+  Link2,
   MapPinned,
   QrCode,
   Settings,
@@ -126,6 +128,42 @@ export default function AppLayout() {
           })}
         />
         <Stack.Screen
+          name="providers/connections/index"
+          options={glossyStackHeaderOptions({
+            title: 'Connections',
+            accent: palette.brandBlue,
+            soft: palette.brandBlueLight,
+            softEnd: '#EFF6FF',
+            titleColor: palette.brandBlue,
+            icon: Link2,
+            backAccessibilityLabel: 'Back to Me',
+          })}
+        />
+        <Stack.Screen
+          name="providers/connections/connected"
+          options={glossyStackHeaderOptions({
+            title: 'Connected providers',
+            accent: palette.brandBlue,
+            soft: palette.brandBlueLight,
+            softEnd: '#EFF6FF',
+            titleColor: palette.brandBlue,
+            icon: Link2,
+            backAccessibilityLabel: 'Back to Connections',
+          })}
+        />
+        <Stack.Screen
+          name="providers/connections/requests"
+          options={glossyStackHeaderOptions({
+            title: 'Connection requests',
+            accent: palette.brandBlue,
+            soft: palette.brandBlueLight,
+            softEnd: '#EFF6FF',
+            titleColor: palette.brandBlue,
+            icon: Link2,
+            backAccessibilityLabel: 'Back to Connections',
+          })}
+        />
+        <Stack.Screen
           name="profile/settings"
           options={glossyStackHeaderOptions({
             title: 'Settings',
@@ -135,6 +173,18 @@ export default function AppLayout() {
             titleColor: '#334155',
             icon: Settings,
             backAccessibilityLabel: 'Back to Profile',
+          })}
+        />
+        <Stack.Screen
+          name="profile/documents"
+          options={glossyStackHeaderOptions({
+            title: 'Documents',
+            accent: palette.primary,
+            soft: palette.primaryLight,
+            softEnd: '#F0FDFA',
+            titleColor: palette.primaryDark,
+            icon: FileText,
+            backAccessibilityLabel: 'Back to Me',
           })}
         />
         <Stack.Screen

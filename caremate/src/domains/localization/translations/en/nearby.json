@@ -35,7 +35,25 @@
     "call": "Call",
     "directions": "Get directions",
     "openInMaps": "Open in Maps",
-    "openInMapsHint": "Tap to open in your maps app"
+    "openInMapsHint": "Tap to open in your maps app",
+    "connect": "Connect with provider",
+    "connectHint": "Creates a connection request. No health data is shared until you choose to.",
+    "connectPending": "Connection request pending",
+    "connectPendingOutbound": "Waiting for the provider to approve",
+    "connectPendingInbound": "This provider wants to connect",
+    "connectApproved": "Connected",
+    "connectRejected": "Connection was declined",
+    "connectUnavailable": "Connection isn't available for this listing yet",
+    "connectGuest": "Sign in to connect with providers",
+    "connectSuccessTitle": "Request sent",
+    "connectSuccessMessage": "The provider will review your connection request.",
+    "connectFailedTitle": "Couldn't send request",
+    "approveInbound": "Approve connection",
+    "declineInbound": "Decline",
+    "approveSuccessTitle": "Connected",
+    "approveSuccessMessage": "You're now connected with this provider.",
+    "respondFailedTitle": "Couldn't update connection",
+    "connectRejectedFinal": "Connection was declined"
   },
   "map": {
     "loading": "Loading...",
@@ -60,5 +78,49 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "connectionRequests": {
+    "link": "Connection requests",
+    "linkWithCount": "Connection requests ({{count}})",
+    "title": "Connection requests",
+    "subtitle": "Providers who want to connect with you. Approving only creates a connection — no health data is shared yet.",
+    "loading": "Loading requests...",
+    "empty": "No pending connection requests.",
+    "guest": "Sign in to manage provider connection requests.",
+    "providerFallback": "Provider",
+    "noteLabel": "Note from provider",
+    "approve": "Approve",
+    "decline": "Decline",
+    "approvedTitle": "Connected",
+    "approvedMessage": "You're now connected with this provider.",
+    "declinedTitle": "Declined",
+    "declinedMessage": "You declined this connection request.",
+    "failedTitle": "Couldn't update request",
+    "failedMessage": "Please try again.",
+    "loadFailed": {
+      "title": "Couldn't load requests",
+      "message": "Check your connection and try again."
+    },
+    "reasonLabel": "Reason for declining",
+    "reasonPlaceholder": "Tell the provider why you are declining",
+    "confirmDecline": "Confirm decline"
+  },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "Providers you are linked with in CareMate",
+    "guest": "Sign in to manage provider connections.",
+    "connectedTitle": "Connected providers",
+    "connectedSubtitle": "Organizations you have an approved connection with.",
+    "connectedEmpty": "You are not connected to any providers yet.",
+    "connectedLoading": "Loading connected providers...",
+    "connectedCount": "{{count}} connected",
+    "connectedSince": "Connected {{date}}",
+    "requestsTitle": "Provider connection requests",
+    "requestsCount": "{{count}} waiting for your review",
+    "requestsEmptySubtitle": "No pending provider requests",
+    "loadFailed": {
+      "title": "Couldn't load connections",
+      "message": "Check your connection and try again."
+    }
   }
 }

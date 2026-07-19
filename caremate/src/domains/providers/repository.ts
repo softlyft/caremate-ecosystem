@@ -24,6 +24,7 @@ type RemoteProviderRow = {
   latitude: number | null;
   longitude: number | null;
   distance_km: number | null;
+  organization_id?: string | null;
   attributes: unknown;
   created_at?: string | null;
   updated_at?: string | null;
@@ -336,9 +337,12 @@ class ProviderRepository extends BaseRepository {
     const timestamp = nowIso();
     let attributes: Record<string, unknown> = {};
     if (row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes)) {
-      attributes = row.attributes as Record<string, unknown>;
+      attributes = { ...(row.attributes as Record<string, unknown>) };
     } else if (typeof row.attributes === 'string') {
       attributes = parseJson(row.attributes, {});
+    }
+    if (row.organization_id && !attributes.organization_id) {
+      attributes.organization_id = row.organization_id;
     }
     return {
       id: row.id,
@@ -369,6 +373,22 @@ class ProviderRepository extends BaseRepository {
 
     for (const row of rows) {
       const deletedAt = row.deleted_at ? String(row.deleted_at) : null;
+      let attributesPayload: unknown = row.attributes ?? {};
+      if (row.organization_id) {
+        const base =
+          attributesPayload &&
+          typeof attributesPayload === 'object' &&
+          !Array.isArray(attributesPayload)
+            ? { ...(attributesPayload as Record<string, unknown>) }
+            : parseJson<Record<string, unknown>>(
+                typeof attributesPayload === 'string' ? attributesPayload : '{}',
+                {},
+              );
+        if (!base.organization_id) {
+          base.organization_id = row.organization_id;
+        }
+        attributesPayload = base;
+      }
       await db
         .insert(providers)
         .values({
@@ -382,7 +402,7 @@ class ProviderRepository extends BaseRepository {
           longitude: row.longitude,
           isFavorite: favoriteIds.has(row.id),
           distanceKm: row.distance_km,
-          attributes: stringifyJson(row.attributes ?? {}),
+          attributes: stringifyJson(attributesPayload),
           syncStatus: 'synced',
           deletedAt,
           createdAt: row.created_at ?? timestamp,
@@ -399,7 +419,7 @@ class ProviderRepository extends BaseRepository {
             latitude: row.latitude,
             longitude: row.longitude,
             distanceKm: row.distance_km,
-            attributes: stringifyJson(row.attributes ?? {}),
+            attributes: stringifyJson(attributesPayload),
             syncStatus: 'synced',
             deletedAt,
             updatedAt: row.updated_at ?? timestamp,

@@ -29,14 +29,46 @@ export default function LogPeriodScreen() {
   const hydrated = usePeriodTrackerHydrated();
 
   const loggedPeriodDays = usePeriodTrackerStore((state) => state.loggedPeriodDays);
+  const paused = usePeriodTrackerStore((state) => state.paused);
   const togglePeriodDay = usePeriodTrackerStore((state) => state.togglePeriodDay);
   const setLoggedPeriodDays = usePeriodTrackerStore((state) => state.setLoggedPeriodDays);
+  const resume = usePeriodTrackerStore((state) => state.resume);
 
   if (!hydrated) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator color={theme.color} />
       </View>
+    );
+  }
+
+  if (paused) {
+    return (
+      <MiniAppScreen>
+        <MiniAppHero
+          appId={APP_ID}
+          eyebrow={t('apps.periodTracker.logPeriodDays')}
+          title={t('apps.period.ui.pausedTitle')}
+          subtitle={t('apps.period.ui.pausedBecausePregnant')}
+        />
+        <MiniAppCta
+          label={t('apps.period.ui.resumeTracking')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={1}
+          onPress={() => {
+            resume();
+          }}
+        />
+        <MiniAppCta
+          label={t('apps.period.ui.backToTracker')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={2}
+          secondary
+          onPress={() => router.back()}
+        />
+      </MiniAppScreen>
     );
   }
 

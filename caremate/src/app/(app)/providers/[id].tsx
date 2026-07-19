@@ -1,8 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { BadgeCheck, Heart, Mail, MapPin, Navigation, Phone, Star } from 'lucide-react-native';
-import { useLayoutEffect } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import {
+  BadgeCheck,
+  Heart,
+  Link2,
+  Mail,
+  MapPin,
+  Navigation,
+  Phone,
+  Star,
+} from 'lucide-react-native';
+import { useLayoutEffect, useState } from 'react';
+import { Alert, Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -16,9 +25,14 @@ import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { getProviderTypeTheme } from '@/domains/providers/components/NearbyProviderCard';
+import {
+  getProviderOrganizationId,
+  providerConnectionService,
+} from '@/domains/providers/connection-service';
 import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-maps';
 import { providerRepository } from '@/domains/providers/repository';
 import type { ProviderType } from '@/domains/providers/types';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Provider } from '@/types';
 
@@ -34,7 +48,7 @@ function readRating(provider: Provider): number | null {
   return null;
 }
 
-function isVerified(provider: Provider): boolean {
+function isCatalogVerified(provider: Provider): boolean {
   const raw = provider.attributes.verified ?? provider.attributes.is_verified;
   return raw === true || raw === 'true' || raw === 1;
 }
@@ -44,6 +58,9 @@ export default function ProviderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const isGuest = useIsGuest();
+  const [declining, setDeclining] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.providers, id],
@@ -51,11 +68,68 @@ export default function ProviderDetailScreen() {
     enabled: Boolean(id),
   });
 
+  const organizationId = query.data ? getProviderOrganizationId(query.data) : null;
+
+  const orgVerifiedQuery = useQuery({
+    queryKey: [...QUERY_KEYS.providerConnections, 'verified', organizationId],
+    queryFn: () => providerConnectionService.isOrganizationVerified(organizationId!),
+    enabled: Boolean(organizationId) && !isGuest,
+  });
+
+  const connectionQuery = useQuery({
+    queryKey: [...QUERY_KEYS.providerConnections, organizationId],
+    queryFn: () => providerConnectionService.getConnectionForOrganization(organizationId!),
+    enabled: Boolean(organizationId) && !isGuest,
+  });
+
   const favoriteMutation = useMutation({
     mutationFn: () => providerRepository.toggleFavorite(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providers });
       query.refetch();
+    },
+  });
+
+  const connectMutation = useMutation({
+    mutationFn: () =>
+      providerConnectionService.requestConnection({ organizationId: organizationId! }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
+      Alert.alert(t('nearby.detail.connectSuccessTitle'), t('nearby.detail.connectSuccessMessage'));
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('nearby.detail.connectFailedTitle'),
+        error instanceof Error ? error.message : t('nearby.detail.connectFailedTitle'),
+      );
+    },
+  });
+
+  const respondMutation = useMutation({
+    mutationFn: (params: { accept: boolean; rejectionReason?: string }) =>
+      providerConnectionService.respondToRequest({
+        connectionId: connectionQuery.data!.id,
+        accept: params.accept,
+        rejectionReason: params.rejectionReason,
+      }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
+      setDeclining(false);
+      setRejectionReason('');
+      Alert.alert(
+        variables.accept
+          ? t('nearby.detail.approveSuccessTitle')
+          : t('nearby.connectionRequests.declinedTitle'),
+        variables.accept
+          ? t('nearby.detail.approveSuccessMessage')
+          : t('nearby.connectionRequests.declinedMessage'),
+      );
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('nearby.detail.respondFailedTitle'),
+        error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
+      );
     },
   });
 
@@ -93,7 +167,11 @@ export default function ProviderDetailScreen() {
 
   const detail = provider;
   const rating = readRating(detail);
-  const verified = isVerified(detail);
+  const catalogVerified = isCatalogVerified(detail);
+  const orgVerified = orgVerifiedQuery.data === true;
+  const connection = connectionQuery.data;
+  const showConnectCard =
+    !isGuest && Boolean(organizationId) && (Boolean(connection) || orgVerified);
   const typeKey = detail.type as ProviderType;
   const typeLabel = t(`nearby.types.${typeKey}`);
   const canOpenMaps = canOpenInMaps(detail);
@@ -175,7 +253,7 @@ export default function ProviderDetailScreen() {
                     </AppText>
                   </View>
                 ) : null}
-                {verified ? (
+                {catalogVerified ? (
                   <View style={[styles.metaPill, { backgroundColor: palette.primaryLight }]}>
                     <BadgeCheck color={palette.primary} size={13} />
                     <AppText
@@ -263,7 +341,140 @@ export default function ProviderDetailScreen() {
           </View>
         </AnimatedSection>
 
-        <AnimatedSection index={3}>
+        {showConnectCard ? (
+          <AnimatedSection index={3}>
+            <View style={[styles.card, shadow.soft]}>
+              <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                {t('nearby.detail.connect')}
+              </AppText>
+              {connection?.status === 'approved' ? (
+                <AppText variant="body" style={[styles.connectStatus, { color: palette.primary }]}>
+                  {t('nearby.detail.connectApproved')}
+                </AppText>
+              ) : connection?.status === 'rejected' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('nearby.detail.connectRejectedFinal')}
+                  </AppText>
+                  {connection.rejectionReason ? (
+                    <AppText variant="caption" style={styles.connectHint}>
+                      {connection.rejectionReason}
+                    </AppText>
+                  ) : null}
+                </View>
+              ) : connection?.status === 'pending' && connection.initiatedBy === 'provider' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('nearby.detail.connectPendingInbound')}
+                  </AppText>
+                  {connection.providerNote ? (
+                    <AppText variant="caption" style={styles.connectHint}>
+                      {connection.providerNote}
+                    </AppText>
+                  ) : null}
+                  {declining ? (
+                    <>
+                      <TextInput
+                        style={styles.reasonInput}
+                        value={rejectionReason}
+                        onChangeText={setRejectionReason}
+                        placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
+                        placeholderTextColor="#9CA3AF"
+                        multiline
+                        editable={!respondMutation.isPending}
+                      />
+                      <View style={styles.connectRow}>
+                        <PressableScale
+                          style={[
+                            styles.secondaryCta,
+                            { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
+                          ]}
+                          disabled={respondMutation.isPending}
+                          onPress={() => {
+                            setDeclining(false);
+                            setRejectionReason('');
+                          }}
+                        >
+                          <AppText variant="button" style={{ color: theme.accent }}>
+                            {t('common.cancel')}
+                          </AppText>
+                        </PressableScale>
+                        <PressableScale
+                          style={[
+                            styles.primaryCta,
+                            { backgroundColor: theme.accent, flex: 1 },
+                            shadow.soft,
+                          ]}
+                          disabled={respondMutation.isPending}
+                          onPress={() =>
+                            respondMutation.mutate({
+                              accept: false,
+                              rejectionReason,
+                            })
+                          }
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('nearby.connectionRequests.confirmDecline')}
+                          </AppText>
+                        </PressableScale>
+                      </View>
+                    </>
+                  ) : (
+                    <View style={styles.connectRow}>
+                      <PressableScale
+                        style={[
+                          styles.primaryCta,
+                          { backgroundColor: theme.accent, flex: 1 },
+                          shadow.soft,
+                        ]}
+                        disabled={respondMutation.isPending}
+                        onPress={() => respondMutation.mutate({ accept: true })}
+                      >
+                        <AppText variant="button" style={styles.primaryCtaLabel}>
+                          {t('nearby.detail.approveInbound')}
+                        </AppText>
+                      </PressableScale>
+                      <PressableScale
+                        style={[
+                          styles.secondaryCta,
+                          { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
+                        ]}
+                        disabled={respondMutation.isPending}
+                        onPress={() => setDeclining(true)}
+                      >
+                        <AppText variant="button" style={{ color: theme.accent }}>
+                          {t('nearby.detail.declineInbound')}
+                        </AppText>
+                      </PressableScale>
+                    </View>
+                  )}
+                </View>
+              ) : connection?.status === 'pending' ? (
+                <AppText variant="body" style={styles.connectStatus}>
+                  {t('nearby.detail.connectPendingOutbound')}
+                </AppText>
+              ) : (
+                <View style={styles.connectBlock}>
+                  <AppText variant="caption" style={styles.connectHint}>
+                    {t('nearby.detail.connectHint')}
+                  </AppText>
+                  <PressableScale
+                    style={[styles.primaryCta, { backgroundColor: theme.accent }, shadow.soft]}
+                    disabled={connectMutation.isPending || connectionQuery.isLoading}
+                    onPress={() => connectMutation.mutate()}
+                  >
+                    <Link2 color="#FFFFFF" size={18} strokeWidth={2.25} />
+                    <AppText variant="button" style={styles.primaryCtaLabel}>
+                      {t('nearby.detail.connect')}
+                    </AppText>
+                  </PressableScale>
+                </View>
+              )}
+            </View>
+          </AnimatedSection>
+        ) : null}
+
+        <AnimatedSection index={4}>
           <View style={styles.actions}>
             <PressableScale
               style={[
@@ -435,6 +646,30 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: 12,
+  },
+  connectBlock: {
+    gap: 12,
+  },
+  connectStatus: {
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  connectHint: {
+    color: palette.textSecondary,
+    marginBottom: 4,
+  },
+  connectRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  reasonInput: {
+    minHeight: 80,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    borderRadius: radius.lg,
+    padding: 12,
+    color: palette.text,
+    textAlignVertical: 'top',
   },
   primaryCta: {
     minHeight: 54,

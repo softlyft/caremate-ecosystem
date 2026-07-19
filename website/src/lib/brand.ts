@@ -87,3 +87,50 @@ export const MINI_APPS = [
     soft: '#FCE7F3',
   },
 ] as const;
+
+/** CareMate Provider Portal — engagement channel for healthcare organizations. */
+export const PROVIDER_CAPABILITIES = [
+  {
+    id: 'connections',
+    title: 'Patient connections',
+    description:
+      'Request a link with a CareMate Patient ID, or approve patients who want to connect. One trusted contact record — no clinical data is shared until you choose to.',
+    accent: '#0D9488',
+    soft: '#CCFBF1',
+  },
+  {
+    id: 'documents',
+    title: 'Secure documents',
+    description:
+      'Share prescriptions, lab results, imaging reports, referrals, and invoices with a connected patient through CareMate.',
+    accent: '#2563EB',
+    soft: '#DBEAFE',
+  },
+  {
+    id: 'broadcasts',
+    title: 'Broadcasts',
+    description:
+      'Send announcements to all connected patients — or a selected group — without leaving CareMate.',
+    accent: '#0284C7',
+    soft: '#E0F2FE',
+  },
+  {
+    id: 'appointments',
+    title: 'Appointment requests',
+    description:
+      'Receive and respond to appointment requests from patients. Calendars stay in your own systems.',
+    accent: '#7C3AED',
+    soft: '#F3E8FF',
+  },
+] as const;
+
+export const PROVIDER_ORG_TYPES = [
+  'Hospital',
+  'Clinic',
+  'Pharmacy',
+  'Laboratory',
+  'Imaging Centre',
+  'Blood Bank',
+  'Ambulance Service',
+  'Insurance / HMO',
+] as const;

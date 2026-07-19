@@ -25,11 +25,11 @@ function normalizeQuery(raw: string): {
 
 /**
  * Plaintext message for someone who is not on CareMate yet.
- * No invite tokens or deep links — spouse connection happens in-app after they install and sign up.
+ * No invite tokens or deep links — connection happens in-app after they install and sign up.
  */
 export function buildSpouseInviteMessage(params: { fromName: string }): { message: string } {
   const message = [
-    `${params.fromName} uses ${APP_NAME} for family health and wants to connect with you.`,
+    `${params.fromName} uses ${APP_NAME} Family Premium and wants to add you to their household.`,
     '',
     `Get ${APP_NAME}:`,
     `• iPhone: ${APP_STORE_URLS.ios}`,
@@ -73,7 +73,7 @@ class FamilyConnectionService {
     };
   }
 
-  /** In-app spouse connection only — requires a matched CareMate account. */
+  /** In-app adult invite — requires a matched CareMate account. Owner-only on the server. */
   async requestConnection(params: {
     householdId: string;
     fromUserId: string;
@@ -93,23 +93,7 @@ class FamilyConnectionService {
     });
 
     if (error) {
-      // Offline / RPC missing: fall back to local pending row.
-      const local: FamilyConnectionRequest = {
-        id: await createId(),
-        householdId: params.householdId,
-        fromUserId: params.fromUserId,
-        toUserId: params.matchedUser.userId,
-        toEmail: email,
-        toPhone: phone,
-        status: 'pending',
-        inviteToken: null,
-        syncStatus: 'pending',
-        deletedAt: null,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      };
-      await familyRepository.saveConnectionRequestLocal(local, { queue: true });
-      return { request: local };
+      throw error;
     }
 
     const row = Array.isArray(data) ? data[0] : data;
@@ -139,6 +123,32 @@ class FamilyConnectionService {
       });
 
     return { request };
+  }
+
+  async cancelRequest(params: { requestId: string; userId: string }): Promise<void> {
+    const { error } = await supabase.rpc('cancel_family_connection_request', {
+      p_request_id: params.requestId,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    await familyRepository.markConnectionRequestStatus(params.requestId, 'cancelled');
+    await familyRepository.pullFromRemote(params.userId);
+  }
+
+  async removeAdultMember(params: { memberId: string; userId: string }): Promise<void> {
+    const { error } = await supabase.rpc('remove_family_adult_member', {
+      p_member_id: params.memberId,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    await familyRepository.softDeleteMemberLocal(params.memberId);
+    await familyRepository.pullFromRemote(params.userId);
   }
 
   async respondToRequest(params: {

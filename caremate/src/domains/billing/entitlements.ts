@@ -13,6 +13,9 @@ export const FREE_IMMUNIZATION_MAX_WEEKS = 8;
 /** Child profiles allowed on Free and Standard Premium. */
 export const FREE_FAMILY_CHILD_LIMIT = 1;
 
+/** Invited adults (excl. owner) allowed on Family Premium. */
+export const FAMILY_ADULT_INVITE_LIMIT = 3;
+
 const MINI_APP_AD_FREE_SLOTS: readonly AdSlotId[] = [
   'pregnancy.timeline',
   'pregnancy.footer',
@@ -111,8 +114,21 @@ export function maxChildrenForTier(tier: PremiumTier): number {
   return hasFamilyPlan(tier) ? 12 : FREE_FAMILY_CHILD_LIMIT;
 }
 
+/** Plan gate only — Family Premium required to invite adults. */
 export function canConnectSpouse(tier: PremiumTier): boolean {
   return hasFamilyPlan(tier);
+}
+
+/**
+ * Whether the household owner may send another adult invite.
+ * `usedSeats` = accepted invited adults (`kind=spouse`) + pending outgoing requests.
+ */
+export function canInviteFamilyMember(tier: PremiumTier, usedSeats: number): boolean {
+  return hasFamilyPlan(tier) && usedSeats < FAMILY_ADULT_INVITE_LIMIT;
+}
+
+export function familyAdultInviteSeatsRemaining(usedSeats: number): number {
+  return Math.max(0, FAMILY_ADULT_INVITE_LIMIT - usedSeats);
 }
 
 export function isMiniAppSlotAdFreeForPremium(tier: PremiumTier, slotId: AdSlotId): boolean {

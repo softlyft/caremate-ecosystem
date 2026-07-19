@@ -4,12 +4,14 @@ Monorepo for the CareMate product surface: the offline-first mobile app, the adm
 
 ```text
 caremate-ecosystem/
-├── caremate/            Expo mobile app (SQLite + sync + mini-apps)
-├── caremate-portal/     Next.js admin portal
-├── payment/             Vite hosted checkout (Paystack / Stripe)
-├── provider-ingestion/  FastAPI Excel/XLSX → Supabase provider ingest
-├── supabase/            Cloud schema, RLS, RPCs, Edge Functions
-└── packages/db-types/   Shared TypeScript database contracts
+├── caremate/                   Expo mobile app (SQLite + sync + mini-apps)
+├── caremate-portal/            Next.js SoftLyft admin portal
+├── caremate-provider-portal/   Next.js provider patient-engagement portal
+├── payment/                    Vite hosted checkout (Paystack / Stripe)
+├── provider-ingestion/         FastAPI Excel/XLSX → Supabase provider ingest
+├── website/                    Marketing site (welcome, guides, legal)
+├── supabase/                   Cloud schema, RLS, RPCs, Edge Functions
+└── packages/db-types/          Shared TypeScript database contracts
 ```
 
 ## Service Docs
@@ -19,9 +21,11 @@ Each service keeps its own README plus a local `docs/` set.
 | Service | Purpose | Docs |
 |---------|---------|------|
 | `caremate/` | Mobile experience for patients and families | `caremate/docs/README.md` |
-| `caremate-portal/` | Staff/admin portal for catalogs, users, billing, providers | `caremate-portal/docs/README.md` |
+| `caremate-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-portal/docs/README.md` |
+| `caremate-provider-portal/` | Provider org patient engagement (connections, docs, broadcasts) | `caremate-provider-portal/docs/README.md` |
 | `payment/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `payment/README.md` |
 | `provider-ingestion/` | Provider resource ingest and projection rebuilds | `provider-ingestion/docs/README.md` |
+| `website/` | Marketing + patient/provider guides + privacy/terms | `website/README.md` |
 | `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
 
@@ -42,7 +46,8 @@ Useful root scripts:
 | `npm run test` | Runs mobile Jest + portal unit tests |
 | `npm run format` | Formats the mobile app with Prettier (`--write`) |
 | `npm run mobile:start` | Starts the Expo mobile app |
-| `npm run portal:dev` | Starts the Next.js portal |
+| `npm run portal:dev` | Starts the Next.js SoftLyft admin portal |
+| `npm run provider-portal:dev` | Starts the provider engagement portal on `:4000` |
 | `npm run payment:dev` | Starts the hosted checkout app on `:5174` |
 | `npm run ingest:dev` | Starts the provider-ingestion FastAPI service on `:8090` |
 | `npm run supabase:link` | Links the local repo to the hosted Supabase project |

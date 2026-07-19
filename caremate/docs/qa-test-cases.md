@@ -135,6 +135,12 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | NB-08 | P1 | Offline with cached provider data | Nearby tab | Cached providers still list successfully. |
 | NB-09 | P1 | Location permission denied or approximate mode chosen | Open Nearby | App uses the approximate pin for the selected country/state and still attempts to show providers; approximate-location caption may show. |
 | NB-10 | P1 | Precise mode + GPS granted while device is far from selected region | Open Nearby | Live GPS is used (no country-bounds discard); ranking follows device position. |
+| NB-11 | P0 | Signed-in; provider org claimed/verified; no connection row | Provider detail | **Connect with provider** visible; send request → pending. |
+| NB-12 | P0 | Provider org not claimed / not verified | Provider detail | Connect button **not** shown. |
+| NB-13 | P0 | Me → Connections | Open hub | Connected providers + Provider connection requests rows. |
+| NB-14 | P0 | Inbound provider request | Decline with empty reason | Blocked; reason required. With reason → rejected. |
+
+Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../caremate-provider-portal/docs/qa-testing.md).
 
 ---
 
@@ -175,6 +181,12 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ME-14 | P0 | Any | Settings → Privacy policy / Terms | Opens SoftLyft legal URLs in the system browser. |
 | ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. |
 | ME-16 | P1 | Guest | Settings account section | Delete account is hidden. |
+| ME-17 | P0 | Signed-in + provider shared a file | Me → Documents | List shows title, type, provider; tap opens document. |
+| ME-18 | P1 | Signed-in, no files | Me → Documents | Empty state invites upload. |
+| ME-19 | P1 | Guest | Me → Documents | Sign-in prompt / guest copy. |
+| ME-20 | P0 | Signed-in | Me → Documents → Upload | Title + type required; org optional (“Assign later”); pick file; appears in list as patient upload. |
+| ME-21 | P0 | Patient doc with no org + approved connection | Link provider on row | Can assign approved org; provider can then see file in portal. |
+| ME-22 | P1 | Patient doc already linked | Change provider | Can switch to another approved org or clear link. |
 
 ---
 
@@ -191,16 +203,20 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | FM-06 | P1 | Hub | Add another child (name, DOB, gender) | Appears in children list. |
 | FM-06b | P1 | Hub inline add | DOB not YYYY-MM-DD or future date | Same validation messages as setup child form; child not saved. |
 | FM-07 | P1 | Invalid DOB | Enter bad date | Validation error. |
-| FM-08 | P0 | Hub + Account B exists | Connect spouse → enter B’s email → Find | Shows **full** profile card (name, email, phone, DOB, location if set). |
-| FM-09 | P0 | Matched card | Tap Connect | Success; pending request created for B. |
-| FM-10 | P0 | Account B | Open Family → requests → Accept | B joins A’s household as spouse; B’s personal profile/data stays B’s. |
+| FM-08 | P0 | Hub + Account B exists + Family Premium owner | Invite member → enter B’s email → Find | Shows **full** profile card (name, email, phone, DOB, location if set). |
+| FM-09 | P0 | Matched card | Tap Send invite | Success; pending request created for B; seat count updates. |
+| FM-10 | P0 | Account B | Open Family → requests → Accept | B joins A’s household as family member; B’s personal profile/data stays B’s. |
 | FM-10b | P1 | Requests query fails | Open Family requests | ErrorState with Retry (not empty list). |
-| FM-11 | P1 | Account B | Decline request | Status declined; not added as spouse. |
+| FM-11 | P1 | Account B | Decline request | Status declined; not added; seat freed. |
 | FM-12 | P1 | Unknown email/phone | Find → not found | Shows copyable App Store / Play Store invite message (no token/deep link). |
 | FM-13 | P1 | Not found | Copy / Share message | Clipboard or share sheet gets store links + install instructions; no invite URL with token. |
 | FM-14 | P1 | Guest | Family entry | Blocked with sign-in. |
 | FM-15 | P1 | Airplane mode | Create household + kids | Saves locally; syncs when back online. |
 | FM-16 | P2 | Not a parent path | “Not right now” | Returns to Family without forcing kids. |
+| FM-17 | P0 | Family Premium owner + 3 invited / pending | Try Send invite | Blocked; seats full copy. |
+| FM-18 | P0 | Invited member (not owner) on Family hub | View Invite section | Owner-only hint; no lookup / send UI. |
+| FM-19 | P0 | Owner + invited member listed | Remove member | Confirm → member removed; seat available again. |
+| FM-20 | P1 | Owner + pending invite | Cancel invite | Pending cleared; seat freed. |
 
 ---
 
@@ -307,7 +323,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| PG-01 | P0 | Fresh | Setup pregnancy (due date / LMP per UI) | Tracker shows week/progress. |
+| PG-01 | P0 | Fresh | Setup pregnancy (due date / LMP per UI) | Tracker shows week/progress; Period Tracker auto-pauses. |
 | PG-02 | P1 | Active pregnancy | Daily log | Saves notes/symptoms for day. |
 | PG-03 | P1 | Edit nickname if available | Change baby nickname | Updates on home. |
 | PG-04 | P1 | Offline | Setup + log | Persists locally. |
@@ -324,6 +340,9 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | PR-03 | P1 | Multiple cycles | Log another period | History updates. |
 | PR-04 | P1 | Offline | Log while offline | Persists. |
 | PR-05 | P2 | Signed-in sync | Log → other device | Snapshot restores when online. |
+| PR-06 | P0 | Pregnancy setup completed | Open Period Tracker | Paused state; no predictions; log CTA hidden. |
+| PR-07 | P0 | Period paused (pregnant) | Resume period tracking | Predictions/logging return; Pause card shown while still pregnant. |
+| PR-08 | P1 | Pregnant + resumed | Pause period tracking | Pauses again without clearing history. |
 
 ---
 
@@ -394,8 +413,8 @@ Spec: [Premium & plans](./premium-and-plans.md). Gates are enforced — run thes
 | PG-07 | P1 | Free signed-in | Pregnancy / Period with ads enabled | Catalog or AdMob in slots |
 | PG-08 | P1 | Standard Premium | Pregnancy / Period | No ads in mini-app slots |
 | PG-09 | P0 | Free household | Add 2nd child | Blocked; Family upgrade CTA |
-| PG-10 | P0 | Free / Standard | Connect spouse | Blocked; Family upgrade CTA |
-| PG-11 | P0 | Family Premium | Add multiple children + spouse | Allowed per family flows |
+| PG-10 | P0 | Free / Standard | Invite family member | Blocked; Family upgrade CTA |
+| PG-11 | P0 | Family Premium owner | Add multiple children + up to 3 adult invites | Allowed per family flows |
 | PG-12 | P1 | Guest | Learn + Nearby + Emergency | Full access without account |
 
 ---
@@ -421,7 +440,7 @@ Spec: [Premium & plans](./premium-and-plans.md). Gates are enforced — run thes
 | Biometric unlock | Hidden in UI until app-lock gate is implemented |
 | Push notifications | Preference toggle may not deliver OS pushes yet |
 | Premium gating | Enforced per [Premium & plans](./premium-and-plans.md); run PG-01–PG-12 in QA |
-| Family spouse invites | In-app request when account exists; otherwise copy/share store download message (no redeemable invite links) |
+| Family adult invites | Owner invites up to 3; in-app request when account exists; otherwise copy/share store download message (no redeemable invite links); invitees cannot invite |
 | Spouse join | Personal mini-app data stays per parent (shared household kids only) |
 
 ---

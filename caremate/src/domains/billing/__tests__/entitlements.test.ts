@@ -1,11 +1,14 @@
 import { AD_SLOTS } from '@/domains/ads/types';
 import {
+  FAMILY_ADULT_INVITE_LIMIT,
   FREE_MEDICATION_LIMIT,
   canActivateMedication,
   canAddChild,
   canAddMedication,
   canConnectSpouse,
+  canInviteFamilyMember,
   canUseMiniApps,
+  familyAdultInviteSeatsRemaining,
   isCheckupItemUnlocked,
   isCheckupYearUnlocked,
   isImmunizationScheduleItemUnlocked,
@@ -57,7 +60,7 @@ describe('billing entitlements', () => {
     expect(isImmunizationScheduleItemUnlocked('family', 52)).toBe(true);
   });
 
-  it('limits family children and spouse by tier', () => {
+  it('limits family children and adult invites by tier', () => {
     expect(canAddChild('free', 0)).toBe(true);
     expect(canAddChild('free', 1)).toBe(false);
     expect(canAddChild('personal', 1)).toBe(false);
@@ -65,6 +68,12 @@ describe('billing entitlements', () => {
     expect(canConnectSpouse('free')).toBe(false);
     expect(canConnectSpouse('personal')).toBe(false);
     expect(canConnectSpouse('family')).toBe(true);
+    expect(canInviteFamilyMember('family', 0)).toBe(true);
+    expect(canInviteFamilyMember('family', FAMILY_ADULT_INVITE_LIMIT - 1)).toBe(true);
+    expect(canInviteFamilyMember('family', FAMILY_ADULT_INVITE_LIMIT)).toBe(false);
+    expect(canInviteFamilyMember('free', 0)).toBe(false);
+    expect(familyAdultInviteSeatsRemaining(1)).toBe(FAMILY_ADULT_INVITE_LIMIT - 1);
+    expect(familyAdultInviteSeatsRemaining(FAMILY_ADULT_INVITE_LIMIT)).toBe(0);
   });
 
   it('suppresses mini-app ads for premium users', () => {

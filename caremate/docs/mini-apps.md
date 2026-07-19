@@ -430,12 +430,15 @@ app/(app)/apps/vitals-tracker/
 | `periodLength` | 5 | Bleeding length (days) |
 | `loggedPeriodDays` | `[]` | `YYYY-MM-DD` keys |
 | `lastPeriodStart` | derived | Earliest / latest period start used for predictions |
+| `paused` | `false` | When true, predictions and logging are off |
+| `pausedReason` | `null` | Currently `pregnancy` when auto-paused |
 
 ### Features
 
 - Today hero — cycle day, days until next period
 - 7-day strip and month calendar (`MonthCalendarGrid`)
 - Cycle summary and simple predictions (`lastPeriodStart + cycleLength`)
+- **Pregnancy pause** — setting up Pregnancy Tracker auto-pauses cycle predictions; resume anytime (re-pause while pregnant is available)
 
 `usePeriodTrackerHydrated()` gates taps until rehydration finishes.
 
@@ -475,7 +478,7 @@ Also listed under [Data Layer → Mini-apps data](./data-layer.md#mini-apps-data
 | Data sync | Signed-in: JSON snapshots via sync engine → Supabase `mini_app_snapshots` |
 | Multi-entity | Immunization: multiple children; Medication: multiple medicines |
 | Region | Checkup Planner uses article country list; default INT |
-| Linking | Period ↔ Pregnancy not connected |
+| Linking | Pregnancy setup auto-pauses Period Tracker; history kept; user can resume |
 | Offline | Fully offline; sync when online / reconnect / daily safety |
 | Auth | Usable as guest; cloud backup requires sign-in |
 
