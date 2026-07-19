@@ -135,16 +135,23 @@ function resolveProviderType(organization: FhirOrganization): ProviderType {
   ) {
     return 'eye_care';
   }
-  if (text.includes('imaging') || text.includes('radiolog') || text.includes('x-ray') || text.includes('xray')) {
+  if (
+    text.includes('imaging') ||
+    text.includes('radiolog') ||
+    text.includes('x-ray') ||
+    text.includes('xray')
+  ) {
     return 'imaging_centre';
   }
   if (text.includes('insurance') || text.includes('hmo')) return 'insurance';
   if (text.includes('home care') || text.includes('home health')) return 'home_care';
-  if (text.includes('medical equipment') || text.includes('medical suppl')) return 'medical_equipment';
+  if (text.includes('medical equipment') || text.includes('medical suppl'))
+    return 'medical_equipment';
   if (text.includes('government health') || text.includes('ministry of health')) {
     return 'government_health';
   }
-  if (text.includes('ngo') || text.includes('non-profit') || text.includes('nonprofit')) return 'ngo';
+  if (text.includes('ngo') || text.includes('non-profit') || text.includes('nonprofit'))
+    return 'ngo';
   if (text.includes('mental')) return 'mental_health';
   if (text.includes('ambulance')) return 'ambulance';
   if (text.includes('blood')) return 'blood_bank';
