@@ -51,12 +51,21 @@
   },
   "providerTypes": {
     "hospital": "Hospitals",
+    "clinic": "Clinics",
     "pharmacy": "Pharmacies",
     "laboratory": "Labs",
-    "clinic": "Clinics",
-    "telemedicine": "Telemedicine",
+    "imaging_centre": "Imaging",
     "blood_bank": "Blood banks",
-    "ambulance": "Ambulance"
+    "ambulance": "Ambulance",
+    "telemedicine": "Telemedicine",
+    "insurance": "Insurance",
+    "mental_health": "Mental health",
+    "dentist": "Dental",
+    "eye_care": "Eye care",
+    "home_care": "Home care",
+    "medical_equipment": "Equipment",
+    "government_health": "Gov health",
+    "ngo": "NGO"
   },
   "notifications": {
     "loading": "Loading notifications…",

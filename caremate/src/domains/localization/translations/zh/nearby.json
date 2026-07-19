@@ -26,11 +26,20 @@
   },
   "types": {
     "hospital": "医院",
+    "clinic": "诊所",
     "pharmacy": "药店",
     "laboratory": "化验室",
-    "clinic": "诊所",
-    "telemedicine": "远程医疗",
+    "imaging_centre": "Imaging Centre",
     "blood_bank": "血库",
-    "ambulance": "救护车"
+    "ambulance": "救护车",
+    "telemedicine": "远程医疗",
+    "insurance": "Insurance / HMO",
+    "mental_health": "Mental Health",
+    "dentist": "Dental Clinic",
+    "eye_care": "Eye Care",
+    "home_care": "Home Care",
+    "medical_equipment": "Medical Equipment & Supplies",
+    "government_health": "Government Health Services",
+    "ngo": "NGO"
   }
 }

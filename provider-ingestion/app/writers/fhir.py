@@ -14,11 +14,18 @@ SERVICE_CATEGORY_BY_TYPE: dict[str, tuple[str, str]] = {
     "clinic": ("17", "General Practice"),
     "pharmacy": ("19", "Pharmacy"),
     "laboratory": ("12", "Pathology/Microbiology"),
+    "imaging_centre": ("12", "Pathology/Microbiology"),
     "telemedicine": ("17", "General Practice"),
     "blood_bank": ("12", "Pathology/Microbiology"),
     "ambulance": ("6", "Emergency Department"),
+    "insurance": ("17", "General Practice"),
     "dentist": ("8", "Dentist"),
+    "eye_care": ("17", "General Practice"),
     "mental_health": ("15", "Mental Health"),
+    "home_care": ("17", "General Practice"),
+    "medical_equipment": ("17", "General Practice"),
+    "government_health": ("17", "General Practice"),
+    "ngo": ("17", "General Practice"),
 }
 
 

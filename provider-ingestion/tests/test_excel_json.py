@@ -72,6 +72,8 @@ class TestCodeableConceptAndTelecom:
     def test_provider_type_from_text(self):
         assert provider_type_from_CodeableConcept({"text": "Community Pharmacy"}) == "pharmacy"
         assert provider_type_from_CodeableConcept({"text": "Diagnostic Lab"}) == "laboratory"
+        assert provider_type_from_CodeableConcept({"text": "Imaging Centre"}) == "imaging_centre"
+        assert provider_type_from_CodeableConcept({"text": "HMO Cover"}) == "insurance"
         assert provider_type_from_CodeableConcept({"text": "Something else"}) == "clinic"
         assert provider_type_from_CodeableConcept(None) is None
 

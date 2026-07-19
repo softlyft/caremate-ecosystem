@@ -4,12 +4,18 @@ import re
 
 from app.canonical import PROVIDER_TYPES
 
-# Sheet / filename tokens → CareMate provider type
+# Sheet / filename tokens → CareMate provider type (more specific patterns first)
 _SHEET_ALIASES: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"hospital", re.I), "hospital"),
-    (re.compile(r"health[_\s-]?center|clinic", re.I), "clinic"),
     (re.compile(r"dental|dentist", re.I), "dentist"),
-    (re.compile(r"eye|ophthalm|optometr", re.I), "clinic"),
+    (re.compile(r"eye|ophthalm|optometr|optical", re.I), "eye_care"),
+    (re.compile(r"imaging|radiolog|x[-\s]?ray|diagnostic\s*centre|diagnostic\s*center", re.I), "imaging_centre"),
+    (re.compile(r"insurance|hmo", re.I), "insurance"),
+    (re.compile(r"home\s*care|home\s*health|home\s*nurs", re.I), "home_care"),
+    (re.compile(r"medical\s*(equipment|suppl)|equipment\s*&\s*suppl", re.I), "medical_equipment"),
+    (re.compile(r"government\s*health|ministry\s*of\s*health|gov(ernment)?\s*health", re.I), "government_health"),
+    (re.compile(r"\bngo\b|non[-\s]?profit|nonprofit|charity", re.I), "ngo"),
+    (re.compile(r"health[_\s-]?center|clinic", re.I), "clinic"),
     (re.compile(r"pharmac", re.I), "pharmacy"),
     (re.compile(r"lab", re.I), "laboratory"),
     (re.compile(r"blood", re.I), "blood_bank"),
@@ -22,12 +28,12 @@ _SHEET_ALIASES: list[tuple[re.Pattern[str], str]] = [
 def sheet_name_to_type(sheet_name: str) -> tuple[str, dict]:
     """
     Map a workbook sheet or CSV category hint to CareMate type.
-    Returns (type, extra_attributes) — e.g. eye → clinic + specialty.
+    Returns (type, extra_attributes).
     """
     name = (sheet_name or "").strip()
     attrs: dict = {}
 
-    if re.search(r"eye|ophthalm|optometr", name, re.I):
+    if re.search(r"eye|ophthalm|optometr|optical", name, re.I):
         attrs["specialty"] = "ophthalmology"
 
     for pattern, provider_type in _SHEET_ALIASES:

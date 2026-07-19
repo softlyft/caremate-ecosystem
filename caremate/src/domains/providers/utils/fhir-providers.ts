@@ -124,15 +124,34 @@ function resolveProviderType(organization: FhirOrganization): ProviderType {
   }
 
   const text = organization.type?.[0]?.text?.toLowerCase() ?? '';
-  if (text.includes('hospital')) return 'hospital';
-  if (text.includes('clinic')) return 'clinic';
-  if (text.includes('pharmacy')) return 'pharmacy';
-  if (text.includes('lab')) return 'laboratory';
   if (text.includes('tele') || text.includes('virtual')) return 'telemedicine';
   if (text.includes('dental') || text.includes('dentist')) return 'dentist';
+  if (
+    text.includes('ophthalm') ||
+    text.includes('optometr') ||
+    text.includes('optical') ||
+    text.includes('eye care') ||
+    text.includes('eye ')
+  ) {
+    return 'eye_care';
+  }
+  if (text.includes('imaging') || text.includes('radiolog') || text.includes('x-ray') || text.includes('xray')) {
+    return 'imaging_centre';
+  }
+  if (text.includes('insurance') || text.includes('hmo')) return 'insurance';
+  if (text.includes('home care') || text.includes('home health')) return 'home_care';
+  if (text.includes('medical equipment') || text.includes('medical suppl')) return 'medical_equipment';
+  if (text.includes('government health') || text.includes('ministry of health')) {
+    return 'government_health';
+  }
+  if (text.includes('ngo') || text.includes('non-profit') || text.includes('nonprofit')) return 'ngo';
   if (text.includes('mental')) return 'mental_health';
   if (text.includes('ambulance')) return 'ambulance';
   if (text.includes('blood')) return 'blood_bank';
+  if (text.includes('pharmac')) return 'pharmacy';
+  if (text.includes('lab')) return 'laboratory';
+  if (text.includes('hospital')) return 'hospital';
+  if (text.includes('clinic')) return 'clinic';
 
   return 'clinic';
 }

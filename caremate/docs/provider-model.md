@@ -62,21 +62,29 @@ Permission UX lives in onboarding (`/(auth)/onboarding/location`): enable precis
 
 ## Types
 
-Canonical list: `src/domains/providers/types.ts`
+Canonical list: `src/domains/providers/types.ts`  
+Mirrored in portal `constants/content.ts` and ingest `PROVIDER_TYPES`.
 
-| Type | Label | Primary Nearby filter |
-|------|-------|------------------------|
+| Type | Label | Nearby filter |
+|------|-------|---------------|
 | `hospital` | Hospital | ✅ |
 | `clinic` | Clinic | ✅ |
 | `pharmacy` | Pharmacy | ✅ |
 | `laboratory` | Laboratory | ✅ |
-| `telemedicine` | Telemedicine | ✅ |
+| `imaging_centre` | Imaging Centre | ✅ |
 | `blood_bank` | Blood Bank | ✅ |
-| `ambulance` | Ambulance | ✅ |
-| `dentist` | Dentist | secondary |
-| `mental_health` | Mental Health | secondary |
+| `ambulance` | Ambulance Service | ✅ |
+| `telemedicine` | Telemedicine | ✅ |
+| `insurance` | Insurance / HMO | ✅ |
+| `mental_health` | Mental Health | ✅ |
+| `dentist` | Dental Clinic | ✅ |
+| `eye_care` | Eye Care | ✅ |
+| `home_care` | Home Care | ✅ |
+| `medical_equipment` | Medical Equipment & Supplies | ✅ |
+| `government_health` | Government Health Services | ✅ |
+| `ngo` | NGO | ✅ |
 
-`PRIMARY_PROVIDER_TYPES` drives the Nearby chip row. Secondary types remain valid on seeds/API.
+`PRIMARY_PROVIDER_TYPES` drives the Nearby chip row (order matches the product list above).
 
 ## Flexible attributes
 

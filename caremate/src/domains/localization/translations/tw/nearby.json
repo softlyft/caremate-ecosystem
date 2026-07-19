@@ -26,11 +26,20 @@
   },
   "types": {
     "hospital": "Ayaresabea",
+    "clinic": "Clinic",
     "pharmacy": "Aduru fie",
     "laboratory": "Laboratory",
-    "clinic": "Clinic",
-    "telemedicine": "Telemedicine",
+    "imaging_centre": "Imaging Centre",
     "blood_bank": "Mogya bank",
-    "ambulance": "Ambulance"
+    "ambulance": "Ambulance Service",
+    "telemedicine": "Telemedicine",
+    "insurance": "Insurance / HMO",
+    "mental_health": "Mental Health",
+    "dentist": "Dental Clinic",
+    "eye_care": "Eye Care",
+    "home_care": "Home Care",
+    "medical_equipment": "Medical Equipment & Supplies",
+    "government_health": "Government Health Services",
+    "ngo": "NGO"
   }
 }

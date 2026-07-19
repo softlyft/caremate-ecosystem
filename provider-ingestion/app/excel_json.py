@@ -95,16 +95,38 @@ def provider_type_from_CodeableConcept(value: Any) -> str | None:
 
 def _type_from_text(text: str) -> str:
     t = text.lower()
+    # More specific tokens before generic "clinic" / "lab".
     mapping = [
-        ("hospital", "hospital"),
-        ("pharmac", "pharmacy"),
-        ("lab", "laboratory"),
+        ("tele", "telemedicine"),
+        ("virtual", "telemedicine"),
         ("dental", "dentist"),
         ("dentist", "dentist"),
+        ("ophthalm", "eye_care"),
+        ("optometr", "eye_care"),
+        ("optical", "eye_care"),
+        ("eye care", "eye_care"),
+        ("eye ", "eye_care"),
+        ("imaging", "imaging_centre"),
+        ("radiolog", "imaging_centre"),
+        ("x-ray", "imaging_centre"),
+        ("xray", "imaging_centre"),
+        ("insurance", "insurance"),
+        ("hmo", "insurance"),
+        ("home care", "home_care"),
+        ("home health", "home_care"),
+        ("medical equipment", "medical_equipment"),
+        ("medical suppl", "medical_equipment"),
+        ("government health", "government_health"),
+        ("ministry of health", "government_health"),
+        ("ngo", "ngo"),
+        ("non-profit", "ngo"),
+        ("nonprofit", "ngo"),
         ("mental", "mental_health"),
         ("ambulance", "ambulance"),
         ("blood", "blood_bank"),
-        ("tele", "telemedicine"),
+        ("pharmac", "pharmacy"),
+        ("lab", "laboratory"),
+        ("hospital", "hospital"),
         ("clinic", "clinic"),
     ]
     for needle, code in mapping:

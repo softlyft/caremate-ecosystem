@@ -365,6 +365,13 @@ describe('providers/fhir-providers', () => {
     const cases: { text: string; type: string; name?: string }[] = [
       { text: 'Telehealth virtual care', type: 'telemedicine' },
       { text: 'Dental / dentist office', type: 'dentist' },
+      { text: 'Eye care / optical shop', type: 'eye_care' },
+      { text: 'Diagnostic imaging centre', type: 'imaging_centre' },
+      { text: 'Health insurance / HMO', type: 'insurance' },
+      { text: 'Home care nursing', type: 'home_care' },
+      { text: 'Medical equipment supplier', type: 'medical_equipment' },
+      { text: 'Government health office', type: 'government_health' },
+      { text: 'Community NGO clinic', type: 'ngo' },
       { text: 'Mental wellness center', type: 'mental_health' },
       { text: 'Ambulance response unit', type: 'ambulance' },
       { text: 'Blood donation bank', type: 'blood_bank' },

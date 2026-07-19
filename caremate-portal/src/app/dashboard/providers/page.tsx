@@ -124,12 +124,13 @@ export default async function ProvidersPage({
                   <TableHead>Name</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead>Source</TableHead>
+                  <TableHead className="w-24">FHIR</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {organizations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-muted">
+                    <TableCell colSpan={5} className="text-muted">
                       No organizations yet. Upload an Organization workbook first.
                     </TableCell>
                   </TableRow>
@@ -137,13 +138,32 @@ export default async function ProvidersPage({
                   organizations.map((org) => (
                     <TableRow key={org.id}>
                       <TableCell className="max-w-[18rem] font-mono text-xs">
-                        <span className="break-all" title={org.id}>
+                        <Link
+                          href={`/dashboard/providers/organizations/${org.id}`}
+                          className="break-all text-primary hover:underline"
+                          title={org.id}
+                        >
                           {org.id}
-                        </span>
+                        </Link>
                       </TableCell>
-                      <TableCell className="font-medium">{org.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link
+                          href={`/dashboard/providers/organizations/${org.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {org.name}
+                        </Link>
+                      </TableCell>
                       <TableCell>{org.active ? 'Yes' : 'No'}</TableCell>
                       <TableCell className="text-muted">{org.source ?? '—'}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/dashboard/providers/organizations/${org.id}?fhir=1`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          View
+                        </Link>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -160,12 +180,13 @@ export default async function ProvidersPage({
                   <TableHead>Organization ID</TableHead>
                   <TableHead>Address</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="w-24">FHIR</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {locations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-muted">
+                    <TableCell colSpan={6} className="text-muted">
                       No locations yet. Paste Organization UUIDs into managingOrganization, then
                       upload Location.
                     </TableCell>
@@ -193,6 +214,14 @@ export default async function ProvidersPage({
                         {loc.address ?? '—'}
                       </TableCell>
                       <TableCell>{loc.status}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/dashboard/providers/${loc.id}?fhir=1`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          View
+                        </Link>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -209,12 +238,13 @@ export default async function ProvidersPage({
                   <TableHead>Location ID</TableHead>
                   <TableHead>Organization ID</TableHead>
                   <TableHead>Type</TableHead>
+                  <TableHead className="w-24">FHIR</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {services.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-muted">
+                    <TableCell colSpan={6} className="text-muted">
                       No healthcare services yet. Paste Location UUIDs into location, then upload.
                     </TableCell>
                   </TableRow>
@@ -222,9 +252,21 @@ export default async function ProvidersPage({
                   services.map((hs) => (
                     <TableRow key={hs.id}>
                       <TableCell className="max-w-[14rem] break-all font-mono text-xs">
-                        {hs.id}
+                        <Link
+                          href={`/dashboard/providers/services/${hs.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {hs.id}
+                        </Link>
                       </TableCell>
-                      <TableCell className="font-medium">{hs.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link
+                          href={`/dashboard/providers/services/${hs.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {hs.name}
+                        </Link>
+                      </TableCell>
                       <TableCell
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={hs.location_id ?? undefined}
@@ -238,6 +280,14 @@ export default async function ProvidersPage({
                         {hs.organization_id}
                       </TableCell>
                       <TableCell className="text-muted">{hs.service_type ?? '—'}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/dashboard/providers/services/${hs.id}?fhir=1`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          View
+                        </Link>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -255,12 +305,13 @@ export default async function ProvidersPage({
                   <TableHead>Organization ID</TableHead>
                   <TableHead>Services</TableHead>
                   <TableHead>Address</TableHead>
+                  <TableHead className="w-24">FHIR</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {providers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-muted">
+                    <TableCell colSpan={7} className="text-muted">
                       No Nearby pins yet. Pins are created when Locations are ingested.
                     </TableCell>
                   </TableRow>
@@ -307,6 +358,14 @@ export default async function ProvidersPage({
                         <TableCell className="text-muted">{serviceCount}</TableCell>
                         <TableCell className="max-w-xs truncate text-muted">
                           {p.address ?? '—'}
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/dashboard/providers/${p.id}?fhir=1`}
+                            className="text-sm font-medium text-primary hover:underline"
+                          >
+                            View
+                          </Link>
                         </TableCell>
                       </TableRow>
                     );
