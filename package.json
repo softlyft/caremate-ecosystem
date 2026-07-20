@@ -41,9 +41,17 @@
     "format:check": "prettier --check --config caremate/.prettierrc --ignore-path caremate/.prettierignore caremate",
     "seed:articles": "npm run seed:articles -w caremate-portal",
     "seed:tips": "npm run seed:tips -w caremate-portal",
-    "seed:catalogs": "npm run seed:catalogs -w caremate-portal"
+    "seed:catalogs": "npm run seed:catalogs -w caremate-portal",
+    "postinstall": "patch-package"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.1",
+    "tr46": "6.0.0"
+  },
+  "overrides": {
+    "tr46": "6.0.0"
   }
 }

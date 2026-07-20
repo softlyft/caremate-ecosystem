@@ -13,15 +13,6 @@ import {
   unitLabel,
 } from '@/mini-apps/vitals-tracker/utils';
 import { preferUnitForType, useVitalsTrackerStore } from '@/mini-apps/vitals-tracker/store';
-import { mockCreateMemoryStorage } from '@/mini-apps/test-utils';
-
-jest.mock('@/mini-apps/_kit/synced-storage', () => ({
-  createMiniAppSyncedStorage: () => mockCreateMemoryStorage(),
-}));
-
-jest.mock('@/mini-apps/_kit/rehydrate-registry', () => ({
-  registerMiniAppRehydrate: jest.fn(),
-}));
 
 describe('vitals-tracker/utils', () => {
   it('parses positive numbers and rejects invalid input', () => {

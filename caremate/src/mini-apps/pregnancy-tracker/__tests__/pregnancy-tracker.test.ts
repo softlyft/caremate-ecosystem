@@ -27,15 +27,7 @@ import {
 } from '@/mini-apps/pregnancy-tracker/utils';
 import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
-import { identityTranslate, mockCreateMemoryStorage } from '@/mini-apps/test-utils';
-
-jest.mock('@/mini-apps/_kit/synced-storage', () => ({
-  createMiniAppSyncedStorage: () => mockCreateMemoryStorage(),
-}));
-
-jest.mock('@/mini-apps/_kit/rehydrate-registry', () => ({
-  registerMiniAppRehydrate: jest.fn(),
-}));
+import { identityTranslate } from '@/mini-apps/test-utils';
 
 describe('pregnancy-tracker/utils', () => {
   it('converts between LMP and due date with Naegele rule length', () => {
