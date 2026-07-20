@@ -28,6 +28,7 @@ Each service keeps its own README plus a local `docs/` set.
 | `website/` | Marketing + patient/provider guides + privacy/terms | `website/README.md` |
 | `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
+| Amplify hosting | Website + payment + SoftLyft admin + provider portal on AWS Amplify | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
 
 ## Root Workflows
 
