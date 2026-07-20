@@ -14,15 +14,6 @@ import {
   isPredictedPeriodDay,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
-import { mockCreateMemoryStorage } from '@/mini-apps/test-utils';
-
-jest.mock('@/mini-apps/_kit/synced-storage', () => ({
-  createMiniAppSyncedStorage: () => mockCreateMemoryStorage(),
-}));
-
-jest.mock('@/mini-apps/_kit/rehydrate-registry', () => ({
-  registerMiniAppRehydrate: jest.fn(),
-}));
 
 describe('period-tracker/utils', () => {
   it('handles date key math', () => {

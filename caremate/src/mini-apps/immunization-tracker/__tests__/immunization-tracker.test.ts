@@ -16,15 +16,7 @@ import {
   type ImmunizationRecord,
 } from '@/mini-apps/immunization-tracker/utils';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
-import { identityTranslate, mockCreateMemoryStorage } from '@/mini-apps/test-utils';
-
-jest.mock('@/mini-apps/_kit/synced-storage', () => ({
-  createMiniAppSyncedStorage: () => mockCreateMemoryStorage(),
-}));
-
-jest.mock('@/mini-apps/_kit/rehydrate-registry', () => ({
-  registerMiniAppRehydrate: jest.fn(),
-}));
+import { identityTranslate } from '@/mini-apps/test-utils';
 
 const profile: ImmunizationProfile = {
   id: 'child-1',
