@@ -13,6 +13,7 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org 
 | Bidirectional connections, verification gate | [Connections](./connections.md) |
 | Tables, migrations, RPCs | [Data model](./data-model.md) |
 | Local setup, env, scripts | [Development](./development.md) |
+| AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) · [`../amplify.yml`](../amplify.yml) |
 | Manual verification checklist | [QA testing](./qa-testing.md) |
 
 ## In scope (MVP)

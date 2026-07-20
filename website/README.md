@@ -30,6 +30,11 @@ Opens Vite on [http://localhost:5175](http://localhost:5175).
 npm run website:build
 ```
 
+## Deploy (AWS Amplify)
+
+Monorepo Amplify app root: `website`. Spec: [`amplify.yml`](./amplify.yml).  
+Full guide (all three web apps): [`../docs/amplify-hosting.md`](../docs/amplify-hosting.md).
+
 ## Brand
 
 Uses CareMate mobile assets (`caremate-logo-header`, splash icon, homepage screenshot) and theme tokens from `caremate/src/theme/colors.ts` (teal primary `#0D9488`, surface `#F8FAFC`, etc.).

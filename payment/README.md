@@ -47,6 +47,19 @@ Auth handoff uses the URL hash:
 
 ## Deploy
 
+### AWS Amplify (recommended)
+
+Monorepo Amplify app root: `payment`. Spec: [`amplify.yml`](./amplify.yml).
+
+1. Create Amplify app → branch **`main`** → monorepo root `payment`.
+2. Set build-time env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+3. After deploy, set SPA rewrite in Amplify Console (see [`docs/amplify-hosting.md`](../docs/amplify-hosting.md)).
+4. Set mobile `EXPO_PUBLIC_PAYMENT_URL` to the Amplify origin (e.g. `https://pay.caremate.app`).
+
+Full guide (all web apps): [`../docs/amplify-hosting.md`](../docs/amplify-hosting.md).
+
+### Other static hosts
+
 Host the Vite build (`npm run payment:build` → `payment/dist`) on any static host
 (Vercel, Netlify, Cloudflare Pages, S3+CDN). Configure SPA fallback so `/success`
 and `/cancel` serve `index.html`. Set `EXPO_PUBLIC_PAYMENT_URL` in the mobile app

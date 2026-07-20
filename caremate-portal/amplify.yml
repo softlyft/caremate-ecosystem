@@ -1,0 +1,21 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 22
+        - nvm use 22
+        - node -v
+        # Install from monorepo root so @caremate/db-types resolves
+        - cd .. && npm ci
+    build:
+      commands:
+        - cd .. && npm run portal:build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - ../node_modules/**/*
+      - .next/cache/**/*

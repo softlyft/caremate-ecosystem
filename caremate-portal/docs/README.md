@@ -13,6 +13,7 @@ This docs set covers the implemented behavior of the CareMate admin portal.
 | Ads kill switches + campaigns | Mobile strategy: [`caremate/docs/ads.md`](../../caremate/docs/ads.md) · `/dashboard/ads` · slot constants in `src/domains/ads/constants.ts` |
 | Premium product matrix (mobile) | [`caremate/docs/premium-and-plans.md`](../../caremate/docs/premium-and-plans.md) |
 | Local setup, env vars, scripts, tests | [Development](./development.md) |
+| AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) · [`../amplify.yml`](../amplify.yml) |
 | Manual verification and smoke coverage | [QA Testing](./qa-testing.md) |
 
 ## What the Portal Does
