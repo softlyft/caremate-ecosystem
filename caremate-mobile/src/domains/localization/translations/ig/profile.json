@@ -1,0 +1,40 @@
+{
+  "title": "Mụ",
+  "guest": {
+    "title": "Ị na-ele dịka ọbịa",
+    "subtitle": "Banye iji mekọrịta profaịlụ mberede, ezinụlọ, na mmasị n'ofe ngwaọrụ.",
+    "signIn": "Banye",
+    "createAccount": "Mepụta akaụntụ"
+  },
+  "finishSetup": "Mechaa nhazi",
+  "account": "Akaụntụ",
+  "preferences": "Mmasị",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Profaịlụ mberede",
+    "family": "Ezinụlọ",
+    "settings": "Ntọala",
+    "community": "Join our movement",
+    "communitySubtitle": "Help CareMate grow in your community"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Na-ebu atụmatụ...",
+    "personal": "Onwe",
+    "family": "Ezinụlọ",
+    "monthly": "Kwa ọnwa",
+    "yearly": "Kwa afọ",
+    "guestCta": "Banye iji debanye aha",
+    "error": "Enweghị ike ịmalite ịkwụ ụgwọ",
+    "medicationLimitTitle": "Erutela oke ọgwụ",
+    "medicationLimitMessage": "Akaụntụ efu nwere ike ịsoro ọgwụ 3. Kwalite gaa Standard ma ọ bụ Family Premium maka nsuso enweghị oke."
+  },
+  "patientId": {
+    "title": "ID Onye Ọrịa CareMate",
+    "generate": "Mepụta ID maka m",
+    "copy": "Detuo",
+    "fallbackName": "Onye otu"
+  },
+  "signOut": "Pụọ",
+  "biometrics": "Meghee site na biometrics"
+}

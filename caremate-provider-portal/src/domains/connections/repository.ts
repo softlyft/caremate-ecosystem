@@ -139,7 +139,7 @@ export async function requestConnectionByCaremateId(
   const { data, error } = await supabase.rpc('request_provider_connection_by_caremate_id', {
     p_organization_id: organizationId,
     p_caremate_id: caremateId,
-    p_provider_note: providerNote ?? null,
+    p_provider_note: providerNote ?? undefined,
   });
 
   if (error) throw error;

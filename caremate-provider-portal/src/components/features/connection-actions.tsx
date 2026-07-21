@@ -16,6 +16,7 @@ export function ConnectionActions({
   showApprove?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<'approve' | 'reject' | null>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [reason, setReason] = useState('');
 
@@ -26,6 +27,7 @@ export function ConnectionActions({
       return;
     }
     startTransition(async () => {
+      setPendingAction('reject');
       try {
         await rejectConnectionAction(connectionId, trimmed);
         toast.success(showApprove ? 'Connection rejected' : 'Request cancelled');
@@ -33,6 +35,8 @@ export function ConnectionActions({
         setReason('');
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to reject');
+      } finally {
+        setPendingAction(null);
       }
     });
   }
@@ -44,13 +48,18 @@ export function ConnectionActions({
           <Button
             size="sm"
             disabled={pending || rejectOpen}
+            loading={pendingAction === 'approve'}
+            loadingLabel="Approving…"
             onClick={() =>
               startTransition(async () => {
+                setPendingAction('approve');
                 try {
                   await approveConnectionAction(connectionId);
                   toast.success('Connection approved');
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : 'Failed to approve');
+                } finally {
+                  setPendingAction(null);
                 }
               })
             }
@@ -90,7 +99,14 @@ export function ConnectionActions({
             >
               Back
             </Button>
-            <Button size="sm" variant="danger" disabled={pending} onClick={submitReject}>
+            <Button
+              size="sm"
+              variant="danger"
+              disabled={pending}
+              loading={pendingAction === 'reject'}
+              loadingLabel="Confirming…"
+              onClick={submitReject}
+            >
               Confirm
             </Button>
           </div>

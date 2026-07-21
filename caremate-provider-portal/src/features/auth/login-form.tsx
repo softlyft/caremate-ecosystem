@@ -106,8 +106,8 @@ export function LoginForm() {
             />
             {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign in'}
+          <Button type="submit" className="w-full" loading={loading} loadingLabel="Signing in…">
+            Sign in
           </Button>
           <p className="text-center text-sm text-muted">
             First time?{' '}

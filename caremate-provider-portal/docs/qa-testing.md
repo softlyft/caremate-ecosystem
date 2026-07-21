@@ -47,4 +47,4 @@ Manual checklist for the Provider Portal MVP. Prefer a claimed org with a known 
 
 - [Connections](./connections.md)
 - [Development](./development.md)
-- Mobile Nearby / Me notes: [`../../caremate/docs/provider-model.md`](../../caremate/docs/provider-model.md)
+- Mobile Nearby / Me notes: [`../../caremate-mobile/docs/provider-model.md`](../../caremate-mobile/docs/provider-model.md)

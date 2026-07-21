@@ -64,8 +64,13 @@ export function DocumentUploadForm({
         <Label htmlFor="file">File</Label>
         <Input id="file" name="file" type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" />
       </div>
-      <Button type="submit" disabled={pending || patients.length === 0}>
-        {pending ? 'Uploading…' : 'Upload document'}
+      <Button
+        type="submit"
+        disabled={patients.length === 0}
+        loading={pending}
+        loadingLabel="Uploading…"
+      >
+        Upload document
       </Button>
       {patients.length === 0 && (
         <p className="text-xs text-muted">Connect and approve a patient before uploading.</p>

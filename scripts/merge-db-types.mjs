@@ -27,20 +27,27 @@ const generated = fs.readFileSync(genPath, 'utf8');
 const aliases = `
 export type Article = Database['public']['Tables']['articles']['Row'];
 export type Provider = Database['public']['Tables']['providers']['Row'];
+export type ProviderOrganization = Database['public']['Tables']['provider_organizations']['Row'];
+export type ProviderLocation = Database['public']['Tables']['provider_locations']['Row'];
+export type ProviderHealthcareService =
+  Database['public']['Tables']['provider_healthcare_services']['Row'];
 export type HealthTip = Database['public']['Tables']['health_tips']['Row'];
+export type AdRemoteConfig = Database['public']['Tables']['ad_remote_config']['Row'];
+export type AdCampaign = Database['public']['Tables']['ad_campaigns']['Row'];
+export type AdAdvertiser = Database['public']['Tables']['ad_advertisers']['Row'];
+export type AdCreative = Database['public']['Tables']['ad_creatives']['Row'];
+export type AdPlacement = Database['public']['Tables']['ad_placements']['Row'];
+export type AdEvent = Database['public']['Tables']['ad_events']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];
 export type EmergencyProfile = Database['public']['Tables']['emergency_profiles']['Row'];
 export type Bookmark = Database['public']['Tables']['bookmarks']['Row'];
+export type ArticleRead = Database['public']['Tables']['article_reads']['Row'];
 export type MiniAppSnapshot = Database['public']['Tables']['mini_app_snapshots']['Row'];
 export type SubscriptionPrice = Database['public']['Tables']['subscription_prices']['Row'];
+export type Payment = Database['public']['Tables']['payments']['Row'];
 export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
-export type Tables<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Row'];
-export type TablesInsert<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Insert'];
-export type TablesUpdate<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Update'];
+export type AdminAuditEvent = Database['public']['Tables']['admin_audit_events']['Row'];
 `;
 
 fs.writeFileSync(outPath, `${generated.trim()}\n${aliases}`);

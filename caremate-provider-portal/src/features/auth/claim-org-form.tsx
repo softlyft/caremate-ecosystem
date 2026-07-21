@@ -216,15 +216,16 @@ export function ClaimOrgForm() {
                 <Button
                   type="button"
                   className="w-full"
-                  disabled={loading}
+                  loading={loading}
+                  loadingLabel="Continuing…"
                   onClick={onSelectOrgAndSend}
                 >
-                  {loading ? 'Continuing…' : 'Continue with selected organization'}
+                  Continue with selected organization
                 </Button>
               </div>
             ) : (
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Looking up…' : 'Continue'}
+              <Button type="submit" className="w-full" loading={loading} loadingLabel="Looking up…">
+                Continue
               </Button>
             )}
           </form>
@@ -249,8 +250,8 @@ export function ClaimOrgForm() {
                 onChange={(e) => setCode(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Verifying…' : 'Verify code'}
+            <Button type="submit" className="w-full" loading={loading} loadingLabel="Verifying…">
+              Verify code
             </Button>
             <Button
               type="button"
@@ -302,8 +303,13 @@ export function ClaimOrgForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating admin…' : 'Create admin account & enter portal'}
+            <Button
+              type="submit"
+              className="w-full"
+              loading={loading}
+              loadingLabel="Creating admin…"
+            >
+              Create admin account & enter portal
             </Button>
           </form>
         ) : null}

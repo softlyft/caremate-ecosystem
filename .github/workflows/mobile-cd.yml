@@ -71,20 +71,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Hollow dirs under caremate/node_modules (empty `expo/`, etc.) break Expo
+      # Hollow dirs under caremate-mobile/node_modules (empty `expo/`, etc.) break Expo
       # autolinking. Keep only packages that actually have a package.json.
       - name: Prune nested package stubs
         run: |
           set -euo pipefail
-          if [ -d caremate/node_modules ]; then
-            find caremate/node_modules -mindepth 1 -maxdepth 1 \( -type d -o -type l \) | while read -r entry; do
+          if [ -d caremate-mobile/node_modules ]; then
+            find caremate-mobile/node_modules -mindepth 1 -maxdepth 1 \( -type d -o -type l \) | while read -r entry; do
               if [ ! -f "$entry/package.json" ]; then
                 echo "Removing stub: $entry"
                 rm -rf "$entry"
               fi
             done
             # Also drop empty scoped folders left behind (e.g. @expo with no packages).
-            find caremate/node_modules -mindepth 1 -maxdepth 1 -type d -name '@*' | while read -r scope; do
+            find caremate-mobile/node_modules -mindepth 1 -maxdepth 1 -type d -name '@*' | while read -r scope; do
               if [ -z "$(find "$scope" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
                 echo "Removing empty scope: $scope"
                 rm -rf "$scope"
@@ -93,13 +93,13 @@ jobs:
           fi
 
       - name: Generate native Android project
-        working-directory: caremate
+        working-directory: caremate-mobile
         env:
           CI: 1
         run: npx expo prebuild --platform android --clean --no-install
 
       - name: Build release APK
-        working-directory: caremate/android
+        working-directory: caremate-mobile/android
         run: |
           set -euo pipefail
           chmod +x gradlew
@@ -112,10 +112,10 @@ jobs:
         id: apk
         run: |
           set -euo pipefail
-          SRC="caremate/android/app/build/outputs/apk/release/app-release.apk"
+          SRC="caremate-mobile/android/app/build/outputs/apk/release/app-release.apk"
           if [ ! -f "$SRC" ]; then
             echo "APK not found at $SRC"
-            find caremate/android/app/build/outputs -type f -name '*.apk' || true
+            find caremate-mobile/android/app/build/outputs -type f -name '*.apk' || true
             exit 1
           fi
           SHA7="$(echo "$BUILD_SHA" | cut -c1-7)"

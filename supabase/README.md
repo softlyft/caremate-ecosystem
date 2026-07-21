@@ -2,7 +2,7 @@
 
 Single source of truth for the CareMate cloud database (Postgres, RLS, RPCs, Storage).
 
-All apps in this monorepo (`caremate`, `caremate-portal`, future packages) target the same project.
+All apps in this monorepo (`caremate-mobile`, `caremate-admin-portal`, future packages) target the same project.
 
 ## Docs
 
@@ -26,7 +26,7 @@ npm run db:types
 
 ## Seed
 
-`config.toml` loads `./seed.sql` on `supabase db reset`. That file is a safe no-op placeholder; catalog seeds run from the portal (`npm run seed:catalogs -w caremate-portal`).
+`config.toml` loads `./seed.sql` on `supabase db reset`. That file is a safe no-op placeholder; catalog seeds run from the portal (`npm run seed:catalogs -w caremate-admin-portal`).
 
 ## Edge Functions (billing)
 
@@ -57,6 +57,6 @@ Point Paystack webhook to `https://<project-ref>.supabase.co/functions/v1/billin
 ## Rules
 
 1. **Only** add SQL migrations here — never under an app folder.
-2. Tables synced by the mobile app require a matching update to `caremate/src/database/schema.ts` + sync handlers + `caremate/docs/supabase-alignment.md`.
+2. Tables synced by the mobile app require a matching update to `caremate-mobile/src/database/schema.ts` + sync handlers + `caremate-mobile/docs/supabase-alignment.md`.
 3. Admin-/portal-only tables do not need a SQLite mirror.
 4. After schema changes, regenerate `packages/db-types` with `npm run db:types`.

@@ -1,0 +1,40 @@
+{
+  "title": "我的",
+  "guest": {
+    "title": "您正在以访客身份浏览",
+    "subtitle": "登录以在各设备间同步急救档案、家庭和偏好设置。",
+    "signIn": "登录",
+    "createAccount": "创建账户"
+  },
+  "finishSetup": "完成设置",
+  "account": "账户",
+  "preferences": "偏好设置",
+  "menu": {
+    "premium": "高级版",
+    "emergency": "急救档案",
+    "family": "家庭",
+    "settings": "设置",
+    "community": "Join our movement",
+    "communitySubtitle": "Help CareMate grow in your community"
+  },
+  "premium": {
+    "title": "高级版",
+    "loading": "正在加载套餐...",
+    "personal": "个人",
+    "family": "家庭",
+    "monthly": "月付",
+    "yearly": "年付",
+    "guestCta": "登录以订阅",
+    "error": "无法开始结账",
+    "medicationLimitTitle": "已达药品数量上限",
+    "medicationLimitMessage": "免费账户最多跟踪 3 种药品。升级标准版或家庭高级版可无限跟踪。"
+  },
+  "patientId": {
+    "title": "CareMate 患者 ID",
+    "generate": "为我生成 ID",
+    "copy": "复制",
+    "fallbackName": "成员"
+  },
+  "signOut": "退出登录",
+  "biometrics": "使用生物识别解锁"
+}
