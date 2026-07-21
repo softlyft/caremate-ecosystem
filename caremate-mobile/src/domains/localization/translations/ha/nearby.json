@@ -6,7 +6,7 @@
   "loading": "Ana lodawa masu bayarwa na CareMate...",
   "empty": {
     "title": "Babu masu bayarwa na CareMate kusa",
-    "message": "Gwada wani tacewa ko nemo ta suna.",
+    "message": "Nemo mai bayarwa na CareMate ta suna a sama.",
     "offline": "Ana nuna masu bayarwa da aka ajiye yayin da ba ka da intanet."
   },
   "locationNeeded": {

@@ -6,7 +6,7 @@
   "loading": "Chargement des prestataires CareMate...",
   "empty": {
     "title": "Aucun prestataire CareMate à proximité",
-    "message": "Essayez un autre filtre ou recherchez par nom.",
+    "message": "Recherchez un prestataire CareMate par nom ci-dessus.",
     "offline": "Affichage des prestataires en cache hors ligne."
   },
   "locationNeeded": {

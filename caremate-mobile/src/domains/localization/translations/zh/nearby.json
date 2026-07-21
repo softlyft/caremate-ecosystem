@@ -6,7 +6,7 @@
   "loading": "正在加载 CareMate 服务机构...",
   "empty": {
     "title": "附近没有 CareMate 服务机构",
-    "message": "请尝试其他筛选或按名称搜索。",
+    "message": "请在上方按名称搜索 CareMate 服务机构。",
     "offline": "离线时显示已缓存的服务机构。"
   },
   "locationNeeded": {

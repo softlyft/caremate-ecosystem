@@ -41,9 +41,7 @@ function emptyCoords(partial?: Partial<NearbyCoords>): NearbyCoords {
   };
 }
 
-async function fromLastKnownSample(options?: {
-  locationEnabled?: boolean;
-}): Promise<NearbyCoords> {
+async function fromLastKnownSample(options?: { locationEnabled?: boolean }): Promise<NearbyCoords> {
   const latest = await locationSampleRepository.getLatest(currentOwnerId());
   if (!latest) {
     return emptyCoords({ locationEnabled: options?.locationEnabled ?? false });

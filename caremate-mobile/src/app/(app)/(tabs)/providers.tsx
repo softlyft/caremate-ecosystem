@@ -63,8 +63,7 @@ export default function ProvidersTabScreen() {
 
   const trimmedSearch = deferredSearch.trim();
   const isSearching = trimmedSearch.length > 0;
-  const hasUsableCoords =
-    coordsQuery.data?.latitude != null && coordsQuery.data?.longitude != null;
+  const hasUsableCoords = coordsQuery.data?.latitude != null && coordsQuery.data?.longitude != null;
   const needsLocationSetup = !isSearching && !hasUsableCoords;
   const usingLastKnown = Boolean(coordsQuery.data?.usingLastKnown);
 
@@ -112,9 +111,7 @@ export default function ProvidersTabScreen() {
         limit: NEARBY_RESULT_LIMIT,
       });
     },
-    enabled:
-      isSearching ||
-      ((coordsQuery.isSuccess || coordsQuery.isError) && !needsLocationSetup),
+    enabled: isSearching || ((coordsQuery.isSuccess || coordsQuery.isError) && !needsLocationSetup),
     staleTime: isSearching ? 30_000 : 5 * 60_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

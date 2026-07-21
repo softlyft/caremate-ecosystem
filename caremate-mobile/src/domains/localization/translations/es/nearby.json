@@ -6,7 +6,7 @@
   "loading": "Cargando proveedores de CareMate...",
   "empty": {
     "title": "No hay proveedores de CareMate cerca",
-    "message": "Prueba otro filtro o busca por nombre.",
+    "message": "Busca un proveedor de CareMate por nombre arriba.",
     "offline": "Mostrando proveedores en caché sin conexión."
   },
   "locationNeeded": {

@@ -12,7 +12,7 @@
   },
   "empty": {
     "title": "No CareMate providers nearby",
-    "message": "Try another filter or search by name.",
+    "message": "Search for a CareMate provider by name above.",
     "offline": "Showing cached providers while offline."
   },
   "searchEmpty": {

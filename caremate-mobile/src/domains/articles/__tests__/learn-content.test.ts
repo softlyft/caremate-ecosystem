@@ -106,12 +106,14 @@ describe('articles/evergreen feed helpers', () => {
       title: 'News new',
       sourceUrl: 'https://example.com/2',
       publishedAt: '2026-07-10T00:00:00.000Z',
+      attributes: { firstSeenAt: '2026-07-10T00:00:00.000Z' },
     });
     const newsOld = makeArticle({
       id: 'currents-1',
       title: 'News old',
       sourceUrl: 'https://example.com/1',
       publishedAt: '2026-07-01T00:00:00.000Z',
+      attributes: { firstSeenAt: '2026-07-01T00:00:00.000Z' },
     });
 
     const ordered = orderLearnFeed([evergreenA, evergreenB, newsOld, newsNew], 'user-1');
