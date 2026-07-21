@@ -1,13 +1,19 @@
 {
   "title": "À proximité",
-  "subtitle": "Trouvez hôpitaux, cliniques, pharmacies et plus autour de vous",
+  "subtitle": "Trouvez des prestataires CareMate près de vous",
   "nearbyCount": "{{count}} à proximité",
-  "searchPlaceholder": "Rechercher des prestataires",
-  "loading": "Chargement des prestataires...",
+  "searchPlaceholder": "Rechercher des prestataires CareMate par nom",
+  "loading": "Chargement des prestataires CareMate...",
   "empty": {
-    "title": "Aucun prestataire à proximité",
-    "message": "Essayez un autre filtre ou élargissez la recherche.",
+    "title": "Aucun prestataire CareMate à proximité",
+    "message": "Recherchez un prestataire CareMate par nom ci-dessus.",
     "offline": "Affichage des prestataires en cache hors ligne."
+  },
+  "locationNeeded": {
+    "title": "Activez la localisation pour trouver des prestataires CareMate à proximité",
+    "message": "Nous avons besoin de votre position pour afficher les prestataires CareMate près de vous. Activez la localisation, ou recherchez un prestataire par nom ci-dessus.",
+    "action": "Activer la localisation",
+    "enabling": "Activation…"
   },
   "approximate": "Localisation approximative utilisée",
   "outsideArea": "Hors de votre zone habituelle — résultats éventuellement limités",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} résultats",
+  "searching": "Recherche de prestataires CareMate...",
+  "searchEmpty": {
+    "title": "Aucun prestataire correspondant",
+    "message": "Essayez un autre nom ou vérifiez l’orthographe."
+  },
+  "lastKnown": {
+    "message": "La localisation est désactivée. Affichage des prestataires CareMate près de votre dernier emplacement connu.",
+    "action": "Activer"
   }
 }

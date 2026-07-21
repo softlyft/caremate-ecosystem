@@ -73,6 +73,7 @@ After the payment domain is live, point the mobile app’s hosted checkout base 
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon / publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret in Amplify |
+| `CURRENTS_API_KEY` | Server-only — Currents health news sync for External News admin |
 | `PROVIDER_INGEST_URL` | Optional until ingest is hosted; production FastAPI base URL |
 | `PROVIDER_INGEST_API_KEY` | Optional; must match ingest service |
 

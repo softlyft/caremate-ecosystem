@@ -103,6 +103,7 @@ export default function AppLayout() {
           options={learnArticleHeaderOptions('Category')}
         />
         <Stack.Screen name="articles/bookmarks" options={learnArticleHeaderOptions('Bookmarks')} />
+        <Stack.Screen name="articles/reading" options={learnArticleHeaderOptions('Reading')} />
         <Stack.Screen
           name="providers/[id]"
           options={glossyStackHeaderOptions({

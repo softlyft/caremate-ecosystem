@@ -10,8 +10,6 @@ File: `.env` (copy from `.env.example`)
 |----------|----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | No | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
-| `EXPO_PUBLIC_CURRENTS_API_KEY` | No | Currents API key for external health news |
-| `EXPO_PUBLIC_CURRENTS_COUNTRY` | No | Default Currents country (`INT` = international) |
 | `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL |
 | `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |
 | `EXPO_PUBLIC_SENTRY_DSN` | Prod monitoring | Sentry DSN; omit to disable crash reporting |
@@ -59,7 +57,7 @@ export const config = {
 };
 ```
 
-Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app runs without Supabase, Currents, Sentry, or PostHog configured (guest + evergreen content; monitoring no-ops).
+Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app runs without Supabase, Sentry, or PostHog configured (guest + evergreen content; monitoring no-ops). External news is ingested by the SoftLyft admin portal and synced via Supabase.
 
 ---
 

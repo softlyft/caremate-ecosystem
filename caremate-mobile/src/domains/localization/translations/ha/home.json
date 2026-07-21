@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Kulawa kusa",
-    "subtitle": "Asibitoci, clinic, da kantin magani a kusa da kai"
+    "subtitle": "Asibitoci, clinic, da kantin magani a kusa da kai",
+    "locationNeeded": {
+      "title": "Ga masu ba da kulawa na CareMate kusa da kai",
+      "body": "Kunna wurin don gano asibitoci, clinic, da kantin magani a kusa da kai — duk a cikin CareMate.",
+      "cta": "Kunna wuri"
+    }
   },
   "dailyTip": {
     "label": "Fahimtar yau"

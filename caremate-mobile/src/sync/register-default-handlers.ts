@@ -3,6 +3,7 @@ import { articleRepository } from '@/domains/articles/repository';
 import { billingRepository } from '@/domains/billing/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
+import { locationSampleRepository } from '@/domains/location/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
@@ -43,6 +44,12 @@ export function registerDefaultSyncHandlers(): void {
     push: (entityId, operation, payload) =>
       providerRepository.syncToRemote(entityId, operation, payload),
     pull: () => providerRepository.pullFromRemote(),
+  });
+
+  registerSyncHandler('user_location_samples', {
+    push: (entityId, operation, payload) =>
+      locationSampleRepository.syncToRemote(entityId, operation, payload),
+    pull: () => locationSampleRepository.pullFromRemote(),
   });
 
   registerSyncHandler('articles', {

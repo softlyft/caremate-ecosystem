@@ -60,9 +60,6 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
         <AppText variant="heroGreeting" style={styles.greeting}>
           {`${greeting} 👋`}
         </AppText>
-        <AppText variant="subtitle" style={styles.subtitle}>
-          {t('home.tagline')}
-        </AppText>
       </Animated.View>
     </View>
   );
@@ -112,19 +109,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   copy: {
-    gap: layoutSpacing.welcomeToSubtitle,
     zIndex: 1,
   },
   greeting: {
     fontSize: 28,
     lineHeight: 34,
     letterSpacing: -0.6,
-  },
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: palette.textSecondary,
-    maxWidth: '92%',
   },
   notificationButton: {
     width: 44,

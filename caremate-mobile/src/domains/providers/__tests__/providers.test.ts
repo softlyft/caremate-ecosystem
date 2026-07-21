@@ -24,9 +24,16 @@ jest.mock('@/domains/onboarding/device-defaults', () => ({
   getDeviceDefaults: jest.fn(),
 }));
 
-jest.mock('@/domains/localization', () => ({
-  localizationService: {
-    getFallbackCoords: jest.fn(() => ({ latitude: 6.5244, longitude: 3.3792 })),
+jest.mock('@/domains/location/repository', () => ({
+  locationSampleRepository: {
+    recordSample: jest.fn(),
+    getLatest: jest.fn(),
+  },
+}));
+
+jest.mock('@/features/auth/store', () => ({
+  useAuthStore: {
+    getState: () => ({ user: { id: 'user-1' }, isGuest: false }),
   },
 }));
 
@@ -36,6 +43,12 @@ const Location = jest.requireMock('expo-location') as {
 };
 const { getDeviceDefaults } = jest.requireMock('@/domains/onboarding/device-defaults') as {
   getDeviceDefaults: jest.Mock;
+};
+const { locationSampleRepository } = jest.requireMock('@/domains/location/repository') as {
+  locationSampleRepository: {
+    recordSample: jest.Mock;
+    getLatest: jest.Mock;
+  };
 };
 
 describe('providers/types', () => {
@@ -115,24 +128,51 @@ describe('providers/location', () => {
     getDeviceDefaults.mockReset();
     Location.requestForegroundPermissionsAsync.mockReset();
     Location.getCurrentPositionAsync.mockReset();
+    locationSampleRepository.recordSample.mockReset();
+    locationSampleRepository.getLatest.mockReset();
   });
 
-  it('uses approximate country pin when location mode is not precise', async () => {
+  it('falls back to last known sample when location mode is not precise', async () => {
     getDeviceDefaults.mockResolvedValue({
       countryCode: 'NG',
       state: 'LA',
       locationMode: 'approximate',
     });
+    locationSampleRepository.getLatest.mockResolvedValue({
+      id: 'sample-1',
+      latitude: 6.45,
+      longitude: 3.4,
+    });
 
     await expect(resolveNearbyCoords()).resolves.toEqual({
-      latitude: 6.5244,
-      longitude: 3.3792,
+      latitude: 6.45,
+      longitude: 3.4,
       isApproximate: true,
+      precision: 'last_known',
+      locationEnabled: false,
+      usingLastKnown: true,
+      sampleId: 'sample-1',
     });
     expect(Location.requestForegroundPermissionsAsync).not.toHaveBeenCalled();
   });
 
-  it('returns live GPS when precise mode is granted', async () => {
+  it('returns empty coords when location is off and no sample exists', async () => {
+    getDeviceDefaults.mockResolvedValue({
+      countryCode: 'NG',
+      state: null,
+      locationMode: 'approximate',
+    });
+    locationSampleRepository.getLatest.mockResolvedValue(null);
+
+    await expect(resolveNearbyCoords()).resolves.toMatchObject({
+      latitude: null,
+      longitude: null,
+      precision: 'none',
+      usingLastKnown: false,
+    });
+  });
+
+  it('returns live GPS when precise mode is granted and records a sample', async () => {
     getDeviceDefaults.mockResolvedValue({
       countryCode: 'NG',
       state: null,
@@ -140,53 +180,70 @@ describe('providers/location', () => {
     });
     Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
     Location.getCurrentPositionAsync.mockResolvedValue({
-      coords: { latitude: 6.45, longitude: 3.4 },
+      coords: {
+        latitude: 6.45,
+        longitude: 3.4,
+        altitude: 12,
+        accuracy: 8,
+        altitudeAccuracy: 4,
+        heading: 90,
+        speed: 0.2,
+      },
+      mocked: false,
+      timestamp: 1_700_000_000_000,
+    });
+    locationSampleRepository.recordSample.mockResolvedValue({
+      id: 'sample-gps',
+      latitude: 6.45,
+      longitude: 3.4,
     });
 
     await expect(resolveNearbyCoords()).resolves.toEqual({
       latitude: 6.45,
       longitude: 3.4,
       isApproximate: false,
+      precision: 'gps',
+      locationEnabled: true,
+      usingLastKnown: false,
+      sampleId: 'sample-gps',
     });
+    expect(locationSampleRepository.recordSample).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({
+        latitude: 6.45,
+        longitude: 3.4,
+        altitude: 12,
+        accuracy: 8,
+        source: 'gps',
+      }),
+    );
   });
 
-  it('falls back when permission is denied or GPS fails', async () => {
+  it('falls back to last known when permission is denied or GPS fails', async () => {
     getDeviceDefaults.mockResolvedValue({
       countryCode: 'NG',
       state: null,
       locationMode: 'precise',
     });
+    locationSampleRepository.getLatest.mockResolvedValue({
+      id: 'sample-2',
+      latitude: 6.5,
+      longitude: 3.3,
+    });
     Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
-    await expect(resolveNearbyCoords()).resolves.toMatchObject({ isApproximate: true });
+    await expect(resolveNearbyCoords()).resolves.toMatchObject({
+      precision: 'last_known',
+      usingLastKnown: true,
+      latitude: 6.5,
+    });
 
     Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
     Location.getCurrentPositionAsync.mockRejectedValue(new Error('timeout'));
-    getDeviceDefaults
-      .mockResolvedValueOnce({
-        countryCode: 'NG',
-        state: null,
-        locationMode: 'precise',
-      })
-      .mockResolvedValueOnce({
-        countryCode: 'NG',
-        state: null,
-        locationMode: 'precise',
-      });
-
-    await expect(resolveNearbyCoords()).resolves.toMatchObject({ isApproximate: true });
-  });
-
-  it('falls back when GPS throws before defaults resolve', async () => {
-    getDeviceDefaults.mockRejectedValueOnce(new Error('storage')).mockResolvedValueOnce({
-      countryCode: 'NG',
-      state: null,
-      locationMode: 'precise',
-    });
 
     await expect(resolveNearbyCoords()).resolves.toMatchObject({
-      isApproximate: true,
-      latitude: 6.5244,
+      precision: 'last_known',
+      usingLastKnown: true,
     });
   });
 });

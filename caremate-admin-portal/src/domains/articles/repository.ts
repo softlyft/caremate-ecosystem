@@ -23,6 +23,9 @@ export async function listArticles(filters?: {
     query = query.ilike('title', `%${filters.search}%`);
   }
 
+  // External Currents news has its own admin surface (/dashboard/news).
+  query = query.not('id', 'like', 'currents-%');
+
   const { data, error } = await query;
   if (error) throw error;
   return (data ?? []) as Article[];

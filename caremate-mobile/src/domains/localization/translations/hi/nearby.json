@@ -1,13 +1,19 @@
 {
   "title": "नज़दीक",
-  "subtitle": "अपने आसपास अस्पताल, क्लीनिक, फ़ार्मेसी और अधिक खोजें",
+  "subtitle": "अपने पास CareMate प्रदाता खोजें",
   "nearbyCount": "{{count}} नज़दीक",
-  "searchPlaceholder": "प्रदाता खोजें",
-  "loading": "प्रदाता लोड हो रहे हैं...",
+  "searchPlaceholder": "नाम से CareMate प्रदाता खोजें",
+  "loading": "CareMate प्रदाता लोड हो रहे हैं...",
   "empty": {
-    "title": "नज़दीक कोई प्रदाता नहीं",
-    "message": "दूसरा फ़िल्टर आज़माएँ या खोज बढ़ाएँ।",
+    "title": "नज़दीक कोई CareMate प्रदाता नहीं",
+    "message": "ऊपर नाम से CareMate प्रदाता खोजें।",
     "offline": "ऑफ़लाइन होने पर कैश किए गए प्रदाता दिखाए जा रहे हैं।"
+  },
+  "locationNeeded": {
+    "title": "नज़दीकी CareMate प्रदाता खोजने के लिए स्थान सक्षम करें",
+    "message": "आपके पास CareMate प्रदाता दिखाने के लिए हमें आपका स्थान चाहिए। स्थान सक्षम करें, या ऊपर नाम से खोजें।",
+    "action": "स्थान सक्षम करें",
+    "enabling": "सक्षम हो रहा है…"
   },
   "approximate": "अनुमानित स्थान इस्तेमाल हो रहा है",
   "outsideArea": "आपके सामान्य क्षेत्र से बाहर — परिणाम सीमित हो सकते हैं",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} मिलान",
+  "searching": "CareMate प्रदाता खोजे जा रहे हैं...",
+  "searchEmpty": {
+    "title": "कोई मेल खाता प्रदाता नहीं",
+    "message": "दूसरा नाम आज़माएँ या वर्तनी जाँचें।"
+  },
+  "lastKnown": {
+    "message": "स्थान बंद है। आपके अंतिम ज्ञात स्थान के पास CareMate प्रदाता दिखाए जा रहे हैं।",
+    "action": "सक्षम करें"
   }
 }

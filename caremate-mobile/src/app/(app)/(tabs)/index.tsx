@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -22,6 +22,7 @@ import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { articleRepository } from '@/domains/articles/repository';
 import { HOME_TRENDING_MAX_ITEMS } from '@/domains/articles/utils/evergreen-articles';
+import { setDeviceDefaults } from '@/domains/onboarding/device-defaults';
 import { profileRepository } from '@/domains/profile/repository';
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
@@ -73,9 +74,15 @@ export default function HomeScreen() {
       'nearby-home',
       coordsQuery.data?.latitude,
       coordsQuery.data?.longitude,
+      coordsQuery.data?.precision,
     ],
     queryFn: async () => {
       const coords = coordsQuery.data ?? (await resolveNearbyCoords());
+      if (coords.latitude == null || coords.longitude == null) {
+        // No usable location — fall back to whatever providers are cached locally.
+        const cached = await providerRepository.findAll();
+        return cached.slice(0, 8);
+      }
       const result = await providerRepository.findNearby({
         latitude: coords.latitude,
         longitude: coords.longitude,
@@ -86,34 +93,47 @@ export default function HomeScreen() {
     enabled: coordsQuery.isSuccess || coordsQuery.isError,
   });
 
+  const [locationRequestPending, setLocationRequestPending] = useState(false);
+  const handleEnableLocation = async () => {
+    if (locationRequestPending) {
+      return;
+    }
+    setLocationRequestPending(true);
+    try {
+      await setDeviceDefaults({ locationMode: 'precise', locationSkipped: false });
+      await coordsQuery.refetch();
+    } finally {
+      setLocationRequestPending(false);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
 
-    async function refreshRemoteNews() {
+    async function refreshCatalog() {
       try {
-        await articleRepository.refreshTrendingInBackground({
-          countryCode,
-          languageCode,
-        });
+        await articleRepository.pullFromRemote();
         if (!cancelled) {
           await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trendingArticles });
         }
       } catch {
-        // Keep offline/local feed if Currents refresh fails.
+        // Keep offline/local feed if catalog pull fails.
       }
     }
 
     if (localizationReady) {
-      void refreshRemoteNews();
+      void refreshCatalog();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [countryCode, languageCode, localizationReady, queryClient]);
+  }, [localizationReady, queryClient]);
 
   const articles = articlesQuery.data ?? [];
   const providers = providersQuery.data?.slice(0, 4) ?? [];
+  const nearbyLocationNeeded =
+    coordsQuery.data?.precision === 'none' && !providersQuery.isLoading && providers.length === 0;
   const feedFailed = localizationReady && articlesQuery.isError && articlesQuery.data === undefined;
 
   if (feedFailed) {
@@ -186,7 +206,14 @@ export default function HomeScreen() {
         </AnimatedSection>
 
         <AnimatedSection index={7}>
-          <NearbyProvidersRow providers={providers} />
+          <NearbyProvidersRow
+            providers={providers}
+            locationNeeded={nearbyLocationNeeded}
+            onEnableLocation={() => {
+              void handleEnableLocation();
+            }}
+            enablePending={locationRequestPending}
+          />
         </AnimatedSection>
 
         <AnimatedSection index={8}>

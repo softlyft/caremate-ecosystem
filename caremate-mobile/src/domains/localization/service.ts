@@ -95,15 +95,27 @@ class LocalizationService {
     countryCode: string | null | undefined,
     state?: string | null | undefined,
   ): CountryConfig['fallbackCoords'] {
+    const { latitude, longitude } = this.getFallbackPin(countryCode, state);
+    return { latitude, longitude };
+  }
+
+  /**
+   * Same as getFallbackCoords, but also reports how specific the pin is.
+   * A 'country' pin (capital-area) is too coarse for meaningful nearby ranking.
+   */
+  getFallbackPin(
+    countryCode: string | null | undefined,
+    state?: string | null | undefined,
+  ): CountryConfig['fallbackCoords'] & { precision: 'state' | 'country' } {
     const country = this.getCountryConfig(countryCode);
     const subdivision = state?.trim();
     if (country.code === 'NG' && subdivision) {
       const statePin = NIGERIA_STATE_FALLBACK_COORDS[subdivision];
       if (statePin) {
-        return statePin;
+        return { ...statePin, precision: 'state' };
       }
     }
-    return country.fallbackCoords;
+    return { ...country.fallbackCoords, precision: 'country' };
   }
 
   getActiveLocale(

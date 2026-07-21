@@ -25,16 +25,18 @@ export function EmergencyBanner() {
         angle={120}
         style={styles.banner}
       >
-        <View style={styles.iconWrap}>
-          <ShieldPlus color="#FFFFFF" size={26} strokeWidth={2} />
-        </View>
-        <View style={styles.copy}>
-          <AppText variant="quickActionTitle" style={styles.title}>
-            {t('home.emergency.title')}
-          </AppText>
-          <AppText variant="quickActionSubtitle" style={styles.body}>
-            {t('home.emergency.body')}
-          </AppText>
+        <View style={styles.topRow}>
+          <View style={styles.iconWrap}>
+            <ShieldPlus color="#FFFFFF" size={26} strokeWidth={2} />
+          </View>
+          <View style={styles.copy}>
+            <AppText variant="quickActionTitle" style={styles.title}>
+              {t('home.emergency.title')}
+            </AppText>
+            <AppText variant="quickActionSubtitle" style={styles.body}>
+              {t('home.emergency.body')}
+            </AppText>
+          </View>
         </View>
         <View style={styles.cta}>
           <AppText variant="button" style={{ color: palette.brandPurple }}>
@@ -56,6 +58,9 @@ const styles = StyleSheet.create({
   },
   banner: {
     padding: layoutSpacing.cardPadding,
+    gap: 14,
+  },
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
@@ -84,9 +89,12 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   cta: {
+    alignSelf: 'flex-start',
+    // Indent past the 48px icon + 14px gap so the pill lines up with the text column
+    marginLeft: 62,
     backgroundColor: '#FFFFFF',
     borderRadius: radius.full,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',

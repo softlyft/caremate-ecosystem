@@ -1,13 +1,19 @@
 {
   "title": "Tòsí",
-  "subtitle": "Wá àwọn ilé-ìwòsàn, ilé-ìtọ́jú, ilé-òògùn, àti ohun mìíràn ní àyíká rẹ",
+  "subtitle": "Wá àwọn olùpèsè CareMate tòsí rẹ",
   "nearbyCount": "{{count}} tòsí",
-  "searchPlaceholder": "Wá àwọn olùpèsè",
-  "loading": "Ń ṣàkójọpọ̀ àwọn olùpèsè...",
+  "searchPlaceholder": "Wá àwọn olùpèsè CareMate nípasẹ̀ orúkọ",
+  "loading": "Ń ṣàkójọpọ̀ àwọn olùpèsè CareMate...",
   "empty": {
-    "title": "Kò sí olùpèsè tòsí",
-    "message": "Gbìyànjú àṣàyàn mìíràn tàbí fẹ́ ìwárí rẹ.",
+    "title": "Kò sí olùpèsè CareMate tòsí",
+    "message": "Wá olùpèsè CareMate nípasẹ̀ orúkọ lókè.",
     "offline": "Ń fi àwọn olùpèsè tí a fi pamọ́ hàn nígbà tí o kò sí lórí ayélujára."
+  },
+  "locationNeeded": {
+    "title": "Tan ibùdó láti rí àwọn olùpèsè CareMate tòsí",
+    "message": "A nílò ibùdó rẹ láti fi àwọn olùpèsè CareMate tòsí rẹ hàn. Tan ibùdó, tàbí wá olùpèsè nípasẹ̀ orúkọ lókè.",
+    "action": "Tan ibùdó",
+    "enabling": "Ń tan…"
   },
   "approximate": "Ń lo ibùdó tó fẹ́rẹ̀ẹ́",
   "outsideArea": "Ó wà níta agbègbè rẹ déédéé — èsì lè dínkù",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} báamu",
+  "searching": "Ń wá àwọn olùpèsè CareMate...",
+  "searchEmpty": {
+    "title": "Kò sí olùpèsè tó báamu",
+    "message": "Gbìyànjú orúkọ mìíràn tàbí ṣàyẹ̀wò àkọtọ́."
+  },
+  "lastKnown": {
+    "message": "Ibùdó ti pa. Ń fi àwọn olùpèsè CareMate hàn nítòsí ibi tí a mọ̀ kẹ́yìn.",
+    "action": "Tan"
   }
 }

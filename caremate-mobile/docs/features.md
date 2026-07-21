@@ -31,7 +31,7 @@ Home renders from SQLite first, then refreshes remote data where supported.
 | `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Learn categories |
 | `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending: 1 CareMate evergreen + 2 INT news + up to 2 country news |
 | `AdSlot` (`home.feed`) | `features/ads/AdSlot.tsx` | Banner after featured |
-| `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Nearby providers preview |
+| `NearbyProvidersRow` | `features/home/components/NearbyProvidersRow.tsx` | Nearby providers preview. Falls back to cached providers when location is unavailable; if there is no cache either, shows a gradient "enable location" card whose CTA requests precise location in place |
 | `EmergencyBanner` | `features/home/components/EmergencyBanner.tsx` | Emergency profile CTA |
 
 Spacing between Home sections follows the shared **~16px** rhythm — see [UI & Theme](./ui-and-theme.md#tab-spacing-rhythm). Ads: [Ads](./ads.md).
@@ -47,7 +47,7 @@ Spacing between Home sections follows the shared **~16px** rhythm — see [UI & 
 | Providers | `providerRepository.findAll()` or nearby cache | Nearby row |
 | Health tips | `healthTipRepository` | Daily tip rotation |
 
-When online and configured, Home/Learn refresh Currents in the background as **two** queries (international `INT`, then the user’s selected country), tag each cached row with `attributes.newsRegions`, and invalidate article query keys afterward. Country news is omitted from Home when that query returns nothing — there is no silent INT fallback into the country slots.
+External health news is ingested manually in the SoftLyft admin portal (Currents → Supabase). Home/Learn pull the published catalog from Supabase into SQLite and keep only the last **3 calendar days** of external news (`firstSeenAt`). Unpublishing a story in admin removes it from devices on the next sync. Country slots still use `attributes.newsRegions` (INT + NG today).
 
 ## Learn
 
@@ -95,7 +95,7 @@ Global search combines three sources:
 | Section | Source |
 |---------|--------|
 | Articles | Local article search (`CompactArticleCard`) |
-| Providers | Local provider cache (`NearbyProviderCard`) |
+| Providers | `search_providers_by_name` (live catalog) | Nearby / provider cards |
 | Tools | Mini-app registry metadata |
 
 ### UX
@@ -114,19 +114,23 @@ Search deep-links users back into Learn or Nearby using route params like `?q=`.
 
 Nearby is no longer driven by seeded bundle data as the primary source. The current implementation is:
 
-1. Query the `nearby_providers` Supabase RPC when online
-2. Cache returned rows into SQLite
-3. Fall back to local cached provider rows when offline or when the RPC fails
+1. Resolve coords via fresh GPS (capture + last-20 history) or last known sample
+2. Query the `nearby_providers` Supabase RPC when online (max 15)
+3. Cache returned rows into SQLite
+4. Fall back to local cached provider rows when offline or when the RPC fails
+5. Name search uses `search_providers_by_name` (live CareMate catalog, no coordinates)
 
 ### Important implementation details
 
-- Source of truth is Supabase via `nearby_providers`; local SQLite is a cache of the last geo page plus favorites
+- Source of truth is Supabase via `nearby_providers` / `search_providers_by_name`; local SQLite is a cache of the last geo page plus favorites
 - `providerRepository.purgeBundledProviders()` removes legacy bundled/demo rows during bootstrap (there is no `seedIfEmpty()`)
-- When the RPC returns no rows (or the cache is empty offline), Nearby shows an empty state — that is expected
+- When location is off and no sample exists, Nearby shows enable-location empty state (or search by name)
+- When location is off but a prior sample exists, Nearby uses last known coords and shows a compact enable prompt
+- Copy frames results as CareMate providers (in-app catalog)
 - Provider detail opens the address in the device’s default maps app (Apple Maps / Google Maps / geo intent) — there is no in-app map SDK
 - Favorites are toggled on the provider detail screen and sync through `provider_favorites`
 - **Connect with provider** appears on detail only when the catalog org is claim-verified (`is_provider_org_verified`); managed under Me → Connections — see [Provider model](./provider-model.md#provider-portal-engagement) and [Provider Portal connections](../../caremate-provider-portal/docs/connections.md)
-- Coordinates for ranking come from live GPS (precise mode) or a **selection-based** approximate pin (country capital; Nigerian state pin only if a state value already exists in profile) — see [Provider model → Geo strategy](./provider-model.md#geo-strategy-nearby-coordinates)
+- Coordinates for ranking come from live GPS (precise mode) or the user’s last known sample — see [Provider model → Geo strategy](./provider-model.md#geo-strategy-nearby-coordinates)
 
 ### Related screens
 

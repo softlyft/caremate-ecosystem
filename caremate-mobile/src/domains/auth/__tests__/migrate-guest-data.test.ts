@@ -47,7 +47,16 @@ jest.mock('@/database/client', () => ({
           return [];
         };
         return {
-          where: async () => take(),
+          where: () => {
+            const rowsPromise = Promise.resolve().then(() => take());
+            return {
+              orderBy: () => ({
+                limit: () => rowsPromise,
+              }),
+              then: (resolve: (value: unknown) => void, reject?: (reason: unknown) => void) =>
+                rowsPromise.then(resolve, reject),
+            };
+          },
           then: (resolve: (value: unknown) => void, reject?: (reason: unknown) => void) =>
             Promise.resolve(take()).then(resolve, reject),
         };

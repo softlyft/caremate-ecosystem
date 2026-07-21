@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Huduma karibu",
-    "subtitle": "Hospitali, kliniki, na maduka ya dawa karibu nawe"
+    "subtitle": "Hospitali, kliniki, na maduka ya dawa karibu nawe",
+    "locationNeeded": {
+      "title": "Ona watoa huduma wa CareMate karibu nawe",
+      "body": "Washa huduma ya mahali ili kugundua hospitali, kliniki, na maduka ya dawa karibu nawe — yote ndani ya CareMate.",
+      "cta": "Washa mahali"
+    }
   },
   "dailyTip": {
     "label": "Ufahamu wa kila siku"

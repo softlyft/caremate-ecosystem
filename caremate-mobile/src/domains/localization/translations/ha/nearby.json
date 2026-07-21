@@ -1,13 +1,19 @@
 {
   "title": "Kusa",
-  "subtitle": "Nemo asibitoci, clinic, kantin magani, da ƙari a kusa da kai",
+  "subtitle": "Nemo masu bayarwa na CareMate kusa da kai",
   "nearbyCount": "{{count}} kusa",
-  "searchPlaceholder": "Nemo masu bayarwa",
-  "loading": "Ana lodawa masu bayarwa...",
+  "searchPlaceholder": "Nemo masu bayarwa na CareMate ta suna",
+  "loading": "Ana lodawa masu bayarwa na CareMate...",
   "empty": {
-    "title": "Babu masu bayarwa kusa",
-    "message": "Gwada wani tacewa ko faɗaɗa bincikenka.",
+    "title": "Babu masu bayarwa na CareMate kusa",
+    "message": "Nemo mai bayarwa na CareMate ta suna a sama.",
     "offline": "Ana nuna masu bayarwa da aka ajiye yayin da ba ka da intanet."
+  },
+  "locationNeeded": {
+    "title": "Kunna wuri don neman masu bayarwa na CareMate kusa",
+    "message": "Muna buƙatar wurinka don nuna masu bayarwa na CareMate kusa da kai. Kunna wuri, ko nemo mai bayarwa da suna a sama.",
+    "action": "Kunna wuri",
+    "enabling": "Ana kunnawa…"
   },
   "approximate": "Ana amfani da kimanin wuri",
   "outsideArea": "A waje da yankinka na yau da kullum — sakamakon na iya zama ƙanƙane",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} da suka dace",
+  "searching": "Ana neman masu bayarwa na CareMate...",
+  "searchEmpty": {
+    "title": "Babu masu bayarwa da suka dace",
+    "message": "Gwada wani suna ko duba rubutu."
+  },
+  "lastKnown": {
+    "message": "Wuri yana kashe. Ana nuna masu bayarwa na CareMate kusa da wurin da aka sani na ƙarshe.",
+    "action": "Kunna"
   }
 }

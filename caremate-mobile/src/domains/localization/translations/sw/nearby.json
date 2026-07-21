@@ -1,13 +1,19 @@
 {
   "title": "Karibu",
-  "subtitle": "Tafuta hospitali, kliniki, maduka ya dawa, na zaidi karibu nawe",
+  "subtitle": "Tafuta watoa huduma wa CareMate karibu nawe",
   "nearbyCount": "{{count}} karibu",
-  "searchPlaceholder": "Tafuta watoa huduma",
-  "loading": "Inapakia watoa huduma...",
+  "searchPlaceholder": "Tafuta watoa huduma wa CareMate kwa jina",
+  "loading": "Inapakia watoa huduma wa CareMate...",
   "empty": {
-    "title": "Hakuna watoa huduma karibu",
-    "message": "Jaribu kichujio kingine au panua utafutaji wako.",
+    "title": "Hakuna watoa huduma wa CareMate karibu",
+    "message": "Tafuta mtoa huduma wa CareMate kwa jina hapo juu.",
     "offline": "Inaonyesha watoa huduma waliohifadhiwa ukiwa bila mtandao."
+  },
+  "locationNeeded": {
+    "title": "Washa eneo ili kupata watoa huduma wa CareMate karibu",
+    "message": "Tunahitaji eneo lako ili kuonyesha watoa huduma wa CareMate karibu nawe. Washa eneo, au tafuta mtoa huduma kwa jina hapo juu.",
+    "action": "Washa eneo",
+    "enabling": "Inawasha…"
   },
   "approximate": "Inatumia eneo la takriban",
   "outsideArea": "Nje ya eneo lako la kawaida — matokeo yanaweza kuwa machache",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} vinavyolingana",
+  "searching": "Inatafuta watoa huduma wa CareMate...",
+  "searchEmpty": {
+    "title": "Hakuna watoa huduma wanaolingana",
+    "message": "Jaribu jina lingine au angalia tahajia."
+  },
+  "lastKnown": {
+    "message": "Eneo limzimwa. Inaonyesha watoa huduma wa CareMate karibu na mahali pako pa mwisho kujulikana.",
+    "action": "Washa"
   }
 }

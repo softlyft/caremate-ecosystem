@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Atención cercana",
-    "subtitle": "Hospitales, clínicas y farmacias a tu alrededor"
+    "subtitle": "Hospitales, clínicas y farmacias a tu alrededor",
+    "locationNeeded": {
+      "title": "Ve proveedores de CareMate cerca de ti",
+      "body": "Activa la ubicación para descubrir hospitales, clínicas y farmacias a tu alrededor — todo dentro de CareMate.",
+      "cta": "Activar ubicación"
+    }
   },
   "dailyTip": {
     "label": "Idea del día"

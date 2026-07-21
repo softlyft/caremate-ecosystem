@@ -1,13 +1,19 @@
 {
   "title": "Bɛn",
-  "subtitle": "Hwehwɛ ayaresabea, clinic, aduru fie, ne deɛ ɛkeka ho a ɛbɛn wo",
+  "subtitle": "Hwehwɛ CareMate wɔn a wɔma a ɛbɛn wo",
   "nearbyCount": "{{count}} bɛn",
-  "searchPlaceholder": "Hwehwɛ wɔn a wɔma",
-  "loading": "Ɛreloa wɔn a wɔma...",
+  "searchPlaceholder": "Fa din hwehwɛ CareMate wɔn a wɔma",
+  "loading": "Ɛreloa CareMate wɔn a wɔma...",
   "empty": {
-    "title": "Wɔn a wɔma nni bɛn",
-    "message": "Sɔ filter foforo hwɛ anaa trɛw wo nhwehwɛmu mu.",
+    "title": "CareMate wɔn a wɔma nni bɛn",
+    "message": "Fa din hwehwɛ CareMate wɔn a wɔma wɔ soro no.",
     "offline": "Ɛredi wɔn a wɔma a wɔasie no nkyerɛ bere a wo nni intanɛt so."
+  },
+  "locationNeeded": {
+    "title": "Sɔ beaeɛ sɛnea wobɛnya CareMate wɔn a wɔma a ɛbɛn",
+    "message": "Yɛhia wo beaeɛ sɛnea yɛbɛkyerɛ CareMate wɔn a wɔma a ɛbɛn wo. Sɔ beaeɛ, anaa hwehwɛ ɔde ma bi din wɔ soro ha.",
+    "action": "Sɔ beaeɛ",
+    "enabling": "Ɛresɔ…"
   },
   "approximate": "Ɛrede beaeɛ a ɛbɛn di dwuma",
   "outsideArea": "Ɛwɔ wo mpɔtam a wotumi di so no akyi — nsonaazɛ betumi asua",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} a ɛfata",
+  "searching": "Ɛrehwehwɛ CareMate wɔn a wɔma...",
+  "searchEmpty": {
+    "title": "Wɔn a wɔma a ɛfata nni hɔ",
+    "message": "Sɔ din foforo hwɛ anaa hwɛ nkyerɛwde no."
+  },
+  "lastKnown": {
+    "message": "Beaeɛ adum. Ɛredi CareMate wɔn a wɔma a ɛbɛn wo beaeɛ a wɔnim no a etwa to nkyerɛ.",
+    "action": "Sɔ"
   }
 }

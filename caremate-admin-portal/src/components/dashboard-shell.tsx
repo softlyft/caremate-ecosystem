@@ -10,6 +10,7 @@ import {
   BookOpen,
   MapPin,
   Lightbulb,
+  Newspaper,
   CreditCard,
   LogOut,
   Megaphone,
@@ -37,6 +38,7 @@ const NAV_GROUPS = [
     label: 'Catalog',
     items: [
       { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
+      { href: '/dashboard/news', label: 'External News', icon: Newspaper },
       { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
       { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
     ],
