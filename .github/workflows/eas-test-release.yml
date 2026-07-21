@@ -28,7 +28,7 @@ on:
     branches:
       - staging
     paths:
-      - 'caremate/**'
+      - 'caremate-mobile/**'
       - 'packages/**'
       - 'supabase/**'
       - '.github/workflows/eas-test-release.yml'
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: caremate
+        working-directory: caremate-mobile
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -137,7 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: caremate
+        working-directory: caremate-mobile
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -175,7 +175,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: caremate
+        working-directory: caremate-mobile
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -231,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: caremate
+        working-directory: caremate-mobile
     steps:
       - name: Checkout
         uses: actions/checkout@v5

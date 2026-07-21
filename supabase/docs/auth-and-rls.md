@@ -42,7 +42,7 @@ Tables such as articles and health tips allow public or authenticated reads as c
 Providers-related access is split between:
 
 - nearby projection reads
-- staff/provider-ingestion writes
+- staff/caremate-provider-ingestion writes
 - helper RPCs for provider lookup or projection support
 
 ## Storage

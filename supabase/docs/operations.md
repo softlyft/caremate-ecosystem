@@ -69,4 +69,4 @@ When changing cloud tables that mobile syncs:
 
 - Local SQL seed content is intentionally minimal
 - Some operational behavior depends on external providers such as Stripe and Paystack
-- Provider ingest writes depend on the separate `provider-ingestion` service using a service-role key
+- Provider ingest writes depend on the separate `caremate-provider-ingestion` service using a service-role key

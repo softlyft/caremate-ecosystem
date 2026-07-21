@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: caremate
+        working-directory: caremate-mobile
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: caremate-portal
+        working-directory: caremate-admin-portal
     steps:
       - name: Checkout
         uses: actions/checkout@v5

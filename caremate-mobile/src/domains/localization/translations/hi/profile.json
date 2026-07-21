@@ -1,0 +1,40 @@
+{
+  "title": "मैं",
+  "guest": {
+    "title": "आप अतिथि के रूप में ब्राउज़ कर रहे हैं",
+    "subtitle": "आपातकालीन प्रोफ़ाइल, परिवार और प्राथमिकताएँ उपकरणों पर सिंक करने के लिए साइन इन करें।",
+    "signIn": "साइन इन",
+    "createAccount": "खाता बनाएँ"
+  },
+  "finishSetup": "सेटअप पूरा करें",
+  "account": "खाता",
+  "preferences": "प्राथमिकताएँ",
+  "menu": {
+    "premium": "प्रीमियम",
+    "emergency": "आपातकालीन प्रोफ़ाइल",
+    "family": "परिवार",
+    "settings": "सेटिंग्स",
+    "community": "Join our movement",
+    "communitySubtitle": "Help CareMate grow in your community"
+  },
+  "premium": {
+    "title": "प्रीमियम",
+    "loading": "प्लान लोड हो रहे हैं...",
+    "personal": "व्यक्तिगत",
+    "family": "परिवार",
+    "monthly": "मासिक",
+    "yearly": "वार्षिक",
+    "guestCta": "सदस्यता लेने के लिए साइन इन करें",
+    "error": "चेकआउट शुरू नहीं हो सका",
+    "medicationLimitTitle": "दवा सीमा पूरी",
+    "medicationLimitMessage": "मुफ़्त खाते 3 दवाएँ तक ट्रैक कर सकते हैं। असीमित ट्रैकिंग के लिए Standard या Family Premium अपग्रेड करें।"
+  },
+  "patientId": {
+    "title": "CareMate रोगी ID",
+    "generate": "मेरे लिए ID बनाएँ",
+    "copy": "कॉपी",
+    "fallbackName": "सदस्य"
+  },
+  "signOut": "साइन आउट",
+  "biometrics": "बायोमेट्रिक्स से अनलॉक करें"
+}

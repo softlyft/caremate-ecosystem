@@ -61,8 +61,8 @@ export function AppointmentActions({
         <Label htmlFor={`note-${appointmentId}`}>Note</Label>
         <Textarea id={`note-${appointmentId}`} name="provider_note" className="min-h-[40px]" rows={1} />
       </div>
-      <Button type="submit" size="sm" disabled={pending}>
-        {pending ? 'Saving…' : 'Update'}
+      <Button type="submit" size="sm" loading={pending} loadingLabel="Saving…">
+        Update
       </Button>
     </form>
   );

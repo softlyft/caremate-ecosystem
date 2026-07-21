@@ -53,8 +53,8 @@ export function OrgSwitcher({
           ))}
         </Select>
       </div>
-      <Button type="submit" disabled={pending}>
-        {pending ? 'Switching…' : 'Switch'}
+      <Button type="submit" loading={pending} loadingLabel="Switching…">
+        Switch
       </Button>
     </form>
   );

@@ -58,4 +58,4 @@ Verification check: RPC `is_provider_org_verified(org_id)` (patients cannot read
 
 - Schema / migrations: [Data model](./data-model.md)
 - Claim sets verified: [Auth & claim](./auth-claim.md)
-- Mobile notes: [`../../caremate/docs/provider-model.md`](../../caremate/docs/provider-model.md)
+- Mobile notes: [`../../caremate-mobile/docs/provider-model.md`](../../caremate-mobile/docs/provider-model.md)

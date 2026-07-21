@@ -70,6 +70,7 @@ Current migrations cluster into these domains:
 | Profiles patient ID | `20260715120000_profiles_patient_id.sql` |
 | Providers ingest / FHIR / geo | `20260715130000_providers_ingest_fhir_ready.sql`, `20260715140000_provider_fhir_resources.sql`, `20260715180000_provider_resource_uuid_pks.sql`, `20260715190000_provider_organizations_unique_name.sql`, `20260715200000_nearby_providers_rpc.sql` |
 | Provider engagement portal | `20260719140000_provider_portal.sql` … `20260719170000_connection_rejection_and_verified.sql`, `20260719200000_patient_document_uploads.sql` |
+| Community Network | `20260721100000_community_portal_phase1.sql`, `20260721113000_community_join_patient_verification.sql`, `20260721124500_community_chapter_administrative_hierarchy.sql`, `20260721130000_community_administrative_options.sql` |
 
 ## Data Ownership Notes
 
