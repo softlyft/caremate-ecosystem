@@ -81,6 +81,12 @@ describe('country language configuration', () => {
     );
   });
 
+  it('reports fallback pin precision for nearby gating', () => {
+    expect(localizationService.getFallbackPin('NG', 'Lagos').precision).toBe('state');
+    expect(localizationService.getFallbackPin('NG').precision).toBe('country');
+    expect(localizationService.getFallbackPin('GH', 'Greater Accra').precision).toBe('country');
+  });
+
   it('resolves active locale and news language preferences', () => {
     expect(localizationService.getActiveLocale('MX', 'es')).toMatch(/es/i);
     expect(localizationService.resolveNewsLanguageCode('CN', 'zh')).toBe('en');

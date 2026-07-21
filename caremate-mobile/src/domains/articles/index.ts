@@ -28,12 +28,15 @@ export {
 } from '@/domains/articles/content-types';
 export {
   articleMatchesNewsRegion,
+  EXTERNAL_NEWS_RETENTION_DAYS,
+  getFirstSeenAt,
   getNewsRegions,
   HOME_TRENDING_COUNTRY_SLOTS,
   HOME_TRENDING_INT_SLOTS,
   HOME_TRENDING_MAX_ITEMS,
   isEvergreenArticle,
   isExternalArticle,
+  isWithinExternalNewsRetention,
   LEARN_CATEGORIES,
   mergeNewsRegions,
   orderLearnFeed,

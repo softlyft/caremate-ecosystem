@@ -32,8 +32,7 @@ const sampleApps: MiniAppDefinition[] = [
 ];
 
 const mockFindAll = jest.fn();
-const mockFindNearby = jest.fn();
-const mockResolveNearbyCoords = jest.fn();
+const mockSearchByName = jest.fn();
 
 jest.mock('@/domains/articles/repository', () => ({
   articleRepository: {
@@ -43,12 +42,8 @@ jest.mock('@/domains/articles/repository', () => ({
 
 jest.mock('@/domains/providers/repository', () => ({
   providerRepository: {
-    findNearby: (...args: unknown[]) => mockFindNearby(...args),
+    searchByName: (...args: unknown[]) => mockSearchByName(...args),
   },
-}));
-
-jest.mock('@/domains/providers/location', () => ({
-  resolveNearbyCoords: (...args: unknown[]) => mockResolveNearbyCoords(...args),
 }));
 
 jest.mock('@/mini-apps/_kit/registry', () => ({
@@ -87,9 +82,7 @@ describe('search helpers', () => {
 describe('runGlobalSearch', () => {
   beforeEach(() => {
     mockFindAll.mockReset();
-    mockFindNearby.mockReset();
-    mockResolveNearbyCoords.mockReset();
-    mockResolveNearbyCoords.mockResolvedValue({ latitude: 6.5, longitude: 3.3 });
+    mockSearchByName.mockReset();
   });
 
   it('returns empty sections for blank queries', async () => {
@@ -104,7 +97,7 @@ describe('runGlobalSearch', () => {
 
   it('aggregates articles, providers, and tools', async () => {
     mockFindAll.mockResolvedValue([{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }, { id: 'a4' }]);
-    mockFindNearby.mockResolvedValue({
+    mockSearchByName.mockResolvedValue({
       providers: [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }, { id: 'p4' }],
     });
 
@@ -114,7 +107,7 @@ describe('runGlobalSearch', () => {
     expect(results.providers).toHaveLength(4);
     expect(results.tools.map((tool) => tool.id)).toEqual(['medication-tracker']);
     expect(mockFindAll).toHaveBeenCalledWith('medication', 'user-1');
-    expect(mockFindNearby).toHaveBeenCalledWith(
+    expect(mockSearchByName).toHaveBeenCalledWith(
       expect.objectContaining({ search: 'medication', limit: 8 }),
     );
   });

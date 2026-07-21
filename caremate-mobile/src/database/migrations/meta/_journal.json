@@ -43,6 +43,13 @@
       "when": 1784410616924,
       "tag": "0005_broken_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1784659354803,
+      "tag": "0006_condemned_white_queen",
+      "breakpoints": true
     }
   ]
 }

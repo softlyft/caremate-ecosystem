@@ -38,8 +38,6 @@ jobs:
       # Optional — app runs in guest mode if unset (same as local without .env).
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-      EXPO_PUBLIC_CURRENTS_API_KEY: ${{ secrets.EXPO_PUBLIC_CURRENTS_API_KEY }}
-      EXPO_PUBLIC_CURRENTS_COUNTRY: ${{ secrets.EXPO_PUBLIC_CURRENTS_COUNTRY || 'INT' }}
 
     steps:
       - name: Checkout

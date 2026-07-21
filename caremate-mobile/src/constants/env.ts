@@ -2,8 +2,6 @@ import Constants from 'expo-constants';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
-const currentsApiKey = process.env.EXPO_PUBLIC_CURRENTS_API_KEY ?? '';
-const currentsCountry = process.env.EXPO_PUBLIC_CURRENTS_COUNTRY ?? 'INT';
 const paymentUrl = process.env.EXPO_PUBLIC_PAYMENT_URL ?? '';
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN ?? '';
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? '';
@@ -17,9 +15,6 @@ export const config = {
   supabaseUrl,
   supabaseAnonKey,
   isSupabaseConfigured: Boolean(supabaseUrl && supabaseAnonKey),
-  currentsApiKey,
-  isCurrentsConfigured: Boolean(currentsApiKey),
-  currentsCountry,
   paymentUrl,
   appVersion: Constants.expoConfig?.version ?? '1.0.0',
   appEnv,

@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Hwɛ a ɛbɛn",
-    "subtitle": "Ayaresabea, clinic, ne aduru fie a ɛbɛn wo"
+    "subtitle": "Ayaresabea, clinic, ne aduru fie a ɛbɛn wo",
+    "locationNeeded": {
+      "title": "Hwɛ CareMate adwumayɛfoɔ a wɔbɛn wo",
+      "body": "Sɔ baabi a wowɔ na hunu ayaresabea, clinic, ne aduru fie a atwa wo ho ahyia — ne nyinaa wɔ CareMate mu.",
+      "cta": "Sɔ baabi"
+    }
   },
   "dailyTip": {
     "label": "Da biara nhunumu"

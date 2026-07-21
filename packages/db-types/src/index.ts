@@ -21,6 +21,7 @@ export type {
   AdCreative,
   AdPlacement,
   AdEvent,
+  UserLocationSample,
   Profile,
   Settings,
   EmergencyProfile,

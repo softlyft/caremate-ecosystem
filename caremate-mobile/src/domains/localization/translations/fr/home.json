@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Soins à proximité",
-    "subtitle": "Hôpitaux, cliniques et pharmacies autour de vous"
+    "subtitle": "Hôpitaux, cliniques et pharmacies autour de vous",
+    "locationNeeded": {
+      "title": "Voyez les prestataires CareMate près de vous",
+      "body": "Activez la localisation pour découvrir les hôpitaux, cliniques et pharmacies autour de vous — le tout dans CareMate.",
+      "cta": "Activer la localisation"
+    }
   },
   "dailyTip": {
     "label": "Conseil du jour"

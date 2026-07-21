@@ -25,7 +25,12 @@
   },
   "nearby": {
     "title": "Nearby care",
-    "subtitle": "Hospitals, clinics, and pharmacies around you"
+    "subtitle": "Hospitals, clinics, and pharmacies around you",
+    "locationNeeded": {
+      "title": "See CareMate providers near you",
+      "body": "Enable location to discover hospitals, clinics, and pharmacies around you — all within CareMate.",
+      "cta": "Enable location"
+    }
   },
   "dailyTip": {
     "label": "Daily insight"

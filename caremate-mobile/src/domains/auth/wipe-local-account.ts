@@ -14,6 +14,7 @@ import {
   profiles,
   settings,
   subscriptionEntitlements,
+  userLocationSamples,
 } from '@/database/schema';
 import { useCheckupPlannerStore } from '@/mini-apps/checkup-planner/store';
 import { useImmunizationTrackerStore } from '@/mini-apps/immunization-tracker/store';
@@ -75,4 +76,5 @@ export async function wipeLocalAccountData(userId: string): Promise<void> {
   await db.delete(miniAppSnapshots).where(eq(miniAppSnapshots.userId, userId));
   await db.delete(subscriptionEntitlements).where(eq(subscriptionEntitlements.userId, userId));
   await db.delete(notifications).where(eq(notifications.userId, userId));
+  await db.delete(userLocationSamples).where(eq(userLocationSamples.userId, userId));
 }

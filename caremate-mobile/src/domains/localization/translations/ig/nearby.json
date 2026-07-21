@@ -1,13 +1,19 @@
 {
   "title": "Nso",
-  "subtitle": "Chọta ụlọ ọgwụ, ụlọ ọgwụ nta, ụlọ ahịa ọgwụ, na ihe ndị ọzọ gburugburu gị",
+  "subtitle": "Chọta ndị na-enye CareMate dị nso gị",
   "nearbyCount": "{{count}} nso",
-  "searchPlaceholder": "Chọọ ndị na-enye",
-  "loading": "Na-ebu ndị na-enye...",
+  "searchPlaceholder": "Jiri aha chọọ ndị na-enye CareMate",
+  "loading": "Na-ebu ndị na-enye CareMate...",
   "empty": {
-    "title": "Enweghị ndị na-enye nso",
-    "message": "Nwaa nzacha ọzọ ma ọ bụ gbasaa ọchụchọ gị.",
-    "offline": "Na-egosi ndị na-enye echekwara mgbe ị nọghị n'ịntanetị."
+    "title": "Enweghị ndị na-enye CareMate nso",
+    "message": "Nwaa nzacha ọzọ ma ọ bụ chọọ site n’aha.",
+    "offline": "Na-egosi ndị na-enye echekwara mgbe ị nọghị n’ịntanetị."
+  },
+  "locationNeeded": {
+    "title": "Gbanye ebe iji chọta ndị na-enye CareMate dị nso",
+    "message": "Anyị chọrọ ebe gị iji gosi ndị na-enye CareMate dị nso gị. Gbanye ebe, ma ọ bụ jiri aha chọọ onye na-enye n’elu.",
+    "action": "Gbanye ebe",
+    "enabling": "Na-agbanye…"
   },
   "approximate": "Na-eji ebe dị nso",
   "outsideArea": "N'èzí mpaghara gị nkịtị — nsonaazụ nwere ike ịdị obere",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} dabara",
+  "searching": "Na-achọ ndị na-enye CareMate...",
+  "searchEmpty": {
+    "title": "Enweghị ndị na-enye dabara",
+    "message": "Nwaa aha ọzọ ma ọ bụ lelee mkpoputa."
+  },
+  "lastKnown": {
+    "message": "Ebe agbanyụrụ. Na-egosi ndị na-enye CareMate nso ebe ikpeazụ a maara.",
+    "action": "Gbanye"
   }
 }

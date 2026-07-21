@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Nlekọta nso",
-    "subtitle": "Ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị"
+    "subtitle": "Ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị",
+    "locationNeeded": {
+      "title": "Hụ ndị na-enye nlekọta CareMate dị gị nso",
+      "body": "Gbanye ọnọdụ gị ka ị chọpụta ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị — ha niile n'ime CareMate.",
+      "cta": "Gbanye ọnọdụ"
+    }
   },
   "dailyTip": {
     "label": "Nghọta kwa ụbọchị"

@@ -11,23 +11,19 @@ import {
   HOME_TRENDING_MAX_ITEMS,
   isEvergreenArticle,
   isExternalArticle,
+  isWithinExternalNewsRetention,
   LEARN_CATEGORIES,
-  mergeNewsRegions,
   orderLearnFeed,
   orderTrendingFeed,
 } from '@/domains/articles/utils/evergreen-articles';
-import { INTERNATIONAL_COUNTRY_CODE } from '@/domains/localization/config';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
-import { currentsService } from '@/domains/articles/currents-service';
 import { isOnline } from '@/sync/network';
 import type { Article, ArticleCategory, ArticleRead, ArticleReadStatus, Bookmark } from '@/types';
 import { createId, nowIso, parseJson, stringifyJson } from '@/utils/helpers';
-import type { LearnContentType } from '@/domains/articles/content-types';
 import { isLearnContentType } from '@/domains/articles/content-types';
 
 const HEALTH_CATEGORY_ID = 'health';
-const HEALTH_CATEGORY_NAME = 'Health News';
 
 function mapArticle(row: typeof articles.$inferSelect): Article {
   const rawType = row.contentType ?? 'article';
@@ -50,8 +46,14 @@ function mapArticle(row: typeof articles.$inferSelect): Article {
   };
 }
 
-function toArticleId(currentsId: string): string {
-  return currentsId.startsWith('currents-') ? currentsId : `currents-${currentsId}`;
+function withFirstSeenAttribute(
+  attributes: Record<string, unknown>,
+  firstSeenAt: string | null | undefined,
+): Record<string, unknown> {
+  if (!firstSeenAt) {
+    return attributes;
+  }
+  return { ...attributes, firstSeenAt };
 }
 
 class ArticleRepository extends BaseRepository {
@@ -88,7 +90,9 @@ class ArticleRepository extends BaseRepository {
           )
       : await db.select().from(articles).where(isNull(articles.deletedAt));
 
-    const mapped = rows.map(mapArticle);
+    const mapped = rows
+      .map(mapArticle)
+      .filter((article) => !isExternalArticle(article) || isWithinExternalNewsRetention(article));
     return orderLearnFeed(mapped, userKey);
   }
 
@@ -107,7 +111,10 @@ class ArticleRepository extends BaseRepository {
     const mapped = rows.map(mapArticle);
     const evergreen = mapped.filter(isEvergreenArticle);
     const external = mapped.filter(
-      (article) => isExternalArticle(article) && article.categoryId === HEALTH_CATEGORY_ID,
+      (article) =>
+        isExternalArticle(article) &&
+        article.categoryId === HEALTH_CATEGORY_ID &&
+        isWithinExternalNewsRetention(article),
     );
 
     const resolvedCountry = localizationService.resolveNewsCountryCode(countryCode);
@@ -122,82 +129,7 @@ class ArticleRepository extends BaseRepository {
       return ordered.slice(0, limit);
     }
 
-    return mapped.slice(0, Math.min(limit, 1));
-  }
-
-  async refreshHealthNewsFromCurrents(
-    limit = 10,
-    countryCode = INTERNATIONAL_COUNTRY_CODE,
-    languageCode: 'en' | 'fr' | 'es' = 'en',
-  ): Promise<void> {
-    if (!currentsService.isConfigured()) {
-      return;
-    }
-
-    const online = await isOnline();
-    if (!online) {
-      return;
-    }
-
-    const regionCode = countryCode.trim().toUpperCase() || INTERNATIONAL_COUNTRY_CODE;
-    const news = await currentsService.fetchHealthNews(limit, regionCode, languageCode);
-    if (news.length === 0) {
-      return;
-    }
-
-    const db = getDatabase();
-    const timestamp = nowIso();
-
-    for (const item of news) {
-      const id = toArticleId(item.id);
-      const summary = item.description?.trim() || null;
-      const content = item.description?.trim() || item.title;
-      const imageUrl = item.image || null;
-      const publishedAt = item.published || timestamp;
-
-      const [existing] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
-      const existingAttributes = existing
-        ? parseJson<Record<string, unknown>>(existing.attributes, {})
-        : {};
-      const attributes = stringifyJson(mergeNewsRegions(existingAttributes, regionCode));
-
-      await db
-        .insert(articles)
-        .values({
-          id,
-          title: item.title,
-          summary,
-          content,
-          contentType: 'article' satisfies LearnContentType,
-          categoryId: HEALTH_CATEGORY_ID,
-          categoryName: HEALTH_CATEGORY_NAME,
-          imageUrl,
-          sourceUrl: item.url || null,
-          publishedAt,
-          attributes,
-          syncStatus: 'synced',
-          deletedAt: null,
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        })
-        .onConflictDoUpdate({
-          target: articles.id,
-          set: {
-            title: item.title,
-            summary,
-            content,
-            contentType: 'article',
-            categoryId: HEALTH_CATEGORY_ID,
-            categoryName: HEALTH_CATEGORY_NAME,
-            imageUrl,
-            sourceUrl: item.url || null,
-            publishedAt,
-            attributes,
-            syncStatus: 'synced',
-            updatedAt: timestamp,
-          },
-        });
-    }
+    return mapped.filter(isEvergreenArticle).slice(0, Math.min(limit, 1));
   }
 
   async getTrendingToday(
@@ -206,8 +138,7 @@ class ArticleRepository extends BaseRepository {
       isGuest: true,
     },
   ): Promise<Article[]> {
-    // Offline-first: always return local/cached articles immediately.
-    // Callers can refresh Currents in the background and invalidate queries.
+    // Offline-first: local SQLite only. External news arrives via Supabase pull.
     return this.findTrending(
       limit,
       options.userKey ?? (options.isGuest ? 'guest' : 'user'),
@@ -215,25 +146,51 @@ class ArticleRepository extends BaseRepository {
     );
   }
 
-  async refreshTrendingInBackground(
-    options: { countryCode?: string | null; languageCode?: string | null } = {},
-  ): Promise<void> {
-    const countryCode = localizationService.resolveNewsCountryCode(options.countryCode);
-    const languageCode = localizationService.resolveNewsLanguageCode(
-      options.countryCode,
-      options.languageCode,
-    );
+  /**
+   * Soft-delete external news older than the 3-day retention window
+   * (today / yesterday / 2 days ago by first_seen).
+   */
+  async purgeStaleExternalNews(now = new Date()): Promise<void> {
+    const db = getDatabase();
+    const rows = await db.select().from(articles).where(isNull(articles.deletedAt));
+    const timestamp = nowIso();
 
-    try {
-      // Always pull international news for everyone.
-      await this.refreshHealthNewsFromCurrents(10, INTERNATIONAL_COUNTRY_CODE, languageCode);
-
-      // Then pull the user's selected country — empty results stay empty (no INT fallback).
-      if (countryCode !== INTERNATIONAL_COUNTRY_CODE) {
-        await this.refreshHealthNewsFromCurrents(10, countryCode, languageCode);
+    for (const row of rows) {
+      const article = mapArticle(row);
+      if (!isExternalArticle(article)) {
+        continue;
       }
-    } catch {
-      // Keep showing cached/seeded articles when Currents is unavailable.
+      if (isWithinExternalNewsRetention(article, now)) {
+        continue;
+      }
+      await db
+        .update(articles)
+        .set({ deletedAt: timestamp, updatedAt: timestamp })
+        .where(eq(articles.id, article.id));
+    }
+  }
+
+  /**
+   * Soft-delete local external news that is no longer in the published remote set
+   * (unpublished or removed server-side without a tombstone).
+   */
+  async reconcileExternalNews(remoteLiveIds: Set<string>): Promise<void> {
+    const db = getDatabase();
+    const rows = await db.select().from(articles).where(isNull(articles.deletedAt));
+    const timestamp = nowIso();
+
+    for (const row of rows) {
+      const article = mapArticle(row);
+      if (!isExternalArticle(article)) {
+        continue;
+      }
+      if (remoteLiveIds.has(article.id)) {
+        continue;
+      }
+      await db
+        .update(articles)
+        .set({ deletedAt: timestamp, updatedAt: timestamp })
+        .where(eq(articles.id, article.id));
     }
   }
 
@@ -259,7 +216,10 @@ class ArticleRepository extends BaseRepository {
           .select()
           .from(articles)
           .where(and(eq(articles.categoryId, categoryId), isNull(articles.deletedAt)));
-    return orderLearnFeed(rows.map(mapArticle), userKey);
+    const mapped = rows
+      .map(mapArticle)
+      .filter((article) => !isExternalArticle(article) || isWithinExternalNewsRetention(article));
+    return orderLearnFeed(mapped, userKey);
   }
 
   async findById(id: string): Promise<Article | null> {
@@ -650,24 +610,33 @@ class ArticleRepository extends BaseRepository {
     await this.purgeLegacySeeds();
 
     if (!config.isSupabaseConfigured) {
+      await this.purgeStaleExternalNews();
       return;
     }
 
     const online = await isOnline();
     if (!online) {
+      await this.purgeStaleExternalNews();
       return;
     }
 
     // RLS returns published live rows + published soft-deleted tombstones (any role).
     const { data, error } = await supabase.from('articles').select('*');
     if (error || !data) {
+      await this.purgeStaleExternalNews();
       return;
     }
 
     const db = getDatabase();
     const timestamp = nowIso();
+    const remoteLiveIds = new Set<string>();
 
     for (const row of data) {
+      const baseAttributes = withFirstSeenAttribute(
+        (row.attributes as Record<string, unknown> | null) ?? {},
+        row.first_seen_at,
+      );
+
       if (row.deleted_at) {
         await db
           .insert(articles)
@@ -682,7 +651,7 @@ class ArticleRepository extends BaseRepository {
             imageUrl: row.image_url,
             sourceUrl: row.source_url ?? null,
             publishedAt: row.published_at,
-            attributes: stringifyJson(row.attributes ?? {}),
+            attributes: stringifyJson(baseAttributes),
             syncStatus: 'synced',
             deletedAt: row.deleted_at,
             createdAt: row.created_at ?? timestamp,
@@ -699,6 +668,8 @@ class ArticleRepository extends BaseRepository {
         continue;
       }
 
+      remoteLiveIds.add(row.id);
+
       await db
         .insert(articles)
         .values({
@@ -712,10 +683,10 @@ class ArticleRepository extends BaseRepository {
           imageUrl: row.image_url,
           sourceUrl: row.source_url ?? null,
           publishedAt: row.published_at,
-          attributes: stringifyJson(row.attributes ?? {}),
+          attributes: stringifyJson(baseAttributes),
           syncStatus: 'synced',
           deletedAt: null,
-          createdAt: row.created_at ?? timestamp,
+          createdAt: row.created_at ?? row.first_seen_at ?? timestamp,
           updatedAt: row.updated_at ?? timestamp,
         })
         .onConflictDoUpdate({
@@ -730,13 +701,16 @@ class ArticleRepository extends BaseRepository {
             imageUrl: row.image_url,
             sourceUrl: row.source_url ?? null,
             publishedAt: row.published_at,
-            attributes: stringifyJson(row.attributes ?? {}),
+            attributes: stringifyJson(baseAttributes),
             syncStatus: 'synced',
             deletedAt: null,
             updatedAt: row.updated_at ?? timestamp,
           },
         });
     }
+
+    await this.reconcileExternalNews(remoteLiveIds);
+    await this.purgeStaleExternalNews();
   }
 
   async pullBookmarksFromRemote(): Promise<void> {

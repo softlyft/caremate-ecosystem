@@ -10,6 +10,9 @@ export const HOME_TRENDING_INT_SLOTS = 2;
 export const HOME_TRENDING_COUNTRY_SLOTS = 2;
 export const HOME_TRENDING_MAX_ITEMS = 1 + HOME_TRENDING_INT_SLOTS + HOME_TRENDING_COUNTRY_SLOTS;
 
+/** External news retained locally for today, yesterday, and 2 days ago. */
+export const EXTERNAL_NEWS_RETENTION_DAYS = 3;
+
 export const LEARN_CATEGORIES: ArticleCategory[] = [
   ...HEALTH_CATEGORIES.map((category) => ({
     id: category.id,
@@ -28,13 +31,50 @@ export function isExternalArticle(article: Article): boolean {
   return Boolean(article.sourceUrl) || article.id.startsWith('currents-');
 }
 
-/** CareMate catalog content from Supabase (not Currents news). */
+/** CareMate catalog content from Supabase (not external news). */
 export function isEvergreenArticle(article: Article): boolean {
   return article.id.startsWith('evergreen-') || (!isExternalArticle(article) && !article.sourceUrl);
 }
 
 /**
- * Regions a Currents news row was fetched for.
+ * First calendar ingest time for external news.
+ * Prefer attributes.firstSeenAt (from Supabase first_seen_at); fall back to createdAt.
+ */
+export function getFirstSeenAt(article: Article): string | null {
+  const attrs = article.attributes ?? {};
+  const firstSeen = attrs.firstSeenAt;
+  if (typeof firstSeen === 'string' && firstSeen.trim()) {
+    return firstSeen.trim();
+  }
+  return article.createdAt ?? article.publishedAt ?? null;
+}
+
+/** Calendar-day age: 0 = today, 1 = yesterday, 2 = two days ago. */
+export function getCalendarDaysAgo(iso: string, now = new Date()): number {
+  const seen = new Date(iso);
+  if (Number.isNaN(seen.getTime())) {
+    return Number.POSITIVE_INFINITY;
+  }
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfSeen = new Date(seen.getFullYear(), seen.getMonth(), seen.getDate());
+  return Math.floor((startOfToday.getTime() - startOfSeen.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+export function isWithinExternalNewsRetention(
+  article: Article,
+  now = new Date(),
+  maxDays = EXTERNAL_NEWS_RETENTION_DAYS,
+): boolean {
+  const firstSeen = getFirstSeenAt(article);
+  if (!firstSeen) {
+    return false;
+  }
+  const daysAgo = getCalendarDaysAgo(firstSeen, now);
+  return daysAgo >= 0 && daysAgo < maxDays;
+}
+
+/**
+ * Regions an external news row was fetched for.
  * Legacy untagged rows are treated as INT so older caches still fill the international slots.
  */
 export function getNewsRegions(article: Article): string[] {
@@ -123,11 +163,15 @@ export function pickDailyEvergreen(
   return articles[index] ?? null;
 }
 
+function byNewestExternal(a: Article, b: Article): number {
+  const aKey = getFirstSeenAt(a) ?? a.publishedAt ?? '';
+  const bKey = getFirstSeenAt(b) ?? b.publishedAt ?? '';
+  return bKey.localeCompare(aKey);
+}
+
 export function orderLearnFeed(articles: Article[], userKey = 'guest'): Article[] {
   const evergreen = articles.filter(isEvergreenArticle);
-  const external = articles
-    .filter(isExternalArticle)
-    .sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? ''));
+  const external = articles.filter(isExternalArticle).sort(byNewestExternal);
   const other = articles.filter(
     (article) => !isEvergreenArticle(article) && !isExternalArticle(article),
   );
@@ -138,10 +182,6 @@ export function orderLearnFeed(articles: Article[], userKey = 'guest'): Article[
     : evergreen;
 
   return [...(featured ? [featured] : []), ...external, ...remainingEvergreen, ...other];
-}
-
-function byNewest(a: Article, b: Article): number {
-  return (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '');
 }
 
 /**
@@ -168,7 +208,7 @@ export function orderTrendingFeed(
 
   const intNews = external
     .filter((article) => articleMatchesNewsRegion(article, INTERNATIONAL_COUNTRY_CODE))
-    .sort(byNewest)
+    .sort(byNewestExternal)
     .slice(0, intSlots);
 
   const usedIds = new Set(intNews.map((article) => article.id));
@@ -180,7 +220,7 @@ export function orderTrendingFeed(
           .filter(
             (article) => articleMatchesNewsRegion(article, countryCode) && !usedIds.has(article.id),
           )
-          .sort(byNewest)
+          .sort(byNewestExternal)
           .slice(0, countrySlots);
 
   return [...(featured ? [featured] : []), ...intNews, ...countryNews];

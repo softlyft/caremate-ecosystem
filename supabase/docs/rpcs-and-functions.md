@@ -22,11 +22,17 @@ These support family-member discovery, household invites, and owner-managed seat
 
 - `ensure_provider_catalog_stub`
 - `nearby_providers`
+- `search_providers_by_name`
+- `prune_user_location_samples`
 - `is_provider_org_verified`
 - `request_patient_provider_connection`
 - `request_provider_connection_by_caremate_id`
 
-`nearby_providers` powers the mobile Nearby experience by returning a geospatially filtered provider projection page.
+`nearby_providers` powers the mobile Nearby list by returning a geospatially filtered CareMate provider projection page (default radius 25 km).
+
+`search_providers_by_name` powers the Nearby search box and global provider search with live name/address matching and **no coordinates**.
+
+`prune_user_location_samples` keeps each signed-in user’s exact GPS history at the newest 20 rows.
 
 Connection RPCs power patient ↔ org engagement (portal + mobile). Details: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md) · [data model](../../caremate-provider-portal/docs/data-model.md).
 

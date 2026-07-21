@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { MapPinned, Search } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,9 +20,12 @@ import {
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { PRIMARY_PROVIDER_TYPES, type ProviderType } from '@/domains/providers/types';
+import { setDeviceDefaults } from '@/domains/onboarding/device-defaults';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+
+const NEARBY_RESULT_LIMIT = 15;
 
 export default function ProvidersTabScreen() {
   const { t } = useTranslation();
@@ -32,6 +35,7 @@ export default function ProvidersTabScreen() {
   const initialQuery = Array.isArray(queryParam) ? (queryParam[0] ?? '') : (queryParam ?? '');
   const [filter, setFilter] = useState<ProviderType | undefined>();
   const [search, setSearch] = useState(initialQuery);
+  const deferredSearch = useDeferredValue(search);
   const [queryParamSnapshot, setQueryParamSnapshot] = useState(queryParam);
   if (queryParam !== queryParamSnapshot) {
     setQueryParamSnapshot(queryParam);
@@ -57,36 +61,73 @@ export default function ProvidersTabScreen() {
     refetchOnWindowFocus: false,
   });
 
+  const trimmedSearch = deferredSearch.trim();
+  const isSearching = trimmedSearch.length > 0;
+  const hasUsableCoords =
+    coordsQuery.data?.latitude != null && coordsQuery.data?.longitude != null;
+  const needsLocationSetup = !isSearching && !hasUsableCoords;
+  const usingLastKnown = Boolean(coordsQuery.data?.usingLastKnown);
+
+  const [locationRequestPending, setLocationRequestPending] = useState(false);
+  const handleEnableLocation = async () => {
+    if (locationRequestPending) {
+      return;
+    }
+    setLocationRequestPending(true);
+    try {
+      await setDeviceDefaults({ locationMode: 'precise', locationSkipped: false });
+      await coordsQuery.refetch();
+    } finally {
+      setLocationRequestPending(false);
+    }
+  };
+
   const providersQuery = useQuery({
     queryKey: [
       ...QUERY_KEYS.providers,
-      'nearby',
+      isSearching ? 'search' : 'nearby',
       filter,
-      search,
+      trimmedSearch,
       coordsQuery.data?.latitude,
       coordsQuery.data?.longitude,
+      coordsQuery.data?.precision,
     ],
     queryFn: async () => {
+      if (isSearching) {
+        return providerRepository.searchByName({
+          search: trimmedSearch,
+          type: filter,
+        });
+      }
+
       const coords = coordsQuery.data ?? (await resolveNearbyCoords());
+      if (coords.latitude == null || coords.longitude == null) {
+        return { providers: [], source: 'remote' as const };
+      }
+
       return providerRepository.findNearby({
         latitude: coords.latitude,
         longitude: coords.longitude,
         type: filter,
-        search: search.trim() || undefined,
+        limit: NEARBY_RESULT_LIMIT,
       });
     },
-    enabled: coordsQuery.isSuccess || coordsQuery.isError,
-    staleTime: 5 * 60_000,
+    enabled:
+      isSearching ||
+      ((coordsQuery.isSuccess || coordsQuery.isError) && !needsLocationSetup),
+    staleTime: isSearching ? 30_000 : 5 * 60_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
-  const providers = useMemo(() => providersQuery.data?.providers ?? [], [providersQuery.data]);
+  const providers = useMemo(
+    () => (needsLocationSetup ? [] : (providersQuery.data?.providers ?? [])),
+    [needsLocationSetup, providersQuery.data],
+  );
   const source = providersQuery.data?.source;
-  const approximateLocation = coordsQuery.data?.isApproximate ?? true;
 
   if (
-    (coordsQuery.isLoading || providersQuery.isLoading) &&
+    (coordsQuery.isLoading || (!needsLocationSetup && !isSearching && providersQuery.isLoading)) &&
     providersQuery.data === undefined &&
     coordsQuery.data === undefined
   ) {
@@ -97,7 +138,7 @@ export default function ProvidersTabScreen() {
     );
   }
 
-  if (providersQuery.isError && providersQuery.data === undefined) {
+  if (!needsLocationSetup && providersQuery.isError && providersQuery.data === undefined) {
     return (
       <View style={styles.screen}>
         <ErrorState
@@ -123,6 +164,7 @@ export default function ProvidersTabScreen() {
         data={providers}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={[
           styles.list,
           { paddingTop: insets.top + spacing.sm },
@@ -137,7 +179,9 @@ export default function ProvidersTabScreen() {
                 <View style={styles.heroBadge}>
                   <MapPinned color={palette.primary} size={15} strokeWidth={2.25} />
                   <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
-                    {t('nearby.nearbyCount', { count: providers.length })}
+                    {isSearching
+                      ? t('nearby.searchCount', { count: providers.length })
+                      : t('nearby.nearbyCount', { count: providers.length })}
                   </AppText>
                 </View>
                 <AppText variant="screenTitle" style={styles.title}>
@@ -156,10 +200,26 @@ export default function ProvidersTabScreen() {
                 {t('nearby.empty.offline')}
               </AppText>
             ) : null}
-            {online && source === 'remote' && approximateLocation ? (
-              <AppText variant="caption" style={styles.statusNote}>
-                {t('nearby.approximate')}
-              </AppText>
+
+            {!isSearching && usingLastKnown ? (
+              <View style={styles.lastKnownBanner}>
+                <AppText variant="caption" style={styles.statusNote}>
+                  {t('nearby.lastKnown.message')}
+                </AppText>
+                <PressableScale
+                  accessibilityRole="button"
+                  onPress={() => {
+                    void handleEnableLocation();
+                  }}
+                  style={styles.lastKnownAction}
+                >
+                  <AppText variant="caption" color="brand" style={styles.lastKnownActionLabel}>
+                    {locationRequestPending
+                      ? t('nearby.locationNeeded.enabling')
+                      : t('nearby.lastKnown.action')}
+                  </AppText>
+                </PressableScale>
+              </View>
             ) : null}
 
             <View style={[styles.searchShell, shadow.soft]}>
@@ -219,10 +279,33 @@ export default function ProvidersTabScreen() {
           </View>
         }
         ListEmptyComponent={
-          <EmptyState
-            title={t('nearby.empty.title')}
-            message={online ? t('nearby.empty.message') : t('nearby.empty.offline')}
-          />
+          needsLocationSetup ? (
+            <EmptyState
+              title={t('nearby.locationNeeded.title')}
+              message={t('nearby.locationNeeded.message')}
+              actionLabel={
+                locationRequestPending
+                  ? t('nearby.locationNeeded.enabling')
+                  : t('nearby.locationNeeded.action')
+              }
+              onAction={() => {
+                void handleEnableLocation();
+              }}
+            />
+          ) : providersQuery.isFetching ? (
+            <LoadingState title={isSearching ? t('nearby.searching') : t('nearby.loading')} />
+          ) : (
+            <EmptyState
+              title={isSearching ? t('nearby.searchEmpty.title') : t('nearby.empty.title')}
+              message={
+                isSearching
+                  ? t('nearby.searchEmpty.message')
+                  : online
+                    ? t('nearby.empty.message')
+                    : t('nearby.empty.offline')
+              }
+            />
+          )
         }
         renderItem={({ item }) => (
           <NearbyProviderCard
@@ -310,6 +393,25 @@ const styles = StyleSheet.create({
   statusNote: {
     color: palette.textSecondary,
     lineHeight: 17,
+    flex: 1,
+  },
+  lastKnownBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: palette.blueLight,
+    borderRadius: radius.lg,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(37, 99, 235, 0.12)',
+  },
+  lastKnownAction: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  lastKnownActionLabel: {
+    fontWeight: '600',
   },
   searchShell: {
     flexDirection: 'row',

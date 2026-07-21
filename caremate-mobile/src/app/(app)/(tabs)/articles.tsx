@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Bookmark, BookOpen, CheckCheck, Search } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -28,6 +28,8 @@ import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
+
+const LIST_PAGE_SIZE = 10;
 
 function parseCategoryParam(value: string | string[] | undefined): HealthCategoryId | null {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -64,7 +66,7 @@ export default function ArticlesTabScreen() {
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
   const queryClient = useQueryClient();
-  const { countryCode, languageCode, isReady: localizationReady } = useLocalizationPreferences();
+  const { isReady: localizationReady } = useLocalizationPreferences();
 
   const articlesQuery = useQuery({
     queryKey: [...QUERY_KEYS.articles, search, userKey, selectedCategoryId ?? 'all'],
@@ -83,29 +85,26 @@ export default function ArticlesTabScreen() {
   useEffect(() => {
     let cancelled = false;
 
-    async function refreshRemoteNews() {
+    async function refreshCatalog() {
       try {
-        await articleRepository.refreshTrendingInBackground({
-          countryCode,
-          languageCode,
-        });
+        await articleRepository.pullFromRemote();
         if (!cancelled) {
           await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.articles });
           await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trendingArticles });
         }
       } catch {
-        // Keep local evergreen feed if Currents refresh fails.
+        // Keep local evergreen feed if catalog pull fails.
       }
     }
 
     if (localizationReady) {
-      void refreshRemoteNews();
+      void refreshCatalog();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [countryCode, languageCode, localizationReady, queryClient]);
+  }, [localizationReady, queryClient]);
 
   const articles = useMemo(() => articlesQuery.data ?? [], [articlesQuery.data]);
 
@@ -119,6 +118,23 @@ export default function ArticlesTabScreen() {
     const [first, ...remaining] = articles;
     return { featured: first, rest: remaining };
   }, [articles, search, selectedCategoryId]);
+
+  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
+  const listFilterKey = `${search.trim()}|${selectedCategoryId ?? 'all'}`;
+  const [listFilterSnapshot, setListFilterSnapshot] = useState(listFilterKey);
+  if (listFilterKey !== listFilterSnapshot) {
+    setListFilterSnapshot(listFilterKey);
+    setVisibleCount(LIST_PAGE_SIZE);
+  }
+
+  const visibleRest = useMemo(() => rest.slice(0, visibleCount), [rest, visibleCount]);
+  const hasMore = rest.length > visibleCount;
+
+  const handleEndReached = () => {
+    if (hasMore) {
+      setVisibleCount((count) => count + LIST_PAGE_SIZE);
+    }
+  };
 
   const handleSelectCategory = (categoryId: HealthCategoryId | null) => {
     setSelectedCategoryId(categoryId);
@@ -140,9 +156,11 @@ export default function ArticlesTabScreen() {
   return (
     <View style={styles.screen}>
       <FlatList
-        data={rest}
+        data={visibleRest}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.4}
         contentContainerStyle={[
           styles.list,
           { paddingTop: insets.top + spacing.sm },
@@ -247,6 +265,13 @@ export default function ArticlesTabScreen() {
         }
         renderItem={({ item }) => <CompactArticleCard article={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ListFooterComponent={
+          hasMore ? (
+            <View style={styles.listFooter}>
+              <ActivityIndicator color={palette.primary} size="small" />
+            </View>
+          ) : null
+        }
       />
     </View>
   );
@@ -263,6 +288,10 @@ const styles = StyleSheet.create({
   },
   listFill: {
     flexGrow: 1,
+  },
+  listFooter: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
   },
   headerBlock: {
     gap: spacing.md,

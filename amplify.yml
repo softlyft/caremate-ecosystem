@@ -31,7 +31,7 @@ applications:
             - npm ci --include=optional
         build:
           commands:
-            - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|PROVIDER_INGEST_URL|PROVIDER_INGEST_API_KEY)=' > caremate-admin-portal/.env.production
+            - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|PROVIDER_INGEST_URL|PROVIDER_INGEST_API_KEY|CURRENTS_API_KEY)=' > caremate-admin-portal/.env.production
             - npm run build --workspace=caremate-admin-portal
       artifacts:
         baseDirectory: caremate-admin-portal/.next

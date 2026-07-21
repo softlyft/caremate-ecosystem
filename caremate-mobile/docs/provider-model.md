@@ -37,26 +37,25 @@ Bundled seed rows are not used at runtime. `AppProviders` purges legacy bundled/
 
 ## Geo strategy (Nearby coordinates)
 
-Nearby ranking always needs a lat/lng for `nearby_providers`. Coordinates come from `resolveNearbyCoords()` in `domains/providers/location.ts`.
+Nearby ranking needs a lat/lng for `nearby_providers`. Coordinates come from `resolveNearbyCoords()` in `domains/providers/location.ts`.
 
 ```
-Onboarding locationMode
-  ├── precise + permission granted → live GPS
-  ├── precise + denied / GPS error → approximate pin
-  └── approximate / skipped        → approximate pin
+On Nearby open / refresh
+  ├── locationMode precise + permission granted
+  │     → capture fresh GPS sample (exact lat/lng + accuracy/altitude/heading/speed)
+  │     → save in SQLite user_location_samples (keep newest 20)
+  │     → sync to Supabase when signed in
+  │     → query nearby_providers (default limit 15, radius 25 km)
+  ├── location off / denied / GPS error
+  │     → use latest local sample if present (banner: last known)
+  │     → otherwise empty state (enable location or search by name)
+  └── search box text present
+        → search_providers_by_name (live CareMate catalog, no geo)
 ```
 
-**Approximate pin = selection-based, not a hard-coded Lagos default.**
+Country/state capital pins are **not** used to invent Nearby results. Approximate region pins remain available elsewhere (news, localization), but Nearby only ranks from a real GPS sample or the user’s last known sample.
 
-| Selection | Pin used |
-|-----------|----------|
-| Country + Nigerian state (if stored) | That state's capital / major-city coords (`nigeria-state-coords.ts`) — state is still in the profile schema but not collected in onboarding/settings UI yet |
-| Country only | Country capital-area coords from `african-countries.ts` / `world-countries.ts` via country config |
-| No country yet (Global / unset) | International fallback (`0, 0`) — Nearby may be empty until region is chosen |
-
-There is **no** Nigeria bounding-box gate. When precise GPS is available, it is used even if the device is outside the selected country. Approximate mode uses the user's selected country capital (and a stored state pin when present) so results stay relevant without sharing live location.
-
-Permission UX lives in onboarding (`/(auth)/onboarding/location`): enable precise GPS or continue with the selected-region approximate pin. Nearby shows a caption when results are ranked from that approximate pin.
+Permission UX lives in onboarding (`/(auth)/onboarding/location`) and the Nearby enable-location empty state / last-known banner. Copy frames results as **CareMate providers** (in-app catalog), not open-world maps.
 
 **Do not** create separate `Hospital` / `Pharmacy` tables for Phase 1–2. Add specialized columns only when a field is queried/filtered often enough to leave JSON.
 

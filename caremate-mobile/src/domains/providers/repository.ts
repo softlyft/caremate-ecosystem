@@ -12,7 +12,8 @@ import type { Provider, ProviderType } from '@/types';
 import { nowIso, parseJson, stringifyJson } from '@/utils/helpers';
 
 const NEARBY_DEFAULT_RADIUS_KM = 25;
-const NEARBY_DEFAULT_LIMIT = 100;
+const NEARBY_DEFAULT_LIMIT = 15;
+const SEARCH_DEFAULT_LIMIT = 25;
 
 type RemoteProviderRow = {
   id: string;
@@ -110,6 +111,7 @@ class ProviderRepository extends BaseRepository {
   /**
    * Online geo query via `nearby_providers` RPC; caches the page in SQLite.
    * Falls back to local cache when offline or the RPC fails.
+   * Location-enabled Nearby uses a max of 15 results by default.
    */
   async findNearby(options: {
     latitude: number;
@@ -148,7 +150,56 @@ class ProviderRepository extends BaseRepository {
       type: options.type,
       search: options.search,
     });
-    return { providers: cached, source: 'cache' };
+    return {
+      providers: cached.slice(0, options.limit ?? NEARBY_DEFAULT_LIMIT),
+      source: 'cache',
+    };
+  }
+
+  /**
+   * Live CareMate catalog search by name/address (no geo).
+   * Used by the Nearby search box and global search provider section.
+   */
+  async searchByName(options: {
+    search: string;
+    type?: ProviderType;
+    limit?: number;
+  }): Promise<{ providers: Provider[]; source: 'remote' | 'cache' }> {
+    const term = options.search.trim();
+    if (!term) {
+      return { providers: [], source: 'remote' };
+    }
+
+    const online = await isOnline();
+    if (online) {
+      try {
+        const { data, error } = await supabase.rpc('search_providers_by_name', {
+          p_search: term,
+          p_type: options.type ?? undefined,
+          p_limit: options.limit ?? SEARCH_DEFAULT_LIMIT,
+        });
+
+        if (!error && Array.isArray(data)) {
+          await this.cacheRemoteProviders(data as RemoteProviderRow[]);
+          const favoriteIds = await this.localFavoriteIds();
+          const mapped = (data as RemoteProviderRow[]).map((row) =>
+            this.mapRemoteRow(row, favoriteIds.has(row.id)),
+          );
+          return { providers: mapped, source: 'remote' };
+        }
+      } catch {
+        // Fall through to local cache.
+      }
+    }
+
+    const cached = await this.findAll({
+      type: options.type,
+      search: term,
+    });
+    return {
+      providers: cached.slice(0, options.limit ?? SEARCH_DEFAULT_LIMIT),
+      source: 'cache',
+    };
   }
 
   async findById(id: string): Promise<Provider | null> {

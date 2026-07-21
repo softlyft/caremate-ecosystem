@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BadgeCheck, Building2, MapPin, Star } from 'lucide-react-native';
+import { BadgeCheck, Building2, ChevronRight, MapPin, Navigation, Star } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
@@ -12,6 +12,10 @@ import { layoutSpacing, palette, radius, shadow } from '@/theme';
 
 interface NearbyProvidersRowProps {
   providers: Provider[];
+  /** True when we have no usable location and no cached providers to show. */
+  locationNeeded?: boolean;
+  onEnableLocation?: () => void;
+  enablePending?: boolean;
 }
 
 const CARD_GRADIENTS = [
@@ -50,7 +54,12 @@ function isVerified(provider: Provider): boolean {
   return raw === true || raw === 'true' || raw === 1;
 }
 
-export function NearbyProvidersRow({ providers }: NearbyProvidersRowProps) {
+export function NearbyProvidersRow({
+  providers,
+  locationNeeded = false,
+  onEnableLocation,
+  enablePending = false,
+}: NearbyProvidersRowProps) {
   const { t } = useTranslation();
 
   return (
@@ -60,7 +69,46 @@ export function NearbyProvidersRow({ providers }: NearbyProvidersRowProps) {
         subtitle={t('home.nearby.subtitle')}
         onSeeAll={() => router.push('/(app)/(tabs)/providers')}
       />
-      {providers.length === 0 ? (
+      {providers.length === 0 && locationNeeded ? (
+        <PressableScale
+          style={[styles.locationCardWrapper, shadow.card]}
+          onPress={() => onEnableLocation?.()}
+        >
+          <LinearGradientFill
+            colors={[
+              { offset: '0%', color: '#0D9488' },
+              { offset: '55%', color: '#0F766E' },
+              { offset: '100%', color: '#115E59' },
+            ]}
+            angle={120}
+            style={styles.locationCard}
+          >
+            <View style={styles.locationMeshTop} />
+            <View style={styles.locationMeshBottom} />
+            <View style={styles.locationTopRow}>
+              <View style={styles.locationIconWrap}>
+                <Navigation color="#FFFFFF" size={24} strokeWidth={2} />
+              </View>
+              <View style={styles.locationCopy}>
+                <AppText variant="quickActionTitle" style={styles.locationTitle}>
+                  {t('home.nearby.locationNeeded.title')}
+                </AppText>
+                <AppText variant="quickActionSubtitle" style={styles.locationBody}>
+                  {t('home.nearby.locationNeeded.body')}
+                </AppText>
+              </View>
+            </View>
+            <View style={styles.locationCta}>
+              <AppText variant="button" style={{ color: palette.primary }}>
+                {enablePending
+                  ? t('nearby.locationNeeded.enabling')
+                  : t('home.nearby.locationNeeded.cta')}
+              </AppText>
+              <ChevronRight color={palette.primary} size={16} strokeWidth={2.5} />
+            </View>
+          </LinearGradientFill>
+        </PressableScale>
+      ) : providers.length === 0 ? (
         <View style={styles.emptyCard}>
           <View style={styles.emptyIcon}>
             <MapPin color={palette.primary} size={22} />
@@ -200,6 +248,75 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  locationCardWrapper: {
+    marginHorizontal: layoutSpacing.screenHorizontal,
+    borderRadius: radius.xxl,
+    overflow: 'hidden',
+  },
+  locationCard: {
+    position: 'relative',
+    overflow: 'hidden',
+    padding: layoutSpacing.cardPadding,
+    gap: 14,
+  },
+  locationTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  locationMeshTop: {
+    position: 'absolute',
+    top: -46,
+    right: -30,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+  },
+  locationMeshBottom: {
+    position: 'absolute',
+    bottom: -56,
+    left: 90,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+  },
+  locationIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.lg,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+  },
+  locationCopy: {
+    flex: 1,
+    gap: 4,
+  },
+  locationTitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  locationBody: {
+    color: 'rgba(255,255,255,0.88)',
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  locationCta: {
+    alignSelf: 'flex-start',
+    // Indent past the 48px icon + 14px gap so the pill lines up with the text column
+    marginLeft: 62,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.full,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
   },
   emptyCard: {
     marginHorizontal: layoutSpacing.screenHorizontal,

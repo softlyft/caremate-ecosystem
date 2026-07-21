@@ -14,6 +14,7 @@ import { preferList, preferText } from '@/domains/auth/merge-utils';
 import { articleRepository } from '@/domains/articles/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
+import { locationSampleRepository } from '@/domains/location/repository';
 import { notificationRepository } from '@/domains/notifications/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { nowIso, parseJson, stringifyJson } from '@/utils/helpers';
@@ -297,5 +298,6 @@ export async function migrateGuestLocalData(toUserId: string): Promise<void> {
   await migrateSettings(toUserId);
   await migrateProfileFields(toUserId);
   await migrateFamily(toUserId);
+  await locationSampleRepository.migrateGuestSamples(toUserId);
   await notificationRepository.migrateGuestToUser(toUserId, GUEST_USER_ID);
 }

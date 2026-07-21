@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "Ìtọ́jú tòsí",
-    "subtitle": "Àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ"
+    "subtitle": "Àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ",
+    "locationNeeded": {
+      "title": "Wo àwọn olùpèsè CareMate tó súnmọ́ ọ",
+      "body": "Tan ipò rẹ láti rí àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ — gbogbo rẹ̀ nínú CareMate.",
+      "cta": "Tan ipò"
+    }
   },
   "dailyTip": {
     "label": "Ìmọ̀ ọjọ́ kọ̀ọ̀kan"

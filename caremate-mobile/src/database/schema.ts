@@ -54,6 +54,26 @@ export const providers = sqliteTable('providers', {
   ...syncColumns,
 });
 
+/**
+ * User location history for Nearby (last 20 samples per owner).
+ * Exact GPS samples; guests stay local-only until sign-in migration.
+ */
+export const userLocationSamples = sqliteTable('user_location_samples', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  latitude: real('latitude').notNull(),
+  longitude: real('longitude').notNull(),
+  altitude: real('altitude'),
+  accuracy: real('accuracy'),
+  altitudeAccuracy: real('altitude_accuracy'),
+  heading: real('heading'),
+  speed: real('speed'),
+  mocked: integer('mocked', { mode: 'boolean' }),
+  capturedAt: text('captured_at').notNull(),
+  source: text('source').notNull().default('gps'),
+  ...syncColumns,
+});
+
 export const articles = sqliteTable('articles', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
@@ -291,6 +311,7 @@ export const schema = {
   profiles,
   emergencyProfiles,
   providers,
+  userLocationSamples,
   articles,
   bookmarks,
   articleReads,

@@ -404,6 +404,7 @@ export type Database = {
           content_type: string
           created_at: string
           deleted_at: string | null
+          first_seen_at: string | null
           id: string
           image_url: string | null
           published_at: string | null
@@ -420,6 +421,7 @@ export type Database = {
           content_type?: string
           created_at?: string
           deleted_at?: string | null
+          first_seen_at?: string | null
           id: string
           image_url?: string | null
           published_at?: string | null
@@ -436,6 +438,7 @@ export type Database = {
           content_type?: string
           created_at?: string
           deleted_at?: string | null
+          first_seen_at?: string | null
           id?: string
           image_url?: string | null
           published_at?: string | null
@@ -2608,6 +2611,57 @@ export type Database = {
           },
         ]
       }
+      user_location_samples: {
+        Row: {
+          accuracy: number | null
+          altitude: number | null
+          altitude_accuracy: number | null
+          captured_at: string
+          created_at: string
+          heading: number | null
+          id: string
+          latitude: number
+          longitude: number
+          mocked: boolean | null
+          source: string
+          speed: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accuracy?: number | null
+          altitude?: number | null
+          altitude_accuracy?: number | null
+          captured_at: string
+          created_at?: string
+          heading?: number | null
+          id: string
+          latitude: number
+          longitude: number
+          mocked?: boolean | null
+          source?: string
+          speed?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accuracy?: number | null
+          altitude?: number | null
+          altitude_accuracy?: number | null
+          captured_at?: string
+          created_at?: string
+          heading?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          mocked?: boolean | null
+          source?: string
+          speed?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       community_leaderboard_points: {
@@ -2771,6 +2825,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      prune_user_location_samples: {
+        Args: { p_user_id?: string }
+        Returns: number
+      }
       provider_document_path_org_id: {
         Args: { object_name: string }
         Returns: string
@@ -2856,6 +2914,35 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      search_providers_by_name: {
+        Args: {
+          p_limit?: number
+          p_search: string
+          p_type?: string
+        }
+        Returns: {
+          active: boolean
+          address: string
+          attributes: Json
+          created_at: string
+          deleted_at: string
+          distance_km: number
+          email: string
+          external_id: string
+          healthcare_service_ids: Json
+          id: string
+          last_ingested_at: string
+          latitude: number
+          location_id: string
+          longitude: number
+          name: string
+          organization_id: string
+          phone: string
+          source: string
+          type: string
+          updated_at: string
+        }[]
       }
     }
     Enums: {
@@ -3006,6 +3093,7 @@ export type AdAdvertiser = Database['public']['Tables']['ad_advertisers']['Row']
 export type AdCreative = Database['public']['Tables']['ad_creatives']['Row'];
 export type AdPlacement = Database['public']['Tables']['ad_placements']['Row'];
 export type AdEvent = Database['public']['Tables']['ad_events']['Row'];
+export type UserLocationSample = Database['public']['Tables']['user_location_samples']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];
 export type EmergencyProfile = Database['public']['Tables']['emergency_profiles']['Row'];

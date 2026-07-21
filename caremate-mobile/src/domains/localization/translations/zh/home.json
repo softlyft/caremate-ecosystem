@@ -21,7 +21,12 @@
   },
   "nearby": {
     "title": "附近医疗服务",
-    "subtitle": "您周围的医院、诊所和药店"
+    "subtitle": "您周围的医院、诊所和药店",
+    "locationNeeded": {
+      "title": "查看您附近的 CareMate 服务机构",
+      "body": "开启定位即可发现您周围的医院、诊所和药店 — 全部在 CareMate 内。",
+      "cta": "开启定位"
+    }
   },
   "dailyTip": {
     "label": "每日洞察"

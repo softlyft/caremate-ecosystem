@@ -1,13 +1,19 @@
 {
   "title": "附近",
-  "subtitle": "查找您周围的医院、诊所、药店等",
+  "subtitle": "查找附近的 CareMate 服务机构",
   "nearbyCount": "附近 {{count}} 家",
-  "searchPlaceholder": "搜索服务机构",
-  "loading": "正在加载服务机构...",
+  "searchPlaceholder": "按名称搜索 CareMate 服务机构",
+  "loading": "正在加载 CareMate 服务机构...",
   "empty": {
-    "title": "附近没有服务机构",
-    "message": "请尝试其他筛选或扩大搜索范围。",
+    "title": "附近没有 CareMate 服务机构",
+    "message": "请尝试其他筛选或按名称搜索。",
     "offline": "离线时显示已缓存的服务机构。"
+  },
+  "locationNeeded": {
+    "title": "启用定位以查找附近的 CareMate 服务机构",
+    "message": "我们需要您的位置来显示附近的 CareMate 服务机构。请启用定位，或在上方按名称搜索。",
+    "action": "启用定位",
+    "enabling": "正在启用…"
   },
   "approximate": "正在使用大致位置",
   "outsideArea": "超出您常去区域 — 结果可能有限",
@@ -41,5 +47,15 @@
     "medical_equipment": "Medical Equipment & Supplies",
     "government_health": "Government Health Services",
     "ngo": "NGO"
+  },
+  "searchCount": "{{count}} 个匹配",
+  "searching": "正在搜索 CareMate 服务机构...",
+  "searchEmpty": {
+    "title": "没有匹配的服务机构",
+    "message": "请尝试其他名称或检查拼写。"
+  },
+  "lastKnown": {
+    "message": "定位已关闭。正在显示您上次已知位置附近的 CareMate 服务机构。",
+    "action": "启用"
   }
 }

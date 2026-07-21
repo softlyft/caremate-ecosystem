@@ -1,9 +1,12 @@
 import type { Article } from '@/types';
 import {
   articleMatchesNewsRegion,
+  getCalendarDaysAgo,
+  getFirstSeenAt,
   getNewsRegions,
   HOME_TRENDING_COUNTRY_SLOTS,
   HOME_TRENDING_INT_SLOTS,
+  isWithinExternalNewsRetention,
   mergeNewsRegions,
   orderTrendingFeed,
 } from '@/domains/articles/utils/evergreen-articles';
@@ -150,6 +153,54 @@ describe('home trending news ordering', () => {
 
     expect(getNewsRegions(legacy)).toEqual(['INT']);
     expect(articleMatchesNewsRegion(legacy, 'INT')).toBe(true);
+  });
+});
+
+describe('external news retention', () => {
+  const now = new Date('2026-07-21T15:00:00.000Z');
+
+  it('keeps today / yesterday / two-days-ago and drops older', () => {
+    const today = makeArticle({
+      id: 'currents-today',
+      title: 'Today',
+      sourceUrl: 'https://example.com/t',
+      attributes: { firstSeenAt: '2026-07-21T08:00:00.000Z' },
+    });
+    const yesterday = makeArticle({
+      id: 'currents-y',
+      title: 'Yesterday',
+      sourceUrl: 'https://example.com/y',
+      attributes: { firstSeenAt: '2026-07-20T08:00:00.000Z' },
+    });
+    const twoDays = makeArticle({
+      id: 'currents-2',
+      title: 'Two days',
+      sourceUrl: 'https://example.com/2',
+      attributes: { firstSeenAt: '2026-07-19T08:00:00.000Z' },
+    });
+    const threeDays = makeArticle({
+      id: 'currents-3',
+      title: 'Three days',
+      sourceUrl: 'https://example.com/3',
+      attributes: { firstSeenAt: '2026-07-18T08:00:00.000Z' },
+    });
+
+    expect(isWithinExternalNewsRetention(today, now)).toBe(true);
+    expect(isWithinExternalNewsRetention(yesterday, now)).toBe(true);
+    expect(isWithinExternalNewsRetention(twoDays, now)).toBe(true);
+    expect(isWithinExternalNewsRetention(threeDays, now)).toBe(false);
+  });
+
+  it('prefers firstSeenAt over createdAt for day bucketing', () => {
+    const article = makeArticle({
+      id: 'currents-stable',
+      title: 'Stable',
+      sourceUrl: 'https://example.com/s',
+      createdAt: '2026-07-21T12:00:00.000Z',
+      attributes: { firstSeenAt: '2026-07-19T01:00:00.000Z' },
+    });
+    expect(getFirstSeenAt(article)).toBe('2026-07-19T01:00:00.000Z');
+    expect(getCalendarDaysAgo(getFirstSeenAt(article)!, now)).toBe(2);
   });
 });
 

@@ -55,6 +55,9 @@ Critical health information for emergencies.
 #### `providers`
 Healthcare facility listings (FHIR-seeded locally; optional Supabase pull). See [Provider model](./provider-model.md).
 
+#### `user_location_samples`
+Last 20 exact GPS samples for Nearby ranking. Guest samples stay local until sign-in; signed-in users sync to Supabase.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | name, type | text | Discriminator: hospital, clinic, pharmacy, laboratory, telemedicine, blood_bank, ambulance, … |
@@ -73,7 +76,7 @@ Learn catalog (Phase 1 = text articles). Conceptually **learn content** — see 
 | content_type | text | `article` (default) … video, podcast, campaign, health_alert, faq, guide |
 | category_id, category_name | text | Topic axis (heart, child, …) — orthogonal to format |
 | image_url | text | |
-| source_url | text | External URL (Currents); null for evergreen |
+| source_url | text | External URL (admin-synced Currents news); null for evergreen |
 | published_at | text | ISO date |
 | attributes | text (JSON) | Format-specific bag (media URLs, severity, steps, …) |
 
@@ -197,8 +200,9 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 | `findById(id)` | Single article |
 | `findTrending(limit, userKey?, countryCode?)` | Home mix: 1 evergreen + 2 INT + up to 2 country news from SQLite |
 | `getTrendingToday(limit, options)` | Offline-first trending (local only; passes `countryCode`) |
-| `refreshTrendingInBackground(options)` | Dual Currents fetch (`INT` + selected country); upsert into SQLite with region tags |
-| `refreshHealthNewsFromCurrents(limit, countryCode)` | Currents write path for one region (no cross-region fallback) |
+| `pullFromRemote()` | Pull published catalog + external news from Supabase; reconcile unpublished external rows; purge external news older than 3 calendar days (`firstSeenAt`) |
+| `purgeStaleExternalNews()` | Soft-delete local external news outside today / yesterday / 2 days ago |
+| `reconcileExternalNews(remoteLiveIds)` | Soft-delete local external news missing from the published remote set |
 | `toggleBookmark(userId, articleId)` | Add/remove bookmark + sync queue |
 | `getBookmarks(userId)` | Bookmarked articles |
 | `isBookmarked(userId, articleId)` | Bookmark check |
@@ -211,7 +215,8 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 | Method | Description |
 |--------|-------------|
 | `purgeBundledProviders()` | Soft-delete legacy bundled/demo provider rows from SQLite |
-| `findNearby(…)` | Online `nearby_providers` RPC; caches the page; falls back to local cache offline |
+| `findNearby(…)` | Online `nearby_providers` RPC (default limit 15); caches the page; falls back to local cache offline |
+| `searchByName(…)` | Online `search_providers_by_name` RPC (no geo); used by Nearby search box and global search |
 | `findAll()` | Local-only reads (last nearby cache, favorites), distance-ordered |
 | `findById(id)` | Single provider from SQLite, or Supabase by id when online |
 | `toggleFavorite(…)` | Toggle favorite + sync queue |
@@ -244,7 +249,7 @@ Exact 12:00 AM while the process is dead is **not** guaranteed by iOS/Android; t
 - `requestSync()` — debounced or immediate cycle request
 - `runSyncCycle()` — push queue then pull (also used by headless background task)
 - `stop()` — cleans up timers/subscriptions
-- Handlers: profiles, emergency_profiles, providers, articles, health_tips, bookmarks, article_reads, settings, **mini_app_snapshots**, family, subscriptions (pull)
+- Handlers: profiles, emergency_profiles, providers, user_location_samples, articles, health_tips, bookmarks, article_reads, settings, **mini_app_snapshots**, family, subscriptions (pull)
 - Respects `SYNC_CONFIG`:
   - `maxRetries: 5`
   - `retryDelayMs: 2000`

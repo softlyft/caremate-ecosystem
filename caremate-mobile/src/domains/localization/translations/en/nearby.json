@@ -1,17 +1,33 @@
 {
   "title": "Nearby",
-  "subtitle": "Find hospitals, clinics, pharmacies, and more around you",
+  "subtitle": "Find CareMate providers near you",
   "nearbyCount": "{{count}} nearby",
-  "searchPlaceholder": "Search providers",
-  "loading": "Loading providers...",
+  "searchCount": "{{count}} matches",
+  "searchPlaceholder": "Search CareMate providers by name",
+  "searching": "Searching CareMate providers...",
+  "loading": "Loading CareMate providers...",
   "loadFailed": {
     "title": "Couldn't load providers",
     "message": "Check your connection and try again."
   },
   "empty": {
-    "title": "No providers nearby",
-    "message": "Try another filter or widen your search.",
+    "title": "No CareMate providers nearby",
+    "message": "Try another filter or search by name.",
     "offline": "Showing cached providers while offline."
+  },
+  "searchEmpty": {
+    "title": "No matching providers",
+    "message": "Try a different name or check the spelling."
+  },
+  "locationNeeded": {
+    "title": "Enable location to find CareMate providers nearby",
+    "message": "We need your location to show CareMate providers near you. Enable location, or search for a provider by name above.",
+    "action": "Enable location",
+    "enabling": "Enabling…"
+  },
+  "lastKnown": {
+    "message": "Location is off. Showing CareMate providers near your last known place.",
+    "action": "Enable"
   },
   "approximate": "Using approximate location based on your selected region",
   "outsideArea": "Outside your usual area — results may be limited",
