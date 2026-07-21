@@ -4,14 +4,15 @@ Monorepo for the CareMate product surface: the offline-first mobile app, the adm
 
 ```text
 caremate-ecosystem/
-├── caremate/                   Expo mobile app (SQLite + sync + mini-apps)
-├── caremate-portal/            Next.js SoftLyft admin portal
-├── caremate-provider-portal/   Next.js provider patient-engagement portal
-├── payment/                    Vite hosted checkout (Paystack / Stripe)
-├── provider-ingestion/         FastAPI Excel/XLSX → Supabase provider ingest
-├── website/                    Marketing site (welcome, guides, legal)
-├── supabase/                   Cloud schema, RLS, RPCs, Edge Functions
-└── packages/db-types/          Shared TypeScript database contracts
+├── caremate-mobile/                Expo mobile app (SQLite + sync + mini-apps)
+├── caremate-admin-portal/          Next.js SoftLyft admin portal
+├── caremate-provider-portal/       Next.js provider patient-engagement portal
+├── caremate-community-portal/      Next.js contributor community portal
+├── caremate-payment-gateway/       Vite hosted checkout (Paystack / Stripe)
+├── caremate-provider-ingestion/    FastAPI Excel/XLSX → Supabase provider ingest
+├── caremate-website/               Marketing site (welcome, guides, legal)
+├── supabase/                       Cloud schema, RLS, RPCs, Edge Functions
+└── packages/db-types/              Shared TypeScript database contracts
 ```
 
 ## Service Docs
@@ -20,15 +21,16 @@ Each service keeps its own README plus a local `docs/` set.
 
 | Service | Purpose | Docs |
 |---------|---------|------|
-| `caremate/` | Mobile experience for patients and families | `caremate/docs/README.md` |
-| `caremate-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-portal/docs/README.md` |
+| `caremate-mobile/` | Mobile experience for patients and families | `caremate-mobile/docs/README.md` |
+| `caremate-admin-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-admin-portal/docs/README.md` |
 | `caremate-provider-portal/` | Provider org patient engagement (connections, docs, broadcasts) | `caremate-provider-portal/docs/README.md` |
-| `payment/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `payment/README.md` |
-| `provider-ingestion/` | Provider resource ingest and projection rebuilds | `provider-ingestion/docs/README.md` |
-| `website/` | Marketing + patient/provider guides + privacy/terms | `website/README.md` |
+| `caremate-community-portal/` | Contributor community (chapters, events, recognition) | `caremate-community-portal/docs/README.md` |
+| `caremate-payment-gateway/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `caremate-payment-gateway/README.md` |
+| `caremate-provider-ingestion/` | Provider resource ingest and projection rebuilds | `caremate-provider-ingestion/docs/README.md` |
+| `caremate-website/` | Marketing + patient / CCN / provider guides + privacy/terms | `caremate-website/README.md` |
 | `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
-| Amplify hosting | Website + payment + SoftLyft admin + provider portal on AWS Amplify | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
+| Amplify hosting | Website + payment + admin + provider + community portals on AWS Amplify | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
 
 ## Root Workflows
 
@@ -49,8 +51,9 @@ Useful root scripts:
 | `npm run mobile:start` | Starts the Expo mobile app |
 | `npm run portal:dev` | Starts the Next.js SoftLyft admin portal |
 | `npm run provider-portal:dev` | Starts the provider engagement portal on `:4000` |
+| `npm run community-portal:dev` | Starts the contributor community portal on `:4001` |
 | `npm run payment:dev` | Starts the hosted checkout app on `:5174` |
-| `npm run ingest:dev` | Starts the provider-ingestion FastAPI service on `:8090` |
+| `npm run ingest:dev` | Starts the caremate-provider-ingestion FastAPI service on `:8090` |
 | `npm run supabase:link` | Links the local repo to the hosted Supabase project |
 | `npm run supabase:migration:new -- name_here` | Creates a new SQL migration |
 | `npm run supabase:migration:list` | Lists local/remote migration state |
@@ -62,17 +65,19 @@ Useful root scripts:
 | Path | Owns |
 |------|------|
 | `supabase/` | Shared cloud schema, RLS, RPCs, Storage, Edge Functions |
-| `caremate/src/database/` | Device SQLite schema and runtime migrations for the mobile app |
+| `caremate-mobile/src/database/` | Device SQLite schema and runtime migrations for the mobile app |
 | `packages/db-types/` | Shared TS contracts used by mobile and portal |
-| `caremate/` | Patient-facing product UX and offline-first data flow |
-| `caremate-portal/` | Staff operations for content, users, providers, billing |
-| `payment/` | Browser checkout handoff for Paystack / Stripe |
-| `provider-ingestion/` | Provider resource ingest and `providers` projection rebuilds |
+| `caremate-mobile/` | Patient-facing product UX and offline-first data flow |
+| `caremate-admin-portal/` | Staff operations for content, users, providers, billing |
+| `caremate-community-portal/` | Contributor Community Network portal (Patient ID join, chapters) |
+| `caremate-payment-gateway/` | Browser checkout handoff for Paystack / Stripe |
+| `caremate-provider-ingestion/` | Provider resource ingest and `providers` projection rebuilds |
+| `caremate-website/` | Public marketing, patient / CCN / provider guides, legal pages |
 
 ## Prerequisites
 
 - Node 20+
-- Python 3.11+ for `provider-ingestion`
+- Python 3.11+ for `caremate-provider-ingestion`
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
 - Linked Supabase project ref: `eybakmhqtotoywwgwgjy`
 
@@ -93,9 +98,9 @@ Rules:
 2. Do not add a second `supabase/migrations` folder inside an app.
 3. If a mobile-synced table changes, update the same change set in:
    - `supabase/migrations/*`
-   - `caremate/src/database/schema.ts`
+   - `caremate-mobile/src/database/schema.ts`
    - the relevant mobile repositories / sync handlers
-   - `caremate/docs/supabase-alignment.md`
+   - `caremate-mobile/docs/supabase-alignment.md`
    - `packages/db-types` via `npm run db:types`
 4. Portal-only tables such as `admin_audit_events` stay cloud-only and do not need a SQLite mirror.
 
@@ -104,9 +109,9 @@ Rules:
 Premium billing spans multiple services:
 
 - Cloud tables: `subscription_prices`, `payments` (transactions), `subscriptions` (entitlements)
-- Mobile currency: Nigeria → NGN/Paystack; otherwise USD/Stripe (`caremate/src/domains/billing/currency-by-country.ts`)
-- New checkout: opens hosted `payment/` app → `create-checkout` (pending payment)
-- Standard → Family upgrade: `quote-upgrade` / `create-upgrade` (credit + new period; gateway URL opened directly; `payment/` used for success/cancel return)
+- Mobile currency: Nigeria → NGN/Paystack; otherwise USD/Stripe (`caremate-mobile/src/domains/billing/currency-by-country.ts`)
+- New checkout: opens hosted `caremate-payment-gateway/` app → `create-checkout` (pending payment)
+- Standard → Family upgrade: `quote-upgrade` / `create-upgrade` (credit + new period; gateway URL opened directly; `caremate-payment-gateway/` used for success/cancel return)
 - After charge success: webhook or `verify-checkout` marks payment succeeded and creates/renews subscription (or finalizes upgrade)
 - Portal: price catalog, transactions, subscribers, admin grants, admin Family upgrade, audit logs
 - Edge Functions:
@@ -132,48 +137,48 @@ Mobile deep links:
 
 ## Local Development
 
-### Mobile (`caremate/`)
+### Mobile (`caremate-mobile/`)
 
 ```bash
 npm run mobile:start
 # or
-npm run start -w caremate
+npm run start -w caremate-mobile
 ```
 
 Native debug builds:
 
 ```bash
-npm run android -w caremate
-npm run ios -w caremate
+npm run android -w caremate-mobile
+npm run ios -w caremate-mobile
 ```
 
-### Admin Portal (`caremate-portal/`)
+### Admin Portal (`caremate-admin-portal/`)
 
 ```bash
-cp caremate-portal/.env.example caremate-portal/.env.local
+cp caremate-admin-portal/.env.example caremate-admin-portal/.env.local
 npm run supabase:db:push
-npm run bootstrap:admin -w caremate-portal -- you@example.com admin
+npm run bootstrap:admin -w caremate-admin-portal -- you@example.com admin
 npm run portal:dev
 ```
 
-### Payment (`payment/`)
+### Payment (`caremate-payment-gateway/`)
 
 ```bash
-cp payment/.env.example payment/.env
+cp caremate-payment-gateway/.env.example caremate-payment-gateway/.env
 # Same Supabase URL + anon key as the mobile app
 npm run payment:dev
 ```
 
-Set `EXPO_PUBLIC_PAYMENT_URL` in `caremate/.env` (local default: `http://localhost:5174`).
+Set `EXPO_PUBLIC_PAYMENT_URL` in `caremate-mobile/.env` (local default: `http://localhost:5174`).
 
-### Provider Ingestion (`provider-ingestion/`)
+### Provider Ingestion (`caremate-provider-ingestion/`)
 
 ```bash
-cp provider-ingestion/.env.example provider-ingestion/.env
+cp caremate-provider-ingestion/.env.example caremate-provider-ingestion/.env
 npm run ingest:dev
 ```
 
-Portal provider upload expects matching values in `caremate-portal/.env.example`:
+Portal provider upload expects matching values in `caremate-admin-portal/.env.example`:
 
 - `PROVIDER_INGEST_URL`
 - `PROVIDER_INGEST_API_KEY`
@@ -182,10 +187,10 @@ Portal provider upload expects matching values in `caremate-portal/.env.example`
 
 - `supabase/seed.sql` is intentionally a safe placeholder.
 - Catalog bootstrap lives in the portal scripts:
-  - `npm run seed:articles -w caremate-portal`
-  - `npm run seed:tips -w caremate-portal`
-  - `npm run seed:catalogs -w caremate-portal`
-- Provider sample workbooks live under `provider-ingestion/samples/`.
+  - `npm run seed:articles -w caremate-admin-portal`
+  - `npm run seed:tips -w caremate-admin-portal`
+  - `npm run seed:catalogs -w caremate-admin-portal`
+- Provider sample workbooks live under `caremate-provider-ingestion/samples/`.
 
 ## CI
 

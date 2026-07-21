@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -65,12 +66,15 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [signingOut, startSignOut] = useTransition();
 
-  const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.replace('/login');
-    router.refresh();
+  const signOut = () => {
+    startSignOut(async () => {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.replace('/login');
+      router.refresh();
+    });
   };
 
   return (
@@ -159,6 +163,8 @@ export function AppShell({
             variant="ghost"
             size="sm"
             className="mt-2 w-full justify-start text-muted hover:text-foreground"
+            loading={signingOut}
+            loadingLabel="Signing out…"
             onClick={signOut}
           >
             <LogOut className="h-4 w-4" />

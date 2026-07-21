@@ -86,8 +86,8 @@ export function BroadcastComposeForm({
         <Label htmlFor="expires_at">Expires at (optional)</Label>
         <Input id="expires_at" name="expires_at" type="datetime-local" />
       </div>
-      <Button type="submit" disabled={pending}>
-        {pending ? 'Sending…' : 'Send broadcast'}
+      <Button type="submit" loading={pending} loadingLabel="Sending…">
+        Send broadcast
       </Button>
     </form>
   );

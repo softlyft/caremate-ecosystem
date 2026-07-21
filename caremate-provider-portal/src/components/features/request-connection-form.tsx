@@ -52,8 +52,8 @@ export function RequestConnectionForm() {
           className="min-h-[42px] resize-none"
         />
       </div>
-      <Button type="submit" disabled={pending} className="sm:mb-0.5">
-        {pending ? 'Sending…' : 'Request connection'}
+      <Button type="submit" loading={pending} loadingLabel="Sending…" className="sm:mb-0.5">
+        Request connection
       </Button>
     </form>
   );

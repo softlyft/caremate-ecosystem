@@ -39,4 +39,4 @@ GoogleService-Info.plist
 artifacts/
 
 # Python ingest service
-provider-ingestion/.venv/
+caremate-provider-ingestion/.venv/

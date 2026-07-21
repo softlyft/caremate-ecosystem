@@ -113,8 +113,8 @@ export function OrgProfileForm({
         </div>
       </div>
 
-      <Button type="submit" disabled={pending}>
-        {pending ? 'Saving…' : 'Save profile'}
+      <Button type="submit" loading={pending} loadingLabel="Saving…">
+        Save profile
       </Button>
     </form>
   );

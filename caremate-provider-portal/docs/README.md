@@ -36,10 +36,10 @@ Billing, inventory, clinical notes / EMR, pharmacy stock, lab workflows, insuran
 |---------|------|
 | Monorepo overview | [`../../README.md`](../../README.md) |
 | Package entry README | [`../README.md`](../README.md) |
-| Mobile provider model / Nearby | [`../../caremate/docs/provider-model.md`](../../caremate/docs/provider-model.md) |
-| SoftLyft admin portal | [`../../caremate-portal/docs/README.md`](../../caremate-portal/docs/README.md) |
+| Mobile provider model / Nearby | [`../../caremate-mobile/docs/provider-model.md`](../../caremate-mobile/docs/provider-model.md) |
+| SoftLyft admin portal | [`../../caremate-admin-portal/docs/README.md`](../../caremate-admin-portal/docs/README.md) |
 | Shared Supabase | [`../../supabase/docs/README.md`](../../supabase/docs/README.md) |
-| Public marketing + provider guide | [`../../website/README.md`](../../website/README.md) · `/providers`, `/providers/guide` |
+| Public marketing + provider guide | [`../../caremate-website/README.md`](../../caremate-website/README.md) · `/providers`, `/providers/guide` |
 
 ## Source areas
 

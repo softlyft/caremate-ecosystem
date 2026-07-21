@@ -1,0 +1,102 @@
+version: 1
+applications:
+  - appRoot: caremate-community-portal
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - nvm use 22 || nvm install 22
+            - npm ci --include=optional
+        build:
+          commands:
+            - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY)=' > caremate-community-portal/.env.production
+            - npm run build --workspace=caremate-community-portal
+      artifacts:
+        baseDirectory: caremate-community-portal/.next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - caremate-community-portal/.next/cache/**/*
+          - node_modules/**/*
+
+  - appRoot: caremate-admin-portal
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - nvm use 22 || nvm install 22
+            - npm ci --include=optional
+        build:
+          commands:
+            - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|PROVIDER_INGEST_URL|PROVIDER_INGEST_API_KEY)=' > caremate-admin-portal/.env.production
+            - npm run build --workspace=caremate-admin-portal
+      artifacts:
+        baseDirectory: caremate-admin-portal/.next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - caremate-admin-portal/.next/cache/**/*
+          - node_modules/**/*
+
+  - appRoot: caremate-provider-portal
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - nvm use 22 || nvm install 22
+            - npm ci --include=optional
+        build:
+          commands:
+            - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY)=' > caremate-provider-portal/.env.production
+            - npm run build --workspace=caremate-provider-portal
+      artifacts:
+        baseDirectory: caremate-provider-portal/.next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - caremate-provider-portal/.next/cache/**/*
+          - node_modules/**/*
+
+  - appRoot: caremate-payment-gateway
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - nvm use 22 || nvm install 22
+            - npm ci --include=optional
+        build:
+          commands:
+            - npm run build --workspace=caremate-payment-gateway
+      artifacts:
+        baseDirectory: caremate-payment-gateway/dist
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+
+  - appRoot: caremate-website
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - nvm use 22 || nvm install 22
+            - npm ci --include=optional
+        build:
+          commands:
+            - npm run build --workspace=caremate-website
+      artifacts:
+        baseDirectory: caremate-website/dist
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*

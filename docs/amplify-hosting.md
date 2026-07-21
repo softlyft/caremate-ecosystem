@@ -1,20 +1,16 @@
-# Amplify Hosting — website, payment, admin portal, provider portal
+# Amplify Hosting — website, payment, admin portal, provider portal, community portal
 
-Deploy four Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
+Deploy five Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
 
 | Amplify app (suggested name) | App root (monorepo) | Framework | Build output |
 |------------------------------|---------------------|-----------|--------------|
-| `caremate-website` | `website` | Vite static SPA | `website/dist` |
-| `caremate-payment` | `payment` | Vite static SPA | `payment/dist` |
-| `caremate-portal` | `caremate-portal` | Next.js 15 (SSR) | `caremate-portal/.next` |
+| `caremate-website` | `caremate-website` | Vite static SPA | `caremate-website/dist` |
+| `caremate-payment-gateway` | `caremate-payment-gateway` | Vite static SPA | `caremate-payment-gateway/dist` |
+| `caremate-admin-portal` | `caremate-admin-portal` | Next.js 15 (SSR) | `caremate-admin-portal/.next` |
 | `caremate-provider-portal` | `caremate-provider-portal` | Next.js 15 (SSR) | `caremate-provider-portal/.next` |
+| `caremate-community-portal` | `caremate-community-portal` | Next.js 15 (SSR) | `caremate-community-portal/.next` |
 
-Build specs live next to each app:
-
-- [`website/amplify.yml`](../website/amplify.yml)
-- [`payment/amplify.yml`](../payment/amplify.yml)
-- [`caremate-portal/amplify.yml`](../caremate-portal/amplify.yml)
-- [`caremate-provider-portal/amplify.yml`](../caremate-provider-portal/amplify.yml)
+The shared monorepo build spec is [`amplify.yml`](../amplify.yml) at the repository root. Amplify only reads a committed build spec from that location. It selects the matching application using `AMPLIFY_MONOREPO_APP_ROOT`.
 
 Install always runs from the **repo root** (`npm ci`) so npm workspaces and `@caremate/db-types` resolve.
 
@@ -24,40 +20,40 @@ Install always runs from the **repo root** (`npm ci`) so npm workspaces and `@ca
 
 1. AWS account with Amplify Hosting access  
 2. This Git repo connected to Amplify (GitHub App recommended)  
-3. Branch **`main`** contains the `amplify.yml` files above  
+3. Branch **`main`** contains the root `amplify.yml`  
 4. Supabase project URL + keys for portals and payment  
 
 ---
 
 ## Create each Amplify app (Console)
 
-Repeat four times (once per row in the table).
+Repeat five times (once per row in the table).
 
 1. **AWS Amplify Console** → **Create new app** → **Host web app** → connect your Git provider → select **caremate-ecosystem**.
 2. Select branch **`main`**.
 3. Enable **My app is a monorepo**.
-4. Set **Monorepo app root** to the matching folder (`website`, `payment`, `caremate-portal`, or `caremate-provider-portal`).
-5. Confirm Amplify detected `amplify.yml` in that folder (do not overwrite with the auto “npm run build” template).
-6. For **Next.js** apps (admin + provider portals), leave Amplify on **Next.js SSR / WEB_COMPUTE** hosting (default when Next is detected). Do **not** flip the app to “Static” only.
+4. Set **Monorepo app root** to the matching folder (`caremate-website`, `caremate-payment-gateway`, `caremate-admin-portal`, `caremate-provider-portal`, or `caremate-community-portal`).
+5. Confirm Amplify detected the root `amplify.yml` (do not overwrite it with the auto “npm run build” template). Verify `AMPLIFY_MONOREPO_APP_ROOT` equals the selected folder exactly.
+6. For **Next.js** apps (admin, provider, and community portals), leave Amplify on **Next.js SSR / WEB_COMPUTE** hosting (default when Next is detected). Do **not** flip the app to “Static” only.
 7. Add environment variables (see below) **before** the first production deploy if possible.
 8. Save and deploy.
 
 Suggested Amplify app names:
 
 - `caremate-website`
-- `caremate-payment`
-- `caremate-portal`
+- `caremate-payment-gateway`
+- `caremate-admin-portal`
 - `caremate-provider-portal`
 
 ---
 
 ## Environment variables
 
-### Website (`website`)
+### Website (`caremate-website`)
 
 None required.
 
-### Payment checkout (`payment`)
+### Payment checkout (`caremate-payment-gateway`)
 
 Vite bakes these in at **build** time — set them in Amplify **before** deploy (or redeploy after changing).
 
@@ -70,7 +66,7 @@ Paystack / Stripe **secrets** stay on Supabase Edge Functions (`create-checkout`
 
 After the payment domain is live, point the mobile app’s hosted checkout base URL at it (see CareMate billing / env config for the payment host).
 
-### SoftLyft admin portal (`caremate-portal`)
+### SoftLyft admin portal (`caremate-admin-portal`)
 
 | Key | Notes |
 |-----|--------|
@@ -108,9 +104,9 @@ npm run provider-portal:build
 
 Expect:
 
-- `website/dist/`
-- `payment/dist/`
-- `caremate-portal/.next/`
+- `caremate-website/dist/`
+- `caremate-payment-gateway/dist/`
+- `caremate-admin-portal/.next/`
 - `caremate-provider-portal/.next/`
 
 ---
@@ -125,6 +121,7 @@ In each Amplify app → **Hosting** → **Custom domains**:
 | Payment | `pay.caremate.app` or `checkout.caremate.app` |
 | Admin portal | `admin.caremate.app` or `portal.softlyft...` |
 | Provider portal | `providers.caremate.app` |
+| Community portal | `community.caremate.app` |
 
 Point DNS (CNAME / ANAME) as Amplify instructs. Update Supabase Auth → **URL configuration** with the new portal / payment origins (redirect / site URL allow lists).
 
@@ -152,8 +149,9 @@ Or the simpler catch-all used by many Vite SPAs:
 
 | Symptom | Fix |
 |---------|-----|
-| `@caremate/db-types` not found | Confirm app root + `cd .. && npm ci` in `amplify.yml` (install at monorepo root) |
+| `@caremate/db-types` not found | Confirm `buildPath: /`, the app root, and the root `npm ci` command in `amplify.yml` |
 | Next app treated as static | Recreate / ensure framework is Next.js WEB_COMPUTE; artifacts use `.next` |
+| "Welcome / Your app will appear here once you complete your first deployment" placeholder for a Next.js portal | The app was created as **static (WEB)** hosting. Switch it to Next.js SSR: `aws amplify update-app --app-id <APP_ID> --platform WEB_COMPUTE`, then redeploy `main`. (You cannot statically export these portals — they use middleware + server actions + cookie auth.) |
 | Build uses Node 18 | `amplify.yml` installs Node 22 via `nvm` |
 | Amplify `!!! Internal error` immediately | Invalid `amplify.yml` / `customRules` — use the checked-in specs without `customRules`; set SPA rewrites in the Console |
 | Payment shows missing Supabase env | Set `VITE_*` in Amplify and **redeploy** (Vite inlines at build) |
@@ -164,5 +162,5 @@ Or the simpler catch-all used by many Vite SPAs:
 
 ## Out of scope (this guide)
 
-- Mobile (`caremate/`) — Expo / EAS / Play Store  
-- Provider ingest (`provider-ingestion/`) — container / App Runner / EC2, not Amplify static hosting  
+- Mobile (`caremate-mobile/`) — Expo / EAS / Play Store  
+- Provider ingest (`caremate-provider-ingestion/`) — container / App Runner / EC2, not Amplify static hosting  

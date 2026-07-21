@@ -1,0 +1,40 @@
+{
+  "title": "Yo",
+  "guest": {
+    "title": "Estás navegando como invitado",
+    "subtitle": "Inicia sesión para sincronizar el perfil de emergencia, la familia y las preferencias entre dispositivos.",
+    "signIn": "Iniciar sesión",
+    "createAccount": "Crear cuenta"
+  },
+  "finishSetup": "Terminar configuración",
+  "account": "Cuenta",
+  "preferences": "Preferencias",
+  "menu": {
+    "premium": "Premium",
+    "emergency": "Perfil de emergencia",
+    "family": "Familia",
+    "settings": "Ajustes",
+    "community": "Join our movement",
+    "communitySubtitle": "Help CareMate grow in your community"
+  },
+  "premium": {
+    "title": "Premium",
+    "loading": "Cargando planes...",
+    "personal": "Personal",
+    "family": "Familia",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "guestCta": "Inicia sesión para suscribirte",
+    "error": "No se pudo iniciar el pago",
+    "medicationLimitTitle": "Límite de medicamentos alcanzado",
+    "medicationLimitMessage": "Las cuentas gratuitas pueden seguir hasta 3 medicamentos. Mejora a Standard o Family Premium para seguimiento ilimitado."
+  },
+  "patientId": {
+    "title": "ID de paciente CareMate",
+    "generate": "Generar ID para mí",
+    "copy": "Copiar",
+    "fallbackName": "Miembro"
+  },
+  "signOut": "Cerrar sesión",
+  "biometrics": "Desbloquear con biometría"
+}
