@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1784391546264" clover="3.2.0">
+  <project timestamp="1784391546264" name="All files">
+    <metrics statements="254" coveredstatements="243" conditionals="249" coveredconditionals="205" methods="61" coveredmethods="60" elements="564" coveredelements="508" complexity="0" loc="254" ncloc="254" packages="5" files="11" classes="11"/>
+    <package name="articles">
+      <metrics statements="34" coveredstatements="32" conditionals="26" coveredconditionals="20" methods="9" coveredmethods="9"/>
+      <file name="categories.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/articles/categories.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="70" count="3" type="stmt"/>
+        <line num="73" count="2" type="stmt"/>
+      </file>
+      <file name="content-types.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/articles/content-types.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="40" count="4" type="stmt"/>
+        <line num="44" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+      </file>
+      <file name="currents-service.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/articles/currents-service.ts">
+        <metrics statements="23" coveredstatements="21" conditionals="24" coveredconditionals="18" methods="6" coveredmethods="6"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="24" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="45" count="5" type="stmt"/>
+        <line num="52" count="5" type="stmt"/>
+        <line num="53" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="54" count="3" type="stmt"/>
+        <line num="57" count="5" type="stmt"/>
+        <line num="63" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="67" count="4" type="stmt"/>
+        <line num="68" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="72" count="3" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="90" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="94" count="5" type="stmt"/>
+      </file>
+    </package>
+    <package name="articles.utils">
+      <metrics statements="69" coveredstatements="67" conditionals="67" coveredconditionals="45" methods="21" coveredmethods="21"/>
+      <file name="evergreen-articles.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/articles/utils/evergreen-articles.ts">
+        <metrics statements="69" coveredstatements="67" conditionals="67" coveredconditionals="45" methods="21" coveredmethods="21"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="28" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="16" type="cond" truecount="3" falsecount="0"/>
+        <line num="41" count="32" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="32" type="stmt"/>
+        <line num="43" count="32" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="30" type="stmt"/>
+        <line num="45" count="32" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="32" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="50" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="55" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="63" count="31" type="stmt"/>
+        <line num="64" count="31" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="74" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="76" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="78" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="84" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="99" count="7" type="stmt"/>
+        <line num="100" count="7" type="stmt"/>
+        <line num="101" count="42" type="stmt"/>
+        <line num="103" count="7" type="stmt"/>
+        <line num="107" count="7" type="stmt"/>
+        <line num="108" count="7" type="stmt"/>
+        <line num="109" count="7" type="stmt"/>
+        <line num="117" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="118" count="1" type="stmt"/>
+        <line num="121" count="7" type="stmt"/>
+        <line num="122" count="7" type="stmt"/>
+        <line num="123" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="127" count="1" type="stmt"/>
+        <line num="128" count="1" type="stmt"/>
+        <line num="130" count="1" type="cond" truecount="2" falsecount="2"/>
+        <line num="131" count="1" type="stmt"/>
+        <line num="132" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="136" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="137" count="2" type="stmt"/>
+        <line num="140" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="144" count="9" type="cond" truecount="2" falsecount="2"/>
+        <line num="162" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="163" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="164" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="165" count="3" type="stmt"/>
+        <line num="167" count="3" type="stmt"/>
+        <line num="169" count="3" type="stmt"/>
+        <line num="170" count="14" type="stmt"/>
+        <line num="174" count="6" type="stmt"/>
+        <line num="177" count="3" type="cond" truecount="3" falsecount="1"/>
+        <line num="181" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="186" count="3" type="cond" truecount="1" falsecount="1"/>
+      </file>
+    </package>
+    <package name="emergency">
+      <metrics statements="40" coveredstatements="35" conditionals="31" coveredconditionals="23" methods="12" coveredmethods="12"/>
+      <file name="constants.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/emergency/constants.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+      </file>
+      <file name="lock-surface.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/emergency/lock-surface.ts">
+        <metrics statements="33" coveredstatements="28" conditionals="26" coveredconditionals="18" methods="8" coveredmethods="8"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="27" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="33" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="37" count="3" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="40" count="3" type="stmt"/>
+        <line num="54" count="5" type="stmt"/>
+        <line num="56" count="5" type="stmt"/>
+        <line num="60" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="64" count="4" type="stmt"/>
+        <line num="65" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="68" count="3" type="stmt"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="76" count="2" type="stmt"/>
+        <line num="80" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="84" count="2" type="stmt"/>
+        <line num="86" count="2" type="stmt"/>
+        <line num="87" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="93" count="2" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="102" count="2" type="stmt"/>
+        <line num="103" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="107" count="2" type="stmt"/>
+        <line num="108" count="2" type="stmt"/>
+      </file>
+      <file name="validation.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/emergency/validation.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="3" coveredconditionals="3" methods="2" coveredmethods="2"/>
+        <line num="7" count="4" type="cond" truecount="3" falsecount="0"/>
+        <line num="12" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="providers">
+      <metrics statements="44" coveredstatements="44" conditionals="35" coveredconditionals="35" methods="6" coveredmethods="5"/>
+      <file name="location.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/providers/location.ts">
+        <metrics statements="13" coveredstatements="13" conditionals="4" coveredconditionals="4" methods="2" coveredmethods="1"/>
+        <line num="24" count="5" type="stmt"/>
+        <line num="25" count="5" type="stmt"/>
+        <line num="26" count="4" type="stmt"/>
+        <line num="28" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="33" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+      </file>
+      <file name="open-in-maps.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/providers/open-in-maps.ts">
+        <metrics statements="24" coveredstatements="24" conditionals="29" coveredconditionals="29" methods="2" coveredmethods="2"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="13" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="17" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="7" type="cond" truecount="3" falsecount="0"/>
+        <line num="28" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="33" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="37" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="48" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="50" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="60" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="67" count="1" type="stmt"/>
+      </file>
+      <file name="types.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/providers/types.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="48" count="13" type="stmt"/>
+        <line num="52" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="providers.utils">
+      <metrics statements="67" coveredstatements="65" conditionals="90" coveredconditionals="82" methods="13" coveredmethods="13"/>
+      <file name="fhir-providers.ts" path="/Users/olumide/Documents/projects/softlyft/caremate-ecosystem/caremate/src/domains/providers/utils/fhir-providers.ts">
+        <metrics statements="67" coveredstatements="65" conditionals="90" coveredconditionals="82" methods="13" coveredmethods="13"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="95" count="40" type="cond" truecount="2" falsecount="0"/>
+        <line num="99" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="100" count="21" type="stmt"/>
+        <line num="102" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="103" count="9" type="stmt"/>
+        <line num="106" count="1" type="stmt"/>
+        <line num="112" count="5" type="stmt"/>
+        <line num="114" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="118" count="20" type="cond" truecount="1" falsecount="1"/>
+        <line num="119" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="120" count="17" type="cond" truecount="5" falsecount="0"/>
+        <line num="121" count="9" type="stmt"/>
+        <line num="126" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="127" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="128" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="129" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="130" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="131" count="6" type="cond" truecount="4" falsecount="0"/>
+        <line num="132" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="133" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="134" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="135" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="137" count="1" type="stmt"/>
+        <line num="141" count="20" type="stmt"/>
+        <line num="142" count="20" type="cond" truecount="4" falsecount="0"/>
+        <line num="143" count="2" type="stmt"/>
+        <line num="144" count="2" type="stmt"/>
+        <line num="145" count="1" type="cond" truecount="4" falsecount="1"/>
+        <line num="146" count="1" type="stmt"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="152" count="18" type="stmt"/>
+        <line num="156" count="20" type="stmt"/>
+        <line num="157" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="161" count="23" type="cond" truecount="1" falsecount="1"/>
+        <line num="162" count="0" type="stmt"/>
+        <line num="164" count="23" type="stmt"/>
+        <line num="165" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="172" count="14" type="stmt"/>
+        <line num="173" count="14" type="stmt"/>
+        <line num="175" count="14" type="cond" truecount="1" falsecount="1"/>
+        <line num="176" count="45" type="stmt"/>
+        <line num="177" count="45" type="cond" truecount="2" falsecount="0"/>
+        <line num="178" count="1" type="stmt"/>
+        <line num="180" count="44" type="cond" truecount="2" falsecount="0"/>
+        <line num="181" count="21" type="stmt"/>
+        <line num="183" count="44" type="cond" truecount="2" falsecount="0"/>
+        <line num="184" count="23" type="stmt"/>
+        <line num="188" count="14" type="stmt"/>
+        <line num="190" count="14" type="stmt"/>
+        <line num="191" count="23" type="stmt"/>
+        <line num="192" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="193" count="23" type="cond" truecount="4" falsecount="0"/>
+        <line num="194" count="2" type="stmt"/>
+        <line num="196" count="21" type="cond" truecount="1" falsecount="1"/>
+        <line num="197" count="0" type="stmt"/>
+        <line num="199" count="21" type="cond" truecount="4" falsecount="0"/>
+        <line num="200" count="1" type="stmt"/>
+        <line num="203" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="204" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="206" count="20" type="stmt"/>
+        <line num="225" count="14" type="stmt"/>
+        <line num="229" count="1" type="stmt"/>
+        <line num="233" count="1" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>
