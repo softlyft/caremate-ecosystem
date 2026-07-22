@@ -1656,6 +1656,33 @@ export type Database = {
           },
         ]
       }
+      notification_devices: {
+        Row: {
+          created_at: string
+          expo_push_token: string
+          id: string
+          last_seen_at: string
+          platform: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expo_push_token: string
+          id?: string
+          last_seen_at?: string
+          platform: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expo_push_token?: string
+          id?: string
+          last_seen_at?: string
+          platform?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string
@@ -2825,15 +2852,15 @@ export type Database = {
           updated_at: string
         }[]
       }
-      prune_user_location_samples: {
-        Args: { p_user_id?: string }
-        Returns: number
-      }
       provider_document_path_org_id: {
         Args: { object_name: string }
         Returns: string
       }
       provider_org_role: { Args: { p_org_id: string }; Returns: string }
+      prune_user_location_samples: {
+        Args: { p_user_id?: string }
+        Returns: number
+      }
       remove_family_adult_member: {
         Args: { p_member_id: string }
         Returns: undefined
@@ -2916,11 +2943,7 @@ export type Database = {
         }
       }
       search_providers_by_name: {
-        Args: {
-          p_limit?: number
-          p_search: string
-          p_type?: string
-        }
+        Args: { p_limit?: number; p_search: string; p_type?: string }
         Returns: {
           active: boolean
           address: string
@@ -2944,6 +2967,8 @@ export type Database = {
           updated_at: string
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       [_ in never]: never
@@ -3094,6 +3119,7 @@ export type AdCreative = Database['public']['Tables']['ad_creatives']['Row'];
 export type AdPlacement = Database['public']['Tables']['ad_placements']['Row'];
 export type AdEvent = Database['public']['Tables']['ad_events']['Row'];
 export type UserLocationSample = Database['public']['Tables']['user_location_samples']['Row'];
+export type NotificationDevice = Database['public']['Tables']['notification_devices']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];
 export type EmergencyProfile = Database['public']['Tables']['emergency_profiles']['Row'];

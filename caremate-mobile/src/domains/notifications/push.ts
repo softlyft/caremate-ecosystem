@@ -1,0 +1,148 @@
+import Constants from 'expo-constants';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
+import { useAuthStore } from '@/features/auth/store';
+import { useSettingsStore } from '@/domains/profile/store';
+import { supabase } from '@/lib/supabase';
+
+const FALLBACK_EAS_PROJECT_ID = 'de6abf70-ee13-417b-915f-9dea1066ed27';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+function resolveProjectId(): string | null {
+  const fromEas = Constants.easConfig?.projectId;
+  if (typeof fromEas === 'string' && fromEas.trim()) {
+    return fromEas.trim();
+  }
+  const fromExtra = Constants.expoConfig?.extra?.eas?.projectId;
+  if (typeof fromExtra === 'string' && fromExtra.trim()) {
+    return fromExtra.trim();
+  }
+  return FALLBACK_EAS_PROJECT_ID;
+}
+
+function resolvePlatform(): 'ios' | 'android' | null {
+  if (Platform.OS === 'ios') return 'ios';
+  if (Platform.OS === 'android') return 'android';
+  return null;
+}
+
+async function ensureAndroidChannel(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  await Notifications.setNotificationChannelAsync('default', {
+    name: 'default',
+    importance: Notifications.AndroidImportance.DEFAULT,
+  });
+}
+
+async function getCurrentExpoPushToken(): Promise<string | null> {
+  const platform = resolvePlatform();
+  if (!platform) return null;
+  if (!Device.isDevice && !__DEV__) return null;
+
+  const projectId = resolveProjectId();
+  if (!projectId) return null;
+
+  await ensureAndroidChannel();
+
+  const { status: existing } = await Notifications.getPermissionsAsync();
+  let finalStatus = existing;
+  if (existing !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  if (finalStatus !== 'granted') {
+    return null;
+  }
+
+  const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
+  const token = tokenResult.data?.trim();
+  return token || null;
+}
+
+/**
+ * Register this device for Expo push when the user is signed in and notifications are enabled.
+ * Guests and prefs-off are no-ops.
+ */
+export async function syncPushRegistration(): Promise<void> {
+  try {
+    const { user, isGuest, isAuthenticated } = useAuthStore.getState();
+    const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
+
+    if (!isAuthenticated || isGuest || !user?.id || !notificationsEnabled) {
+      return;
+    }
+
+    const token = await getCurrentExpoPushToken();
+    if (!token) return;
+
+    const platform = resolvePlatform();
+    if (!platform) return;
+
+    const now = new Date().toISOString();
+    const { error } = await supabase.from('notification_devices').upsert(
+      {
+        user_id: user.id,
+        expo_push_token: token,
+        platform,
+        last_seen_at: now,
+      },
+      { onConflict: 'expo_push_token' },
+    );
+
+    if (error) {
+      console.warn('syncPushRegistration', error.message);
+    }
+  } catch (err) {
+    console.warn('syncPushRegistration', err instanceof Error ? err.message : err);
+  }
+}
+
+/**
+ * Remove this device's push token (prefs off or sign-out). Best-effort.
+ */
+export async function clearPushRegistration(): Promise<void> {
+  try {
+    const { user, isGuest, isAuthenticated } = useAuthStore.getState();
+    if (!isAuthenticated || isGuest || !user?.id) {
+      return;
+    }
+
+    const platform = resolvePlatform();
+    if (!platform) return;
+
+    let token: string | null = null;
+    try {
+      const projectId = resolveProjectId();
+      if (projectId) {
+        const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
+        token = tokenResult.data?.trim() || null;
+      }
+    } catch {
+      token = null;
+    }
+
+    if (token) {
+      await supabase
+        .from('notification_devices')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('expo_push_token', token);
+      return;
+    }
+
+    await supabase.from('notification_devices').delete().eq('user_id', user.id);
+  } catch (err) {
+    console.warn('clearPushRegistration', err instanceof Error ? err.message : err);
+  }
+}

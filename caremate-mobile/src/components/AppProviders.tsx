@@ -22,6 +22,7 @@ import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { syncPushRegistration } from '@/domains/notifications/push';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
 import { queryClient } from '@/lib/query-client';
@@ -149,6 +150,7 @@ function BootstrapGate({ children }: PropsWithChildren) {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads }),
       ]);
       syncEngine.requestSync({ reason: 'auth', immediate: true });
+      void syncPushRegistration();
     })();
     return () => {
       cancelled = true;

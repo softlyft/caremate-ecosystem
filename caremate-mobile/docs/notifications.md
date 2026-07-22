@@ -2,8 +2,8 @@
 
 [← Back to index](./README.md)
 
-> **Status:** Local in-app inbox implemented (SQLite + bell screen). Product email via **Amazon SES** (Edge Functions). Push still pending.  
-> Preference toggle (`notificationsEnabled`) exists; push delivery is not wired yet.
+> **Status:** Local in-app inbox implemented (SQLite + bell screen). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push). Quiet hours and category prefs still pending.  
+> Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push.
 
 ## Decisions (locked)
 
@@ -66,7 +66,11 @@ Home header Bell
 - First emitter: family connection request received / accepted / declined (on pull)
 - Onboarding welcome guide card (first inbox item after Phase A; migrates guest → account)
 
-Push remains out of scope until a later phase. SES product email is sent from Edge Functions (family request + billing lifecycle).
+**Implemented (push scaffold + family):**
+- `expo-notifications` + `notification_devices` (RLS own rows)
+- Mobile `syncPushRegistration` / `clearPushRegistration` (guests skip; prefs off clears token)
+- Edge `_shared/push.ts` → Expo Push API; `notify-family-email` sends request push (+ SES) to receiver and accept/decline push to sender
+- Quiet hours / med-checkup OS pushes still later
 
 - Unread badge / dot on the bell when any `read_at IS NULL`.
 - Opening the screen (or viewing a card) marks items read.

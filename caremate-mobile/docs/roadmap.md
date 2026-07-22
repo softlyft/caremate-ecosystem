@@ -122,7 +122,7 @@ All five Phase 1 mini-apps ship on AsyncStorage today. Depth / parity work below
 | Dosage instructions + refill tracking | ✅ |
 | History by day / medicine | ✅ |
 | In-app inbox reminders (due / missed / refill) | ✅ |
-| OS push / local notifications | ❌ |
+| OS push / local notifications | 🟡 Scaffold + family wired; meds/checkup OS push later |
 | SQLite + sync | ✅ Snapshot → Supabase |
 
 
@@ -252,11 +252,10 @@ Later (optional): normalize into per-entity tables for family sharing / clinicia
 ## Suggested next engineering priorities
 
 1. **Migrate mini-apps to SQLite** for consistency + backup
-2. **Add push notification scaffold** (Expo Notifications) for meds / checkups
+2. **Extend push delivery** — quiet hours, meds / checkup / pregnancy OS pushes (family request/accept/decline already wired)
 3. **Period tracker depth** — cycle history engine + ovulation
 4. **CI pipeline** — format + lint + typecheck + test (`.github/workflows/ci.yml`)
 5. **EAS Build** configuration for TestFlight / Play Internal
-6. **Push notification delivery** beyond preference toggles
 
 ---
 
