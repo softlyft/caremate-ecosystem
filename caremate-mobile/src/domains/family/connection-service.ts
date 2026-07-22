@@ -114,11 +114,11 @@ class FamilyConnectionService {
     await familyRepository.saveConnectionRequestLocal(request);
     trackEvent(AnalyticsEvents.familyRequestSent, { channel: 'remote' });
 
-    // Best-effort SES email to the receiver (Edge Function; never blocks request create).
+    // Best-effort email + push to the receiver (Edge Function; never blocks request create).
     void supabase.functions
       .invoke('notify-family-email', { body: { requestId: request.id } })
       .catch(() => {
-        // Email is optional; offline / missing SES must not fail the connection flow.
+        // Delivery is optional; offline / missing Expo/SES must not fail the connection flow.
       });
 
     return { request };
@@ -167,6 +167,18 @@ class FamilyConnectionService {
     }
 
     await familyRepository.pullFromRemote(params.userId);
+
+    // Best-effort OS push to the sender (Edge Function; never blocks respond).
+    void supabase.functions
+      .invoke('notify-family-email', {
+        body: {
+          requestId: params.requestId,
+          kind: params.accept ? 'accepted' : 'declined',
+        },
+      })
+      .catch(() => {
+        // Push is optional; offline / missing Expo must not fail the connection flow.
+      });
   }
 }
 

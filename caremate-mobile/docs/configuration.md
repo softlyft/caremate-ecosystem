@@ -44,6 +44,8 @@ File: `.env` (copy from `.env.example`)
 
 EAS secrets (not `EXPO_PUBLIC_*`): `SENTRY_AUTH_TOKEN`, optionally `SENTRY_ORG` / `SENTRY_PROJECT` for native source-map upload during builds. Set `EXPO_PUBLIC_SENTRY_DSN` and `EXPO_PUBLIC_POSTHOG_API_KEY` as EAS env for release profiles.
 
+Supabase Edge Function secrets (set with `supabase secrets set`, not in the mobile `.env`): SES (`AWS_*`, `SES_FROM_*`) and optional `EXPO_ACCESS_TOKEN` for Expo Push API auth. See [`supabase/functions/README.md`](../../supabase/functions/README.md).
+
 Read in `src/constants/env.ts` (excerpt):
 
 ```typescript
@@ -260,7 +262,7 @@ npm run supabase:db:push
 
 Cloud migrations: `../supabase/migrations/` (shared monorepo folder).
 
-Tables to mirror: `profiles`, `emergency_profiles`, `articles`, `bookmarks`, `article_reads`, `providers`, `provider_favorites`, `settings`, `mini_app_snapshots`, family tables, `subscription_entitlements`.
+Tables to mirror: `profiles`, `emergency_profiles`, `articles`, `bookmarks`, `article_reads`, `providers`, `provider_favorites`, `settings`, `mini_app_snapshots`, family tables, `subscription_entitlements`, `notifications` / `notification_deliveries` / `notification_devices`.
 
 ---
 

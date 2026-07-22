@@ -123,6 +123,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
+    const { clearPushRegistration } = await import('@/domains/notifications/push');
+    await clearPushRegistration();
     await authService.signOut();
     trackEvent(AnalyticsEvents.signOut);
     // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.
@@ -135,6 +137,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!userId || get().isGuest) {
       throw new Error('Sign in to delete your account.');
     }
+    const { clearPushRegistration } = await import('@/domains/notifications/push');
+    await clearPushRegistration();
     await authService.deleteAccount(userId);
     trackEvent(AnalyticsEvents.deleteAccount);
     queryClient.clear();

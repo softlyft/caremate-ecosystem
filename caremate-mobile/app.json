@@ -19,7 +19,11 @@
         "foregroundImage": "./assets/images/caremate-adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.USE_BIOMETRIC", "android.permission.USE_FINGERPRINT"]
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +43,7 @@
       "expo-sqlite",
       "expo-secure-store",
       "expo-background-task",
+      "expo-notifications",
       [
         "expo-location",
         {

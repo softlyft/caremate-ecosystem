@@ -22,6 +22,7 @@ export type {
   AdPlacement,
   AdEvent,
   UserLocationSample,
+  NotificationDevice,
   Profile,
   Settings,
   EmergencyProfile,

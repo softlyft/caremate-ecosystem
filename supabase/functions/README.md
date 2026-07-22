@@ -1,6 +1,6 @@
 # Supabase Edge Functions
 
-Billing checkout, payment webhooks, and transactional email (Amazon SES).
+Billing checkout, payment webhooks, transactional email (Amazon SES), and Expo push.
 
 ## Secrets
 
@@ -15,23 +15,26 @@ supabase secrets set \
   AWS_SECRET_ACCESS_KEY=... \
   AWS_REGION=us-east-1 \
   SES_FROM_EMAIL=noreply@yourdomain.com \
-  SES_FROM_NAME=CareMate
+  SES_FROM_NAME=CareMate \
+  EXPO_ACCESS_TOKEN=...
 ```
 
 `SES_FROM_EMAIL` must be a verified SES identity (domain or address). When SES env vars are missing, product email deliveries are marked `skipped` so local/dev webhooks still succeed.
 
+`EXPO_ACCESS_TOKEN` is **optional**. When set, Edge Functions send it as `Authorization: Bearer …` to the Expo Push API. Without it, Expo still accepts push sends for most projects (rate limits may be lower).
+
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically in hosted functions.
 
-## Email functions
+## Email / push functions
 
 | Function | Trigger |
 |----------|---------|
-| `notify-family-email` | Mobile after family connection request (user JWT) |
+| `notify-family-email` | Mobile after family connection request / accept / decline (user JWT). Request → SES + Expo push to receiver; accept/decline → Expo push to sender. |
 | `send-billing-email` | Portal admin grants (service role) / internal |
 | `billing-renewal-reminders` | Daily cron / manual invoke (service role) |
 | `delete-account` | Mobile Settings → Delete account (user JWT → `auth.admin.deleteUser`) |
 
-Shared helpers: `_shared/ses.ts`, `_shared/email.ts`, `_shared/email-templates/`.
+Shared helpers: `_shared/ses.ts`, `_shared/email.ts`, `_shared/push.ts`, `_shared/email-templates/`.
 
 ### Account deletion
 

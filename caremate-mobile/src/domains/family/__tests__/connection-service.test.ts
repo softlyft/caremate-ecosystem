@@ -155,6 +155,7 @@ describe('familyConnectionService', () => {
   it('responds to connection requests and refreshes family', async () => {
     mockRpc.mockResolvedValue({ data: null, error: null });
     mockPullFromRemote.mockResolvedValue(undefined);
+    mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
     await familyConnectionService.respondToRequest({
       requestId: 'req-1',
       userId: 'u1',
@@ -162,5 +163,23 @@ describe('familyConnectionService', () => {
       selfFullName: 'Ada',
     });
     expect(mockPullFromRemote).toHaveBeenCalledWith('u1');
+    expect(mockInvoke).toHaveBeenCalledWith('notify-family-email', {
+      body: { requestId: 'req-1', kind: 'accepted' },
+    });
+  });
+
+  it('invokes notify-family-email with declined kind after reject', async () => {
+    mockRpc.mockResolvedValue({ data: null, error: null });
+    mockPullFromRemote.mockResolvedValue(undefined);
+    mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
+    await familyConnectionService.respondToRequest({
+      requestId: 'req-2',
+      userId: 'u1',
+      accept: false,
+      selfFullName: 'Ada',
+    });
+    expect(mockInvoke).toHaveBeenCalledWith('notify-family-email', {
+      body: { requestId: 'req-2', kind: 'declined' },
+    });
   });
 });
