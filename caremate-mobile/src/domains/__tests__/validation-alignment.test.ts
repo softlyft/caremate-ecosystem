@@ -6,16 +6,19 @@ import {
 import { hasRequiredIceContact, isCompleteIceContact } from '@/domains/emergency/validation';
 
 describe('ICE contact validation', () => {
-  it('requires name, phone, and relationship', () => {
-    expect(isCompleteIceContact({ name: 'Ada', phone: '+1', relationship: 'Spouse' })).toBe(true);
+  it('requires name, valid phone (7–15 digits), and relationship', () => {
+    expect(
+      isCompleteIceContact({ name: 'Ada', phone: '+2348012345678', relationship: 'Spouse' }),
+    ).toBe(true);
+    expect(isCompleteIceContact({ name: 'Ada', phone: '+1', relationship: 'Spouse' })).toBe(false);
     expect(isCompleteIceContact({ name: 'Ada', phone: '', relationship: 'Spouse' })).toBe(false);
   });
 
   it('requires at least one complete contact on the profile', () => {
     expect(hasRequiredIceContact([])).toBe(false);
-    expect(hasRequiredIceContact([{ name: 'Ada', phone: '+1', relationship: 'Spouse' }])).toBe(
-      true,
-    );
+    expect(
+      hasRequiredIceContact([{ name: 'Ada', phone: '+2348012345678', relationship: 'Spouse' }]),
+    ).toBe(true);
   });
 });
 

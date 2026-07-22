@@ -1,4 +1,6 @@
 import { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
+import { useAuthStore } from '@/features/auth/store';
+import { useSettingsStore } from '@/domains/profile/store';
 
 const mockGetPermissionsAsync = jest.fn();
 const mockRequestPermissionsAsync = jest.fn();
@@ -59,9 +61,6 @@ jest.mock('@/lib/supabase', () => ({
     }),
   },
 }));
-
-import { useAuthStore } from '@/features/auth/store';
-import { useSettingsStore } from '@/domains/profile/store';
 
 const mockAuthGetState = useAuthStore.getState as jest.Mock;
 const mockSettingsGetState = useSettingsStore.getState as jest.Mock;
