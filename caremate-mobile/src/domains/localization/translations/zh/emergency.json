@@ -24,7 +24,9 @@
     "addContact": "添加联系人",
     "contactName": "联系人姓名",
     "contactPhone": "电话",
-    "relationship": "关系"
+    "relationship": "关系",
+    "contactPhoneInvalid": "请输入有效电话号码（7–15 位数字）",
+    "nameInvalid": "仅可使用字母（允许空格、连字符和撇号）"
   },
   "qr": {
     "title": "急救二维码",

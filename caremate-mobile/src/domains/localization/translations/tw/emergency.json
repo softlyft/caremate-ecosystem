@@ -24,7 +24,9 @@
     "addContact": "Fa nkitahodie ka ho",
     "contactName": "Nkitahodie din",
     "contactPhone": "Fon",
-    "relationship": "Abusuabɔ"
+    "relationship": "Abusuabɔ",
+    "contactPhoneInvalid": "Fa phone number a ɛyɛ (nɔmba 7–15)",
+    "nameInvalid": "Fa nkyerɛwde nko ara di dwuma (space, hyphen ne apostrophe yɛ)"
   },
   "qr": {
     "title": "Ahoyɛ QR",

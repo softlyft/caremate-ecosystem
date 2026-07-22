@@ -24,7 +24,9 @@
     "addContact": "Añadir contacto",
     "contactName": "Nombre del contacto",
     "contactPhone": "Teléfono",
-    "relationship": "Parentesco"
+    "relationship": "Parentesco",
+    "contactPhoneInvalid": "Introduce un número de teléfono válido (7–15 dígitos)",
+    "nameInvalid": "Usa solo letras (espacios, guiones y apóstrofos están permitidos)"
   },
   "qr": {
     "title": "QR de emergencia",

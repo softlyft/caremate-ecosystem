@@ -24,7 +24,9 @@
     "addContact": "Tinye kọntaktị",
     "contactName": "Aha kọntaktị",
     "contactPhone": "Ekwentị",
-    "relationship": "Mmekọrịta"
+    "relationship": "Mmekọrịta",
+    "contactPhoneInvalid": "Tinye nọmba ekwentị ziri ezi (ọnụọgụgụ 7–15)",
+    "nameInvalid": "Jiri mkpụrụedemede naanị (oghere, akara njikọ na apostrophe dị mma)"
   },
   "qr": {
     "title": "QR mberede",

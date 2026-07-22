@@ -24,7 +24,9 @@
     "addContact": "Ongeza anwani",
     "contactName": "Jina la anwani",
     "contactPhone": "Simu",
-    "relationship": "Uhusiano"
+    "relationship": "Uhusiano",
+    "contactPhoneInvalid": "Weka nambari sahihi ya simu (tarakimu 7–15)",
+    "nameInvalid": "Tumia herufi pekee (nafasi, viungio na alama za nukta juu zinaruhusiwa)"
   },
   "qr": {
     "title": "QR ya dharura",

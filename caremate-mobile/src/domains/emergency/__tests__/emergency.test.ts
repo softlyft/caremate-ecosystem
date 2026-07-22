@@ -13,7 +13,14 @@ import {
   setEmergencyLockSurfaceEnabled,
   syncEmergencyLockSurface,
 } from '@/domains/emergency/lock-surface';
-import { hasRequiredIceContact, isCompleteIceContact } from '@/domains/emergency/validation';
+import {
+  hasRequiredIceContact,
+  isCompleteIceContact,
+  isValidIcePhone,
+  isValidPersonName,
+  sanitizePersonNameInput,
+  sanitizePhoneInput,
+} from '@/domains/emergency/validation';
 import type { EmergencyProfile } from '@/types';
 
 jest.mock('emergency-lock-widget', () => ({
@@ -41,7 +48,7 @@ function makeProfile(overrides: Partial<EmergencyProfile> = {}): EmergencyProfil
     emergencyContacts: [
       {
         name: 'Charles Babbage',
-        phone: '+234800',
+        phone: '+2348012345678',
         relationship: 'Spouse',
       },
     ],
@@ -74,13 +81,53 @@ describe('emergency/constants', () => {
 });
 
 describe('emergency/validation', () => {
-  it('requires name, phone, and relationship for a complete ICE contact', () => {
-    expect(isCompleteIceContact({ name: 'Ada', phone: '+1', relationship: 'Friend' })).toBe(true);
+  it('sanitizes pasted phone input by stripping letters and capping length', () => {
+    expect(sanitizePhoneInput('abc+234 801 234 5678xyz')).toBe('+2348012345678');
+    expect(sanitizePhoneInput('Call +1 (800) HELP-99')).toBe('+180099');
+    expect(sanitizePhoneInput('++2348012345678')).toBe('+2348012345678');
+    expect(sanitizePhoneInput('1'.repeat(40))).toBe('1'.repeat(15));
+    expect(sanitizePhoneInput(`+${'1'.repeat(20)}`)).toBe(`+${'1'.repeat(15)}`);
+    expect(sanitizePhoneInput('call me')).toBe('');
+  });
+
+  it('validates phone digit length between 7 and 15', () => {
+    expect(isValidIcePhone('+2348012345678')).toBe(true);
+    expect(isValidIcePhone('08012345678')).toBe(true);
+    expect(isValidIcePhone('(080) 1234-5678')).toBe(false);
+    expect(isValidIcePhone('+1')).toBe(false);
+    expect(isValidIcePhone('123456')).toBe(false);
+    expect(isValidIcePhone('1'.repeat(16))).toBe(false);
+    expect(isValidIcePhone('call me')).toBe(false);
+    expect(isValidIcePhone('  ')).toBe(false);
+  });
+
+  it('sanitizes person names by stripping digits and symbols', () => {
+    expect(sanitizePersonNameInput('Ada  Lovelace!!!')).toBe('Ada Lovelace');
+    expect(sanitizePersonNameInput("Mary-Jane O'Brien 123")).toBe("Mary-Jane O'Brien ");
+    expect(sanitizePersonNameInput('🚀Ada@Softlyft')).toBe('AdaSoftlyft');
+    expect(sanitizePersonNameInput('A'.repeat(50))).toHaveLength(40);
+  });
+
+  it('validates person names require letters only with limited punctuation', () => {
+    expect(isValidPersonName('Ada')).toBe(true);
+    expect(isValidPersonName("O'Brien")).toBe(true);
+    expect(isValidPersonName('Mary-Jane')).toBe(true);
+    expect(isValidPersonName('José')).toBe(true);
+    expect(isValidPersonName('123')).toBe(false);
+    expect(isValidPersonName('Ada@Home')).toBe(false);
+    expect(isValidPersonName('   ')).toBe(false);
+  });
+
+  it('requires name, valid phone, and relationship for a complete ICE contact', () => {
+    expect(
+      isCompleteIceContact({ name: 'Ada', phone: '+2348012345678', relationship: 'Friend' }),
+    ).toBe(true);
+    expect(isCompleteIceContact({ name: 'Ada', phone: '+1', relationship: 'Friend' })).toBe(false);
     expect(isCompleteIceContact({ name: 'Ada', phone: '  ', relationship: 'Friend' })).toBe(false);
     expect(
       hasRequiredIceContact([
-        { name: '', phone: '+1', relationship: 'Friend' },
-        { name: 'Ada', phone: '+1', relationship: 'Friend' },
+        { name: '', phone: '+2348012345678', relationship: 'Friend' },
+        { name: 'Ada', phone: '+2348012345678', relationship: 'Friend' },
       ]),
     ).toBe(true);
     expect(hasRequiredIceContact([])).toBe(false);
@@ -99,7 +146,7 @@ describe('emergency/lock-surface', () => {
     expect(snapshot.bloodGroup).toBe('O+');
     expect(snapshot.allergies).toBe('Penicillin, Peanuts, Dust');
     expect(snapshot.contactName).toBe('Charles Babbage');
-    expect(snapshot.contactPhone).toBe('+234800');
+    expect(snapshot.contactPhone).toBe('+2348012345678');
   });
 
   it('builds an empty snapshot when profile is missing or unnamed', () => {

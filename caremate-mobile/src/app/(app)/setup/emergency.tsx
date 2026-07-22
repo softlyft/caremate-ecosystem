@@ -11,7 +11,14 @@ import { QUERY_KEYS } from '@/constants/config';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import { emergencyRepository } from '@/domains/emergency/repository';
-import { isCompleteIceContact } from '@/domains/emergency/validation';
+import {
+  isValidIcePhone,
+  isValidPersonName,
+  sanitizePhoneInput,
+  sanitizePersonNameInput,
+  ICE_PHONE_MAX_CHARS,
+  PERSON_NAME_MAX_CHARS,
+} from '@/domains/emergency/validation';
 import { useTranslation } from '@/domains/localization';
 import { markEmergencyEssentialsDone } from '@/domains/onboarding';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
@@ -48,17 +55,19 @@ export default function SetupEmergencyEssentialsScreen() {
       Alert.alert('Missing details', 'Select blood group and genotype to continue.');
       return;
     }
-    if (
-      !isCompleteIceContact({
-        name: iceName,
-        phone: icePhone,
-        relationship: iceRelationship,
-      })
-    ) {
+    if (!iceName.trim() || !icePhone.trim() || !iceRelationship.trim()) {
       Alert.alert(
         'ICE contact',
         'Add name, phone, and relationship for your first emergency contact.',
       );
+      return;
+    }
+    if (!isValidPersonName(iceName)) {
+      Alert.alert('ICE contact', t('emergency.edit.nameInvalid'));
+      return;
+    }
+    if (!isValidIcePhone(icePhone)) {
+      Alert.alert('ICE contact', t('emergency.edit.contactPhoneInvalid'));
       return;
     }
 
@@ -171,8 +180,10 @@ export default function SetupEmergencyEssentialsScreen() {
         <Input
           placeholder={t('emergency.edit.contactName')}
           value={iceName}
-          onChangeText={setIceName}
+          onChangeText={(value) => setIceName(sanitizePersonNameInput(value))}
           autoCapitalize="words"
+          autoCorrect={false}
+          maxLength={PERSON_NAME_MAX_CHARS}
         />
         <Input
           placeholder={t('emergency.edit.relationship')}
@@ -183,8 +194,11 @@ export default function SetupEmergencyEssentialsScreen() {
         <Input
           placeholder={t('emergency.edit.contactPhone')}
           value={icePhone}
-          onChangeText={setIcePhone}
+          onChangeText={(value) => setIcePhone(sanitizePhoneInput(value))}
           keyboardType="phone-pad"
+          textContentType="telephoneNumber"
+          autoComplete="tel"
+          maxLength={ICE_PHONE_MAX_CHARS}
         />
       </View>
 

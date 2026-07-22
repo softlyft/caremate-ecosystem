@@ -1,33 +1,40 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, router } from 'expo-router';
-import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Check } from 'lucide-react-native';
+import { useMemo } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
-import { useTranslation } from '@/domains/localization';
-import { useAuthStore } from '@/features/auth/store';
-import { joinFullName } from '@/domains/emergency/constants';
-import { resolvePostSignupHref } from '@/domains/onboarding';
+import { LEGAL_URLS } from '@/constants/config';
 import { config } from '@/constants/env';
-import { useAppTheme } from '@/theme';
+import { joinFullName } from '@/domains/emergency/constants';
+import {
+  ICE_PHONE_MAX_CHARS,
+  PERSON_NAME_MAX_CHARS,
+  isValidIcePhone,
+  isValidPersonName,
+  sanitizePersonNameInput,
+  sanitizePhoneInput,
+} from '@/domains/emergency/validation';
+import { useTranslation } from '@/domains/localization';
+import { resolvePostSignupHref } from '@/domains/onboarding';
+import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
+import { useAuthStore } from '@/features/auth/store';
+import { palette, radius, useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
-const registerSchema = z.object({
-  firstName: z.string().min(1, 'Enter your first name'),
-  lastName: z.string().min(1, 'Enter your last name'),
-  phone: z
-    .string()
-    .trim()
-    .min(7, 'Enter a valid phone number')
-    .regex(/^[+]?[\d\s()-]{7,20}$/, 'Enter a valid phone number'),
-  email: z.email('Enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type RegisterForm = z.infer<typeof registerSchema>;
+type RegisterForm = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  password: string;
+  acceptedLegal: boolean;
+};
 
 export default function RegisterScreen() {
   const { t } = useTranslation();
@@ -35,10 +42,61 @@ export default function RegisterScreen() {
   const signUp = useAuthStore((state) => state.signUp);
   const isLoading = useAuthStore((state) => state.isLoading);
 
+  const registerSchema = useMemo(
+    () =>
+      z.object({
+        firstName: z
+          .string()
+          .trim()
+          .min(1, 'Enter your first name')
+          .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
+        lastName: z
+          .string()
+          .trim()
+          .min(1, 'Enter your last name')
+          .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
+        phone: z.string().trim().refine(isValidIcePhone, t('emergency.edit.contactPhoneInvalid')),
+        email: z.email('Enter a valid email'),
+        password: z.string().min(6, 'Password must be at least 6 characters'),
+        acceptedLegal: z.boolean().refine((value) => value === true, {
+          message: t('auth.register.acceptRequired'),
+        }),
+      }),
+    [t],
+  );
+
   const { control, handleSubmit, formState } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { firstName: '', lastName: '', phone: '', email: '', password: '' },
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      phone: '',
+      email: '',
+      password: '',
+      acceptedLegal: false,
+    },
   });
+
+  const watchedValues = useWatch({ control });
+  const canSubmit = useMemo(
+    () => registerSchema.safeParse(watchedValues).success,
+    [registerSchema, watchedValues],
+  );
+
+  async function openLegalUrl(url: string) {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (!supported) {
+        Alert.alert(t('settings.legal.openFailed'));
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert(t('settings.legal.openFailed'));
+    }
+  }
 
   async function onSubmit(values: RegisterForm) {
     try {
@@ -71,7 +129,9 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
+      <AuthBrandHeader>
+        <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
+      </AuthBrandHeader>
       <View style={styles.form}>
         <View style={styles.nameRow}>
           <View style={styles.nameField}>
@@ -81,9 +141,12 @@ export default function RegisterScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   autoCapitalize="words"
+                  autoCorrect={false}
+                  textContentType="givenName"
+                  maxLength={PERSON_NAME_MAX_CHARS}
                   placeholder={t('auth.register.fullNamePlaceholder')}
                   onBlur={onBlur}
-                  onChangeText={onChange}
+                  onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
                   value={value}
                 />
               )}
@@ -96,9 +159,12 @@ export default function RegisterScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   autoCapitalize="words"
+                  autoCorrect={false}
+                  textContentType="familyName"
+                  maxLength={PERSON_NAME_MAX_CHARS}
                   placeholder={t('auth.register.fullNamePlaceholder')}
                   onBlur={onBlur}
-                  onChangeText={onChange}
+                  onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
                   value={value}
                 />
               )}
@@ -112,9 +178,12 @@ export default function RegisterScreen() {
             <Input
               autoCapitalize="none"
               keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              autoComplete="tel"
+              maxLength={ICE_PHONE_MAX_CHARS}
               placeholder={t('emergency.edit.contactPhone')}
               onBlur={onBlur}
-              onChangeText={onChange}
+              onChangeText={(value) => onChange(sanitizePhoneInput(value))}
               value={value}
             />
           )}
@@ -145,22 +214,68 @@ export default function RegisterScreen() {
             />
           )}
         />
+
+        <Controller
+          control={control}
+          name="acceptedLegal"
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.acceptRow}>
+              <Pressable
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: value }}
+                accessibilityLabel={t('auth.register.acceptRequired')}
+                onPress={() => onChange(!value)}
+                hitSlop={8}
+                style={[
+                  styles.checkbox,
+                  value ? styles.checkboxChecked : null,
+                  formState.errors.acceptedLegal ? styles.checkboxError : null,
+                ]}
+              >
+                {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
+              </Pressable>
+              <View style={styles.acceptCopy}>
+                <AppText variant="caption" style={styles.acceptText}>
+                  {t('auth.register.acceptLead')}{' '}
+                </AppText>
+                <Pressable onPress={() => void openLegalUrl(LEGAL_URLS.terms)} hitSlop={6}>
+                  <AppText variant="caption" style={styles.acceptLink}>
+                    {t('settings.legal.terms')}
+                  </AppText>
+                </Pressable>
+                <AppText variant="caption" style={styles.acceptText}>
+                  {' '}
+                  {t('auth.register.acceptAnd')}{' '}
+                </AppText>
+                <Pressable onPress={() => void openLegalUrl(LEGAL_URLS.privacy)} hitSlop={6}>
+                  <AppText variant="caption" style={styles.acceptLink}>
+                    {t('settings.legal.privacy')}
+                  </AppText>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        />
+
         {formState.errors.firstName ||
         formState.errors.lastName ||
         formState.errors.phone ||
         formState.errors.email ||
-        formState.errors.password ? (
+        formState.errors.password ||
+        formState.errors.acceptedLegal ? (
           <AppText variant="formError" color={colors.danger}>
             {formState.errors.firstName?.message ??
               formState.errors.lastName?.message ??
               formState.errors.phone?.message ??
               formState.errors.email?.message ??
-              formState.errors.password?.message}
+              formState.errors.password?.message ??
+              formState.errors.acceptedLegal?.message ??
+              t('auth.register.acceptRequired')}
           </AppText>
         ) : null}
         <Button
           label={isLoading ? t('common.loading') : t('auth.register.submit')}
-          disabled={isLoading}
+          disabled={isLoading || !canSubmit}
           onPress={handleSubmit(onSubmit)}
         />
         <Link href="/(auth)/login">
@@ -188,5 +303,47 @@ const styles = StyleSheet.create({
   },
   nameField: {
     flex: 1,
+  },
+  acceptRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    paddingVertical: 4,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    borderWidth: 1.5,
+    borderColor: palette.divider,
+    backgroundColor: palette.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxChecked: {
+    backgroundColor: palette.primary,
+    borderColor: palette.primary,
+  },
+  checkboxError: {
+    borderColor: palette.danger,
+  },
+  acceptCopy: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  acceptText: {
+    color: palette.textSecondary,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  acceptLink: {
+    color: palette.primary,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });
