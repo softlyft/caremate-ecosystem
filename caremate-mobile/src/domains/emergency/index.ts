@@ -7,5 +7,12 @@ export {
   syncEmergencyLockSurface,
   type EmergencyLockSnapshot,
 } from '@/domains/emergency/lock-surface';
-export { hasRequiredIceContact, isCompleteIceContact } from '@/domains/emergency/validation';
+export {
+  hasRequiredIceContact,
+  isCompleteIceContact,
+  isValidIcePhone,
+  isValidPersonName,
+  sanitizePersonNameInput,
+  sanitizePhoneInput,
+} from '@/domains/emergency/validation';
 export * from '@/domains/emergency/constants';

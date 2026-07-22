@@ -24,7 +24,9 @@
     "addContact": "Ṣàfikún olùbásọ̀rọ̀",
     "contactName": "Orúkọ olùbásọ̀rọ̀",
     "contactPhone": "Fóònù",
-    "relationship": "Ìbáṣepọ̀"
+    "relationship": "Ìbáṣepọ̀",
+    "contactPhoneInvalid": "Tẹ nọ́mbà fóònù tó tọ́ (díjítì 7–15)",
+    "nameInvalid": "Lo lẹ́tà nìkan (ààyè, ààmì-ìsopọ̀ àti apostrophe jẹ́ ohun tó ṣeé ṣe)"
   },
   "qr": {
     "title": "QR pájáwìrì",

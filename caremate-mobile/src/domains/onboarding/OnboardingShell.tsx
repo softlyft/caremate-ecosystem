@@ -111,7 +111,7 @@ export function OnboardingShell({
               ]}
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
-                {skipLabel ?? t('common.skip')}
+                {skipLabel ?? t('common.next')}
               </AppText>
             </PressableScale>
           ) : (

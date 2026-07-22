@@ -24,7 +24,9 @@
     "addContact": "संपर्क जोड़ें",
     "contactName": "संपर्क का नाम",
     "contactPhone": "फ़ोन",
-    "relationship": "रिश्ता"
+    "relationship": "रिश्ता",
+    "contactPhoneInvalid": "मान्य फ़ोन नंबर दर्ज करें (7–15 अंक)",
+    "nameInvalid": "केवल अक्षरों का उपयोग करें (स्पेस, हाइफ़न और अपॉस्ट्रॉफ़ी ठीक हैं)"
   },
   "qr": {
     "title": "आपातकालीन QR",

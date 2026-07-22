@@ -7,10 +7,11 @@ import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
+import { config } from '@/constants/env';
 import { useTranslation } from '@/domains/localization';
+import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
 import { useAuthStore } from '@/features/auth/store';
 import { authService } from '@/services/auth-service';
-import { config } from '@/constants/env';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
@@ -51,7 +52,9 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
+      <AuthBrandHeader>
+        <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
+      </AuthBrandHeader>
       <View style={styles.form}>
         <Controller
           control={control}

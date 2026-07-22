@@ -29,7 +29,16 @@ import {
   setEmergencyLockSurfaceEnabled,
   syncEmergencyLockSurface,
 } from '@/domains/emergency/lock-surface';
-import { hasRequiredIceContact, isCompleteIceContact } from '@/domains/emergency/validation';
+import {
+  hasRequiredIceContact,
+  isCompleteIceContact,
+  isValidIcePhone,
+  isValidPersonName,
+  sanitizePersonNameInput,
+  sanitizePhoneInput,
+  ICE_PHONE_MAX_CHARS,
+  PERSON_NAME_MAX_CHARS,
+} from '@/domains/emergency/validation';
 import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
@@ -82,8 +91,16 @@ export default function EmergencyEditScreen() {
   const schema = useMemo(
     () =>
       z.object({
-        firstName: z.string().min(1, t('emergency.edit.firstNameRequired')),
-        lastName: z.string().min(1, t('emergency.edit.lastNameRequired')),
+        firstName: z
+          .string()
+          .trim()
+          .min(1, t('emergency.edit.firstNameRequired'))
+          .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
+        lastName: z
+          .string()
+          .trim()
+          .min(1, t('emergency.edit.lastNameRequired'))
+          .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
         bloodGroup: z.string().min(1, t('emergency.edit.bloodGroupRequired')),
         genotype: z.string().min(1, t('emergency.edit.genotypeRequired')),
         allergies: z.string().optional(),
@@ -140,8 +157,18 @@ export default function EmergencyEditScreen() {
     const phone = draftContact.phone.trim();
     const relationship = draftContact.relationship.trim();
 
-    if (!isCompleteIceContact({ name, phone, relationship })) {
+    if (!name || !phone || !relationship) {
       setContactError(t('emergency.edit.contactRequired'));
+      return;
+    }
+
+    if (!isValidPersonName(name)) {
+      setContactError(t('emergency.edit.nameInvalid'));
+      return;
+    }
+
+    if (!isValidIcePhone(phone)) {
+      setContactError(t('emergency.edit.contactPhoneInvalid'));
       return;
     }
 
@@ -183,6 +210,21 @@ export default function EmergencyEditScreen() {
       if (!duplicate) {
         next = [...contacts, draft];
       }
+    } else if (draft.name || draft.phone || draft.relationship) {
+      // Draft partially filled — surface phone length/shape errors instead of silently dropping it.
+      if (draft.phone && !isValidIcePhone(draft.phone)) {
+        setContactError(t('emergency.edit.contactPhoneInvalid'));
+        return null;
+      }
+      if (!draft.name || !draft.phone || !draft.relationship) {
+        setContactError(t('emergency.edit.contactRequired'));
+        return null;
+      }
+    }
+
+    if (next.some((contact) => !isCompleteIceContact(contact))) {
+      setContactError(t('emergency.edit.contactPhoneInvalid'));
+      return null;
     }
 
     if (!hasRequiredIceContact(next)) {
@@ -247,8 +289,12 @@ export default function EmergencyEditScreen() {
               <Input
                 placeholder={t('emergency.fields.firstName')}
                 autoCapitalize="words"
-                {...field}
-                onChangeText={field.onChange}
+                autoCorrect={false}
+                textContentType="givenName"
+                maxLength={PERSON_NAME_MAX_CHARS}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={(value) => field.onChange(sanitizePersonNameInput(value))}
               />
             )}
           />
@@ -259,8 +305,12 @@ export default function EmergencyEditScreen() {
               <Input
                 placeholder={t('emergency.fields.lastName')}
                 autoCapitalize="words"
-                {...field}
-                onChangeText={field.onChange}
+                autoCorrect={false}
+                textContentType="familyName"
+                maxLength={PERSON_NAME_MAX_CHARS}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={(value) => field.onChange(sanitizePersonNameInput(value))}
               />
             )}
           />
@@ -409,9 +459,11 @@ export default function EmergencyEditScreen() {
             <Input
               placeholder={t('emergency.edit.contactName')}
               autoCapitalize="words"
+              autoCorrect={false}
+              maxLength={PERSON_NAME_MAX_CHARS}
               value={draftContact.name}
               onChangeText={(name) => {
-                setDraftContact((current) => ({ ...current, name }));
+                setDraftContact((current) => ({ ...current, name: sanitizePersonNameInput(name) }));
                 setContactError(null);
               }}
             />
@@ -427,9 +479,12 @@ export default function EmergencyEditScreen() {
             <Input
               placeholder={t('emergency.edit.phoneNumber')}
               keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              autoComplete="tel"
+              maxLength={ICE_PHONE_MAX_CHARS}
               value={draftContact.phone}
               onChangeText={(phone) => {
-                setDraftContact((current) => ({ ...current, phone }));
+                setDraftContact((current) => ({ ...current, phone: sanitizePhoneInput(phone) }));
                 setContactError(null);
               }}
             />
