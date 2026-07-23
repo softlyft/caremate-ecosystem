@@ -33,6 +33,7 @@
   },
   "searchA11y": "Rechercher dans CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "Urgence",
       "subtitle": "Carte santé hors ligne"

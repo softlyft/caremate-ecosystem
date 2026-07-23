@@ -1,5 +1,10 @@
 import * as Linking from 'expo-linking';
 
+import {
+  buildHttpsAppLink,
+  isAllowedAppLinkHostname,
+  shouldPreferHttpsAppLinks,
+} from '@/lib/app-links';
 import { config } from '@/constants/env';
 
 /** Deep-link path opened from the Supabase password-reset email. */
@@ -15,8 +20,12 @@ const ALLOWED_AUTH_PATH_PREFIXES = [
 /**
  * Redirect URI embedded in the reset email.
  * Must also be allowlisted in Supabase Auth → URL Configuration → Redirect URLs.
+ * Release builds prefer https Universal/App Links; Expo Go keeps `Linking.createURL`.
  */
 export function getPasswordResetRedirectUri(): string {
+  if (shouldPreferHttpsAppLinks()) {
+    return buildHttpsAppLink(PASSWORD_RESET_PATH);
+  }
   return Linking.createURL(PASSWORD_RESET_PATH);
 }
 
@@ -26,31 +35,47 @@ function isAllowedAuthCallbackUrl(url: string): boolean {
   const trimmed = url.trim();
   if (!trimmed) return false;
 
-  // Expo may produce exp://… or caremate://… — require known path before accepting credentials.
+  // Expo may produce exp://…, caremate://…, or https://getcaremate.com/… —
+  // require known path before accepting credentials.
   const lower = trimmed.toLowerCase();
   const hasAllowedPath = ALLOWED_AUTH_PATH_PREFIXES.some(
     (path) => lower.includes(`/${path}`) || lower.includes(`${path}?`) || lower.endsWith(path),
   );
-  if (!hasAllowedPath && !lower.includes('code=') && !lower.includes('access_token')) {
-    return false;
-  }
   if (!hasAllowedPath) {
-    // Tokens without an allowlisted path are rejected (prevents arbitrary-scheme credential injection).
     return false;
   }
 
   try {
     const parsed = Linking.parse(trimmed);
     const scheme = (parsed.scheme ?? '').toLowerCase();
-    // Accept CareMate custom scheme and Expo dev schemes only.
+
     if (
       scheme &&
       scheme !== 'caremate' &&
       scheme !== 'exp' &&
       scheme !== 'exps' &&
-      !scheme.startsWith('http')
+      scheme !== 'http' &&
+      scheme !== 'https'
     ) {
       return false;
+    }
+
+    if (scheme === 'http' || scheme === 'https') {
+      // Linking.parse hostname can be null for some forms — fall back to URL.
+      let hostname = (parsed.hostname ?? '').toLowerCase();
+      if (!hostname) {
+        try {
+          hostname = new URL(trimmed).hostname.toLowerCase();
+        } catch {
+          return false;
+        }
+      }
+      if (!isAllowedAppLinkHostname(hostname)) {
+        return false;
+      }
+      if (scheme === 'http' && !__DEV__) {
+        return false;
+      }
     }
   } catch {
     return false;

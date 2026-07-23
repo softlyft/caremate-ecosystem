@@ -39,7 +39,7 @@ class FakeWriter:
                             {
                                 "coding": [
                                     {
-                                        "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                                        "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                                         "code": "hospital",
                                     }
                                 ]

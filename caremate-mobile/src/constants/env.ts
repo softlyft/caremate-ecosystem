@@ -1,8 +1,18 @@
 import Constants from 'expo-constants';
 
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/$/, '');
+}
+
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const paymentUrl = process.env.EXPO_PUBLIC_PAYMENT_URL ?? '';
+const websiteUrl = trimTrailingSlash(
+  process.env.EXPO_PUBLIC_WEBSITE_URL?.trim() || 'https://getcaremate.com',
+);
+const communityPortalUrl = trimTrailingSlash(
+  process.env.EXPO_PUBLIC_COMMUNITY_PORTAL_URL?.trim() || 'https://community.getcaremate.com',
+);
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN ?? '';
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? '';
 const posthogHost = process.env.EXPO_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
@@ -16,6 +26,8 @@ export const config = {
   supabaseAnonKey,
   isSupabaseConfigured: Boolean(supabaseUrl && supabaseAnonKey),
   paymentUrl,
+  websiteUrl,
+  communityPortalUrl,
   appVersion: Constants.expoConfig?.version ?? '1.0.0',
   appEnv,
   sentryDsn,

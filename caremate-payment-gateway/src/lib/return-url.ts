@@ -3,7 +3,7 @@
  * Rejects javascript:, data:, and arbitrary https origins (DOM XSS / open redirect).
  */
 const ALLOWED_HTTPS_HOST_SUFFIXES = [
-  'caremate.app',
+  'getcaremate.com',
   'localhost',
   '127.0.0.1',
 ];

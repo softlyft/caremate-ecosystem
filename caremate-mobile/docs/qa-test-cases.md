@@ -55,7 +55,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | AU-08 | P0 | Guest | Browse Home / Learn / Nearby / Apps | All usable without account. |
 | AU-09 | P0 | Signed-in | Me → Sign Out | Returns to guest state; CTAs to Sign In / Create Account. |
 | AU-10 | P2 | Signed-in | Me tab preferences | Biometric unlock toggle is not shown (deferred until app-lock is enforced). |
-| AU-11 | P2 | — | — | Reserved for biometric app-lock once implemented. |
+| AU-11 | P2 | — | — | Biometric app-lock removed (no Settings toggle). |
 | AU-12 | P1 | Airplane mode | Attempt login/register | User-facing network failure message (not raw stack trace). |
 
 ---

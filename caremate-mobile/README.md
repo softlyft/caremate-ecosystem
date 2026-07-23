@@ -72,7 +72,7 @@ Foundation implemented:
 - SQLite schema and bootstrap
 - Sync queue and engine
 - Repositories for profile, emergency, articles, providers
-- Auth flow with SecureStore + biometric toggle
+- Auth flow with SecureStore session persistence
 - Phase 1 screens (dashboard, emergency, articles, providers, profile)
 
 Next up:

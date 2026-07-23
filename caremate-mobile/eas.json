@@ -7,7 +7,14 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "APP_ENV": "development",
+        "EXPO_PUBLIC_APP_ENV": "development",
+        "EXPO_PUBLIC_WEBSITE_URL": "https://dev.getcaremate.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community-dev.getcaremate.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://pay-dev.getcaremate.com"
+      }
     },
     "internal-android": {
       "android": {
@@ -17,7 +24,22 @@
       "channel": "internal",
       "env": {
         "APP_ENV": "internal",
-        "EXPO_PUBLIC_APP_ENV": "internal"
+        "EXPO_PUBLIC_APP_ENV": "internal",
+        "EXPO_PUBLIC_WEBSITE_URL": "https://dev.getcaremate.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community-dev.getcaremate.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://pay-dev.getcaremate.com"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "channel": "staging",
+      "autoIncrement": true,
+      "env": {
+        "APP_ENV": "staging",
+        "EXPO_PUBLIC_APP_ENV": "staging",
+        "EXPO_PUBLIC_WEBSITE_URL": "https://dev.getcaremate.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community-dev.getcaremate.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://pay-dev.getcaremate.com"
       }
     },
     "testflight": {
@@ -28,16 +50,21 @@
       "channel": "testflight",
       "env": {
         "APP_ENV": "testflight",
-        "EXPO_PUBLIC_APP_ENV": "testflight"
+        "EXPO_PUBLIC_APP_ENV": "testflight",
+        "EXPO_PUBLIC_WEBSITE_URL": "https://getcaremate.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community.getcaremate.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://pay.getcaremate.com"
       }
     },
-    "staging": {
-      "distribution": "internal",
-      "channel": "staging",
+    "production": {
+      "channel": "production",
       "autoIncrement": true,
       "env": {
-        "APP_ENV": "staging",
-        "EXPO_PUBLIC_APP_ENV": "staging"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_APP_ENV": "production",
+        "EXPO_PUBLIC_WEBSITE_URL": "https://getcaremate.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community.getcaremate.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://pay.getcaremate.com"
       }
     }
   },

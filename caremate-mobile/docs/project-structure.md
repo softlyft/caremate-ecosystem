@@ -36,7 +36,7 @@ src/
 ├── theme/               Colors, typography, layout tokens
 ├── types/               Shared app-level types
 ├── utils/               Utility helpers
-└── widgets/             iOS emergency widget bridge
+└── widgets/             Retired lock-widget stub (no native iOS extension)
 ```
 
 ## Domains

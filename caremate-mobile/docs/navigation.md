@@ -120,7 +120,7 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | `/(app)/profile/premium` | Premium |
 | `/(app)/profile/documents` | Patient uploads + documents shared by providers |
 
-Me account menu includes **Connections** → `/(app)/providers/connections`, **Documents** → `/(app)/profile/documents`, and **Join our movement** → opens `https://caremate.app/ccn` (`WEBSITE_URLS.communityNetwork`; see [website CCN](../../caremate-website/README.md) and [Community Portal](../../caremate-community-portal/docs/README.md)). Provider connections docs: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md).
+Me account menu includes **Connections** → `/(app)/providers/connections`, **Documents** → `/(app)/profile/documents`, and **Join our movement** → opens `https://getcaremate.com/ccn` (`WEBSITE_URLS.communityNetwork`; see [website CCN](../../caremate-website/README.md) and [Community Portal](../../caremate-community-portal/docs/README.md)). Provider connections docs: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md).
 
 ### Family and setup
 
@@ -228,13 +228,17 @@ router.push('/(app)/(tabs)/articles');
 
 ## Deep linking
 
-URL scheme: `caremate://` (from `app.json` → `scheme`).
+Custom scheme: `caremate://` (from `app.json` → `scheme`).
+
+Verified https App / Universal Links (same paths) on `getcaremate.com` and `dev.getcaremate.com`
+via `ios.associatedDomains` + Android `intentFilters` (`autoVerify`).
 
 | Deep link | Screen |
 |-----------|--------|
 | `caremate://emergency-lock` | Legacy — retired lock card (points to Patient ID) |
-| `caremate://emergency/share/<token>` | Auth-gated emergency share (from Patient ID QR) |
-| `caremate://auth/reset-password` | Password reset (after Supabase email; allowlist in Supabase Redirect URLs) |
+| `caremate://emergency/share/<token>` · `https://…/emergency/share/<token>` | Auth-gated emergency share (Patient ID QR) |
+| `caremate://auth/reset-password` · `https://…/auth/reset-password` | Password reset (allowlist both in Supabase Redirect URLs) |
+| `caremate://billing/success\|cancel` · `https://…/billing/…` | Checkout return |
 
 Exact Expo Go / dev URIs may use `exp://…/--/auth/reset-password` via `Linking.createURL` — use the value shown on the forgot-password screen in `__DEV__`.
 

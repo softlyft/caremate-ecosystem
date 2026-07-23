@@ -33,6 +33,7 @@
   },
   "searchA11y": "CareMate खोजें",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "आपातकाल",
       "subtitle": "ऑफ़लाइन स्वास्थ्य कार्ड"

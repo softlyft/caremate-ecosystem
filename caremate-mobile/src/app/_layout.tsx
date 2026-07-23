@@ -8,7 +8,6 @@ import '../../global.css';
 import { AppProviders } from '@/components/AppProviders';
 import { AuthDeepLinkHandler } from '@/components/AuthDeepLinkHandler';
 import { BillingDeepLinkHandler } from '@/components/BillingDeepLinkHandler';
-import { BiometricLockGate } from '@/components/BiometricLockGate';
 import { EmergencyShareDeepLinkHandler } from '@/components/EmergencyShareDeepLinkHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
@@ -42,36 +41,34 @@ function RootLayout() {
     <ErrorBoundary>
       <GluestackUIProvider mode="light">
         <AppProviders>
-          <BiometricLockGate>
-            <AuthDeepLinkHandler />
-            <BillingDeepLinkHandler />
-            <EmergencyShareDeepLinkHandler />
-            <Stack
-              screenOptions={{
-                headerStyle: { backgroundColor: '#FFFFFF' },
-                headerTintColor: '#111827',
-                contentStyle: { backgroundColor: '#FFFFFF' },
-              }}
-            >
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="emergency-lock"
-                options={{ headerShown: false, title: 'Emergency' }}
-              />
-              <Stack.Screen
-                name="emergency/share/[token]"
-                options={{ headerShown: false, title: 'Emergency share' }}
-              />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(app)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="auth/reset-password"
-                options={{ headerShown: true, title: 'New password', presentation: 'card' }}
-              />
-              <Stack.Screen name="billing/success" options={{ headerShown: false }} />
-              <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />
-            </Stack>
-          </BiometricLockGate>
+          <AuthDeepLinkHandler />
+          <BillingDeepLinkHandler />
+          <EmergencyShareDeepLinkHandler />
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: '#FFFFFF' },
+              headerTintColor: '#111827',
+              contentStyle: { backgroundColor: '#FFFFFF' },
+            }}
+          >
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="emergency-lock"
+              options={{ headerShown: false, title: 'Emergency' }}
+            />
+            <Stack.Screen
+              name="emergency/share/[token]"
+              options={{ headerShown: false, title: 'Emergency share' }}
+            />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="auth/reset-password"
+              options={{ headerShown: true, title: 'New password', presentation: 'card' }}
+            />
+            <Stack.Screen name="billing/success" options={{ headerShown: false }} />
+            <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />
+          </Stack>
         </AppProviders>
       </GluestackUIProvider>
     </ErrorBoundary>

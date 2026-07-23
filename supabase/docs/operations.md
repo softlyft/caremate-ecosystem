@@ -12,6 +12,8 @@ npm run supabase:db:push
 npm run db:types
 ```
 
+`npm run supabase:link` targets **`caremate-dev`** (`eybakmhqtotoywwgwgjy`) — the development project. Link a separate production project before applying migrations or secrets meant for prod.
+
 ## Local Config
 
 `supabase/config.toml` currently defines:

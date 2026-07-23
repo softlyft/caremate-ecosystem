@@ -61,7 +61,7 @@ class TestCodeableConceptAndTelecom:
             {
                 "coding": [
                     {
-                        "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                        "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                         "code": "hospital",
                     }
                 ]
@@ -111,7 +111,7 @@ class TestAddressPositionDistance:
             {
                 "coding": [
                     {
-                        "system": "https://caremate.app/fhir/StructureDefinition/distance-km",
+                        "system": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
                         "display": "2.5",
                     }
                 ]

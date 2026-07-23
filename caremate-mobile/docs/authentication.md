@@ -23,18 +23,16 @@ Implementation spans:
 | `isGuest` | `boolean` | Using guest mode (default true) |
 | `isLoading` | `boolean` | Auth operation in progress |
 | `isInitialized` | `boolean` | Bootstrap auth check complete |
-| `biometricEnabled` | `boolean` | User opted into biometric unlock |
 | `passwordRecoveryPending` | `boolean` | Recovery deep-link session is active |
 
 ### Actions
 
 | Action | Behavior |
 |--------|----------|
-| `initialize()` | Called on app boot. Restores session from SecureStore → Supabase `getSession()`. Falls back to guest. |
+| `initialize()` | Called on app boot. Clears any legacy biometric preference, restores session from SecureStore → Supabase `getSession()`. Falls back to guest. |
 | `signIn(email, password)` | Supabase password auth + local account bootstrap |
 | `signUp(email, password, fullName, phone)` | Creates Supabase user + local profile + emergency profile |
 | `signOut()` | Clears push for this device, wipes local account data, clears session → guest |
-| `setBiometricEnabled(enabled)` | Persists preference |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
 | `updatePassword(password)` | Completes password reset from the recovery flow |
@@ -73,14 +71,6 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 
 ---
 
-## Biometric unlock
-
-When enabled in Settings, `BiometricLockGate` prompts via `expo-local-authentication` on cold start and when returning from background. Preference is stored in SecureStore (`authService.setBiometricEnabled`).
-
-See [Security](./security.md#app-lock--passwords).
-
----
-
 ## Sign-up / sign-in local bootstrap
 
 On successful `signUpWithEmail` or `signInWithEmail`, the auth service:
@@ -110,7 +100,7 @@ Both local stub steps are best-effort so a local DB hiccup does not fail auth. S
 
 ### Forgot password (`(auth)/forgot-password.tsx`)
 - Collects email and calls `authService.resetPassword` (`supabase.auth.resetPasswordForEmail`)
-- `redirectTo` is `Linking.createURL('auth/reset-password')` (e.g. `caremate://auth/reset-password` in release builds)
+- `redirectTo` prefers `https://{website}/auth/reset-password` (Universal / App Links) when the website host is configured; Expo Go keeps `Linking.createURL('auth/reset-password')` (e.g. `caremate://…` / `exp://…`)
 - Success message is intentionally generic (does not reveal whether the email exists)
 
 ### Reset password (`auth/reset-password.tsx`)

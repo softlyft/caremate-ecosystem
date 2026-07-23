@@ -33,6 +33,7 @@
   },
   "searchA11y": "搜索 CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "急救",
       "subtitle": "离线健康卡"

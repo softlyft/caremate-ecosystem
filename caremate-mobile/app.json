@@ -10,7 +10,12 @@
     "owner": "softlyft",
     "ios": {
       "icon": "./assets/images/caremate-splash-icon.png",
-      "bundleIdentifier": "com.softlyft.caremate"
+      "bundleIdentifier": "com.softlyft.caremate",
+      "associatedDomains": [
+        "applinks:getcaremate.com",
+        "applinks:www.getcaremate.com",
+        "applinks:dev.getcaremate.com"
+      ]
     },
     "android": {
       "package": "com.softlyft.caremate",
@@ -19,10 +24,60 @@
         "foregroundImage": "./assets/images/caremate-adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT",
-        "android.permission.POST_NOTIFICATIONS"
+      "permissions": ["android.permission.POST_NOTIFICATIONS"],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "getcaremate.com",
+              "pathPrefix": "/auth"
+            },
+            {
+              "scheme": "https",
+              "host": "getcaremate.com",
+              "pathPrefix": "/emergency/share"
+            },
+            {
+              "scheme": "https",
+              "host": "getcaremate.com",
+              "pathPrefix": "/billing"
+            },
+            {
+              "scheme": "https",
+              "host": "www.getcaremate.com",
+              "pathPrefix": "/auth"
+            },
+            {
+              "scheme": "https",
+              "host": "www.getcaremate.com",
+              "pathPrefix": "/emergency/share"
+            },
+            {
+              "scheme": "https",
+              "host": "www.getcaremate.com",
+              "pathPrefix": "/billing"
+            },
+            {
+              "scheme": "https",
+              "host": "dev.getcaremate.com",
+              "pathPrefix": "/auth"
+            },
+            {
+              "scheme": "https",
+              "host": "dev.getcaremate.com",
+              "pathPrefix": "/emergency/share"
+            },
+            {
+              "scheme": "https",
+              "host": "dev.getcaremate.com",
+              "pathPrefix": "/billing"
+            }
+          ]
+        }
       ]
     },
     "web": {
@@ -57,27 +112,13 @@
         }
       ],
       "./plugins/withAndroidSplashScreenDependency.js",
+      "./plugins/withRemoveSystemAlertWindow.js",
       [
         "expo-splash-screen",
         {
           "backgroundColor": "#FFFFFF",
           "image": "./assets/images/caremate-splash-icon.png",
           "imageWidth": 160
-        }
-      ],
-      [
-        "expo-local-authentication",
-        {
-          "faceIDPermission": "Allow CareMate to use Face ID for secure unlock."
-        }
-      ],
-      [
-        "expo-widgets",
-        {
-          "bundleIdentifier": "com.softlyft.caremate.widgets",
-          "groupIdentifier": "group.com.softlyft.caremate",
-          "enableAndroid": false,
-          "widgets": []
         }
       ],
       "expo-background-task"
@@ -94,21 +135,6 @@
         }
       },
       "eas": {
-        "build": {
-          "experimental": {
-            "ios": {
-              "appExtensions": [
-                {
-                  "targetName": "ExpoWidgetsTarget",
-                  "bundleIdentifier": "com.softlyft.caremate.widgets",
-                  "entitlements": {
-                    "com.apple.security.application-groups": ["group.com.softlyft.caremate"]
-                  }
-                }
-              ]
-            }
-          }
-        },
         "projectId": "de6abf70-ee13-417b-915f-9dea1066ed27"
       }
     }

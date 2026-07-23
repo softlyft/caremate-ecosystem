@@ -33,6 +33,7 @@
   },
   "searchA11y": "Nemo CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "Gaggawa",
       "subtitle": "Katin lafiya ba tare da intanet ba"

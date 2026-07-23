@@ -1,3 +1,5 @@
+import { config } from '@/constants/env';
+
 export const APP_NAME = 'CareMate';
 
 /** Public store listings for spouse invite share text (update when listings go live). */
@@ -7,22 +9,22 @@ export const APP_STORE_URLS = {
 } as const;
 
 /**
- * Hosted legal pages (SoftLyft). Update if the live paths change.
- * App Store / Play Console listings should use the same URLs.
+ * Hosted legal pages (SoftLyft). Derived from `EXPO_PUBLIC_WEBSITE_URL`.
+ * App Store / Play Console listings should use the same production URLs.
  */
 export const LEGAL_URLS = {
-  privacy: 'https://caremate.app/privacy',
-  terms: 'https://caremate.app/terms',
+  privacy: `${config.websiteUrl}/privacy`,
+  terms: `${config.websiteUrl}/terms`,
 } as const;
 
 /** Public CareMate website surfaces linked from the app. */
 export const WEBSITE_URLS = {
-  communityNetwork: 'https://caremate.app/ccn',
+  communityNetwork: `${config.websiteUrl}/ccn`,
+  communityJoin: `${config.communityPortalUrl}/join`,
 } as const;
 
 export const STORAGE_KEYS = {
   onboardingComplete: 'caremate_onboarding_complete',
-  biometricEnabled: 'caremate_biometric_enabled',
   deviceDefaults: 'caremate_device_defaults',
 } as const;
 

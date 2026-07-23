@@ -63,8 +63,8 @@ export function CcnGuidePage() {
           </li>
           <li>
             Open the Community Portal join page (
-            <a href={COMMUNITY_URLS.join}>community.caremate.app/join</a>) — or start from{' '}
-            <Link to="/ccn">caremate.app/ccn</Link> and tap Join.
+            <a href={COMMUNITY_URLS.join}>{COMMUNITY_URLS.joinHost}/join</a>) — or start from{' '}
+            <Link to="/ccn">{COMMUNITY_URLS.marketingHost}/ccn</Link> and tap Join.
           </li>
           <li>Enter your 12-digit CareMate Patient ID.</li>
           <li>

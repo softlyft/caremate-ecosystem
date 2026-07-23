@@ -199,7 +199,7 @@ Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **
 
 - Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
 - Notifications are preference-only; push delivery and reminder flows are not fully wired
-- Hosted CareMate privacy/terms pages live in `caremate-website/` (deploy to `caremate.app` before store submission)
+- Hosted CareMate privacy/terms pages live in `caremate-website/` (deploy to `getcaremate.com` before store submission)
 - Premium tier detection, AdMob suppression, mini-app account gate, usage caps, blur paywalls, and family profile limits are enforced — see [Premium & plans](./premium-and-plans.md)
 
 ## Emergency Profile

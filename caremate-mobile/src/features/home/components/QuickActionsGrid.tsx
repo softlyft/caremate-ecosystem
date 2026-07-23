@@ -37,18 +37,18 @@ const ACTIONS: QuickActionDef[] = [
   {
     titleKey: 'home.quickActions.symptoms.title',
     subtitleKey: 'home.quickActions.symptoms.subtitle',
-    backgroundColor: '#F3F4F6',
-    iconColor: palette.textSecondary,
+    backgroundColor: '#DBEAFE',
+    iconColor: '#2563EB',
     icon: Stethoscope,
-    comingSoon: true,
+    onPress: () => router.push('/(app)/(tabs)/articles'),
   },
   {
     titleKey: 'home.quickActions.medication.title',
     subtitleKey: 'home.quickActions.medication.subtitle',
-    backgroundColor: '#F3F4F6',
-    iconColor: palette.textSecondary,
+    backgroundColor: '#FFEDD5',
+    iconColor: '#EA580C',
     icon: Pill,
-    comingSoon: true,
+    onPress: () => router.push('/(app)/apps/medication-tracker'),
   },
 ];
 
@@ -57,7 +57,7 @@ export function QuickActionsGrid() {
 
   return (
     <View style={styles.container}>
-      <AppText variant="sectionTitle">Quick Actions</AppText>
+      <AppText variant="sectionTitle">{t('home.quickActions.sectionTitle')}</AppText>
       <View style={styles.grid}>
         {ACTIONS.map((action) => (
           <Pressable

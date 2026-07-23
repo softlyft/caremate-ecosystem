@@ -33,6 +33,7 @@
   },
   "searchA11y": "Buscar en CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "Emergencia",
       "subtitle": "Tarjeta de salud sin conexión"

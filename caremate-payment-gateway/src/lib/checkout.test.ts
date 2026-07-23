@@ -94,10 +94,11 @@ describe('parseCheckoutParams', () => {
 });
 
 describe('return URL allowlist', () => {
-  it('allows CareMate billing deep links and caremate.app https', () => {
+  it('allows CareMate billing deep links and getcaremate.com https', () => {
     expect(isAllowedAppReturnUrl('caremate://billing/success')).toBe(true);
     expect(isAllowedAppReturnUrl('caremate://billing/cancel?x=1')).toBe(true);
-    expect(isAllowedAppReturnUrl('https://pay.caremate.app/success')).toBe(true);
+    expect(isAllowedAppReturnUrl('https://pay.getcaremate.com/success')).toBe(true);
+    expect(isAllowedAppReturnUrl('https://pay-dev.getcaremate.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('javascript:alert(1)')).toBe(false);
     expect(isAllowedAppReturnUrl('caremate://evil')).toBe(false);
     expect(sanitizeAppReturnUrl('javascript:x', 'caremate://billing/success')).toBe(

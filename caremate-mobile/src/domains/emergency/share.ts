@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 
+import { buildHttpsAppLink, shouldPreferHttpsAppLinks } from '@/lib/app-links';
 import { supabase } from '@/lib/supabase';
 import type { EmergencyContact } from '@/types';
 
@@ -34,9 +35,16 @@ export async function generateEmergencyShareToken(): Promise<string> {
     .join('');
 }
 
-/** Stable QR / deep-link URL (production scheme). */
+/**
+ * QR / deep-link URL. Prefers https Universal/App Links when the website host
+ * is configured; otherwise falls back to `caremate://`.
+ */
 export function buildEmergencyShareUrl(token: string): string {
-  return `caremate://emergency/share/${token}`;
+  const path = `emergency/share/${token}`;
+  if (shouldPreferHttpsAppLinks()) {
+    return buildHttpsAppLink(path);
+  }
+  return `caremate://${path}`;
 }
 
 /**

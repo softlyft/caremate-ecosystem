@@ -33,6 +33,7 @@
   },
   "searchA11y": "Tafuta CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "Dharura",
       "subtitle": "Kadi ya afya bila mtandao"

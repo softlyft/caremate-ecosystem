@@ -33,6 +33,7 @@
   },
   "searchA11y": "Chọọ CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "Mberede",
       "subtitle": "Kaadị ahụike na-enweghị ịntanetị"

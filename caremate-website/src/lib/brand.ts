@@ -1,3 +1,17 @@
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/$/, '');
+}
+
+const siteUrl = trimTrailingSlash(
+  (import.meta.env.VITE_SITE_URL as string | undefined)?.trim() || 'https://getcaremate.com',
+);
+const communityPortalUrl = trimTrailingSlash(
+  (import.meta.env.VITE_COMMUNITY_PORTAL_URL as string | undefined)?.trim() ||
+    'https://community.getcaremate.com',
+);
+
+export const SITE_URL = siteUrl;
+
 export const APP_STORE_URLS = {
   ios: 'https://apps.apple.com/app/caremate',
   android: 'https://play.google.com/store/apps/details?id=com.softlyft.caremate',
@@ -5,7 +19,10 @@ export const APP_STORE_URLS = {
 
 /** CareMate Community Network — marketing page on the website; join on the community portal. */
 export const COMMUNITY_URLS = {
-  join: 'https://community.caremate.app/join',
+  join: `${communityPortalUrl}/join`,
+  /** Hostname for display copy (no scheme). */
+  joinHost: new URL(communityPortalUrl).host,
+  marketingHost: new URL(siteUrl).host,
 } as const;
 
 export const BRAND = {

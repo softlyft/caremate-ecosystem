@@ -114,17 +114,26 @@ Expect:
 
 ## Custom domains (after first green deploy)
 
-In each Amplify app → **Hosting** → **Custom domains**:
+Official CareMate hosts:
 
-| App | Example domain |
-|-----|----------------|
-| Website | `caremate.app` / `www.caremate.app` |
-| Payment | `pay.caremate.app` or `checkout.caremate.app` |
-| Admin portal | `admin.caremate.app` or `portal.softlyft...` |
-| Provider portal | `providers.caremate.app` |
-| Community portal | `community.caremate.app` |
+| App | Development | Production |
+|-----|-------------|------------|
+| Main website | `https://dev.getcaremate.com` | `https://getcaremate.com` |
+| Admin portal | `https://admin-dev.getcaremate.com` | `https://admin.getcaremate.com` |
+| Provider portal | `https://provider-dev.getcaremate.com` | `https://provider.getcaremate.com` |
+| Community portal | `https://community-dev.getcaremate.com` | `https://community.getcaremate.com` |
+| Payment | `https://pay-dev.getcaremate.com` | `https://pay.getcaremate.com` |
 
-Point DNS (CNAME / ANAME) as Amplify instructs. Update Supabase Auth → **URL configuration** with the new portal / payment origins (redirect / site URL allow lists).
+In each Amplify app → **Hosting** → **Custom domains**, attach the matching host. Point DNS (CNAME / ANAME) as Amplify instructs. Update Supabase Auth → **URL configuration** with the new portal / payment origins **and** https app-link redirects (`https://getcaremate.com/auth/reset-password`, plus `dev.` for DEV).
+
+After the website is live, finish Universal / App Links verification:
+
+1. Replace `TEAMID` in `caremate-website/public/.well-known/apple-app-site-association`
+2. Replace `REPLACE_WITH_PLAY_APP_SIGNING_SHA256` in `assetlinks.json` (Play Console → App signing)
+3. Confirm `Content-Type: application/json` on both well-known paths (set in root `amplify.yml`)
+4. Rebuild the mobile app so `associatedDomains` / `intentFilters` from `app.json` ship in the binary
+
+Set public hosts in Amplify / EAS env (dev vs prod table above). For localhost, copy `.env.local.example` → `.env.local`. Documented defaults live in each package’s `.env.example`.
 
 ---
 
@@ -143,6 +152,8 @@ Or the simpler catch-all used by many Vite SPAs:
 | Source | Target | Type |
 |--------|--------|------|
 | `/<*>` | `/index.html` | `404` (Rewrite to 200) |
+
+**Do not** rewrite `/.well-known/apple-app-site-association` or `/.well-known/assetlinks.json` — those must stay as static JSON for App / Universal Links verification.
 
 ---
 

@@ -89,7 +89,6 @@
     "flipA11y": "Flip Patient ID card"
   },
   "signOut": "Sign out",
-  "biometrics": "Unlock with biometrics",
   "connections": {
     "subtitle": "Connected providers and connection requests",
     "guestSubtitle": "Sign in to manage provider connections"

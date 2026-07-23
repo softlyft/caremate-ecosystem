@@ -61,4 +61,4 @@
 
 - [ ] `/ccn` marketing page loads and CTAs point to join + `/ccn/guide`
 - [ ] `/ccn/guide` documents Patient ID enrollment accurately
-- [ ] CareMate app Me → **Join our movement** opens `https://caremate.app/ccn`
+- [ ] CareMate app Me → **Join our movement** opens `{EXPO_PUBLIC_WEBSITE_URL}/ccn` (prod: `https://getcaremate.com/ccn`)
