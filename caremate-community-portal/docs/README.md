@@ -12,11 +12,12 @@ CareMate mobile app. Enrollment is limited to existing patients with a CareMate 
 | Tables and migrations | [Data model](./data-model.md) |
 | Local setup, env, scripts | [Development](./development.md) |
 | AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) |
+| Security (join OTP, headers) | [`../../docs/security.md`](../../docs/security.md) |
 | Manual verification checklist | [QA testing](./qa-testing.md) |
 
 ## In scope (Phase 1)
 
-- Patient ID → email code verification (code may display in UI until email delivery ships)
+- Patient ID → email code verification (inline code **only** in non-production / `ALLOW_INLINE_OTP`; production must use OOB email)
 - Join admin-created active chapters immediately (no profile duplication)
 - Chapter hub, events, announcements, resources, gallery
 - Contribution points + chapter / national leaderboards

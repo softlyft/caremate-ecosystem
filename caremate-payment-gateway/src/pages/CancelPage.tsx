@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { openAppDeepLink } from '@/lib/checkout';
+import { openAppDeepLink, sanitizeAppReturnUrl } from '@/lib/checkout';
+import { supabase } from '@/lib/supabase';
 
 const DEFAULT_RETURN = 'caremate://billing/cancel';
 
 export function CancelPage() {
   const [searchParams] = useSearchParams();
-  const returnUrl = searchParams.get('return')?.trim() || DEFAULT_RETURN;
+  const returnUrl = sanitizeAppReturnUrl(searchParams.get('return'), DEFAULT_RETURN);
   const [manual, setManual] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       openAppDeepLink(returnUrl);
+      void supabase.auth.signOut();
       setManual(true);
     }, 600);
     return () => window.clearTimeout(timer);

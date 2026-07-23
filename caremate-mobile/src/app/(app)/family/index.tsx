@@ -652,15 +652,13 @@ export default function FamilyHubScreen() {
                     <AppText variant="caption">
                       {t('family.phoneLabel', { value: matched.phone ?? '—' })}
                     </AppText>
-                    <AppText variant="caption">
-                      {t('family.dobValue', { value: formatDob(matched.dateOfBirth) })}
-                    </AppText>
-                    <AppText variant="caption">
-                      {t('family.locationLabel', {
-                        value:
-                          [matched.state, matched.countryCode].filter(Boolean).join(', ') || '—',
-                      })}
-                    </AppText>
+                    {matched.countryCode ? (
+                      <AppText variant="caption">
+                        {t('family.locationLabel', {
+                          value: matched.countryCode,
+                        })}
+                      </AppText>
+                    ) : null}
                     <PressableScale
                       style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
                       disabled={busy}

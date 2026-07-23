@@ -15,7 +15,8 @@ jest.mock('expo-linking', () => ({
     const queryIndex = withoutHash.indexOf('?');
     const query = queryIndex >= 0 ? withoutHash.slice(queryIndex + 1) : '';
     const params = Object.fromEntries(new URLSearchParams(query).entries());
-    return { queryParams: params };
+    const scheme = withoutHash.includes('://') ? withoutHash.split('://')[0] : '';
+    return { scheme, queryParams: params };
   }),
 }));
 
@@ -89,6 +90,17 @@ describe('auth deep link', () => {
         setSession: jest.fn(),
       }),
     ).resolves.toBeNull();
+  });
+
+  it('rejects credential URLs on non-allowlisted paths', async () => {
+    const setSession = jest.fn();
+    await expect(
+      handleAuthCallbackUrl('caremate://evil#access_token=at&refresh_token=rt', {
+        exchangeCodeForSession: jest.fn(),
+        setSession,
+      }),
+    ).resolves.toBeNull();
+    expect(setSession).not.toHaveBeenCalled();
   });
 });
 

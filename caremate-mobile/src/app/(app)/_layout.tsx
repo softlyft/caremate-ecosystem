@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import {
   Bell,
   Crown,
@@ -18,6 +18,7 @@ import {
   learnArticleHeaderOptions,
 } from '@/components/navigation/glossyStackHeader';
 import { SyncStatusBanner } from '@/components/SyncStatusBanner';
+import { useAuthStore } from '@/features/auth/store';
 import { palette } from '@/theme';
 
 const premiumHeader = {
@@ -42,6 +43,11 @@ const familyHeader = {
 } as const;
 
 export default function AppLayout() {
+  const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
+  if (passwordRecoveryPending) {
+    return <Redirect href="/auth/reset-password" />;
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <SyncStatusBanner />

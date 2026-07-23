@@ -52,8 +52,8 @@ export function buildEmergencyLockSnapshot(
 
 export async function isEmergencyLockSurfaceEnabled(): Promise<boolean> {
   const value = await AsyncStorage.getItem(ENABLED_KEY);
-  // Default on so saving a profile surfaces lock info unless the user opts out.
-  return value !== 'false';
+  // Opt-in: lock-screen PHI is off until the user explicitly enables it.
+  return value === 'true';
 }
 
 export async function setEmergencyLockSurfaceEnabled(enabled: boolean): Promise<void> {

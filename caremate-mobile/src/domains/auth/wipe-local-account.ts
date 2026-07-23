@@ -3,6 +3,8 @@ import { eq, or } from 'drizzle-orm';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase, isDatabaseInitialized } from '@/database/client';
 import {
+  adEvents,
+  analyticsQueue,
   articleReads,
   bookmarks,
   emergencyProfiles,
@@ -14,17 +16,43 @@ import {
   profiles,
   settings,
   subscriptionEntitlements,
+  syncQueue,
   userLocationSamples,
 } from '@/database/schema';
+import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import { useCheckupPlannerStore } from '@/mini-apps/checkup-planner/store';
 import { useImmunizationTrackerStore } from '@/mini-apps/immunization-tracker/store';
 import { useMedicationTrackerStore } from '@/mini-apps/medication-tracker/store';
 import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import { usePregnancyTrackerStore } from '@/mini-apps/pregnancy-tracker/store';
 import { useVitalsTrackerStore } from '@/mini-apps/vitals-tracker/store';
+import { clearMiniAppAsyncStorage } from '@/mini-apps/_kit/synced-storage';
+
+function clearMiniAppStores(): void {
+  useMedicationTrackerStore.getState().clearAll();
+  useVitalsTrackerStore.getState().clearAll();
+  useCheckupPlannerStore.getState().clearAll();
+  useImmunizationTrackerStore.getState().clearAll();
+  usePregnancyTrackerStore.getState().clearAll();
+  usePeriodTrackerStore.getState().clearAll();
+}
 
 /**
- * Remove this user's local SQLite rows and mini-app persist state after account deletion.
+ * Clear in-memory + AsyncStorage mini-app state and emergency lock surface.
+ * Used on sign-out and account deletion so the next account cannot inherit PHI.
+ */
+export async function clearSessionDeviceState(userId?: string | null): Promise<void> {
+  clearMiniAppStores();
+  await clearMiniAppAsyncStorage(userId);
+  try {
+    await syncEmergencyLockSurface(null);
+  } catch {
+    // Widget/lock surface is best-effort.
+  }
+}
+
+/**
+ * Remove this user's local SQLite rows, queues, mini-app persist, and lock surface.
  * Catalog rows (articles, providers, tips) are shared and left intact.
  */
 export async function wipeLocalAccountData(userId: string): Promise<void> {
@@ -32,12 +60,7 @@ export async function wipeLocalAccountData(userId: string): Promise<void> {
     return;
   }
 
-  useMedicationTrackerStore.getState().clearAll();
-  useVitalsTrackerStore.getState().clearAll();
-  useCheckupPlannerStore.getState().clearAll();
-  useImmunizationTrackerStore.getState().clearAll();
-  usePregnancyTrackerStore.getState().clearAll();
-  usePeriodTrackerStore.getState().clearAll();
+  await clearSessionDeviceState(userId);
 
   if (!isDatabaseInitialized()) {
     return;
@@ -77,4 +100,8 @@ export async function wipeLocalAccountData(userId: string): Promise<void> {
   await db.delete(subscriptionEntitlements).where(eq(subscriptionEntitlements.userId, userId));
   await db.delete(notifications).where(eq(notifications.userId, userId));
   await db.delete(userLocationSamples).where(eq(userLocationSamples.userId, userId));
+  await db.delete(adEvents).where(eq(adEvents.userId, userId));
+  await db.delete(analyticsQueue).where(eq(analyticsQueue.distinctId, userId));
+  // Device-local mutation outbox — clear entirely so payloads cannot re-fire for a deleted user.
+  await db.delete(syncQueue);
 }

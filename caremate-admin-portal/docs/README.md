@@ -14,6 +14,7 @@ This docs set covers the implemented behavior of the CareMate admin portal.
 | Premium product matrix (mobile) | [`caremate-mobile/docs/premium-and-plans.md`](../../caremate-mobile/docs/premium-and-plans.md) |
 | Local setup, env vars, scripts, tests | [Development](./development.md) |
 | AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) · [`../amplify.yml`](../amplify.yml) |
+| Security (OTP gate, upload limits, headers) | [`../../docs/security.md`](../../docs/security.md) |
 | Manual verification and smoke coverage | [QA Testing](./qa-testing.md) |
 
 ## What the Portal Does

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
+import { assertHouseholdMembership } from './household.ts';
 import { periodEndIso } from './supabase.ts';
 import type { BillingCurrency, BillingInterval } from './billing.ts';
 
@@ -158,6 +159,8 @@ export async function buildFamilyUpgradeQuote(
   if (!householdId) {
     throw new Error('Family plan requires a household. Set up family profiles first.');
   }
+
+  await assertHouseholdMembership(service, params.userId, householdId);
 
   const { data: familyPrice, error: priceError } = await service
     .from('subscription_prices')

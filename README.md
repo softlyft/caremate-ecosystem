@@ -31,6 +31,7 @@ Each service keeps its own README plus a local `docs/` set.
 | `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
 | Amplify hosting | Website + payment + admin + provider + community portals on AWS Amplify | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
+| Security (non-mobile) | Edge, payment gateway, portals — threat models & controls | [`docs/security.md`](./docs/security.md) |
 
 ## Root Workflows
 

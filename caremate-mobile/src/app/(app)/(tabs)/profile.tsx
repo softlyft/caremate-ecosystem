@@ -33,9 +33,10 @@ import { clearPushRegistration, syncPushRegistration } from '@/domains/notificat
 import { PatientIdCard } from '@/features/profile/PatientIdCard';
 import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
-import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
+import { useSettingsStore } from '@/domains/profile/store';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { useAccountDisplayName } from '@/hooks/use-account-display-name';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { usePremiumState } from '@/hooks/use-premium-state';
 
@@ -48,17 +49,12 @@ export default function ProfileTabScreen() {
   const signOut = useAuthStore((state) => state.signOut);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
+  const { fullName, profileQuery } = useAccountDisplayName();
+  const displayName = fullName?.trim() || t('profile.patientId.fallbackName');
 
   // Canonical ['billing','premium'] cache — flat PremiumState only (see usePremiumState).
   const premiumQuery = usePremiumState();
   const premiumReady = isGuest || Boolean(premiumQuery.data) || !premiumQuery.isPending;
-
-  const profileQuery = useQuery({
-    queryKey: ['profile', userId],
-    queryFn: () => profileRepository.findByUserId(userId),
-    enabled: !isGuest,
-  });
-  const displayName = profileQuery.data?.fullName?.trim() || 'CareMate User';
 
   const finishSetupQuery = useQuery({
     queryKey: ['finish-setup', userId, isGuest, profileQuery.dataUpdatedAt],

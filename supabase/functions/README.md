@@ -36,6 +36,11 @@ supabase secrets set \
 
 Shared helpers: `_shared/ses.ts`, `_shared/email.ts`, `_shared/push.ts`, `_shared/email-templates/`.
 
+| Function | Trigger |
+|----------|---------|
+| `create-checkout-handoff` | Mobile before opening payment URL (user JWT) — stores session tokens server-side, returns single-use code |
+| `exchange-checkout-handoff` | Payment gateway hash handoff (anon) — returns tokens once, marks code used |
+
 ### Account deletion
 
 `delete-account` requires the caller's `Authorization` bearer JWT. It best-effort cancels active Stripe/Paystack subscriptions, then deletes `auth.users` (cloud rows cascade). The mobile client wipes that user's local SQLite rows + mini-app snapshots and returns to guest.

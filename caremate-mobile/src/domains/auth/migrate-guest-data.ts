@@ -143,7 +143,7 @@ async function migrateSettings(toUserId: string): Promise<void> {
   const targetSettings = await profileRepository.getSettings(toUserId);
   if (!targetSettings) {
     await profileRepository.saveSettings(toUserId, {
-      theme: guestSettings.theme,
+      theme: 'light',
       notificationsEnabled: guestSettings.notificationsEnabled,
       subscribedCategoryIds: guestSettings.subscribedCategoryIds,
     });
@@ -151,7 +151,7 @@ async function migrateSettings(toUserId: string): Promise<void> {
   }
 
   await profileRepository.saveSettings(toUserId, {
-    theme: targetSettings.theme === 'system' ? guestSettings.theme : targetSettings.theme,
+    theme: 'light',
     notificationsEnabled: targetSettings.notificationsEnabled,
     subscribedCategoryIds:
       targetSettings.subscribedCategoryIds.length > 0

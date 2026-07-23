@@ -42,6 +42,7 @@ import {
 import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
+import { profileRepository } from '@/domains/profile/repository';
 import { useTranslation } from '@/domains/localization';
 import { Switch } from '@/components/ui/switch';
 import { palette, radius, spacing, useAppTheme } from '@/theme';
@@ -86,7 +87,7 @@ export default function EmergencyEditScreen() {
   const [contactsSource, setContactsSource] = useState<EmergencyContact[] | undefined>(undefined);
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
   const [contactError, setContactError] = useState<string | null>(null);
-  const [lockSurfaceEnabled, setLockSurfaceEnabled] = useState(true);
+  const [lockSurfaceEnabled, setLockSurfaceEnabled] = useState(false);
 
   const schema = useMemo(
     () =>
@@ -255,9 +256,14 @@ export default function EmergencyEditScreen() {
         notes: values.notes || null,
         emergencyContacts,
       });
+      // Keep account profile identity aligned with the registered emergency name.
+      await profileRepository.save(userId, {
+        fullName: saved.fullName,
+      });
       await setEmergencyLockSurfaceEnabled(lockSurfaceEnabled);
       await syncEmergencyLockSurface(lockSurfaceEnabled ? saved : null);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
       router.back();
     } catch (error) {
       const message =

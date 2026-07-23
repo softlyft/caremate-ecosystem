@@ -7,6 +7,7 @@ import {
   MINI_APP_STORAGE_KEYS,
   miniAppSnapshotRepository,
 } from '@/mini-apps/_kit/snapshot-repository';
+import { scopedMiniAppStorageKey } from '@/mini-apps/_kit/synced-storage';
 import { rehydrateAllMiniAppStores } from '@/mini-apps/_kit/rehydrate-registry';
 import { parseJson } from '@/utils/helpers';
 
@@ -22,7 +23,7 @@ function stripActions(state: Record<string, unknown>): Record<string, unknown> {
 }
 
 /**
- * After a cloud pull, copy SQLite snapshots into AsyncStorage and rehydrate registered stores.
+ * After a cloud pull, copy SQLite snapshots into user-scoped AsyncStorage and rehydrate stores.
  */
 export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<void> {
   if (!isDatabaseInitialized() || !userId || userId === GUEST_USER_ID) {
@@ -32,7 +33,8 @@ export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<vo
   const snapshots = await miniAppSnapshotRepository.findByUserId(userId);
 
   for (const snapshot of snapshots) {
-    const storageKey = MINI_APP_STORAGE_KEYS[snapshot.appKey];
+    const base = MINI_APP_STORAGE_KEYS[snapshot.appKey];
+    const storageKey = scopedMiniAppStorageKey(base, userId);
     const existingRaw = await AsyncStorage.getItem(storageKey);
     const existing = parseJson<{ state?: Record<string, unknown>; version?: number }>(
       existingRaw,
@@ -46,13 +48,15 @@ export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<vo
         version: existing.version ?? 0,
       }),
     );
+    await AsyncStorage.removeItem(base);
   }
 
   await rehydrateAllMiniAppStores();
 }
 
 /**
- * First-time upgrade: if AsyncStorage has data but SQLite has no snapshot, enqueue it for sync.
+ * First-time upgrade: enqueue user-scoped AsyncStorage into SQLite when no snapshot exists.
+ * Never adopts another user's data — only `${base}:${userId}` (or migrates legacy once into that scope).
  */
 export async function migrateMiniAppsToSnapshots(userId: string): Promise<void> {
   if (!isDatabaseInitialized() || !userId || userId === GUEST_USER_ID) {
@@ -65,9 +69,19 @@ export async function migrateMiniAppsToSnapshots(userId: string): Promise<void> 
       continue;
     }
 
-    const raw = await AsyncStorage.getItem(MINI_APP_STORAGE_KEYS[appKey]);
+    const base = MINI_APP_STORAGE_KEYS[appKey];
+    const scopedKey = scopedMiniAppStorageKey(base, userId);
+    let raw = await AsyncStorage.getItem(scopedKey);
+
     if (!raw) {
-      continue;
+      // Legacy unscoped key: adopt only into *this* user's scoped slot, then delete legacy.
+      const legacy = await AsyncStorage.getItem(base);
+      if (!legacy) {
+        continue;
+      }
+      await AsyncStorage.setItem(scopedKey, legacy);
+      await AsyncStorage.removeItem(base);
+      raw = legacy;
     }
 
     const wrapped = parseJson<{ state?: Record<string, unknown> }>(raw, {});

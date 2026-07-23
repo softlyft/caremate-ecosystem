@@ -6,7 +6,6 @@ import { SYNC_CONFIG } from '@/constants/config';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase } from '@/database/client';
 import { syncMetadata } from '@/database/schema';
-import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
 import { useAuthStore } from '@/features/auth/store';
 import {
   migrateMiniAppsToSnapshots,
@@ -77,11 +76,7 @@ class SyncEngine {
 
     const userId = useAuthStore.getState().user?.id;
     if (userId && userId !== GUEST_USER_ID && !useAuthStore.getState().isGuest) {
-      try {
-        await migrateGuestLocalData(userId);
-      } catch {
-        // Best-effort; sync cycle still runs.
-      }
+      // Guest→account migration runs only from prepareLocalAccount (explicit sign-in/up).
       await migrateMiniAppsToSnapshots(userId);
     }
 
@@ -188,11 +183,7 @@ class SyncEngine {
     const auth = useAuthStore.getState();
     const userId = auth.user?.id;
     if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
-      try {
-        await migrateGuestLocalData(userId);
-      } catch {
-        // Best-effort; push/pull still run.
-      }
+      // Guest→account migration is not repeated here — only on explicit sign-in/up.
       await migrateMiniAppsToSnapshots(userId);
     }
 
@@ -225,6 +216,11 @@ class SyncEngine {
   }
 
   private async pushPendingChanges(): Promise<void> {
+    const auth = useAuthStore.getState();
+    if (auth.isGuest || !auth.user?.id || auth.user.id === GUEST_USER_ID) {
+      return;
+    }
+
     const pending = await getPendingSyncOperations();
 
     for (const item of pending) {

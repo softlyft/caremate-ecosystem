@@ -174,8 +174,9 @@ export function CheckoutPage() {
         type="button"
         disabled={paying}
         onClick={() => {
-          void supabase.auth.signOut();
-          window.location.href = params.returnCancel;
+          void supabase.auth.signOut().finally(() => {
+            window.location.href = params.returnCancel;
+          });
         }}
       >
         Cancel and return to app

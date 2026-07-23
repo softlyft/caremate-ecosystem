@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/caremate-splash-icon.png",
     "scheme": "caremate",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "owner": "softlyft",
     "ios": {
       "icon": "./assets/images/caremate-splash-icon.png",
@@ -40,7 +40,13 @@
           }
         }
       ],
-      "expo-sqlite",
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true,
+          "enableFTS": true
+        }
+      ],
       "expo-secure-store",
       "expo-background-task",
       "expo-notifications",

@@ -6,8 +6,9 @@ import { Uniwind } from 'uniwind';
 
 export type ModeType = 'light' | 'dark' | 'system';
 
+/** CareMate UI is light-only; `mode` is accepted for API compatibility but always applies light. */
 export function GluestackUIProvider({
-  mode = 'dark',
+  mode: _mode = 'light',
   ...props
 }: {
   mode?: ModeType;
@@ -15,12 +16,8 @@ export function GluestackUIProvider({
   style?: ViewProps['style'];
 }) {
   useEffect(() => {
-    if (mode === 'system') {
-      Uniwind.setTheme('system');
-    } else {
-      Uniwind.setTheme(mode);
-    }
-  }, [mode]);
+    Uniwind.setTheme('light');
+  }, []);
 
   return (
     <View style={[{ flex: 1, height: '100%', width: '100%' }, props.style]}>

@@ -123,8 +123,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
+    const userId = get().user?.id;
     const { clearPushRegistration } = await import('@/domains/notifications/push');
+    const { wipeLocalAccountData } = await import('@/domains/auth/wipe-local-account');
     await clearPushRegistration();
+    if (userId && !get().isGuest) {
+      await wipeLocalAccountData(userId);
+    }
     await authService.signOut();
     trackEvent(AnalyticsEvents.signOut);
     // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.

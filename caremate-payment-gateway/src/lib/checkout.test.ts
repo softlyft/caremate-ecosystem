@@ -3,10 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   formatAmount,
   intervalLabel,
+  isAllowedAppReturnUrl,
   openAppDeepLink,
   parseCheckoutParams,
   planLabel,
   providerForCurrency,
+  sanitizeAppReturnUrl,
 } from '@/lib/checkout';
 
 describe('parseCheckoutParams', () => {
@@ -17,8 +19,8 @@ describe('parseCheckoutParams', () => {
       currency: 'ngn',
       household_id: 'hh-1',
       patient_id: '123456789012',
-      return_success: 'caremate://ok',
-      return_cancel: 'caremate://cancel',
+      return_success: 'caremate://billing/success',
+      return_cancel: 'caremate://billing/cancel',
     });
 
     expect(parseCheckoutParams(params)).toEqual({
@@ -27,8 +29,8 @@ describe('parseCheckoutParams', () => {
       currency: 'NGN',
       householdId: 'hh-1',
       patientId: '123456789012',
-      returnSuccess: 'caremate://ok',
-      returnCancel: 'caremate://cancel',
+      returnSuccess: 'caremate://billing/success',
+      returnCancel: 'caremate://billing/cancel',
     });
   });
 
@@ -36,6 +38,25 @@ describe('parseCheckoutParams', () => {
     const params = new URLSearchParams({
       plan: 'personal',
       interval: 'monthly',
+    });
+
+    expect(parseCheckoutParams(params)).toEqual({
+      planType: 'personal',
+      billingInterval: 'monthly',
+      currency: 'USD',
+      householdId: null,
+      patientId: null,
+      returnSuccess: 'caremate://billing/success',
+      returnCancel: 'caremate://billing/cancel',
+    });
+  });
+
+  it('replaces unsafe return URLs with billing defaults', () => {
+    const params = new URLSearchParams({
+      plan_type: 'personal',
+      billing_interval: 'monthly',
+      return_success: 'javascript:alert(1)',
+      return_cancel: 'https://evil.example/phish',
     });
 
     expect(parseCheckoutParams(params)).toEqual({
@@ -69,6 +90,19 @@ describe('parseCheckoutParams', () => {
     ).toEqual({
       error: 'Invalid currency (NGN | USD).',
     });
+  });
+});
+
+describe('return URL allowlist', () => {
+  it('allows CareMate billing deep links and caremate.app https', () => {
+    expect(isAllowedAppReturnUrl('caremate://billing/success')).toBe(true);
+    expect(isAllowedAppReturnUrl('caremate://billing/cancel?x=1')).toBe(true);
+    expect(isAllowedAppReturnUrl('https://pay.caremate.app/success')).toBe(true);
+    expect(isAllowedAppReturnUrl('javascript:alert(1)')).toBe(false);
+    expect(isAllowedAppReturnUrl('caremate://evil')).toBe(false);
+    expect(sanitizeAppReturnUrl('javascript:x', 'caremate://billing/success')).toBe(
+      'caremate://billing/success',
+    );
   });
 });
 
@@ -108,5 +142,10 @@ describe('openAppDeepLink', () => {
   it('assigns the deep link to window.location', () => {
     openAppDeepLink('caremate://billing/success');
     expect(window.location.href).toBe('caremate://billing/success');
+  });
+
+  it('ignores unsafe URLs', () => {
+    openAppDeepLink('javascript:alert(1)');
+    expect(window.location.href).toBe('');
   });
 });

@@ -1,4 +1,6 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import { assertHouseholdMembership } from '../_shared/household.ts';
+import { assertAllowedReturnUrls } from '../_shared/return-url.ts';
 import { createServiceClient, createUserClient, periodEndIso } from '../_shared/supabase.ts';
 
 type CheckoutBody = {
@@ -38,6 +40,15 @@ Deno.serve(async (req) => {
     const { plan_type, billing_interval, currency, success_url, cancel_url } = body;
     if (!plan_type || !billing_interval || !currency || !success_url || !cancel_url) {
       return jsonResponse({ error: 'Missing required fields' }, 400);
+    }
+
+    try {
+      assertAllowedReturnUrls(success_url, cancel_url);
+    } catch (err) {
+      return jsonResponse(
+        { error: err instanceof Error ? err.message : 'Invalid return URLs' },
+        400,
+      );
     }
 
     const service = createServiceClient();
@@ -97,6 +108,14 @@ Deno.serve(async (req) => {
         return jsonResponse(
           { error: 'Family plan requires a household. Set up family profiles first.' },
           400,
+        );
+      }
+      try {
+        await assertHouseholdMembership(service, user.id, householdId);
+      } catch (err) {
+        return jsonResponse(
+          { error: err instanceof Error ? err.message : 'Invalid household' },
+          403,
         );
       }
     }

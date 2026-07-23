@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -8,6 +9,7 @@ import { useSettingsStore } from '@/domains/profile/store';
 import { supabase } from '@/lib/supabase';
 
 const FALLBACK_EAS_PROJECT_ID = 'de6abf70-ee13-417b-915f-9dea1066ed27';
+const REGISTERED_TOKEN_KEY = 'caremate_expo_push_token';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -102,7 +104,10 @@ export async function syncPushRegistration(): Promise<void> {
 
     if (error) {
       console.warn('syncPushRegistration', error.message);
+      return;
     }
+
+    await AsyncStorage.setItem(REGISTERED_TOKEN_KEY, token);
   } catch (err) {
     console.warn('syncPushRegistration', err instanceof Error ? err.message : err);
   }
@@ -110,6 +115,7 @@ export async function syncPushRegistration(): Promise<void> {
 
 /**
  * Remove this device's push token (prefs off or sign-out). Best-effort.
+ * Never falls back to deleting every device for the user.
  */
 export async function clearPushRegistration(): Promise<void> {
   try {
@@ -121,27 +127,30 @@ export async function clearPushRegistration(): Promise<void> {
     const platform = resolvePlatform();
     if (!platform) return;
 
-    let token: string | null = null;
-    try {
-      const projectId = resolveProjectId();
-      if (projectId) {
-        const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
-        token = tokenResult.data?.trim() || null;
+    let token = (await AsyncStorage.getItem(REGISTERED_TOKEN_KEY))?.trim() || null;
+    if (!token) {
+      try {
+        const projectId = resolveProjectId();
+        if (projectId) {
+          const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
+          token = tokenResult.data?.trim() || null;
+        }
+      } catch {
+        token = null;
       }
-    } catch {
-      token = null;
     }
 
-    if (token) {
-      await supabase
-        .from('notification_devices')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('expo_push_token', token);
+    if (!token) {
+      await AsyncStorage.removeItem(REGISTERED_TOKEN_KEY);
       return;
     }
 
-    await supabase.from('notification_devices').delete().eq('user_id', user.id);
+    await supabase
+      .from('notification_devices')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('expo_push_token', token);
+    await AsyncStorage.removeItem(REGISTERED_TOKEN_KEY);
   } catch (err) {
     console.warn('clearPushRegistration', err instanceof Error ? err.message : err);
   }

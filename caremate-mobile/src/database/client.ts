@@ -4,9 +4,17 @@ import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
 import { Platform } from 'react-native';
 
 import * as schema from '@/database/schema';
+import {
+  buildSqlCipherKeyPragma,
+  getOrCreateSqliteEncryptionKey,
+  shouldEncryptSqlite,
+} from '@/database/encryption-key';
 import migrations from '@/database/migrations/migrations';
 
-const DATABASE_NAME = 'caremate.db';
+/** Encrypted on-device DB (SQLCipher). */
+export const DATABASE_NAME = 'caremate.secure.db';
+/** Pre-encryption plaintext file — deleted on first secure boot. */
+export const LEGACY_DATABASE_NAME = 'caremate.db';
 
 let sqliteDb: SQLite.SQLiteDatabase | null = null;
 let drizzleDb: ReturnType<typeof drizzle<typeof schema>> | null = null;
@@ -36,6 +44,68 @@ export function getDatabase() {
 
 export function isDatabaseInitialized(): boolean {
   return Boolean(sqliteDb && drizzleDb);
+}
+
+async function applyEncryptionKey(database: SQLite.SQLiteDatabase): Promise<boolean> {
+  if (!shouldEncryptSqlite()) {
+    return false;
+  }
+
+  const hexKey = await getOrCreateSqliteEncryptionKey();
+  const pragma = buildSqlCipherKeyPragma(hexKey);
+
+  if (isWebBrowser()) {
+    await database.execAsync(pragma);
+    return false;
+  }
+
+  database.execSync(pragma);
+
+  // Stock SQLite ignores PRAGMA key; SQLCipher reports a cipher_version.
+  const cipher = database.getFirstSync<{ cipher_version: string | null }>('PRAGMA cipher_version');
+  if (!cipher?.cipher_version) {
+    return false;
+  }
+
+  // Fail if this file is not decryptable with our key (e.g. leftover plaintext).
+  database.getFirstSync('SELECT count(*) AS c FROM sqlite_master');
+  return true;
+}
+
+async function openNativeDatabase(): Promise<SQLite.SQLiteDatabase> {
+  const tryOpen = async (): Promise<SQLite.SQLiteDatabase> => {
+    const database = SQLite.openDatabaseSync(DATABASE_NAME);
+    await applyEncryptionKey(database);
+    return database;
+  };
+
+  try {
+    return await tryOpen();
+  } catch {
+    // Recreate if a pre-SQLCipher plaintext file or stale key cannot be opened.
+    try {
+      SQLite.deleteDatabaseSync(DATABASE_NAME);
+    } catch {
+      // ignore
+    }
+    return tryOpen();
+  }
+}
+
+async function removeLegacyPlaintextDatabase(): Promise<void> {
+  if (!shouldEncryptSqlite()) {
+    return;
+  }
+
+  try {
+    if (isWebBrowser()) {
+      await SQLite.deleteDatabaseAsync(LEGACY_DATABASE_NAME);
+    } else {
+      SQLite.deleteDatabaseSync(LEGACY_DATABASE_NAME);
+    }
+  } catch {
+    // Missing legacy file is expected after the first secure boot.
+  }
 }
 
 async function applyPragmas(database: SQLite.SQLiteDatabase): Promise<void> {
@@ -121,16 +191,26 @@ export async function initializeDatabase(): Promise<void> {
 
   if (!initPromise) {
     initPromise = (async () => {
+      // Drop pre-SQLCipher plaintext DB once; signed-in users rehydrate via sync.
+      await removeLegacyPlaintextDatabase();
+
       if (isWebBrowser()) {
         // openDatabaseSync blocks on a web worker and commonly times out on web.
         sqliteDb = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        await applyEncryptionKey(sqliteDb);
       } else {
-        sqliteDb = SQLite.openDatabaseSync(DATABASE_NAME);
+        sqliteDb = await openNativeDatabase();
       }
 
       await runMigrations(sqliteDb);
       drizzleDb = drizzle(sqliteDb, { schema });
-    })();
+    })().catch((error) => {
+      // Allow a later retry after a failed boot (wrong key / native rebuild pending).
+      initPromise = null;
+      sqliteDb = null;
+      drizzleDb = null;
+      throw error;
+    });
   }
 
   await initPromise;

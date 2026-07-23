@@ -242,7 +242,7 @@ describe('migrateGuestLocalData', () => {
     await migrateGuestLocalData('user-1');
     expect(mockSaveSettings).toHaveBeenCalledWith(
       'user-1',
-      expect.objectContaining({ theme: 'dark', subscribedCategoryIds: ['heart'] }),
+      expect.objectContaining({ theme: 'light', subscribedCategoryIds: ['heart'] }),
     );
     expect(mockSaveProfile).toHaveBeenCalledWith(
       'user-1',

@@ -1,3 +1,5 @@
+import { isAllowedAppReturnUrl, sanitizeAppReturnUrl } from '@/lib/return-url';
+
 export type PlanType = 'personal' | 'family';
 export type BillingInterval = 'monthly' | 'yearly';
 export type BillingCurrency = 'NGN' | 'USD';
@@ -33,8 +35,14 @@ export function parseCheckoutParams(search: URLSearchParams): CheckoutParams | {
   const currency = (readParam(search, ['currency']) ?? 'USD').toUpperCase();
   const householdId = readParam(search, ['household_id', 'householdId']);
   const patientId = readParam(search, ['patient_id', 'patientId']);
-  const returnSuccess = readParam(search, ['return_success', 'success_url']) ?? DEFAULT_SUCCESS;
-  const returnCancel = readParam(search, ['return_cancel', 'cancel_url']) ?? DEFAULT_CANCEL;
+  const returnSuccess = sanitizeAppReturnUrl(
+    readParam(search, ['return_success', 'success_url']),
+    DEFAULT_SUCCESS,
+  );
+  const returnCancel = sanitizeAppReturnUrl(
+    readParam(search, ['return_cancel', 'cancel_url']),
+    DEFAULT_CANCEL,
+  );
 
   if (!planType || !PLAN_TYPES.has(planType)) {
     return { error: 'Missing or invalid plan_type (personal | family).' };
@@ -83,5 +91,10 @@ export function formatAmount(amountMinor: number, currency: BillingCurrency): st
 }
 
 export function openAppDeepLink(url: string) {
+  if (!isAllowedAppReturnUrl(url)) {
+    return;
+  }
   window.location.href = url;
 }
+
+export { isAllowedAppReturnUrl, sanitizeAppReturnUrl };

@@ -105,6 +105,7 @@ export interface ArticleCategory {
 
 export interface AppSettings extends BaseEntity {
   userId: string;
+  /** Always light — dark/system values may exist in legacy rows but are ignored. */
   theme: 'light' | 'dark' | 'system';
   notificationsEnabled: boolean;
   subscribedCategoryIds: string[];

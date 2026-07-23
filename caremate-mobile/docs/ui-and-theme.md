@@ -35,7 +35,7 @@ Defined in `src/theme/colors.ts` → `palette`:
 | `textSecondary` | `#6B7280` | Subtitles, captions |
 | `divider` | `#E5E7EB` | Borders |
 
-Dark mode semantic tokens exist in `colors.dark` and are used by `useAppTheme()` and GluestackUIProvider.
+Dark mode is **not supported**. CareMate is light-only (`userInterfaceStyle: light`, Uniwind/Gluestack forced to `light`), even when the device system appearance is dark. Appearance toggles were removed from Settings.
 
 ---
 

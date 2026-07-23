@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
@@ -16,12 +17,16 @@ export function MiniAppScreen({
   children: ReactNode;
   contentStyle?: StyleProp<ViewStyle>;
 }) {
+  const insets = useSafeAreaInsets();
+  // Clear home-indicator / gesture bar so trailing CTAs stay fully tappable.
+  const bottomPad = insets.bottom + spacing.xl;
+
   return (
     <View style={styles.screen}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[styles.content, contentStyle]}
+        contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
       >
         {children}
       </ScrollView>
@@ -279,7 +284,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
-    paddingBottom: 40,
     gap: spacing.md,
   },
   heroShell: {

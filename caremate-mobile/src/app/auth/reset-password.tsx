@@ -13,8 +13,8 @@ import { spacing } from '@/theme/colors';
 
 const schema = z
   .object({
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm your password'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(8, 'Confirm your password'),
   })
   .refine((values) => values.password === values.confirmPassword, {
     message: 'Passwords do not match',

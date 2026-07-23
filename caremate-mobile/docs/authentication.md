@@ -33,7 +33,7 @@ Implementation spans:
 | `initialize()` | Called on app boot. Restores session from SecureStore → Supabase `getSession()`. Falls back to guest. |
 | `signIn(email, password)` | Supabase password auth + local account bootstrap |
 | `signUp(email, password, fullName, phone)` | Creates Supabase user + local profile + emergency profile |
-| `signOut()` | Clears session → returns to guest |
+| `signOut()` | Clears push for this device, wipes local account data, clears session → guest |
 | `setBiometricEnabled(enabled)` | Persists preference |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
@@ -75,7 +75,9 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 
 ## Biometric unlock
 
-`authService` still exposes biometric helpers (`authenticateWithBiometrics`, preference get/set) for a future app-lock flow. The Me-tab toggle is **hidden** until biometrics actually gate launch / sensitive surfaces — the preference alone must not imply security.
+When enabled in Settings, `BiometricLockGate` prompts via `expo-local-authentication` on cold start and when returning from background. Preference is stored in SecureStore (`authService.setBiometricEnabled`).
+
+See [Security](./security.md#app-lock--passwords).
 
 ---
 

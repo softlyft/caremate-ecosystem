@@ -34,6 +34,13 @@ jest.mock('react-native', () => ({
   Platform: { OS: 'ios' },
 }));
 
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(async () => null),
+  setItem: jest.fn(async () => undefined),
+  removeItem: jest.fn(async () => undefined),
+  multiRemove: jest.fn(async () => undefined),
+}));
+
 jest.mock('@/features/auth/store', () => ({
   useAuthStore: {
     getState: jest.fn(),
