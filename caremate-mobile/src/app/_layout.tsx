@@ -9,6 +9,7 @@ import { AppProviders } from '@/components/AppProviders';
 import { AuthDeepLinkHandler } from '@/components/AuthDeepLinkHandler';
 import { BillingDeepLinkHandler } from '@/components/BillingDeepLinkHandler';
 import { BiometricLockGate } from '@/components/BiometricLockGate';
+import { EmergencyShareDeepLinkHandler } from '@/components/EmergencyShareDeepLinkHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { useAuthStore } from '@/features/auth/store';
@@ -44,6 +45,7 @@ function RootLayout() {
           <BiometricLockGate>
             <AuthDeepLinkHandler />
             <BillingDeepLinkHandler />
+            <EmergencyShareDeepLinkHandler />
             <Stack
               screenOptions={{
                 headerStyle: { backgroundColor: '#FFFFFF' },
@@ -55,6 +57,10 @@ function RootLayout() {
               <Stack.Screen
                 name="emergency-lock"
                 options={{ headerShown: false, title: 'Emergency' }}
+              />
+              <Stack.Screen
+                name="emergency/share/[token]"
+                options={{ headerShown: false, title: 'Emergency share' }}
               />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(app)" options={{ headerShown: false }} />

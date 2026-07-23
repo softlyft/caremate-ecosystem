@@ -31,6 +31,8 @@ export interface Profile extends BaseEntity {
   state: string | null;
   /** CareMate Patient ID — 12 digits, minted on demand (not at signup). */
   patientId: string | null;
+  /** Opaque QR share token (`caremate://emergency/share/<token>`). */
+  emergencyShareToken: string | null;
 }
 
 export interface EmergencyProfile extends BaseEntity {

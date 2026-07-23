@@ -204,16 +204,29 @@ Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **
 
 ## Emergency Profile
 
-Emergency profile data is intended to be available offline and also surfaced through the lock/widget layer.
+Emergency profile data is intended to be available offline in the app. Lock Screen / Home Screen widgets no longer show PHI.
 
-### Routes
+### Screens
 
 | Route | Purpose |
 |-------|---------|
-| `/(app)/emergency` | View profile |
-| `/(app)/emergency/edit` | Edit profile |
+| `/(app)/emergency` | View emergency profile |
+| `/(app)/emergency/edit` | Create / edit |
 | `/(app)/emergency/qr` | Redirects to Me → Patient ID card (QR on card back) |
-| `/emergency-lock` | Public emergency card |
+| `/emergency/share/[token]` | Auth-gated view of another user’s emergency (from QR) |
+
+### Lock and widget surface
+
+- Widgets are retired: `syncEmergencyLockSurface` always clears native widgets / AsyncStorage
+- Legacy `caremate://emergency-lock` shows a retirement notice pointing to Patient ID QR
+- Expo Go: widget updates remain stubbed
+
+### Patient ID QR (share)
+
+- Account required to generate Patient ID + opaque `emergency_share_token`
+- QR encodes `caremate://emergency/share/<token>` only (no PHI in the barcode)
+- Scanner / OS camera opens CareMate; viewer must be signed in (not guest)
+- Server RPC `get_emergency_by_share_token` returns a narrow emergency card for authenticated callers
 
 ### Editable data
 
@@ -226,17 +239,6 @@ Emergency profile data is intended to be available offline and also surfaced thr
 - Notes
 
 `photoUrl` exists in schema but is not exposed in the current edit flow.
-
-### Lock and widget surface
-
-- iOS: widget/lock-screen support via `expo-widgets` (CareMate + EMERGENCY hierarchy with teal ink; lock accessories stay minimal)
-- Android: Glance home widget under `modules/emergency-lock-widget` (teal card panel matching Patient ID palette)
-- In-app `/emergency-lock`: teal ATM-style emergency card (same visual family as Patient ID; no flip/QR)
-- Expo Go: widget updates are stubbed
-
-### Current limitations
-
-- Scannable Patient ID QR lives on the Me → Patient ID card (not on the emergency widget)
 
 ## Family
 

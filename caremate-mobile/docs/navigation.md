@@ -232,7 +232,8 @@ URL scheme: `caremate://` (from `app.json` → `scheme`).
 
 | Deep link | Screen |
 |-----------|--------|
-| `caremate://emergency-lock` | Public emergency card |
+| `caremate://emergency-lock` | Legacy — retired lock card (points to Patient ID) |
+| `caremate://emergency/share/<token>` | Auth-gated emergency share (from Patient ID QR) |
 | `caremate://auth/reset-password` | Password reset (after Supabase email; allowlist in Supabase Redirect URLs) |
 
 Exact Expo Go / dev URIs may use `exp://…/--/auth/reset-password` via `Linking.createURL` — use the value shown on the forgot-password screen in `__DEV__`.

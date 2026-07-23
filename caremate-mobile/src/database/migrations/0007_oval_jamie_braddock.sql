@@ -1,0 +1,1 @@
+ALTER TABLE `profiles` ADD `emergency_share_token` text;

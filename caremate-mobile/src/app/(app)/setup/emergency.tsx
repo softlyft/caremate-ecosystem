@@ -74,7 +74,7 @@ export default function SetupEmergencyEssentialsScreen() {
     setBusy(true);
     try {
       const existing = await emergencyRepository.findByUserId(userId);
-      const saved = await emergencyRepository.save(userId, {
+      await emergencyRepository.save(userId, {
         fullName: existing?.fullName ?? '',
         bloodGroup,
         genotype,
@@ -90,7 +90,7 @@ export default function SetupEmergencyEssentialsScreen() {
           },
         ],
       });
-      await syncEmergencyLockSurface(saved);
+      await syncEmergencyLockSurface(null);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
       await goNext();
     } catch (error) {

@@ -55,19 +55,35 @@
     "lastNameRequired": "Last name is required",
     "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK)",
     "bloodGroupRequired": "Select a blood group",
-    "genotypeRequired": "Select a genotype",
-    "lockScreenTitle": "Show on Lock Screen",
-    "lockScreenHint": "Surfaces blood type and your first ICE contact on the CareMate widget (iOS Lock Screen / Android Home Screen)."
+    "genotypeRequired": "Select a genotype"
   },
   "qr": {
     "title": "Patient ID QR",
     "loading": "Opening Patient ID card...",
     "redirectHint": "QR codes live on the back of your Patient ID card on the Me tab."
   },
+  "share": {
+    "loading": "Loading emergency card...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Emergency details",
+    "help": "Shared via CareMate Patient ID QR. Sign-in is required to view.",
+    "noProfileYet": "This CareMate ID has no emergency profile yet.",
+    "noneListed": "None listed",
+    "invalidTitle": "Invalid QR link",
+    "invalidMessage": "This emergency share link is not valid.",
+    "notFoundTitle": "Not found",
+    "notFoundMessage": "No emergency share matches this code.",
+    "errorTitle": "Couldn't load",
+    "errorMessage": "Check your connection and try again."
+  },
   "lock": {
     "title": "Emergency card",
-    "loading": "Loading emergency info...",
-    "badge": "FOR FIRST RESPONDERS",
+    "loading": "Loading...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Lock screen widgets retired",
+    "retiredHelp": "Emergency details stay in the CareMate app. Share them with your Patient ID QR card.",
+    "retiredBody": "Lock Screen and Home Screen widgets no longer show health information. Generate a Patient ID on the Me tab — the QR on the back opens CareMate for signed-in viewers.",
+    "openPatientId": "Open Patient ID card",
     "cardBadge": "EMERGENCY",
     "call": "Call ICE",
     "callContact": "Call emergency contact",
@@ -77,13 +93,13 @@
     "widgetAndroid": "Add the CareMate “Emergency Info” widget to your Home Screen (long-press home → Widgets).",
     "minimalFields": "Minimal fields shown: name, blood group, genotype, allergies, and your first ICE contact.",
     "noProfile": "No emergency profile",
-    "noProfileMessage": "Open CareMate, create an Emergency Health Profile, and enable lock-screen visibility.",
+    "noProfileMessage": "Open CareMate and create an Emergency Health Profile.",
     "contactTitle": "Emergency contact",
     "contactName": "Name",
     "noContact": "No ICE contact saved.",
     "noneListed": "None listed",
-    "footnoteIos": "Add the CareMate Emergency Info widget to your Lock Screen for glanceable access when the device is locked.",
-    "footnoteAndroid": "Add the CareMate Emergency Info widget to your Home Screen. On Android, emergency responders can also open this card from the widget."
+    "footnoteIos": "Use your Patient ID QR instead of lock-screen widgets.",
+    "footnoteAndroid": "Use your Patient ID QR instead of home-screen widgets."
   },
   "widget": "Update lock-screen widget",
   "preview": "Preview lock screen"

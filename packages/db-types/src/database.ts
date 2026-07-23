@@ -1920,6 +1920,7 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           email: string | null
+          emergency_share_token: string | null
           full_name: string
           id: string
           language_code: string | null
@@ -1935,6 +1936,7 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          emergency_share_token?: string | null
           full_name: string
           id: string
           language_code?: string | null
@@ -1950,6 +1952,7 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          emergency_share_token?: string | null
           full_name?: string
           id?: string
           language_code?: string | null
@@ -2795,6 +2798,10 @@ export type Database = {
       family_adult_invite_seats_used: {
         Args: { p_household_id: string }
         Returns: number
+      }
+      get_emergency_by_share_token: {
+        Args: { p_token: string }
+        Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
       is_community_leader: { Args: { p_chapter_id: string }; Returns: boolean }

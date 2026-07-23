@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Emergency profile",
     "body": "Keep blood type, allergies, and ICE contacts ready offline.",
-    "cta": "Set up"
+    "cta": "Set up",
+    "ctaUpdate": "Update"
   },
   "featuredArticles": {
     "title": "For you",

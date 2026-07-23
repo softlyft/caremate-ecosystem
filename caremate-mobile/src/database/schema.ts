@@ -19,6 +19,8 @@ export const profiles = sqliteTable('profiles', {
   languageCode: text('language_code'),
   state: text('state'),
   patientId: text('patient_id'),
+  /** Opaque token for Patient ID QR → emergency share deep link. */
+  emergencyShareToken: text('emergency_share_token'),
   ...syncColumns,
 });
 

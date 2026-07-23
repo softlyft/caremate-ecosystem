@@ -7,10 +7,9 @@ import {
   Phone,
   QrCode,
   ShieldPlus,
-  Smartphone,
   UserRoundPen,
 } from 'lucide-react-native';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -198,29 +197,6 @@ export default function EmergencyViewScreen() {
         </AnimatedSection>
 
         <AnimatedSection index={3}>
-          <View style={[styles.card, shadow.soft]}>
-            <View style={styles.lockRow}>
-              <View style={styles.contactIcon}>
-                <Smartphone color={ACCENT} size={16} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <AppText variant="caption" style={styles.sectionEyebrow}>
-                  {t('emergency.lock.accessTitle')}
-                </AppText>
-                <AppText variant="body" style={styles.lockBody}>
-                  {Platform.OS === 'ios'
-                    ? t('emergency.lock.widgetIos')
-                    : t('emergency.lock.widgetAndroid')}
-                </AppText>
-                <AppText variant="caption" style={[styles.muted, { marginTop: spacing.xs }]}>
-                  {t('emergency.lock.minimalFields')}
-                </AppText>
-              </View>
-            </View>
-          </View>
-        </AnimatedSection>
-
-        <AnimatedSection index={4}>
           <View style={styles.actions}>
             <PressableScale
               style={[styles.primaryCta, shadow.soft]}
@@ -229,16 +205,6 @@ export default function EmergencyViewScreen() {
               <UserRoundPen color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('emergency.editProfile')}
-              </AppText>
-            </PressableScale>
-
-            <PressableScale
-              style={styles.secondaryCta}
-              onPress={() => router.push('/emergency-lock')}
-            >
-              <Smartphone color={ACCENT} size={18} strokeWidth={2.25} />
-              <AppText variant="button" style={styles.secondaryCtaLabel}>
-                {t('emergency.preview')}
               </AppText>
             </PressableScale>
 
@@ -436,14 +402,6 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: palette.textSecondary,
-  },
-  lockRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  lockBody: {
-    marginTop: spacing.xs,
-    color: palette.text,
   },
   actions: {
     gap: spacing.sm,

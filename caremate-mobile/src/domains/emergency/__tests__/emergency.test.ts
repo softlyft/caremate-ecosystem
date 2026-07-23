@@ -156,11 +156,9 @@ describe('emergency/lock-surface', () => {
     );
   });
 
-  it('defaults lock surface to disabled (opt-in) and persists the toggle', async () => {
+  it('defaults lock surface to disabled and ignores enable attempts', async () => {
     await expect(isEmergencyLockSurfaceEnabled()).resolves.toBe(false);
     await setEmergencyLockSurfaceEnabled(true);
-    await expect(isEmergencyLockSurfaceEnabled()).resolves.toBe(true);
-    await setEmergencyLockSurfaceEnabled(false);
     await expect(isEmergencyLockSurfaceEnabled()).resolves.toBe(false);
   });
 
@@ -170,16 +168,8 @@ describe('emergency/lock-surface', () => {
     await expect(readEmergencyLockSnapshot()).resolves.toMatchObject({ hasProfile: false });
   });
 
-  it('syncs a profile snapshot to storage when enabled', async () => {
+  it('always writes an empty snapshot even when a profile is provided', async () => {
     await setEmergencyLockSurfaceEnabled(true);
-    await syncEmergencyLockSurface(makeProfile());
-    const stored = await readEmergencyLockSnapshot();
-    expect(stored.hasProfile).toBe(true);
-    expect(stored.fullName).toBe('Ada Lovelace');
-  });
-
-  it('writes an empty snapshot when the lock surface is disabled', async () => {
-    await setEmergencyLockSurfaceEnabled(false);
     await syncEmergencyLockSurface(makeProfile());
     const stored = await readEmergencyLockSnapshot();
     expect(stored.hasProfile).toBe(false);

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
   Alert,
@@ -24,11 +24,7 @@ import {
   joinFullName,
   splitFullName,
 } from '@/domains/emergency/constants';
-import {
-  isEmergencyLockSurfaceEnabled,
-  setEmergencyLockSurfaceEnabled,
-  syncEmergencyLockSurface,
-} from '@/domains/emergency/lock-surface';
+import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import {
   hasRequiredIceContact,
   isCompleteIceContact,
@@ -44,7 +40,6 @@ import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { useTranslation } from '@/domains/localization';
-import { Switch } from '@/components/ui/switch';
 import { palette, radius, spacing, useAppTheme } from '@/theme';
 
 const EMERGENCY_ACCENT = palette.brandPurple;
@@ -87,7 +82,6 @@ export default function EmergencyEditScreen() {
   const [contactsSource, setContactsSource] = useState<EmergencyContact[] | undefined>(undefined);
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
   const [contactError, setContactError] = useState<string | null>(null);
-  const [lockSurfaceEnabled, setLockSurfaceEnabled] = useState(false);
 
   const schema = useMemo(
     () =>
@@ -123,10 +117,6 @@ export default function EmergencyEditScreen() {
     setContactsSource(query.data.emergencyContacts);
     setContacts(query.data.emergencyContacts);
   }
-
-  useEffect(() => {
-    void isEmergencyLockSurfaceEnabled().then(setLockSurfaceEnabled);
-  }, []);
 
   const existingName = splitFullName(query.data?.fullName ?? '');
 
@@ -260,8 +250,7 @@ export default function EmergencyEditScreen() {
       await profileRepository.save(userId, {
         fullName: saved.fullName,
       });
-      await setEmergencyLockSurfaceEnabled(lockSurfaceEnabled);
-      await syncEmergencyLockSurface(lockSurfaceEnabled ? saved : null);
+      await syncEmergencyLockSurface(null);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
       router.back();
@@ -506,14 +495,6 @@ export default function EmergencyEditScreen() {
             />
           </View>
 
-          <View style={styles.lockRow}>
-            <View style={styles.lockCopy}>
-              <AppText variant="cardTitle">{t('emergency.edit.lockScreenTitle')}</AppText>
-              <AppText variant="caption">{t('emergency.edit.lockScreenHint')}</AppText>
-            </View>
-            <Switch value={lockSurfaceEnabled} onValueChange={setLockSurfaceEnabled} />
-          </View>
-
           {formState.errors.firstName ||
           formState.errors.lastName ||
           formState.errors.bloodGroup ||
@@ -578,15 +559,5 @@ const styles = StyleSheet.create({
   contactInfo: {
     flex: 1,
     gap: 2,
-  },
-  lockRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  lockCopy: {
-    flex: 1,
-    gap: 4,
   },
 });

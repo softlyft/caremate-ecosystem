@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { ChevronRight, ShieldPlus } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
@@ -5,11 +6,38 @@ import { StyleSheet, View } from 'react-native';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { QUERY_KEYS } from '@/constants/config';
+import { emergencyRepository } from '@/domains/emergency/repository';
 import { useTranslation } from '@/domains/localization';
+import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import type { EmergencyProfile } from '@/types';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
+
+function hasAnyEmergencyInput(profile: EmergencyProfile | null | undefined): boolean {
+  if (!profile) return false;
+  return Boolean(
+    profile.fullName.trim() ||
+      profile.bloodGroup?.trim() ||
+      profile.genotype?.trim() ||
+      profile.allergies.length ||
+      profile.currentMedications.length ||
+      profile.chronicConditions.length ||
+      profile.emergencyContacts.length ||
+      profile.preferredHospital?.trim() ||
+      profile.insuranceProvider?.trim() ||
+      profile.notes?.trim(),
+  );
+}
 
 export function EmergencyBanner() {
   const { t } = useTranslation();
+  const userId = useCurrentUserId();
+  const emergencyQuery = useQuery({
+    queryKey: [...QUERY_KEYS.emergencyProfile, userId],
+    queryFn: () => emergencyRepository.findByUserId(userId),
+  });
+  const hasInput = hasAnyEmergencyInput(emergencyQuery.data);
+  const ctaLabel = hasInput ? t('home.emergency.ctaUpdate') : t('home.emergency.cta');
 
   return (
     <PressableScale
@@ -40,7 +68,7 @@ export function EmergencyBanner() {
         </View>
         <View style={styles.cta}>
           <AppText variant="button" style={{ color: palette.brandPurple }}>
-            {t('home.emergency.cta')}
+            {ctaLabel}
           </AppText>
           <ChevronRight color={palette.brandPurple} size={16} strokeWidth={2.5} />
         </View>
