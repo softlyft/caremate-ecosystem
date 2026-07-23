@@ -113,7 +113,8 @@ export default function EmergencyShareScreen() {
   }
 
   const contact = payload.emergencyContacts[0];
-  const list = (items: string[]) => (items.length ? items.join(', ') : t('emergency.share.noneListed'));
+  const list = (items: string[]) =>
+    items.length ? items.join(', ') : t('emergency.share.noneListed');
 
   return (
     <View style={styles.screen}>

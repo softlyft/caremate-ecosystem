@@ -136,10 +136,8 @@ export async function fetchEmergencyByShareToken(
     chronicConditions: Array.isArray(row.chronic_conditions)
       ? row.chronic_conditions.filter((v): v is string => typeof v === 'string')
       : [],
-    preferredHospital:
-      typeof row.preferred_hospital === 'string' ? row.preferred_hospital : null,
-    insuranceProvider:
-      typeof row.insurance_provider === 'string' ? row.insurance_provider : null,
+    preferredHospital: typeof row.preferred_hospital === 'string' ? row.preferred_hospital : null,
+    insuranceProvider: typeof row.insurance_provider === 'string' ? row.insurance_provider : null,
     notes: typeof row.notes === 'string' ? row.notes : null,
     emergencyContacts,
     hasProfile: row.has_profile === true,

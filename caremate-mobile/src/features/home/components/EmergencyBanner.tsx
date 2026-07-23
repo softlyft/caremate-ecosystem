@@ -17,15 +17,15 @@ function hasAnyEmergencyInput(profile: EmergencyProfile | null | undefined): boo
   if (!profile) return false;
   return Boolean(
     profile.fullName.trim() ||
-      profile.bloodGroup?.trim() ||
-      profile.genotype?.trim() ||
-      profile.allergies.length ||
-      profile.currentMedications.length ||
-      profile.chronicConditions.length ||
-      profile.emergencyContacts.length ||
-      profile.preferredHospital?.trim() ||
-      profile.insuranceProvider?.trim() ||
-      profile.notes?.trim(),
+    profile.bloodGroup?.trim() ||
+    profile.genotype?.trim() ||
+    profile.allergies.length ||
+    profile.currentMedications.length ||
+    profile.chronicConditions.length ||
+    profile.emergencyContacts.length ||
+    profile.preferredHospital?.trim() ||
+    profile.insuranceProvider?.trim() ||
+    profile.notes?.trim(),
   );
 }
 

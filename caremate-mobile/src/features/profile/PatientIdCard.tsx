@@ -14,10 +14,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
-import {
-  buildEmergencyShareUrl,
-  isValidEmergencyShareToken,
-} from '@/domains/emergency/share';
+import { buildEmergencyShareUrl, isValidEmergencyShareToken } from '@/domains/emergency/share';
 import { formatPatientId, isValidPatientId } from '@/domains/profile/patient-id';
 import { profileRepository } from '@/domains/profile/repository';
 import { syncEngine } from '@/sync/engine';

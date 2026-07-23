@@ -4,10 +4,7 @@ import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
 import { isWeakDisplayName } from '@/domains/profile/display-name';
 import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
-import {
-  generateEmergencyShareToken,
-  isValidEmergencyShareToken,
-} from '@/domains/emergency/share';
+import { generateEmergencyShareToken, isValidEmergencyShareToken } from '@/domains/emergency/share';
 import { config } from '@/constants/env';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { supabase } from '@/lib/supabase';
@@ -271,10 +268,7 @@ class ProfileRepository extends BaseRepository {
     return this.save(userId, { emergencyShareToken: shareToken });
   }
 
-  private async allocateEmergencyShareToken(
-    userId: string,
-    online: boolean,
-  ): Promise<string> {
+  private async allocateEmergencyShareToken(userId: string, online: boolean): Promise<string> {
     for (let attempt = 0; attempt < 12; attempt += 1) {
       const candidate = await generateEmergencyShareToken();
       if (online) {
@@ -496,8 +490,7 @@ class ProfileRepository extends BaseRepository {
             languageCode: row.language_code ?? existingLocal.languageCode,
             state: row.state ?? existingLocal.state,
             patientId: row.patient_id ?? existingLocal.patientId,
-            emergencyShareToken:
-              row.emergency_share_token ?? existingLocal.emergencyShareToken,
+            emergencyShareToken: row.emergency_share_token ?? existingLocal.emergencyShareToken,
             syncStatus: 'pending',
             updatedAt: timestamp,
           },
