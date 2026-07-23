@@ -22,7 +22,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "hospital",
                 "display": "Hospital"
               }
@@ -89,7 +89,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 2.4
           }
         ]
@@ -111,7 +111,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "pharmacy",
                 "display": "Pharmacy"
               }
@@ -175,7 +175,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 1.8
           }
         ]
@@ -197,7 +197,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "laboratory",
                 "display": "Laboratory"
               }
@@ -250,7 +250,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 3.1
           }
         ]
@@ -272,7 +272,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "dentist",
                 "display": "Dentist"
               }
@@ -325,7 +325,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 4.2
           }
         ]
@@ -347,7 +347,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "clinic",
                 "display": "Clinic"
               }
@@ -411,7 +411,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 5.6
           }
         ]
@@ -433,7 +433,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "mental_health",
                 "display": "Mental Health"
               }
@@ -486,7 +486,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 6.1
           }
         ]
@@ -508,7 +508,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "ambulance",
                 "display": "Ambulance"
               }
@@ -561,7 +561,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 2.9
           }
         ]
@@ -583,7 +583,7 @@
                 "display": "Healthcare Provider"
               },
               {
-                "system": "https://caremate.app/fhir/CodeSystem/provider-type",
+                "system": "https://getcaremate.com/fhir/CodeSystem/provider-type",
                 "code": "blood_bank",
                 "display": "Blood Bank"
               }
@@ -636,7 +636,7 @@
         },
         "extension": [
           {
-            "url": "https://caremate.app/fhir/StructureDefinition/distance-km",
+            "url": "https://getcaremate.com/fhir/StructureDefinition/distance-km",
             "valueDecimal": 3.7
           }
         ]

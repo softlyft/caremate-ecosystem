@@ -74,7 +74,11 @@ See `supabase/functions/create-checkout-handoff`, `exchange-checkout-handoff`, a
 
 Password recovery: while `passwordRecoveryPending` is true, `/` and `(app)` redirect to `/auth/reset-password` until `updatePassword` succeeds.
 
-Prefer verified **Universal Links / App Links** for production auth callbacks when domain association is ready.
+Prefer verified **Universal Links / App Links** on `getcaremate.com` / `dev.getcaremate.com`
+(`/auth/*`, `/emergency/share/*`, `/billing/*`). Custom scheme `caremate://` remains as fallback
+(Expo Go, unverified installs). Host association files live on the marketing site
+(`.well-known/apple-app-site-association`, `.well-known/assetlinks.json`) — replace `TEAMID`
+and the Play signing SHA-256 before store launch.
 
 ---
 
@@ -95,7 +99,7 @@ Prefer verified **Universal Links / App Links** for production auth callbacks wh
 
 | Control | Detail |
 |---------|--------|
-| Biometric lock | Settings toggle → `BiometricLockGate` challenges on cold start and return from background |
+| App biometric lock | Removed — no Settings toggle / gate (OS-level device lock still applies) |
 | Password minimum | Client Zod ≥ 8 characters (align Supabase Auth `password_min_length`) |
 
 ---
@@ -111,7 +115,7 @@ Registered Expo tokens are stored locally so sign-out deletes **only this device
 | Area | Practice |
 |------|----------|
 | Android cleartext | Debug only; release ATS / no cleartext |
-| Permissions | Avoid legacy storage / `SYSTEM_ALERT_WINDOW` unless a feature requires them |
+| Permissions | Release strips `SYSTEM_ALERT_WINDOW` via `plugins/withRemoveSystemAlertWindow.js` (debug overlays keep it). Avoid legacy storage unless required |
 | iOS ATS | Arbitrary loads disabled in release Info.plist |
 | Rebuild | After changing `useSQLCipher`, run `npx expo prebuild` + `expo run:ios` / `run:android` (or EAS). Confirm `android/gradle.properties` and `ios/Podfile.properties.json` contain `expo.sqlite.useSQLCipher=true`. |
 
@@ -129,7 +133,6 @@ Registered Expo tokens are stored locally so sign-out deletes **only this device
 | Deep links | `src/lib/auth-deep-link.ts`, `src/components/AuthDeepLinkHandler.tsx` |
 | Recovery gate | `src/app/index.tsx`, `src/app/(app)/_layout.tsx` |
 | Checkout handoff | `src/domains/billing/repository.ts` + Edge Functions above |
-| Biometric gate | `src/components/BiometricLockGate.tsx` |
 | Push registration | `src/domains/notifications/push.ts` |
 | Family lookup mask | Supabase migration `*_family_lookup_mask_rate_limit.sql` |
 

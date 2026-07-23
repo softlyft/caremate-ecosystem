@@ -10,7 +10,9 @@ File: `.env` (copy from `.env.example`)
 |----------|----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | No | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
-| `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL |
+| `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL (`pay-dev` / `pay`) |
+| `EXPO_PUBLIC_WEBSITE_URL` | Legal / CCN | Marketing site origin (`dev.getcaremate.com` / `getcaremate.com`) |
+| `EXPO_PUBLIC_COMMUNITY_PORTAL_URL` | Community join | Community portal origin (`community-dev` / `community`) |
 | `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |
 | `EXPO_PUBLIC_SENTRY_DSN` | Prod monitoring | Sentry DSN; omit to disable crash reporting |
 | `EXPO_PUBLIC_SENTRY_ENABLE_IN_DEV` | No | Set `1` to send Sentry events from `__DEV__` (default off) |
@@ -59,7 +61,7 @@ export const config = {
 };
 ```
 
-Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app runs without Supabase, Sentry, or PostHog configured (guest + evergreen content; monitoring no-ops). External news is ingested by the SoftLyft admin portal and synced via Supabase.
+Only `EXPO_PUBLIC_*` variables are available in the Expo client bundle. The app runs without Supabase, Sentry, or PostHog configured (guest + evergreen content; monitoring no-ops). When Supabase env is missing, the client throws on use — call sites must check `isSupabaseConfigured` first (no placeholder host). External news is ingested by the SoftLyft admin portal and synced via Supabase.
 
 ---
 
@@ -77,8 +79,8 @@ Hosted CareMate legal pages opened from Settings → Legal:
 
 | Key | Default URL |
 |-----|-------------|
-| `privacy` | `https://caremate.app/privacy` |
-| `terms` | `https://caremate.app/terms` |
+| `privacy` | `{EXPO_PUBLIC_WEBSITE_URL}/privacy` (prod default `https://getcaremate.com/privacy`) |
+| `terms` | `{EXPO_PUBLIC_WEBSITE_URL}/terms` |
 
 Source pages live in the monorepo [`caremate-website/`](../../caremate-website/) package. Keep App Store / Play Console listing URLs aligned. Publish the site before relying on these links in production.
 
@@ -88,16 +90,18 @@ Public CareMate website surfaces opened from the app (outside Settings legal):
 
 | Key | Default URL | Opened from |
 |-----|-------------|-------------|
-| `communityNetwork` | `https://caremate.app/ccn` | Me → Join our movement |
+| `communityNetwork` | `{EXPO_PUBLIC_WEBSITE_URL}/ccn` | Me → Join our movement |
+| `communityJoin` | `{EXPO_PUBLIC_COMMUNITY_PORTAL_URL}/join` | Deep link to portal join |
 
-Enrollment continues on the Community Portal (`https://community.caremate.app/join`). See [`caremate-website/README.md`](../../caremate-website/README.md) and [`caremate-community-portal/docs`](../../caremate-community-portal/docs/README.md).
+Enrollment continues on the Community Portal (`https://community.getcaremate.com/join` in production, `https://community-dev.getcaremate.com/join` in development). See [`caremate-website/README.md`](../../caremate-website/README.md) and [`caremate-community-portal/docs`](../../caremate-community-portal/docs/README.md).
+
+Mode hosts: set in Amplify / EAS env (see [amplify-hosting](../../docs/amplify-hosting.md)). Localhost: copy `.env.local.example` → `.env.local`. Documented defaults live in `.env.example`.
 
 ### `STORAGE_KEYS`
 
 | Key | SecureStore key | Purpose |
 |-----|-----------------|---------|
 | `ONBOARDING_COMPLETE` | `onboarding_complete` | Skip onboarding flag |
-| `BIOMETRIC_ENABLED` | `biometric_enabled` | Biometric unlock preference |
 
 ### `SYNC_CONFIG`
 
@@ -172,7 +176,6 @@ Expo configuration at project root.
 | `expo-sqlite` | — |
 | `expo-secure-store` | — |
 | `expo-splash-screen` | White bg, `caremate-splash-icon.png`, width 160 |
-| `expo-local-authentication` | Face ID permission string |
 | `expo-localization` | Added via `app.config.ts` when missing |
 | `@sentry/react-native/expo` | Org/project via `SENTRY_ORG` / `SENTRY_PROJECT` (auth token env only) |
 
@@ -241,17 +244,26 @@ Gluestack UI project configuration for component generation CLI.
 
 ---
 
-## Supabase setup (production)
+## Supabase setup (linked project)
 
-Project: **caremate-dev** (`eybakmhqtotoywwgwgjy`), linked via Supabase CLI.
+**Current linked project:** `caremate-dev` (`eybakmhqtotoywwgwgjy`) — this is the **development** backend, not a separate production project.
 
-1. Create / use Supabase project and put URL + anon key in `.env`
-2. Link CLI (once per machine, from ecosystem root): `npm run supabase:link`
+There is no `caremate-prod` (or similarly named) Supabase project linked yet. Until one exists:
+
+- Local apps, Amplify DEV hosts, and EAS non-prod profiles should use `caremate-dev`
+- Do **not** point production / store builds at `caremate-dev` once a real prod project is created
+- Create a production project, put its URL + keys only in production Amplify / EAS secrets, and keep `npm run supabase:link` pointed at whichever environment you are migrating
+
+1. Create / use the intended Supabase project and put URL + anon key in `.env` / Amplify / EAS for that environment
+2. Link CLI (once per machine, from ecosystem root): `npm run supabase:link` (currently hard-coded to `caremate-dev`)
 3. Add SQL under ecosystem `supabase/migrations/` (`npm run supabase:migration:new <name>`)
 4. Apply to remote: `npm run supabase:db:push`
 5. Enable **Row Level Security** on all user tables (included in migrations)
 6. Configure Auth providers (email minimum)
-7. Auth → URL Configuration → Redirect URLs: allowlist `caremate://auth/reset-password` (and the Expo Go / dev `Linking.createURL` value shown on the forgot-password screen in `__DEV__`)
+7. Auth → URL Configuration → Redirect URLs: allowlist both
+   `https://getcaremate.com/auth/reset-password` (and `https://dev.getcaremate.com/…` for DEV)
+   and `caremate://auth/reset-password` (Expo Go / fallback). The forgot-password screen shows the
+   active redirect in `__DEV__`.
 
 ```bash
 # Prefer from ecosystem root, or use these proxies from caremate-mobile/

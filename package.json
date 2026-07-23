@@ -14,6 +14,7 @@
   ],
   "scripts": {
     "supabase:link": "supabase link --project-ref eybakmhqtotoywwgwgjy",
+    "supabase:link:dev": "supabase link --project-ref eybakmhqtotoywwgwgjy",
     "supabase:migration:new": "supabase migration new",
     "supabase:migration:list": "supabase migration list",
     "supabase:db:push": "supabase db push",

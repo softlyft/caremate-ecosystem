@@ -5,8 +5,8 @@ from typing import Protocol
 
 from app.canonical import ProviderCanonical
 
-PROVIDER_TYPE_SYSTEM = "https://caremate.app/fhir/CodeSystem/provider-type"
-ATTRIBUTES_EXTENSION = "https://caremate.app/fhir/StructureDefinition/provider-attributes"
+PROVIDER_TYPE_SYSTEM = "https://getcaremate.com/fhir/CodeSystem/provider-type"
+ATTRIBUTES_EXTENSION = "https://getcaremate.com/fhir/StructureDefinition/provider-attributes"
 # HL7 service-category codes when CSV does not supply a category
 DEFAULT_SERVICE_CATEGORY_SYSTEM = "http://terminology.hl7.org/CodeSystem/service-category"
 SERVICE_CATEGORY_BY_TYPE: dict[str, tuple[str, str]] = {

@@ -3,7 +3,7 @@
  * Rejects javascript:, data:, and arbitrary https origins (open redirect).
  */
 const ALLOWED_HTTPS_HOST_SUFFIXES = [
-  'caremate.app',
+  'getcaremate.com',
   'localhost',
   '127.0.0.1',
   'amplifyapp.com',
@@ -47,9 +47,14 @@ export function isAllowedAppReturnUrl(raw: string): boolean {
       );
       if (!hostOk) return false;
 
-      // Hosted checkout pages used as Stripe/Paystack callbacks.
+      // Hosted checkout pages used as Stripe/Paystack callbacks, or https app links.
       const path = url.pathname.replace(/\/+$/, '') || '/';
-      if (path === '/success' || path === '/cancel') {
+      if (
+        path === '/success' ||
+        path === '/cancel' ||
+        path === '/billing/success' ||
+        path === '/billing/cancel'
+      ) {
         const nested = url.searchParams.get('return');
         if (nested && !isAllowedAppReturnUrl(nested)) return false;
         return true;

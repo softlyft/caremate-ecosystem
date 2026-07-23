@@ -23,7 +23,7 @@ Out of scope here: App Store / Play disclosures, Amplify account IAM (see [`ampl
 
 | Threat | Controls |
 |--------|----------|
-| Checkout return URL → `javascript:` / phishing host | Allowlisted `caremate://billing/*` + `*.caremate.app` / localhost (`_shared/return-url.ts`, payment `return-url.ts`) |
+| Checkout return URL → `javascript:` / phishing host | Allowlisted `caremate://billing/*` + `*.getcaremate.com` / localhost (`_shared/return-url.ts`, payment `return-url.ts`) |
 | Session tokens in browser URL | Single-use `#handoff=` codes; legacy `#access_token` ignored |
 | Concurrent handoff race | Exchange updates `used_at` with `.is('used_at', null)` + `.select()`; clear tokens after claim |
 | Family billing IDOR (`household_id`) | `assertHouseholdMembership` on create-checkout / upgrade quote |
@@ -51,7 +51,7 @@ Migration: `20260723120000_checkout_handoffs_clear_tokens.sql` (tokens nullable 
 Accepted:
 
 - `caremate://billing/success` / `caremate://billing/cancel` (optional query)
-- `https://` payment-gateway `/success` or `/cancel` on allowlisted hosts (`*.caremate.app`, `*.amplifyapp.com`, localhost), with nested `return=` also allowlisted
+- `https://` payment-gateway `/success` or `/cancel` on allowlisted hosts (`*.getcaremate.com`, `*.amplifyapp.com`, localhost), with nested `return=` also allowlisted
 
 Rejected: `javascript:`, `data:`, arbitrary hosts, other `caremate://` paths, HTTPS paths other than `/success` or `/cancel`.
 

@@ -263,7 +263,7 @@ describe('providers/fhir-providers', () => {
               {
                 coding: [
                   {
-                    system: 'https://caremate.app/fhir/CodeSystem/provider-type',
+                    system: 'https://getcaremate.com/fhir/CodeSystem/provider-type',
                     code: 'hospital',
                   },
                 ],
@@ -275,7 +275,7 @@ describe('providers/fhir-providers', () => {
             ],
             extension: [
               {
-                url: 'https://caremate.app/fhir/StructureDefinition/provider-attributes',
+                url: 'https://getcaremate.com/fhir/StructureDefinition/provider-attributes',
                 valueString: '{"emergencyDept":true}',
               },
             ],
@@ -292,7 +292,7 @@ describe('providers/fhir-providers', () => {
             managingOrganization: { reference: 'Organization/org-1' },
             extension: [
               {
-                url: 'https://caremate.app/fhir/StructureDefinition/distance-km',
+                url: 'https://getcaremate.com/fhir/StructureDefinition/distance-km',
                 valueDecimal: 2.5,
               },
             ],
@@ -385,7 +385,7 @@ describe('providers/fhir-providers', () => {
             type: [{ text: 'diagnostic lab' }],
             extension: [
               {
-                url: 'https://caremate.app/fhir/StructureDefinition/provider-attributes',
+                url: 'https://getcaremate.com/fhir/StructureDefinition/provider-attributes',
                 valueString: '{not-json',
               },
             ],

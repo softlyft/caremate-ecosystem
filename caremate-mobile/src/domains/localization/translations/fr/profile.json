@@ -35,6 +35,5 @@
     "copy": "Copier",
     "fallbackName": "Membre"
   },
-  "signOut": "Se déconnecter",
-  "biometrics": "Déverrouiller avec la biométrie"
+  "signOut": "Se déconnecter"
 }

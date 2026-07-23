@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.softlyft.caremate",
+        "paths": ["/auth/*", "/emergency/share/*", "/billing/*"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.softlyft.caremate"]
+  }
+}

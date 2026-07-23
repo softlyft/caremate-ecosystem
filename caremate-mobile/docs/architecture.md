@@ -64,7 +64,7 @@ Significant choices (Expo, SQLite, Supabase, guest-first, repositories) are reco
 ### Services (`src/services/`)
 
 - Cross-cutting integrations (currently `auth-service.ts` only)
-- Supabase auth API, biometric flags, onboarding completion
+- Supabase auth API, onboarding completion
 
 ### Database (`src/database/`)
 
@@ -138,7 +138,7 @@ On unmount, `syncEngine.stop()` is called.
 
 | Store | Technology | Stores |
 |-------|------------|--------|
-| Auth session | Zustand | `user`, `isGuest`, `isAuthenticated`, `biometricEnabled` |
+| Auth session | Zustand | `user`, `isGuest`, `isAuthenticated` |
 | Settings UI | Zustand | `notificationsEnabled` (hydrated from SQLite on settings screen; theme is light-only) |
 | Mini-apps | Zustand + persist | Period, pregnancy, immunization data |
 | Articles, providers, profiles | TanStack Query | Never in Zustand |
@@ -177,7 +177,7 @@ See **[Security](./security.md)** for the full hardening map. Summary:
 | Supabase session tokens | Expo SecureStore (native); AsyncStorage on web |
 | SQLite PHI | SQLCipher (`caremate.secure.db`) + Keychain/Keystore key |
 | Mini-app health blobs | User-scoped AsyncStorage; cleared on sign-out |
-| Biometric preference | SecureStore; gated by `BiometricLockGate` |
+| Session tokens | SecureStore (`authStorage`) |
 | Onboarding flag | SecureStore |
 | Checkout session handoff | Single-use Edge Function code (no tokens in URL) |
 
@@ -191,7 +191,6 @@ Never store secrets in plain AsyncStorage on native platforms.
 |---------|--------|-----|
 | SQLite | Full support | Experimental (WASM); bootstrap may fail |
 | SecureStore | Yes | Falls back to AsyncStorage |
-| Biometrics | `expo-local-authentication` | Limited |
 | Splash screen | Native plugin | Browser tab |
 
 ---

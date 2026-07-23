@@ -15,6 +15,7 @@ import {
   type PremiumState,
   type SubscriptionPriceRow,
 } from '@/domains/billing/types';
+import { buildHttpsAppLink, shouldPreferHttpsAppLinks } from '@/lib/app-links';
 import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
@@ -220,12 +221,19 @@ class BillingRepository extends BaseRepository {
       throw new Error('Could not start secure checkout');
     }
 
+    const returnSuccess = shouldPreferHttpsAppLinks()
+      ? buildHttpsAppLink('billing/success')
+      : 'caremate://billing/success';
+    const returnCancel = shouldPreferHttpsAppLinks()
+      ? buildHttpsAppLink('billing/cancel')
+      : 'caremate://billing/cancel';
+
     const query = new URLSearchParams({
       plan_type: input.planType,
       billing_interval: input.billingInterval,
       currency: input.currency,
-      return_success: 'caremate://billing/success',
-      return_cancel: 'caremate://billing/cancel',
+      return_success: returnSuccess,
+      return_cancel: returnCancel,
     });
     if (input.householdId) {
       query.set('household_id', input.householdId);

@@ -15,14 +15,33 @@ jest.mock('expo-linking', () => ({
     const queryIndex = withoutHash.indexOf('?');
     const query = queryIndex >= 0 ? withoutHash.slice(queryIndex + 1) : '';
     const params = Object.fromEntries(new URLSearchParams(query).entries());
-    const scheme = withoutHash.includes('://') ? withoutHash.split('://')[0] : '';
-    return { scheme, queryParams: params };
+    let scheme = '';
+    let hostname = '';
+    try {
+      const parsed = new URL(withoutHash);
+      scheme = parsed.protocol.replace(':', '');
+      hostname = parsed.hostname;
+    } catch {
+      scheme = withoutHash.includes('://') ? withoutHash.split('://')[0] : '';
+    }
+    return { scheme, hostname, queryParams: params };
   }),
 }));
 
 jest.mock('@/constants/env', () => ({
-  config: { isSupabaseConfigured: true },
+  config: {
+    isSupabaseConfigured: true,
+    websiteUrl: 'https://getcaremate.com',
+  },
 }));
+
+jest.mock('@/lib/app-links', () => {
+  const actual = jest.requireActual<typeof import('@/lib/app-links')>('@/lib/app-links');
+  return {
+    ...actual,
+    shouldPreferHttpsAppLinks: jest.fn(() => false),
+  };
+});
 
 const mockGetItem = jest.fn();
 const mockSetItem = jest.fn();
@@ -101,6 +120,26 @@ describe('auth deep link', () => {
       }),
     ).resolves.toBeNull();
     expect(setSession).not.toHaveBeenCalled();
+  });
+
+  it('accepts https Universal Link auth callbacks on getcaremate.com', async () => {
+    const exchangeCodeForSession = jest.fn().mockResolvedValue(undefined);
+    await expect(
+      handleAuthCallbackUrl(`https://getcaremate.com/${PASSWORD_RESET_PATH}?code=abc`, {
+        exchangeCodeForSession,
+        setSession: jest.fn(),
+      }),
+    ).resolves.toBe('recovery');
+    expect(exchangeCodeForSession).toHaveBeenCalledWith('abc');
+  });
+
+  it('rejects https auth callbacks on unknown hosts', async () => {
+    await expect(
+      handleAuthCallbackUrl(`https://evil.example/${PASSWORD_RESET_PATH}?code=abc`, {
+        exchangeCodeForSession: jest.fn(),
+        setSession: jest.fn(),
+      }),
+    ).resolves.toBeNull();
   });
 });
 

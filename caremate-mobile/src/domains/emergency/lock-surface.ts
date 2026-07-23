@@ -78,23 +78,17 @@ async function writeEmergencyLockSnapshot(snapshot: EmergencyLockSnapshot): Prom
 }
 
 async function updateNativeWidget(snapshot: EmergencyLockSnapshot): Promise<void> {
-  if (Platform.OS === 'web') {
+  if (Platform.OS !== 'android') {
     return;
   }
 
   const { updatedAt: _updatedAt, ...props } = snapshot;
 
   try {
-    if (Platform.OS === 'android') {
-      const { updateAndroidEmergencyWidget } = await import('emergency-lock-widget');
-      await updateAndroidEmergencyWidget(props);
-      return;
-    }
-
-    const EmergencyLockWidget = (await import('@/widgets/EmergencyLockWidget')).default;
-    EmergencyLockWidget.updateSnapshot(props);
+    const { updateAndroidEmergencyWidget } = await import('emergency-lock-widget');
+    await updateAndroidEmergencyWidget(props);
   } catch {
-    // Widgets require a development/production build; ignore in Expo Go / unsupported runtimes.
+    // Native widget module only exists in a custom Android build.
   }
 }
 

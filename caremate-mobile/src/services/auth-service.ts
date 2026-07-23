@@ -1,5 +1,3 @@
-import * as LocalAuthentication from 'expo-local-authentication';
-
 import { STORAGE_KEYS } from '@/constants/config';
 import { identityFromAuthUser } from '@/domains/auth/auth-identity';
 import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-account';
@@ -9,8 +7,11 @@ import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlemen
 import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { authStorage } from '@/lib/storage';
 import { config } from '@/constants/env';
-import { supabase } from '@/lib/supabase';
+import { SUPABASE_NOT_CONFIGURED_MESSAGE, supabase } from '@/lib/supabase';
 import type { AuthUser } from '@/types';
+
+/** Legacy SecureStore key from the removed biometric unlock feature. */
+const LEGACY_BIOMETRIC_ENABLED_KEY = 'caremate_biometric_enabled';
 
 export class AuthService {
   /**
@@ -56,6 +57,10 @@ export class AuthService {
   }
 
   async getSession() {
+    if (!config.isSupabaseConfigured) {
+      return null;
+    }
+
     const { data, error } = await supabase.auth.getSession();
     if (error) {
       throw error;
@@ -78,6 +83,10 @@ export class AuthService {
   }
 
   async signInWithEmail(email: string, password: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       throw error;
@@ -91,6 +100,10 @@ export class AuthService {
   }
 
   async signUpWithEmail(email: string, password: string, fullName: string, phone: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
     const normalizedPhone = phone.trim();
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -118,6 +131,10 @@ export class AuthService {
   }
 
   async signOut() {
+    if (!config.isSupabaseConfigured) {
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       throw error;
@@ -159,6 +176,10 @@ export class AuthService {
   }
 
   async resetPassword(email: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: getPasswordResetRedirectUri(),
     });
@@ -168,6 +189,10 @@ export class AuthService {
   }
 
   async updatePassword(password: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
       throw error;
@@ -175,6 +200,10 @@ export class AuthService {
   }
 
   async exchangeCodeForSession(code: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
       throw error;
@@ -182,34 +211,22 @@ export class AuthService {
   }
 
   async setSessionFromTokens(tokens: { access_token: string; refresh_token: string }) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
     const { error } = await supabase.auth.setSession(tokens);
     if (error) {
       throw error;
     }
   }
 
-  async isBiometricAvailable(): Promise<boolean> {
-    const compatible = await LocalAuthentication.hasHardwareAsync();
-    const enrolled = await LocalAuthentication.isEnrolledAsync();
-    return compatible && enrolled;
-  }
-
-  async authenticateWithBiometrics(): Promise<boolean> {
-    const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Unlock CareMate',
-      cancelLabel: 'Cancel',
-      disableDeviceFallback: false,
-    });
-    return result.success;
-  }
-
-  async setBiometricEnabled(enabled: boolean): Promise<void> {
-    await authStorage.setItem(STORAGE_KEYS.biometricEnabled, enabled ? 'true' : 'false');
-  }
-
-  async isBiometricEnabled(): Promise<boolean> {
-    const value = await authStorage.getItem(STORAGE_KEYS.biometricEnabled);
-    return value === 'true';
+  async clearLegacyBiometricPreference(): Promise<void> {
+    try {
+      await authStorage.removeItem(LEGACY_BIOMETRIC_ENABLED_KEY);
+    } catch {
+      // Missing key / SecureStore unavailable is fine.
+    }
   }
 
   async setOnboardingComplete(complete: boolean): Promise<void> {

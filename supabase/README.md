@@ -2,7 +2,9 @@
 
 Single source of truth for the CareMate cloud database (Postgres, RLS, RPCs, Storage).
 
-All apps in this monorepo (`caremate-mobile`, `caremate-admin-portal`, future packages) target the same project.
+All apps in this monorepo (`caremate-mobile`, `caremate-admin-portal`, future packages) share these migrations.
+
+**Linked remote today:** `caremate-dev` (`eybakmhqtotoywwgwgjy`) — development only. Production should use a separate Supabase project and env keys; do not treat `caremate-dev` as prod.
 
 ## Docs
 

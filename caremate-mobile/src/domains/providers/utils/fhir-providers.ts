@@ -2,9 +2,20 @@ import providersBundle from '@/domains/providers/data/providers.json';
 import { isProviderType, type ProviderType } from '@/domains/providers/types';
 import type { Provider } from '@/types';
 
-const PROVIDER_TYPE_SYSTEM = 'https://caremate.app/fhir/CodeSystem/provider-type';
-const DISTANCE_KM_EXTENSION = 'https://caremate.app/fhir/StructureDefinition/distance-km';
-const ATTRIBUTES_EXTENSION = 'https://caremate.app/fhir/StructureDefinition/provider-attributes';
+/** Canonical FHIR namespace host (official product domain). */
+const FHIR_BASE = 'https://getcaremate.com';
+/** Pre-migration host — still accepted when reading existing provider JSON. */
+const LEGACY_FHIR_BASE = 'https://caremate.app';
+
+const PROVIDER_TYPE_SYSTEM = `${FHIR_BASE}/fhir/CodeSystem/provider-type`;
+const DISTANCE_KM_EXTENSION = `${FHIR_BASE}/fhir/StructureDefinition/distance-km`;
+const ATTRIBUTES_EXTENSION = `${FHIR_BASE}/fhir/StructureDefinition/provider-attributes`;
+
+function matchesFhirUrl(actual: string | undefined, canonical: string): boolean {
+  if (!actual) return false;
+  if (actual === canonical) return true;
+  return actual === canonical.replace(FHIR_BASE, LEGACY_FHIR_BASE);
+}
 
 const LEGACY_PROVIDER_IDS = ['provider-1', 'provider-2', 'provider-3', 'provider-4'] as const;
 
@@ -117,7 +128,11 @@ function formatAddress(address?: FhirAddress | null): string | null {
 function resolveProviderType(organization: FhirOrganization): ProviderType {
   for (const concept of organization.type ?? []) {
     for (const coding of concept.coding ?? []) {
-      if (coding.system === PROVIDER_TYPE_SYSTEM && coding.code && isProviderType(coding.code)) {
+      if (
+        matchesFhirUrl(coding.system, PROVIDER_TYPE_SYSTEM) &&
+        coding.code &&
+        isProviderType(coding.code)
+      ) {
         return coding.code;
       }
     }
@@ -164,7 +179,9 @@ function resolveProviderType(organization: FhirOrganization): ProviderType {
 }
 
 function attributesFromOrganization(organization: FhirOrganization): Record<string, unknown> {
-  const extension = organization.extension?.find((item) => item.url === ATTRIBUTES_EXTENSION);
+  const extension = organization.extension?.find((item) =>
+    matchesFhirUrl(item.url, ATTRIBUTES_EXTENSION),
+  );
   if (typeof extension?.valueString === 'string' && extension.valueString.trim()) {
     try {
       const parsed = JSON.parse(extension.valueString) as unknown;
@@ -179,7 +196,9 @@ function attributesFromOrganization(organization: FhirOrganization): Record<stri
 }
 
 function distanceKmFromLocation(location: FhirLocation): number | null {
-  const extension = location.extension?.find((item) => item.url === DISTANCE_KM_EXTENSION);
+  const extension = location.extension?.find((item) =>
+    matchesFhirUrl(item.url, DISTANCE_KM_EXTENSION),
+  );
   return typeof extension?.valueDecimal === 'number' ? extension.valueDecimal : null;
 }
 

@@ -35,6 +35,5 @@
     "copy": "复制",
     "fallbackName": "成员"
   },
-  "signOut": "退出登录",
-  "biometrics": "使用生物识别解锁"
+  "signOut": "退出登录"
 }

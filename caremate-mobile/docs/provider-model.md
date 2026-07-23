@@ -138,7 +138,7 @@ Suggested type-specific shapes (convention only — not enforced in TS yet):
 ```
 
 FHIR seeds / ingest may supply attributes via extension  
-`https://caremate.app/fhir/StructureDefinition/provider-attributes` (`valueString` JSON).
+`https://getcaremate.com/fhir/StructureDefinition/provider-attributes` (`valueString` JSON).
 
 Canonical FHIR shape for a provider catalog row:
 

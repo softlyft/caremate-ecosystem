@@ -38,6 +38,7 @@
   },
   "searchA11y": "Search CareMate",
   "quickActions": {
+    "sectionTitle": "Quick Actions",
     "emergency": {
       "title": "Emergency",
       "subtitle": "Offline health card"

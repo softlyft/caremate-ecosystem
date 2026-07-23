@@ -41,7 +41,7 @@ cp .env.example .env
 
 \*The app runs **without** Supabase — guest mode, demo login, SQLite seed data, and mini-apps all work offline. Configure Supabase to enable real auth and cloud sync.
 
-Values are read in `src/constants/env.ts`. When unset, placeholder values are used and `isSupabaseConfigured` is `false`.
+Values are read in `src/constants/env.ts`. When unset, `isSupabaseConfigured` is `false` and the Supabase client throws on use (no `placeholder.supabase.co` zombie). Call sites that support offline must check `isSupabaseConfigured` first.
 
 ---
 

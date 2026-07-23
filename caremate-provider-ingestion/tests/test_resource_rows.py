@@ -20,7 +20,7 @@ class TestMapOrganizationRow:
                 "name": "Lagos General",
                 "active": True,
                 "type": (
-                    '[{"coding":[{"system":"https://caremate.app/fhir/CodeSystem/provider-type",'
+                    '[{"coding":[{"system":"https://getcaremate.com/fhir/CodeSystem/provider-type",'
                     '"code":"hospital"}]}]'
                 ),
                 "contact": '{"telecom":[{"system":"phone","value":"+234800"}]}',
@@ -61,7 +61,7 @@ class TestMapLocationRow:
                 "address": '{"text":"12 Marina"}',
                 "contact": '{"telecom":[{"system":"email","value":"a@b.c"}]}',
                 "characteristics": (
-                    '[{"coding":[{"system":"https://caremate.app/fhir/StructureDefinition/distance-km",'
+                    '[{"coding":[{"system":"https://getcaremate.com/fhir/StructureDefinition/distance-km",'
                     '"display":"1.5"}]}]'
                 ),
             },
@@ -98,7 +98,7 @@ class TestMapHealthcareServiceRow:
                 "name": "Emergency",
                 "location": {"reference": f"Location/{LOC_UUID}"},
                 "type": (
-                    '[{"coding":[{"system":"https://caremate.app/fhir/CodeSystem/provider-type",'
+                    '[{"coding":[{"system":"https://getcaremate.com/fhir/CodeSystem/provider-type",'
                     '"code":"hospital"}]}]'
                 ),
                 "active": False,

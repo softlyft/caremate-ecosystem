@@ -12,7 +12,6 @@ interface AuthState {
   isGuest: boolean;
   isLoading: boolean;
   isInitialized: boolean;
-  biometricEnabled: boolean;
   /** True while the user is completing a password-recovery deep link. */
   passwordRecoveryPending: boolean;
   initialize: () => Promise<void>;
@@ -20,7 +19,6 @@ interface AuthState {
   signUp: (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
-  setBiometricEnabled: (enabled: boolean) => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
   clearPasswordRecovery: () => void;
   updatePassword: (password: string) => Promise<void>;
@@ -42,17 +40,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isGuest: true,
   isLoading: false,
   isInitialized: false,
-  biometricEnabled: false,
   passwordRecoveryPending: false,
 
   initialize: async () => {
     set({ isLoading: true });
     try {
-      const [session, biometricEnabled] = await Promise.all([
-        authService.getSession(),
-        authService.isBiometricEnabled(),
-      ]);
+      // Drop legacy biometric unlock preference (Settings toggle + gate removed).
+      await authService.clearLegacyBiometricPreference();
 
+      const session = await authService.getSession();
       const user = authService.mapUser(session?.user ?? null);
       if (user && session?.user) {
         await authService.prepareLocalAccount(session.user);
@@ -60,12 +56,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user,
           isAuthenticated: true,
           isGuest: false,
-          biometricEnabled,
           isInitialized: true,
         });
       } else {
         setGuestState(set);
-        set({ biometricEnabled, isInitialized: true });
+        set({ isInitialized: true });
       }
     } finally {
       set({ isLoading: false });
@@ -148,11 +143,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     trackEvent(AnalyticsEvents.deleteAccount);
     queryClient.clear();
     setGuestState(set);
-  },
-
-  setBiometricEnabled: async (enabled) => {
-    await authService.setBiometricEnabled(enabled);
-    set({ biometricEnabled: enabled });
   },
 
   markPasswordRecovery: async () => {

@@ -3,8 +3,11 @@
 .DS_Store
 *.log
 .env
+.env.local
+.env.*.local
 .env.*
 !.env.example
+!.env.local.example
 
 # Nested git backups from monorepo consolidation (remove after remote is set)
 **/.git.bak-pre-monorepo/

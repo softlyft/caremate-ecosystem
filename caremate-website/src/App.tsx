@@ -1,34 +1,36 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { CcnPage } from '@/pages/Ccn';
 import { CcnGuidePage } from '@/pages/CcnGuide';
 import { GuidePage } from '@/pages/Guide';
+import { OpenInAppPage } from '@/pages/OpenInApp';
 import { PrivacyPage } from '@/pages/Privacy';
 import { ProviderGuidePage } from '@/pages/ProviderGuide';
 import { ProvidersPage } from '@/pages/Providers';
 import { TermsPage } from '@/pages/Terms';
 import { WelcomePage } from '@/pages/Welcome';
 
-function Shell() {
+function EmergencyShareOpen() {
+  const { token = '' } = useParams();
+  return (
+    <OpenInAppPage
+      title="Emergency profile share"
+      description="This link opens CareMate for signed-in viewers. Install the app if you do not have it yet."
+      appPath={`emergency/share/${token}`}
+    />
+  );
+}
+
+function MarketingChrome({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
   const isWelcome = pathname === '/';
 
   return (
     <>
       <SiteHeader tone={isWelcome ? 'hero' : 'light'} />
-      <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/guide" element={<GuidePage />} />
-        <Route path="/ccn" element={<CcnPage />} />
-        <Route path="/ccn/guide" element={<CcnGuidePage />} />
-        <Route path="/providers" element={<ProvidersPage />} />
-        <Route path="/providers/guide" element={<ProviderGuidePage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      {children}
       <SiteFooter />
     </>
   );
@@ -37,7 +39,114 @@ function Shell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Shell />
+      <Routes>
+        <Route
+          path="/auth/reset-password"
+          element={
+            <OpenInAppPage
+              title="Reset your password"
+              description="Continue in the CareMate app to choose a new password."
+              appPath="auth/reset-password"
+            />
+          }
+        />
+        <Route
+          path="/auth/callback"
+          element={
+            <OpenInAppPage
+              title="Continue in CareMate"
+              description="Finish signing in inside the CareMate app."
+              appPath="auth/callback"
+            />
+          }
+        />
+        <Route path="/emergency/share/:token" element={<EmergencyShareOpen />} />
+        <Route
+          path="/billing/success"
+          element={
+            <OpenInAppPage
+              title="Payment received"
+              description="Return to CareMate to refresh your Premium status."
+              appPath="billing/success"
+            />
+          }
+        />
+        <Route
+          path="/billing/cancel"
+          element={
+            <OpenInAppPage
+              title="Checkout cancelled"
+              description="No charge was completed. You can try again from CareMate."
+              appPath="billing/cancel"
+            />
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <MarketingChrome>
+              <WelcomePage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/guide"
+          element={
+            <MarketingChrome>
+              <GuidePage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/ccn"
+          element={
+            <MarketingChrome>
+              <CcnPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/ccn/guide"
+          element={
+            <MarketingChrome>
+              <CcnGuidePage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/providers"
+          element={
+            <MarketingChrome>
+              <ProvidersPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/providers/guide"
+          element={
+            <MarketingChrome>
+              <ProviderGuidePage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <MarketingChrome>
+              <PrivacyPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <MarketingChrome>
+              <TermsPage />
+            </MarketingChrome>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }

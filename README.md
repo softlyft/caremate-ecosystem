@@ -80,7 +80,9 @@ Useful root scripts:
 - Node 20+
 - Python 3.11+ for `caremate-provider-ingestion`
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
-- Linked Supabase project ref: `eybakmhqtotoywwgwgjy`
+- Linked Supabase project (development): `caremate-dev` / `eybakmhqtotoywwgwgjy`
+  - CLI: `npm run supabase:link` targets this ref
+  - **Not production** — create and wire a separate prod project before store / prod Amplify hosts go live against real users
 
 ## Shared Database Workflow
 
