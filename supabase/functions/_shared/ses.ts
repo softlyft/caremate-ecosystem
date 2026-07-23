@@ -2,6 +2,10 @@
 
 import { SESClient, SendEmailCommand } from 'npm:@aws-sdk/client-ses@3.758.0';
 
+/** Default CareMate transactional From identity (must be verified in SES). */
+export const DEFAULT_SES_FROM_EMAIL = 'hello@getcaremate.com';
+export const DEFAULT_SES_FROM_NAME = 'CareMate';
+
 export type SesSendInput = {
   to: string;
   subject: string;
@@ -19,13 +23,13 @@ export function isSesConfigured(): boolean {
     Deno.env.get('AWS_ACCESS_KEY_ID')?.trim() &&
       Deno.env.get('AWS_SECRET_ACCESS_KEY')?.trim() &&
       Deno.env.get('AWS_REGION')?.trim() &&
-      Deno.env.get('SES_FROM_EMAIL')?.trim(),
+      (Deno.env.get('SES_FROM_EMAIL')?.trim() || DEFAULT_SES_FROM_EMAIL),
   );
 }
 
 function fromAddress(): string {
-  const email = Deno.env.get('SES_FROM_EMAIL')!.trim();
-  const name = Deno.env.get('SES_FROM_NAME')?.trim();
+  const email = Deno.env.get('SES_FROM_EMAIL')?.trim() || DEFAULT_SES_FROM_EMAIL;
+  const name = Deno.env.get('SES_FROM_NAME')?.trim() || DEFAULT_SES_FROM_NAME;
   return name ? `${name} <${email}>` : email;
 }
 

@@ -52,7 +52,7 @@ export function PrivacyPage() {
 
         <h2>Contact</h2>
         <p>
-          Questions about privacy: <a href="mailto:hi@softlyft.com">hi@softlyft.com</a>
+          Questions about privacy: <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a>
         </p>
 
         <p className={styles.meta}>Last updated: July 18, 2026</p>
