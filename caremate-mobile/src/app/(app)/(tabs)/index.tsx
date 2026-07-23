@@ -23,7 +23,6 @@ import { useLocalizationPreferences } from '@/hooks/use-localization-preferences
 import { articleRepository } from '@/domains/articles/repository';
 import { HOME_TRENDING_MAX_ITEMS } from '@/domains/articles/utils/evergreen-articles';
 import { setDeviceDefaults } from '@/domains/onboarding/device-defaults';
-import { profileRepository } from '@/domains/profile/repository';
 import { resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { layoutSpacing, palette } from '@/theme';
@@ -36,12 +35,6 @@ export default function HomeScreen() {
   const userKey = isGuest ? 'guest' : userId;
   const { countryCode, languageCode, isReady: localizationReady } = useLocalizationPreferences();
   const { firstName } = useAccountDisplayName();
-
-  const profileQuery = useQuery({
-    queryKey: [...QUERY_KEYS.profile, userId],
-    queryFn: () => profileRepository.findByUserId(userId),
-    enabled: !isGuest,
-  });
 
   const articlesQuery = useQuery({
     queryKey: [

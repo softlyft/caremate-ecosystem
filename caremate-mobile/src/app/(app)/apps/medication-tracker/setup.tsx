@@ -119,13 +119,7 @@ export default function MedicationSetupScreen() {
   );
 }
 
-function MedicationSetupForm({
-  editing,
-  todayKey,
-}: {
-  editing?: Medication;
-  todayKey: string;
-}) {
+function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; todayKey: string }) {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const isEditing = Boolean(editing);

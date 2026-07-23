@@ -10,7 +10,7 @@ import type { EmergencyLockWidgetProps } from '@/widgets/emergency-lock-widget-t
  */
 const EmergencyLockWidgetLayout = (
   props: EmergencyLockWidgetProps,
-  _environment: WidgetEnvironment,
+  environment: WidgetEnvironment,
 ) => {
   'widget';
 

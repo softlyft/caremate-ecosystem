@@ -14,10 +14,7 @@ export function emailLocalPart(email: string | null | undefined): string {
 }
 
 /** True when the name is blank or is just the email local-part (not a real name). */
-export function isWeakDisplayName(
-  name: string | null | undefined,
-  email?: string | null,
-): boolean {
+export function isWeakDisplayName(name: string | null | undefined, email?: string | null): boolean {
   const trimmed = name?.trim() ?? '';
   if (!trimmed) return true;
   const local = emailLocalPart(email);
@@ -28,7 +25,7 @@ export function isWeakDisplayName(
 }
 
 export function preferDisplayName(
-  candidates: Array<string | null | undefined>,
+  candidates: (string | null | undefined)[],
   options?: { email?: string | null; fallback?: string },
 ): string {
   const email = options?.email ?? null;
@@ -52,10 +49,10 @@ export function resolveAccountDisplayName(input: {
   email?: string | null;
   fallback?: string;
 }): string {
-  return preferDisplayName(
-    [input.profileFullName, input.emergencyFullName, input.authFullName],
-    { email: input.email, fallback: input.fallback },
-  );
+  return preferDisplayName([input.profileFullName, input.emergencyFullName, input.authFullName], {
+    email: input.email,
+    fallback: input.fallback,
+  });
 }
 
 export function resolveAccountFirstName(input: {

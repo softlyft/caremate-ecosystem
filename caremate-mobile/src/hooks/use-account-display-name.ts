@@ -2,10 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
-import {
-  resolveAccountDisplayName,
-  resolveAccountFirstName,
-} from '@/domains/profile/display-name';
+import { resolveAccountDisplayName, resolveAccountFirstName } from '@/domains/profile/display-name';
 import { profileRepository } from '@/domains/profile/repository';
 import { useAuthStore } from '@/features/auth/store';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
