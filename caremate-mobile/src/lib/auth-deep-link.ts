@@ -1,6 +1,10 @@
 import * as Linking from 'expo-linking';
 
-import { buildHttpsAppLink, isAllowedAppLinkHostname, shouldPreferHttpsAppLinks } from '@/lib/app-links';
+import {
+  buildHttpsAppLink,
+  isAllowedAppLinkHostname,
+  shouldPreferHttpsAppLinks,
+} from '@/lib/app-links';
 import { config } from '@/constants/env';
 
 /** Deep-link path opened from the Supabase password-reset email. */

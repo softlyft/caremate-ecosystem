@@ -1,7 +1,5 @@
-const {
-  SUPABASE_NOT_CONFIGURED_MESSAGE,
-  createUnconfiguredSupabaseClient,
-} = jest.requireActual<typeof import('@/lib/supabase')>('@/lib/supabase');
+const { SUPABASE_NOT_CONFIGURED_MESSAGE, createUnconfiguredSupabaseClient } =
+  jest.requireActual<typeof import('@/lib/supabase')>('@/lib/supabase');
 
 describe('createUnconfiguredSupabaseClient', () => {
   it('throws a clear error on any client access', () => {

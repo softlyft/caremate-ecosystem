@@ -24,9 +24,7 @@
         "foregroundImage": "./assets/images/caremate-adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.POST_NOTIFICATIONS"
-      ],
+      "permissions": ["android.permission.POST_NOTIFICATIONS"],
       "intentFilters": [
         {
           "action": "VIEW",
