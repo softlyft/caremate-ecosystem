@@ -1,7 +1,7 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Bookmark, BookOpen, CheckCheck, Search } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -49,6 +49,7 @@ export default function ArticlesTabScreen() {
   }>();
   const initialQuery = Array.isArray(queryParam) ? (queryParam[0] ?? '') : (queryParam ?? '');
   const [search, setSearch] = useState(initialQuery);
+  const deferredSearch = useDeferredValue(search);
   const [selectedCategoryId, setSelectedCategoryId] = useState<HealthCategoryId | null>(() =>
     parseCategoryParam(categoryParam),
   );
@@ -67,11 +68,12 @@ export default function ArticlesTabScreen() {
   const userKey = isGuest ? 'guest' : userId;
   const queryClient = useQueryClient();
   const { isReady: localizationReady } = useLocalizationPreferences();
+  const trimmedSearch = deferredSearch.trim();
 
   const articlesQuery = useQuery({
-    queryKey: [...QUERY_KEYS.articles, search, userKey, selectedCategoryId ?? 'all'],
+    queryKey: [...QUERY_KEYS.articles, trimmedSearch, userKey, selectedCategoryId ?? 'all'],
     queryFn: async () => {
-      const term = search.trim() || undefined;
+      const term = trimmedSearch || undefined;
       if (selectedCategoryId) {
         return articleRepository.findByCategory(selectedCategoryId, userKey, term);
       }
@@ -80,6 +82,7 @@ export default function ArticlesTabScreen() {
     staleTime: 5 * 60_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
@@ -107,20 +110,23 @@ export default function ArticlesTabScreen() {
   }, [localizationReady, queryClient]);
 
   const articles = useMemo(() => articlesQuery.data ?? [], [articlesQuery.data]);
+  const isFiltering = Boolean(trimmedSearch || selectedCategoryId);
+  const showInitialLoader =
+    articlesQuery.isPending && articlesQuery.data === undefined && !isFiltering;
 
   const { featured, rest } = useMemo(() => {
     if (articles.length === 0) {
       return { featured: null as Article | null, rest: [] as Article[] };
     }
-    if (search.trim() || selectedCategoryId) {
+    if (isFiltering) {
       return { featured: null, rest: articles };
     }
     const [first, ...remaining] = articles;
     return { featured: first, rest: remaining };
-  }, [articles, search, selectedCategoryId]);
+  }, [articles, isFiltering]);
 
   const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
-  const listFilterKey = `${search.trim()}|${selectedCategoryId ?? 'all'}`;
+  const listFilterKey = `${trimmedSearch}|${selectedCategoryId ?? 'all'}`;
   const [listFilterSnapshot, setListFilterSnapshot] = useState(listFilterKey);
   if (listFilterKey !== listFilterSnapshot) {
     setListFilterSnapshot(listFilterKey);
@@ -141,7 +147,7 @@ export default function ArticlesTabScreen() {
     router.setParams({ category: categoryId ?? '' });
   };
 
-  if (articlesQuery.isLoading && articlesQuery.data === undefined) {
+  if (showInitialLoader) {
     return (
       <View style={styles.screen}>
         <LoadingState title={t('learn.loading')} />
@@ -223,7 +229,11 @@ export default function ArticlesTabScreen() {
                 onChangeText={setSearch}
                 autoCapitalize="none"
                 autoCorrect={false}
+                returnKeyType="search"
               />
+              {articlesQuery.isFetching && isFiltering ? (
+                <ActivityIndicator color={palette.primary} size="small" />
+              ) : null}
             </View>
 
             <HealthCategoriesRow
