@@ -9,6 +9,7 @@ import { palette } from '@/theme';
 
 export default function Index() {
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -39,6 +40,10 @@ export default function Index() {
         <BrandLoader size="lg" />
       </View>
     );
+  }
+
+  if (passwordRecoveryPending) {
+    return <Redirect href="/auth/reset-password" />;
   }
 
   if (!onboardingComplete) {

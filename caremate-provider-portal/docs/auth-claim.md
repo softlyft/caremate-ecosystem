@@ -6,7 +6,7 @@ There is **no open registration**. Staff reach the portal by claiming a catalog 
 
 1. Enter the contact email already on the CareMate catalog (location email, else organization FHIR contact).
 2. Match an **unclaimed** `provider_organizations` row.
-3. Generate a verification code (MVP: shown in the UI; outbound email later).
+3. Generate a verification code (shown in the UI only in non-production / `ALLOW_INLINE_OTP`; production must send OOB email — see [`docs/security.md`](../../docs/security.md)).
 4. After verify, set password → creates:
    - Supabase Auth user
    - `provider_org_members` row with role **`owner`**

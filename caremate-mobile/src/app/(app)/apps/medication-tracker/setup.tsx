@@ -12,6 +12,7 @@ import {
 import { useTranslation } from '@/domains/localization';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { usePremiumTier } from '@/hooks/use-premium-state';
+import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -39,24 +40,95 @@ import {
 import { useMedicationFamilyKids } from '@/mini-apps/medication-tracker/use-family-kids';
 import {
   formatDisplayDate,
+  endDateForDurationDays,
+  durationDaysBetween,
   normalizeMedication,
   toDateKey,
+  type Medication,
   type MedicationInstructions,
 } from '@/mini-apps/medication-tracker/utils';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
 
+const DURATION_PRESETS = [3, 5, 7, 14, 30] as const;
+
+type CalendarMode = 'start' | 'end' | 'refill';
+type DurationMode = 'ongoing' | 'preset' | 'custom';
+
+function resolveSearchParam(value: string | string[] | undefined): string | undefined {
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
+  if (Array.isArray(value) && typeof value[0] === 'string' && value[0].length > 0) {
+    return value[0];
+  }
+  return undefined;
+}
+
+function monthStartForDateKey(dateKey: string): Date {
+  const date = parseDateKey(dateKey);
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/**
+ * Gate on persist hydration before mounting the form so `useState` initializers
+ * see the real medication (including a past `startDate`) instead of defaulting
+ * to today while the store is still empty.
+ */
 export default function MedicationSetupScreen() {
   const { t } = useTranslation();
-  const { medicationId } = useLocalSearchParams<{ medicationId?: string }>();
-  const navigation = useNavigation();
-  const today = useMemo(() => new Date(), []);
-  const todayKey = toDateKey(today);
-  const [monthRef, setMonthRef] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), 1),
-  );
+  const params = useLocalSearchParams<{ medicationId?: string | string[] }>();
+  const medicationId = resolveSearchParam(params.medicationId);
   const hydrated = useMedicationTrackerHydrated();
+  const medications = useMedicationTrackerStore((state) => state.medications);
+
+  const editingRaw = medicationId
+    ? medications.find((medication) => medication.id === medicationId)
+    : undefined;
+  const editing = editingRaw ? normalizeMedication(editingRaw) : undefined;
+
+  if (!hydrated) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator color={theme.color} />
+      </View>
+    );
+  }
+
+  if (medicationId && !editing) {
+    return (
+      <View style={styles.loading}>
+        <AppText variant="body">{t('apps.medication.ui.notFound')}</AppText>
+        <MiniAppCta
+          label={t('common.goBack')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.back()}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <MedicationSetupForm
+      key={medicationId ?? 'create'}
+      editing={editing}
+      todayKey={toDateKey(new Date())}
+    />
+  );
+}
+
+function MedicationSetupForm({
+  editing,
+  todayKey,
+}: {
+  editing?: Medication;
+  todayKey: string;
+}) {
+  const { t } = useTranslation();
+  const navigation = useNavigation();
+  const isEditing = Boolean(editing);
   const familyKids = useMedicationFamilyKids();
   const tier = usePremiumTier();
 
@@ -65,13 +137,8 @@ export default function MedicationSetupScreen() {
   const updateMedication = useMedicationTrackerStore((state) => state.updateMedication);
   const removeMedication = useMedicationTrackerStore((state) => state.removeMedication);
 
-  const editingRaw =
-    typeof medicationId === 'string'
-      ? medications.find((medication) => medication.id === medicationId)
-      : undefined;
-  const editing = editingRaw ? normalizeMedication(editingRaw) : undefined;
-  const isEditing = Boolean(editing);
-
+  const initialStart = editing?.startDate ?? todayKey;
+  const [monthRef, setMonthRef] = useState(() => monthStartForDateKey(initialStart));
   const [name, setName] = useState(editing?.name ?? '');
   const [dosage, setDosage] = useState(editing?.dosage ?? '');
   const [frequency, setFrequency] = useState<MedicationFrequency>(
@@ -91,35 +158,25 @@ export default function MedicationSetupScreen() {
     String(editing?.refillAtThreshold ?? DEFAULT_REFILL_THRESHOLD),
   );
   const [refillDueDate, setRefillDueDate] = useState<string | null>(editing?.refillDueDate ?? null);
-  const [startDate, setStartDate] = useState<string | null>(editing?.startDate ?? todayKey);
+  const [startDate, setStartDate] = useState<string | null>(initialStart);
+  const [endDate, setEndDate] = useState<string | null>(editing?.endDate ?? null);
   const [notes, setNotes] = useState(editing?.notes ?? '');
   const [active, setActive] = useState(editing?.active ?? true);
   const [forKid, setForKid] = useState(Boolean(editing?.forKid));
   const [familyMemberId, setFamilyMemberId] = useState<string | null>(
     editing?.familyMemberId ?? null,
   );
-  const [editingSnapshotId, setEditingSnapshotId] = useState(editing?.id);
-  const [refillCalendarMode, setRefillCalendarMode] = useState(false);
-
-  if (editing && editing.id !== editingSnapshotId) {
-    setEditingSnapshotId(editing.id);
-    setName(editing.name);
-    setDosage(editing.dosage);
-    setFrequency(editing.frequency);
-    setSlotTimes(editing.slotTimes);
-    setInstructionKind(editing.instructions.kind);
-    setInstructionText(editing.instructions.text ?? '');
-    setQuantityText(editing.quantityRemaining != null ? String(editing.quantityRemaining) : '');
-    setRefillThresholdText(String(editing.refillAtThreshold ?? DEFAULT_REFILL_THRESHOLD));
-    setRefillDueDate(editing.refillDueDate);
-    setStartDate(editing.startDate);
-    setNotes(editing.notes ?? '');
-    setActive(editing.active);
-    setForKid(Boolean(editing.forKid));
-    setFamilyMemberId(editing.familyMemberId ?? null);
-  } else if (!editing && editingSnapshotId !== undefined) {
-    setEditingSnapshotId(undefined);
-  }
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>('start');
+  const [durationMode, setDurationMode] = useState<DurationMode>(() => {
+    if (!editing?.endDate || !editing.startDate) return 'ongoing';
+    const days = durationDaysBetween(editing.startDate, editing.endDate);
+    return (DURATION_PRESETS as readonly number[]).includes(days) ? 'preset' : 'custom';
+  });
+  const [durationDays, setDurationDays] = useState<number | null>(() => {
+    if (!editing?.endDate || !editing.startDate) return null;
+    const days = durationDaysBetween(editing.startDate, editing.endDate);
+    return (DURATION_PRESETS as readonly number[]).includes(days) ? days : null;
+  });
 
   useEffect(() => {
     navigation.setOptions({
@@ -127,13 +184,50 @@ export default function MedicationSetupScreen() {
     });
   }, [isEditing, navigation, t]);
 
+  const applyStartDate = (nextStart: string) => {
+    setStartDate(nextStart);
+    setMonthRef(monthStartForDateKey(nextStart));
+    if (durationMode === 'preset' && durationDays != null) {
+      setEndDate(endDateForDurationDays(nextStart, durationDays));
+      return;
+    }
+    if (endDate && endDate < nextStart) {
+      setEndDate(nextStart);
+    }
+  };
+
+  const applyOngoing = () => {
+    setDurationMode('ongoing');
+    setDurationDays(null);
+    setEndDate(null);
+  };
+
+  const applyDurationPreset = (days: number) => {
+    if (!startDate) return;
+    setDurationMode('preset');
+    setDurationDays(days);
+    setEndDate(endDateForDurationDays(startDate, days));
+    setCalendarMode('end');
+  };
+
+  const applyCustomDuration = () => {
+    setDurationMode('custom');
+    setDurationDays(null);
+    setCalendarMode('end');
+    if (!endDate && startDate) {
+      setEndDate(startDate);
+    }
+  };
+
   const selectedChild =
     familyKids.status === 'ready'
       ? familyKids.children.find((child) => child.id === familyMemberId)
       : undefined;
 
   const canSave =
-    Boolean(name.trim() && startDate) && (!forKid || Boolean(familyMemberId && selectedChild));
+    Boolean(name.trim() && startDate) &&
+    (!endDate || !startDate || endDate >= startDate) &&
+    (!forKid || Boolean(familyMemberId && selectedChild));
   const activeMedicationCount = countActiveMedications(medications);
   const atCreateLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
   const atActivateLimit =
@@ -163,32 +257,15 @@ export default function MedicationSetupScreen() {
     return Number.isFinite(value) && value >= 0 ? value : null;
   };
 
-  if (!hydrated) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={theme.color} />
-      </View>
-    );
-  }
-
-  if (isEditing && !editing) {
-    return (
-      <View style={styles.loading}>
-        <AppText variant="body">{t('apps.medication.ui.notFound')}</AppText>
-        <MiniAppCta
-          label={t('common.goBack')}
-          accent={theme.color}
-          soft={theme.backgroundColor}
-          onPress={() => router.back()}
-        />
-      </View>
-    );
-  }
+  const intro = useMemo(
+    () => (isEditing ? t('apps.medication.ui.updateHint') : t('apps.medication.ui.addHint')),
+    [isEditing, t],
+  );
 
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
-        {isEditing ? t('apps.medication.ui.updateHint') : t('apps.medication.ui.addHint')}
+        {intro}
       </AppText>
 
       <MiniAppCard index={1} title={t('apps.medication.ui.forKid')} theme={theme}>
@@ -361,21 +438,63 @@ export default function MedicationSetupScreen() {
         </MiniAppCard>
       ) : null}
 
-      <MiniAppCard index={7} theme={theme}>
-        <View style={styles.chipRow}>
+      <MiniAppCard index={7} title={t('apps.medication.ui.treatmentPeriod')} theme={theme}>
+        <AppText variant="caption" style={styles.muted}>
+          {t('apps.medication.ui.treatmentPeriodHint')}
+        </AppText>
+        <View style={[styles.chipRow, styles.spacedInput]}>
           <MiniAppChip
-            label={t('apps.medication.ui.startDate')}
-            selected={!refillCalendarMode}
+            label={t('apps.medication.ui.durationOngoing')}
+            selected={durationMode === 'ongoing'}
             accent={theme.color}
             soft={theme.backgroundColor}
-            onPress={() => setRefillCalendarMode(false)}
+            onPress={applyOngoing}
+          />
+          {DURATION_PRESETS.map((days) => (
+            <MiniAppChip
+              key={days}
+              label={t('apps.medication.ui.durationDays', { count: days })}
+              selected={durationMode === 'preset' && durationDays === days}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => applyDurationPreset(days)}
+            />
+          ))}
+          <MiniAppChip
+            label={t('apps.medication.ui.durationCustom')}
+            selected={durationMode === 'custom'}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={applyCustomDuration}
+          />
+        </View>
+
+        <View style={[styles.chipRow, styles.spacedInput]}>
+          <MiniAppChip
+            label={t('apps.medication.ui.startDate')}
+            selected={calendarMode === 'start'}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => setCalendarMode('start')}
+          />
+          <MiniAppChip
+            label={t('apps.medication.ui.endDate')}
+            selected={calendarMode === 'end'}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => {
+              setCalendarMode('end');
+              if (durationMode === 'ongoing') {
+                applyCustomDuration();
+              }
+            }}
           />
           <MiniAppChip
             label={t('apps.medication.ui.refillDueDate')}
-            selected={refillCalendarMode}
+            selected={calendarMode === 'refill'}
             accent={theme.color}
             soft={theme.backgroundColor}
-            onPress={() => setRefillCalendarMode(true)}
+            onPress={() => setCalendarMode('refill')}
           />
         </View>
         <MonthCalendarNavigator
@@ -388,22 +507,57 @@ export default function MedicationSetupScreen() {
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {
-            if (refillCalendarMode) {
+            if (calendarMode === 'refill') {
               setRefillDueDate(dayKey === refillDueDate ? null : dayKey);
               return;
             }
-            setStartDate(dayKey);
+            if (calendarMode === 'start') {
+              applyStartDate(dayKey);
+              return;
+            }
+            if (!startDate || dayKey < startDate) {
+              Alert.alert(
+                t('apps.medication.ui.endBeforeStartTitle'),
+                t('apps.medication.ui.endBeforeStartMessage'),
+              );
+              return;
+            }
+            setDurationMode('custom');
+            setDurationDays(null);
+            setEndDate(dayKey === endDate ? null : dayKey);
+            if (dayKey === endDate) {
+              setDurationMode('ongoing');
+            }
           }}
-          getDayState={(dayKey) => ({
-            selected: refillCalendarMode ? dayKey === refillDueDate : dayKey === startDate,
-          })}
+          getDayState={(dayKey) => {
+            const inRange =
+              Boolean(startDate && endDate) && dayKey > startDate! && dayKey < endDate!;
+            if (calendarMode === 'refill') {
+              return { selected: dayKey === refillDueDate, predicted: inRange };
+            }
+            if (calendarMode === 'end') {
+              return {
+                selected: dayKey === endDate,
+                predicted: inRange || dayKey === startDate,
+              };
+            }
+            return {
+              selected: dayKey === startDate,
+              predicted: inRange || dayKey === endDate,
+            };
+          }}
         />
-        {!refillCalendarMode && startDate ? (
+        {startDate ? (
           <AppText variant="body">
-            {t('apps.medication.ui.startsOn', { date: formatDisplayDate(startDate) })}
+            {endDate
+              ? t('apps.medication.ui.runsFromTo', {
+                  start: formatDisplayDate(startDate),
+                  end: formatDisplayDate(endDate),
+                })
+              : t('apps.medication.ui.startsOngoing', { date: formatDisplayDate(startDate) })}
           </AppText>
         ) : null}
-        {refillCalendarMode ? (
+        {calendarMode === 'refill' ? (
           <AppText variant="body">
             {refillDueDate
               ? t('apps.medication.ui.refillOn', { date: formatDisplayDate(refillDueDate) })
@@ -500,6 +654,7 @@ export default function MedicationSetupScreen() {
             dosage,
             frequency,
             startDate,
+            endDate,
             notes,
             slotTimes: showSchedule ? slotTimes : [],
             instructions: buildInstructions(),

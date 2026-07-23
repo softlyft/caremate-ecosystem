@@ -7,7 +7,7 @@ import {
   type MedicationFrequency,
   type MedicationInstructionKind,
 } from '@/mini-apps/medication-tracker/constants';
-import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
+import { addDays, daysBetween, parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 
 export type { MedicationFrequency, MedicationInstructionKind };
 
@@ -23,6 +23,8 @@ export interface Medication {
   frequency: MedicationFrequency;
   notes?: string;
   startDate: string;
+  /** Inclusive last day of the course. `null` = ongoing (no end). */
+  endDate: string | null;
   active: boolean;
   /** When true, this medicine is for a family child (not the signed-in parent). */
   forKid: boolean;
@@ -68,6 +70,30 @@ export function formatDisplayDate(dateKey: string): string {
     day: 'numeric',
     year: 'numeric',
   });
+}
+
+/** Inclusive course length → last calendar day (`7` days starting Mon ends Sun). */
+export function endDateForDurationDays(startDate: string, durationDays: number): string {
+  const days = Math.max(1, Math.floor(durationDays));
+  return toDateKey(addDays(parseDateKey(startDate), days - 1));
+}
+
+/** Inclusive day count from start through end (1 when equal). */
+export function durationDaysBetween(startDate: string, endDate: string): number {
+  return Math.max(1, daysBetween(parseDateKey(startDate), parseDateKey(endDate)) + 1);
+}
+
+export function isMedicationScheduledOnDate(
+  medication: Pick<Medication, 'startDate' | 'endDate'>,
+  dateKey: string,
+): boolean {
+  if (medication.startDate > dateKey) {
+    return false;
+  }
+  if (medication.endDate && medication.endDate < dateKey) {
+    return false;
+  }
+  return true;
 }
 
 export function getFrequencyLabel(frequency: MedicationFrequency): string {
@@ -148,7 +174,7 @@ export function buildDaySlots(
   const slots: DoseSlot[] = [];
 
   for (const medication of medications.filter((item) => item.active)) {
-    if (medication.startDate > dateKey) {
+    if (!isMedicationScheduledOnDate(medication, dateKey)) {
       continue;
     }
 
@@ -318,8 +344,15 @@ export function groupLogsByDate(
 
 export function normalizeMedication(medication: Medication): Medication {
   const frequency = medication.frequency ?? 'once-daily';
+  const startDate = medication.startDate;
+  let endDate = medication.endDate ?? null;
+  if (endDate && startDate && endDate < startDate) {
+    endDate = startDate;
+  }
   return {
     ...medication,
+    startDate,
+    endDate,
     forKid: Boolean(medication.forKid),
     familyMemberId: medication.familyMemberId ?? null,
     patientName: medication.patientName ?? null,

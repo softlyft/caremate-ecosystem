@@ -19,11 +19,14 @@ import {
 } from '@/mini-apps/medication-tracker/store';
 import {
   buildDaySlots,
+  durationDaysBetween,
+  endDateForDurationDays,
   formatDisplayDate,
   getDaySummary,
   getFrequencyLabel,
   getMedicationPatientLabel,
   getStatusLabel,
+  isMedicationScheduledOnDate,
   needsRefill,
   nextSlotIndexForAsNeeded,
   normalizeMedication,
@@ -41,6 +44,7 @@ const med = (overrides: Partial<Medication> = {}): Medication =>
     dosage: '500mg',
     frequency: 'twice-daily',
     startDate: '2026-07-01',
+    endDate: null,
     active: true,
     forKid: false,
     familyMemberId: null,
@@ -139,6 +143,19 @@ describe('medication-tracker/utils', () => {
         midMorning,
       ),
     ).toEqual([]);
+  });
+
+  it('skips meds after the inclusive end date', () => {
+    const course = med({ startDate: '2026-07-10', endDate: '2026-07-16' });
+    expect(buildDaySlots([course], [], '2026-07-16', midMorning)).toHaveLength(2);
+    expect(buildDaySlots([course], [], '2026-07-17', midMorning)).toEqual([]);
+  });
+
+  it('computes inclusive duration end dates', () => {
+    expect(endDateForDurationDays('2026-07-01', 7)).toBe('2026-07-07');
+    expect(durationDaysBetween('2026-07-01', '2026-07-07')).toBe(7);
+    expect(isMedicationScheduledOnDate(med({ endDate: '2026-07-17' }), '2026-07-17')).toBe(true);
+    expect(isMedicationScheduledOnDate(med({ endDate: '2026-07-16' }), '2026-07-17')).toBe(false);
   });
 
   it('keeps an open as-needed row after doses are logged', () => {
@@ -318,6 +335,7 @@ describe('medication-tracker/migrate', () => {
       slotTimes: ['08:00'],
       instructions: { kind: 'none' },
       refillAtThreshold: 5,
+      endDate: null,
     });
   });
 });
@@ -413,5 +431,28 @@ describe('medication-tracker/store', () => {
     expect(updated.forKid).toBe(false);
     expect(updated.familyMemberId).toBeNull();
     expect(updated.patientName).toBeNull();
+  });
+
+  it('retains a past start date when editing a medication', () => {
+    const medication = useMedicationTrackerStore.getState().addMedication({
+      name: 'Amoxicillin',
+      dosage: '500mg',
+      frequency: 'twice-daily',
+      startDate: '2026-07-21',
+      endDate: '2026-07-27',
+    });
+
+    useMedicationTrackerStore.getState().updateMedication(medication.id, {
+      name: 'Amoxicillin',
+      dosage: '500mg',
+      frequency: 'twice-daily',
+      startDate: '2026-07-10',
+      endDate: '2026-07-16',
+      active: true,
+    });
+
+    const updated = useMedicationTrackerStore.getState().medications[0]!;
+    expect(updated.startDate).toBe('2026-07-10');
+    expect(updated.endDate).toBe('2026-07-16');
   });
 });

@@ -16,8 +16,8 @@ import { HealthCategoriesRow } from '@/features/home/components/HealthCategories
 import { HomeHeader } from '@/features/home/components/HomeHeader';
 import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { NearbyProvidersRow } from '@/features/home/components/NearbyProvidersRow';
-import { splitFullName } from '@/domains/emergency/constants';
 import { useTranslation } from '@/domains/localization';
+import { useAccountDisplayName } from '@/hooks/use-account-display-name';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { articleRepository } from '@/domains/articles/repository';
@@ -35,16 +35,13 @@ export default function HomeScreen() {
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
   const { countryCode, languageCode, isReady: localizationReady } = useLocalizationPreferences();
+  const { firstName } = useAccountDisplayName();
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
     queryFn: () => profileRepository.findByUserId(userId),
     enabled: !isGuest,
   });
-
-  const firstName = isGuest
-    ? null
-    : splitFullName(profileQuery.data?.fullName ?? '').firstName || null;
 
   const articlesQuery = useQuery({
     queryKey: [

@@ -207,6 +207,19 @@ class BillingRepository extends BaseRepository {
       throw new Error('Sign in to continue to payment');
     }
 
+    const { data: handoff, error: handoffError } = await supabase.functions.invoke(
+      'create-checkout-handoff',
+      { body: { refresh_token: session.refresh_token } },
+    );
+    if (handoffError) {
+      throw new Error(handoffError.message || 'Could not start secure checkout');
+    }
+    const handoffCode =
+      typeof handoff?.code === 'string' && handoff.code.trim() ? handoff.code.trim() : null;
+    if (!handoffCode) {
+      throw new Error('Could not start secure checkout');
+    }
+
     const query = new URLSearchParams({
       plan_type: input.planType,
       billing_interval: input.billingInterval,
@@ -222,8 +235,7 @@ class BillingRepository extends BaseRepository {
     }
 
     const hash = new URLSearchParams({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
+      handoff: handoffCode,
     });
 
     const url = `${paymentBase}/?${query.toString()}#${hash.toString()}`;

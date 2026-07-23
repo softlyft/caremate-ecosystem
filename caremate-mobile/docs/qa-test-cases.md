@@ -170,7 +170,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | ME-03 | P0 | Signed-in | Me → Family card | Opens Family hub or setup. |
 | ME-04 | P0 | Guest | Me → Family | Prompts sign-in (cannot manage family as guest). |
 | ME-05 | P0 | Any | Me → Settings | Settings screen opens. |
-| ME-06 | P1 | Settings | Toggle system / dark theme | UI theme updates. |
+| ME-06 | P1 | Settings | Open Settings | No appearance / dark-mode toggles; app stays light. |
 | ME-07 | P1 | Settings | Toggle notifications | State persists after relaunch. |
 | ME-08 | P1 | Signed-in | Settings → set country (e.g. Mexico) + language → Save | Saves; Learn/Home news context can use country. State/province is not shown in Settings UI. |
 | ME-09 | P1 | Guest | Settings location | Explain that sign-in is required / control disabled. |
@@ -269,6 +269,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 |----|---|-----|-------|----------|
 | MD-01 | P0 | Any | Apps → Medication Assistant | Dashboard opens (Due now / Upcoming / Taken). |
 | MD-02 | P0 | — | Add medicine → Name, dosage, once daily, start today → save | Appears in list; today’s dose slot shown with time. |
+| MD-02b | P0 | Add medicine | Set treatment to 7 days (or custom end) → save | Doses appear only through the end date; day after end has no slots. |
 | MD-03 | P0 | Add medicine screen | See **Is this for a kid?** | Field visible with No / Yes options **above** name/dosage. |
 | MD-04 | P0 | Family kids exist | Yes — for a kid → select child → save | Medicine shows child name on list/doses. |
 | MD-05 | P1 | No family kids | Yes — for a kid | CTA to set up / open Family; cannot save for kid without selection. |
@@ -278,6 +279,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | MD-09 | P1 | As needed | Log multiple doses same day | Allowed; open “as needed” row remains after first log. |
 | MD-10 | P1 | Filter chips | After kid meds exist | All / You / child filters work. |
 | MD-11 | P1 | Edit medicine | Pause / remove | Pause hides from active today; remove clears logs. |
+| MD-11b | P0 | Edit medicine | Change start date to a past day → save → reopen | Past start date retained; calendar opens on that month. |
 | MD-12 | P1 | Log dose modal | Pick medicine/date/slot → save | Log recorded; paused meds not listed. |
 | MD-13 | P1 | Offline | Add + log doses | Works offline. |
 | MD-14 | P1 | Scheduled med | Before slot time | Slot shows Upcoming; at/after time → Due. |
@@ -350,7 +352,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| UI-01 | P1 | Light & dark | Toggle theme | Text readable; no clipped critical CTAs. |
+| UI-01 | P1 | System dark mode | Open main tabs + Settings | UI stays light; text readable; no clipped critical CTAs. |
 | UI-02 | P1 | Any stack screen | Hardware/gesture back | Returns to previous screen. |
 | UI-03 | P1 | Modals (setup/log) | Dismiss modal | Returns to mini-app home. |
 | UI-04 | P2 | Android adaptive icon | Install release APK | Launcher icon not clipped; logo readable. |

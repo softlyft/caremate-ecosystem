@@ -133,7 +133,16 @@ export async function createClaimChallenge(input: {
 
   if (error) throw error;
 
-  return { claimId: data.id, debugCode: code, expiresAt };
+  // Production must never return the OTP (org claim takeover). Local/dev may until email is wired.
+  const allowInlineOtp =
+    process.env.ALLOW_INLINE_OTP === 'true' ||
+    (process.env.NODE_ENV !== 'production' && process.env.ALLOW_INLINE_OTP !== 'false');
+
+  return {
+    claimId: data.id,
+    debugCode: allowInlineOtp ? code : '',
+    expiresAt,
+  };
 }
 
 export async function verifyClaimChallenge(input: {

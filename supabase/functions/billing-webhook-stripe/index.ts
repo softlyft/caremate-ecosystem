@@ -10,6 +10,7 @@ async function verifyStripeSignature(
   payload: string,
   signatureHeader: string | null,
   secret: string,
+  maxAgeSeconds = 300,
 ): Promise<boolean> {
   if (!signatureHeader) return false;
   const parts = Object.fromEntries(
@@ -21,6 +22,11 @@ async function verifyStripeSignature(
   const timestamp = parts.t;
   const signature = parts.v1;
   if (!timestamp || !signature) return false;
+
+  const ts = Number(timestamp);
+  if (!Number.isFinite(ts)) return false;
+  const ageSeconds = Math.abs(Math.floor(Date.now() / 1000) - ts);
+  if (ageSeconds > maxAgeSeconds) return false;
 
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
@@ -39,7 +45,12 @@ async function verifyStripeSignature(
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 
-  return digest === signature;
+  if (digest.length !== signature.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < digest.length; i += 1) {
+    mismatch |= digest.charCodeAt(i) ^ signature.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 Deno.serve(async (req) => {

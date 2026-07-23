@@ -57,7 +57,7 @@ Use Supabase directly plus Edge Functions for privileged operations. A NestJS in
 | Emergency profile (view, edit, QR) | ✅ |
 | Health articles (feed, categories, detail, bookmarks) | ✅ |
 | Provider discovery (list, detail, map, favorites) | ✅ |
-| Profile & settings (theme, notifications prefs) | ✅ |
+| Profile & settings (notifications prefs; light UI only) | ✅ |
 | Offline banner & bootstrap error handling | ✅ |
 | Background sync to Supabase | ✅ (when configured) |
 

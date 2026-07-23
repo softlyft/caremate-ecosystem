@@ -5,6 +5,13 @@ import { config } from '@/constants/env';
 /** Deep-link path opened from the Supabase password-reset email. */
 export const PASSWORD_RESET_PATH = 'auth/reset-password';
 
+const ALLOWED_AUTH_PATH_PREFIXES = [
+  'auth/reset-password',
+  'auth/callback',
+  'billing/success',
+  'billing/cancel',
+];
+
 /**
  * Redirect URI embedded in the reset email.
  * Must also be allowlisted in Supabase Auth → URL Configuration → Redirect URLs.
@@ -15,8 +22,46 @@ export function getPasswordResetRedirectUri(): string {
 
 export type AuthDeepLinkResult = 'recovery' | 'session' | null;
 
+function isAllowedAuthCallbackUrl(url: string): boolean {
+  const trimmed = url.trim();
+  if (!trimmed) return false;
+
+  // Expo may produce exp://… or caremate://… — require known path before accepting credentials.
+  const lower = trimmed.toLowerCase();
+  const hasAllowedPath = ALLOWED_AUTH_PATH_PREFIXES.some(
+    (path) => lower.includes(`/${path}`) || lower.includes(`${path}?`) || lower.endsWith(path),
+  );
+  if (!hasAllowedPath && !lower.includes('code=') && !lower.includes('access_token')) {
+    return false;
+  }
+  if (!hasAllowedPath) {
+    // Tokens without an allowlisted path are rejected (prevents arbitrary-scheme credential injection).
+    return false;
+  }
+
+  try {
+    const parsed = Linking.parse(trimmed);
+    const scheme = (parsed.scheme ?? '').toLowerCase();
+    // Accept CareMate custom scheme and Expo dev schemes only.
+    if (
+      scheme &&
+      scheme !== 'caremate' &&
+      scheme !== 'exp' &&
+      scheme !== 'exps' &&
+      !scheme.startsWith('http')
+    ) {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Parse an inbound auth URL (query `code` or hash tokens) and establish a session.
+ * Rejects URLs that are not on an allowlisted auth/billing callback path.
  */
 export async function handleAuthCallbackUrl(
   url: string,
@@ -30,12 +75,8 @@ export async function handleAuthCallbackUrl(
   }
 
   const normalized = url.trim();
-  if (
-    !normalized.includes(PASSWORD_RESET_PATH) &&
-    !normalized.includes('access_token') &&
-    !normalized.includes('code=')
-  ) {
-    // Still try to parse if Supabase wraps the redirect oddly.
+  if (!isAllowedAuthCallbackUrl(normalized)) {
+    return null;
   }
 
   const parsed = Linking.parse(normalized);

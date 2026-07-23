@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { openAppDeepLink } from '@/lib/checkout';
+import { openAppDeepLink, sanitizeAppReturnUrl } from '@/lib/checkout';
+import { supabase } from '@/lib/supabase';
 
 const DEFAULT_RETURN = 'caremate://billing/success';
 
@@ -15,7 +16,6 @@ function buildReturnUrl(base: string, searchParams: URLSearchParams): string {
   if (!reference) return base;
 
   try {
-    // Custom schemes are not always URL-parseable; append manually.
     if (base.includes('://') && !base.startsWith('http')) {
       const joiner = base.includes('?') ? '&' : '?';
       return `${base}${joiner}reference=${encodeURIComponent(reference)}`;
@@ -31,7 +31,7 @@ function buildReturnUrl(base: string, searchParams: URLSearchParams): string {
 
 export function SuccessPage() {
   const [searchParams] = useSearchParams();
-  const returnBase = searchParams.get('return')?.trim() || DEFAULT_RETURN;
+  const returnBase = sanitizeAppReturnUrl(searchParams.get('return'), DEFAULT_RETURN);
   const returnUrl = useMemo(
     () => buildReturnUrl(returnBase, searchParams),
     [returnBase, searchParams],
@@ -41,6 +41,7 @@ export function SuccessPage() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       openAppDeepLink(returnUrl);
+      void supabase.auth.signOut();
       setManual(true);
     }, 600);
     return () => window.clearTimeout(timer);
@@ -57,9 +58,7 @@ export function SuccessPage() {
           </div>
         </header>
         <h1>You&apos;re all set</h1>
-        <p className="lead">
-          Premium is activating. Returning you to the CareMate app…
-        </p>
+        <p className="lead">Premium is activating. Returning you to the CareMate app…</p>
         {manual ? (
           <a className="primary link" href={returnUrl}>
             Open CareMate

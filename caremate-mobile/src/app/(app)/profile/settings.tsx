@@ -4,8 +4,6 @@ import {
   Bell,
   FileText,
   MapPin,
-  Moon,
-  Palette,
   Search,
   Settings,
   Shield,
@@ -45,8 +43,6 @@ export default function SettingsScreen() {
   const isGuest = useIsGuest();
   const deleteAccount = useAuthStore((state) => state.deleteAccount);
 
-  const theme = useSettingsStore((state) => state.theme);
-  const setTheme = useSettingsStore((state) => state.setTheme);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
 
@@ -83,11 +79,6 @@ export default function SettingsScreen() {
         country.name.toLowerCase().includes(query) || country.code.toLowerCase().includes(query),
     );
   }, [countryQuery]);
-
-  async function updateTheme(value: 'light' | 'dark' | 'system') {
-    setTheme(value);
-    await profileRepository.saveSettings(userId, { theme: value });
-  }
 
   async function updateNotifications(value: boolean) {
     setNotificationsEnabled(value);
@@ -236,33 +227,6 @@ export default function SettingsScreen() {
         </AnimatedSection>
 
         <AnimatedSection index={2}>
-          <View style={[styles.card, shadow.soft]}>
-            <SectionLabel icon={Palette} title={t('settings.appearance')} />
-            <SettingRow
-              icon={Palette}
-              label={t('settings.theme.useSystem')}
-              trailing={
-                <Switch
-                  value={theme === 'system'}
-                  onValueChange={(enabled) => updateTheme(enabled ? 'system' : 'light')}
-                />
-              }
-            />
-            <View style={styles.divider} />
-            <SettingRow
-              icon={Moon}
-              label={t('settings.theme.darkMode')}
-              trailing={
-                <Switch
-                  value={theme === 'dark'}
-                  onValueChange={(enabled) => updateTheme(enabled ? 'dark' : 'light')}
-                />
-              }
-            />
-          </View>
-        </AnimatedSection>
-
-        <AnimatedSection index={3}>
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={Bell} title={t('settings.notifications.title')} />
             <SettingRow

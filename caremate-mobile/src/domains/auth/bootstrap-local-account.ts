@@ -2,6 +2,7 @@ import { isDatabaseInitialized } from '@/database/client';
 import type { LocalAccountIdentity } from '@/domains/auth/auth-identity';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { applyDeviceDefaultsToProfile, getDeviceDefaults } from '@/domains/onboarding';
+import { isWeakDisplayName, resolveAccountDisplayName } from '@/domains/profile/display-name';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 
@@ -33,7 +34,12 @@ export async function bootstrapLocalAccountRecords(
       phone,
     });
   } else {
-    const nextName = existing.fullName.trim() ? existing.fullName : fullName;
+    // Upgrade email-local-part stubs when auth metadata has a real name.
+    const nextName = isWeakDisplayName(existing.fullName, existing.email ?? email)
+      ? fullName || existing.fullName
+      : existing.fullName.trim()
+        ? existing.fullName
+        : fullName;
     const nextEmail = existing.email ?? email;
     const nextPhone = existing.phone ?? phone;
     if (
@@ -72,9 +78,35 @@ export async function bootstrapLocalAccountRecords(
   }
 
   const profile = await profileRepository.findByUserId(identity.userId);
-  const nameForEmergency = fullName || profile?.fullName?.trim() || '';
   const existingEmergency = await emergencyRepository.findByUserId(identity.userId);
+  const resolvedEmail = profile?.email ?? email;
+  const canonicalName = resolveAccountDisplayName({
+    profileFullName: profile?.fullName,
+    emergencyFullName: existingEmergency?.fullName,
+    authFullName: fullName,
+    email: resolvedEmail,
+    fallback: '',
+  });
+
+  // Heal profile if it still looks like an email stub but emergency/auth has a real name.
+  if (
+    profile &&
+    canonicalName &&
+    isWeakDisplayName(profile.fullName, resolvedEmail) &&
+    !isWeakDisplayName(canonicalName, resolvedEmail)
+  ) {
+    await profileRepository.save(identity.userId, { fullName: canonicalName });
+  }
+
+  const nameForEmergency = canonicalName || fullName || profile?.fullName?.trim() || '';
   if (!existingEmergency) {
+    await emergencyRepository.save(identity.userId, { fullName: nameForEmergency });
+  } else if (
+    (!existingEmergency.fullName.trim() ||
+      isWeakDisplayName(existingEmergency.fullName, resolvedEmail)) &&
+    nameForEmergency &&
+    !isWeakDisplayName(nameForEmergency, resolvedEmail)
+  ) {
     await emergencyRepository.save(identity.userId, { fullName: nameForEmergency });
   } else if (!existingEmergency.fullName.trim() && nameForEmergency) {
     await emergencyRepository.save(identity.userId, { fullName: nameForEmergency });

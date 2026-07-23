@@ -46,9 +46,12 @@ export function JoinForm() {
         const result = await startPatientVerificationAction(formData);
         setVerificationId(result.verificationId);
         setMaskedEmail(result.maskedEmail);
-        setDisplayCode(result.displayCode);
+        setDisplayCode(result.displayCode ?? '');
         setCode('');
         setStep('verify');
+        if (!result.displayCode) {
+          toast.message('Enter the code sent to your email');
+        }
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Could not verify Patient ID');
       }
@@ -154,14 +157,16 @@ export function JoinForm() {
             <p className="text-sm text-muted">
               We sent a code to <span className="font-medium text-foreground">{maskedEmail}</span>.
             </p>
-            <div className="rounded-lg border border-primary/30 bg-primary-light/40 p-4 text-center">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                Temporary displayed code
-              </p>
-              <p className="mt-1 font-mono text-2xl font-semibold tracking-[0.3em] text-brand-navy">
-                {displayCode}
-              </p>
-            </div>
+            {displayCode ? (
+              <div className="rounded-lg border border-primary/30 bg-primary-light/40 p-4 text-center">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                  Local testing code (ALLOW_INLINE_OTP)
+                </p>
+                <p className="mt-1 font-mono text-2xl font-semibold tracking-[0.3em] text-brand-navy">
+                  {displayCode}
+                </p>
+              </div>
+            ) : null}
             <div className="space-y-2">
               <Label htmlFor="verification_code">Verification code</Label>
               <Input

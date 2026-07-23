@@ -30,5 +30,9 @@ export {
   type MiniAppKey,
   miniAppSnapshotRepository,
 } from '@/mini-apps/_kit/snapshot-repository';
+export {
+  clearMiniAppAsyncStorage,
+  scopedMiniAppStorageKey,
+} from '@/mini-apps/_kit/synced-storage';
 export * from '@/mini-apps/_kit/date-utils';
 export { pluralKey, type TranslateFn } from '@/mini-apps/_kit/i18n';

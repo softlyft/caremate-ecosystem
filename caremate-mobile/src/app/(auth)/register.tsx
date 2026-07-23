@@ -57,7 +57,7 @@ export default function RegisterScreen() {
           .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
         phone: z.string().trim().refine(isValidIcePhone, t('emergency.edit.contactPhoneInvalid')),
         email: z.email('Enter a valid email'),
-        password: z.string().min(6, 'Password must be at least 6 characters'),
+        password: z.string().min(8, 'Password must be at least 8 characters'),
         acceptedLegal: z.boolean().refine((value) => value === true, {
           message: t('auth.register.acceptRequired'),
         }),

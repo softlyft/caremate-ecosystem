@@ -16,7 +16,7 @@ export async function startOrgClaimAction(input: {
   ActionResult<{
     claimId: string;
     organizations: { id: string; name: string }[];
-    /** MVP: show in UI instead of sending email */
+    /** Present only when ALLOW_INLINE_OTP / non-production; never in production. */
     debugCode: string;
     expiresAt: string;
     selectedOrganizationId: string;

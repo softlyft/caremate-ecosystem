@@ -11,9 +11,10 @@
 
 - [ ] Enter an unknown Patient ID and confirm enrollment is rejected
 - [ ] Enter a registered 12-digit CareMate Patient ID
-- [ ] Confirm the temporary UI code is shown with a masked registered email
+- [ ] Confirm a masked registered email is shown
+- [ ] Confirm the inline code appears only in non-production (or when `ALLOW_INLINE_OTP=true`)
 - [ ] Enter an incorrect code and confirm verification is rejected
-- [ ] Verify the displayed code
+- [ ] Verify with the correct code
 - [ ] Select only from active, admin-created chapters
 - [ ] Join immediately (approved membership)
 - [ ] Confirm no `community_profiles` identity row is created

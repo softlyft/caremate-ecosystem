@@ -59,6 +59,7 @@ describe('getMedicationPatientLabel', () => {
     dosage: '200mg',
     frequency: 'once-daily',
     startDate: '2026-01-01',
+    endDate: null,
     active: true,
     forKid: false,
     familyMemberId: null,

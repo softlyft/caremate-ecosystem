@@ -17,7 +17,7 @@ import { spacing } from '@/theme/colors';
 
 const loginSchema = z.object({
   email: z.email('Enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;

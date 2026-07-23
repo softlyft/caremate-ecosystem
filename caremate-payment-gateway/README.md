@@ -31,17 +31,21 @@ npm run payment:dev
 | `return_success` | no | Default `caremate://billing/success` |
 | `return_cancel` | no | Default `caremate://billing/cancel` |
 
-Auth handoff uses the URL hash:
+Auth handoff uses a **single-use** hash code (never put tokens in the URL):
 
-`#access_token=…&refresh_token=…`
+`#handoff=…`
+
+Legacy `#access_token=…&refresh_token=…` is ignored.
+
+Return deep links are allowlisted (`caremate://billing/success|cancel` only). See [`docs/security.md`](../docs/security.md).
 
 ## Flow
 
 1. CareMate Premium → Pay
-2. Opens `/payment?plan_type=…&…#access_token=…`
+2. Opens `/?plan_type=…&…#handoff=…`
 3. User confirms → `create-checkout` creates a **pending payment** → Paystack/Stripe hosted page
 4. Provider returns to `/success?reference=…` or `/cancel`
-5. Page deep-links to `caremate://billing/success?reference=…`
+5. Page deep-links to `caremate://billing/success?reference=…` and signs out the short-lived session
 6. Mobile calls `verify-checkout` (and webhooks also finalize) → payment succeeded + **subscription** active
 7. Mobile pulls entitlements
 

@@ -10,17 +10,15 @@ import type { EmergencyLockWidgetProps } from '@/widgets/emergency-lock-widget-t
  */
 const EmergencyLockWidgetLayout = (
   props: EmergencyLockWidgetProps,
-  environment: WidgetEnvironment,
+  _environment: WidgetEnvironment,
 ) => {
   'widget';
 
-  const isDark = environment.colorScheme === 'dark';
-  // Light: teal card ink; dark: high-contrast on system widget chrome.
-  const brandColor = isDark ? '#5EEAD4' : '#0D9488';
-  const titleColor = isDark ? '#F8FAFC' : '#115E59';
-  const mutedColor = isDark ? '#94A3B8' : '#0F766E';
-  const softMuted = isDark ? '#64748B' : '#5EEAD4';
-  const accentColor = isDark ? '#2DD4BF' : '#0D9488';
+  const brandColor = '#0D9488';
+  const titleColor = '#115E59';
+  const mutedColor = '#0F766E';
+  const softMuted = '#5EEAD4';
+  const accentColor = '#0D9488';
 
   if (!props.hasProfile) {
     return (

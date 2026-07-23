@@ -22,6 +22,7 @@ export type MedicationWriteInput = {
   dosage: string;
   frequency: MedicationFrequency;
   startDate: string;
+  endDate?: string | null;
   notes?: string;
   forKid?: boolean;
   familyMemberId?: string | null;
@@ -70,6 +71,12 @@ function buildMedicationFields(
     dosage: input.dosage.trim(),
     frequency,
     startDate: input.startDate,
+    endDate:
+      input.endDate !== undefined
+        ? input.endDate && input.endDate < input.startDate
+          ? input.startDate
+          : input.endDate
+        : (existing?.endDate ?? null),
     notes: input.notes?.trim() || undefined,
     forKid,
     familyMemberId: forKid ? (input.familyMemberId ?? existing?.familyMemberId ?? null) : null,
@@ -215,7 +222,7 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
     }),
     {
       name: 'caremate-medication-tracker',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => createMiniAppSyncedStorage('medication')),
       migrate: (persistedState) => migrateMedicationPersistedState(persistedState),
     },

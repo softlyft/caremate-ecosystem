@@ -6,6 +6,17 @@ import { DOCUMENT_TYPES } from '@/constants/document-types';
 import { requireWriteAccess } from '@/lib/auth';
 import { uploadDocument } from '@/domains/documents/repository';
 
+const MAX_BYTES = 20 * 1024 * 1024;
+const ALLOWED_MIME = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'text/plain',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]);
+
 const metaSchema = z.object({
   patientId: z.string().uuid(),
   documentType: z.enum(DOCUMENT_TYPES),
@@ -24,6 +35,12 @@ export async function uploadDocumentAction(formData: FormData) {
   const file = formData.get('file');
   if (!(file instanceof File) || file.size === 0) {
     throw new Error('Choose a file to upload.');
+  }
+  if (file.size > MAX_BYTES) {
+    throw new Error('File must be 20 MB or smaller.');
+  }
+  if (!ALLOWED_MIME.has(file.type)) {
+    throw new Error('Unsupported file type. Use PDF, JPEG, PNG, WebP, TXT, or Word.');
   }
 
   await uploadDocument({

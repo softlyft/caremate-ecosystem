@@ -1,5 +1,6 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { finalizeSuccessfulPayment } from '../_shared/billing.ts';
+import { assertAllowedReturnUrls } from '../_shared/return-url.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
 import { buildFamilyUpgradeQuote } from '../_shared/upgrade.ts';
 import type { BillingCurrency, BillingInterval } from '../_shared/billing.ts';
@@ -39,6 +40,15 @@ Deno.serve(async (req) => {
     if (!body.billing_interval || !body.currency || !body.success_url || !body.cancel_url) {
       return jsonResponse(
         { error: 'billing_interval, currency, success_url, and cancel_url are required' },
+        400,
+      );
+    }
+
+    try {
+      assertAllowedReturnUrls(body.success_url, body.cancel_url);
+    } catch (err) {
+      return jsonResponse(
+        { error: err instanceof Error ? err.message : 'Invalid return URLs' },
         400,
       );
     }

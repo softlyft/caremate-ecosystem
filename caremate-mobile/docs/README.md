@@ -16,10 +16,11 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Read why we chose Expo / SQLite / Supabase / etc. | [ADRs](./adr/README.md) |
 | Find where code lives | [Project Structure](./project-structure.md) |
 | Understand screens and routes | [Navigation & Routes](./navigation.md) |
-| Work on auth, guest mode, biometrics | [Authentication](./authentication.md) |
+| Work on auth, guest mode, biometrics | [Authentication](./authentication.md) · [Security](./security.md) |
 | Understand Free vs Premium plans & mini-app limits | [Premium & plans](./premium-and-plans.md) |
 | Set up kids / spouse household | [Family profiles](./family-profiles.md) · plan limits in [Premium & plans](./premium-and-plans.md) |
 | Work on SQLite, repositories, sync | [Data Layer](./data-layer.md) · [Sync Engine](./SYNC_ENGINE.md) · [Supabase alignment](./supabase-alignment.md) |
+| Understand encryption, wipe, deep links, checkout handoff | [Security](./security.md) |
 | Work on UI, fonts, theming | [UI & Theme](./ui-and-theme.md) |
 | Work on mini-apps (Medication, Checkup, Immunization, Pregnancy, Period) | [Mini-Apps](./mini-apps.md) · [Contract](./mini-app-contract.md) |
 | Work on Home, Emergency, Articles (Learn), Providers | [Core Features](./features.md) · [Provider model](./provider-model.md) · [Learn content model](./learn-content-model.md) · [Notifications](./notifications.md) · [Ads](./ads.md) |
@@ -45,6 +46,7 @@ docs/
 ├── project-structure.md   Folder layout and conventions
 ├── navigation.md          Expo Router routes and tab structure
 ├── authentication.md      Auth, guest mode, sessions, biometrics
+├── security.md            At-rest encryption, wipe, deep links, checkout handoff
 ├── premium-and-plans.md   Free / Standard / Family Premium matrix (spec)
 ├── family-profiles.md     Household, kids, spouse connection
 ├── data-layer.md          SQLite, Drizzle, repositories
@@ -71,7 +73,7 @@ UI spacing rhythm for main tabs is documented in [UI & Theme](./ui-and-theme.md#
 | Framework | Expo SDK 57, React Native 0.86, React 19 |
 | Routing | Expo Router (file-based, typed routes) |
 | UI | Gluestack UI v5, Uniwind, Tailwind CSS v4 |
-| Local DB | Expo SQLite + Drizzle ORM |
+| Local DB | Expo SQLite + SQLCipher (native) + Drizzle ORM |
 | Remote | Supabase (Auth, PostgreSQL) |
 | Client state | Zustand |
 | Server/cache state | TanStack Query |

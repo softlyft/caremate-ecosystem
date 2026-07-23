@@ -126,6 +126,7 @@ Hooks: `useMedicationTrackerStore`, `useMedicationTrackerHydrated`. Alerts: `eva
 ### Features
 
 - Clock-aware schedule (upcoming → due → missed with grace)
+- Treatment period: optional **end date** (or 3/5/7/14/30-day presets); omit for ongoing
 - Dosage instructions + taken confirmation on Today
 - Refill quantity / due date + in-app refill reminder
 - History by day / medicine

@@ -61,7 +61,11 @@ export function ClaimOrgForm() {
       setOrganizationId(result.data.selectedOrganizationId);
       setDebugCode(result.data.debugCode);
       setStep('code');
-      toast.success('Verification code ready');
+      toast.success(
+        result.data.debugCode
+          ? 'Verification code ready'
+          : 'Enter the verification code sent to your email',
+      );
     } finally {
       setLoading(false);
     }
@@ -86,7 +90,11 @@ export function ClaimOrgForm() {
       setClaimId(result.data.claimId);
       setDebugCode(result.data.debugCode);
       setStep('code');
-      toast.success('Verification code ready');
+      toast.success(
+        result.data.debugCode
+          ? 'Verification code ready'
+          : 'Enter the verification code sent to your email',
+      );
     } finally {
       setLoading(false);
     }
@@ -233,11 +241,17 @@ export function ClaimOrgForm() {
 
         {step === 'code' ? (
           <form onSubmit={onVerifyCode} className="space-y-4">
-            <div className="rounded-lg border border-warning/40 bg-warning-light px-3 py-3 text-sm text-foreground">
-              <p className="font-medium">MVP: email delivery is not wired yet</p>
-              <p className="mt-1 text-muted">Use this verification code:</p>
-              <p className="mt-2 font-mono text-2xl tracking-[0.3em] text-brand-navy">{debugCode}</p>
-            </div>
+            {debugCode ? (
+              <div className="rounded-lg border border-warning/40 bg-warning-light px-3 py-3 text-sm text-foreground">
+                <p className="font-medium">Local testing: inline OTP enabled</p>
+                <p className="mt-1 text-muted">Use this verification code:</p>
+                <p className="mt-2 font-mono text-2xl tracking-[0.3em] text-brand-navy">{debugCode}</p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted">
+                Enter the verification code sent to <span className="font-medium text-foreground">{email}</span>.
+              </p>
+            )}
             <div className="space-y-2">
               <Label htmlFor="claim-code">Verification code</Label>
               <Input

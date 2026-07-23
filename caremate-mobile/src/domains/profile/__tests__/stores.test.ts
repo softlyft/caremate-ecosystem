@@ -4,18 +4,14 @@ import { useFamilySetupStore } from '@/domains/family/store';
 describe('settings store', () => {
   beforeEach(() => {
     useSettingsStore.setState({
-      theme: 'system',
       notificationsEnabled: true,
     });
   });
 
-  it('updates theme and notifications', () => {
-    useSettingsStore.getState().setTheme('dark');
+  it('updates notifications', () => {
     useSettingsStore.getState().setNotificationsEnabled(false);
     expect(useSettingsStore.getState()).toEqual({
-      theme: 'dark',
       notificationsEnabled: false,
-      setTheme: expect.any(Function),
       setNotificationsEnabled: expect.any(Function),
       hydrateFromSettings: expect.any(Function),
     });
@@ -33,7 +29,6 @@ describe('settings store', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     });
-    expect(useSettingsStore.getState().theme).toBe('light');
     expect(useSettingsStore.getState().notificationsEnabled).toBe(false);
   });
 });

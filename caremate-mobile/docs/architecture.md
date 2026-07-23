@@ -139,7 +139,7 @@ On unmount, `syncEngine.stop()` is called.
 | Store | Technology | Stores |
 |-------|------------|--------|
 | Auth session | Zustand | `user`, `isGuest`, `isAuthenticated`, `biometricEnabled` |
-| Settings UI | Zustand | `theme`, `notificationsEnabled` (hydrated from SQLite on settings screen) |
+| Settings UI | Zustand | `notificationsEnabled` (hydrated from SQLite on settings screen; theme is light-only) |
 | Mini-apps | Zustand + persist | Period, pregnancy, immunization data |
 | Articles, providers, profiles | TanStack Query | Never in Zustand |
 
@@ -170,14 +170,16 @@ This is intentional for rapid MVP delivery but creates a documentation and archi
 
 ## Security model
 
-| Asset | Storage |
-|-------|---------|
-| Supabase session tokens | Expo SecureStore (native) |
-| Session tokens (web) | AsyncStorage fallback |
-| Biometric preference | SecureStore key `biometric_enabled` |
+See **[Security](./security.md)** for the full hardening map. Summary:
+
+| Asset | Storage / control |
+|-------|-------------------|
+| Supabase session tokens | Expo SecureStore (native); AsyncStorage on web |
+| SQLite PHI | SQLCipher (`caremate.secure.db`) + Keychain/Keystore key |
+| Mini-app health blobs | User-scoped AsyncStorage; cleared on sign-out |
+| Biometric preference | SecureStore; gated by `BiometricLockGate` |
 | Onboarding flag | SecureStore |
-| Health data (core app) | SQLite (device-local) |
-| Mini-app data | AsyncStorage (device-local) |
+| Checkout session handoff | Single-use Edge Function code (no tokens in URL) |
 
 Never store secrets in plain AsyncStorage on native platforms.
 

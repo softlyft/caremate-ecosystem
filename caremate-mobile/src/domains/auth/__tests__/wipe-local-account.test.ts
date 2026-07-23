@@ -27,6 +27,14 @@ jest.mock('@/mini-apps/period-tracker/store', () => ({
   usePeriodTrackerStore: { getState: () => ({ clearAll: jest.fn() }) },
 }));
 
+jest.mock('@/mini-apps/_kit/synced-storage', () => ({
+  clearMiniAppAsyncStorage: jest.fn(async () => undefined),
+}));
+
+jest.mock('@/domains/emergency/lock-surface', () => ({
+  syncEmergencyLockSurface: jest.fn(async () => undefined),
+}));
+
 describe('wipeLocalAccountData', () => {
   it('no-ops for guest user id', async () => {
     await expect(wipeLocalAccountData(GUEST_USER_ID)).resolves.toBeUndefined();

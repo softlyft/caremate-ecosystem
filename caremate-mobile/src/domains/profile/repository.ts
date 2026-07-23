@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, ne, sql } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
+import { isWeakDisplayName } from '@/domains/profile/display-name';
 import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
 import { config } from '@/constants/env';
 import { GUEST_USER_ID } from '@/constants/guest';
@@ -235,6 +236,8 @@ class ProfileRepository extends BaseRepository {
       const updated: AppSettings = {
         ...existing,
         ...input,
+        // App is light-only — never persist dark/system preferences.
+        theme: 'light',
         updatedAt: timestamp,
         syncStatus: 'pending',
       };
@@ -264,7 +267,7 @@ class ProfileRepository extends BaseRepository {
     const appSettings: AppSettings = {
       id,
       userId,
-      theme: input.theme ?? 'system',
+      theme: 'light',
       notificationsEnabled: input.notificationsEnabled ?? true,
       subscribedCategoryIds: input.subscribedCategoryIds ?? [],
       syncStatus: 'pending',
@@ -346,12 +349,22 @@ class ProfileRepository extends BaseRepository {
     const db = getDatabase();
     for (const row of data) {
       const timestamp = nowIso();
+      const existingLocal = await this.findByUserId(row.user_id);
+      const remoteName = typeof row.full_name === 'string' ? row.full_name : '';
+      const remoteEmail = typeof row.email === 'string' ? row.email : null;
+      // Don't let an email-local-part stub from another device clobber a real name.
+      const keepLocalName =
+        existingLocal &&
+        !isWeakDisplayName(existingLocal.fullName, existingLocal.email ?? remoteEmail) &&
+        isWeakDisplayName(remoteName, remoteEmail ?? existingLocal.email);
+      const nextFullName = keepLocalName ? existingLocal.fullName : remoteName;
+
       await db
         .insert(profiles)
         .values({
           id: row.id,
           userId: row.user_id,
-          fullName: row.full_name,
+          fullName: nextFullName,
           email: row.email,
           phone: row.phone,
           dateOfBirth: row.date_of_birth,
@@ -360,15 +373,15 @@ class ProfileRepository extends BaseRepository {
           languageCode: row.language_code ?? null,
           state: row.state ?? null,
           patientId: row.patient_id ?? null,
-          syncStatus: 'synced',
+          syncStatus: keepLocalName ? 'pending' : 'synced',
           deletedAt: null,
           createdAt: row.created_at ?? timestamp,
-          updatedAt: row.updated_at ?? timestamp,
+          updatedAt: keepLocalName ? timestamp : (row.updated_at ?? timestamp),
         })
         .onConflictDoUpdate({
           target: profiles.id,
           set: {
-            fullName: row.full_name,
+            fullName: nextFullName,
             email: row.email,
             phone: row.phone,
             dateOfBirth: row.date_of_birth,
@@ -377,10 +390,34 @@ class ProfileRepository extends BaseRepository {
             languageCode: row.language_code ?? null,
             state: row.state ?? null,
             patientId: row.patient_id ?? null,
-            syncStatus: 'synced',
-            updatedAt: row.updated_at ?? timestamp,
+            syncStatus: keepLocalName ? 'pending' : 'synced',
+            updatedAt: keepLocalName ? timestamp : (row.updated_at ?? timestamp),
           },
         });
+
+      if (keepLocalName && existingLocal) {
+        await this.queueSync({
+          entityType: 'profiles',
+          entityId: row.id,
+          operation: 'update',
+          payload: {
+            ...existingLocal,
+            id: row.id,
+            userId: row.user_id,
+            fullName: nextFullName,
+            email: row.email ?? existingLocal.email,
+            phone: row.phone ?? existingLocal.phone,
+            dateOfBirth: row.date_of_birth ?? existingLocal.dateOfBirth,
+            avatarUrl: row.avatar_url ?? existingLocal.avatarUrl,
+            countryCode: row.country_code ?? existingLocal.countryCode,
+            languageCode: row.language_code ?? existingLocal.languageCode,
+            state: row.state ?? existingLocal.state,
+            patientId: row.patient_id ?? existingLocal.patientId,
+            syncStatus: 'pending',
+            updatedAt: timestamp,
+          },
+        });
+      }
 
       await this.reconcileDuplicateLocalRows(row.user_id, row.id);
     }
@@ -421,7 +458,16 @@ class ProfileRepository extends BaseRepository {
     for (const dupe of dupes) {
       const next: Profile = {
         ...merged,
-        fullName: merged.fullName.trim() ? merged.fullName : dupe.fullName,
+        fullName: (() => {
+          const email = merged.email ?? dupe.email;
+          if (!isWeakDisplayName(merged.fullName, email)) {
+            return merged.fullName;
+          }
+          if (!isWeakDisplayName(dupe.fullName, email)) {
+            return dupe.fullName;
+          }
+          return merged.fullName.trim() ? merged.fullName : dupe.fullName;
+        })(),
         email: fill(merged.email, dupe.email),
         phone: fill(merged.phone, dupe.phone),
         dateOfBirth: fill(merged.dateOfBirth, dupe.dateOfBirth),
