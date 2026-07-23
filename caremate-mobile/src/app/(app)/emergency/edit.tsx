@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
   Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -12,6 +13,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
@@ -76,12 +78,42 @@ const EMPTY_CONTACT = {
 export default function EmergencyEditScreen() {
   const { t } = useTranslation();
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
+  const scrollRef = useRef<ScrollView>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [contactsSource, setContactsSource] = useState<EmergencyContact[] | undefined>(undefined);
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
   const [contactError, setContactError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  function scrollContactsIntoView() {
+    // Let the keyboard finish opening, then bring ICE fields / actions above it.
+    requestAnimationFrame(() => {
+      setTimeout(
+        () => {
+          scrollRef.current?.scrollToEnd({ animated: true });
+        },
+        Platform.OS === 'ios' ? 80 : 120,
+      );
+    });
+  }
 
   const schema = useMemo(
     () =>
@@ -261,19 +293,28 @@ export default function EmergencyEditScreen() {
     }
   }
 
+  const keyboardBottomInset =
+    keyboardHeight > 0 ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg : spacing.xl * 2;
+  // Modal stack header ≈ 56pt + safe area on iOS; Android uses windowSoftInputMode=adjustResize.
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + 56 : 0;
+
   return (
     <Screen>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <ScrollView
-          contentContainerStyle={styles.content}
+          ref={scrollRef}
+          style={styles.flex}
+          contentContainerStyle={[styles.content, { paddingBottom: keyboardBottomInset }]}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-          automaticallyAdjustKeyboardInsets
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
           contentInsetAdjustmentBehavior="automatic"
+          showsVerticalScrollIndicator
+          nestedScrollEnabled
         >
           <AppText variant="caption">{t('emergency.edit.hint')}</AppText>
 
@@ -457,6 +498,7 @@ export default function EmergencyEditScreen() {
               autoCorrect={false}
               maxLength={PERSON_NAME_MAX_CHARS}
               value={draftContact.name}
+              onFocus={scrollContactsIntoView}
               onChangeText={(name) => {
                 setDraftContact((current) => ({ ...current, name: sanitizePersonNameInput(name) }));
                 setContactError(null);
@@ -466,6 +508,7 @@ export default function EmergencyEditScreen() {
               placeholder={t('emergency.edit.relationshipPlaceholder')}
               autoCapitalize="words"
               value={draftContact.relationship}
+              onFocus={scrollContactsIntoView}
               onChangeText={(relationship) => {
                 setDraftContact((current) => ({ ...current, relationship }));
                 setContactError(null);
@@ -478,6 +521,7 @@ export default function EmergencyEditScreen() {
               autoComplete="tel"
               maxLength={ICE_PHONE_MAX_CHARS}
               value={draftContact.phone}
+              onFocus={scrollContactsIntoView}
               onChangeText={(phone) => {
                 setDraftContact((current) => ({ ...current, phone: sanitizePhoneInput(phone) }));
                 setContactError(null);
@@ -520,7 +564,7 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: spacing.md,
-    paddingBottom: spacing.xl * 2,
+    flexGrow: 1,
   },
   fieldGroup: {
     gap: spacing.sm,
