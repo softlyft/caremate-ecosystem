@@ -14,12 +14,12 @@ supabase secrets set \
   AWS_ACCESS_KEY_ID=AKIA... \
   AWS_SECRET_ACCESS_KEY=... \
   AWS_REGION=us-east-1 \
-  SES_FROM_EMAIL=noreply@yourdomain.com \
+  SES_FROM_EMAIL=hello@getcaremate.com \
   SES_FROM_NAME=CareMate \
   EXPO_ACCESS_TOKEN=...
 ```
 
-`SES_FROM_EMAIL` must be a verified SES identity (domain or address). When SES env vars are missing, product email deliveries are marked `skipped` so local/dev webhooks still succeed.
+`SES_FROM_EMAIL` must be a verified SES identity (domain or address). CareMate transactional mail sends as **`hello@getcaremate.com`**. When SES env vars are missing, product email deliveries are marked `skipped` so local/dev webhooks still succeed.
 
 `EXPO_ACCESS_TOKEN` is **optional**. When set, Edge Functions send it as `Authorization: Bearer …` to the Expo Push API. Without it, Expo still accepts push sends for most projects (rate limits may be lower).
 

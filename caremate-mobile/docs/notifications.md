@@ -400,7 +400,7 @@ Re-firing the same reminder updates/skips instead of spamming the inbox.
 | Billing receipts / failed payment / renewal reminders | Email confirmation (if enabled) |
 | Optional welcome / security alert templates | |
 
-Templates are code-owned HTML in `supabase/functions/_shared/email-templates/`, sent from Edge Functions with AWS SES credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `SES_FROM_EMAIL`) — **never** from the mobile client.
+Templates are code-owned HTML in `supabase/functions/_shared/email-templates/`, sent from Edge Functions with AWS SES credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `SES_FROM_EMAIL=hello@getcaremate.com`, `SES_FROM_NAME=CareMate`) — **never** from the mobile client.
 
 ---
 
