@@ -154,9 +154,10 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | EM-02b | P1 | Emergency query fails with no local row | Open Emergency view | ErrorState with Retry (not “no profile yet” empty). |
 | EM-03 | P1 | Edit | Add emergency contact (name, phone, relationship) | Saved and displayed. |
 | EM-04 | P1 | Edit | Change blood group / genotype chips | Selection persists. |
-| EM-05 | P1 | Profile complete | Open QR screen | Preview opens; no crash. |
-| EM-06 | P1 | Lock surface | Open `caremate://emergency-lock` or lock widget path | Public card shows key fields without login. |
-| EM-07 | P1 | Offline | Edit then view emergency | Works fully offline. |
+| EM-05 | P1 | Signed-in | Me → Generate Patient ID → flip card | QR encodes `caremate://emergency/share/<token>` (no raw PHI). |
+| EM-06 | P0 | Second device | Scan Patient ID QR → open CareMate | Guest/signed-out → login; signed-in → emergency + ICE (or empty if owner has no profile). |
+| EM-06b | P1 | Any | Open `caremate://emergency-lock` | Retirement notice; no PHI; CTA to Patient ID. |
+| EM-07 | P1 | Offline | Edit then view emergency | Works fully offline (own profile). |
 | EM-08 | P1 | Signed-in + online | Edit emergency → wait for sync | Remote / other device eventually reflects (if sync configured). |
 
 ---

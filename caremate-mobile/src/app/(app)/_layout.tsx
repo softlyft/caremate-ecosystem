@@ -1,4 +1,4 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, router } from 'expo-router';
 import {
   Bell,
   Crown,
@@ -11,6 +11,7 @@ import {
   UserRoundPen,
   Users,
 } from 'lucide-react-native';
+import { useEffect, useRef } from 'react';
 import { View } from 'react-native';
 
 import {
@@ -18,7 +19,9 @@ import {
   learnArticleHeaderOptions,
 } from '@/components/navigation/glossyStackHeader';
 import { SyncStatusBanner } from '@/components/SyncStatusBanner';
+import { takePendingEmergencyShareToken } from '@/domains/emergency/share';
 import { useAuthStore } from '@/features/auth/store';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { palette } from '@/theme';
 
 const premiumHeader = {
@@ -44,6 +47,22 @@ const familyHeader = {
 
 export default function AppLayout() {
   const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isGuest = useIsGuest();
+  const resumedShare = useRef(false);
+
+  useEffect(() => {
+    if (resumedShare.current || passwordRecoveryPending || !isAuthenticated || isGuest) {
+      return;
+    }
+    resumedShare.current = true;
+    void takePendingEmergencyShareToken().then((token) => {
+      if (token) {
+        router.push(`/emergency/share/${token}`);
+      }
+    });
+  }, [isAuthenticated, isGuest, passwordRecoveryPending]);
+
   if (passwordRecoveryPending) {
     return <Redirect href="/auth/reset-password" />;
   }

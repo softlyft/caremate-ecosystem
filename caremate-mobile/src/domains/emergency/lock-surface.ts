@@ -27,6 +27,7 @@ function primaryContact(contacts: EmergencyContact[]): EmergencyContact | null {
   return contacts[0] ?? null;
 }
 
+/** Kept for tests / migration helpers — widgets no longer display this data. */
 export function buildEmergencyLockSnapshot(
   profile: EmergencyProfile | null,
 ): EmergencyLockSnapshot {
@@ -50,14 +51,14 @@ export function buildEmergencyLockSnapshot(
   };
 }
 
+/** @deprecated Lock/home widgets are retired; always false. */
 export async function isEmergencyLockSurfaceEnabled(): Promise<boolean> {
-  const value = await AsyncStorage.getItem(ENABLED_KEY);
-  // Opt-in: lock-screen PHI is off until the user explicitly enables it.
-  return value === 'true';
+  return false;
 }
 
-export async function setEmergencyLockSurfaceEnabled(enabled: boolean): Promise<void> {
-  await AsyncStorage.setItem(ENABLED_KEY, enabled ? 'true' : 'false');
+/** @deprecated Clears the legacy enable flag; widgets stay empty. */
+export async function setEmergencyLockSurfaceEnabled(_enabled: boolean): Promise<void> {
+  await AsyncStorage.setItem(ENABLED_KEY, 'false');
 }
 
 export async function readEmergencyLockSnapshot(): Promise<EmergencyLockSnapshot> {
@@ -97,13 +98,13 @@ async function updateNativeWidget(snapshot: EmergencyLockSnapshot): Promise<void
   }
 }
 
-/** Persists a minimal emergency card and refreshes the lock/home screen widget. */
-export async function syncEmergencyLockSurface(profile: EmergencyProfile | null): Promise<void> {
-  const enabled = await isEmergencyLockSurfaceEnabled();
-  const snapshot = enabled
-    ? buildEmergencyLockSnapshot(profile)
-    : { ...EMPTY_SNAPSHOT, updatedAt: new Date().toISOString() };
-
+/**
+ * Always clears lock/home widget PHI. Profile argument is ignored — emergency
+ * details stay in-app only and are shared via Patient ID QR after account login.
+ */
+export async function syncEmergencyLockSurface(_profile?: EmergencyProfile | null): Promise<void> {
+  await AsyncStorage.setItem(ENABLED_KEY, 'false');
+  const snapshot = { ...EMPTY_SNAPSHOT, updatedAt: new Date().toISOString() };
   await writeEmergencyLockSnapshot(snapshot);
   await updateNativeWidget(snapshot);
 }

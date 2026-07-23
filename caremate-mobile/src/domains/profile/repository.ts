@@ -4,6 +4,7 @@ import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
 import { isWeakDisplayName } from '@/domains/profile/display-name';
 import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
+import { generateEmergencyShareToken, isValidEmergencyShareToken } from '@/domains/emergency/share';
 import { config } from '@/constants/env';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { supabase } from '@/lib/supabase';
@@ -26,6 +27,7 @@ function mapProfile(row: typeof profiles.$inferSelect): Profile {
     languageCode: row.languageCode ?? null,
     state: row.state ?? null,
     patientId: row.patientId ?? null,
+    emergencyShareToken: row.emergencyShareToken ?? null,
     syncStatus: row.syncStatus as Profile['syncStatus'],
     deletedAt: row.deletedAt,
     createdAt: row.createdAt,
@@ -85,6 +87,10 @@ class ProfileRepository extends BaseRepository {
         ...input,
         // Never accidentally clear an existing patient ID unless explicitly passed null.
         patientId: input.patientId !== undefined ? input.patientId : existing.patientId,
+        emergencyShareToken:
+          input.emergencyShareToken !== undefined
+            ? input.emergencyShareToken
+            : existing.emergencyShareToken,
         updatedAt: timestamp,
         syncStatus: 'pending',
       };
@@ -101,6 +107,7 @@ class ProfileRepository extends BaseRepository {
           languageCode: updated.languageCode,
           state: updated.state,
           patientId: updated.patientId,
+          emergencyShareToken: updated.emergencyShareToken,
           syncStatus: 'pending',
           updatedAt: timestamp,
         })
@@ -129,6 +136,7 @@ class ProfileRepository extends BaseRepository {
       languageCode: input.languageCode ?? null,
       state: input.state ?? null,
       patientId: input.patientId ?? null,
+      emergencyShareToken: input.emergencyShareToken ?? null,
       syncStatus: 'pending',
       deletedAt: null,
       createdAt: timestamp,
@@ -147,6 +155,7 @@ class ProfileRepository extends BaseRepository {
       languageCode: profile.languageCode,
       state: profile.state,
       patientId: profile.patientId,
+      emergencyShareToken: profile.emergencyShareToken,
       syncStatus: 'pending',
       deletedAt: null,
       createdAt: timestamp,
@@ -164,13 +173,16 @@ class ProfileRepository extends BaseRepository {
   }
 
   /**
-   * Mint a unique CareMate Patient ID for an account that does not have one yet.
-   * Does not run at signup — call from Profile "Generate ID for me".
+   * Mint a unique CareMate Patient ID (+ emergency share token) for an account
+   * that does not have one yet. Does not run at signup — call from Profile.
    */
   async generatePatientIdForUser(userId: string): Promise<Profile> {
     const existing = await this.findByUserId(userId);
     if (existing && isValidPatientId(existing.patientId)) {
-      return existing;
+      if (isValidEmergencyShareToken(existing.emergencyShareToken)) {
+        return existing;
+      }
+      return this.ensureEmergencyShareToken(userId);
     }
 
     const online = config.isSupabaseConfigured && (await isOnline());
@@ -180,11 +192,21 @@ class ProfileRepository extends BaseRepository {
     if (online && userId !== GUEST_USER_ID) {
       const { data: remoteProfile } = await supabase
         .from('profiles')
-        .select('patient_id')
+        .select('patient_id, emergency_share_token')
         .eq('user_id', userId)
         .maybeSingle();
       if (remoteProfile && isValidPatientId(remoteProfile.patient_id)) {
-        return this.save(userId, { patientId: remoteProfile.patient_id });
+        return this.save(userId, {
+          patientId: remoteProfile.patient_id,
+          emergencyShareToken: isValidEmergencyShareToken(remoteProfile.emergency_share_token)
+            ? remoteProfile.emergency_share_token
+            : undefined,
+        }).then(async (saved) => {
+          if (isValidEmergencyShareToken(saved.emergencyShareToken)) {
+            return saved;
+          }
+          return this.ensureEmergencyShareToken(userId);
+        });
       }
     }
 
@@ -211,10 +233,60 @@ class ProfileRepository extends BaseRepository {
         }
       }
 
-      return this.save(userId, { patientId: candidate });
+      const shareToken = await this.allocateEmergencyShareToken(userId, online);
+      return this.save(userId, { patientId: candidate, emergencyShareToken: shareToken });
     }
 
     throw new Error('Could not allocate a unique Patient ID. Please try again.');
+  }
+
+  /** Ensure a share token exists for QR deep links (idempotent). */
+  async ensureEmergencyShareToken(userId: string): Promise<Profile> {
+    const existing = await this.findByUserId(userId);
+    if (!existing) {
+      throw new Error('Profile not found');
+    }
+    if (isValidEmergencyShareToken(existing.emergencyShareToken)) {
+      return existing;
+    }
+
+    const online = config.isSupabaseConfigured && (await isOnline());
+    if (online && userId !== GUEST_USER_ID) {
+      const { data: remoteProfile } = await supabase
+        .from('profiles')
+        .select('emergency_share_token')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (isValidEmergencyShareToken(remoteProfile?.emergency_share_token)) {
+        return this.save(userId, {
+          emergencyShareToken: remoteProfile!.emergency_share_token,
+        });
+      }
+    }
+
+    const shareToken = await this.allocateEmergencyShareToken(userId, online);
+    return this.save(userId, { emergencyShareToken: shareToken });
+  }
+
+  private async allocateEmergencyShareToken(userId: string, online: boolean): Promise<string> {
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const candidate = await generateEmergencyShareToken();
+      if (online) {
+        const { data: remoteHit, error } = await supabase
+          .from('profiles')
+          .select('id, user_id')
+          .eq('emergency_share_token', candidate)
+          .maybeSingle();
+        if (error) {
+          throw new Error(error.message);
+        }
+        if (remoteHit && remoteHit.user_id !== userId) {
+          continue;
+        }
+      }
+      return candidate;
+    }
+    throw new Error('Could not allocate an emergency share token. Please try again.');
   }
 
   async getSettings(userId: string): Promise<AppSettings | null> {
@@ -319,6 +391,9 @@ class ProfileRepository extends BaseRepository {
       // Patient IDs are permanent once minted — a device that hasn't pulled the
       // ID yet must never overwrite the remote value with null.
       ...(isValidPatientId(profile.patientId) ? { patient_id: profile.patientId } : {}),
+      ...(isValidEmergencyShareToken(profile.emergencyShareToken)
+        ? { emergency_share_token: profile.emergencyShareToken }
+        : {}),
       updated_at: profile.updatedAt,
     });
   }
@@ -373,6 +448,7 @@ class ProfileRepository extends BaseRepository {
           languageCode: row.language_code ?? null,
           state: row.state ?? null,
           patientId: row.patient_id ?? null,
+          emergencyShareToken: row.emergency_share_token ?? null,
           syncStatus: keepLocalName ? 'pending' : 'synced',
           deletedAt: null,
           createdAt: row.created_at ?? timestamp,
@@ -390,6 +466,7 @@ class ProfileRepository extends BaseRepository {
             languageCode: row.language_code ?? null,
             state: row.state ?? null,
             patientId: row.patient_id ?? null,
+            emergencyShareToken: row.emergency_share_token ?? null,
             syncStatus: keepLocalName ? 'pending' : 'synced',
             updatedAt: keepLocalName ? timestamp : (row.updated_at ?? timestamp),
           },
@@ -413,6 +490,7 @@ class ProfileRepository extends BaseRepository {
             languageCode: row.language_code ?? existingLocal.languageCode,
             state: row.state ?? existingLocal.state,
             patientId: row.patient_id ?? existingLocal.patientId,
+            emergencyShareToken: row.emergency_share_token ?? existingLocal.emergencyShareToken,
             syncStatus: 'pending',
             updatedAt: timestamp,
           },
@@ -480,6 +558,11 @@ class ProfileRepository extends BaseRepository {
           : isValidPatientId(dupe.patientId)
             ? dupe.patientId
             : merged.patientId,
+        emergencyShareToken: isValidEmergencyShareToken(merged.emergencyShareToken)
+          ? merged.emergencyShareToken
+          : isValidEmergencyShareToken(dupe.emergencyShareToken)
+            ? dupe.emergencyShareToken
+            : merged.emergencyShareToken,
       };
       if (JSON.stringify(next) !== JSON.stringify(merged)) {
         merged = next;
@@ -505,6 +588,7 @@ class ProfileRepository extends BaseRepository {
           languageCode: merged.languageCode,
           state: merged.state,
           patientId: merged.patientId,
+          emergencyShareToken: merged.emergencyShareToken,
           syncStatus: 'pending',
           updatedAt: timestamp,
         })

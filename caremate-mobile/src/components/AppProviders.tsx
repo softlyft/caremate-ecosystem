@@ -21,7 +21,6 @@ import { initializeAdsConsentAndSdk } from '@/domains/ads/consent';
 import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
-import { emergencyRepository } from '@/domains/emergency/repository';
 import { syncPushRegistration } from '@/domains/notifications/push';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
@@ -54,11 +53,8 @@ async function migrateOnboardingFlagIfUpgrading() {
 
 async function runBackgroundStartupTasks() {
   try {
-    const userId = useAuthStore.getState().user?.id;
-    if (userId) {
-      const profile = await emergencyRepository.findByUserId(userId);
-      await syncEmergencyLockSurface(profile);
-    }
+    // Always clear lock/home widget PHI (feature retired).
+    await syncEmergencyLockSurface(null);
   } catch {
     // Widget sync is best-effort and must not block the UI.
   }

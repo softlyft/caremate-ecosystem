@@ -52,7 +52,7 @@ Persisted under **user-scoped** AsyncStorage keys (`caremate-…:{userId}` / `:g
 
 ### Emergency lock surface
 
-Opt-in only. Snapshot + widget state cleared on sign-out / delete (`syncEmergencyLockSurface(null)`).
+Lock/home widgets are retired (always cleared). Emergency share is via opaque Patient ID QR + authenticated RPC (`get_emergency_by_share_token`). Snapshot cleared on sign-out / delete (`syncEmergencyLockSurface(null)`).
 
 ---
 

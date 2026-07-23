@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
+import { continueAfterAuth } from '@/domains/emergency/continue-after-auth';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
 import { useAuthStore } from '@/features/auth/store';
@@ -43,7 +44,7 @@ export default function LoginScreen() {
         return;
       }
       await signIn(values.email, values.password);
-      router.replace('/(app)/(tabs)');
+      await continueAfterAuth();
     } catch (error) {
       const message = error instanceof Error ? error.message : t('auth.login.error');
       Alert.alert(t('auth.login.error'), message);

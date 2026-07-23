@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { CreditCard, QrCode, Sparkles } from 'lucide-react-native';
 import Animated, {
@@ -13,6 +14,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
+import { buildEmergencyShareUrl, isValidEmergencyShareToken } from '@/domains/emergency/share';
 import { formatPatientId, isValidPatientId } from '@/domains/profile/patient-id';
 import { profileRepository } from '@/domains/profile/repository';
 import { syncEngine } from '@/sync/engine';
@@ -23,14 +25,9 @@ type PatientIdCardProps = {
   displayName?: string | null;
 };
 
-/** Stable scan payload for CareMate Patient ID cards. */
-export function buildPatientIdQrPayload(params: { patientId: string; fullName: string }): string {
-  return JSON.stringify({
-    v: 1,
-    type: 'caremate-patient',
-    patientId: params.patientId,
-    name: params.fullName,
-  });
+/** Opaque CareMate deep link for emergency share (no PHI in the QR). */
+export function buildPatientIdQrPayload(params: { shareToken: string }): string {
+  return buildEmergencyShareUrl(params.shareToken);
 }
 
 export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
@@ -51,11 +48,29 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
     },
   });
 
+  const ensureTokenMutation = useMutation({
+    mutationFn: () => profileRepository.ensureEmergencyShareToken(userId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+      syncEngine.requestSync({ reason: 'write', immediate: true });
+    },
+  });
+
   const profile = profileQuery.data;
   const patientId = profile?.patientId ?? null;
+  const shareToken = profile?.emergencyShareToken ?? null;
   const hasId = isValidPatientId(patientId);
+  const hasShareToken = isValidEmergencyShareToken(shareToken);
   const name =
     profile?.fullName?.trim() || displayName?.trim() || t('profile.patientId.fallbackName');
+
+  useEffect(() => {
+    if (hasId && !hasShareToken && !ensureTokenMutation.isPending) {
+      ensureTokenMutation.mutate();
+    }
+    // Intentionally only react to id/token readiness — not the whole mutation object.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasId, hasShareToken]);
 
   const frontStyle = useAnimatedStyle(() => {
     const rotateY = interpolate(flip.value, [0, 1], [0, 180]);
@@ -170,13 +185,17 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                         {t('profile.patientId.qrSide')}
                       </AppText>
                       <View style={styles.qrFrame}>
-                        <QRCode
-                          value={buildPatientIdQrPayload({ patientId, fullName: name })}
-                          size={148}
-                          backgroundColor="#FFFFFF"
-                          color="#115E59"
-                          ecl="M"
-                        />
+                        {hasShareToken && shareToken ? (
+                          <QRCode
+                            value={buildPatientIdQrPayload({ shareToken })}
+                            size={148}
+                            backgroundColor="#FFFFFF"
+                            color="#115E59"
+                            ecl="M"
+                          />
+                        ) : (
+                          <ActivityIndicator color="#115E59" />
+                        )}
                       </View>
                       <AppText variant="caption" style={styles.backId} numberOfLines={1}>
                         {formatPatientId(patientId)}
