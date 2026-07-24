@@ -3,8 +3,9 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   FlatList,
-  KeyboardAvoidingView,
+  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
@@ -42,9 +43,65 @@ function Bubble({ message, mine }: { message: MessageMessage; mine: boolean }) {
   );
 }
 
+function useKeyboardLift() {
+  const insets = useSafeAreaInsets();
+  const baselineHeightRef = useRef(Dimensions.get('window').height);
+  const keyboardHeightRef = useRef(0);
+
+  const [lift, setLift] = useState(0);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    const bottomInset = insets.bottom;
+
+    const recompute = (keyboardHeight: number) => {
+      keyboardHeightRef.current = keyboardHeight;
+      const windowHeight = Dimensions.get('window').height;
+      const open = keyboardHeight > 0;
+
+      if (!open) {
+        baselineHeightRef.current = windowHeight;
+        setKeyboardOpen(false);
+        setLift(0);
+        return;
+      }
+
+      // Android adjustResize already shrinks the window — don't add a second lift.
+      const windowAlreadyResized =
+        Platform.OS === 'android' &&
+        baselineHeightRef.current - windowHeight > keyboardHeight * 0.45;
+      setKeyboardOpen(true);
+      setLift(windowAlreadyResized ? 0 : Math.max(keyboardHeight - bottomInset, 0));
+    };
+
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      recompute(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      recompute(0);
+    });
+    const dimSub = Dimensions.addEventListener('change', () => {
+      recompute(keyboardHeightRef.current);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      dimSub.remove();
+    };
+  }, [insets.bottom]);
+
+  const composerPaddingBottom = keyboardOpen
+    ? spacing.sm
+    : Math.max(insets.bottom, spacing.sm);
+
+  return { lift, composerPaddingBottom, keyboardOpen };
+}
+
 export default function MessageThreadScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
   const listRef = useRef<FlatList<MessageMessage>>(null);
@@ -54,6 +111,7 @@ export default function MessageThreadScreen() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [title, setTitle] = useState(t('messages.threadTitle'));
+  const { lift, composerPaddingBottom, keyboardOpen } = useKeyboardLift();
 
   useEffect(() => {
     if (!conversationId) return;
@@ -87,6 +145,17 @@ export default function MessageThreadScreen() {
     }, 50);
     return () => clearTimeout(timer);
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!keyboardOpen) return;
+    const timer = setTimeout(
+      () => {
+        listRef.current?.scrollToEnd({ animated: true });
+      },
+      Platform.OS === 'ios' ? 80 : 120,
+    );
+    return () => clearTimeout(timer);
+  }, [keyboardOpen, lift]);
 
   async function handleSend() {
     const body = draft.trim();
@@ -128,11 +197,7 @@ export default function MessageThreadScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
-    >
+    <View style={styles.screen}>
       <View style={styles.headerHint}>
         <AppText variant="caption" color="brand">
           {title}
@@ -142,6 +207,9 @@ export default function MessageThreadScreen() {
         ref={listRef}
         data={messages}
         keyExtractor={(item) => item.id}
+        style={styles.listFlex}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         contentContainerStyle={[
           styles.list,
           messages.length === 0 ? styles.listEmpty : null,
@@ -161,7 +229,15 @@ export default function MessageThreadScreen() {
         )}
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
       />
-      <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
+      <View
+        style={[
+          styles.composer,
+          {
+            paddingBottom: composerPaddingBottom,
+            marginBottom: lift,
+          },
+        ]}
+      >
         <TextInput
           style={styles.input}
           value={draft}
@@ -170,6 +246,7 @@ export default function MessageThreadScreen() {
           placeholderTextColor="#9CA3AF"
           multiline
           editable={!sending}
+          textAlignVertical="top"
         />
         <Pressable
           style={[styles.sendButton, (!draft.trim() || sending) && styles.sendDisabled]}
@@ -181,7 +258,7 @@ export default function MessageThreadScreen() {
           </AppText>
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -193,6 +270,9 @@ const styles = StyleSheet.create({
   headerHint: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingVertical: spacing.sm,
+  },
+  listFlex: {
+    flex: 1,
   },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,

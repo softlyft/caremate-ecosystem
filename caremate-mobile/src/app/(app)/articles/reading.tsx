@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { BookOpen, CheckCheck } from 'lucide-react-native';
 import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
-import { AppText } from '@/components/ui/AppText';
 import { Box } from '@/components/ui/box';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -13,6 +13,9 @@ import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { palette, radius, spacing } from '@/theme';
 import type { ArticleReadStatus } from '@/types';
+
+const READING_COLOR = palette.brandBlue;
+const READ_COLOR = palette.primary;
 
 export default function ReadingHistoryScreen() {
   const { t } = useTranslation();
@@ -33,15 +36,19 @@ export default function ReadingHistoryScreen() {
   return (
     <Screen>
       <View style={styles.tabs}>
-        <TabChip
+        <TabIcon
           label={t('learn.readingTab')}
           active={tab === 'reading'}
+          color={READING_COLOR}
           onPress={() => setTab('reading')}
+          icon={BookOpen}
         />
-        <TabChip
+        <TabIcon
           label={t('learn.readTab')}
           active={tab === 'read'}
+          color={READ_COLOR}
           onPress={() => setTab('read')}
+          icon={CheckCheck}
         />
       </View>
 
@@ -65,25 +72,28 @@ export default function ReadingHistoryScreen() {
   );
 }
 
-function TabChip({
+function TabIcon({
   label,
   active,
+  color,
   onPress,
+  icon: Icon,
 }: {
   label: string;
   active: boolean;
+  color: string;
   onPress: () => void;
+  icon: typeof BookOpen;
 }) {
   return (
     <PressableScale
       onPress={onPress}
-      style={[styles.chip, active ? styles.chipActive : null]}
+      style={[styles.chip, active ? { backgroundColor: `${color}18`, borderColor: color } : null]}
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ selected: active }}
     >
-      <AppText variant="body" style={active ? styles.chipTextActive : styles.chipText}>
-        {label}
-      </AppText>
+      <Icon color={active ? color : palette.textSecondary} size={20} strokeWidth={2.35} />
     </PressableScale>
   );
 }
@@ -95,23 +105,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   chip: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: palette.divider,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
     backgroundColor: palette.surface,
-  },
-  chipActive: {
-    backgroundColor: palette.primaryLight,
-    borderColor: palette.primary,
-  },
-  chipText: {
-    color: palette.textSecondary,
-  },
-  chipTextActive: {
-    color: palette.primary,
-    fontWeight: '600',
   },
   list: {
     paddingBottom: spacing.xl,

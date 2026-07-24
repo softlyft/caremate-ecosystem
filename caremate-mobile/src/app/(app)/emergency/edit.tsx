@@ -86,6 +86,7 @@ export default function EmergencyEditScreen() {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [contactsSource, setContactsSource] = useState<EmergencyContact[] | undefined>(undefined);
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
+  const [editingContactIndex, setEditingContactIndex] = useState<number | null>(null);
   const [contactError, setContactError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -175,37 +176,84 @@ export default function EmergencyEditScreen() {
     return <LoadingState title={t('emergency.edit.loading')} />;
   }
 
-  function addContact() {
+  function clearContactDraft() {
+    setDraftContact(EMPTY_CONTACT);
+    setEditingContactIndex(null);
+    setContactError(null);
+  }
+
+  function beginEditContact(index: number) {
+    const contact = contacts[index];
+    if (!contact) {
+      return;
+    }
+    setEditingContactIndex(index);
+    setDraftContact({
+      name: contact.name,
+      phone: contact.phone,
+      relationship: contact.relationship,
+    });
+    setContactError(null);
+    scrollContactsIntoView();
+  }
+
+  function validateDraftContact(): EmergencyContact | null {
     const name = draftContact.name.trim();
     const phone = draftContact.phone.trim();
     const relationship = draftContact.relationship.trim();
 
     if (!name || !phone || !relationship) {
       setContactError(t('emergency.edit.contactRequired'));
-      return;
+      return null;
     }
 
     if (!isValidPersonName(name)) {
       setContactError(t('emergency.edit.nameInvalid'));
-      return;
+      return null;
     }
 
     if (!isValidIcePhone(phone)) {
       setContactError(t('emergency.edit.contactPhoneInvalid'));
-      return;
+      return null;
     }
 
     const duplicate = contacts.some(
-      (contact) => contact.phone === phone && contact.name.toLowerCase() === name.toLowerCase(),
+      (contact, index) =>
+        index !== editingContactIndex &&
+        contact.phone === phone &&
+        contact.name.toLowerCase() === name.toLowerCase(),
     );
     if (duplicate) {
       setContactError(t('emergency.edit.contactDuplicate'));
+      return null;
+    }
+
+    return { name, phone, relationship };
+  }
+
+  function addContact() {
+    const next = validateDraftContact();
+    if (!next) {
       return;
     }
 
-    setContacts((current) => [...current, { name, phone, relationship }]);
-    setDraftContact(EMPTY_CONTACT);
-    setContactError(null);
+    setContacts((current) => [...current, next]);
+    clearContactDraft();
+  }
+
+  function saveContactEdit() {
+    if (editingContactIndex === null) {
+      return;
+    }
+    const next = validateDraftContact();
+    if (!next) {
+      return;
+    }
+
+    setContacts((current) =>
+      current.map((contact, index) => (index === editingContactIndex ? next : contact)),
+    );
+    clearContactDraft();
   }
 
   function removeContact(index: number) {
@@ -214,6 +262,11 @@ export default function EmergencyEditScreen() {
       return;
     }
     setContacts((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    if (editingContactIndex === index) {
+      clearContactDraft();
+    } else if (editingContactIndex !== null && editingContactIndex > index) {
+      setEditingContactIndex(editingContactIndex - 1);
+    }
     setContactError(null);
   }
 
@@ -223,9 +276,32 @@ export default function EmergencyEditScreen() {
       phone: draftContact.phone.trim(),
       relationship: draftContact.relationship.trim(),
     };
+    const draftFilled = Boolean(draft.name || draft.phone || draft.relationship);
+    const draftComplete = isCompleteIceContact(draft);
 
     let next = contacts;
-    if (isCompleteIceContact(draft)) {
+
+    if (editingContactIndex !== null) {
+      if (!draftComplete) {
+        if (draft.phone && !isValidIcePhone(draft.phone)) {
+          setContactError(t('emergency.edit.contactPhoneInvalid'));
+          return null;
+        }
+        setContactError(t('emergency.edit.contactRequired'));
+        return null;
+      }
+      const duplicate = contacts.some(
+        (contact, index) =>
+          index !== editingContactIndex &&
+          contact.phone === draft.phone &&
+          contact.name.toLowerCase() === draft.name.toLowerCase(),
+      );
+      if (duplicate) {
+        setContactError(t('emergency.edit.contactDuplicate'));
+        return null;
+      }
+      next = contacts.map((contact, index) => (index === editingContactIndex ? draft : contact));
+    } else if (draftComplete) {
       const duplicate = contacts.some(
         (contact) =>
           contact.phone === draft.phone && contact.name.toLowerCase() === draft.name.toLowerCase(),
@@ -233,7 +309,7 @@ export default function EmergencyEditScreen() {
       if (!duplicate) {
         next = [...contacts, draft];
       }
-    } else if (draft.name || draft.phone || draft.relationship) {
+    } else if (draftFilled) {
       // Draft partially filled — surface phone length/shape errors instead of silently dropping it.
       if (draft.phone && !isValidIcePhone(draft.phone)) {
         setContactError(t('emergency.edit.contactPhoneInvalid'));
@@ -470,26 +546,46 @@ export default function EmergencyEditScreen() {
             {contacts.length === 0 ? (
               <AppText variant="caption">{t('emergency.edit.noContactsYet')}</AppText>
             ) : (
-              contacts.map((contact, index) => (
-                <View
-                  key={`${contact.name}-${contact.phone}-${index}`}
-                  style={[
-                    styles.contactCard,
-                    { borderColor: colors.border, backgroundColor: colors.surface },
-                  ]}
-                >
-                  <View style={styles.contactInfo}>
-                    <AppText variant="quickActionTitle">{contact.name}</AppText>
-                    <AppText variant="caption">{contact.relationship}</AppText>
-                    <AppText variant="caption">{contact.phone}</AppText>
+              contacts.map((contact, index) => {
+                const isEditing = editingContactIndex === index;
+                return (
+                  <View
+                    key={`${contact.name}-${contact.phone}-${index}`}
+                    style={[
+                      styles.contactCard,
+                      {
+                        borderColor: isEditing ? EMERGENCY_ACCENT : colors.border,
+                        backgroundColor: isEditing ? EMERGENCY_SOFT : colors.surface,
+                      },
+                    ]}
+                  >
+                    <View style={styles.contactInfo}>
+                      <AppText variant="quickActionTitle">{contact.name}</AppText>
+                      <AppText variant="caption">{contact.relationship}</AppText>
+                      <AppText variant="caption">{contact.phone}</AppText>
+                    </View>
+                    <View style={styles.contactActions}>
+                      <Pressable
+                        onPress={() => beginEditContact(index)}
+                        hitSlop={8}
+                        disabled={isEditing}
+                      >
+                        <AppText
+                          variant="seeAll"
+                          color={isEditing ? colors.textMuted : EMERGENCY_ACCENT}
+                        >
+                          {t('emergency.edit.editContact')}
+                        </AppText>
+                      </Pressable>
+                      <Pressable onPress={() => removeContact(index)} hitSlop={8}>
+                        <AppText variant="seeAll" color={colors.danger}>
+                          {t('emergency.edit.remove')}
+                        </AppText>
+                      </Pressable>
+                    </View>
                   </View>
-                  <Pressable onPress={() => removeContact(index)} hitSlop={8}>
-                    <AppText variant="seeAll" color={colors.danger}>
-                      {t('emergency.edit.remove')}
-                    </AppText>
-                  </Pressable>
-                </View>
-              ))
+                );
+              })
             )}
 
             <Input
@@ -532,11 +628,26 @@ export default function EmergencyEditScreen() {
                 {contactError}
               </AppText>
             ) : null}
-            <Button
-              label={t('emergency.edit.addContact')}
-              variant="secondary"
-              onPress={addContact}
-            />
+            {editingContactIndex === null ? (
+              <Button
+                label={t('emergency.edit.addContact')}
+                variant="secondary"
+                onPress={addContact}
+              />
+            ) : (
+              <View style={styles.contactEditActions}>
+                <Button
+                  label={t('emergency.edit.saveContact')}
+                  variant="secondary"
+                  onPress={saveContactEdit}
+                />
+                <Button
+                  label={t('emergency.edit.cancelEdit')}
+                  variant="ghost"
+                  onPress={clearContactDraft}
+                />
+              </View>
+            )}
           </View>
 
           {formState.errors.firstName ||
@@ -603,5 +714,12 @@ const styles = StyleSheet.create({
   contactInfo: {
     flex: 1,
     gap: 2,
+  },
+  contactActions: {
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+  },
+  contactEditActions: {
+    gap: spacing.sm,
   },
 });

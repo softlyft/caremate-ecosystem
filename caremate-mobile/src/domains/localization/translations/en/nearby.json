@@ -31,6 +31,17 @@
   },
   "approximate": "Using approximate location based on your selected region",
   "outsideArea": "Outside your usual area — results may be limited",
+  "favorites": {
+    "openA11y": "View favorite providers",
+    "loading": "Loading favorites...",
+    "emptyTitle": "No favorites yet",
+    "emptyMessage": "Save a provider from its detail screen to find it here later.",
+    "emptyAction": "Browse nearby",
+    "loadFailed": {
+      "title": "Couldn't load favorites",
+      "message": "Check your connection and try again."
+    }
+  },
   "detail": {
     "loading": "Loading provider...",
     "notFound": "Provider not found",

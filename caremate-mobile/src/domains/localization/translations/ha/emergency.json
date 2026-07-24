@@ -26,7 +26,10 @@
     "contactPhone": "Waya",
     "relationship": "Dangantaka",
     "contactPhoneInvalid": "Shigar da lambar waya da ta dace (lambobi 7–15)",
-    "nameInvalid": "Yi amfani da haruffa kawai (sarari, layuka da apostrophe sun yiwu)"
+    "nameInvalid": "Yi amfani da haruffa kawai (sarari, layuka da apostrophe sun yiwu)",
+    "editContact": "Gyara",
+    "saveContact": "Ajiye contact",
+    "cancelEdit": "Soke"
   },
   "qr": {
     "title": "QR na gaggawa",

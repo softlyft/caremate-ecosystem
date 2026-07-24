@@ -86,6 +86,7 @@ export default function ProviderDetailScreen() {
     mutationFn: () => providerRepository.toggleFavorite(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providers });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerFavorites });
       query.refetch();
     },
   });

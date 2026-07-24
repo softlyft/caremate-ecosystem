@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, router } from 'expo-router';
+import type { Href } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,6 +48,20 @@ export default function LoginScreen() {
       await continueAfterAuth();
     } catch (error) {
       const message = error instanceof Error ? error.message : t('auth.login.error');
+      if (/email not confirmed|confirm your email/i.test(message)) {
+        Alert.alert(t('auth.login.error'), t('auth.login.emailNotConfirmed'), [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('auth.verify.open'),
+            onPress: () =>
+              router.push({
+                pathname: '/(auth)/verify-email',
+                params: { email: values.email.trim().toLowerCase() },
+              } as Href),
+          },
+        ]);
+        return;
+      }
       Alert.alert(t('auth.login.error'), message);
     }
   }

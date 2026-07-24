@@ -1,4 +1,4 @@
-import { CheckCheck } from 'lucide-react-native';
+import { BookOpen, CheckCheck } from 'lucide-react-native';
 import { StyleSheet, ViewStyle } from 'react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
@@ -12,14 +12,20 @@ interface MarkAsReadToggleButtonProps {
   hitSlop?: number;
 }
 
-/** Toggle finished ↔ unread. Does not mark "currently reading" (detail screen does). */
+const UNREAD = '#94A3B8';
+const READING = palette.brandBlue;
+const READ = palette.primary;
+
+/** Toggle finished ↔ unread. Icon color reflects unread / reading / read. */
 export function MarkAsReadToggleButton({
   articleId,
   size = 16,
   style,
   hitSlop = 10,
 }: MarkAsReadToggleButtonProps) {
-  const { isRead, isBusy, toggleRead } = useArticleReadStatus(articleId);
+  const { isRead, isReading, isBusy, toggleRead } = useArticleReadStatus(articleId);
+  const color = isRead ? READ : isReading ? READING : UNREAD;
+  const Icon = isRead ? CheckCheck : BookOpen;
 
   return (
     <PressableScale
@@ -34,16 +40,12 @@ export function MarkAsReadToggleButton({
       }}
       style={[
         styles.button,
-        isRead ? styles.buttonActive : null,
+        { backgroundColor: `${color}14`, borderColor: `${color}33` },
         isBusy ? styles.buttonBusy : null,
         style,
       ]}
     >
-      <CheckCheck
-        color={isRead ? palette.primary : palette.textSecondary}
-        size={size}
-        strokeWidth={2.25}
-      />
+      <Icon color={color} size={size} strokeWidth={2.25} />
     </PressableScale>
   );
 }
@@ -55,13 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.surface,
     borderWidth: 1,
-    borderColor: palette.divider,
-  },
-  buttonActive: {
-    backgroundColor: palette.primaryLight,
-    borderColor: 'rgba(13, 148, 136, 0.25)',
   },
   buttonBusy: {
     opacity: 0.6,

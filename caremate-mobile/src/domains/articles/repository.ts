@@ -5,6 +5,7 @@ import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
 import { articles, articleReads, bookmarks } from '@/database/schema';
 import {
+  articleMatchesNewsRegion,
   getLegacySeedIds,
   HOME_TRENDING_COUNTRY_SLOTS,
   HOME_TRENDING_INT_SLOTS,
@@ -16,6 +17,7 @@ import {
   orderLearnFeed,
   orderTrendingFeed,
 } from '@/domains/articles/utils/evergreen-articles';
+import { INTERNATIONAL_COUNTRY_CODE } from '@/domains/localization/config';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { isOnline } from '@/sync/network';
@@ -24,6 +26,12 @@ import { createId, nowIso, parseJson, stringifyJson } from '@/utils/helpers';
 import { isLearnContentType } from '@/domains/articles/content-types';
 
 const HEALTH_CATEGORY_ID = 'health';
+
+function byNewestNews(a: Article, b: Article): number {
+  const aKey = a.publishedAt ?? a.updatedAt ?? '';
+  const bKey = b.publishedAt ?? b.updatedAt ?? '';
+  return bKey.localeCompare(aKey);
+}
 
 function mapArticle(row: typeof articles.$inferSelect): Article {
   const rawType = row.contentType ?? 'article';
@@ -94,6 +102,47 @@ class ArticleRepository extends BaseRepository {
       .map(mapArticle)
       .filter((article) => !isExternalArticle(article) || isWithinExternalNewsRetention(article));
     return orderLearnFeed(mapped, userKey);
+  }
+
+  /** External news for the user's country and international (INT), within retention. */
+  async findNews(
+    search?: string,
+    countryCode: string | null | undefined = null,
+  ): Promise<Article[]> {
+    const db = getDatabase();
+    const term = search?.trim();
+    const rows = term
+      ? await db
+          .select()
+          .from(articles)
+          .where(
+            and(
+              isNull(articles.deletedAt),
+              or(
+                like(articles.title, `%${term}%`),
+                like(articles.summary, `%${term}%`),
+                like(articles.content, `%${term}%`),
+              ),
+            ),
+          )
+      : await db.select().from(articles).where(isNull(articles.deletedAt));
+
+    const resolvedCountry = localizationService.resolveNewsCountryCode(countryCode);
+    return rows
+      .map(mapArticle)
+      .filter((article) => {
+        if (!isExternalArticle(article) || !isWithinExternalNewsRetention(article)) {
+          return false;
+        }
+        if (articleMatchesNewsRegion(article, INTERNATIONAL_COUNTRY_CODE)) {
+          return true;
+        }
+        return (
+          resolvedCountry !== INTERNATIONAL_COUNTRY_CODE &&
+          articleMatchesNewsRegion(article, resolvedCountry)
+        );
+      })
+      .sort(byNewestNews);
   }
 
   async findTrending(
@@ -216,9 +265,7 @@ class ArticleRepository extends BaseRepository {
           .select()
           .from(articles)
           .where(and(eq(articles.categoryId, categoryId), isNull(articles.deletedAt)));
-    const mapped = rows
-      .map(mapArticle)
-      .filter((article) => !isExternalArticle(article) || isWithinExternalNewsRetention(article));
+    const mapped = rows.map(mapArticle).filter((article) => !isExternalArticle(article));
     return orderLearnFeed(mapped, userKey);
   }
 

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { LayoutGrid } from 'lucide-react-native';
+import { Newspaper } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
@@ -16,13 +16,13 @@ interface HealthCategoriesRowProps {
   showSeeAll?: boolean;
   /** When false, skip horizontal padding (use inside an already-padded screen). */
   padded?: boolean;
-  /** Show an All chip for in-place filtering (Learn). */
-  showAllOption?: boolean;
-  /** Currently selected category id, or null for All. */
+  /** Show a News chip for in-place filtering (Learn). Selected when category is null. */
+  showNewsOption?: boolean;
+  /** Currently selected category id, or null for News. */
   selectedCategoryId?: HealthCategoryId | null;
   /**
    * When provided, chips filter in place instead of navigating.
-   * Pass `null` when All is selected.
+   * Pass `null` when News is selected.
    */
   onSelectCategory?: (categoryId: HealthCategoryId | null) => void;
 }
@@ -31,7 +31,7 @@ export function HealthCategoriesRow({
   showHeader = true,
   showSeeAll = true,
   padded = true,
-  showAllOption = false,
+  showNewsOption = false,
   selectedCategoryId = null,
   onSelectCategory,
 }: HealthCategoriesRowProps) {
@@ -47,7 +47,7 @@ export function HealthCategoriesRow({
     router.push(`/(app)/(tabs)/articles?category=${categoryId}`);
   };
 
-  const handleAllPress = () => {
+  const handleNewsPress = () => {
     onSelectCategory?.(null);
   };
 
@@ -66,20 +66,20 @@ export function HealthCategoriesRow({
         contentContainerStyle={[styles.row, { paddingHorizontal: horizontalPad }]}
         decelerationRate="fast"
       >
-        {showAllOption ? (
+        {showNewsOption ? (
           <PressableScale
             style={[
               styles.chip,
-              styles.allChip,
-              selectedCategoryId === null ? styles.allChipSelected : null,
+              styles.newsChip,
+              selectedCategoryId === null ? styles.newsChipSelected : null,
               shadow.soft,
             ]}
-            onPress={handleAllPress}
+            onPress={handleNewsPress}
           >
-            <View style={[styles.emojiWrap, { backgroundColor: palette.primaryLight }]}>
-              <LayoutGrid color={palette.primary} size={15} strokeWidth={2.25} />
+            <View style={[styles.emojiWrap, { backgroundColor: palette.blueLight }]}>
+              <Newspaper color={palette.brandBlue} size={15} strokeWidth={2.25} />
             </View>
-            <AppText variant="categoryPill">{t('common.all')}</AppText>
+            <AppText variant="categoryPill">{t('learn.news')}</AppText>
           </PressableScale>
         ) : null}
         {HEALTH_CATEGORIES.map((category) => {
@@ -135,13 +135,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.divider,
   },
-  allChip: {
+  newsChip: {
     backgroundColor: palette.surface,
   },
-  allChipSelected: {
+  newsChipSelected: {
     borderWidth: 2,
-    borderColor: palette.primary,
-    backgroundColor: palette.primaryLight,
+    borderColor: palette.brandBlue,
+    backgroundColor: palette.blueLight,
   },
   emojiWrap: {
     width: 32,

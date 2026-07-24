@@ -24,6 +24,8 @@ import { LoadingState } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
 import { localizationService, useTranslation } from '@/domains/localization';
+import { setDeviceDefaults } from '@/domains/onboarding';
+import { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
@@ -82,7 +84,15 @@ export default function SettingsScreen() {
 
   async function updateNotifications(value: boolean) {
     setNotificationsEnabled(value);
-    await profileRepository.saveSettings(userId, { notificationsEnabled: value });
+    await Promise.all([
+      profileRepository.saveSettings(userId, { notificationsEnabled: value }),
+      setDeviceDefaults({ notificationsEnabled: value }),
+    ]);
+    if (value) {
+      void syncPushRegistration();
+    } else {
+      void clearPushRegistration();
+    }
   }
 
   async function saveLocation() {

@@ -19,20 +19,20 @@ export const ONBOARDING_STEP_THEMES: OnboardingStepTheme[] = [
     blob: '#99F6E4',
   },
   {
-    // Priorities — violet wash
-    accent: palette.brandPurple,
-    soft: palette.purpleLight,
-    softEnd: '#F5F3FF',
-    title: palette.brandPurpleDark,
-    blob: '#DDD6FE',
-  },
-  {
     // Region — sky
     accent: '#0284C7',
     soft: '#E0F2FE',
     softEnd: '#F0F9FF',
     title: '#0369A1',
     blob: '#7DD3FC',
+  },
+  {
+    // Priorities — violet wash
+    accent: palette.brandPurple,
+    soft: palette.purpleLight,
+    softEnd: '#F5F3FF',
+    title: palette.brandPurpleDark,
+    blob: '#DDD6FE',
   },
   {
     // Location — blue

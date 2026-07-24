@@ -26,7 +26,10 @@
     "contactPhone": "Fóònù",
     "relationship": "Ìbáṣepọ̀",
     "contactPhoneInvalid": "Tẹ nọ́mbà fóònù tó tọ́ (díjítì 7–15)",
-    "nameInvalid": "Lo lẹ́tà nìkan (ààyè, ààmì-ìsopọ̀ àti apostrophe jẹ́ ohun tó ṣeé ṣe)"
+    "nameInvalid": "Lo lẹ́tà nìkan (ààyè, ààmì-ìsopọ̀ àti apostrophe jẹ́ ohun tó ṣeé ṣe)",
+    "editContact": "Ṣàtúnṣe",
+    "saveContact": "Fi olùbásọ̀rọ̀ pamọ́",
+    "cancelEdit": "Fagilé"
   },
   "qr": {
     "title": "QR pájáwìrì",

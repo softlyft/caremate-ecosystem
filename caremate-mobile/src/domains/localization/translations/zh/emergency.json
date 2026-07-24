@@ -26,7 +26,10 @@
     "contactPhone": "电话",
     "relationship": "关系",
     "contactPhoneInvalid": "请输入有效电话号码（7–15 位数字）",
-    "nameInvalid": "仅可使用字母（允许空格、连字符和撇号）"
+    "nameInvalid": "仅可使用字母（允许空格、连字符和撇号）",
+    "editContact": "编辑",
+    "saveContact": "保存联系人",
+    "cancelEdit": "取消"
   },
   "qr": {
     "title": "急救二维码",

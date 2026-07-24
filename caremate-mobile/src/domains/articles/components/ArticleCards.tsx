@@ -12,7 +12,6 @@ import {
   HEALTH_CATEGORIES,
 } from '@/domains/articles/categories';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
-import { ArticleReadBadge } from '@/domains/articles/components/ArticleReadBadge';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { palette, radius, shadow, spacing } from '@/theme';
@@ -146,7 +145,6 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
             Read article
           </AppText>
           <View style={styles.footerActions}>
-            <ArticleReadBadge articleId={article.id} />
             {external ? <ExternalLink color={palette.textSecondary} size={16} /> : null}
             <MarkAsReadToggleButton articleId={article.id} size={16} />
             <BookmarkToggleButton articleId={article.id} size={16} />
@@ -192,7 +190,6 @@ export function CompactArticleCard({ article }: { article: Article }) {
               </AppText>
             </View>
             <View style={styles.footerActions}>
-              <ArticleReadBadge articleId={article.id} />
               {external ? <ExternalLink color={palette.textSecondary} size={15} /> : null}
               <MarkAsReadToggleButton articleId={article.id} size={15} />
               <BookmarkToggleButton articleId={article.id} size={15} />

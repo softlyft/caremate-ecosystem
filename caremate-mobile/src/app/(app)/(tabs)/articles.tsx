@@ -67,17 +67,23 @@ export default function ArticlesTabScreen() {
   const isGuest = useIsGuest();
   const userKey = isGuest ? 'guest' : userId;
   const queryClient = useQueryClient();
-  const { isReady: localizationReady } = useLocalizationPreferences();
+  const { isReady: localizationReady, newsCountryCode } = useLocalizationPreferences();
   const trimmedSearch = deferredSearch.trim();
 
   const articlesQuery = useQuery({
-    queryKey: [...QUERY_KEYS.articles, trimmedSearch, userKey, selectedCategoryId ?? 'all'],
+    queryKey: [
+      ...QUERY_KEYS.articles,
+      trimmedSearch,
+      userKey,
+      selectedCategoryId ?? 'news',
+      newsCountryCode,
+    ],
     queryFn: async () => {
       const term = trimmedSearch || undefined;
       if (selectedCategoryId) {
         return articleRepository.findByCategory(selectedCategoryId, userKey, term);
       }
-      return articleRepository.findAll(term, userKey);
+      return articleRepository.findNews(term, newsCountryCode);
     },
     staleTime: 5 * 60_000,
     refetchOnMount: false,
@@ -110,23 +116,22 @@ export default function ArticlesTabScreen() {
   }, [localizationReady, queryClient]);
 
   const articles = useMemo(() => articlesQuery.data ?? [], [articlesQuery.data]);
-  const isFiltering = Boolean(trimmedSearch || selectedCategoryId);
   const showInitialLoader =
-    articlesQuery.isPending && articlesQuery.data === undefined && !isFiltering;
+    articlesQuery.isPending && articlesQuery.data === undefined && !trimmedSearch;
 
   const { featured, rest } = useMemo(() => {
     if (articles.length === 0) {
       return { featured: null as Article | null, rest: [] as Article[] };
     }
-    if (isFiltering) {
+    if (trimmedSearch) {
       return { featured: null, rest: articles };
     }
     const [first, ...remaining] = articles;
     return { featured: first, rest: remaining };
-  }, [articles, isFiltering]);
+  }, [articles, trimmedSearch]);
 
   const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
-  const listFilterKey = `${trimmedSearch}|${selectedCategoryId ?? 'all'}`;
+  const listFilterKey = `${trimmedSearch}|${selectedCategoryId ?? 'news'}`;
   const [listFilterSnapshot, setListFilterSnapshot] = useState(listFilterKey);
   if (listFilterKey !== listFilterSnapshot) {
     setListFilterSnapshot(listFilterKey);
@@ -156,8 +161,9 @@ export default function ArticlesTabScreen() {
   }
 
   const selectedName = selectedCategoryId
-    ? HEALTH_CATEGORIES.find((category) => category.id === selectedCategoryId)?.name
-    : null;
+    ? (HEALTH_CATEGORIES.find((category) => category.id === selectedCategoryId)?.name ??
+      selectedCategoryId)
+    : t('learn.news');
 
   return (
     <View style={styles.screen}>
@@ -190,22 +196,20 @@ export default function ArticlesTabScreen() {
                   </AppText>
                   <View style={styles.libraryActions}>
                     <PressableScale
-                      style={styles.bookmarksCta}
+                      style={styles.iconCta}
                       onPress={() => router.push('/(app)/articles/reading')}
                       accessibilityRole="button"
                       accessibilityLabel={t('learn.reading')}
                     >
-                      <CheckCheck color={palette.primary} size={15} strokeWidth={2.25} />
-                      <AppText variant="seeAll">{t('learn.readingShort')}</AppText>
+                      <CheckCheck color={palette.primary} size={18} strokeWidth={2.25} />
                     </PressableScale>
                     <PressableScale
-                      style={styles.bookmarksCta}
+                      style={styles.iconCta}
                       onPress={() => router.push('/(app)/articles/bookmarks')}
                       accessibilityRole="button"
                       accessibilityLabel={t('learn.bookmarks')}
                     >
-                      <Bookmark color={palette.primary} size={15} strokeWidth={2.25} />
-                      <AppText variant="seeAll">{t('learn.bookmarksShort')}</AppText>
+                      <Bookmark color={palette.primary} size={18} strokeWidth={2.25} />
                     </PressableScale>
                   </View>
                 </View>
@@ -231,7 +235,7 @@ export default function ArticlesTabScreen() {
                 autoCorrect={false}
                 returnKeyType="search"
               />
-              {articlesQuery.isFetching && isFiltering ? (
+              {articlesQuery.isFetching && (trimmedSearch || selectedCategoryId) ? (
                 <ActivityIndicator color={palette.primary} size="small" />
               ) : null}
             </View>
@@ -240,7 +244,7 @@ export default function ArticlesTabScreen() {
               showHeader={false}
               showSeeAll={false}
               padded={false}
-              showAllOption
+              showNewsOption
               selectedCategoryId={selectedCategoryId}
               onSelectCategory={handleSelectCategory}
             />
@@ -258,7 +262,7 @@ export default function ArticlesTabScreen() {
 
             {rest.length > 0 ? (
               <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-                {selectedName ? selectedName : t('learn.allTopics')}
+                {selectedName}
               </AppText>
             ) : null}
           </View>
@@ -266,9 +270,9 @@ export default function ArticlesTabScreen() {
         ListEmptyComponent={
           <EmptyState
             title={
-              selectedName
+              selectedCategoryId
                 ? t('learn.empty.categoryTitle', { category: selectedName })
-                : t('learn.empty.title')
+                : t('learn.empty.newsTitle')
             }
             message={t('learn.empty.message')}
           />
@@ -409,6 +413,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: radius.full,
+  },
+  iconCta: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+    backgroundColor: palette.primaryLight,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.16)',
   },
   featuredWrap: {
     gap: 8,

@@ -14,7 +14,7 @@ import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/O
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
-const theme = ONBOARDING_STEP_THEMES[2];
+const theme = ONBOARDING_STEP_THEMES[1];
 
 export default function OnboardingCountryScreen() {
   const { t } = useTranslation();

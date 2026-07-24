@@ -74,6 +74,8 @@ export async function bootstrapLocalAccountRecords(
         notificationsEnabled: defaults.notificationsEnabled,
       });
       useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
+    } else {
+      useSettingsStore.getState().hydrateFromSettings(settings);
     }
   }
 

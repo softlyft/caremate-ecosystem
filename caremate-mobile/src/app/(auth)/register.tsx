@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, router } from 'expo-router';
+import type { Href } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
@@ -107,12 +108,23 @@ export default function RegisterScreen() {
         );
         return;
       }
-      await signUp(
-        values.email,
+      const result = await signUp(
+        values.email.trim().toLowerCase(),
         values.password,
         joinFullName(values.firstName, values.lastName),
         values.phone.trim(),
       );
+      if (result.needsEmailVerification) {
+        router.push({
+          pathname: '/(auth)/verify-email',
+          params: {
+            email: result.email,
+            fullName: joinFullName(values.firstName, values.lastName),
+            phone: values.phone.trim(),
+          },
+        } as Href);
+        return;
+      }
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
@@ -144,7 +156,7 @@ export default function RegisterScreen() {
                   autoCorrect={false}
                   textContentType="givenName"
                   maxLength={PERSON_NAME_MAX_CHARS}
-                  placeholder={t('auth.register.fullNamePlaceholder')}
+                  placeholder={t('auth.register.firstNamePlaceholder')}
                   onBlur={onBlur}
                   onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
                   value={value}
@@ -162,7 +174,7 @@ export default function RegisterScreen() {
                   autoCorrect={false}
                   textContentType="familyName"
                   maxLength={PERSON_NAME_MAX_CHARS}
-                  placeholder={t('auth.register.fullNamePlaceholder')}
+                  placeholder={t('auth.register.lastNamePlaceholder')}
                   onBlur={onBlur}
                   onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
                   value={value}

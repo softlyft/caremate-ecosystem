@@ -26,7 +26,10 @@
     "contactPhone": "Teléfono",
     "relationship": "Parentesco",
     "contactPhoneInvalid": "Introduce un número de teléfono válido (7–15 dígitos)",
-    "nameInvalid": "Usa solo letras (espacios, guiones y apóstrofos están permitidos)"
+    "nameInvalid": "Usa solo letras (espacios, guiones y apóstrofos están permitidos)",
+    "editContact": "Editar",
+    "saveContact": "Guardar contacto",
+    "cancelEdit": "Cancelar"
   },
   "qr": {
     "title": "QR de emergencia",

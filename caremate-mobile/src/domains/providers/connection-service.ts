@@ -14,6 +14,8 @@ export type PatientProviderConnection = {
   providerNote: string | null;
   rejectionReason: string | null;
   organizationName: string | null;
+  /** True when the current user is an active org member (staff/owner/admin/viewer). */
+  isOrgStaff: boolean;
   approvedAt: string | null;
   rejectedAt: string | null;
   createdAt: string;
@@ -38,6 +40,7 @@ type RemoteConnectionRow = {
 function mapRow(
   row: RemoteConnectionRow,
   organizationName: string | null = null,
+  isOrgStaff = false,
 ): PatientProviderConnection {
   return {
     id: row.id,
@@ -49,6 +52,7 @@ function mapRow(
     providerNote: row.provider_note,
     rejectionReason: row.rejection_reason,
     organizationName,
+    isOrgStaff,
     approvedAt: row.approved_at,
     rejectedAt: row.rejected_at,
     createdAt: row.created_at,
@@ -83,9 +87,43 @@ async function loadOrganizationNames(organizationIds: string[]): Promise<Map<str
   return new Map((data ?? []).map((row) => [row.id as string, (row.name as string) ?? 'Provider']));
 }
 
+/** Org IDs where the signed-in user is an active provider_org_members row. */
+async function loadMyStaffOrganizationIds(organizationIds: string[]): Promise<Set<string>> {
+  const unique = [...new Set(organizationIds.filter(Boolean))];
+  if (unique.length === 0) {
+    return new Set();
+  }
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!user) return new Set();
+
+  const { data, error } = await supabase
+    .from('provider_org_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .in('organization_id', unique)
+    .is('deleted_at', null);
+
+  if (error) {
+    throw error;
+  }
+
+  return new Set((data ?? []).map((row) => row.organization_id as string));
+}
+
 async function mapRows(rows: RemoteConnectionRow[]): Promise<PatientProviderConnection[]> {
-  const names = await loadOrganizationNames(rows.map((r) => r.organization_id));
-  return rows.map((row) => mapRow(row, names.get(row.organization_id) ?? null));
+  const orgIds = rows.map((r) => r.organization_id);
+  const [names, staffOrgIds] = await Promise.all([
+    loadOrganizationNames(orgIds),
+    loadMyStaffOrganizationIds(orgIds),
+  ]);
+  return rows.map((row) =>
+    mapRow(row, names.get(row.organization_id) ?? null, staffOrgIds.has(row.organization_id)),
+  );
 }
 
 class ProviderConnectionService {
@@ -116,7 +154,12 @@ class ProviderConnectionService {
     }
 
     const names = await loadOrganizationNames([organizationId]);
-    return mapRow(data as RemoteConnectionRow, names.get(organizationId) ?? null);
+    const staffOrgIds = await loadMyStaffOrganizationIds([organizationId]);
+    return mapRow(
+      data as RemoteConnectionRow,
+      names.get(organizationId) ?? null,
+      staffOrgIds.has(organizationId),
+    );
   }
 
   async listMine(): Promise<PatientProviderConnection[]> {
@@ -189,7 +232,12 @@ class ProviderConnectionService {
 
     const row = (Array.isArray(data) ? data[0] : data) as RemoteConnectionRow;
     const names = await loadOrganizationNames([params.organizationId]);
-    return mapRow(row, names.get(params.organizationId) ?? null);
+    const staffOrgIds = await loadMyStaffOrganizationIds([params.organizationId]);
+    return mapRow(
+      row,
+      names.get(params.organizationId) ?? null,
+      staffOrgIds.has(params.organizationId),
+    );
   }
 
   async respondToRequest(params: {

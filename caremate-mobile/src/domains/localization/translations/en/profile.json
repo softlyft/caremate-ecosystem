@@ -95,7 +95,9 @@
     "hint": "Update your CareMate profile. Fields follow Patient identity details used in care.",
     "fullName": "Full name",
     "phone": "Phone",
-    "dateOfBirth": "Date of birth (YYYY-MM-DD)",
+    "dateOfBirth": "Date of birth",
+    "dateOfBirthHint": "Tap a day on the calendar. Future dates are not allowed.",
+    "dateOfBirthSelected": "Selected: {{date}}",
     "gender": "Gender",
     "genders": {
       "male": "Male",
@@ -128,6 +130,7 @@
     "findOrg": "Find organization on Nearby",
     "openConnections": "Open Connections",
     "connectedOrg": "Connected: {{name}}",
+    "staffOrg": "Staff at: {{name}}",
     "pendingOrg": "Pending: {{name}}",
     "awaitingStaff": "Waiting for your organization to mark you as staff.",
     "unknownOrg": "Organization"

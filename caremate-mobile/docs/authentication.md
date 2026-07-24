@@ -31,7 +31,9 @@ Implementation spans:
 |--------|----------|
 | `initialize()` | Called on app boot. Clears any legacy biometric preference, restores session from SecureStore → Supabase `getSession()`. Falls back to guest. |
 | `signIn(email, password)` | Supabase password auth + local account bootstrap |
-| `signUp(email, password, fullName, phone)` | Creates Supabase user + local profile + emergency profile |
+| `signUp(email, password, fullName, phone)` | Creates Supabase user. If email confirmation is required, returns `{ needsEmailVerification: true }` and stays guest until OTP verify |
+| `verifySignupEmail(email, token, profile?)` | Verifies signup OTP (`verifyOtp` type `signup`), then bootstraps local account |
+| `resendSignupEmail(email)` | Resends signup confirmation email |
 | `signOut()` | Clears push for this device, wipes local account data, clears session → guest |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
@@ -73,7 +75,7 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 
 ## Sign-up / sign-in local bootstrap
 
-On successful `signUpWithEmail` or `signInWithEmail`, the auth service:
+On successful `signUpWithEmail` **with a session** (confirmations off), or after `verifySignupEmailOtp` / `signInWithEmail`, the auth service:
 
 1. **Migrates guest local data** — copies/merges guest-scoped emergency profile, bookmarks, article reads, settings, profile fields, and family ownership onto the account (`migrateGuestLocalData`)
 2. **Bootstraps local account rows** (`bootstrapLocalAccountRecords`) so the app does not wait on sync pull:
@@ -97,6 +99,18 @@ Both local stub steps are best-effort so a local DB hiccup does not fail auth. S
 ### Register (`(auth)/register.tsx`)
 - First name, last name, phone, email, password
 - Creates account via `signUp`
+- When email confirmations are enabled (default in local `supabase/config.toml`), signup returns no session → navigates to verify-email with the address and profile params
+
+### Verify email (`(auth)/verify-email.tsx`)
+- User enters the 6-digit OTP from the confirmation email (`{{ .Token }}` in the template)
+- Calls `verifySignupEmail` → `supabase.auth.verifyOtp({ type: 'signup' })` → local bootstrap → post-signup setup
+- Resend uses `resendSignupEmail` with a short cooldown
+- Unconfirmed sign-in attempts on login offer a shortcut to this screen
+
+**Supabase email confirmation setup:**
+1. Auth → Providers → Email → enable **Confirm email**
+2. Auth → Email Templates → Confirm signup: include `{{ .Token }}` (6-digit code). Local template: `supabase/templates/confirmation.html`
+3. Hosted projects must mirror this in the Dashboard; `config.toml` only applies to local Supabase
 
 ### Forgot password (`(auth)/forgot-password.tsx`)
 - Collects email and calls `authService.resetPassword` (`supabase.auth.resetPasswordForEmail`)

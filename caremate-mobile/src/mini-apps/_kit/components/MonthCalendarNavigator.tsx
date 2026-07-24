@@ -1,6 +1,7 @@
 import { Check, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 import { useMemo, useRef, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { palette, radius, shadow, spacing } from '@/theme';
@@ -27,6 +28,7 @@ export function MonthCalendarNavigator({
   subtitle,
 }: MonthCalendarNavigatorProps) {
   const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState(monthRef.getFullYear());
   const yearListRef = useRef<FlatList<number>>(null);
@@ -45,6 +47,9 @@ export function MonthCalendarNavigator({
     month: 'long',
     year: 'numeric',
   });
+  // Gesture / 3-button nav bars vary by device; keep the bottom month row clear of them.
+  const sheetBottomPadding = spacing.lg + Math.max(insets.bottom, spacing.sm);
+  const sheetMaxHeight = Math.min(height * 0.72, 520) + Math.max(insets.bottom, 0);
 
   const changeMonthBy = (offset: number) => {
     onMonthChange(new Date(monthRef.getFullYear(), monthRef.getMonth() + offset, 1));
@@ -134,7 +139,15 @@ export function MonthCalendarNavigator({
             onPress={() => setPickerOpen(false)}
             style={StyleSheet.absoluteFill}
           />
-          <View style={[styles.sheet, { maxHeight: Math.min(height * 0.72, 520) }]}>
+          <View
+            style={[
+              styles.sheet,
+              {
+                maxHeight: sheetMaxHeight,
+                paddingBottom: sheetBottomPadding,
+              },
+            ]}
+          >
             <View style={styles.sheetHeader}>
               <View>
                 <AppText variant="cardTitle">Choose month and year</AppText>
@@ -266,7 +279,8 @@ const styles = StyleSheet.create({
   },
   sheet: {
     minHeight: 410,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
     gap: spacing.lg,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,

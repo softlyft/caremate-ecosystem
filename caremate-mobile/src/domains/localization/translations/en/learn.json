@@ -23,6 +23,7 @@
   "empty": {
     "title": "No articles found",
     "categoryTitle": "No {{category}} articles",
+    "newsTitle": "No news right now",
     "message": "Try another search or category."
   },
   "bookmarksTitle": "Bookmarks",
