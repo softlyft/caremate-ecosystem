@@ -70,18 +70,11 @@ export default function EditProfileScreen() {
 
   const profile = profileQuery.data;
   if (!profile) {
-    return (
-      <LoadingState title={t('profile.edit.loading')} />
-    );
+    return <LoadingState title={t('profile.edit.loading')} />;
   }
 
   return (
-    <EditProfileForm
-      key={profile.id}
-      profile={profile}
-      userId={userId}
-      queryClient={queryClient}
-    />
+    <EditProfileForm key={profile.id} profile={profile} userId={userId} queryClient={queryClient} />
   );
 }
 
