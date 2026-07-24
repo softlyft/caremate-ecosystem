@@ -28,7 +28,7 @@ import { WEBSITE_URLS } from '@/constants/config';
 import { premiumLabel } from '@/domains/billing/entitlement';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
-import { getFinishSetupItems, type FinishSetupItem } from '@/domains/onboarding';
+import { getFinishSetupItems, setDeviceDefaults, type FinishSetupItem } from '@/domains/onboarding';
 import { useTranslation } from '@/domains/localization';
 import { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
 import { PatientIdCard } from '@/features/profile/PatientIdCard';
@@ -81,7 +81,10 @@ export default function ProfileTabScreen() {
 
   async function handleNotificationsToggle(value: boolean) {
     setNotificationsEnabled(value);
-    await profileRepository.saveSettings(userId, { notificationsEnabled: value });
+    await Promise.all([
+      profileRepository.saveSettings(userId, { notificationsEnabled: value }),
+      setDeviceDefaults({ notificationsEnabled: value }),
+    ]);
     if (value) {
       void syncPushRegistration();
     } else {

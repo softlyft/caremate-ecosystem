@@ -1,48 +1,39 @@
+import { BookOpen, CheckCheck } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/ui/AppText';
 import { useArticleReadStatus } from '@/domains/articles/hooks/use-article-read';
-import { useTranslation } from '@/domains/localization';
 import { palette, radius } from '@/theme';
 
-/** Compact Reading / Read pill for feed cards. */
+const UNREAD = '#94A3B8';
+const READING = palette.brandBlue;
+const READ = palette.primary;
+
+/** Color-coded unread / reading / read status icon (no text label). */
 export function ArticleReadBadge({ articleId }: { articleId: string }) {
-  const { t } = useTranslation();
   const { isReading, isRead } = useArticleReadStatus(articleId);
 
-  if (!isReading && !isRead) {
-    return null;
-  }
+  const color = isRead ? READ : isReading ? READING : UNREAD;
+  const label = isRead ? 'Read' : isReading ? 'Reading' : 'Unread';
+  const Icon = isRead ? CheckCheck : BookOpen;
 
   return (
-    <View style={[styles.badge, isRead ? styles.badgeRead : styles.badgeReading]}>
-      <AppText variant="caption" style={isRead ? styles.textRead : styles.textReading}>
-        {isRead ? t('learn.readBadge') : t('learn.readingBadge')}
-      </AppText>
+    <View
+      accessibilityLabel={label}
+      accessibilityRole="text"
+      style={[styles.badge, { backgroundColor: `${color}18`, borderColor: `${color}33` }]}
+    >
+      <Icon color={color} size={14} strokeWidth={2.35} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    width: 28,
+    height: 28,
     borderRadius: radius.full,
-  },
-  badgeReading: {
-    backgroundColor: palette.blueLight,
-  },
-  badgeRead: {
-    backgroundColor: palette.primaryLight,
-  },
-  textReading: {
-    color: palette.brandBlue,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  textRead: {
-    color: palette.primaryDark,
-    fontSize: 11,
-    fontWeight: '600',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
   },
 });

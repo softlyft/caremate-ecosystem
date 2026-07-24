@@ -11,7 +11,9 @@ import { BrandLoader } from '@/components/ui/BrandLoader';
 import { getDatabase, initializeDatabase } from '@/database/client';
 import { profiles } from '@/database/schema';
 import { I18nProvider } from '@/domains/localization';
+import { GUEST_USER_ID } from '@/constants/guest';
 import { getDeviceDefaults } from '@/domains/onboarding';
+import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
@@ -29,6 +31,18 @@ import { MonitoringProvider } from '@/lib/monitoring/MonitoringProvider';
 import { authService } from '@/services/auth-service';
 import { registerDailyBackgroundSync } from '@/sync/background-daily-sync';
 import { syncEngine } from '@/sync/engine';
+
+async function hydrateNotificationsPreference() {
+  const auth = useAuthStore.getState();
+  const userId = !auth.isGuest && auth.user?.id ? auth.user.id : GUEST_USER_ID;
+  const settings = await profileRepository.getSettings(userId);
+  if (settings) {
+    useSettingsStore.getState().hydrateFromSettings(settings);
+    return;
+  }
+  const defaults = await getDeviceDefaults();
+  useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
+}
 
 async function migrateOnboardingFlagIfUpgrading() {
   const alreadyComplete = await authService.isOnboardingComplete();
@@ -99,10 +113,9 @@ function BootstrapGate({ children }: PropsWithChildren) {
         await initializeAuth();
 
         try {
-          const defaults = await getDeviceDefaults();
-          useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
+          await hydrateNotificationsPreference();
         } catch {
-          // Device defaults are optional on cold start.
+          // Settings hydration is optional on cold start.
         }
 
         if (mounted) {

@@ -53,7 +53,7 @@ export default function OnboardingNotificationsScreen() {
 
   return (
     <OnboardingShell
-      step={5}
+      step={4}
       title={t('onboarding.notifications.title')}
       subtitle={t('onboarding.notifications.subtitle')}
       onSkip={handleSkip}

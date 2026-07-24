@@ -20,6 +20,8 @@ import { isValidNigerianNin, sanitizeNationalIdInput } from '@/domains/profile/n
 import { profileRepository } from '@/domains/profile/repository';
 import { providerConnectionService } from '@/domains/providers/connection-service';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
+import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import type { Profile } from '@/types';
 import { palette, radius, spacing } from '@/theme';
 
@@ -32,6 +34,29 @@ const MARITAL: NonNullable<Profile['maritalStatus']>[] = [
   'separated',
   'unknown',
 ];
+
+function initialMonthRef(dateOfBirth: string | null | undefined): Date {
+  const today = new Date();
+  if (dateOfBirth) {
+    try {
+      const parsed = parseDateKey(dateOfBirth);
+      if (!Number.isNaN(parsed.getTime())) {
+        return new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+      }
+    } catch {
+      // fall through
+    }
+  }
+  return new Date(today.getFullYear() - 30, today.getMonth(), 1);
+}
+
+function formatDobLabel(dateKey: string): string {
+  return parseDateKey(dateKey).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
 
 type ChipProps = {
   label: string;
@@ -92,6 +117,7 @@ function EditProfileForm({
   const [fullName, setFullName] = useState(profile.fullName ?? '');
   const [phone, setPhone] = useState(profile.phone ?? '');
   const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? '');
+  const [dobMonthRef, setDobMonthRef] = useState(() => initialMonthRef(profile.dateOfBirth));
   const [gender, setGender] = useState<Profile['gender']>(profile.gender);
   const [maritalStatus, setMaritalStatus] = useState<Profile['maritalStatus']>(
     profile.maritalStatus,
@@ -113,6 +139,8 @@ function EditProfileForm({
   const countryCode = profile.countryCode ?? null;
   const isNigeria = (countryCode ?? '').toUpperCase() === 'NG';
   const nationalIdLabel = isNigeria ? t('profile.edit.nin') : t('profile.edit.nationalId');
+  const todayKey = useMemo(() => toDateKey(new Date()), []);
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   const approved = useMemo(
     () => (connectionsQuery.data ?? []).filter((c) => c.status === 'approved'),
@@ -122,6 +150,7 @@ function EditProfileForm({
     () => (connectionsQuery.data ?? []).filter((c) => c.status === 'pending'),
     [connectionsQuery.data],
   );
+  const awaitingStaff = useMemo(() => approved.some((c) => !c.isOrgStaff), [approved]);
 
   async function handleSave() {
     const name = fullName.trim();
@@ -187,11 +216,48 @@ function EditProfileForm({
             value={phone}
             onChangeText={setPhone}
           />
-          <Input
-            placeholder={t('profile.edit.dateOfBirth')}
-            value={dateOfBirth}
-            onChangeText={setDateOfBirth}
-          />
+
+          <View style={styles.fieldGroup}>
+            <AppText variant="cardTitle">{t('profile.edit.dateOfBirth')}</AppText>
+            <AppText variant="caption" style={styles.muted}>
+              {t('profile.edit.dateOfBirthHint')}
+            </AppText>
+            <MonthCalendarNavigator
+              accentColor={palette.primary}
+              monthRef={dobMonthRef}
+              onMonthChange={setDobMonthRef}
+              maximumYear={currentYear}
+            />
+            <MonthCalendarGrid
+              monthRef={dobMonthRef}
+              interactive
+              accentColor={palette.primary}
+              onDayPress={(dayKey) => {
+                if (dayKey > todayKey) return;
+                setDateOfBirth(dayKey);
+              }}
+              getDayState={(dayKey) => ({
+                selected: dayKey === dateOfBirth,
+                today: dayKey === todayKey,
+              })}
+            />
+            {dateOfBirth ? (
+              <View style={styles.dobSelectedRow}>
+                <AppText variant="body">
+                  {t('profile.edit.dateOfBirthSelected', { date: formatDobLabel(dateOfBirth) })}
+                </AppText>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setDateOfBirth('')}
+                  hitSlop={8}
+                >
+                  <AppText variant="caption" color="brand">
+                    {t('common.clear')}
+                  </AppText>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
 
           <View style={styles.fieldGroup}>
             <AppText variant="cardTitle">{t('profile.edit.gender')}</AppText>
@@ -270,12 +336,14 @@ function EditProfileForm({
                 <View style={styles.orgList}>
                   {approved.map((c) => (
                     <AppText key={c.id} variant="body">
-                      {t('profile.edit.connectedOrg', {
+                      {t(c.isOrgStaff ? 'profile.edit.staffOrg' : 'profile.edit.connectedOrg', {
                         name: c.organizationName ?? t('profile.edit.unknownOrg'),
                       })}
                     </AppText>
                   ))}
-                  <AppText variant="caption">{t('profile.edit.awaitingStaff')}</AppText>
+                  {awaitingStaff ? (
+                    <AppText variant="caption">{t('profile.edit.awaitingStaff')}</AppText>
+                  ) : null}
                 </View>
               ) : null}
 
@@ -322,6 +390,15 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl * 2,
   },
   fieldGroup: {
+    gap: spacing.sm,
+  },
+  muted: {
+    color: palette.textSecondary,
+  },
+  dobSelectedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: spacing.sm,
   },
   chipRow: {

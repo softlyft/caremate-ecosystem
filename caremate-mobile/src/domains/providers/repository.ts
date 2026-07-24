@@ -325,6 +325,18 @@ class ProviderRepository extends BaseRepository {
     await this.pullFavoritesFromRemote();
   }
 
+  /** Pull remote favorites (when signed in + online), then return local favorite providers. */
+  async listFavorites(): Promise<Provider[]> {
+    if (await isOnline()) {
+      try {
+        await this.pullFavoritesFromRemote();
+      } catch {
+        // Fall through to whatever is cached locally.
+      }
+    }
+    return this.findAll({ favoritesOnly: true });
+  }
+
   private async pullFavoritesFromRemote(): Promise<void> {
     const auth = useAuthStore.getState();
     const userId = auth.user?.id;

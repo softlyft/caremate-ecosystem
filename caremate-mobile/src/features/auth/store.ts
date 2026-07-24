@@ -16,7 +16,18 @@ interface AuthState {
   passwordRecoveryPending: boolean;
   initialize: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, phone: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    phone: string,
+  ) => Promise<{ needsEmailVerification: boolean; email: string }>;
+  verifySignupEmail: (
+    email: string,
+    token: string,
+    profile?: { fullName?: string; phone?: string },
+  ) => Promise<void>;
+  resendSignupEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
@@ -101,7 +112,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async (email, password, fullName, phone) => {
     set({ isLoading: true });
     try {
-      const { user } = await authService.signUpWithEmail(email, password, fullName, phone);
+      const result = await authService.signUpWithEmail(email, password, fullName, phone);
+      if (result.needsEmailVerification) {
+        // Stay guest until the email OTP is verified.
+        return {
+          needsEmailVerification: true,
+          email: result.email,
+        };
+      }
+
+      const mapped = authService.mapUser(result.user);
+      set({
+        user: mapped,
+        isAuthenticated: Boolean(mapped),
+        isGuest: false,
+        passwordRecoveryPending: false,
+      });
+      if (mapped) {
+        trackEvent(AnalyticsEvents.signUp);
+      }
+      return {
+        needsEmailVerification: false,
+        email: result.email,
+      };
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  verifySignupEmail: async (email, token, profile) => {
+    set({ isLoading: true });
+    try {
+      const { user } = await authService.verifySignupEmailOtp(email, token, profile);
       const mapped = authService.mapUser(user);
       set({
         user: mapped,
@@ -115,6 +157,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  resendSignupEmail: async (email) => {
+    await authService.resendSignupEmail(email);
   },
 
   signOut: async () => {

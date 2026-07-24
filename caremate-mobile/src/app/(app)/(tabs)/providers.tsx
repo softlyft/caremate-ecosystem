@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MapPinned, Search } from 'lucide-react-native';
+import { Heart, MapPinned, Search } from 'lucide-react-native';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -181,9 +181,19 @@ export default function ProvidersTabScreen() {
                       : t('nearby.nearbyCount', { count: providers.length })}
                   </AppText>
                 </View>
-                <AppText variant="screenTitle" style={styles.title}>
-                  {t('nearby.title')}
-                </AppText>
+                <View style={styles.titleRow}>
+                  <AppText variant="screenTitle" style={styles.title}>
+                    {t('nearby.title')}
+                  </AppText>
+                  <PressableScale
+                    style={styles.favoritesCta}
+                    onPress={() => router.push('/(app)/providers/favorites')}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('nearby.favorites.openA11y')}
+                  >
+                    <Heart color={palette.brandBlue} size={18} strokeWidth={2.25} />
+                  </PressableScale>
+                </View>
                 <AppText variant="subtitle" style={styles.subtitle}>
                   {t('nearby.subtitle')}
                 </AppText>
@@ -376,9 +386,27 @@ const styles = StyleSheet.create({
     letterSpacing: 0.7,
     fontSize: 11,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    zIndex: 1,
+  },
   title: {
+    flex: 1,
     zIndex: 1,
     letterSpacing: -0.6,
+  },
+  favoritesCta: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+    backgroundColor: palette.brandBlueLight,
+    borderWidth: 1,
+    borderColor: 'rgba(37, 99, 235, 0.16)',
   },
   subtitle: {
     zIndex: 1,

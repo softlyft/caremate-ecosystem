@@ -104,9 +104,10 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
     const normalizedPhone = phone.trim();
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         data: {
@@ -119,15 +120,87 @@ export class AuthService {
       throw error;
     }
 
+    // Supabase returns an empty identities list when the email is already registered.
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      throw new Error('An account with this email already exists. Sign in or reset your password.');
+    }
+
+    // Confirmations enabled: session is null until the email OTP is verified.
+    if (!data.session) {
+      return {
+        needsEmailVerification: true as const,
+        email: normalizedEmail,
+        user: data.user,
+      };
+    }
+
     if (data.user) {
       await this.prepareLocalAccount(
         data.user,
-        { fullName, phone: normalizedPhone, email },
+        { fullName, phone: normalizedPhone, email: normalizedEmail },
         { forceDeviceDefaults: true },
       );
     }
 
+    return {
+      needsEmailVerification: false as const,
+      email: normalizedEmail,
+      user: data.user,
+    };
+  }
+
+  async verifySignupEmailOtp(
+    email: string,
+    token: string,
+    profile?: { fullName?: string; phone?: string },
+  ) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const code = token.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(code)) {
+      throw new Error('Enter the 6-digit code from your email');
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: normalizedEmail,
+      token: code,
+      type: 'signup',
+    });
+    if (error) {
+      throw error;
+    }
+    if (!data.user || !data.session) {
+      throw new Error('Could not verify email. Try the code again or request a new one.');
+    }
+
+    await this.prepareLocalAccount(
+      data.user,
+      {
+        email: normalizedEmail,
+        ...(profile?.fullName ? { fullName: profile.fullName } : {}),
+        ...(profile?.phone ? { phone: profile.phone } : {}),
+      },
+      { forceDeviceDefaults: true },
+    );
+
     return data;
+  }
+
+  async resendSignupEmail(email: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim().toLowerCase(),
+    });
+    if (error) {
+      throw error;
+    }
   }
 
   async signOut() {

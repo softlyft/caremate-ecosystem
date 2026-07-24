@@ -3,6 +3,7 @@ import {
   Bell,
   Crown,
   FileText,
+  Heart,
   Link2,
   MapPinned,
   MessageCircle,
@@ -187,6 +188,18 @@ export default function AppLayout() {
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: MapPinned,
+            backAccessibilityLabel: 'Back to Nearby',
+          })}
+        />
+        <Stack.Screen
+          name="providers/favorites"
+          options={glossyStackHeaderOptions({
+            title: 'Favorites',
+            accent: palette.brandBlue,
+            soft: palette.brandBlueLight,
+            softEnd: '#EFF6FF',
+            titleColor: palette.brandBlue,
+            icon: Heart,
             backAccessibilityLabel: 'Back to Nearby',
           })}
         />

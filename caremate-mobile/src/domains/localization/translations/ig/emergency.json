@@ -26,7 +26,10 @@
     "contactPhone": "Ekwentị",
     "relationship": "Mmekọrịta",
     "contactPhoneInvalid": "Tinye nọmba ekwentị ziri ezi (ọnụọgụgụ 7–15)",
-    "nameInvalid": "Jiri mkpụrụedemede naanị (oghere, akara njikọ na apostrophe dị mma)"
+    "nameInvalid": "Jiri mkpụrụedemede naanị (oghere, akara njikọ na apostrophe dị mma)",
+    "editContact": "Dezie",
+    "saveContact": "Chekwaa kọntaktị",
+    "cancelEdit": "Kagbuo"
   },
   "qr": {
     "title": "QR mberede",

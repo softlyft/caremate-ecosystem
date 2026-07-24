@@ -15,7 +15,7 @@ import { ONBOARDING_STEP_THEMES, PRIORITY_VISUALS } from '@/domains/onboarding/t
 import { useTranslation } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
-const theme = ONBOARDING_STEP_THEMES[1];
+const theme = ONBOARDING_STEP_THEMES[2];
 
 const ICONS = {
   emergency: ShieldPlus,

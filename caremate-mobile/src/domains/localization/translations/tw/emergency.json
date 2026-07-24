@@ -26,7 +26,10 @@
     "contactPhone": "Fon",
     "relationship": "Abusuabɔ",
     "contactPhoneInvalid": "Fa phone number a ɛyɛ (nɔmba 7–15)",
-    "nameInvalid": "Fa nkyerɛwde nko ara di dwuma (space, hyphen ne apostrophe yɛ)"
+    "nameInvalid": "Fa nkyerɛwde nko ara di dwuma (space, hyphen ne apostrophe yɛ)",
+    "editContact": "Sesa",
+    "saveContact": "Kora contact",
+    "cancelEdit": "Gyae"
   },
   "qr": {
     "title": "Ahoyɛ QR",

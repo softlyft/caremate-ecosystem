@@ -1,4 +1,6 @@
+import { decode } from 'base64-arraybuffer';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import { useAuthStore } from '@/features/auth/store';
 import { supabase } from '@/lib/supabase';
@@ -52,15 +54,27 @@ type RemoteDocumentRow = {
 
 const BUCKET = 'provider-documents';
 const SIGNED_URL_SECONDS = 60 * 15;
+const MAX_BYTES = 15 * 1024 * 1024;
 
-const ALLOWED_MIME = [
+const ALLOWED_MIME = new Set([
   'application/pdf',
   'image/jpeg',
+  'image/jpg',
   'image/png',
   'image/webp',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
+]);
+
+const EXT_MIME: Record<string, string> = {
+  pdf: 'application/pdf',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+};
 
 async function loadOrganizationNames(organizationIds: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(organizationIds.filter(Boolean))];
@@ -107,6 +121,23 @@ function requireUserId(): string {
 
 function safeFileName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_') || 'document';
+}
+
+function extensionOf(fileName: string): string {
+  const parts = fileName.toLowerCase().split('.');
+  return parts.length > 1 ? (parts.at(-1) ?? '') : '';
+}
+
+function resolveMimeType(fileName: string, mimeType: string | null | undefined): string {
+  const normalized = (mimeType ?? '').trim().toLowerCase();
+  if (normalized && normalized !== 'application/octet-stream' && ALLOWED_MIME.has(normalized)) {
+    return normalized === 'image/jpg' ? 'image/jpeg' : normalized;
+  }
+  const fromExt = EXT_MIME[extensionOf(fileName)];
+  if (fromExt) {
+    return fromExt;
+  }
+  throw new Error('Use a PDF, Word, JPEG, PNG, or WebP file');
 }
 
 class ProviderDocumentsService {
@@ -179,8 +210,9 @@ class ProviderDocumentsService {
       throw new Error('Enter a document title');
     }
 
+    // Pick broadly, then validate — Android MIME filters are unreliable.
     const picked = await DocumentPicker.getDocumentAsync({
-      type: ALLOWED_MIME,
+      type: '*/*',
       copyToCacheDirectory: true,
       multiple: false,
     });
@@ -190,25 +222,31 @@ class ProviderDocumentsService {
     }
 
     const asset = picked.assets[0];
-    const mimeType = asset.mimeType ?? 'application/octet-stream';
-    if (asset.size != null && asset.size > 15 * 1024 * 1024) {
+    const fileName = asset.name || 'document';
+    const mimeType = resolveMimeType(fileName, asset.mimeType);
+
+    if (asset.size != null && asset.size > MAX_BYTES) {
       throw new Error('File must be 15 MB or smaller');
     }
 
     const documentId = await createId();
-    const fileName = asset.name || 'document';
     const path = `patient/${userId}/${documentId}/${safeFileName(fileName)}`;
 
-    const response = await fetch(asset.uri);
-    if (!response.ok) {
+    // React Native: Blob/FormData uploads to Supabase Storage are unreliable.
+    // Read bytes via FileSystem and upload an ArrayBuffer (Supabase-recommended).
+    const base64 = await FileSystem.readAsStringAsync(asset.uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    if (!base64) {
       throw new Error('Could not read the selected file');
     }
-    const blob = await response.blob();
 
-    const { error: storageError } = await supabase.storage.from(BUCKET).upload(path, blob, {
-      contentType: mimeType,
-      upsert: false,
-    });
+    const { error: storageError } = await supabase.storage
+      .from(BUCKET)
+      .upload(path, decode(base64), {
+        contentType: mimeType,
+        upsert: false,
+      });
 
     if (storageError) {
       throw storageError;

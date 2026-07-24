@@ -40,6 +40,7 @@ const mockApplyDeviceDefaultsToProfile = jest.fn();
 const mockEmergencyFind = jest.fn();
 const mockEmergencySave = jest.fn();
 const mockSetNotificationsEnabled = jest.fn();
+const mockHydrateFromSettings = jest.fn();
 
 jest.mock('@/database/client', () => ({
   isDatabaseInitialized: (...args: unknown[]) => mockIsDatabaseInitialized(...args),
@@ -70,6 +71,7 @@ jest.mock('@/domains/profile/store', () => ({
   useSettingsStore: {
     getState: () => ({
       setNotificationsEnabled: mockSetNotificationsEnabled,
+      hydrateFromSettings: mockHydrateFromSettings,
     }),
   },
 }));
@@ -153,5 +155,37 @@ describe('bootstrapLocalAccountRecords', () => {
     );
 
     expect(mockApplyDeviceDefaultsToProfile).toHaveBeenCalledWith('user-1');
+  });
+
+  it('hydrates the settings store from an existing settings row', async () => {
+    mockFindByUserId.mockResolvedValue({
+      fullName: 'Ada',
+      email: 'a@example.com',
+      phone: null,
+      countryCode: 'NG',
+      languageCode: 'en',
+      state: 'Lagos',
+    });
+    mockGetSettings.mockResolvedValue({
+      theme: 'system',
+      notificationsEnabled: false,
+      subscribedCategoryIds: [],
+    });
+    mockEmergencyFind.mockResolvedValue({ fullName: 'Ada' });
+
+    await bootstrapLocalAccountRecords({
+      userId: 'user-1',
+      email: 'a@example.com',
+      fullName: 'Ada',
+      phone: null,
+    });
+
+    expect(mockSaveSettings).not.toHaveBeenCalled();
+    expect(mockHydrateFromSettings).toHaveBeenCalledWith({
+      theme: 'system',
+      notificationsEnabled: false,
+      subscribedCategoryIds: [],
+    });
+    expect(mockSetNotificationsEnabled).not.toHaveBeenCalled();
   });
 });
