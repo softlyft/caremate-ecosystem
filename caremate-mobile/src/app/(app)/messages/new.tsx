@@ -36,10 +36,7 @@ export default function NewMessageScreen() {
   const searchQuery = useQuery({
     queryKey: [...QUERY_KEYS.messages, 'search', deferredQuery],
     queryFn: () => searchMessageableUsers(deferredQuery),
-    enabled:
-      !isGuest &&
-      config.isSupabaseConfigured &&
-      deferredQuery.length >= 2,
+    enabled: !isGuest && config.isSupabaseConfigured && deferredQuery.length >= 2,
     staleTime: 15_000,
   });
 
@@ -126,9 +123,7 @@ export default function NewMessageScreen() {
                   {item.organization_name ? ` · ${item.organization_name}` : ''}
                 </AppText>
               </View>
-              {startingId === item.user_id ? (
-                <ActivityIndicator color={palette.primary} />
-              ) : null}
+              {startingId === item.user_id ? <ActivityIndicator color={palette.primary} /> : null}
             </Pressable>
           )}
         />

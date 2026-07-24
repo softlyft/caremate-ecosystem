@@ -62,7 +62,9 @@ export default function MessageThreadScreen() {
       try {
         const conversation = await getConversation(conversationId, userId);
         if (active && conversation) {
-          setTitle(conversation.title ?? conversation.organization_name ?? t('messages.threadTitle'));
+          setTitle(
+            conversation.title ?? conversation.organization_name ?? t('messages.threadTitle'),
+          );
         }
         await markConversationRead(conversationId, userId);
         await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messagesUnread });
@@ -74,7 +76,7 @@ export default function MessageThreadScreen() {
     return () => {
       active = false;
     };
-  }, [conversationId, userId, queryClient]);
+  }, [conversationId, userId, queryClient, t]);
 
   const messages = useMemo(() => messagesQuery.data ?? [], [messagesQuery.data]);
 

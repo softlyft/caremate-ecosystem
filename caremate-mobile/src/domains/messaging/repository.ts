@@ -2,7 +2,6 @@ import { config } from '@/constants/env';
 import { supabase } from '@/lib/supabase';
 
 /** Untyped access until messaging RPCs are fully reflected in `@caremate/db-types`. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
 export type MessageConversation = {
@@ -83,9 +82,7 @@ export async function listPatientConversations(userId: string): Promise<MessageC
   const rows = (data ?? []) as ConversationRow[];
   if (!rows.length) return [];
 
-  const orgIds = [
-    ...new Set(rows.map((r) => r.organization_id).filter(Boolean) as string[]),
-  ];
+  const orgIds = [...new Set(rows.map((r) => r.organization_id).filter(Boolean) as string[])];
   const directIds = rows.filter((r) => r.kind === 'direct').map((r) => r.id);
 
   const [{ data: orgs }, { data: allParticipants }] = await Promise.all([

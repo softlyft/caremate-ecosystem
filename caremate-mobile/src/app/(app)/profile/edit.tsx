@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -64,55 +64,70 @@ export default function EditProfileScreen() {
     queryFn: () => profileRepository.findByUserId(userId),
   });
 
+  if (profileQuery.isLoading) {
+    return <LoadingState title={t('profile.edit.loading')} />;
+  }
+
+  const profile = profileQuery.data;
+  if (!profile) {
+    return (
+      <LoadingState title={t('profile.edit.loading')} />
+    );
+  }
+
+  return (
+    <EditProfileForm
+      key={profile.id}
+      profile={profile}
+      userId={userId}
+      queryClient={queryClient}
+    />
+  );
+}
+
+function EditProfileForm({
+  profile,
+  userId,
+  queryClient,
+}: {
+  profile: Profile;
+  userId: string;
+  queryClient: ReturnType<typeof useQueryClient>;
+}) {
+  const { t } = useTranslation();
+
+  const [fullName, setFullName] = useState(profile.fullName ?? '');
+  const [phone, setPhone] = useState(profile.phone ?? '');
+  const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? '');
+  const [gender, setGender] = useState<Profile['gender']>(profile.gender);
+  const [maritalStatus, setMaritalStatus] = useState<Profile['maritalStatus']>(
+    profile.maritalStatus,
+  );
+  const [addressLine, setAddressLine] = useState(profile.addressLine ?? '');
+  const [city, setCity] = useState(profile.city ?? '');
+  const [stateValue, setStateValue] = useState(profile.state ?? '');
+  const [postalCode, setPostalCode] = useState(profile.postalCode ?? '');
+  const [nationalId, setNationalId] = useState(profile.nationalId ?? '');
+  const [isPractitioner, setIsPractitioner] = useState(Boolean(profile.isHealthPractitioner));
+  const [saving, setSaving] = useState(false);
+
   const connectionsQuery = useQuery({
     queryKey: [...QUERY_KEYS.providerConnections, 'mine', userId],
     queryFn: () => providerConnectionService.listMine(),
-    enabled: Boolean(profileQuery.data?.isHealthPractitioner),
+    enabled: isPractitioner,
   });
 
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState<Profile['gender']>(null);
-  const [maritalStatus, setMaritalStatus] = useState<Profile['maritalStatus']>(null);
-  const [addressLine, setAddressLine] = useState('');
-  const [city, setCity] = useState('');
-  const [stateValue, setStateValue] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [nationalId, setNationalId] = useState('');
-  const [isPractitioner, setIsPractitioner] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    const profile = profileQuery.data;
-    if (!profile || hydrated) return;
-    setFullName(profile.fullName ?? '');
-    setPhone(profile.phone ?? '');
-    setDateOfBirth(profile.dateOfBirth ?? '');
-    setGender(profile.gender);
-    setMaritalStatus(profile.maritalStatus);
-    setAddressLine(profile.addressLine ?? '');
-    setCity(profile.city ?? '');
-    setStateValue(profile.state ?? '');
-    setPostalCode(profile.postalCode ?? '');
-    setNationalId(profile.nationalId ?? '');
-    setIsPractitioner(Boolean(profile.isHealthPractitioner));
-    setHydrated(true);
-  }, [profileQuery.data, hydrated]);
-
-  const countryCode = profileQuery.data?.countryCode ?? null;
+  const countryCode = profile.countryCode ?? null;
   const isNigeria = (countryCode ?? '').toUpperCase() === 'NG';
   const nationalIdLabel = isNigeria ? t('profile.edit.nin') : t('profile.edit.nationalId');
 
-  const connections = connectionsQuery.data ?? [];
   const approved = useMemo(
-    () => connections.filter((c) => c.status === 'approved'),
-    [connections],
+    () => (connectionsQuery.data ?? []).filter((c) => c.status === 'approved'),
+    [connectionsQuery.data],
   );
   const pending = useMemo(
-    () => connections.filter((c) => c.status === 'pending'),
-    [connections],
+    () => (connectionsQuery.data ?? []).filter((c) => c.status === 'pending'),
+    [connectionsQuery.data],
   );
 
   async function handleSave() {
@@ -151,10 +166,6 @@ export default function EditProfileScreen() {
     } finally {
       setSaving(false);
     }
-  }
-
-  if (profileQuery.isLoading || !hydrated) {
-    return <LoadingState title={t('profile.edit.loading')} />;
   }
 
   return (
