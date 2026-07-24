@@ -27,7 +27,7 @@ export const COMMUNITY_URLS = {
 
 export const BRAND = {
   name: 'CareMate',
-  tagline: 'Your health journey, organized.',
+  tagline: 'Your Personal Health Integration Network',
 } as const;
 
 export const COMMUNITY_GROUPS = [

@@ -1,8 +1,83 @@
 import type { CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { APP_STORE_URLS, BRAND, CORE_FEATURES, MINI_APPS, PROVIDER_CAPABILITIES } from '@/lib/brand';
 import styles from './Welcome.module.css';
+
+const NETWORK_PILLARS = ['Integration', 'Interoperability', 'Intelligence'] as const;
+
+const TYPE_MS = 72;
+const ERASE_MS = 42;
+const HOLD_MS = 1600;
+const PAUSE_MS = 320;
+
+type TypePhase = 'typing' | 'holding' | 'erasing' | 'pausing';
+
+function RotatingNetworkPillar() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+  const [phase, setPhase] = useState<TypePhase>('typing');
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  const fullWord = NETWORK_PILLARS[wordIndex];
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setReducedMotion(media.matches);
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+
+    if (phase === 'typing') {
+      if (charCount >= fullWord.length) {
+        const timer = window.setTimeout(() => setPhase('holding'), 0);
+        return () => window.clearTimeout(timer);
+      }
+      const timer = window.setTimeout(() => setCharCount((count) => count + 1), TYPE_MS);
+      return () => window.clearTimeout(timer);
+    }
+
+    if (phase === 'holding') {
+      const timer = window.setTimeout(() => setPhase('erasing'), HOLD_MS);
+      return () => window.clearTimeout(timer);
+    }
+
+    if (phase === 'erasing') {
+      if (charCount <= 0) {
+        const timer = window.setTimeout(() => setPhase('pausing'), 0);
+        return () => window.clearTimeout(timer);
+      }
+      const timer = window.setTimeout(() => setCharCount((count) => count - 1), ERASE_MS);
+      return () => window.clearTimeout(timer);
+    }
+
+    const timer = window.setTimeout(() => {
+      setWordIndex((current) => (current + 1) % NETWORK_PILLARS.length);
+      setCharCount(0);
+      setPhase('typing');
+    }, PAUSE_MS);
+    return () => window.clearTimeout(timer);
+  }, [reducedMotion, phase, charCount, fullWord]);
+
+  if (reducedMotion) {
+    return <span>Integration, Interoperability & Intelligence</span>;
+  }
+
+  return (
+    <span className={styles.rotator} aria-hidden="true">
+      <span className={styles.rotatorSizer}>Interoperability</span>
+      <span className={styles.rotatorTyped}>
+        {fullWord.slice(0, charCount)}
+        <span className={styles.caret} />
+      </span>
+    </span>
+  );
+}
 
 export function WelcomePage() {
   return (
@@ -15,13 +90,17 @@ export function WelcomePage() {
               <img src="/caremate-splash-icon.png" alt="" width={48} height={48} />
               <span>{BRAND.name}</span>
             </p>
-            <h1 id="welcome-heading" className={styles.headline}>
-              Health tools that keep working when the signal does not.
+            <h1
+              id="welcome-heading"
+              className={styles.headline}
+              aria-label="Your Personal Health Integration, Interoperability, and Intelligence Network"
+            >
+              Your Personal Health <RotatingNetworkPillar /> Network
             </h1>
             <p className={styles.support}>
-              CareMate is your offline-first companion for emergencies, nearby care, trusted
-              reading, and personal trackers — and a trusted channel for the care organizations
-              patients connect with.
+              Own your health journey with one secure place to connect your health records, care
+              providers, and community. Built for everyday care, emergencies, and a lifetime of
+              better health.
             </p>
             <div className={styles.ctaGroup}>
               <a className={styles.ctaPrimary} href={APP_STORE_URLS.ios}>
