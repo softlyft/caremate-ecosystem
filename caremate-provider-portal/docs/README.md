@@ -11,6 +11,7 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org 
 | Positioning, package layout, routes | [Architecture](./architecture.md) |
 | Claim, login, RBAC | [Auth & claim](./auth-claim.md) |
 | Bidirectional connections, verification gate | [Connections](./connections.md) |
+| Org ↔ patient Messages + DMs | [Messaging](./messaging.md) |
 | Tables, migrations, RPCs | [Data model](./data-model.md) |
 | Local setup, env, scripts | [Development](./development.md) |
 | AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) · [`../amplify.yml`](../amplify.yml) |
@@ -21,11 +22,14 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org 
 
 - Patient ↔ provider **connections** (CRM contact — no clinical data sharing yet)
 - Request connection by CareMate Patient ID; approve / reject with reason
-- Broadcasts to connected patients
+- **Messages** to connected patients (compose + two-way threads; push via `notify-message`)
+- Mark connected CareMate users as organization **staff** (optional company contact fields)
 - Secure document upload to a patient (patients view under Me → Documents in the app)
 - Patients can also upload their own files and link an org later when connected
 - Appointment **requests** (no calendar sync)
 - Org profile + claim-time verification badge
+
+Direct (person-to-person) chat is available in the **CareMate mobile app** for users linked to the same org when at least one is staff — see [Messaging](./messaging.md).
 
 ## Out of scope
 

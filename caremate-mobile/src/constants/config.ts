@@ -62,5 +62,7 @@ export const QUERY_KEYS = {
   familyRequests: ['family-requests'] as const,
   notifications: ['notifications'] as const,
   notificationsUnread: ['notifications', 'unread'] as const,
+  messages: ['messages'] as const,
+  messagesUnread: ['messages', 'unread'] as const,
   ads: ['ads'] as const,
 } as const;

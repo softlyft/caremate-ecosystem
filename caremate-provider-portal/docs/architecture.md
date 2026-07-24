@@ -4,7 +4,7 @@
 
 CareMate Provider Portal is a **patient engagement** channel for organizations already (or soon) listed in the CareMate provider catalog.
 
-Providers keep their clinical / ops systems. CareMate gives them a trusted way to connect with CareMate patients: connections, documents, broadcasts, and appointment requests — on the shared Supabase backend.
+Providers keep their clinical / ops systems. CareMate gives them a trusted way to connect with CareMate patients: connections, documents, messages, and appointment requests — on the shared Supabase backend.
 
 Every feature should answer: *How does this help providers build and maintain a trusted relationship with their patients?*
 
@@ -50,10 +50,11 @@ caremate-provider-portal/
 | `/app/dashboard` | Counts, recent activity, quick actions |
 | `/app/patients` | Connected (approved) patients |
 | `/app/patients/requests` | Connection requests (inbound + outbound + request-by-ID) |
-| `/app/patients/[id]` | Patient profile (scoped), docs, timeline |
+| `/app/patients/[id]` | Patient profile (scoped), docs, timeline, **Mark as staff** |
 | `/app/appointments` | Appointment request queue |
 | `/app/documents` | Upload / list shared documents |
-| `/app/broadcasts` | Compose and send announcements |
+| `/app/broadcasts` | **Messages** — compose to connected patients + inbox |
+| `/app/broadcasts/[id]` | Org ↔ patient thread (reply) |
 | `/app/analytics` | Simple counts / growth |
 | `/app/organization` | Org profile + verification badge |
 | `/app/settings` | Session / org switcher settings |
@@ -71,4 +72,5 @@ Public: `/claim`, `/login`. Home redirects unauthenticated users to `/claim`.
 
 - [Auth & claim](./auth-claim.md)
 - [Connections](./connections.md)
+- [Messaging](./messaging.md)
 - [Data model](./data-model.md)

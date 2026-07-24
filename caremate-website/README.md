@@ -12,7 +12,7 @@ provider marketing + guide, privacy, and terms.
 | `/ccn` | Community Network marketing |
 | `/ccn/guide` | Community enrollment + contributor guide |
 | `/providers` | Provider marketing (portal positioning) |
-| `/providers/guide` | Provider guide (claim, connections, engagement tools) |
+| `/providers/guide` | Provider guide (claim, connections, messages, mark-as-staff) |
 | `/privacy` | Privacy policy |
 | `/terms` | Terms of service |
 

@@ -50,7 +50,7 @@ export function ProvidersPage() {
           <h2 id="cap-heading">Built for relationship, not charting</h2>
           <p className={styles.sectionLead}>
             Every feature answers how you build and maintain trust with CareMate patients —
-            connections, shared documents, broadcasts, and appointment requests.
+            connections, shared documents, messages, and appointment requests.
           </p>
         </div>
 
@@ -116,7 +116,7 @@ export function ProvidersPage() {
             <strong>Connect and engage</strong>
             <span>
               Request links by CareMate Patient ID, approve patient requests, then share documents,
-              broadcasts, and appointment responses.
+              messages, and appointment responses.
             </span>
           </li>
         </ol>

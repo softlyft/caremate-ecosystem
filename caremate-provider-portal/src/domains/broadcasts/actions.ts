@@ -3,10 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireWriteAccess } from '@/lib/auth';
-import { sendBroadcast } from '@/domains/broadcasts/repository';
+import { sendOrgMessage } from '@/domains/messaging/repository';
 
 const sendSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().optional().nullable(),
   message: z.string().min(1, 'Message is required'),
   audience: z.enum(['all', 'selected']),
   patientIds: z.array(z.string().uuid()).optional(),
@@ -35,20 +35,24 @@ export async function sendBroadcastAction(formData: FormData) {
   });
 
   if (parsed.audience === 'selected' && !parsed.patientIds?.length) {
-    throw new Error('Select at least one patient for a targeted broadcast.');
+    throw new Error('Select at least one patient for a targeted message.');
   }
 
-  await sendBroadcast({
+  const result = await sendOrgMessage({
     organizationId: session.activeOrganizationId,
-    createdBy: session.user.id,
-    title: parsed.title,
-    message: parsed.message,
+    body: parsed.message,
+    subject: parsed.title?.trim() || null,
     audience: parsed.audience,
     patientIds: parsed.patientIds,
     expiresAt: parsed.expiresAt,
   });
 
+  if (!result.recipientCount) {
+    throw new Error('No approved recipients.');
+  }
+
   revalidatePath('/app/broadcasts');
   revalidatePath('/app/dashboard');
   revalidatePath('/app/analytics');
+  revalidatePath('/app/patients');
 }

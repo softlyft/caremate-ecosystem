@@ -21,7 +21,8 @@ export function ProviderGuidePage() {
           <a href="#claim">Claim your organization</a>
           <a href="#roles">Roles on your team</a>
           <a href="#connect">Patient connections</a>
-          <a href="#features">Documents, broadcasts, appointments</a>
+          <a href="#features">Documents, messages, appointments</a>
+          <a href="#staff">Mark connected patients as staff</a>
           <a href="#patients">What patients see</a>
           <a href="#safety">Important to know</a>
         </nav>
@@ -83,7 +84,7 @@ export function ProviderGuidePage() {
             <strong>Administrator</strong> — manage profile, patients, and content.
           </li>
           <li>
-            <strong>Staff</strong> — day-to-day connections, documents, broadcasts, and appointments.
+            <strong>Staff</strong> — day-to-day connections, documents, messages, and appointments.
           </li>
           <li>
             <strong>Viewer</strong> — read-only.
@@ -135,7 +136,7 @@ export function ProviderGuidePage() {
           </li>
         </ul>
 
-        <h2 id="features">Documents, broadcasts, appointments</h2>
+        <h2 id="features">Documents, messages, appointments</h2>
         <ul className={styles.list}>
           <li>
             <strong>Documents</strong> — upload files for a connected patient (for example
@@ -143,14 +144,39 @@ export function ProviderGuidePage() {
             Patients open them in the CareMate app under Me → Documents.
           </li>
           <li>
-            <strong>Broadcasts</strong> — send a message to all connected patients or a selected
-            list.
+            <strong>Messages</strong> — send to all connected patients or a selected list. Each
+            patient gets a conversation thread; they can reply in the CareMate app, and your team can
+            continue the thread in the portal. Sending triggers a push notification when the patient
+            has a registered device.
           </li>
           <li>
             <strong>Appointment requests</strong> — review patient-initiated requests and update
             status. CareMate does not sync your external calendar in this release.
           </li>
         </ul>
+
+        <h2 id="staff">Mark connected patients as staff</h2>
+        <p>
+          CareMate users who work at your organization can connect as patients first, then be
+          elevated to portal staff.
+        </p>
+        <ol className={styles.steps}>
+          <li>
+            The person signs into the CareMate app, edits their profile, and can declare they are a
+            health practitioner.
+          </li>
+          <li>They connect with your organization (Nearby → Connect, or you request by Patient ID).</li>
+          <li>
+            An owner or administrator opens the connected patient in Patients, then chooses{' '}
+            <strong>Mark as staff</strong>. Optional workplace fields: position, company email, and
+            company phone.
+          </li>
+          <li>
+            Once marked as staff, they can use the CareMate app to message other practitioners or
+            patients at the same organization (direct chat). Two patients who are not staff cannot
+            message each other.
+          </li>
+        </ol>
 
         <h2 id="patients">What patients see</h2>
         <ul className={styles.list}>
@@ -166,6 +192,10 @@ export function ProviderGuidePage() {
           <li>
             Shared documents from connected providers appear under Me → Documents in the CareMate
             app.
+          </li>
+          <li>
+            Clinic messages and replies live under <strong>Messages</strong> on Home in the CareMate
+            app (separate from the notifications bell).
           </li>
           <li>
             The patient app guide covers how patients use CareMate day to day — see{' '}

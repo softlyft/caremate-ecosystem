@@ -40,7 +40,7 @@ const NAV_GROUPS = [
     items: [
       { href: '/app/appointments', label: 'Appointments', icon: CalendarDays },
       { href: '/app/documents', label: 'Documents', icon: FileText },
-      { href: '/app/broadcasts', label: 'Broadcasts', icon: Megaphone },
+      { href: '/app/broadcasts', label: 'Messages', icon: Megaphone },
       { href: '/app/analytics', label: 'Analytics', icon: BarChart3 },
     ],
   },

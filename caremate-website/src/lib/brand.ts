@@ -107,6 +107,14 @@ export const CORE_FEATURES = [
     soft: '#E0F2FE',
   },
   {
+    id: 'messages',
+    title: 'Messages',
+    description:
+      'Hear from connected clinics in your inbox, reply in-thread, and message practitioners at organizations you share.',
+    accent: '#0F766E',
+    soft: '#CCFBF1',
+  },
+  {
     id: 'family',
     title: 'Family & profile',
     description:
@@ -180,10 +188,10 @@ export const PROVIDER_CAPABILITIES = [
     soft: '#DBEAFE',
   },
   {
-    id: 'broadcasts',
-    title: 'Broadcasts',
+    id: 'messages',
+    title: 'Messages',
     description:
-      'Send announcements to all connected patients — or a selected group — without leaving CareMate.',
+      'Message connected patients — all or selected — and continue the conversation in two-way threads. Patients get a push when you send.',
     accent: '#0284C7',
     soft: '#E0F2FE',
   },

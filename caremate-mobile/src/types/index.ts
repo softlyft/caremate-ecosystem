@@ -29,6 +29,22 @@ export interface Profile extends BaseEntity {
   countryCode: string | null;
   languageCode: string | null;
   state: string | null;
+  gender: 'male' | 'female' | 'other' | 'unknown' | null;
+  addressLine: string | null;
+  city: string | null;
+  postalCode: string | null;
+  /** National ID (e.g. Nigeria NIN). */
+  nationalId: string | null;
+  maritalStatus:
+    | 'single'
+    | 'married'
+    | 'divorced'
+    | 'widowed'
+    | 'separated'
+    | 'domestically_partnered'
+    | 'unknown'
+    | null;
+  isHealthPractitioner: boolean;
   /** CareMate Patient ID — 12 digits, minted on demand (not at signup). */
   patientId: string | null;
   /** Opaque QR share token (`caremate://emergency/share/<token>`). */

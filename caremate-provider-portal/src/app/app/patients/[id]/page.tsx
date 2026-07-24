@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
+import { canManageOrg } from '@/constants/roles';
 import { getPatientDetail } from '@/domains/patients/repository';
 import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
+import { MarkAsStaffForm } from '@/components/features/mark-as-staff-form';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -32,21 +34,27 @@ export default async function PatientDetailPage({
   const detail = await getPatientDetail(session.activeOrganizationId, id);
   if (!detail) notFound();
 
-  const { profile, connection, emergency, documents, activities, gender } = detail;
+  const { profile, connection, emergency, documents, activities, gender, membership } = detail;
   const contacts = emergency?.emergency_contacts;
+  const canManage = canManageOrg(session.activeRole);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">
-          {profile?.full_name ?? 'Patient'}
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          CareMate ID: {profile?.patient_id ?? '—'} · Connected{' '}
-          {connection.approved_at
-            ? format(new Date(connection.approved_at), 'MMM d, yyyy')
-            : '—'}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">
+              {profile?.full_name ?? 'Patient'}
+            </h1>
+            {membership ? <Badge variant="default">Staff</Badge> : null}
+          </div>
+          <p className="mt-1 text-sm text-muted">
+            CareMate ID: {profile?.patient_id ?? '—'} · Connected{' '}
+            {connection.approved_at
+              ? format(new Date(connection.approved_at), 'MMM d, yyyy')
+              : '—'}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -68,6 +76,23 @@ export default async function PatientDetailPage({
               }
             />
             <Row label="Phone" value={profile?.phone ?? '—'} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Organization staff</CardTitle>
+            <CardDescription>
+              Elevate a connected CareMate user to staff for this organization
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MarkAsStaffForm
+              patientUserId={connection.patient_id}
+              defaultDisplayName={profile?.full_name ?? ''}
+              membership={membership}
+              canManage={canManage}
+            />
           </CardContent>
         </Card>
 

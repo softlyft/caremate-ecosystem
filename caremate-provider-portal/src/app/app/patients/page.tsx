@@ -62,6 +62,7 @@ export default async function PatientsPage({
                 <TableHead>CareMate ID</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Staff</TableHead>
                 <TableHead>Connected since</TableHead>
                 <TableHead>Last activity</TableHead>
               </TableRow>
@@ -69,12 +70,12 @@ export default async function PatientsPage({
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted">
+                  <TableCell colSpan={7} className="text-center text-muted">
                     No connected patients yet.
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map(({ connection, profile, lastActivityAt }) => (
+                rows.map(({ connection, profile, lastActivityAt, membership }) => (
                   <TableRow key={connection.id}>
                     <TableCell>
                       <Link
@@ -88,6 +89,13 @@ export default async function PatientsPage({
                     <TableCell>{profile?.phone ?? '—'}</TableCell>
                     <TableCell>
                       <Badge variant="success">{connection.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {membership ? (
+                        <Badge variant="default">Staff</Badge>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       {connection.approved_at

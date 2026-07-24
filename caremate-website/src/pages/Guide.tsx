@@ -21,9 +21,15 @@ const CORE_HOW_TO: Record<(typeof CORE_FEATURES)[number]['id'], string[]> = {
     'Manage Connected providers and inbound provider requests under Me → Connections.',
     'Results cache on your device after a successful online search, so you can revisit them offline.',
   ],
+  messages: [
+    'Tap the Messages icon on Home (next to the bell) to open your inbox.',
+    'When a connected clinic messages you, the thread appears here — open it to read and reply.',
+    'Use New message to search for a practitioner by name or CareMate Patient ID at an organization you share. Patient-to-patient chat is not allowed; at least one person must be organization staff.',
+    'Push notifications can alert you to new clinic or direct messages when notifications are enabled and the device is registered.',
+  ],
   family: [
     'On Me, open Family to manage household kids (and spouse connection on Family Premium).',
-    'Signed-in profiles get a Patient ID, Preferences (country and language), and Premium options.',
+    'Signed-in profiles get a Patient ID, Preferences (country and language), and Premium options. Use Edit profile to update identity details and, if you are a health practitioner, declare that so your clinic can mark you as staff after you connect.',
     'Guest mode keeps core browsing local; creating an account unlocks mini-apps, sync, and family tools.',
   ],
 };
@@ -65,8 +71,8 @@ export function GuidePage() {
         <h1>How to use {BRAND.name}</h1>
         <p className={styles.lead}>
           A plain-language walkthrough of the same features you see on the CareMate welcome page —
-          emergency essentials, Learn, Nearby care, family &amp; profile, and the personal health
-          mini-apps.
+          emergency essentials, Learn, Nearby care, Messages, family &amp; profile, and the personal
+          health mini-apps.
         </p>
 
         <nav className={styles.toc} aria-label="Guide contents">
@@ -105,7 +111,7 @@ export function GuidePage() {
         <ul className={styles.list}>
           <li>
             <strong>Home</strong> — greeting, search, daily tip, featured reading, nearby preview,
-            emergency shortcut, and the notifications bell.
+            emergency shortcut, Messages, and the notifications bell.
           </li>
           <li>
             <strong>Learn</strong> — health articles and news by category, with bookmarks and reading
@@ -156,16 +162,20 @@ export function GuidePage() {
           </div>
         ))}
 
-        <h2 id="alerts">Notifications</h2>
+        <h2 id="alerts">Notifications &amp; Messages</h2>
         <ul className={styles.list}>
           <li>
-            Tap the bell on Home to open your in-app inbox (family requests, welcome tips, medication
-            due/missed/refill reminders, and similar notices).
+            Tap the <strong>bell</strong> on Home for your in-app notifications inbox (family
+            requests, welcome tips, medication due/missed/refill reminders, and similar notices).
           </li>
-          <li>Opening an item marks it read. Guests keep the inbox on the device only.</li>
           <li>
-            Phone push notifications are not required for these reminders today — check CareMate’s
-            inbox while you use the app.
+            Tap the <strong>Messages</strong> icon on Home for chats with connected clinics and
+            practitioners (separate from the bell inbox).
+          </li>
+          <li>Opening a notification marks it read. Guests keep the notifications inbox on the device only.</li>
+          <li>
+            When notifications are enabled in Me and you are signed in, CareMate can register this
+            device for push — including new Messages from a connected provider.
           </li>
         </ul>
 

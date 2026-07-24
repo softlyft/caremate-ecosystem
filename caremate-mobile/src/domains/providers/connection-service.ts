@@ -119,6 +119,19 @@ class ProviderConnectionService {
     return mapRow(data as RemoteConnectionRow, names.get(organizationId) ?? null);
   }
 
+  async listMine(): Promise<PatientProviderConnection[]> {
+    const { data, error } = await supabase
+      .from('patient_provider_connections')
+      .select('*')
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return mapRows((data ?? []) as RemoteConnectionRow[]);
+  }
+
   async listApproved(): Promise<PatientProviderConnection[]> {
     const { data, error } = await supabase
       .from('patient_provider_connections')

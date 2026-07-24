@@ -5,6 +5,7 @@ import {
   FileText,
   Link2,
   MapPinned,
+  MessageCircle,
   QrCode,
   Settings,
   ShieldPlus,
@@ -88,6 +89,42 @@ export default function AppLayout() {
             titleColor: '#4338CA',
             icon: Bell,
             backAccessibilityLabel: 'Back to Home',
+          })}
+        />
+        <Stack.Screen
+          name="messages/index"
+          options={glossyStackHeaderOptions({
+            title: 'Messages',
+            accent: palette.primary,
+            soft: palette.primaryLight,
+            softEnd: '#F0FDFA',
+            titleColor: palette.primaryDark,
+            icon: MessageCircle,
+            backAccessibilityLabel: 'Back to Home',
+          })}
+        />
+        <Stack.Screen
+          name="messages/new"
+          options={glossyStackHeaderOptions({
+            title: 'New message',
+            accent: palette.primary,
+            soft: palette.primaryLight,
+            softEnd: '#F0FDFA',
+            titleColor: palette.primaryDark,
+            icon: MessageCircle,
+            backAccessibilityLabel: 'Back to Messages',
+          })}
+        />
+        <Stack.Screen
+          name="messages/[id]"
+          options={glossyStackHeaderOptions({
+            title: 'Conversation',
+            accent: palette.primary,
+            soft: palette.primaryLight,
+            softEnd: '#F0FDFA',
+            titleColor: palette.primaryDark,
+            icon: MessageCircle,
+            backAccessibilityLabel: 'Back to Messages',
           })}
         />
         <Stack.Screen name="setup/emergency" options={{ headerShown: false }} />
@@ -187,6 +224,18 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: Link2,
             backAccessibilityLabel: 'Back to Connections',
+          })}
+        />
+        <Stack.Screen
+          name="profile/edit"
+          options={glossyStackHeaderOptions({
+            title: 'Edit profile',
+            accent: palette.primary,
+            soft: palette.primaryLight,
+            softEnd: '#F0FDFA',
+            titleColor: palette.primaryDark,
+            icon: UserRoundPen,
+            backAccessibilityLabel: 'Back to Me',
           })}
         />
         <Stack.Screen

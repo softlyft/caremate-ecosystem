@@ -139,6 +139,7 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 | Nearby tab | `/(app)/(tabs)/providers` | Horizontal type chips with icons + search; `nearby.list` ad |
 | Provider detail | `/(app)/providers/[id]` | Favorite, Connect (verified orgs), contact, `nearby.provider` ad |
 | Connections | `/(app)/providers/connections/*` | Me → Connections: approved list + inbound requests |
+| Messages | `/(app)/messages/*` | Home → Messages: clinic threads + DMs |
 | Map (legacy) | `/(app)/providers/map` | Redirects to the Nearby tab |
 
 ### UX notes
@@ -172,6 +173,7 @@ See [Mini-Apps](./mini-apps.md) for the mini-app platform and route structure.
 ## Profile, Settings, and Premium
 
 **Profile route:** `/(app)/(tabs)/profile`  
+**Edit profile:** `/(app)/profile/edit`  
 **Settings route:** `/(app)/profile/settings`  
 **Premium route:** `/(app)/profile/premium`
 
@@ -182,15 +184,17 @@ Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **
 - Guest vs authenticated profile presentation
 - Register/sign-in CTAs for guests
 - Sign out
+- Edit profile (identity fields, NIN for NG, health-practitioner declaration)
 - Patient ID display
 - Settings access
 - Emergency and family entry points
 - Premium status and checkout entry points
+- Connections / Documents menu rows
 
 ### Implemented settings features
 
 - Theme preference (light, dark, system)
-- Notifications preference
+- Notifications preference (gates Expo push token registration for Messages and other product push)
 - Region and location-related profile fields
 - Privacy policy and terms of service links (`LEGAL_URLS`)
 - In-app account deletion (signed-in; cloud erase + local wipe)
@@ -198,7 +202,7 @@ Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **
 ### Current limitations
 
 - Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
-- Notifications are preference-only; push delivery and reminder flows are not fully wired
+- Medication / checkup OS push reminders are not fully wired; **Messages** org/direct push via `notify-message` is shipped when the device is registered
 - Hosted CareMate privacy/terms pages live in `caremate-website/` (deploy to `getcaremate.com` before store submission)
 - Premium tier detection, AdMob suppression, mini-app account gate, usage caps, blur paywalls, and family profile limits are enforced — see [Premium & plans](./premium-and-plans.md)
 

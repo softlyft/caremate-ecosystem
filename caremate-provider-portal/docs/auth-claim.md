@@ -26,7 +26,7 @@ Active organization: cookie `provider_active_org`, or the first membership.
 |------|----------------|
 | `owner` | Full org + membership management |
 | `administrator` | Manage profile, patients, content |
-| `staff` | Day-to-day connections, docs, broadcasts, appointments |
+| `staff` | Day-to-day connections, docs, messages, appointments |
 | `viewer` | Read-only |
 
 Enforced with Supabase RLS helpers:
@@ -35,7 +35,7 @@ Enforced with Supabase RLS helpers:
 - `can_write_provider_org(org_id)` — owner, administrator, staff
 - `can_manage_provider_org(org_id)` — owner, administrator
 
-Write actions (approve / reject / request connection, uploads, broadcasts) require write role via `requireWriteAccess()`.
+Write actions (approve / reject / request connection, uploads, messages) require write role via `requireWriteAccess()`. Marking a connected patient as staff requires manage role (`requireManageAccess()`).
 
 ## Ops bootstrap
 

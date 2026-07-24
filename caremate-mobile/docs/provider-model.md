@@ -87,19 +87,20 @@ Mirrored in portal `constants/content.ts` and ingest `PROVIDER_TYPES`.
 
 ## Provider Portal (engagement)
 
-Patient ↔ provider **connections**, documents, broadcasts, and appointment requests live in [`caremate-provider-portal`](../../caremate-provider-portal/). Catalog discovery (`providers` / FHIR resources) stays in ingest + admin portal; engagement reuses `provider_organizations` and does not replace Nearby pins.
+Patient ↔ provider **connections**, documents, **messages**, and appointment requests live in [`caremate-provider-portal`](../../caremate-provider-portal/). Catalog discovery (`providers` / FHIR resources) stays in ingest + admin portal; engagement reuses `provider_organizations` and does not replace Nearby pins.
 
 | Topic | Doc |
 |-------|-----|
 | Docs index | [`docs/README.md`](../../caremate-provider-portal/docs/README.md) |
 | Bidirectional connections | [`docs/connections.md`](../../caremate-provider-portal/docs/connections.md) |
+| Messaging (org threads + DMs) | [`docs/messaging.md`](../../caremate-provider-portal/docs/messaging.md) |
 | Claim + verification | [`docs/auth-claim.md`](../../caremate-provider-portal/docs/auth-claim.md) |
 
 **Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
 
 **Documents (shipped):** patients upload under **Me → Documents** (org optional; link later after connect); providers upload to connected patients; both appear in the same list (signed URL open). Patient-sourced files are visible to a provider only after the patient links that org and the connection is approved.
 
-Still future: broadcast inbox / push delivery.
+**Messages (shipped):** portal **Messages** compose + two-way threads; mobile Home → **Messages** inbox / reply / New message (DMs). Push via Edge Function `notify-message` when the device is registered. Staff elevation: connected patient → Mark as staff (optional company fields).
 
 ## Flexible attributes
 
