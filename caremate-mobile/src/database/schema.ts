@@ -18,6 +18,15 @@ export const profiles = sqliteTable('profiles', {
   countryCode: text('country_code'),
   languageCode: text('language_code'),
   state: text('state'),
+  gender: text('gender'),
+  addressLine: text('address_line'),
+  city: text('city'),
+  postalCode: text('postal_code'),
+  nationalId: text('national_id'),
+  maritalStatus: text('marital_status'),
+  isHealthPractitioner: integer('is_health_practitioner', { mode: 'boolean' })
+    .notNull()
+    .default(false),
   patientId: text('patient_id'),
   /** Opaque token for Patient ID QR → emergency share deep link. */
   emergencyShareToken: text('emergency_share_token'),

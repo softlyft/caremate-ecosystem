@@ -28,7 +28,7 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Follow dev conventions and scripts | [Development Guide](./development.md) |
 | Run QA / manual regression | [QA Test Cases](./qa-test-cases.md) |
 | See what's planned next | [Roadmap & Gaps](./roadmap.md) |
-| Provider engagement portal (connections, docs) | [Provider Portal](../../caremate-provider-portal/docs/README.md) · [Provider model](./provider-model.md) |
+| Provider engagement portal (connections, docs, messages) | [Provider Portal](../../caremate-provider-portal/docs/README.md) · [Messaging](../../caremate-provider-portal/docs/messaging.md) · [Provider model](./provider-model.md) |
 | CareMate Community Network | [Website `/ccn`](../../caremate-website/README.md) · [Community Portal](../../caremate-community-portal/docs/README.md) · Me → Join our movement |
 
 ---

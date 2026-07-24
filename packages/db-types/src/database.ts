@@ -473,6 +473,39 @@ export type Database = {
         }
         Relationships: []
       }
+      checkout_handoffs: {
+        Row: {
+          access_token: string | null
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          refresh_token: string | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          refresh_token?: string | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       community_announcement_bookmarks: {
         Row: {
           announcement_id: string
@@ -1431,6 +1464,24 @@ export type Database = {
         }
         Relationships: []
       }
+      family_connect_lookup_attempts: {
+        Row: {
+          attempted_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          attempted_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          attempted_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       family_connection_requests: {
         Row: {
           created_at: string
@@ -1581,6 +1632,185 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      message_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          last_message_at: string | null
+          last_message_preview: string | null
+          organization_id: string | null
+          patient_user_id: string | null
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          organization_id?: string | null
+          patient_user_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          organization_id?: string | null
+          patient_user_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_direct_pairs: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          organization_id: string
+          user_high: string
+          user_low: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          organization_id: string
+          user_high: string
+          user_low: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          organization_id?: string
+          user_high?: string
+          user_low?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_direct_pairs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: true
+            referencedRelation: "message_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_direct_pairs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          sender_organization_id: string | null
+          sender_party_type: string
+          sender_user_id: string | null
+          subject: string | null
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          sender_organization_id?: string | null
+          sender_party_type: string
+          sender_user_id?: string | null
+          subject?: string | null
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          sender_organization_id?: string | null
+          sender_party_type?: string
+          sender_user_id?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "message_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_messages_sender_organization_id_fkey"
+            columns: ["sender_organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_participants: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          last_read_at: string | null
+          organization_id: string | null
+          party_type: string
+          user_id: string | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          organization_id?: string | null
+          party_type: string
+          user_id?: string | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          organization_id?: string | null
+          party_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "message_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_participants_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mini_app_snapshots: {
         Row: {
@@ -1915,49 +2145,70 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address_line: string | null
           avatar_url: string | null
+          city: string | null
           country_code: string | null
           created_at: string
           date_of_birth: string | null
           email: string | null
           emergency_share_token: string | null
           full_name: string
+          gender: string | null
           id: string
+          is_health_practitioner: boolean
           language_code: string | null
+          marital_status: string | null
+          national_id: string | null
           patient_id: string | null
           phone: string | null
+          postal_code: string | null
           state: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address_line?: string | null
           avatar_url?: string | null
+          city?: string | null
           country_code?: string | null
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
           emergency_share_token?: string | null
           full_name: string
+          gender?: string | null
           id: string
+          is_health_practitioner?: boolean
           language_code?: string | null
+          marital_status?: string | null
+          national_id?: string | null
           patient_id?: string | null
           phone?: string | null
+          postal_code?: string | null
           state?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address_line?: string | null
           avatar_url?: string | null
+          city?: string | null
           country_code?: string | null
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
           emergency_share_token?: string | null
           full_name?: string
+          gender?: string | null
           id?: string
+          is_health_practitioner?: boolean
           language_code?: string | null
+          marital_status?: string | null
+          national_id?: string | null
           patient_id?: string | null
           phone?: string | null
+          postal_code?: string | null
           state?: string | null
           updated_at?: string
           user_id?: string
@@ -2291,31 +2542,40 @@ export type Database = {
       }
       provider_org_members: {
         Row: {
+          company_email: string | null
+          company_phone: string | null
           created_at: string
           deleted_at: string | null
           display_name: string | null
           id: string
           organization_id: string
+          position: string | null
           role: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          company_email?: string | null
+          company_phone?: string | null
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
           id?: string
           organization_id: string
+          position?: string | null
           role?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          company_email?: string | null
+          company_phone?: string | null
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
           id?: string
           organization_id?: string
+          position?: string | null
           role?: string
           updated_at?: string
           user_id?: string
@@ -2720,12 +2980,20 @@ export type Database = {
       }
     }
     Functions: {
+      can_direct_message: {
+        Args: { p_org_id: string; p_user_a: string; p_user_b: string }
+        Returns: boolean
+      }
       can_edit_catalog: { Args: never; Returns: boolean }
       can_manage_community_chapter: {
         Args: { p_chapter_id: string }
         Returns: boolean
       }
       can_manage_provider_org: { Args: { p_org_id: string }; Returns: boolean }
+      can_read_message_conversation: {
+        Args: { p_conversation_id: string }
+        Returns: boolean
+      }
       can_write_provider_org: { Args: { p_org_id: string }; Returns: boolean }
       cancel_family_connection_request: {
         Args: { p_request_id: string }
@@ -2799,15 +3067,24 @@ export type Database = {
         Args: { p_household_id: string }
         Returns: number
       }
-      get_emergency_by_share_token: {
-        Args: { p_token: string }
-        Returns: Json
-      }
+      get_emergency_by_share_token: { Args: { p_token: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_community_leader: { Args: { p_chapter_id: string }; Returns: boolean }
       is_community_member: { Args: { p_chapter_id: string }; Returns: boolean }
       is_household_member: {
         Args: { p_household_id: string }
+        Returns: boolean
+      }
+      is_linked_to_org: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_message_conversation_participant: {
+        Args: { p_conversation_id: string; p_user_id?: string }
+        Returns: boolean
+      }
+      is_org_practitioner: {
+        Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
       }
       is_provider_org_member: { Args: { p_org_id: string }; Returns: boolean }
@@ -2826,6 +3103,35 @@ export type Database = {
           state: string
           user_id: string
         }[]
+      }
+      mark_connected_patient_as_staff: {
+        Args: {
+          p_company_email?: string
+          p_company_phone?: string
+          p_display_name?: string
+          p_organization_id: string
+          p_patient_user_id: string
+          p_position?: string
+        }
+        Returns: {
+          company_email: string | null
+          company_phone: string | null
+          created_at: string
+          deleted_at: string | null
+          display_name: string | null
+          id: string
+          organization_id: string
+          position: string | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_org_members"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       nearby_providers: {
         Args: {
@@ -2858,6 +3164,46 @@ export type Database = {
           type: string
           updated_at: string
         }[]
+      }
+      post_org_message: {
+        Args: { p_body: string; p_conversation_id: string }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          sender_organization_id: string | null
+          sender_party_type: string
+          sender_user_id: string | null
+          subject: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "message_messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      post_patient_message: {
+        Args: { p_body: string; p_conversation_id: string }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          sender_organization_id: string | null
+          sender_party_type: string
+          sender_user_id: string | null
+          subject: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "message_messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       provider_document_path_org_id: {
         Args: { object_name: string }
@@ -2949,6 +3295,17 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      search_messageable_users: {
+        Args: { p_limit?: number; p_organization_id?: string; p_query: string }
+        Returns: {
+          full_name: string
+          is_practitioner: boolean
+          organization_id: string
+          organization_name: string
+          patient_id: string
+          user_id: string
+        }[]
+      }
       search_providers_by_name: {
         Args: { p_limit?: number; p_search: string; p_type?: string }
         Returns: {
@@ -2974,8 +3331,27 @@ export type Database = {
           updated_at: string
         }[]
       }
+      send_provider_org_message: {
+        Args: {
+          p_audience?: string
+          p_body: string
+          p_expires_at?: string
+          p_organization_id: string
+          p_patient_ids?: string[]
+          p_subject?: string
+        }
+        Returns: Json
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      start_direct_conversation: {
+        Args: {
+          p_body?: string
+          p_organization_id: string
+          p_other_user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

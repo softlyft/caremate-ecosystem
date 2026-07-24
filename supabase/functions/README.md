@@ -30,6 +30,7 @@ supabase secrets set \
 | Function | Trigger |
 |----------|---------|
 | `notify-family-email` | Mobile after family connection request / accept / decline (user JWT). Request → SES + Expo push to receiver; accept/decline → Expo push to sender. |
+| `notify-message` | Provider portal after org message send, or mobile after direct message (user JWT). Org mode → “New message from {provider}”; `{ mode: 'direct' }` → “New message from {name}”. |
 | `send-billing-email` | Portal admin grants (service role) / internal |
 | `billing-renewal-reminders` | Daily cron / manual invoke (service role) |
 | `delete-account` | Mobile Settings → Delete account (user JWT → `auth.admin.deleteUser`) |

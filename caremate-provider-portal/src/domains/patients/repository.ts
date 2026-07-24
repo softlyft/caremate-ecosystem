@@ -1,27 +1,30 @@
 import { createClient } from '@/lib/supabase/server';
 import { listPatientActivities } from '@/domains/activity/repository';
+import { getOrgMembershipForUser, listActiveMembershipsForUsers } from '@/domains/members/repository';
 import type {
   EmergencyProfile,
   PatientProviderActivity,
   PatientProviderConnection,
   Profile,
   ProviderDocument,
+  ProviderOrgMember,
 } from '@/types/database';
 
 export type ConnectedPatientRow = {
   connection: PatientProviderConnection;
   profile: Pick<Profile, 'full_name' | 'patient_id' | 'phone' | 'avatar_url' | 'date_of_birth'> | null;
   lastActivityAt: string | null;
+  membership: ProviderOrgMember | null;
 };
 
 export type PatientDetail = {
   connection: PatientProviderConnection;
   profile: Profile | null;
-  /** Always "—" — gender is not stored on profiles. */
   gender: string;
   emergency: EmergencyProfile | null;
   documents: ProviderDocument[];
   activities: PatientProviderActivity[];
+  membership: ProviderOrgMember | null;
 };
 
 export async function listConnectedPatients(
@@ -45,7 +48,7 @@ export async function listConnectedPatients(
   if (!connections.length) return { rows: [], total: count ?? 0 };
 
   const patientIds = connections.map((c) => c.patient_id);
-  const [{ data: profiles }, { data: activities }] = await Promise.all([
+  const [{ data: profiles }, { data: activities }, memberships] = await Promise.all([
     supabase
       .from('profiles')
       .select('user_id, full_name, patient_id, phone, avatar_url, date_of_birth')
@@ -56,6 +59,7 @@ export async function listConnectedPatients(
       .eq('organization_id', organizationId)
       .in('patient_id', patientIds)
       .order('created_at', { ascending: false }),
+    listActiveMembershipsForUsers(organizationId, patientIds),
   ]);
 
   const profileByUser = new Map((profiles ?? []).map((p) => [p.user_id, p]));
@@ -81,6 +85,7 @@ export async function listConnectedPatients(
           }
         : null,
       lastActivityAt: lastActivityByPatient.get(connection.patient_id) ?? null,
+      membership: memberships.get(connection.patient_id) ?? null,
     };
   });
 
@@ -138,13 +143,18 @@ export async function getPatientDetail(
     .order('created_at', { ascending: false });
 
   const activities = await listPatientActivities(organizationId, patientUserId);
+  const membership = await getOrgMembershipForUser(organizationId, patientUserId);
+  const genderRaw =
+    profile && 'gender' in profile ? (profile as { gender?: string | null }).gender : null;
+  const gender = genderRaw?.trim() ? genderRaw : '—';
 
   return {
     connection: connection as PatientProviderConnection,
     profile: (profile as Profile | null) ?? null,
-    gender: '—',
+    gender,
     emergency,
     documents: (documents ?? []) as ProviderDocument[],
     activities,
+    membership,
   };
 }

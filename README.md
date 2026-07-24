@@ -23,7 +23,7 @@ Each service keeps its own README plus a local `docs/` set.
 |---------|---------|------|
 | `caremate-mobile/` | Mobile experience for patients and families | `caremate-mobile/docs/README.md` |
 | `caremate-admin-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-admin-portal/docs/README.md` |
-| `caremate-provider-portal/` | Provider org patient engagement (connections, docs, broadcasts) | `caremate-provider-portal/docs/README.md` |
+| `caremate-provider-portal/` | Provider org patient engagement (connections, docs, messages) | `caremate-provider-portal/docs/README.md` |
 | `caremate-community-portal/` | Contributor community (chapters, events, recognition) | `caremate-community-portal/docs/README.md` |
 | `caremate-payment-gateway/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `caremate-payment-gateway/README.md` |
 | `caremate-provider-ingestion/` | Provider resource ingest and projection rebuilds | `caremate-provider-ingestion/docs/README.md` |

@@ -144,7 +144,7 @@ export function WelcomePage() {
           <h2 id="providers-heading">CareMate for providers</h2>
           <p className={styles.sectionLead}>
             Hospitals, clinics, pharmacies, and labs keep their own systems. The Provider Portal is
-            how they connect with CareMate patients — connections, documents, broadcasts, and
+            how they connect with CareMate patients — connections, documents, messages, and
             appointment requests. Not an EHR.
           </p>
         </div>

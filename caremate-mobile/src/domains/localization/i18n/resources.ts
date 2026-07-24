@@ -15,6 +15,7 @@ import enSearch from '../translations/en/search.json';
 import enSettings from '../translations/en/settings.json';
 import enSetup from '../translations/en/setup.json';
 import enTabs from '../translations/en/tabs.json';
+import enMessages from '../translations/en/messages.json';
 
 import esApps from '../translations/es/apps.json';
 import esAuth from '../translations/es/auth.json';
@@ -178,6 +179,7 @@ const ENGLISH_CATALOG = buildCatalog({
   setup: enSetup,
   apps: enApps,
   search: enSearch,
+  messages: enMessages,
 });
 
 type CatalogParts = Partial<Record<TranslationNamespace, TranslationNode>>;

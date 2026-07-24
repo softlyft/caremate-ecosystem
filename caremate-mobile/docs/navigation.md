@@ -112,15 +112,24 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 | `/(app)/providers/connections/connected` | Connected providers | Approved org links |
 | `/(app)/providers/connections/requests` | Provider connection requests | Inbound pending (approve / decline + reason) |
 
+### Messages
+
+| Route | Title | Notes |
+|-------|-------|-------|
+| `/(app)/messages` | Messages inbox | Home header Messages icon; org threads + DMs |
+| `/(app)/messages/new` | New message | Search by name / Patient ID → start DM |
+| `/(app)/messages/[id]` | Conversation | Thread + reply |
+
 ### Profile
 
 | Route | Title |
 |-------|-------|
+| `/(app)/profile/edit` | Edit profile | FHIR-oriented fields + practitioner Yes/No |
 | `/(app)/profile/settings` | Settings |
 | `/(app)/profile/premium` | Premium |
 | `/(app)/profile/documents` | Patient uploads + documents shared by providers |
 
-Me account menu includes **Connections** → `/(app)/providers/connections`, **Documents** → `/(app)/profile/documents`, and **Join our movement** → opens `https://getcaremate.com/ccn` (`WEBSITE_URLS.communityNetwork`; see [website CCN](../../caremate-website/README.md) and [Community Portal](../../caremate-community-portal/docs/README.md)). Provider connections docs: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md).
+Me account menu includes **Connections** → `/(app)/providers/connections`, **Documents** → `/(app)/profile/documents`, and **Join our movement** → opens `https://getcaremate.com/ccn` (`WEBSITE_URLS.communityNetwork`; see [website CCN](../../caremate-website/README.md) and [Community Portal](../../caremate-community-portal/docs/README.md)). Provider connections docs: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md). Messaging: [Provider Portal messaging](../../caremate-provider-portal/docs/messaging.md).
 
 ### Family and setup
 

@@ -89,6 +89,49 @@
     "flipA11y": "Flip Patient ID card"
   },
   "signOut": "Sign out",
+  "edit": {
+    "openA11y": "Edit profile",
+    "loading": "Loading profile…",
+    "hint": "Update your CareMate profile. Fields follow Patient identity details used in care.",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "dateOfBirth": "Date of birth (YYYY-MM-DD)",
+    "gender": "Gender",
+    "genders": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "unknown": "Prefer not to say"
+    },
+    "maritalStatus": "Marital status",
+    "marital": {
+      "single": "Single",
+      "married": "Married",
+      "divorced": "Divorced",
+      "widowed": "Widowed",
+      "separated": "Separated",
+      "unknown": "Prefer not to say"
+    },
+    "addressLine": "Street address",
+    "city": "City",
+    "state": "State / region",
+    "postalCode": "Postal code",
+    "nin": "NIN (11 digits)",
+    "nationalId": "National ID",
+    "ninInvalid": "Nigerian NIN must be 11 digits.",
+    "nameRequired": "Full name is required.",
+    "saveFailed": "Couldn't save profile",
+    "practitionerTitle": "Are you a health practitioner?",
+    "practitionerHint": "Choose Yes if you work in a clinic, hospital, pharmacy, lab, or similar.",
+    "connectOrgTitle": "Connect your organization",
+    "connectOrgBody": "Find your workplace on Nearby and send a connection request. After they approve, an admin can mark you as staff.",
+    "findOrg": "Find organization on Nearby",
+    "openConnections": "Open Connections",
+    "connectedOrg": "Connected: {{name}}",
+    "pendingOrg": "Pending: {{name}}",
+    "awaitingStaff": "Waiting for your organization to mark you as staff.",
+    "unknownOrg": "Organization"
+  },
   "connections": {
     "subtitle": "Connected providers and connection requests",
     "guestSubtitle": "Sign in to manage provider connections"

@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
+import Link from 'next/link';
 import { requireProviderSession } from '@/lib/auth';
-import { listBroadcasts } from '@/domains/broadcasts/repository';
+import { listOrgConversations } from '@/domains/messaging/repository';
 import { listConnectedPatients } from '@/domains/patients/repository';
 import { BroadcastComposeForm } from '@/components/features/broadcast-compose-form';
 import { canWriteOrg } from '@/constants/roles';
@@ -18,8 +19,8 @@ import {
 export default async function BroadcastsPage() {
   const session = await requireProviderSession();
   const orgId = session.activeOrganizationId;
-  const [broadcasts, { rows: patients }] = await Promise.all([
-    listBroadcasts(orgId),
+  const [conversations, { rows: patients }] = await Promise.all([
+    listOrgConversations(orgId),
     listConnectedPatients(orgId, { limit: 200 }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
@@ -32,9 +33,10 @@ export default async function BroadcastsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Broadcasts</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Messages</h1>
         <p className="mt-1 text-sm text-muted">
-          Announcements to connected patients (OS push delivery is future work)
+          Inbox-style messages to connected patients. Broadcasts land in each patient&apos;s CareMate
+          Messages inbox with a push notification.
         </p>
       </div>
 
@@ -43,7 +45,9 @@ export default async function BroadcastsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Compose</CardTitle>
-              <CardDescription>Creates recipients and activity timeline entries</CardDescription>
+              <CardDescription>
+                Send to all connected patients or a selected group
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <BroadcastComposeForm patients={patientOptions} />
@@ -53,40 +57,52 @@ export default async function BroadcastsPage() {
 
         <Card className={canWrite ? 'lg:col-span-2' : 'lg:col-span-3'}>
           <CardHeader>
-            <CardTitle>Sent & drafts</CardTitle>
+            <CardTitle>Inbox</CardTitle>
+            <CardDescription>Threads with connected patients</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Audience</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Sent</TableHead>
+                  <TableHead>Patient</TableHead>
+                  <TableHead>Preview</TableHead>
+                  <TableHead>Updated</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {broadcasts.length === 0 ? (
+                {conversations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted">
-                      No broadcasts yet.
+                    <TableCell colSpan={3} className="text-center text-muted">
+                      No conversations yet. Send a message to get started.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  broadcasts.map((b) => (
-                    <TableRow key={b.id}>
+                  conversations.map((c) => (
+                    <TableRow key={c.id}>
                       <TableCell>
-                        <p className="font-medium">{b.title}</p>
-                        <p className="line-clamp-1 text-xs text-muted">{b.message}</p>
+                        <Link
+                          href={`/app/broadcasts/${c.id}`}
+                          className="font-medium text-brand-navy hover:underline"
+                        >
+                          {c.patient_name ?? 'Unknown'}
+                        </Link>
+                        <p className="text-xs text-muted">{c.patient_caremate_id ?? '—'}</p>
+                        {c.unread ? (
+                          <Badge variant="success" className="mt-1">
+                            Unread
+                          </Badge>
+                        ) : null}
                       </TableCell>
-                      <TableCell>{b.audience}</TableCell>
                       <TableCell>
-                        <Badge variant={b.status === 'sent' ? 'success' : 'secondary'}>
-                          {b.status}
-                        </Badge>
+                        <p className="line-clamp-2 text-sm">
+                          {c.subject ? <span className="font-medium">{c.subject}: </span> : null}
+                          {c.last_message_preview ?? '—'}
+                        </p>
                       </TableCell>
                       <TableCell>
-                        {b.sent_at ? format(new Date(b.sent_at), 'MMM d, yyyy HH:mm') : '—'}
+                        {c.last_message_at
+                          ? format(new Date(c.last_message_at), 'MMM d, yyyy HH:mm')
+                          : '—'}
                       </TableCell>
                     </TableRow>
                   ))

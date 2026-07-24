@@ -27,6 +27,11 @@ These support family-member discovery, household invites, and owner-managed seat
 - `is_provider_org_verified`
 - `request_patient_provider_connection`
 - `request_provider_connection_by_caremate_id`
+- `send_provider_org_message` / `post_patient_message` / `post_org_message`
+- `mark_connected_patient_as_staff`
+- `search_messageable_users` / `start_direct_conversation`
+- `is_org_practitioner` / `is_linked_to_org` / `can_direct_message`
+- `is_message_conversation_participant` / `can_read_message_conversation`
 
 `nearby_providers` powers the mobile Nearby list by returning a geospatially filtered CareMate provider projection page (default radius 25 km).
 
@@ -34,7 +39,7 @@ These support family-member discovery, household invites, and owner-managed seat
 
 `prune_user_location_samples` keeps each signed-in user’s exact GPS history at the newest 20 rows.
 
-Connection RPCs power patient ↔ org engagement (portal + mobile). Details: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md) · [data model](../../caremate-provider-portal/docs/data-model.md).
+Connection RPCs power patient ↔ org engagement (portal + mobile). Details: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md) · [messaging](../../caremate-provider-portal/docs/messaging.md) · [data model](../../caremate-provider-portal/docs/data-model.md).
 
 Also portal RLS helpers (security definer): `is_provider_org_member`, `provider_org_role`, `can_write_provider_org`, `can_manage_provider_org`.
 
@@ -59,11 +64,14 @@ Edge Functions live under `supabase/functions/`.
 | `verify-checkout` | Confirm charge with provider and activate subscription (app return) | required |
 | `billing-webhook-stripe` | Stripe payment + subscription lifecycle updates | disabled |
 | `billing-webhook-paystack` | Paystack charge success / failure | disabled |
+| `notify-family-email` | Mobile after family connection request / accept / decline | required |
+| `notify-message` | Org message or direct DM push to recipient devices | required |
 
 Shared helpers:
 
 - `_shared/cors.ts`
 - `_shared/supabase.ts`
+- `_shared/push.ts` — Expo push via `notification_devices`
 - `_shared/billing.ts` — finalize payment → create/renew subscription (or upgrade finalize)
 - `_shared/upgrade.ts` — Standard → Family quote math + finalize swap
 

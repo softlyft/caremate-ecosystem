@@ -31,7 +31,7 @@ export function BroadcastComposeForm({
         startTransition(async () => {
           try {
             await sendBroadcastAction(formData);
-            toast.success('Broadcast sent');
+            toast.success('Message sent');
             e.currentTarget.reset();
             setSelected([]);
             setAudience('all');
@@ -42,12 +42,12 @@ export function BroadcastComposeForm({
       }}
     >
       <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" required placeholder="Flu vaccines available" />
+        <Label htmlFor="title">Subject (optional)</Label>
+        <Input id="title" name="title" placeholder="Flu vaccines available" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
-        <Textarea id="message" name="message" required placeholder="Write your announcement…" />
+        <Textarea id="message" name="message" required placeholder="Write your message…" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="audience">Audience</Label>
@@ -87,7 +87,7 @@ export function BroadcastComposeForm({
         <Input id="expires_at" name="expires_at" type="datetime-local" />
       </div>
       <Button type="submit" loading={pending} loadingLabel="Sending…">
-        Send broadcast
+        Send message
       </Button>
     </form>
   );

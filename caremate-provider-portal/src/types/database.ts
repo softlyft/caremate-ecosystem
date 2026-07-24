@@ -85,6 +85,9 @@ export type ProviderOrgMember = {
   user_id: string;
   role: ProviderMemberRole;
   display_name: string | null;
+  company_email: string | null;
+  company_phone: string | null;
+  position: string | null;
   deleted_at: string | null;
 } & Timestamps;
 
@@ -193,6 +196,9 @@ type PortalTables = {
       user_id: string;
       role?: ProviderMemberRole;
       display_name?: string | null;
+      company_email?: string | null;
+      company_phone?: string | null;
+      position?: string | null;
       deleted_at?: string | null;
       created_at?: string;
       updated_at?: string;
@@ -340,6 +346,17 @@ type PortalFunctions = {
       p_patient_note?: string | null;
     };
     Returns: PatientProviderConnection;
+  };
+  mark_connected_patient_as_staff: {
+    Args: {
+      p_organization_id: string;
+      p_patient_user_id: string;
+      p_company_email?: string;
+      p_company_phone?: string;
+      p_position?: string;
+      p_display_name?: string;
+    };
+    Returns: ProviderOrgMember;
   };
 };
 

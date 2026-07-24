@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Bell } from 'lucide-react-native';
+import { Bell, MessageCircle } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,8 +9,10 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
 import { useTranslation } from '@/domains/localization';
+import { useUnreadMessageCount } from '@/domains/messaging/hooks';
 import { useUnreadNotificationCount } from '@/domains/notifications/hooks';
 import { getGreeting } from '@/features/home/constants';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const LOGO_ASPECT = 1774 / 887;
@@ -23,8 +25,11 @@ type HomeHeaderProps = {
 export function HomeHeader({ firstName }: HomeHeaderProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const isGuest = useIsGuest();
   const unreadQuery = useUnreadNotificationCount();
+  const unreadMessagesQuery = useUnreadMessageCount();
   const hasUnread = (unreadQuery.data ?? 0) > 0;
+  const hasUnreadMessages = !isGuest && (unreadMessagesQuery.data ?? 0) > 0;
   const name = firstName?.trim();
   const greetingBase = getGreeting({
     morning: t('home.greeting.morning'),
@@ -45,15 +50,28 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
           contentFit="contain"
           contentPosition="left center"
         />
-        <PressableScale
-          style={styles.notificationButton}
-          accessibilityLabel={t('common.notifications')}
-          accessibilityHint={t('home.notifications.openHint')}
-          onPress={() => router.push('/(app)/notifications')}
-        >
-          <Bell color={palette.text} size={22} strokeWidth={2} />
-          {hasUnread ? <View style={styles.unreadDot} /> : null}
-        </PressableScale>
+        <View style={styles.actions}>
+          {!isGuest ? (
+            <PressableScale
+              style={styles.iconButton}
+              accessibilityLabel={t('common.messages')}
+              accessibilityHint={t('messages.openHint')}
+              onPress={() => router.push('/(app)/messages')}
+            >
+              <MessageCircle color={palette.text} size={22} strokeWidth={2} />
+              {hasUnreadMessages ? <View style={styles.unreadDot} /> : null}
+            </PressableScale>
+          ) : null}
+          <PressableScale
+            style={styles.iconButton}
+            accessibilityLabel={t('common.notifications')}
+            accessibilityHint={t('home.notifications.openHint')}
+            onPress={() => router.push('/(app)/notifications')}
+          >
+            <Bell color={palette.text} size={22} strokeWidth={2} />
+            {hasUnread ? <View style={styles.unreadDot} /> : null}
+          </PressableScale>
+        </View>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(80).duration(500).springify()} style={styles.copy}>
@@ -116,7 +134,13 @@ const styles = StyleSheet.create({
     lineHeight: 34,
     letterSpacing: -0.6,
   },
-  notificationButton: {
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
+  },
+  iconButton: {
     width: 44,
     height: 44,
     alignItems: 'center',

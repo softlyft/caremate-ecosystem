@@ -34,17 +34,21 @@ Manual checklist for the Provider Portal MVP. Prefer a claimed org with a known 
 | PP-23 | P0 | Decline provider request with reason | Required reason; inbound list updates |
 | PP-24 | P1 | After reject, open same provider detail | No Connect button; declined state may show |
 
-## Documents / broadcasts / appointments (smoke)
+## Documents / messages / appointments (smoke)
 
 | ID | Priority | Steps | Expected |
 |----|----------|-------|----------|
 | PP-30 | P1 | Upload document for connected patient | Stored; visible on patient detail in portal |
 | PP-30b | P0 | Patient: Me → Documents after upload | Document listed; tap opens file |
-| PP-31 | P1 | Send broadcast to all connected | Recipients created; activity logged |
+| PP-31 | P0 | Messages → send to all connected | Threads created; patient inbox shows; push when device registered |
+| PP-31b | P0 | Patient replies in mobile thread | Message appears; portal thread reply works |
+| PP-31c | P1 | Patient detail → Mark as staff | Membership created; Staff badge on patients list |
+| PP-31d | P1 | Mobile: New message → search staff/patient by name or Patient ID | DM opens when chat matrix allows |
 | PP-32 | P2 | Appointment request list | Status updates persist |
 
 ## Related
 
 - [Connections](./connections.md)
+- [Messaging](./messaging.md)
 - [Development](./development.md)
 - Mobile Nearby / Me notes: [`../../caremate-mobile/docs/provider-model.md`](../../caremate-mobile/docs/provider-model.md)

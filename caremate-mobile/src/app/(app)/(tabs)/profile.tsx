@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   Link2,
   LogOut,
+  Pencil,
   Settings,
   ShieldPlus,
   Users,
@@ -123,6 +124,15 @@ export default function ProfileTabScreen() {
                 ]}
                 style={styles.identityInner}
               >
+                {!isGuest ? (
+                  <PressableScale
+                    style={styles.editButton}
+                    accessibilityLabel={t('profile.edit.openA11y')}
+                    onPress={() => router.push('/(app)/profile/edit')}
+                  >
+                    <Pencil color={palette.primary} size={18} strokeWidth={2.25} />
+                  </PressableScale>
+                ) : null}
                 <View style={styles.avatarRing}>
                   <View style={styles.avatar}>
                     <UserRound color={palette.primary} size={32} strokeWidth={2} />
@@ -387,10 +397,25 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   identityInner: {
+    position: 'relative',
     alignItems: 'center',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     gap: layoutSpacing.welcomeToSubtitle,
+  },
+  editButton: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 148, 136, 0.18)',
+    zIndex: 2,
   },
   avatarRing: {
     width: 88,

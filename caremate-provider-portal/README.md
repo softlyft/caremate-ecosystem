@@ -24,7 +24,7 @@ Dev server: **http://localhost:4000**
 |------|---------|
 | `/claim` | Claim unclaimed org by catalog email → verify code → set admin password (org becomes **verified**) |
 | `/login` | Sign in after claim |
-| `/app/*` | Dashboard, patients, connections, docs, broadcasts, … |
+| `/app/*` | Dashboard, patients, connections, docs, messages, … |
 
 No self-serve registration. Ops fallback:
 

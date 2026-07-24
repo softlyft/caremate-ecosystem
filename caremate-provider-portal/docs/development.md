@@ -47,9 +47,14 @@ Workspace package scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `bootst
 2. Sign out / sign in at `/login`.
 3. Connection requests: request by a real CareMate Patient ID → patient sees it under Me → Connections.
 4. From mobile Nearby detail on that org: Connect → approve in portal inbound list (with / without rejection reason flows).
+5. Messages: compose to connected patients → confirm mobile inbox + optional push; reply both ways.
+6. Patient detail → Mark as staff → confirm Staff badge; mobile New message search finds the staff user.
+
+Apply migrations through `20260724170000_*` and run `npm run db:types` after schema changes.
 
 ## Related
 
 - [Architecture](./architecture.md)
 - [Auth & claim](./auth-claim.md)
+- [Messaging](./messaging.md)
 - [QA testing](./qa-testing.md)

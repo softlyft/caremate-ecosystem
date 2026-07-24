@@ -47,9 +47,11 @@ Cloud-only (not mirrored to mobile SQLite). See [Provider Portal data model](../
 - `provider_org_claims`
 - `patient_provider_connections`
 - `patient_provider_activities`
-- `provider_broadcasts` / `provider_broadcast_recipients`
+- `message_conversations` / `message_participants` / `message_messages` / `message_direct_pairs`
+- `provider_broadcasts` / `provider_broadcast_recipients` (legacy send audit)
 - `provider_documents`
 - `appointment_requests`
+- `notification_devices`
 
 ### Portal/admin
 
@@ -70,7 +72,7 @@ Current migrations cluster into these domains:
 | Articles and tips read/soft-delete | `20260715100000_articles_public_read_soft_delete.sql`, `20260715110000_health_tips_public_read_soft_delete.sql` |
 | Profiles patient ID | `20260715120000_profiles_patient_id.sql` |
 | Providers ingest / FHIR / geo | `20260715130000_providers_ingest_fhir_ready.sql`, `20260715140000_provider_fhir_resources.sql`, `20260715180000_provider_resource_uuid_pks.sql`, `20260715190000_provider_organizations_unique_name.sql`, `20260715200000_nearby_providers_rpc.sql` |
-| Provider engagement portal | `20260719140000_provider_portal.sql` … `20260719170000_connection_rejection_and_verified.sql`, `20260719200000_patient_document_uploads.sql` |
+| Provider engagement portal | `20260719140000_provider_portal.sql` … `20260719170000_connection_rejection_and_verified.sql`, `20260719200000_patient_document_uploads.sql`, `20260724100000_provider_read_connected_profiles.sql`, `20260724120000`–`20260724170000` (messaging, practitioner profile, mark-as-staff, DMs, RLS fix) |
 | Community Network | `20260721100000_community_portal_phase1.sql`, `20260721113000_community_join_patient_verification.sql`, `20260721124500_community_chapter_administrative_hierarchy.sql`, `20260721130000_community_administrative_options.sql` |
 | External news | `20260721180000_articles_external_news.sql` (`articles.first_seen_at`) |
 | User location history + name search | `20260721190000_user_location_samples_and_search.sql` |

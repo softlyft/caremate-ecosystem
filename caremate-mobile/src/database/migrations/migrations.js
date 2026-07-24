@@ -9,6 +9,7 @@ import m0004 from './0004_ordinary_carmella_unuscione.sql';
 import m0005 from './0005_broken_iron_lad.sql';
 import m0006 from './0006_condemned_white_queen.sql';
 import m0007 from './0007_oval_jamie_braddock.sql';
+import m0008 from './0008_narrow_blizzard.sql';
 
 export default {
   journal,
@@ -21,5 +22,6 @@ export default {
     m0005,
     m0006,
     m0007,
+    m0008,
   },
 };

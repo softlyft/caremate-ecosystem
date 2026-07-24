@@ -49,6 +49,8 @@ Current domain modules under `src/domains/`:
 | `billing/` | Premium state, checkout helpers, entitlement state |
 | `emergency/` | Emergency profile data and lock-surface sync |
 | `family/` | Household, spouse connection, child profile flows |
+| `messaging/` | Live inbox / threads / DM search (cloud-only) |
+| `notifications/` | In-app inbox + Expo push registration |
 | `onboarding/` | Onboarding flow state, device defaults, setup routing |
 | `profile/` | User profile/settings persistence and helpers |
 | `providers/` | Nearby provider lookup, favorites, location helpers |

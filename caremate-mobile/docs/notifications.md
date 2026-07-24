@@ -2,7 +2,7 @@
 
 [← Back to index](./README.md)
 
-> **Status:** Local in-app inbox implemented (SQLite + bell screen). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push). Quiet hours and category prefs still pending.  
+> **Status:** Local in-app inbox implemented (SQLite + bell screen). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message`). Quiet hours and category prefs still pending.  
 > Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push.
 
 ## Decisions (locked)
@@ -139,13 +139,16 @@ Home header Bell
 | New tips / trending (opt-in) | ✅ | ⚪ | ⚪ | Separate marketing opt-in later |
 | Regional `health_alert` (future) | ✅ | ✅ (Region users) | ⚪ | High severity only for email |
 
-### Nearby / providers
+### Nearby / providers / messages
 
 | Action | In-app | Push | Email | Notes |
 |--------|:------:|:----:|:-----:|-------|
 | Favorite toggled | ✅ | — | — | |
 | Nearby refresh | — | — | — | Too noisy |
 | Appointment at provider (future) | ✅ | ✅ (Self) | ⚪ | |
+| Org / clinic message | Messages inbox | ✅ (Self) | — | Edge `notify-message` (org mode); deep link `/messages/{id}` |
+| Direct message (practitioner chat) | Messages inbox | ✅ (Self) | — | Edge `notify-message` (`mode: 'direct'`) |
+| Notifications bell inbox | ✅ | — | — | Separate from Messages (family, meds tips, etc.) |
 
 ### Sync / reliability
 
