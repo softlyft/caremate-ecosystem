@@ -77,7 +77,7 @@ Path filter: only changes under `caremate-health-data-gateway/**` (or the workfl
 
 1. IAM user with your custom SAM deploy policy + access key (use case: application running outside AWS).
 2. In GitHub → Settings → Environments, create **`dev`** and **`prod`**.
-3. Per environment, add secrets:
+3. Per environment, add **Environment secrets** (not only repository secrets — this job cannot see repo-level secrets):
    - `AWS_ACCESS_KEY_ID`
    - `AWS_SECRET_ACCESS_KEY`
    - `SUPABASE_URL`
