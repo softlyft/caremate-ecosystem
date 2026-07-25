@@ -21,6 +21,7 @@ import {
   sanitizePersonNameInput,
   sanitizePhoneInput,
 } from '@/domains/emergency/validation';
+import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
 import { resolvePostSignupHref } from '@/domains/onboarding';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
@@ -58,7 +59,7 @@ export default function RegisterScreen() {
           .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
         phone: z.string().trim().refine(isValidIcePhone, t('emergency.edit.contactPhoneInvalid')),
         email: z.email('Enter a valid email'),
-        password: z.string().min(8, 'Password must be at least 8 characters'),
+        password: passwordSchema(t('auth.password.requirements')),
         acceptedLegal: z.boolean().refine((value) => value === true, {
           message: t('auth.register.acceptRequired'),
         }),
@@ -226,7 +227,9 @@ export default function RegisterScreen() {
             />
           )}
         />
-
+        <AppText style={[styles.hint, { color: colors.textMuted }]}>
+          {t('auth.password.requirements')}
+        </AppText>
         <Controller
           control={control}
           name="acceptedLegal"
@@ -357,5 +360,10 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  hint: {
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: -4,
   },
 });

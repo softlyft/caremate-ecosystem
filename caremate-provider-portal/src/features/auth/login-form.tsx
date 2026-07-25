@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/browser';
+import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
-  password: z.string().min(6, 'Password is required'),
+  password: z.string().min(8, 'Password is required'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -61,7 +62,7 @@ export function LoginForm() {
         return;
       }
 
-      const next = searchParams.get('next') || '/app/dashboard';
+      const next = sanitizePostLoginPath(searchParams.get('next'));
       router.replace(next);
       router.refresh();
     } catch (err) {
@@ -97,7 +98,15 @@ export function LoginForm() {
             {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"

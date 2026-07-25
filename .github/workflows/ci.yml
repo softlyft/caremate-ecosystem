@@ -53,9 +53,16 @@ jobs:
   portal:
     name: Portal · Lint · Typecheck · Test
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - caremate-admin-portal
+          - caremate-provider-portal
+          - caremate-community-portal
     defaults:
       run:
-        working-directory: caremate-admin-portal
+        working-directory: ${{ matrix.package }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5

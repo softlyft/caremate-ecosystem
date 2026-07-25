@@ -6,10 +6,14 @@ Manual checklist for the Provider Portal MVP. Prefer a claimed org with a known 
 
 | ID | Priority | Steps | Expected |
 |----|----------|-------|----------|
-| PP-01 | P0 | `/claim` with catalog contact email | Org matched; verification code shown (MVP) |
-| PP-02 | P0 | Complete claim (code + password) | Signed in; owner membership; org profile **verified** |
+| PP-01 | P0 | `/claim` with catalog contact email | Org matched; **6-digit code emailed** (never shown in UI/network) |
+| PP-02 | P0 | Complete claim (code + password meeting complexity) | Signed in; owner membership; org profile **verified** |
 | PP-03 | P0 | `/login` as claimed owner | Dashboard loads for that org |
 | PP-04 | P1 | `/login` with Auth user but no membership | Blocked / no portal session |
+| PP-05 | P0 | `/login?next=https://evil.example` | Lands on `/app/dashboard` (redirect allowlist) |
+| PP-06 | P0 | `/forgot-password` unknown email | Generic success; no email sent |
+| PP-07 | P0 | `/forgot-password` known member | Code emailed → verify → set complex password → login |
+| PP-08 | P1 | Rapid re-request of claim/reset OTP | Throttled (~1/min; daily/IP caps) |
 
 ## Connections (portal)
 

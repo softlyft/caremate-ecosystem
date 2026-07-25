@@ -7,6 +7,7 @@ import {
   renderBillingRenewal,
   renderEmailTemplate,
   renderFamilyConnectionRequest,
+  renderProviderOrgClaimOtp,
 } from './index.ts';
 
 describe('email templates', () => {
@@ -55,10 +56,35 @@ describe('email templates', () => {
     assert.match(mail.html, /#b91c1c/);
   });
 
+  it('renders provider org claim OTP with code and branding', () => {
+    const mail = renderProviderOrgClaimOtp({
+      code: '482913',
+      orgName: 'Lagos Clinic <script>',
+      expiresMinutes: 15,
+    });
+    assert.match(mail.subject, /verification code/i);
+    assert.match(mail.html, /482913/);
+    assert.match(mail.html, /Lagos Clinic &lt;script&gt;/);
+    assert.match(mail.text, /482913/);
+    assert.match(mail.html, /provider\.getcaremate\.com\/claim/);
+  });
+
   it('dispatches via renderEmailTemplate', () => {
     const mail = renderEmailTemplate('family-connection-request', { fromName: 'Grace' });
     assert.equal(mail.subject.includes('Grace'), true);
     assert.match(mail.html, /getcaremate\.com\/privacy/);
     assert.match(mail.html, /getcaremate\.com\/terms/);
+
+    const otp = renderEmailTemplate('provider-org-claim-otp', {
+      code: '111222',
+      orgName: 'Demo Org',
+    });
+    assert.match(otp.html, /111222/);
+
+    const reset = renderEmailTemplate('provider-password-reset-otp', {
+      code: '654321',
+    });
+    assert.match(reset.html, /654321/);
+    assert.match(reset.subject, /password reset/i);
   });
 });

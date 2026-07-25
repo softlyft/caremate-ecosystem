@@ -7,7 +7,9 @@ export type EmailTemplateId =
   | 'family-connection-request'
   | 'billing-activated'
   | 'billing-renewal'
-  | 'billing-payment-failed';
+  | 'billing-payment-failed'
+  | 'provider-org-claim-otp'
+  | 'provider-password-reset-otp';
 
 export type RenderedEmail = {
   subject: string;
@@ -300,6 +302,79 @@ export function renderBillingPaymentFailed(vars: {
   return { subject, html, text };
 }
 
+export function renderProviderOrgClaimOtp(vars: {
+  code: string;
+  orgName?: string | null;
+  expiresMinutes?: number;
+}): RenderedEmail {
+  const code = vars.code.trim();
+  const orgName = vars.orgName?.trim() || 'your organization';
+  const expiresMinutes = vars.expiresMinutes ?? 15;
+  const subject = `Your CareMate provider verification code`;
+  const preheader = `Use code ${code} to claim ${orgName} on the CareMate Provider Portal.`;
+  const text = [
+    `Your CareMate provider verification code is ${code}.`,
+    '',
+    `Organization: ${orgName}`,
+    `This code expires in ${expiresMinutes} minutes.`,
+    '',
+    'If you did not request this, you can ignore this email.',
+    textFooter(),
+  ].join('\n');
+  const html = layout({
+    title: 'Verify your organization claim',
+    preheader,
+    tone: 'default',
+    ctaLabel: 'Open Provider Portal',
+    ctaUrl: 'https://provider.getcaremate.com/claim',
+    bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
+        Enter this code to claim <strong style="color:${BRAND.primaryDark};">${escapeHtml(orgName)}</strong> on the CareMate Provider Portal.
+      </p>
+      <p style="margin:0 0 16px;font-size:28px;line-height:1.2;letter-spacing:0.28em;font-weight:700;color:${BRAND.primaryDark};text-align:center;">
+        ${escapeHtml(code)}
+      </p>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:${BRAND.textSecondary};">
+        This code expires in <strong style="color:${BRAND.text};">${expiresMinutes} minutes</strong>. If you did not request it, you can ignore this email.
+      </p>`,
+  });
+  return { subject, html, text };
+}
+
+export function renderProviderPasswordResetOtp(vars: {
+  code: string;
+  expiresMinutes?: number;
+}): RenderedEmail {
+  const code = vars.code.trim();
+  const expiresMinutes = vars.expiresMinutes ?? 15;
+  const subject = `Your CareMate password reset code`;
+  const preheader = `Use code ${code} to reset your Provider Portal password.`;
+  const text = [
+    `Your CareMate password reset code is ${code}.`,
+    '',
+    `This code expires in ${expiresMinutes} minutes.`,
+    '',
+    'If you did not request a password reset, you can ignore this email.',
+    textFooter(),
+  ].join('\n');
+  const html = layout({
+    title: 'Reset your password',
+    preheader,
+    tone: 'default',
+    ctaLabel: 'Open Provider Portal',
+    ctaUrl: 'https://provider.getcaremate.com/forgot-password',
+    bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
+        Enter this code to reset your password on the CareMate Provider Portal.
+      </p>
+      <p style="margin:0 0 16px;font-size:28px;line-height:1.2;letter-spacing:0.28em;font-weight:700;color:${BRAND.primaryDark};text-align:center;">
+        ${escapeHtml(code)}
+      </p>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:${BRAND.textSecondary};">
+        This code expires in <strong style="color:${BRAND.text};">${expiresMinutes} minutes</strong>. If you did not request it, you can ignore this email.
+      </p>`,
+  });
+  return { subject, html, text };
+}
+
 export function renderEmailTemplate(
   template: EmailTemplateId,
   vars: Record<string, string | null | undefined>,
@@ -321,6 +396,17 @@ export function renderEmailTemplate(
       return renderBillingPaymentFailed({
         planLabel: vars.planLabel ?? 'Premium',
         reason: vars.reason,
+      });
+    case 'provider-org-claim-otp':
+      return renderProviderOrgClaimOtp({
+        code: vars.code ?? '',
+        orgName: vars.orgName,
+        expiresMinutes: vars.expiresMinutes ? Number(vars.expiresMinutes) : 15,
+      });
+    case 'provider-password-reset-otp':
+      return renderProviderPasswordResetOtp({
+        code: vars.code ?? '',
+        expiresMinutes: vars.expiresMinutes ? Number(vars.expiresMinutes) : 15,
       });
     default: {
       const _exhaustive: never = template;

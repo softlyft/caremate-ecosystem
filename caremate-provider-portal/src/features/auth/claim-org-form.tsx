@@ -11,6 +11,7 @@ import {
   startOrgClaimAction,
   verifyOrgClaimAction,
 } from '@/domains/claim/actions';
+import { PASSWORD_MIN_LENGTH, PASSWORD_REQUIREMENTS_MESSAGE, meetsPasswordRequirements } from '@/lib/password';
 import { createClient } from '@/lib/supabase/browser';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +32,6 @@ export function ClaimOrgForm() {
   const [organizations, setOrganizations] = useState<OrgOption[]>([]);
   const [organizationId, setOrganizationId] = useState('');
   const [claimId, setClaimId] = useState('');
-  const [debugCode, setDebugCode] = useState('');
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,13 +59,8 @@ export function ClaimOrgForm() {
 
       setClaimId(result.data.claimId);
       setOrganizationId(result.data.selectedOrganizationId);
-      setDebugCode(result.data.debugCode);
       setStep('code');
-      toast.success(
-        result.data.debugCode
-          ? 'Verification code ready'
-          : 'Enter the verification code sent to your email',
-      );
+      toast.success('Enter the verification code sent to your email');
     } finally {
       setLoading(false);
     }
@@ -88,13 +83,8 @@ export function ClaimOrgForm() {
         return;
       }
       setClaimId(result.data.claimId);
-      setDebugCode(result.data.debugCode);
       setStep('code');
-      toast.success(
-        result.data.debugCode
-          ? 'Verification code ready'
-          : 'Enter the verification code sent to your email',
-      );
+      toast.success('Enter the verification code sent to your email');
     } finally {
       setLoading(false);
     }
@@ -120,6 +110,10 @@ export function ClaimOrgForm() {
     event.preventDefault();
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
+      return;
+    }
+    if (!meetsPasswordRequirements(password)) {
+      toast.error(PASSWORD_REQUIREMENTS_MESSAGE);
       return;
     }
     setLoading(true);
@@ -241,17 +235,10 @@ export function ClaimOrgForm() {
 
         {step === 'code' ? (
           <form onSubmit={onVerifyCode} className="space-y-4">
-            {debugCode ? (
-              <div className="rounded-lg border border-warning/40 bg-warning-light px-3 py-3 text-sm text-foreground">
-                <p className="font-medium">Local testing: inline OTP enabled</p>
-                <p className="mt-1 text-muted">Use this verification code:</p>
-                <p className="mt-2 font-mono text-2xl tracking-[0.3em] text-brand-navy">{debugCode}</p>
-              </div>
-            ) : (
-              <p className="text-sm text-muted">
-                Enter the verification code sent to <span className="font-medium text-foreground">{email}</span>.
-              </p>
-            )}
+            <p className="text-sm text-muted">
+              Enter the verification code sent to{' '}
+              <span className="font-medium text-foreground">{email}</span>.
+            </p>
             <div className="space-y-2">
               <Label htmlFor="claim-code">Verification code</Label>
               <Input
@@ -275,7 +262,6 @@ export function ClaimOrgForm() {
               onClick={() => {
                 setStep('email');
                 setCode('');
-                setDebugCode('');
               }}
             >
               Start over
@@ -300,10 +286,11 @@ export function ClaimOrgForm() {
                 type="password"
                 autoComplete="new-password"
                 required
-                minLength={8}
+                minLength={PASSWORD_MIN_LENGTH}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <p className="text-xs text-muted">{PASSWORD_REQUIREMENTS_MESSAGE}</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="claim-password-confirm">Confirm password</Label>
@@ -312,7 +299,7 @@ export function ClaimOrgForm() {
                 type="password"
                 autoComplete="new-password"
                 required
-                minLength={8}
+                minLength={PASSWORD_MIN_LENGTH}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
