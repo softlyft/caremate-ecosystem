@@ -1,8 +1,4 @@
-import {
-  isEncryptedEnvelope,
-  scrubEncryptedJson,
-  scrubEncryptedText,
-} from '../phi';
+import { isEncryptedEnvelope, scrubEncryptedJson, scrubEncryptedText } from '../phi';
 import { profileToGatewayBody, emergencyToGatewayBody } from '../api';
 
 describe('health-data-gateway phi scrubbing', () => {

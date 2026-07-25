@@ -6,9 +6,5 @@ export {
   type GatewayEmergencyRow,
   type GatewayProfileRow,
 } from './api';
-export {
-  gatewayRequest,
-  isHealthDataGatewayConfigured,
-  HealthDataGatewayError,
-} from './client';
+export { gatewayRequest, isHealthDataGatewayConfigured, HealthDataGatewayError } from './client';
 export { isEncryptedEnvelope, scrubEncryptedJson, scrubEncryptedText } from './phi';
