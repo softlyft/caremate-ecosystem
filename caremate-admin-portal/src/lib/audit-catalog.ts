@@ -15,6 +15,12 @@ export const AUDIT_ENTITY = {
   subscriptionPrice: 'subscription_price',
   subscription: 'subscription',
   user: 'user',
+  communityChapter: 'community_chapter',
+  communityChapterRequest: 'community_chapter_request',
+  communityBadge: 'community_badge',
+  communityCertificate: 'community_certificate',
+  communityResource: 'community_resource',
+  communityContribution: 'community_contribution',
 } as const;
 
 export type AuditEntityType = (typeof AUDIT_ENTITY)[keyof typeof AUDIT_ENTITY];
@@ -57,6 +63,19 @@ export const AUDIT_ACTION = {
   unbanUser: 'unban_user',
   passwordReset: 'password_reset',
   setRole: 'set_role',
+
+  approveChapterRequest: 'approve_chapter_request',
+  rejectChapterRequest: 'reject_chapter_request',
+  createChapter: 'create_chapter',
+  updateChapter: 'update_chapter',
+  updateChapterStatus: 'update_chapter_status',
+  assignChapterLeaders: 'assign_chapter_leaders',
+  createBadge: 'create_badge',
+  createCertificate: 'create_certificate',
+  awardBadge: 'award_badge',
+  awardCertificate: 'award_certificate',
+  createGlobalResource: 'create_global_resource',
+  addManualContribution: 'add_manual_contribution',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION] | string;
@@ -68,7 +87,10 @@ export function auditOperationKind(
     action.startsWith('create_') ||
     action.startsWith('admin_activate') ||
     action.startsWith('ingest_') ||
-    action.startsWith('upload_')
+    action.startsWith('upload_') ||
+    action.startsWith('approve_') ||
+    action.startsWith('award_') ||
+    action.startsWith('add_')
   ) {
     return 'create';
   }
@@ -78,6 +100,7 @@ export function auditOperationKind(
     action.startsWith('verify_') ||
     action.startsWith('unban_') ||
     action.startsWith('admin_upgrade') ||
+    action.startsWith('assign_') ||
     action === 'password_reset'
   ) {
     return 'update';

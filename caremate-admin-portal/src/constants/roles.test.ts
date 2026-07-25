@@ -12,6 +12,7 @@ import {
   canAssignRoles,
   canEditCatalog,
   canManageBilling,
+  canManageCommunity,
   canManageUsers,
   canViewAuditLogs,
   isStaffRole,
@@ -53,6 +54,13 @@ describe('portal RBAC helpers', () => {
     assert.equal(canManageBilling('admin'), true);
     assert.equal(canManageBilling('editor'), false);
     assert.equal(canManageBilling('support'), false);
+  });
+
+  it('gates community mutations to admin and editor', () => {
+    assert.equal(canManageCommunity('admin'), true);
+    assert.equal(canManageCommunity('editor'), true);
+    assert.equal(canManageCommunity('support'), false);
+    assert.equal(canManageCommunity(null), false);
   });
 
   it('allows all staff to view audit logs', () => {

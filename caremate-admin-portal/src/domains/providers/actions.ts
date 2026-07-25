@@ -52,6 +52,11 @@ export async function uploadProvidersFile(formData: FormData): Promise<IngestAcc
     throw new Error('Choose a .xlsx file to upload.');
   }
 
+  const MAX_INGEST_BYTES = 25 * 1024 * 1024;
+  if (file.size > MAX_INGEST_BYTES) {
+    throw new Error('Ingest file must be 25 MB or smaller.');
+  }
+
   const name = file.name.toLowerCase();
   if (!name.endsWith('.xlsx') && !name.endsWith('.xls')) {
     throw new Error('File must be .xlsx');

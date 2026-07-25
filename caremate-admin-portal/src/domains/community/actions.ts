@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePortalSession } from '@/lib/auth';
+import { canManageCommunity } from '@/constants/roles';
+import { writeAuditEvent } from '@/lib/audit';
 import type {
   AdministrativeLevel,
   ChapterStatus,
@@ -31,6 +33,14 @@ function revalidateCommunity() {
   for (const path of COMMUNITY_PATHS) {
     revalidatePath(path);
   }
+}
+
+async function requireCommunityEditor() {
+  const session = await requirePortalSession();
+  if (!canManageCommunity(session.role)) {
+    throw new Error('Forbidden');
+  }
+  return session;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,7 +90,7 @@ async function normalizeChapterHierarchy(
 }
 
 export async function approveChapterRequest(requestId: string, reviewNote?: string | null) {
-  const session = await requirePortalSession();
+  const session = await requireCommunityEditor();
   const now = new Date().toISOString();
 
   const { data: request, error: loadError } = await communityFrom('community_chapter_requests')
@@ -139,12 +149,19 @@ export async function approveChapterRequest(requestId: string, reviewNote?: stri
     .eq('id', requestId);
   if (updateError) throw updateError;
 
+  await writeAuditEvent({
+    action: 'approve_chapter_request',
+    entityType: 'community_chapter_request',
+    entityId: requestId,
+    payload: { chapterId },
+  });
+
   revalidateCommunity();
   return chapterId;
 }
 
 export async function rejectChapterRequest(requestId: string, reviewNote?: string | null) {
-  const session = await requirePortalSession();
+  const session = await requireCommunityEditor();
   const now = new Date().toISOString();
 
   const { error } = await communityFrom('community_chapter_requests')
@@ -158,6 +175,12 @@ export async function rejectChapterRequest(requestId: string, reviewNote?: strin
     .eq('id', requestId)
     .eq('status', 'pending');
   if (error) throw error;
+
+  await writeAuditEvent({
+    action: 'reject_chapter_request',
+    entityType: 'community_chapter_request',
+    entityId: requestId,
+  });
 
   revalidateCommunity();
 }
@@ -176,7 +199,7 @@ export type CreateChapterInput = {
 };
 
 export async function createChapter(input: CreateChapterInput): Promise<CommunityChapter> {
-  await requirePortalSession();
+  await requireCommunityEditor();
   const now = new Date().toISOString();
   const slug = await uniqueChapterSlug(input.name);
   const id = crypto.randomUUID();
@@ -206,6 +229,12 @@ export async function createChapter(input: CreateChapterInput): Promise<Communit
     .single();
   if (error) throw error;
 
+  await writeAuditEvent({
+    action: 'create_chapter',
+    entityType: 'community_chapter',
+    entityId: id,
+  });
+
   revalidateCommunity();
   return data as CommunityChapter;
 }
@@ -221,7 +250,7 @@ export type UpdateChapterInput = {
 };
 
 export async function updateChapter(input: UpdateChapterInput): Promise<CommunityChapter> {
-  await requirePortalSession();
+  await requireCommunityEditor();
   const now = new Date().toISOString();
   const slug = await uniqueChapterSlug(input.name, input.id);
   const administrativeHierarchy = await normalizeChapterHierarchy(
@@ -245,16 +274,28 @@ export async function updateChapter(input: UpdateChapterInput): Promise<Communit
     .single();
   if (error) throw error;
 
+  await writeAuditEvent({
+    action: 'update_chapter',
+    entityType: 'community_chapter',
+    entityId: input.id,
+  });
+
   revalidateCommunity();
   return data as CommunityChapter;
 }
 
 export async function updateChapterStatus(chapterId: string, status: ChapterStatus) {
-  await requirePortalSession();
+  await requireCommunityEditor();
   const { error } = await communityFrom('community_chapters')
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', chapterId);
   if (error) throw error;
+  await writeAuditEvent({
+    action: 'update_chapter_status',
+    entityType: 'community_chapter',
+    entityId: chapterId,
+    payload: { status },
+  });
   revalidateCommunity();
 }
 
@@ -263,7 +304,7 @@ export async function assignChapterLeaders(
   leadUserId: string | null,
   deputyUserId: string | null,
 ) {
-  await requirePortalSession();
+  await requireCommunityEditor();
   const now = new Date().toISOString();
 
   const { error } = await communityFrom('community_chapters')
@@ -306,6 +347,13 @@ export async function assignChapterLeaders(
     );
   }
 
+  await writeAuditEvent({
+    action: 'assign_chapter_leaders',
+    entityType: 'community_chapter',
+    entityId: chapterId,
+    payload: { leadUserId, deputyUserId },
+  });
+
   revalidateCommunity();
 }
 
@@ -319,10 +367,11 @@ export type CreateBadgeInput = {
 };
 
 export async function createBadge(input: CreateBadgeInput): Promise<CommunityBadge> {
-  await requirePortalSession();
+  await requireCommunityEditor();
+  const id = crypto.randomUUID();
   const { data, error } = await communityFrom('community_badges')
     .insert({
-      id: crypto.randomUUID(),
+      id,
       slug: input.slug.trim().toLowerCase(),
       name: input.name.trim(),
       description: input.description?.trim() || null,
@@ -334,6 +383,11 @@ export async function createBadge(input: CreateBadgeInput): Promise<CommunityBad
     .select('*')
     .single();
   if (error) throw error;
+  await writeAuditEvent({
+    action: 'create_badge',
+    entityType: 'community_badge',
+    entityId: id,
+  });
   revalidateCommunity();
   return data as CommunityBadge;
 }
@@ -349,10 +403,11 @@ export type CreateCertificateInput = {
 export async function createCertificate(
   input: CreateCertificateInput,
 ): Promise<CommunityCertificate> {
-  await requirePortalSession();
+  await requireCommunityEditor();
+  const id = crypto.randomUUID();
   const { data, error } = await communityFrom('community_certificates')
     .insert({
-      id: crypto.randomUUID(),
+      id,
       slug: input.slug.trim().toLowerCase(),
       name: input.name.trim(),
       description: input.description?.trim() || null,
@@ -363,12 +418,17 @@ export async function createCertificate(
     .select('*')
     .single();
   if (error) throw error;
+  await writeAuditEvent({
+    action: 'create_certificate',
+    entityType: 'community_certificate',
+    entityId: id,
+  });
   revalidateCommunity();
   return data as CommunityCertificate;
 }
 
 export async function awardBadge(userId: string, badgeId: string): Promise<CommunityUserBadge> {
-  const session = await requirePortalSession();
+  const session = await requireCommunityEditor();
   const { data: badge, error: badgeError } = await communityFrom('community_badges')
     .select('name')
     .eq('id', badgeId)
@@ -400,12 +460,19 @@ export async function awardBadge(userId: string, badgeId: string): Promise<Commu
     created_at: new Date().toISOString(),
   });
 
+  await writeAuditEvent({
+    action: 'award_badge',
+    entityType: 'community_badge',
+    entityId: badgeId,
+    payload: { userId },
+  });
+
   revalidateCommunity();
   return data as CommunityUserBadge;
 }
 
 export async function awardCertificate(userId: string, certificateId: string) {
-  const session = await requirePortalSession();
+  const session = await requireCommunityEditor();
   const { data: certificate, error: certificateError } = await communityFrom(
     'community_certificates',
   )
@@ -441,6 +508,13 @@ export async function awardCertificate(userId: string, certificateId: string) {
     created_at: new Date().toISOString(),
   });
 
+  await writeAuditEvent({
+    action: 'award_certificate',
+    entityType: 'community_certificate',
+    entityId: certificateId,
+    payload: { userId },
+  });
+
   revalidateCommunity();
   return data;
 }
@@ -457,11 +531,12 @@ export type CreateGlobalResourceInput = {
 export async function createGlobalResource(
   input: CreateGlobalResourceInput,
 ): Promise<CommunityResource> {
-  const session = await requirePortalSession();
+  const session = await requireCommunityEditor();
   const now = new Date().toISOString();
+  const id = crypto.randomUUID();
   const { data, error } = await communityFrom('community_resources')
     .insert({
-      id: crypto.randomUUID(),
+      id,
       chapter_id: null,
       title: input.title.trim(),
       description: input.description?.trim() || null,
@@ -477,6 +552,11 @@ export async function createGlobalResource(
     .select('*')
     .single();
   if (error) throw error;
+  await writeAuditEvent({
+    action: 'create_global_resource',
+    entityType: 'community_resource',
+    entityId: id,
+  });
   revalidateCommunity();
   return data as CommunityResource;
 }
@@ -492,10 +572,11 @@ export type ManualContributionInput = {
 export async function addManualContribution(
   input: ManualContributionInput,
 ): Promise<CommunityContribution> {
-  const session = await requirePortalSession();
+  const session = await requireCommunityEditor();
+  const id = crypto.randomUUID();
   const { data, error } = await communityFrom('community_contributions')
     .insert({
-      id: crypto.randomUUID(),
+      id,
       user_id: input.user_id,
       chapter_id: input.chapter_id || null,
       action_type: input.action_type.trim(),
@@ -508,6 +589,12 @@ export async function addManualContribution(
     .select('*')
     .single();
   if (error) throw error;
+  await writeAuditEvent({
+    action: 'add_manual_contribution',
+    entityType: 'community_contribution',
+    entityId: id,
+    payload: { userId: input.user_id, points: input.points },
+  });
   revalidateCommunity();
   return data as CommunityContribution;
 }

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { listAllAuthUsers } from '@/lib/list-auth-users';
 import type { Payment, Subscription, SubscriptionPrice } from '@/types/database';
 
 export async function listSubscriptionPrices(): Promise<SubscriptionPrice[]> {
@@ -23,9 +23,8 @@ export type PaymentRow = Payment & {
 };
 
 async function emailByUserIdMap(): Promise<Map<string, string | null>> {
-  const admin = createAdminClient();
-  const { data: usersData } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  return new Map((usersData?.users ?? []).map((u) => [u.id, u.email ?? null] as const));
+  const users = await listAllAuthUsers();
+  return new Map(users.map((u) => [u.id, u.email ?? null] as const));
 }
 
 export async function listSubscriptions(filters?: {
