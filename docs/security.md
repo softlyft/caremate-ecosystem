@@ -95,7 +95,7 @@ Applied via `next.config.ts` on admin, provider, and community:
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy` (camera/mic/geo/payment off)
 - `Strict-Transport-Security` (long max-age)
-- Provider portal also sets a baseline `Content-Security-Policy` (`upgrade-insecure-requests`, production without `unsafe-eval`; nonces still a follow-up)
+- Provider and admin portals set a baseline `Content-Security-Policy` (`upgrade-insecure-requests`, production without `unsafe-eval`; nonces still a follow-up)
 
 A stricter CSP with nonces across all portals is a follow-up (Next App Router needs careful nonce wiring).
 

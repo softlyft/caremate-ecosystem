@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from '@caremate/db-types';
 import { isStaffRole } from '@/constants/roles';
+import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -32,6 +33,11 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isAuthRoute = path.startsWith('/login');
   const isProtected = path.startsWith('/dashboard');
+  const isPublicApi = path === '/api/health';
+
+  if (isPublicApi) {
+    return supabaseResponse;
+  }
 
   const role = user?.app_metadata?.role;
   const isStaff = isStaffRole(role);
@@ -39,13 +45,14 @@ export async function updateSession(request: NextRequest) {
   if (isProtected && (!user || !isStaff)) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    url.searchParams.set('next', path);
+    url.searchParams.set('next', sanitizePostLoginPath(path));
     return NextResponse.redirect(url);
   }
 
   if (isAuthRoute && user && isStaff) {
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+    url.pathname = sanitizePostLoginPath(request.nextUrl.searchParams.get('next'));
+    url.search = '';
     return NextResponse.redirect(url);
   }
 

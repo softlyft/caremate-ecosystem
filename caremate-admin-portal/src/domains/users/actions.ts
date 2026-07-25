@@ -3,8 +3,14 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePortalSession } from '@/lib/auth';
-import { canAssignRoles, canManageUsers, isStaffRole, type StaffRole } from '@/constants/roles';
+import {
+  canAssignRoles,
+  canManageUsers,
+  isStaffRole,
+  type StaffRole,
+} from '@/constants/roles';
 import { writeAuditEvent } from '@/lib/audit';
+import { getWebsiteUrl } from '@/lib/site-url';
 
 async function requireUserManager() {
   const session = await requirePortalSession();
@@ -14,8 +20,25 @@ async function requireUserManager() {
   return session;
 }
 
+async function assertCanBanTarget(actorId: string, actorRole: StaffRole, targetUserId: string) {
+  if (actorId === targetUserId) {
+    throw new Error('You cannot ban your own account');
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.getUserById(targetUserId);
+  if (error) throw error;
+
+  const targetRole = data.user.app_metadata?.role;
+  if (isStaffRole(targetRole) && targetRole === 'admin' && actorRole !== 'admin') {
+    throw new Error('Only admins can ban admin accounts');
+  }
+}
+
 export async function banUser(userId: string) {
   const session = await requireUserManager();
+  await assertCanBanTarget(session.user.id, session.role, userId);
+
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(userId, {
     ban_duration: '876000h',
@@ -32,8 +55,16 @@ export async function banUser(userId: string) {
 }
 
 export async function unbanUser(userId: string) {
-  await requireUserManager();
+  const session = await requireUserManager();
   const admin = createAdminClient();
+  const { data, error: getError } = await admin.auth.admin.getUserById(userId);
+  if (getError) throw getError;
+
+  const targetRole = data.user.app_metadata?.role;
+  if (isStaffRole(targetRole) && targetRole === 'admin' && session.role !== 'admin') {
+    throw new Error('Only admins can unban admin accounts');
+  }
+
   const { error } = await admin.auth.admin.updateUserById(userId, {
     ban_duration: 'none',
   });
@@ -50,14 +81,14 @@ export async function unbanUser(userId: string) {
 export async function sendPasswordReset(email: string) {
   await requireUserManager();
   const admin = createAdminClient();
-  const { error } = await admin.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`,
-  });
+  const redirectTo = `${getWebsiteUrl()}/auth/reset-password`;
+  const { error } = await admin.auth.resetPasswordForEmail(email, { redirectTo });
   if (error) throw error;
   await writeAuditEvent({
     action: 'password_reset',
     entityType: 'user',
     entityId: email,
+    payload: { redirectTo },
   });
 }
 

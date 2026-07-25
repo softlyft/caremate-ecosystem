@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/browser';
 import { isStaffRole } from '@/constants/roles';
+import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { useAuthStore } from '@/features/auth/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
-  password: z.string().min(6, 'Password is required'),
+  password: z.string().min(8, 'Password is required'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -56,7 +57,7 @@ export function LoginForm() {
       }
 
       setSession(data.user.email ?? values.email, role);
-      const next = searchParams.get('next') || '/dashboard';
+      const next = sanitizePostLoginPath(searchParams.get('next'));
       router.replace(next);
       router.refresh();
     } catch (err) {

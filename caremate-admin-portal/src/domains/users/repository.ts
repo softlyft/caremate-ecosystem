@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isStaffRole, type StaffRole } from '@/constants/roles';
+import { listAllAuthUsers } from '@/lib/list-auth-users';
 import type { Profile } from '@/types/database';
 
 export type AdminUserRow = {
@@ -16,11 +17,10 @@ export type AdminUserRow = {
 
 export async function listUsers(search?: string): Promise<AdminUserRow[]> {
   const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (error) throw error;
-
-  const users = data.users;
+  const users = await listAllAuthUsers();
   const ids = users.map((u) => u.id);
+
+  if (ids.length === 0) return [];
 
   const [{ data: profiles }, { data: emergencies }, { data: settings }] = await Promise.all([
     admin.from('profiles').select('*').in('user_id', ids),
@@ -61,6 +61,27 @@ export async function listUsers(search?: string): Promise<AdminUserRow[]> {
 }
 
 export async function getUser(userId: string): Promise<AdminUserRow | null> {
-  const rows = await listUsers();
-  return rows.find((u) => u.id === userId) ?? null;
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+  if (error || !data.user) return null;
+
+  const u = data.user;
+  const [{ data: profile }, { data: emergencies }, { data: settings }] = await Promise.all([
+    admin.from('profiles').select('*').eq('user_id', userId).maybeSingle(),
+    admin.from('emergency_profiles').select('user_id').eq('user_id', userId).maybeSingle(),
+    admin.from('settings').select('user_id').eq('user_id', userId).maybeSingle(),
+  ]);
+
+  const roleRaw = u.app_metadata?.role;
+  return {
+    id: u.id,
+    email: u.email ?? '—',
+    createdAt: u.created_at,
+    lastSignInAt: u.last_sign_in_at ?? null,
+    bannedUntil: u.banned_until ?? null,
+    role: isStaffRole(roleRaw) ? roleRaw : null,
+    profile: (profile as Profile | null) ?? null,
+    hasEmergencyProfile: Boolean(emergencies),
+    hasSettings: Boolean(settings),
+  };
 }

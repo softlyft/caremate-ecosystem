@@ -25,17 +25,32 @@ import {
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
 import { useAuthStore } from '@/features/auth/store';
-import { STAFF_ROLE_LABELS, type StaffRole } from '@/constants/roles';
+import {
+  canEditCatalog,
+  canManageBilling,
+  canManageCommunity,
+  canManageUsers,
+  canViewAuditLogs,
+  STAFF_ROLE_LABELS,
+  type StaffRole,
+} from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-const NAV_GROUPS = [
+type NavItem = { href: string; label: string; icon: typeof LayoutDashboard };
+
+const NAV_GROUPS: {
+  label: string;
+  items: NavItem[];
+  visible?: (role: StaffRole) => boolean;
+}[] = [
   {
     label: 'General',
     items: [{ href: '/dashboard', label: 'Overview', icon: LayoutDashboard }],
   },
   {
     label: 'Catalog',
+    visible: canEditCatalog,
     items: [
       { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
       { href: '/dashboard/news', label: 'External News', icon: Newspaper },
@@ -45,6 +60,7 @@ const NAV_GROUPS = [
   },
   {
     label: 'Community',
+    visible: canManageCommunity,
     items: [
       { href: '/dashboard/community', label: 'Overview', icon: UsersRound },
       { href: '/dashboard/community/profiles', label: 'Profiles', icon: Users },
@@ -62,14 +78,38 @@ const NAV_GROUPS = [
   },
   {
     label: 'Growth',
-    items: [
-      { href: '/dashboard/users', label: 'Users', icon: Users },
-      { href: '/dashboard/ads', label: 'Ads', icon: Megaphone },
-      { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
-      { href: '/dashboard/audit', label: 'Audit logs', icon: ScrollText },
-    ],
+    items: [],
   },
-] as const;
+];
+
+function growthItemsForRole(role: StaffRole): NavItem[] {
+  const items: NavItem[] = [];
+  if (canManageUsers(role)) {
+    items.push({ href: '/dashboard/users', label: 'Users', icon: Users });
+  }
+  if (canEditCatalog(role)) {
+    items.push({ href: '/dashboard/ads', label: 'Ads', icon: Megaphone });
+  }
+  if (canManageBilling(role)) {
+    items.push({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard });
+  }
+  if (canViewAuditLogs(role)) {
+    items.push({ href: '/dashboard/audit', label: 'Audit logs', icon: ScrollText });
+  }
+  return items;
+}
+
+function navGroupsForRole(role: StaffRole) {
+  return NAV_GROUPS.map((group) => {
+    if (group.label === 'Growth') {
+      return { ...group, items: growthItemsForRole(role) };
+    }
+    return group;
+  }).filter((group) => {
+    if (group.visible && !group.visible(role)) return false;
+    return group.items.length > 0;
+  });
+}
 
 export function DashboardShell({
   children,
@@ -116,7 +156,7 @@ export function DashboardShell({
         </div>
 
         <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
-          {NAV_GROUPS.map((group) => (
+          {navGroupsForRole(role).map((group) => (
             <div key={group.label} className="flex flex-col gap-1">
               <p className="px-3 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-muted/70">
                 {group.label}

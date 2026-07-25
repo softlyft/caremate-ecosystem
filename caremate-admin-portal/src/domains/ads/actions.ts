@@ -6,6 +6,7 @@ import { canAssignRoles, canEditCatalog } from '@/constants/roles';
 import { AD_SLOT_IDS, type AdSlotMode } from '@/domains/ads/constants';
 import { writeAuditEvent } from '@/lib/audit';
 import { requirePortalSession } from '@/lib/auth';
+import { assertSafeExternalUrl } from '@/lib/safe-url';
 import { createClient } from '@/lib/supabase/server';
 
 async function requireEditor() {
@@ -70,8 +71,8 @@ export async function saveAdvertiser(input: AdvertiserInput) {
     id,
     name: input.name.trim(),
     org_type: input.orgType,
-    website_url: input.websiteUrl?.trim() || null,
-    logo_url: input.logoUrl?.trim() || null,
+    website_url: assertSafeExternalUrl(input.websiteUrl, 'Website URL'),
+    logo_url: assertSafeExternalUrl(input.logoUrl, 'Logo URL'),
     verification_status: isNew ? 'pending' : undefined,
     deleted_at: null,
     updated_at: now,
@@ -194,9 +195,9 @@ export async function saveCampaign(input: CampaignInput) {
     title: input.title.trim(),
     body: input.body.trim(),
     cta_label: input.ctaLabel?.trim() || null,
-    cta_href: input.ctaHref?.trim() || null,
+    cta_href: assertSafeExternalUrl(input.ctaHref, 'CTA URL'),
     badge_label: defaultBadge,
-    image_url: input.imageUrl?.trim() || null,
+    image_url: assertSafeExternalUrl(input.imageUrl, 'Image URL'),
     deleted_at: null,
     updated_at: now,
     ...(existingCreative ? {} : { created_at: now }),

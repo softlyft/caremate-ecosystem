@@ -73,9 +73,14 @@ After the payment domain is live, point the mobile app’s hosted checkout base 
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon / publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret in Amplify |
+| `NEXT_PUBLIC_APP_URL` | e.g. `https://admin.getcaremate.com` |
+| `NEXT_PUBLIC_WEBSITE_URL` | e.g. `https://getcaremate.com` (password-reset redirect target) |
 | `CURRENTS_API_KEY` | Server-only — Currents health news sync for External News admin |
 | `PROVIDER_INGEST_URL` | Optional until ingest is hosted; production FastAPI base URL |
 | `PROVIDER_INGEST_API_KEY` | Optional; must match ingest service |
+| `SENTRY_DSN` | Optional — server/client error reporting |
+
+Admin password resets email users to `{WEBSITE_URL}/auth/reset-password` (same Universal Link path as mobile).
 
 Amplify Console → App → **Hosting** → **Environment variables** → apply to branch `main`.
 

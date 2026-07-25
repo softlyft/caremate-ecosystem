@@ -28,6 +28,11 @@ export function canManageBilling(role: StaffRole | null | undefined): boolean {
   return role === 'admin';
 }
 
+/** Community mutations (chapters, recognition) — admin or editor. */
+export function canManageCommunity(role: StaffRole | null | undefined): boolean {
+  return role === 'admin' || role === 'editor';
+}
+
 /** All staff can browse audit events (RLS: is_staff SELECT). */
 export function canViewAuditLogs(role: StaffRole | null | undefined): boolean {
   return isStaffRole(role);

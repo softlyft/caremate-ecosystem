@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requirePortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { writeAuditEvent } from '@/lib/audit';
+import { sniffAllowedMediaMime } from '@/lib/media-sniff';
 
 const MAX_BYTES = 15 * 1024 * 1024;
 const ALLOWED_MIME = new Set([
@@ -26,7 +27,9 @@ export async function uploadLearnMedia(formData: FormData): Promise<string> {
   if (file.size <= 0 || file.size > MAX_BYTES) {
     throw new Error('File must be between 1 byte and 15 MB');
   }
-  if (!ALLOWED_MIME.has(file.type)) {
+
+  const mime = await sniffAllowedMediaMime(file, ALLOWED_MIME);
+  if (!mime) {
     throw new Error('Unsupported file type. Use JPEG, PNG, WebP, GIF, MP4, or WebM.');
   }
 
@@ -38,7 +41,7 @@ export async function uploadLearnMedia(formData: FormData): Promise<string> {
   const { error } = await supabase.storage.from('learn-media').upload(path, file, {
     cacheControl: '3600',
     upsert: false,
-    contentType: file.type,
+    contentType: mime,
   });
   if (error) throw error;
 
@@ -50,7 +53,7 @@ export async function uploadLearnMedia(formData: FormData): Promise<string> {
     action: 'upload_media',
     entityType: 'storage',
     entityId: path,
-    payload: { publicUrl },
+    payload: { publicUrl, mime },
   });
 
   return publicUrl;
