@@ -9,7 +9,7 @@ export const PASSWORD_REQUIREMENTS_MESSAGE =
 const LOWER = /[a-z]/;
 const UPPER = /[A-Z]/;
 const DIGIT = /\d/;
-const SYMBOL = /[^A-Za-z0-9]/
+const SYMBOL = /[^A-Za-z0-9]/;
 
 export function meetsPasswordRequirements(password: string): boolean {
   return (

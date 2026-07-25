@@ -93,9 +93,7 @@ function useKeyboardLift() {
     };
   }, [insets.bottom]);
 
-  const composerPaddingBottom = keyboardOpen
-    ? spacing.sm
-    : Math.max(insets.bottom, spacing.sm);
+  const composerPaddingBottom = keyboardOpen ? spacing.sm : Math.max(insets.bottom, spacing.sm);
 
   return { lift, composerPaddingBottom, keyboardOpen };
 }
