@@ -8,11 +8,13 @@
     "start": "next start -p 4000",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test 'src/**/*.test.ts'",
     "bootstrap:member": "node scripts/bootstrap-provider-member.mjs"
   },
   "dependencies": {
     "@caremate/db-types": "*",
     "@hookform/resolvers": "^5.4.0",
+    "@sentry/node": "^9.47.1",
     "@supabase/ssr": "^0.12.2",
     "@supabase/supabase-js": "^2.110.5",
     "class-variance-authority": "^0.7.1",
@@ -36,6 +38,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.19",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "~5.9.2"
   },
   "optionalDependencies": {

@@ -17,7 +17,7 @@ CareMate mobile app. Enrollment is limited to existing patients with a CareMate 
 
 ## In scope (Phase 1)
 
-- Patient ID → email code verification (inline code **only** in non-production / `ALLOW_INLINE_OTP`; production must use OOB email)
+- Patient ID → email code verification (OTP never returned to the browser; OOB email required)
 - Join admin-created active chapters immediately (no profile duplication)
 - Chapter hub, events, announcements, resources, gallery
 - Contribution points + chapter / national leaderboards

@@ -28,7 +28,7 @@ Out of scope here: App Store / Play disclosures, Amplify account IAM (see [`ampl
 | Concurrent handoff race | Exchange updates `used_at` with `.is('used_at', null)` + `.select()`; clear tokens after claim |
 | Family billing IDOR (`household_id`) | `assertHouseholdMembership` on create-checkout / upgrade quote |
 | Stripe webhook replay | HMAC verify + **5-minute** timestamp window + constant-time compare |
-| Join / org-claim OTP returned to client | Production never returns OTP; local/dev only (`ALLOW_INLINE_OTP`) |
+| Join / org-claim OTP returned to client | OTPs are never returned to the browser; email OOB only |
 | Malicious uploads | MIME + size checks on admin learn-media and provider documents |
 | Clickjacking / MIME sniffing | Portal `next.config` security headers (XFO, nosniff, Referrer-Policy, HSTS, Permissions-Policy) |
 
@@ -67,10 +67,11 @@ Family checkouts and upgrade quotes resolve `household_id`, then verify the call
 
 | Flow | Production | Local / non-production |
 |------|------------|------------------------|
-| Community Patient ID verify | Hash stored server-side; **no** `displayCode` in response | Code may be shown when `NODE_ENV !== 'production'` (or `ALLOW_INLINE_OTP=true`) |
-| Provider org claim | Hash stored; **no** `debugCode` | Same gate |
+| Community Patient ID verify | Hash stored server-side; code never returned to the browser | Must send OOB email (follow-up) |
+| Provider org claim | Hash stored; code never returned | Emails via `send-provider-claim-otp` + SES |
+| Provider password reset | Hash stored; code never returned | Emails via `send-provider-password-reset-otp` + SES |
 
-**Follow-up (required before production join/claim UX works without inline OTP):** send the 6-digit code by email (SES / existing Edge email helpers). Until then, set `ALLOW_INLINE_OTP=true` only in controlled staging, never in public production.
+**Provider claim / reset:** Edge Functions email the 6-digit code with SES. Codes are never returned to the browser. Sends are throttled (`provider_auth_otp_sends`: ~1/min per email, daily + IP caps). Password-reset responses stay opaque even when SES fails.
 
 ---
 
@@ -94,8 +95,9 @@ Applied via `next.config.ts` on admin, provider, and community:
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy` (camera/mic/geo/payment off)
 - `Strict-Transport-Security` (long max-age)
+- Provider portal also sets a baseline `Content-Security-Policy` (`upgrade-insecure-requests`, production without `unsafe-eval`; nonces still a follow-up)
 
-A strict Content-Security-Policy with nonces is a follow-up (Next App Router needs careful nonce wiring).
+A stricter CSP with nonces across all portals is a follow-up (Next App Router needs careful nonce wiring).
 
 ---
 
@@ -114,8 +116,10 @@ A strict Content-Security-Policy with nonces is a follow-up (Next App Router nee
 - [ ] `supabase db push` (handoff token nullability migration)
 - [ ] Redeploy Edge: `create-checkout`, `create-upgrade`, `exchange-checkout-handoff`, `billing-webhook-stripe`
 - [ ] Redeploy payment gateway + three Next portals
-- [ ] Confirm production `ALLOW_INLINE_OTP` is unset/false
-- [ ] Wire OOB email for community join + provider claim before cutting over production UX
+- [x] Wire OOB email for provider claim (`send-provider-claim-otp` + SES)
+- [x] Wire OOB email for provider password reset (`send-provider-password-reset-otp` + SES)
+- [x] Apply `provider_password_resets` + auth hardening migrations
+- [ ] Wire OOB email for community join before cutting over production join UX
 
 ---
 

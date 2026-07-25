@@ -7,84 +7,46 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import {
-  completeOrgClaimAction,
-  startOrgClaimAction,
-  verifyOrgClaimAction,
-} from '@/domains/claim/actions';
-import { PASSWORD_MIN_LENGTH, PASSWORD_REQUIREMENTS_MESSAGE, meetsPasswordRequirements } from '@/lib/password';
-import { createClient } from '@/lib/supabase/browser';
+  completePasswordResetAction,
+  startPasswordResetAction,
+  verifyPasswordResetAction,
+} from '@/domains/password-reset/actions';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_REQUIREMENTS_MESSAGE,
+  meetsPasswordRequirements,
+} from '@/lib/password';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 
 type Step = 'email' | 'code' | 'password';
 
-type OrgOption = { id: string; name: string };
-
-export function ClaimOrgForm() {
+export function ForgotPasswordForm() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('email');
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState('');
-  const [organizations, setOrganizations] = useState<OrgOption[]>([]);
-  const [organizationId, setOrganizationId] = useState('');
-  const [claimId, setClaimId] = useState('');
+  const [resetId, setResetId] = useState('');
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
 
   async function onSubmitEmail(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
     try {
-      const result = await startOrgClaimAction({
-        email,
-        organizationId: organizationId || undefined,
-      });
+      const result = await startPasswordResetAction({ email });
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
 
-      setOrganizations(result.data.organizations);
-
-      if (!result.data.claimId) {
-        toast.message('Multiple organizations match this email. Select one to continue.');
-        return;
-      }
-
-      setClaimId(result.data.claimId);
-      setOrganizationId(result.data.selectedOrganizationId);
+      setResetId(result.data.resetId);
       setStep('code');
-      toast.success('Enter the verification code sent to your email');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function onSelectOrgAndSend() {
-    if (!organizationId) {
-      toast.error('Select an organization');
-      return;
-    }
-    setLoading(true);
-    try {
-      const result = await startOrgClaimAction({ email, organizationId });
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      if (!result.data.claimId) {
-        toast.error('Could not start claim for that organization');
-        return;
-      }
-      setClaimId(result.data.claimId);
-      setStep('code');
-      toast.success('Enter the verification code sent to your email');
+      toast.success(result.data.message);
     } finally {
       setLoading(false);
     }
@@ -94,13 +56,13 @@ export function ClaimOrgForm() {
     event.preventDefault();
     setLoading(true);
     try {
-      const result = await verifyOrgClaimAction({ claimId, code });
+      const result = await verifyPasswordResetAction({ resetId, code });
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
       setStep('password');
-      toast.success('Email verified — create your admin password');
+      toast.success('Code verified — choose a new password');
     } finally {
       setLoading(false);
     }
@@ -118,30 +80,14 @@ export function ClaimOrgForm() {
     }
     setLoading(true);
     try {
-      const result = await completeOrgClaimAction({
-        claimId,
-        password,
-        displayName: displayName.trim() || undefined,
-      });
+      const result = await completePasswordResetAction({ resetId, password });
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
 
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: result.data.email,
-        password,
-      });
-      if (error) {
-        toast.error(error.message);
-        router.replace('/login');
-        return;
-      }
-
-      toast.success('Organization claimed — welcome');
-      router.replace('/app/dashboard');
-      router.refresh();
+      toast.success('Password updated — sign in with your new password');
+      router.replace('/login');
     } finally {
       setLoading(false);
     }
@@ -159,10 +105,10 @@ export function ClaimOrgForm() {
           priority
         />
         <div>
-          <CardTitle className="text-xl text-brand-navy">Claim your organization</CardTitle>
+          <CardTitle className="text-xl text-brand-navy">Forgot password</CardTitle>
           <CardDescription className="mt-1">
-            Confirm the email on your CareMate listing, verify a code, then create the admin
-            account. No open registration.
+            We&apos;ll email a verification code so you can set a new password for your provider
+            account.
           </CardDescription>
         </div>
       </CardHeader>
@@ -185,51 +131,19 @@ export function ClaimOrgForm() {
         {step === 'email' ? (
           <form onSubmit={onSubmitEmail} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="claim-email">Organization contact email</Label>
+              <Label htmlFor="reset-email">Account email</Label>
               <Input
-                id="claim-email"
+                id="reset-email"
                 type="email"
                 autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <p className="text-xs text-muted">
-                Must match an email already stored for your organization in CareMate (location or
-                organization contact).
-              </p>
             </div>
-
-            {organizations.length > 1 ? (
-              <div className="space-y-2">
-                <Label htmlFor="claim-org">Organization</Label>
-                <Select
-                  id="claim-org"
-                  value={organizationId}
-                  onChange={(e) => setOrganizationId(e.target.value)}
-                >
-                  <option value="">Select organization…</option>
-                  {organizations.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name}
-                    </option>
-                  ))}
-                </Select>
-                <Button
-                  type="button"
-                  className="w-full"
-                  loading={loading}
-                  loadingLabel="Continuing…"
-                  onClick={onSelectOrgAndSend}
-                >
-                  Continue with selected organization
-                </Button>
-              </div>
-            ) : (
-              <Button type="submit" className="w-full" loading={loading} loadingLabel="Looking up…">
-                Continue
-              </Button>
-            )}
+            <Button type="submit" className="w-full" loading={loading} loadingLabel="Sending…">
+              Send verification code
+            </Button>
           </form>
         ) : null}
 
@@ -240,9 +154,9 @@ export function ClaimOrgForm() {
               <span className="font-medium text-foreground">{email}</span>.
             </p>
             <div className="space-y-2">
-              <Label htmlFor="claim-code">Verification code</Label>
+              <Label htmlFor="reset-code">Verification code</Label>
               <Input
-                id="claim-code"
+                id="reset-code"
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 required
@@ -262,6 +176,7 @@ export function ClaimOrgForm() {
               onClick={() => {
                 setStep('email');
                 setCode('');
+                setResetId('');
               }}
             >
               Start over
@@ -272,17 +187,9 @@ export function ClaimOrgForm() {
         {step === 'password' ? (
           <form onSubmit={onSetPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="display-name">Your name (optional)</Label>
+              <Label htmlFor="reset-password">New password</Label>
               <Input
-                id="display-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="claim-password">Admin password</Label>
-              <Input
-                id="claim-password"
+                id="reset-password"
                 type="password"
                 autoComplete="new-password"
                 required
@@ -293,9 +200,9 @@ export function ClaimOrgForm() {
               <p className="text-xs text-muted">{PASSWORD_REQUIREMENTS_MESSAGE}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="claim-password-confirm">Confirm password</Label>
+              <Label htmlFor="reset-password-confirm">Confirm password</Label>
               <Input
-                id="claim-password-confirm"
+                id="reset-password-confirm"
                 type="password"
                 autoComplete="new-password"
                 required
@@ -308,15 +215,15 @@ export function ClaimOrgForm() {
               type="submit"
               className="w-full"
               loading={loading}
-              loadingLabel="Creating admin…"
+              loadingLabel="Updating…"
             >
-              Create admin account & enter portal
+              Update password
             </Button>
           </form>
         ) : null}
 
         <p className="text-center text-sm text-muted">
-          Already claimed?{' '}
+          Remembered it?{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
             Sign in
           </Link>

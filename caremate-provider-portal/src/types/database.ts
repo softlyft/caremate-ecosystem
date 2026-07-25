@@ -58,6 +58,26 @@ export type ProviderOrgClaim = {
   created_at: string;
 };
 
+export type ProviderPasswordReset = {
+  id: string;
+  user_id: string;
+  email: string;
+  code_hash: string;
+  expires_at: string;
+  verified_at: string | null;
+  consumed_at: string | null;
+  attempts: number;
+  created_at: string;
+};
+
+export type ProviderAuthOtpSend = {
+  id: string;
+  kind: 'claim' | 'password_reset';
+  email: string;
+  ip_hash: string | null;
+  created_at: string;
+};
+
 type Timestamps = {
   created_at: string;
   updated_at: string;
@@ -325,12 +345,48 @@ type PortalTables = {
     Update: Partial<PortalTables['provider_org_claims']['Insert']>;
     Relationships: [];
   };
+  provider_password_resets: {
+    Row: ProviderPasswordReset;
+    Insert: {
+      id?: string;
+      user_id: string;
+      email: string;
+      code_hash: string;
+      expires_at: string;
+      verified_at?: string | null;
+      consumed_at?: string | null;
+      attempts?: number;
+      created_at?: string;
+    };
+    Update: Partial<PortalTables['provider_password_resets']['Insert']>;
+    Relationships: [];
+  };
+  provider_auth_otp_sends: {
+    Row: ProviderAuthOtpSend;
+    Insert: {
+      id?: string;
+      kind: 'claim' | 'password_reset';
+      email: string;
+      ip_hash?: string | null;
+      created_at?: string;
+    };
+    Update: Partial<PortalTables['provider_auth_otp_sends']['Insert']>;
+    Relationships: [];
+  };
 };
 
 type PortalFunctions = {
   is_provider_org_verified: {
     Args: { p_org_id: string };
     Returns: boolean;
+  };
+  get_auth_user_id_by_email: {
+    Args: { p_email: string };
+    Returns: string | null;
+  };
+  find_unclaimed_orgs_by_contact_email: {
+    Args: { p_email: string };
+    Returns: { id: string; name: string }[];
   };
   request_provider_connection_by_caremate_id: {
     Args: {

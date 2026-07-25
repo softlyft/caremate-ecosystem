@@ -29,7 +29,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isAuthRoute = path.startsWith('/login') || path.startsWith('/claim');
+  const isAuthRoute =
+    path.startsWith('/login') || path.startsWith('/claim') || path.startsWith('/forgot-password');
   const isProtected = path.startsWith('/app');
 
   let hasMembership = false;

@@ -12,7 +12,7 @@
 - [ ] Enter an unknown Patient ID and confirm enrollment is rejected
 - [ ] Enter a registered 12-digit CareMate Patient ID
 - [ ] Confirm a masked registered email is shown
-- [ ] Confirm the inline code appears only in non-production (or when `ALLOW_INLINE_OTP=true`)
+- [ ] Confirm the verification code is delivered by email (never shown inline in the UI)
 - [ ] Enter an incorrect code and confirm verification is rejected
 - [ ] Verify with the correct code
 - [ ] Select only from active, admin-created chapters

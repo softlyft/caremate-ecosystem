@@ -86,6 +86,17 @@ Amplify Console → App → **Hosting** → **Environment variables** → apply 
 | `NEXT_PUBLIC_SUPABASE_URL` | Same Supabase project as mobile / admin |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret |
+| `NEXT_PUBLIC_APP_URL` | e.g. `https://provider.getcaremate.com` |
+| `NEXT_PUBLIC_WEBSITE_URL` | e.g. `https://getcaremate.com` |
+
+Do **not** expose claim or password-reset OTPs in the browser. OTPs are emailed via Edge Functions:
+
+- `send-provider-claim-otp`
+- `send-provider-password-reset-otp`
+
+Both require SES secrets on the Supabase project. Also apply migrations for `provider_password_resets` and `provider_auth_otp_sends`.
+
+Optional: set `SENTRY_DSN` (and optionally `SENTRY_ENVIRONMENT`) so server actions and `error.tsx` report exceptions.
 
 After changing env vars, **Redeploy** the branch.
 

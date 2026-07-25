@@ -1,55 +1,24 @@
-import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
-
+import {
+  codesMatch,
+  generateClaimCode,
+  hashClaimCode,
+  normalizeEmail,
+} from '@/domains/claim/crypto';
+import { findAuthUserByEmail } from '@/lib/auth-users';
+import { logWarn } from '@/lib/observability';
+import { assertOtpSendAllowed, recordOtpSend } from '@/lib/otp-rate-limit';
+import { assertPasswordRequirements } from '@/lib/password';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { Json } from '@/types/database';
 
 export type ClaimableOrg = {
   id: string;
   name: string;
 };
 
+export { generateClaimCode, hashClaimCode, normalizeEmail } from '@/domains/claim/crypto';
+
 const CODE_TTL_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
-
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-export function hashClaimCode(code: string): string {
-  return createHash('sha256').update(code.trim()).digest('hex');
-}
-
-export function generateClaimCode(): string {
-  return String(randomInt(100000, 999999));
-}
-
-function codesMatch(expectedHash: string, submittedCode: string): boolean {
-  const submitted = Buffer.from(hashClaimCode(submittedCode));
-  const expected = Buffer.from(expectedHash);
-  if (submitted.length !== expected.length) return false;
-  return timingSafeEqual(submitted, expected);
-}
-
-function emailsFromOrgResource(resource: Json | null | undefined): string[] {
-  if (!resource || typeof resource !== 'object' || Array.isArray(resource)) return [];
-  const contact = (resource as { contact?: unknown }).contact;
-  const blocks = Array.isArray(contact) ? contact : contact ? [contact] : [];
-  const emails: string[] = [];
-  for (const block of blocks) {
-    if (!block || typeof block !== 'object') continue;
-    const telecom = (block as { telecom?: unknown }).telecom;
-    const entries = Array.isArray(telecom) ? telecom : [];
-    for (const entry of entries) {
-      if (!entry || typeof entry !== 'object') continue;
-      const system = String((entry as { system?: unknown }).system ?? '').toLowerCase();
-      const value = String((entry as { value?: unknown }).value ?? '').trim();
-      if (system === 'email' && value.includes('@')) {
-        emails.push(normalizeEmail(value));
-      }
-    }
-  }
-  return emails;
-}
 
 /** Find unclaimed organizations whose ingested contact email matches. */
 export async function findClaimableOrgsByEmail(email: string): Promise<ClaimableOrg[]> {
@@ -68,19 +37,15 @@ export async function findClaimableOrgsByEmail(email: string): Promise<Claimable
     (locations ?? []).map((row) => String(row.organization_id)).filter(Boolean),
   );
 
-  // Fallback: Organization FHIR contact telecom when no location email matched.
+  // Fallback: Organization FHIR contact telecom via SQL (unclaimed only).
   if (orgIds.size === 0) {
-    const { data: orgs, error: orgError } = await admin
-      .from('provider_organizations')
-      .select('id, name, resource')
-      .is('deleted_at', null);
-
-    if (orgError) throw orgError;
-
-    for (const org of orgs ?? []) {
-      if (emailsFromOrgResource(org.resource).includes(normalized)) {
-        orgIds.add(org.id);
-      }
+    const { data: fhirOrgs, error: fhirError } = await admin.rpc(
+      'find_unclaimed_orgs_by_contact_email',
+      { p_email: normalized },
+    );
+    if (fhirError) throw fhirError;
+    for (const org of fhirOrgs ?? []) {
+      orgIds.add(String(org.id));
     }
   }
 
@@ -111,14 +76,85 @@ export async function findClaimableOrgsByEmail(email: string): Promise<Claimable
   return claimable;
 }
 
+/** Best-effort SES OTP via Edge Function (service role). */
+async function sendClaimOtpEmail(input: {
+  to: string;
+  code: string;
+  orgName: string;
+}): Promise<{ delivered: boolean; skipped: boolean; error?: string }> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    return { delivered: false, skipped: true, error: 'Supabase env missing' };
+  }
+
+  try {
+    const response = await fetch(`${url.replace(/\/$/, '')}/functions/v1/send-provider-claim-otp`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        apikey: key,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: input.to,
+        code: input.code,
+        orgName: input.orgName,
+        expiresMinutes: Math.round(CODE_TTL_MS / 60000),
+      }),
+    });
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      skipped?: boolean;
+      error?: string;
+      reason?: string;
+    };
+
+    if (response.ok && payload.ok) {
+      return { delivered: true, skipped: false };
+    }
+
+    if (response.status === 503 || payload.skipped) {
+      return {
+        delivered: false,
+        skipped: true,
+        error: payload.reason ?? payload.error ?? 'SES not configured',
+      };
+    }
+
+    return {
+      delivered: false,
+      skipped: false,
+      error: payload.error ?? `Email send failed (${response.status})`,
+    };
+  } catch (err) {
+    return {
+      delivered: false,
+      skipped: false,
+      error: err instanceof Error ? err.message : 'Email send failed',
+    };
+  }
+}
+
 export async function createClaimChallenge(input: {
   organizationId: string;
   email: string;
-}): Promise<{ claimId: string; debugCode: string; expiresAt: string }> {
+  ipHash?: string | null;
+}): Promise<{ claimId: string; expiresAt: string }> {
   const admin = createAdminClient();
   const email = normalizeEmail(input.email);
+
+  await assertOtpSendAllowed({ kind: 'claim', email, ipHash: input.ipHash });
+
   const code = generateClaimCode();
   const expiresAt = new Date(Date.now() + CODE_TTL_MS).toISOString();
+
+  const { data: org } = await admin
+    .from('provider_organizations')
+    .select('name')
+    .eq('id', input.organizationId)
+    .maybeSingle();
 
   const { data, error } = await admin
     .from('provider_org_claims')
@@ -133,14 +169,29 @@ export async function createClaimChallenge(input: {
 
   if (error) throw error;
 
-  // Production must never return the OTP (org claim takeover). Local/dev may until email is wired.
-  const allowInlineOtp =
-    process.env.ALLOW_INLINE_OTP === 'true' ||
-    (process.env.NODE_ENV !== 'production' && process.env.ALLOW_INLINE_OTP !== 'false');
+  const mail = await sendClaimOtpEmail({
+    to: email,
+    code,
+    orgName: org?.name ?? 'your organization',
+  });
+
+  await recordOtpSend({ kind: 'claim', email, ipHash: input.ipHash });
+
+  if (!mail.delivered) {
+    logWarn('claim-otp', 'Claim OTP email failed', {
+      claimId: data.id,
+      skipped: mail.skipped,
+      error: mail.error,
+    });
+    throw new Error(
+      mail.skipped
+        ? 'Verification email is not configured yet. Contact SoftLyft support.'
+        : (mail.error ?? 'Could not send verification email. Try again later.'),
+    );
+  }
 
   return {
     claimId: data.id,
-    debugCode: allowInlineOtp ? code : '',
     expiresAt,
   };
 }
@@ -167,7 +218,10 @@ export async function verifyClaimChallenge(input: {
   const ok = codesMatch(claim.code_hash, input.code);
   await admin
     .from('provider_org_claims')
-    .update({ attempts: claim.attempts + 1, ...(ok ? { verified_at: new Date().toISOString() } : {}) })
+    .update({
+      attempts: claim.attempts + 1,
+      ...(ok ? { verified_at: new Date().toISOString() } : {}),
+    })
     .eq('id', claim.id);
 
   if (!ok) throw new Error('Invalid verification code');
@@ -180,9 +234,7 @@ export async function completeOrgClaim(input: {
   password: string;
   displayName?: string;
 }): Promise<{ userId: string; organizationId: string; email: string }> {
-  if (input.password.length < 8) {
-    throw new Error('Password must be at least 8 characters');
-  }
+  assertPasswordRequirements(input.password);
 
   const admin = createAdminClient();
   const { data: claim, error } = await admin
@@ -199,7 +251,6 @@ export async function completeOrgClaim(input: {
     throw new Error('Claim expired. Start again.');
   }
 
-  // Ensure still unclaimed
   const { count } = await admin
     .from('provider_org_members')
     .select('id', { count: 'exact', head: true })
@@ -212,12 +263,9 @@ export async function completeOrgClaim(input: {
   const email = normalizeEmail(claim.email);
   let userId: string | null = null;
 
-  const listed = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
-  if (listed.error) throw listed.error;
-  const existing = listed.data.users.find((u) => normalizeEmail(u.email ?? '') === email);
+  const existing = await findAuthUserByEmail(email);
 
   if (existing) {
-    // Existing auth user — only allow if they are not already a portal member elsewhere? Allow claim as owner of this org.
     const { count: memberCount } = await admin
       .from('provider_org_members')
       .select('id', { count: 'exact', head: true })
@@ -260,7 +308,12 @@ export async function completeOrgClaim(input: {
     display_name: input.displayName ?? null,
     deleted_at: null,
   });
-  if (memberError) throw memberError;
+  if (memberError) {
+    if (memberError.code === '23505') {
+      throw new Error('This organization was already claimed');
+    }
+    throw memberError;
+  }
 
   const { data: profile } = await admin
     .from('provider_profiles')

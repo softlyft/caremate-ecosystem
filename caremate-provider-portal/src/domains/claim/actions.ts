@@ -6,8 +6,13 @@ import {
   findClaimableOrgsByEmail,
   verifyClaimChallenge,
 } from '@/domains/claim/repository';
+import { logError } from '@/lib/observability';
+import { getRequestIpHash } from '@/lib/request-ip';
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
+
+const CLAIM_NO_MATCH_MESSAGE =
+  'We could not start a claim for this email. Confirm it matches your CareMate catalog contact, or contact SoftLyft support.';
 
 export async function startOrgClaimAction(input: {
   email: string;
@@ -16,8 +21,6 @@ export async function startOrgClaimAction(input: {
   ActionResult<{
     claimId: string;
     organizations: { id: string; name: string }[];
-    /** Present only when ALLOW_INLINE_OTP / non-production; never in production. */
-    debugCode: string;
     expiresAt: string;
     selectedOrganizationId: string;
   }>
@@ -27,8 +30,7 @@ export async function startOrgClaimAction(input: {
     if (organizations.length === 0) {
       return {
         ok: false,
-        error:
-          'No unclaimed organization matched this email. Use the contact email on your CareMate catalog listing.',
+        error: CLAIM_NO_MATCH_MESSAGE,
       };
     }
 
@@ -42,16 +44,17 @@ export async function startOrgClaimAction(input: {
         data: {
           claimId: '',
           organizations,
-          debugCode: '',
           expiresAt: '',
           selectedOrganizationId: '',
         },
       };
     }
 
+    const ipHash = await getRequestIpHash();
     const challenge = await createClaimChallenge({
       organizationId: selected.id,
       email: input.email,
+      ipHash,
     });
 
     return {
@@ -59,12 +62,12 @@ export async function startOrgClaimAction(input: {
       data: {
         claimId: challenge.claimId,
         organizations,
-        debugCode: challenge.debugCode,
         expiresAt: challenge.expiresAt,
         selectedOrganizationId: selected.id,
       },
     };
   } catch (err) {
+    logError('claim-start', err, { emailDomain: input.email.split('@')[1] ?? null });
     return { ok: false, error: err instanceof Error ? err.message : 'Claim failed' };
   }
 }
@@ -77,6 +80,7 @@ export async function verifyOrgClaimAction(input: {
     const data = await verifyClaimChallenge(input);
     return { ok: true, data };
   } catch (err) {
+    logError('claim-verify', err, { claimId: input.claimId });
     return { ok: false, error: err instanceof Error ? err.message : 'Verification failed' };
   }
 }
@@ -93,6 +97,7 @@ export async function completeOrgClaimAction(input: {
       data: { email: data.email, organizationId: data.organizationId },
     };
   } catch (err) {
+    logError('claim-complete', err, { claimId: input.claimId });
     return { ok: false, error: err instanceof Error ? err.message : 'Could not finish claim' };
   }
 }

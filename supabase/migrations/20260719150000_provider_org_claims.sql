@@ -1,5 +1,5 @@
 -- Provider Portal: organization claim challenges (email verification before first owner).
--- Codes are shown in the portal UI for MVP (no outbound email yet).
+-- Codes are emailed OOB via SES (`send-provider-claim-otp`); never returned to the browser.
 
 create table if not exists public.provider_org_claims (
   id uuid primary key default gen_random_uuid(),

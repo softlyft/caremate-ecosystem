@@ -7,28 +7,34 @@ import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import { passwordSchema } from '@/domains/auth/password';
+import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
-const schema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string().min(8, 'Confirm your password'),
-  })
-  .refine((values) => values.password === values.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
-
-type ResetPasswordForm = z.infer<typeof schema>;
+type ResetPasswordForm = {
+  password: string;
+  confirmPassword: string;
+};
 
 export default function ResetPasswordScreen() {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
   const updatePassword = useAuthStore((state) => state.updatePassword);
   const isLoading = useAuthStore((state) => state.isLoading);
   const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  const schema = z
+    .object({
+      password: passwordSchema(t('auth.password.requirements')),
+      confirmPassword: z.string().min(1, 'Confirm your password'),
+    })
+    .refine((values) => values.password === values.confirmPassword, {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    });
 
   const { control, handleSubmit, formState } = useForm<ResetPasswordForm>({
     resolver: zodResolver(schema),
@@ -80,6 +86,9 @@ export default function ResetPasswordScreen() {
             />
           )}
         />
+        <AppText style={{ color: colors.textMuted, fontSize: 12, lineHeight: 17 }}>
+          {t('auth.password.requirements')}
+        </AppText>
         {formState.errors.password ? (
           <AppText variant="formError" color={colors.danger}>
             {formState.errors.password.message}

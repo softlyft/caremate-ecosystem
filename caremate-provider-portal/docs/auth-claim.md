@@ -6,7 +6,7 @@ There is **no open registration**. Staff reach the portal by claiming a catalog 
 
 1. Enter the contact email already on the CareMate catalog (location email, else organization FHIR contact).
 2. Match an **unclaimed** `provider_organizations` row.
-3. Generate a verification code (shown in the UI only in non-production / `ALLOW_INLINE_OTP`; production must send OOB email — see [`docs/security.md`](../../docs/security.md)).
+3. Generate a verification code and email it via SES (`send-provider-claim-otp`). The code is never returned to the browser.
 4. After verify, set password → creates:
    - Supabase Auth user
    - `provider_org_members` row with role **`owner`**
@@ -19,6 +19,16 @@ Claimed organizations are treated as verified so patients can connect from the m
 Returning staff sign in with email/password. Session is valid only if the user has at least one active (`deleted_at is null`) `provider_org_members` row.
 
 Active organization: cookie `provider_active_org`, or the first membership.
+
+## Forgot password (`/forgot-password`)
+
+1. Enter the portal account email.
+2. Requests are rate-limited (`provider_auth_otp_sends`).
+3. If the user exists **and** has an active org membership, email a 6-digit OTP via SES (`send-provider-password-reset-otp`). The code is never returned to the browser.
+4. Request always returns a generic success message (anti-enumeration), including when SES fails for a known account.
+5. After verify, set a new password (8+ with upper, lower, digit, symbol) → updates the Auth user and marks the challenge consumed.
+
+Table: `provider_password_resets` (service role only).
 
 ## Roles (RBAC)
 
@@ -50,6 +60,7 @@ Creates membership (and optionally Auth user + verified `provider_profiles` stub
 ## Related
 
 - Claim implementation: `src/domains/claim/`
+- Password reset: `src/domains/password-reset/`
 - Auth helpers: `src/lib/auth.ts`
 - [Connections](./connections.md) (verification gate for patients)
 - [Development](./development.md)

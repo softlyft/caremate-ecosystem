@@ -99,16 +99,10 @@ export async function startPatientVerificationAction(formData: FormData) {
 
   if (error) throw error;
 
-  // Production must never return the OTP to the browser (account takeover).
-  // Local/dev may show it until email delivery is wired; override with ALLOW_INLINE_OTP=false.
-  const allowInlineOtp =
-    process.env.ALLOW_INLINE_OTP === 'true' ||
-    (process.env.NODE_ENV !== 'production' && process.env.ALLOW_INLINE_OTP !== 'false');
-
+  // OTP is emailed out-of-band only — never returned to the browser.
   return {
     verificationId: verification.id,
     maskedEmail: maskEmail(email),
-    displayCode: allowInlineOtp ? code : '',
     expiresAt,
   };
 }

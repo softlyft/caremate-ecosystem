@@ -27,9 +27,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 3. Select one of the active chapters created by an admin.
 4. Join immediately, then sign in with the existing CareMate account.
 
-During local development the code may be displayed in the UI (`NODE_ENV !== 'production'`).
-Production never returns the OTP to the browser — wire email delivery (or set `ALLOW_INLINE_OTP`
-only on controlled staging). See [`docs/security.md`](../../docs/security.md).
+During local and production flows the code is never returned to the browser — deliver it by email only.
+See [`docs/security.md`](../../docs/security.md).
 Enrollment never creates an Auth user or copies data from `profiles`.
 
 Public how-to for members: CareMate website `/ccn/guide` ([website README](../../caremate-website/README.md)).
