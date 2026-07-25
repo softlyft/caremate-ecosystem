@@ -10,9 +10,14 @@
     "caremate-provider-portal",
     "caremate-community-portal",
     "caremate-payment-gateway",
-    "caremate-website"
+    "caremate-website",
+    "caremate-health-data-gateway"
   ],
   "scripts": {
+    "gateway:dev": "npm run start:dev -w caremate-health-data-gateway",
+    "gateway:build": "npm run build -w caremate-health-data-gateway",
+    "gateway:build:lambda": "npm run build:lambda -w caremate-health-data-gateway",
+    "gateway:test": "npm run test -w caremate-health-data-gateway",
     "supabase:link": "supabase link --project-ref eybakmhqtotoywwgwgjy",
     "supabase:link:dev": "supabase link --project-ref eybakmhqtotoywwgwgjy",
     "supabase:migration:new": "supabase migration new",
@@ -37,7 +42,7 @@
     "ingest:dev": "cd caremate-provider-ingestion && (test -d .venv || python3.12 -m venv .venv) && .venv/bin/pip install -q -r requirements.txt && .venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8090",
     "ingest:test": "cd caremate-provider-ingestion && (test -x .venv/bin/python || python3.12 -m venv .venv) && .venv/bin/pip install -q -r requirements.txt && .venv/bin/pytest --cov=app --cov-report=term-missing",
     "lint": "npm run lint -w caremate-mobile && npm run lint -w caremate-admin-portal && npm run lint -w caremate-provider-portal && npm run lint -w caremate-community-portal",
-    "typecheck": "npm run typecheck -w caremate-mobile && npm run typecheck -w caremate-admin-portal && npm run typecheck -w caremate-provider-portal && npm run typecheck -w caremate-community-portal && npm run typecheck -w caremate-payment-gateway && npm run typecheck -w caremate-website",
+    "typecheck": "npm run typecheck -w caremate-mobile && npm run typecheck -w caremate-admin-portal && npm run typecheck -w caremate-provider-portal && npm run typecheck -w caremate-community-portal && npm run typecheck -w caremate-payment-gateway && npm run typecheck -w caremate-website && npm run typecheck -w caremate-health-data-gateway",
     "test": "npm run test -w caremate-mobile && npm run test -w caremate-admin-portal && npm run test -w caremate-payment-gateway && npm run ingest:test && npm run test:email-templates",
     "test:email-templates": "npx tsx --test supabase/functions/_shared/email-templates/templates.test.ts",
     "format": "npm run format:write",
@@ -56,6 +61,7 @@
     "tr46": "6.0.0"
   },
   "overrides": {
-    "tr46": "6.0.0"
+    "tr46": "6.0.0",
+    "typescript": "5.7.3"
   }
 }

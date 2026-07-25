@@ -7,6 +7,9 @@ function trimTrailingSlash(value: string): string {
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const paymentUrl = process.env.EXPO_PUBLIC_PAYMENT_URL ?? '';
+const healthDataGatewayUrl = trimTrailingSlash(
+  process.env.EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL?.trim() || '',
+);
 const websiteUrl = trimTrailingSlash(
   process.env.EXPO_PUBLIC_WEBSITE_URL?.trim() || 'https://getcaremate.com',
 );
@@ -26,6 +29,9 @@ export const config = {
   supabaseAnonKey,
   isSupabaseConfigured: Boolean(supabaseUrl && supabaseAnonKey),
   paymentUrl,
+  /** Optional Health Data Gateway base URL (no trailing slash). Empty = plaintext Supabase only. */
+  healthDataGatewayUrl,
+  isHealthDataGatewayConfigured: Boolean(healthDataGatewayUrl),
   websiteUrl,
   communityPortalUrl,
   appVersion: Constants.expoConfig?.version ?? '1.0.0',

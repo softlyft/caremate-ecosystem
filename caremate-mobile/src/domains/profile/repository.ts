@@ -5,6 +5,12 @@ import { profiles, settings } from '@/database/schema';
 import { isWeakDisplayName } from '@/domains/profile/display-name';
 import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
 import { generateEmergencyShareToken, isValidEmergencyShareToken } from '@/domains/emergency/share';
+import {
+  fetchProfileViaGateway,
+  scrubEncryptedText,
+  upsertProfileViaGateway,
+  type GatewayProfileRow,
+} from '@/domains/health-data-gateway';
 import { config } from '@/constants/env';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +19,27 @@ import { isOnline } from '@/sync/network';
 import { removeSyncOperationsForEntity } from '@/sync/queue';
 import type { AppSettings, Profile } from '@/types';
 import { createId, nowIso, parseJsonArray } from '@/utils/helpers';
+
+type RemoteProfileRow = GatewayProfileRow & {
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+/** Prefer plaintext when gateway ciphertext leaks through a Supabase fallback pull. */
+function scrubRemoteProfileRow(row: RemoteProfileRow): RemoteProfileRow {
+  return {
+    ...row,
+    phone: scrubEncryptedText(row.phone),
+    date_of_birth: scrubEncryptedText(row.date_of_birth),
+    state: scrubEncryptedText(row.state),
+    gender: scrubEncryptedText(row.gender),
+    address_line: scrubEncryptedText(row.address_line),
+    city: scrubEncryptedText(row.city),
+    postal_code: scrubEncryptedText(row.postal_code),
+    national_id: scrubEncryptedText(row.national_id),
+    marital_status: scrubEncryptedText(row.marital_status),
+  };
+}
 
 function mapProfile(row: typeof profiles.$inferSelect): Profile {
   return {
@@ -395,6 +422,12 @@ class ProfileRepository extends BaseRepository {
     }
 
     const profile = payload as Profile;
+    // Optional trust layer: encrypt PHI via gateway when available.
+    // On any failure, fall back to plaintext Supabase so sync keeps working.
+    if (await upsertProfileViaGateway(profile)) {
+      return;
+    }
+
     await supabase.from('profiles').upsert({
       id: profile.id,
       user_id: profile.userId,
@@ -441,9 +474,17 @@ class ProfileRepository extends BaseRepository {
   }
 
   async pullFromRemote(): Promise<void> {
-    const { data, error } = await supabase.from('profiles').select('*');
-    if (error || !data) {
-      return;
+    const gatewayRow = await fetchProfileViaGateway();
+    let data: RemoteProfileRow[] | null = null;
+
+    if (gatewayRow) {
+      data = [gatewayRow];
+    } else {
+      const { data: remote, error } = await supabase.from('profiles').select('*');
+      if (error || !remote) {
+        return;
+      }
+      data = remote.map((row) => scrubRemoteProfileRow(row as RemoteProfileRow));
     }
 
     const db = getDatabase();

@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CareMate Health Data Gateway (NestJS on Lambda)
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Description: Deployment environment (maps to Git branch main→dev, prod→prod)
+  SupabaseUrl:
+    Type: String
+  SupabaseServiceRoleKey:
+    Type: String
+    NoEcho: true
+  SupabaseJwtSecret:
+    Type: String
+    NoEcho: true
+  GatewayMasterKey:
+    Type: String
+    NoEcho: true
+    Description: Base64-encoded 32-byte master key
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs20.x
+    Architectures:
+      - arm64
+
+Resources:
+  HealthDataGatewayFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'caremate-health-data-gateway-${EnvironmentName}'
+      CodeUri: dist-lambda/
+      Handler: lambda.handler
+      Description: !Sub 'PHI encryption trust layer (${EnvironmentName})'
+      Environment:
+        Variables:
+          NODE_ENV: production
+          CARE_MATE_ENV: !Ref EnvironmentName
+          SUPABASE_URL: !Ref SupabaseUrl
+          SUPABASE_SERVICE_ROLE_KEY: !Ref SupabaseServiceRoleKey
+          SUPABASE_JWT_SECRET: !Ref SupabaseJwtSecret
+          GATEWAY_MASTER_KEY: !Ref GatewayMasterKey
+      Events:
+        HttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+        HttpApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+      Tags:
+        Service: caremate-health-data-gateway
+        Environment: !Ref EnvironmentName
+
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint for the Health Data Gateway
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+  FunctionName:
+    Description: Deployed Lambda function name
+    Value: !Ref HealthDataGatewayFunction
+  EnvironmentName:
+    Description: Environment this stack serves
+    Value: !Ref EnvironmentName

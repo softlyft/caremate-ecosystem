@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "rootDir": ".",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@caremate/common": ["libs/common/src"],
+      "@caremate/common/*": ["libs/common/src/*"],
+      "@caremate/supabase-client": ["libs/supabase-client/src"],
+      "@caremate/supabase-client/*": ["libs/supabase-client/src/*"],
+      "@caremate/encryption": ["libs/encryption/src"],
+      "@caremate/encryption/*": ["libs/encryption/src/*"],
+      "@caremate/profile": ["libs/profile/src"],
+      "@caremate/profile/*": ["libs/profile/src/*"],
+      "@caremate/emergency": ["libs/emergency/src"],
+      "@caremate/emergency/*": ["libs/emergency/src/*"]
+    }
+  }
+}

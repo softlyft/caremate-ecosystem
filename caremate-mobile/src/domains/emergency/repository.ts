@@ -2,11 +2,38 @@ import { and, eq, isNull } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { emergencyProfiles } from '@/database/schema';
+import {
+  fetchEmergencyViaGateway,
+  scrubEncryptedJson,
+  scrubEncryptedText,
+  upsertEmergencyViaGateway,
+  type GatewayEmergencyRow,
+} from '@/domains/health-data-gateway';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { toJson } from '@/sync/cloud-types';
 import type { EmergencyProfile } from '@/types';
 import { createId, nowIso, parseJsonArray, stringifyJson } from '@/utils/helpers';
+
+type RemoteEmergencyRow = GatewayEmergencyRow & {
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+function scrubRemoteEmergencyRow(row: RemoteEmergencyRow): RemoteEmergencyRow {
+  return {
+    ...row,
+    blood_group: scrubEncryptedText(row.blood_group),
+    genotype: scrubEncryptedText(row.genotype),
+    allergies: scrubEncryptedJson(row.allergies),
+    current_medications: scrubEncryptedJson(row.current_medications),
+    chronic_conditions: scrubEncryptedJson(row.chronic_conditions),
+    emergency_contacts: scrubEncryptedJson(row.emergency_contacts),
+    preferred_hospital: scrubEncryptedText(row.preferred_hospital),
+    insurance_provider: scrubEncryptedText(row.insurance_provider),
+    notes: scrubEncryptedText(row.notes),
+  };
+}
 
 function mapEmergencyProfile(row: typeof emergencyProfiles.$inferSelect): EmergencyProfile {
   return {
@@ -141,6 +168,10 @@ class EmergencyRepository extends BaseRepository {
     }
 
     const profile = payload as EmergencyProfile;
+    if (await upsertEmergencyViaGateway(profile)) {
+      return;
+    }
+
     await supabase.from('emergency_profiles').upsert({
       id: profile.id,
       user_id: profile.userId,
@@ -160,9 +191,17 @@ class EmergencyRepository extends BaseRepository {
   }
 
   async pullFromRemote(): Promise<void> {
-    const { data, error } = await supabase.from('emergency_profiles').select('*');
-    if (error || !data) {
-      return;
+    const gatewayRow = await fetchEmergencyViaGateway();
+    let data: RemoteEmergencyRow[] | null = null;
+
+    if (gatewayRow) {
+      data = [gatewayRow];
+    } else {
+      const { data: remote, error } = await supabase.from('emergency_profiles').select('*');
+      if (error || !remote) {
+        return;
+      }
+      data = remote.map((row) => scrubRemoteEmergencyRow(row as RemoteEmergencyRow));
     }
 
     const db = getDatabase();
