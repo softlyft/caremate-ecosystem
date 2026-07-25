@@ -6,6 +6,8 @@ CareMate is **offline-first**: SQLite is the source of truth on device. Supabase
 
 Screens and domain UI **never** call Supabase for CRUD. They write through repositories (or mini-app synced storage); the engine drains the queue when the network allows.
 
+**Profile / emergency (optional gateway):** when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set, push/pull prefer the Health Data Gateway (PHI encrypted at rest). If the gateway is unset, down, times out, or errors, sync **falls back to plaintext Supabase** so the app keeps working. Ciphertext envelopes (`v1:…`) from a direct Supabase pull are scrubbed so SQLite never stores opaque values as if they were plaintext.
+
 Related: [Data Layer](./data-layer.md) · [ADR-002](./adr/002-why-sqlite.md) · [ADR-003](./adr/003-why-supabase.md) · [ADR-005](./adr/005-repository-pattern.md)
 
 ---
@@ -25,7 +27,9 @@ Network available? ──no──→ wait (offline / closed / later)
       ↓ yes
 Sync engine push
       ↓
-Supabase upsert / delete
+Health Data Gateway (optional) ──fail──→ Supabase plaintext upsert
+      ↓ ok
+Encrypted PHI in Supabase
       ↓
 Queue row removed → Synced
 ```

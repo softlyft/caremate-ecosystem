@@ -88,3 +88,35 @@ jobs:
         run: npm run test
         env:
           CI: true
+
+  gateway:
+    name: Gateway · Test · Typecheck · Lambda bundle
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: caremate-health-data-gateway
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Test
+        run: npm test
+        env:
+          CI: true
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build Lambda bundle
+        run: npm run build:lambda

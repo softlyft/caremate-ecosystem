@@ -1,0 +1,127 @@
+# Deploy Health Data Gateway Lambda.
+# - Push/merge to main  → GitHub Environment "dev"  → stack caremate-health-data-gateway-dev
+# - Push/merge to prod  → GitHub Environment "prod" → stack caremate-health-data-gateway-prod
+#
+# Create GitHub Environments named `dev` and `prod`, each with secrets below.
+# Auth today: IAM user access keys (OIDC can replace this later).
+#
+# Secrets (per environment):
+#   AWS_ACCESS_KEY_ID
+#   AWS_SECRET_ACCESS_KEY
+#   SUPABASE_URL
+#   SUPABASE_SERVICE_ROLE_KEY
+#   SUPABASE_JWT_SECRET
+#   GATEWAY_MASTER_KEY           — openssl rand -base64 32 (unique per env)
+#
+# Variables (optional, per environment):
+#   AWS_REGION                   — default us-east-1
+name: Gateway CD
+
+on:
+  push:
+    branches:
+      - main
+      - prod
+    paths:
+      - 'caremate-health-data-gateway/**'
+      - '.github/workflows/gateway-cd.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+concurrency:
+  group: gateway-cd-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy · ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+    env:
+      DEPLOY_ENV: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      STACK_NAME: caremate-health-data-gateway-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test gateway
+        run: npm run gateway:test
+
+      - name: Build Lambda bundle
+        run: npm run gateway:build:lambda
+
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sam deploy
+        working-directory: caremate-health-data-gateway
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          GATEWAY_MASTER_KEY: ${{ secrets.GATEWAY_MASTER_KEY }}
+        run: |
+          set -euo pipefail
+          # Artifact already built by esbuild into dist-lambda/ (CodeUri).
+          sam deploy \
+            --template-file template.yaml \
+            --stack-name "${STACK_NAME}" \
+            --capabilities CAPABILITY_IAM \
+            --resolve-s3 \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --parameter-overrides \
+              "EnvironmentName=${DEPLOY_ENV}" \
+              "SupabaseUrl=${SUPABASE_URL}" \
+              "SupabaseServiceRoleKey=${SUPABASE_SERVICE_ROLE_KEY}" \
+              "SupabaseJwtSecret=${SUPABASE_JWT_SECRET}" \
+              "GatewayMasterKey=${GATEWAY_MASTER_KEY}"
+
+      - name: Print API endpoint
+        working-directory: caremate-health-data-gateway
+        run: |
+          set -euo pipefail
+          ENDPOINT="$(aws cloudformation describe-stacks \
+            --stack-name "${STACK_NAME}" \
+            --query "Stacks[0].Outputs[?OutputKey=='ApiEndpoint'].OutputValue" \
+            --output text)"
+          {
+            echo "## Gateway ${DEPLOY_ENV}"
+            echo ""
+            echo "- Stack: \`${STACK_NAME}\`"
+            echo "- Endpoint: \`${ENDPOINT}\`"
+            echo "- Mobile: set \`EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL=${ENDPOINT}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployed ${DEPLOY_ENV} → ${ENDPOINT}"
