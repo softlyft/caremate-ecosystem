@@ -68,15 +68,15 @@ The same Nest app runs on Lambda via `@codegenie/serverless-express`.
 
 | Git event | GitHub Environment | CloudFormation stack | Lambda name |
 |-----------|--------------------|----------------------|-------------|
-| Merge / push to `main` | `dev` | `caremate-health-data-gateway-dev` | `caremate-health-data-gateway-dev` |
+| Merge / push to `main` | `development` | `caremate-health-data-gateway-development` | `caremate-health-data-gateway-development` |
 | Merge / push to `prod` | `prod` | `caremate-health-data-gateway-prod` | `caremate-health-data-gateway-prod` |
 
-Path filter: only changes under `caremate-health-data-gateway/**` (or the workflow file) trigger deploy. Manual run: Actions → **Gateway CD** → `workflow_dispatch` → pick `dev` or `prod`.
+Path filter: only changes under `caremate-health-data-gateway/**` (or the workflow file) trigger deploy. Manual run: Actions → **Gateway CD** → `workflow_dispatch` → pick `development` or `prod`.
 
 **One-time AWS + GitHub setup**
 
 1. IAM user with your custom SAM deploy policy + access key (use case: application running outside AWS).
-2. In GitHub → Settings → Environments, create **`dev`** and **`prod`**.
+2. In GitHub → Settings → Environments, create **`development`** and **`prod`**.
 3. Per environment, add **Environment secrets** (not only repository secrets — this job cannot see repo-level secrets):
    - `AWS_ACCESS_KEY_ID`
    - `AWS_SECRET_ACCESS_KEY`
@@ -90,6 +90,7 @@ Path filter: only changes under `caremate-health-data-gateway/**` (or the workfl
 OIDC (`AWS_ROLE_ARN`) can replace access keys later; the workflow is access-key-only for now.
 
 Until AWS secrets exist, local `npm run gateway:dev` is enough; mobile can keep the URL blank (plaintext Supabase fallback).
+
 ### Manual SAM (optional)
 
 ```bash
@@ -97,7 +98,7 @@ npm run gateway:build:lambda
 cd caremate-health-data-gateway
 sam deploy --guided \
   --parameter-overrides \
-    EnvironmentName=dev \
+    EnvironmentName=development \
     SupabaseUrl=... \
     SupabaseServiceRoleKey=... \
     SupabaseJwtSecret=... \

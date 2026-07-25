@@ -86,7 +86,10 @@ export default function ResetPasswordScreen() {
             />
           )}
         />
-        <AppText style={{ color: colors.textMuted, fontSize: 12, lineHeight: 17 }}>
+        <AppText
+          variant="caption"
+          style={{ color: colors.textMuted, fontSize: 12, lineHeight: 17 }}
+        >
           {t('auth.password.requirements')}
         </AppText>
         {formState.errors.password ? (
