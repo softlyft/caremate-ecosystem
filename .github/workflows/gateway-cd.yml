@@ -1,11 +1,11 @@
 # Deploy Health Data Gateway Lambda.
-# - Push/merge to main  → GitHub Environment "dev"  → stack caremate-health-data-gateway-dev
-# - Push/merge to prod  → GitHub Environment "prod" → stack caremate-health-data-gateway-prod
+# - Push/merge to main  → GitHub Environment "development"  → stack caremate-health-data-gateway-development
+# - Push/merge to prod  → GitHub Environment "prod"         → stack caremate-health-data-gateway-prod
 #
-# Create GitHub Environments named `dev` and `prod`, each with secrets below.
+# Create GitHub Environments named `development` and `prod`, each with secrets below.
 # Auth today: IAM user access keys (OIDC can replace this later).
 #
-# IMPORTANT: secrets must be on the GitHub Environment (`dev` / `prod`),
+# IMPORTANT: secrets must be on the GitHub Environment (`development` / `prod`),
 # not only at repository level — this job uses `environment:`.
 #
 # Secrets (per environment):
@@ -35,11 +35,11 @@ on:
         required: true
         type: choice
         options:
-          - dev
+          - development
           - prod
 
 concurrency:
-  group: gateway-cd-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+  group: gateway-cd-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
   cancel-in-progress: false
 
 permissions:
@@ -47,14 +47,14 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy · ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+    name: Deploy · ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    environment: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+    environment: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
     env:
-      DEPLOY_ENV: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+      DEPLOY_ENV: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-      STACK_NAME: caremate-health-data-gateway-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'dev') }}
+      STACK_NAME: caremate-health-data-gateway-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
 
     steps:
       - name: Checkout

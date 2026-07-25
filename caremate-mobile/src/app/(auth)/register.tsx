@@ -227,7 +227,7 @@ export default function RegisterScreen() {
             />
           )}
         />
-        <AppText style={[styles.hint, { color: colors.textMuted }]}>
+        <AppText variant="caption" style={[styles.hint, { color: colors.textMuted }]}>
           {t('auth.password.requirements')}
         </AppText>
         <Controller

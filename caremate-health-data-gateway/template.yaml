@@ -6,9 +6,9 @@ Parameters:
   EnvironmentName:
     Type: String
     AllowedValues:
-      - dev
+      - development
       - prod
-    Description: Deployment environment (maps to Git branch main→dev, prod→prod)
+    Description: Deployment environment (maps to Git branch main→development, prod→prod)
   SupabaseUrl:
     Type: String
   SupabaseServiceRoleKey:
