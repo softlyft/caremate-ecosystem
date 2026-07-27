@@ -45,6 +45,7 @@
     "expo-system-ui": "~57.0.0",
     "expo-task-manager": "~57.0.2",
     "expo-web-browser": "~57.0.0",
+    "lightningcss-darwin-arm64": "^1.33.0",
     "lucide-react-native": "^1.24.0",
     "posthog-react-native": "^4.57.0",
     "react": "19.2.3",
