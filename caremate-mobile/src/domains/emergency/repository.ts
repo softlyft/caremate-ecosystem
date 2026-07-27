@@ -346,10 +346,7 @@ class EmergencyRepository extends BaseRepository {
       await db.delete(emergencyProfiles).where(eq(emergencyProfiles.id, toId));
     }
 
-    await db
-      .update(emergencyProfiles)
-      .set({ id: toId })
-      .where(eq(emergencyProfiles.id, fromId));
+    await db.update(emergencyProfiles).set({ id: toId }).where(eq(emergencyProfiles.id, fromId));
   }
 }
 

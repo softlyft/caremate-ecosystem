@@ -201,8 +201,7 @@ function EditProfileForm({
     Platform.OS === 'ios' && keyboardHeight > 0
       ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
       : spacing.xl * 2;
-  const keyboardVerticalOffset =
-    Platform.OS === 'ios' ? insets.top + PROFILE_HEADER_HEIGHT : 0;
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + PROFILE_HEADER_HEIGHT : 0;
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     scrollYRef.current = event.nativeEvent.contentOffset.y;

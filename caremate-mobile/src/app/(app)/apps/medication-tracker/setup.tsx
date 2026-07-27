@@ -630,10 +630,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
           if (blockedByCap || !startDate || !name.trim()) {
             return;
           }
-          if (
-            showSchedule &&
-            !areValidSlotTimes(slotTimes, frequencyOption.dosesPerDay)
-          ) {
+          if (showSchedule && !areValidSlotTimes(slotTimes, frequencyOption.dosesPerDay)) {
             Alert.alert(
               t('apps.medication.ui.scheduleTimeInvalidTitle'),
               t('apps.medication.ui.scheduleTimeInvalidMessage'),
