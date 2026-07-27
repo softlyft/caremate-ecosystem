@@ -2,10 +2,7 @@ import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
-import {
-  parseArticleIdFromShareUrl,
-  stashPendingArticleShareId,
-} from '@/domains/articles/share';
+import { parseArticleIdFromShareUrl, stashPendingArticleShareId } from '@/domains/articles/share';
 import { useAuthStore } from '@/features/auth/store';
 
 async function openArticleFromUrl(url: string, deferIfCold: boolean): Promise<void> {
