@@ -201,13 +201,15 @@ class MiniAppSnapshotRepository extends BaseRepository {
 
   async pullFromRemote(): Promise<void> {
     const gatewayRows = await fetchMiniAppSnapshotsViaGateway();
-    let rows: {
-      id: string;
-      user_id: string;
-      app_key: string;
-      payload: unknown;
-      updated_at?: string | null;
-    }[] | null = null;
+    let rows:
+      | {
+          id: string;
+          user_id: string;
+          app_key: string;
+          payload: unknown;
+          updated_at?: string | null;
+        }[]
+      | null = null;
 
     if (gatewayRows) {
       rows = gatewayRows;
