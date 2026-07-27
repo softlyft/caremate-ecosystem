@@ -7,6 +7,7 @@ import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/pat
 import { generateEmergencyShareToken, isValidEmergencyShareToken } from '@/domains/emergency/share';
 import {
   fetchProfileViaGateway,
+  isHealthDataGatewayConfigured,
   scrubEncryptedText,
   upsertProfileViaGateway,
   type GatewayProfileRow,
@@ -422,13 +423,12 @@ class ProfileRepository extends BaseRepository {
     }
 
     const profile = payload as Profile;
-    // Optional trust layer: encrypt PHI via gateway when available.
-    // On any failure, fall back to plaintext Supabase so sync keeps working.
+    // Prefer gateway encryption when configured; plaintext only if URL is unset.
     if (await upsertProfileViaGateway(profile)) {
       return;
     }
 
-    await supabase.from('profiles').upsert({
+    const { error } = await supabase.from('profiles').upsert({
       id: profile.id,
       user_id: profile.userId,
       full_name: profile.fullName,
@@ -454,7 +454,9 @@ class ProfileRepository extends BaseRepository {
         : {}),
       updated_at: profile.updatedAt,
     });
-  }
+    if (error) {
+      throw new Error(error.message);
+    }
 
   async syncSettingsToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {
     if (operation === 'delete') {
@@ -479,6 +481,9 @@ class ProfileRepository extends BaseRepository {
 
     if (gatewayRow) {
       data = [gatewayRow];
+    } else if (isHealthDataGatewayConfigured()) {
+      // Gateway is the source of truth when configured; no plaintext Supabase pull.
+      return;
     } else {
       const { data: remote, error } = await supabase.from('profiles').select('*');
       if (error || !remote) {
