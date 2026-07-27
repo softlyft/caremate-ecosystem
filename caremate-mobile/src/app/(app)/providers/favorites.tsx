@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
@@ -16,6 +17,13 @@ export default function ProviderFavoritesScreen() {
     queryKey: QUERY_KEYS.providerFavorites,
     queryFn: () => providerRepository.listFavorites(),
   });
+
+  // Refetch when returning from provider detail so unfavorite/favorite is visible immediately.
+  useFocusEffect(
+    useCallback(() => {
+      void query.refetch();
+    }, [query.refetch]),
+  );
 
   if (query.isLoading && query.data === undefined) {
     return <LoadingState title={t('nearby.favorites.loading')} />;

@@ -1,19 +1,16 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Clock, ExternalLink, Sparkles } from 'lucide-react-native';
+import { Sparkles } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import {
-  ARTICLE_THUMBNAILS,
-  estimateReadingTime,
-  HEALTH_CATEGORIES,
-} from '@/domains/articles/categories';
+import { ARTICLE_THUMBNAILS, HEALTH_CATEGORIES } from '@/domains/articles/categories';
+import { ArticleShareButton } from '@/domains/articles/components/ArticleShareButton';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
-import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
+import { isEvergreenArticle } from '@/domains/articles/utils/evergreen-articles';
 import { palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
@@ -76,9 +73,8 @@ function ArticleThumbnail({
   );
 }
 
-function MetaPills({ article, showRead = true }: { article: Article; showRead?: boolean }) {
+function MetaPills({ article }: { article: Article }) {
   const evergreen = isEvergreenArticle(article);
-  const minutes = estimateReadingTime(article.content);
 
   return (
     <View style={styles.metaRow}>
@@ -95,21 +91,11 @@ function MetaPills({ article, showRead = true }: { article: Article; showRead?: 
           {article.categoryName}
         </AppText>
       </View>
-      {showRead ? (
-        <View style={styles.readPill}>
-          <Clock color={palette.textSecondary} size={12} />
-          <AppText variant="caption" style={styles.readText}>
-            {minutes} min
-          </AppText>
-        </View>
-      ) : null}
     </View>
   );
 }
 
 export function FeaturedArticleCard({ article }: { article: Article }) {
-  const external = isExternalArticle(article);
-
   return (
     <PressableScale
       style={[styles.featuredShell, shadow.card]}
@@ -145,7 +131,7 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
             Read article
           </AppText>
           <View style={styles.footerActions}>
-            {external ? <ExternalLink color={palette.textSecondary} size={16} /> : null}
+            <ArticleShareButton article={article} size={16} />
             <MarkAsReadToggleButton articleId={article.id} size={16} />
             <BookmarkToggleButton articleId={article.id} size={16} />
           </View>
@@ -156,8 +142,6 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
 }
 
 export function CompactArticleCard({ article }: { article: Article }) {
-  const external = isExternalArticle(article);
-  const minutes = estimateReadingTime(article.content);
   const accent = getCategoryAccent(article.categoryId);
 
   return (
@@ -173,7 +157,7 @@ export function CompactArticleCard({ article }: { article: Article }) {
         </View>
 
         <View style={styles.compactBody}>
-          <MetaPills article={article} showRead={false} />
+          <MetaPills article={article} />
           <AppText variant="providerName" numberOfLines={2} style={styles.compactTitle}>
             {article.title}
           </AppText>
@@ -183,14 +167,8 @@ export function CompactArticleCard({ article }: { article: Article }) {
             </AppText>
           ) : null}
           <View style={styles.compactFooter}>
-            <View style={styles.readPill}>
-              <Clock color={palette.textSecondary} size={12} />
-              <AppText variant="caption" style={styles.readText}>
-                {minutes} min read
-              </AppText>
-            </View>
             <View style={styles.footerActions}>
-              {external ? <ExternalLink color={palette.textSecondary} size={15} /> : null}
+              <ArticleShareButton article={article} size={15} />
               <MarkAsReadToggleButton articleId={article.id} size={15} />
               <BookmarkToggleButton articleId={article.id} size={15} />
             </View>
@@ -300,19 +278,6 @@ const styles = StyleSheet.create({
     color: palette.text,
     fontSize: 11,
   },
-  readPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: palette.surface,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radius.full,
-  },
-  readText: {
-    color: palette.textSecondary,
-    fontSize: 11,
-  },
   featuredShell: {
     borderRadius: radius.xxl,
     backgroundColor: palette.background,
@@ -401,7 +366,7 @@ const styles = StyleSheet.create({
   compactFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     marginTop: 2,
   },
   listStack: {

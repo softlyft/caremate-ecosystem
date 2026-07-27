@@ -21,6 +21,7 @@ import {
   learnArticleHeaderOptions,
 } from '@/components/navigation/glossyStackHeader';
 import { SyncStatusBanner } from '@/components/SyncStatusBanner';
+import { takePendingArticleShareId } from '@/domains/articles/share';
 import { takePendingEmergencyShareToken } from '@/domains/emergency/share';
 import { useAuthStore } from '@/features/auth/store';
 import { useIsGuest } from '@/hooks/use-current-user-id';
@@ -54,15 +55,23 @@ export default function AppLayout() {
   const resumedShare = useRef(false);
 
   useEffect(() => {
-    if (resumedShare.current || passwordRecoveryPending || !isAuthenticated || isGuest) {
+    if (resumedShare.current || passwordRecoveryPending) {
       return;
     }
     resumedShare.current = true;
-    void takePendingEmergencyShareToken().then((token) => {
+    void (async () => {
+      const articleId = await takePendingArticleShareId();
+      if (articleId) {
+        router.push(`/(app)/articles/${articleId}`);
+      }
+      if (!isAuthenticated || isGuest) {
+        return;
+      }
+      const token = await takePendingEmergencyShareToken();
       if (token) {
         router.push(`/emergency/share/${token}`);
       }
-    });
+    })();
   }, [isAuthenticated, isGuest, passwordRecoveryPending]);
 
   if (passwordRecoveryPending) {

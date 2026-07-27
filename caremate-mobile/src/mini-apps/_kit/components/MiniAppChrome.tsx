@@ -1,5 +1,17 @@
-import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -10,6 +22,9 @@ import type { MiniAppId } from '@/mini-apps/_kit/registry';
 import { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
+/** Stack / modal header ≈ 56pt; used for KeyboardAvoidingView offset on iOS. */
+const MINI_APP_HEADER_HEIGHT = 56;
+
 export function MiniAppScreen({
   children,
   contentStyle,
@@ -18,19 +33,82 @@ export function MiniAppScreen({
   contentStyle?: StyleProp<ViewStyle>;
 }) {
   const insets = useSafeAreaInsets();
-  // Clear home-indicator / gesture bar so trailing CTAs stay fully tappable.
-  const bottomPad = insets.bottom + spacing.xl;
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+      const keyboardTop = event.endCoordinates.screenY;
+
+      // Wait for KeyboardAvoidingView / insets to settle, then bring the focused field into view.
+      requestAnimationFrame(() => {
+        setTimeout(
+          () => {
+            const input = TextInput.State.currentlyFocusedInput?.();
+            if (!input || !scrollRef.current) return;
+
+            input.measureInWindow((_x, y, _width, height) => {
+              const overlap = y + height + spacing.md - keyboardTop;
+              if (overlap <= 0) return;
+              scrollRef.current?.scrollTo({
+                y: Math.max(0, scrollYRef.current + overlap),
+                animated: true,
+              });
+            });
+          },
+          Platform.OS === 'ios' ? 80 : 120,
+        );
+      });
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  // Extra scroll room so bottom fields (Notes, Provider, refill threshold) can rise above the keyboard.
+  // Android adjustResize already shrinks the window — don't add a second keyboard-height pad.
+  const bottomPad =
+    Platform.OS === 'ios' && keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
+      : insets.bottom + spacing.xl;
+
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + MINI_APP_HEADER_HEIGHT : 0;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={keyboardVerticalOffset}
+    >
       <ScrollView
+        ref={scrollRef}
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior="automatic"
+        scrollEventThrottle={16}
+        onScroll={onScroll}
         contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
       >
         {children}
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -280,6 +358,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: palette.surface,
+  },
+  scroll: {
+    flex: 1,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,

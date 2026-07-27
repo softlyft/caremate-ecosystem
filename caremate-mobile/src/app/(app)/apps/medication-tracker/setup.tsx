@@ -43,10 +43,12 @@ import {
   endDateForDurationDays,
   durationDaysBetween,
   normalizeMedication,
+  areValidSlotTimes,
   toDateKey,
   type Medication,
   type MedicationInstructions,
 } from '@/mini-apps/medication-tracker/utils';
+import { DoseTimePicker } from '@/mini-apps/medication-tracker/DoseTimePicker';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -218,18 +220,19 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
       ? familyKids.children.find((child) => child.id === familyMemberId)
       : undefined;
 
+  const frequencyOption = getFrequencyOption(frequency);
+  const showSchedule = frequencyOption.dosesPerDay > 0;
+
   const canSave =
     Boolean(name.trim() && startDate) &&
     (!endDate || !startDate || endDate >= startDate) &&
-    (!forKid || Boolean(familyMemberId && selectedChild));
+    (!forKid || Boolean(familyMemberId && selectedChild)) &&
+    (!showSchedule || areValidSlotTimes(slotTimes, frequencyOption.dosesPerDay));
   const activeMedicationCount = countActiveMedications(medications);
   const atCreateLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
   const atActivateLimit =
     isEditing && editing && !canActivateMedication(tier, medications, editing.id, active);
   const blockedByCap = atCreateLimit || Boolean(atActivateLimit);
-
-  const frequencyOption = getFrequencyOption(frequency);
-  const showSchedule = frequencyOption.dosesPerDay > 0;
 
   const applyFrequency = (next: MedicationFrequency) => {
     setFrequency(next);
@@ -409,22 +412,18 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
       {showSchedule ? (
         <MiniAppCard index={6} title={t('apps.medication.ui.scheduleTimes')} theme={theme}>
           {frequencyOption.slotLabels.map((label, index) => (
-            <View key={`${label}-${index}`} style={styles.timeRow}>
-              <AppText variant="caption" style={styles.muted}>
-                {label}
-              </AppText>
-              <Input
-                value={slotTimes[index] ?? ''}
-                onChangeText={(value) => {
-                  const next = [...slotTimes];
-                  next[index] = value;
-                  setSlotTimes(next);
-                }}
-                placeholder="08:00"
-                autoCapitalize="none"
-                keyboardType="numbers-and-punctuation"
-              />
-            </View>
+            <DoseTimePicker
+              key={`${label}-${index}`}
+              label={label}
+              value={slotTimes[index] ?? '08:00'}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onChange={(next) => {
+                const nextTimes = [...slotTimes];
+                nextTimes[index] = next;
+                setSlotTimes(nextTimes);
+              }}
+            />
           ))}
           <AppText variant="caption" style={styles.muted}>
             {t('apps.medication.ui.scheduleTimesHint')}
@@ -628,7 +627,20 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
         soft={theme.backgroundColor}
         index={11}
         onPress={() => {
-          if (!canSave || !startDate || blockedByCap) {
+          if (blockedByCap || !startDate || !name.trim()) {
+            return;
+          }
+          if (
+            showSchedule &&
+            !areValidSlotTimes(slotTimes, frequencyOption.dosesPerDay)
+          ) {
+            Alert.alert(
+              t('apps.medication.ui.scheduleTimeInvalidTitle'),
+              t('apps.medication.ui.scheduleTimeInvalidMessage'),
+            );
+            return;
+          }
+          if (!canSave) {
             return;
           }
           if (forKid && !selectedChild) {
@@ -722,10 +734,6 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: palette.textSecondary,
-  },
-  timeRow: {
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
   },
   spacedInput: {
     marginTop: spacing.sm,

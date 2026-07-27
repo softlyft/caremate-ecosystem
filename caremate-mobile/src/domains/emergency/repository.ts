@@ -163,17 +163,37 @@ class EmergencyRepository extends BaseRepository {
 
   async syncToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {
     if (operation === 'delete') {
-      await supabase.from('emergency_profiles').delete().eq('id', entityId);
+      const { error } = await supabase.from('emergency_profiles').delete().eq('id', entityId);
+      if (error) {
+        throw new Error(error.message);
+      }
       return;
     }
 
     const profile = payload as EmergencyProfile;
-    if (await upsertEmergencyViaGateway(profile)) {
+
+    const gatewayRow = await upsertEmergencyViaGateway(profile);
+    if (gatewayRow) {
+      await this.alignLocalAfterRemoteWrite(profile, gatewayRow.id);
       return;
     }
 
-    await supabase.from('emergency_profiles').upsert({
-      id: profile.id,
+    // One emergency profile per user — reuse the remote primary key when it already exists.
+    // Upserting a fresh local `id` against an existing `user_id` row fails unique(user_id);
+    // previously that error was ignored and the queue still marked the op complete.
+    const { data: existing, error: lookupError } = await supabase
+      .from('emergency_profiles')
+      .select('id')
+      .eq('user_id', profile.userId)
+      .maybeSingle();
+
+    if (lookupError) {
+      throw new Error(lookupError.message);
+    }
+
+    const remoteId = existing?.id ?? profile.id;
+    const { error } = await supabase.from('emergency_profiles').upsert({
+      id: remoteId,
       user_id: profile.userId,
       full_name: profile.fullName,
       photo_url: profile.photoUrl,
@@ -188,9 +208,21 @@ class EmergencyRepository extends BaseRepository {
       notes: profile.notes,
       updated_at: profile.updatedAt,
     });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await this.alignLocalAfterRemoteWrite(profile, remoteId);
   }
 
   async pullFromRemote(): Promise<void> {
+    const pendingIds = await this.pendingEmergencySyncIds();
+    // Don't clobber in-flight local edits (same class of bug as favorite toggles).
+    if (pendingIds.size > 0) {
+      return;
+    }
+
     const gatewayRow = await fetchEmergencyViaGateway();
     let data: RemoteEmergencyRow[] | null = null;
 
@@ -206,6 +238,15 @@ class EmergencyRepository extends BaseRepository {
 
     const db = getDatabase();
     for (const row of data) {
+      const existingLocal = await this.findByUserId(row.user_id);
+      if (existingLocal?.syncStatus === 'pending') {
+        continue;
+      }
+
+      if (existingLocal && existingLocal.id !== row.id) {
+        await this.remapLocalId(existingLocal.id, row.id);
+      }
+
       const timestamp = nowIso();
       await db
         .insert(emergencyProfiles)
@@ -247,6 +288,64 @@ class EmergencyRepository extends BaseRepository {
           },
         });
     }
+  }
+
+  private async pendingEmergencySyncIds(): Promise<Set<string>> {
+    const { getPendingSyncOperations } = await import('@/sync/queue');
+    const pending = await getPendingSyncOperations();
+    return new Set(
+      pending
+        .filter((item) => item.entityType === 'emergency_profiles')
+        .map((item) => item.entityId),
+    );
+  }
+
+  private async alignLocalAfterRemoteWrite(
+    profile: EmergencyProfile,
+    remoteId: string,
+  ): Promise<void> {
+    if (remoteId !== profile.id) {
+      await this.remapLocalId(profile.id, remoteId);
+    }
+    await this.markLocalSynced(remoteId);
+  }
+
+  private async markLocalSynced(id: string): Promise<void> {
+    const db = getDatabase();
+    await db
+      .update(emergencyProfiles)
+      .set({ syncStatus: 'synced', updatedAt: nowIso() })
+      .where(eq(emergencyProfiles.id, id));
+  }
+
+  private async remapLocalId(fromId: string, toId: string): Promise<void> {
+    if (fromId === toId) {
+      return;
+    }
+
+    const db = getDatabase();
+    const [source] = await db
+      .select()
+      .from(emergencyProfiles)
+      .where(eq(emergencyProfiles.id, fromId))
+      .limit(1);
+    if (!source) {
+      return;
+    }
+
+    const [collision] = await db
+      .select()
+      .from(emergencyProfiles)
+      .where(eq(emergencyProfiles.id, toId))
+      .limit(1);
+    if (collision) {
+      await db.delete(emergencyProfiles).where(eq(emergencyProfiles.id, toId));
+    }
+
+    await db
+      .update(emergencyProfiles)
+      .set({ id: toId })
+      .where(eq(emergencyProfiles.id, fromId));
   }
 }
 

@@ -2,7 +2,7 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 
 import { config } from '@/constants/env';
 
-/** HTTPS hosts allowed for Universal Links / App Links (auth, share, billing). */
+/** HTTPS hosts allowed for Universal Links / App Links (auth, share, articles, billing). */
 export function isAllowedAppLinkHostname(hostname: string): boolean {
   const host = hostname.trim().toLowerCase();
   if (!host) return false;

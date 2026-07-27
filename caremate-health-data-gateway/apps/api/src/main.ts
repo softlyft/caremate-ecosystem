@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { createGatewayApp } from './bootstrap';
 
 async function bootstrap() {

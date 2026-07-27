@@ -84,10 +84,24 @@ export default function ProviderDetailScreen() {
 
   const favoriteMutation = useMutation({
     mutationFn: () => providerRepository.toggleFavorite(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providers });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerFavorites });
-      query.refetch();
+    onSuccess: (updated) => {
+      if (updated) {
+        queryClient.setQueryData([...QUERY_KEYS.providers, id], updated);
+        queryClient.setQueryData<Provider[]>(QUERY_KEYS.providerFavorites, (current) => {
+          if (!current) {
+            return current;
+          }
+          if (updated.isFavorite) {
+            const exists = current.some((item) => item.id === updated.id);
+            return exists
+              ? current.map((item) => (item.id === updated.id ? updated : item))
+              : [...current, updated];
+          }
+          return current.filter((item) => item.id !== updated.id);
+        });
+      }
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providers });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerFavorites });
     },
   });
 

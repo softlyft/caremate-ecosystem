@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { Clock, ExternalLink, Sparkles } from 'lucide-react-native';
+import { ExternalLink, Sparkles } from 'lucide-react-native';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -15,12 +15,9 @@ import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
-import {
-  ARTICLE_THUMBNAILS,
-  estimateReadingTime,
-  HEALTH_CATEGORIES,
-} from '@/domains/articles/categories';
+import { ARTICLE_THUMBNAILS, HEALTH_CATEGORIES } from '@/domains/articles/categories';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
+import { ArticleShareButton } from '@/domains/articles/components/ArticleShareButton';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
 import { useArticleReadTracking } from '@/domains/articles/hooks/use-article-read';
 import { articleRepository } from '@/domains/articles/repository';
@@ -90,7 +87,6 @@ export default function ArticleDetailScreen() {
 
   const evergreen = isEvergreenArticle(article);
   const external = isExternalArticle(article);
-  const minutes = estimateReadingTime(article.content);
   const category = getCategoryMeta(article.categoryId);
   const fallbackColor = ARTICLE_THUMBNAILS[article.id] ?? category.color;
 
@@ -166,12 +162,6 @@ export default function ArticleDetailScreen() {
               </AppText>
             ) : null}
             <View style={styles.metaRow}>
-              <View style={styles.readPill}>
-                <Clock color={palette.textSecondary} size={13} />
-                <AppText variant="caption" style={styles.readText}>
-                  {t('learn.minRead', { minutes })}
-                </AppText>
-              </View>
               {external ? (
                 <View style={styles.readPill}>
                   <ExternalLink color={palette.textSecondary} size={13} />
@@ -187,6 +177,7 @@ export default function ArticleDetailScreen() {
                   </AppText>
                 </View>
               )}
+              <ArticleShareButton article={article} size={15} style={styles.bookmarkBtn} />
               <MarkAsReadToggleButton articleId={article.id} size={15} style={styles.bookmarkBtn} />
               <BookmarkToggleButton articleId={article.id} size={15} style={styles.bookmarkBtn} />
             </View>
