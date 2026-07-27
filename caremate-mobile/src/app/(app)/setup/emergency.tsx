@@ -1,8 +1,19 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
@@ -26,8 +37,12 @@ import { fontFamily, palette, radius, spacing } from '@/theme';
 
 export default function SetupEmergencyEssentialsScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [bloodGroup, setBloodGroup] = useState('');
   const [genotype, setGenotype] = useState('');
   const [allergies, setAllergies] = useState('');
@@ -35,6 +50,37 @@ export default function SetupEmergencyEssentialsScreen() {
   const [icePhone, setIcePhone] = useState('');
   const [iceRelationship, setIceRelationship] = useState('');
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+      const keyboardTop = event.endCoordinates.screenY;
+      requestAnimationFrame(() => {
+        setTimeout(
+          () => {
+            const input = TextInput.State.currentlyFocusedInput?.();
+            if (!input || !scrollRef.current) return;
+            input.measureInWindow((_x, y, _width, height) => {
+              const overlap = y + height + spacing.md - keyboardTop;
+              if (overlap <= 0) return;
+              scrollRef.current?.scrollTo({
+                y: Math.max(0, scrollYRef.current + overlap),
+                animated: true,
+              });
+            });
+          },
+          Platform.OS === 'ios' ? 80 : 120,
+        );
+      });
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   async function goNext() {
     const href = await markEmergencyEssentialsDone();
@@ -103,116 +149,141 @@ export default function SetupEmergencyEssentialsScreen() {
     }
   }
 
+  const bottomPad =
+    Platform.OS === 'ios' && keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
+      : spacing.xl;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <PressableScale onPress={() => void handleSkip()} hitSlop={8}>
-          <AppText variant="body" style={styles.skip}>
-            {t('setup.emergency.skip')}
-          </AppText>
-        </PressableScale>
-      </View>
-
-      <View style={styles.body}>
-        <AppText variant="caption" style={styles.eyebrow}>
-          {t('common.continue')}
-        </AppText>
-        <AppText variant="screenTitle" style={styles.title}>
-          {t('setup.emergency.title')}
-        </AppText>
-        <AppText variant="subtitle" style={styles.subtitle}>
-          {t('setup.emergency.subtitle')}
-        </AppText>
-
-        <AppText variant="caption" style={styles.fieldLabel}>
-          {t('emergency.fields.bloodGroup')}
-        </AppText>
-        <View style={styles.chipRow}>
-          {BLOOD_GROUPS.map((group) => {
-            const selected = bloodGroup === group;
-            return (
-              <PressableScale
-                key={group}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setBloodGroup(group)}
-                scale={0.96}
-              >
-                <AppText
-                  variant="caption"
-                  style={selected ? styles.chipTextSelected : styles.chipText}
-                >
-                  {group}
-                </AppText>
-              </PressableScale>
-            );
-          })}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+      >
+        <View style={styles.header}>
+          <PressableScale onPress={() => void handleSkip()} hitSlop={8}>
+            <AppText variant="body" style={styles.skip}>
+              {t('setup.emergency.skip')}
+            </AppText>
+          </PressableScale>
         </View>
 
-        <AppText variant="caption" style={styles.fieldLabel}>
-          {t('emergency.fields.genotype')}
-        </AppText>
-        <View style={styles.chipRow}>
-          {GENOTYPES.map((item) => {
-            const selected = genotype === item;
-            return (
-              <PressableScale
-                key={item}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setGenotype(item)}
-                scale={0.96}
-              >
-                <AppText
-                  variant="caption"
-                  style={selected ? styles.chipTextSelected : styles.chipText}
-                >
-                  {item}
-                </AppText>
-              </PressableScale>
-            );
-          })}
-        </View>
-
-        <Input
-          placeholder={t('emergency.fields.allergies')}
-          value={allergies}
-          onChangeText={setAllergies}
-        />
-        <Input
-          placeholder={t('emergency.edit.contactName')}
-          value={iceName}
-          onChangeText={(value) => setIceName(sanitizePersonNameInput(value))}
-          autoCapitalize="words"
-          autoCorrect={false}
-          maxLength={PERSON_NAME_MAX_CHARS}
-        />
-        <Input
-          placeholder={t('emergency.edit.relationship')}
-          value={iceRelationship}
-          onChangeText={setIceRelationship}
-          autoCapitalize="words"
-        />
-        <Input
-          placeholder={t('emergency.edit.contactPhone')}
-          value={icePhone}
-          onChangeText={(value) => setIcePhone(sanitizePhoneInput(value))}
-          keyboardType="phone-pad"
-          textContentType="telephoneNumber"
-          autoComplete="tel"
-          maxLength={ICE_PHONE_MAX_CHARS}
-        />
-      </View>
-
-      <View style={styles.footer}>
-        <PressableScale
-          style={[styles.primaryCta, busy ? styles.disabled : null]}
-          disabled={busy}
-          onPress={() => void handleSave()}
+        <ScrollView
+          ref={scrollRef}
+          style={styles.flex}
+          contentContainerStyle={[styles.body, { paddingBottom: bottomPad }]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+          contentInsetAdjustmentBehavior="automatic"
+          scrollEventThrottle={16}
+          onScroll={onScroll}
         >
-          <AppText variant="button" style={styles.primaryLabel}>
-            {busy ? t('common.saving') : t('setup.emergency.save')}
+          <AppText variant="caption" style={styles.eyebrow}>
+            {t('common.continue')}
           </AppText>
-        </PressableScale>
-      </View>
+          <AppText variant="screenTitle" style={styles.title}>
+            {t('setup.emergency.title')}
+          </AppText>
+          <AppText variant="subtitle" style={styles.subtitle}>
+            {t('setup.emergency.subtitle')}
+          </AppText>
+
+          <AppText variant="caption" style={styles.fieldLabel}>
+            {t('emergency.fields.bloodGroup')}
+          </AppText>
+          <View style={styles.chipRow}>
+            {BLOOD_GROUPS.map((group) => {
+              const selected = bloodGroup === group;
+              return (
+                <PressableScale
+                  key={group}
+                  style={[styles.chip, selected && styles.chipSelected]}
+                  onPress={() => setBloodGroup(group)}
+                  scale={0.96}
+                >
+                  <AppText
+                    variant="caption"
+                    style={selected ? styles.chipTextSelected : styles.chipText}
+                  >
+                    {group}
+                  </AppText>
+                </PressableScale>
+              );
+            })}
+          </View>
+
+          <AppText variant="caption" style={styles.fieldLabel}>
+            {t('emergency.fields.genotype')}
+          </AppText>
+          <View style={styles.chipRow}>
+            {GENOTYPES.map((item) => {
+              const selected = genotype === item;
+              return (
+                <PressableScale
+                  key={item}
+                  style={[styles.chip, selected && styles.chipSelected]}
+                  onPress={() => setGenotype(item)}
+                  scale={0.96}
+                >
+                  <AppText
+                    variant="caption"
+                    style={selected ? styles.chipTextSelected : styles.chipText}
+                  >
+                    {item}
+                  </AppText>
+                </PressableScale>
+              );
+            })}
+          </View>
+
+          <Input
+            placeholder={t('emergency.fields.allergies')}
+            value={allergies}
+            onChangeText={setAllergies}
+          />
+          <Input
+            placeholder={t('emergency.edit.contactName')}
+            value={iceName}
+            onChangeText={(value) => setIceName(sanitizePersonNameInput(value))}
+            autoCapitalize="words"
+            autoCorrect={false}
+            maxLength={PERSON_NAME_MAX_CHARS}
+          />
+          <Input
+            placeholder={t('emergency.edit.relationship')}
+            value={iceRelationship}
+            onChangeText={setIceRelationship}
+            autoCapitalize="words"
+          />
+          <Input
+            placeholder={t('emergency.edit.contactPhone')}
+            value={icePhone}
+            onChangeText={(value) => setIcePhone(sanitizePhoneInput(value))}
+            keyboardType="phone-pad"
+            textContentType="telephoneNumber"
+            autoComplete="tel"
+            maxLength={ICE_PHONE_MAX_CHARS}
+          />
+        </ScrollView>
+
+        <View style={styles.footer}>
+          <PressableScale
+            style={[styles.primaryCta, busy ? styles.disabled : null]}
+            disabled={busy}
+            onPress={() => void handleSave()}
+          >
+            <AppText variant="button" style={styles.primaryLabel}>
+              {busy ? t('common.saving') : t('setup.emergency.save')}
+            </AppText>
+          </PressableScale>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -221,6 +292,9 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: palette.surface,
+  },
+  flex: {
+    flex: 1,
   },
   header: {
     alignItems: 'flex-end',
@@ -232,7 +306,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.semiBold,
   },
   body: {
-    flex: 1,
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
   },

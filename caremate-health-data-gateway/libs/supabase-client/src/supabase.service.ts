@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import ws from 'ws';
 
 @Injectable()
 export class SupabaseService implements OnModuleInit {
@@ -14,10 +15,16 @@ export class SupabaseService implements OnModuleInit {
       'SUPABASE_SERVICE_ROLE_KEY',
     );
 
+    // Gateway only uses PostgREST (service role). supabase-js still boots Realtime,
+    // which needs a WebSocket impl on Node < 22 (Lambda is nodejs20.x today).
     this.client = createClient(url, serviceRoleKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
+      },
+      realtime: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ws matches browser WebSocket ctor shape for realtime-js
+        transport: ws as any,
       },
     });
   }

@@ -18,19 +18,26 @@ import {
   useMedicationTrackerStore,
 } from '@/mini-apps/medication-tracker/store';
 import {
+  areValidSlotTimes,
   buildDaySlots,
+  dateToHhMm,
   durationDaysBetween,
   endDateForDurationDays,
   formatDisplayDate,
+  formatHhMm,
   getDaySummary,
   getFrequencyLabel,
   getMedicationPatientLabel,
   getStatusLabel,
+  hhMmToDate,
   isMedicationScheduledOnDate,
+  isValidHhMm,
   needsRefill,
   nextSlotIndexForAsNeeded,
   normalizeMedication,
+  parseHhMmParts,
   resolveScheduledStatus,
+  resolveSlotTimes,
   type Medication,
   type MedicationDoseLog,
 } from '@/mini-apps/medication-tracker/utils';
@@ -56,6 +63,48 @@ const med = (overrides: Partial<Medication> = {}): Medication =>
     refillDueDate: null,
     ...overrides,
   });
+
+describe('medication-tracker/dose times', () => {
+  it('accepts only strict HH:mm values', () => {
+    expect(isValidHhMm('08:00')).toBe(true);
+    expect(isValidHhMm('23:59')).toBe(true);
+    expect(isValidHhMm('00:00')).toBe(true);
+    expect(isValidHhMm('8:00')).toBe(false);
+    expect(isValidHhMm('24:00')).toBe(false);
+    expect(isValidHhMm('12:60')).toBe(false);
+    expect(isValidHhMm('abc')).toBe(false);
+    expect(isValidHhMm('08:00am')).toBe(false);
+    expect(isValidHhMm(' 09:30 ')).toBe(true);
+    expect(parseHhMmParts('14:05')).toEqual({ hours: 14, minutes: 5 });
+    expect(parseHhMmParts('nope')).toBeNull();
+    expect(formatHhMm(9, 5)).toBe('09:05');
+    expect(dateToHhMm(hhMmToDate('18:45'))).toBe('18:45');
+  });
+
+  it('requires a valid time for every scheduled dose slot', () => {
+    expect(areValidSlotTimes(['08:00', '20:00'], 2)).toBe(true);
+    expect(areValidSlotTimes(['08:00', 'nope'], 2)).toBe(false);
+    expect(areValidSlotTimes(['08:00'], 2)).toBe(false);
+    expect(areValidSlotTimes([], 0)).toBe(true);
+  });
+
+  it('replaces invalid stored slot times with frequency defaults', () => {
+    expect(
+      resolveSlotTimes({
+        frequency: 'twice-daily',
+        slotTimes: ['abc', '20:15', 'pasted!!'],
+      }),
+    ).toEqual(['08:00', '20:15']);
+    expect(
+      normalizeMedication(
+        med({
+          frequency: 'once-daily',
+          slotTimes: ['not-a-time'],
+        }),
+      ).slotTimes,
+    ).toEqual(['08:00']);
+  });
+});
 
 describe('medication-tracker/constants', () => {
   it('resolves frequency options with fallback', () => {
@@ -370,6 +419,19 @@ describe('medication-tracker/store', () => {
     expect(useMedicationTrackerStore.getState().medications[0]!.dosage).toBe('400mg');
     expect(useMedicationTrackerStore.getState().medications[0]!.slotTimes).toEqual([
       '09:00',
+      '21:00',
+    ]);
+
+    useMedicationTrackerStore.getState().updateMedication(created.id, {
+      name: 'Ibuprofen',
+      dosage: '400mg',
+      frequency: 'twice-daily',
+      startDate: '2026-07-01',
+      active: true,
+      slotTimes: ['paste', '21:00'],
+    });
+    expect(useMedicationTrackerStore.getState().medications[0]!.slotTimes).toEqual([
+      '08:00',
       '21:00',
     ]);
 

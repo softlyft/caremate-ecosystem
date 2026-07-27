@@ -118,5 +118,6 @@ Mobile profile / emergency sync prefers the gateway when `EXPO_PUBLIC_HEALTH_DAT
 |--------|---------|
 | `npm run start:dev` / root `gateway:dev` | Watch mode (local HTTP) |
 | `npm run build` / root `gateway:build` | Nest compile |
+| `npm run build:lambda` | Nest compile **then** esbuild bundle → `dist-lambda/` (must use tsc output so Nest DI metadata survives) |
 | `npm run build:lambda` / root `gateway:build:lambda` | esbuild Lambda bundle |
 | `npm test` | Unit tests (field cipher + PHI maps) |

@@ -7,6 +7,7 @@ import '../../global.css';
 
 import { AppProviders } from '@/components/AppProviders';
 import { AuthDeepLinkHandler } from '@/components/AuthDeepLinkHandler';
+import { ArticleShareDeepLinkHandler } from '@/components/ArticleShareDeepLinkHandler';
 import { BillingDeepLinkHandler } from '@/components/BillingDeepLinkHandler';
 import { EmergencyShareDeepLinkHandler } from '@/components/EmergencyShareDeepLinkHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -44,6 +45,7 @@ function RootLayout() {
           <AuthDeepLinkHandler />
           <BillingDeepLinkHandler />
           <EmergencyShareDeepLinkHandler />
+          <ArticleShareDeepLinkHandler />
           <Stack
             screenOptions={{
               headerStyle: { backgroundColor: '#FFFFFF' },

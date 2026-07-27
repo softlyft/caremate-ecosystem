@@ -30,6 +30,18 @@ export class EmergencyService {
 
     await this.encryption.bootstrapUserKey(authUserId);
 
+    // One row per user_id — reuse the existing primary key so a fresh local id
+    // does not trip the unique(user_id) constraint on insert.
+    const { data: existing, error: lookupError } = await this.supabase.admin
+      .from('emergency_profiles')
+      .select('id')
+      .eq('user_id', authUserId)
+      .maybeSingle();
+
+    if (lookupError) {
+      throw new InternalServerErrorException(lookupError.message);
+    }
+
     const encrypted = await this.encryption.encryptFields(
       authUserId,
       { ...dto } as Record<string, unknown>,
@@ -38,13 +50,15 @@ export class EmergencyService {
 
     const row = {
       ...encrypted,
+      id: existing?.id ?? dto.id,
+      user_id: authUserId,
       phi_encrypted_at: new Date().toISOString(),
       updated_at: dto.updated_at ?? new Date().toISOString(),
     };
 
     const { data, error } = await this.supabase.admin
       .from('emergency_profiles')
-      .upsert(row)
+      .upsert(row, { onConflict: 'id' })
       .select('*')
       .single();
 

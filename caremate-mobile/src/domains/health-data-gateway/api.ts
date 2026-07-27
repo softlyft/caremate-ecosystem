@@ -103,13 +103,15 @@ export async function fetchProfileViaGateway(): Promise<GatewayProfileRow | null
   return gatewayRequest<GatewayProfileRow>('GET', '/v1/profile');
 }
 
-export async function upsertEmergencyViaGateway(profile: EmergencyProfile): Promise<boolean> {
-  const result = await gatewayRequest<GatewayEmergencyRow>(
+/** Upsert via gateway. Returns the saved row, or `null` to fall back to plaintext Supabase. */
+export async function upsertEmergencyViaGateway(
+  profile: EmergencyProfile,
+): Promise<GatewayEmergencyRow | null> {
+  return gatewayRequest<GatewayEmergencyRow>(
     'PUT',
     '/v1/emergency',
     emergencyToGatewayBody(profile),
   );
-  return result != null;
 }
 
 export async function fetchEmergencyViaGateway(): Promise<GatewayEmergencyRow | null> {

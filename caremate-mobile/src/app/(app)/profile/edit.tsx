@@ -1,15 +1,20 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
   View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input } from '@/components/ui/form-controls';
@@ -34,6 +39,7 @@ const MARITAL: NonNullable<Profile['maritalStatus']>[] = [
   'separated',
   'unknown',
 ];
+const PROFILE_HEADER_HEIGHT = 56;
 
 function initialMonthRef(dateOfBirth: string | null | undefined): Date {
   const today = new Date();
@@ -113,6 +119,10 @@ function EditProfileForm({
   queryClient: ReturnType<typeof useQueryClient>;
 }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [fullName, setFullName] = useState(profile.fullName ?? '');
   const [phone, setPhone] = useState(profile.phone ?? '');
@@ -129,6 +139,41 @@ function EditProfileForm({
   const [nationalId, setNationalId] = useState(profile.nationalId ?? '');
   const [isPractitioner, setIsPractitioner] = useState(Boolean(profile.isHealthPractitioner));
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+      const keyboardTop = event.endCoordinates.screenY;
+      requestAnimationFrame(() => {
+        setTimeout(
+          () => {
+            const input = TextInput.State.currentlyFocusedInput?.();
+            if (!input || !scrollRef.current) return;
+            input.measureInWindow((_x, y, _width, height) => {
+              const overlap = y + height + spacing.md - keyboardTop;
+              if (overlap <= 0) return;
+              scrollRef.current?.scrollTo({
+                y: Math.max(0, scrollYRef.current + overlap),
+                animated: true,
+              });
+            });
+          },
+          Platform.OS === 'ios' ? 80 : 120,
+        );
+      });
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const connectionsQuery = useQuery({
     queryKey: [...QUERY_KEYS.providerConnections, 'mine', userId],
@@ -151,6 +196,43 @@ function EditProfileForm({
     [connectionsQuery.data],
   );
   const awaitingStaff = useMemo(() => approved.some((c) => !c.isOrgStaff), [approved]);
+
+  const bottomPad =
+    Platform.OS === 'ios' && keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
+      : spacing.xl * 2;
+  const keyboardVerticalOffset =
+    Platform.OS === 'ios' ? insets.top + PROFILE_HEADER_HEIGHT : 0;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
+
+  function scrollFocusedFieldIntoView() {
+    requestAnimationFrame(() => {
+      setTimeout(
+        () => {
+          const input = TextInput.State.currentlyFocusedInput?.();
+          if (!input || !scrollRef.current) return;
+          input.measureInWindow((_x, y, _width, height) => {
+            const windowHeight = Keyboard.metrics()?.screenY;
+            // If keyboard metrics unavailable, nudge toward end so lower fields (NIN) stay visible.
+            if (windowHeight == null) {
+              scrollRef.current?.scrollToEnd({ animated: true });
+              return;
+            }
+            const overlap = y + height + spacing.md - windowHeight;
+            if (overlap <= 0) return;
+            scrollRef.current?.scrollTo({
+              y: Math.max(0, scrollYRef.current + overlap),
+              animated: true,
+            });
+          });
+        },
+        Platform.OS === 'ios' ? 80 : 120,
+      );
+    });
+  }
 
   async function handleSave() {
     const name = fullName.trim();
@@ -195,12 +277,18 @@ function EditProfileForm({
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <ScrollView
-          contentContainerStyle={styles.content}
+          ref={scrollRef}
+          style={styles.flex}
+          contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+          contentInsetAdjustmentBehavior="automatic"
+          scrollEventThrottle={16}
+          onScroll={onScroll}
         >
           <AppText variant="caption">{t('profile.edit.hint')}</AppText>
 
@@ -291,23 +379,32 @@ function EditProfileForm({
             placeholder={t('profile.edit.addressLine')}
             value={addressLine}
             onChangeText={setAddressLine}
+            onFocus={scrollFocusedFieldIntoView}
           />
-          <Input placeholder={t('profile.edit.city')} value={city} onChangeText={setCity} />
+          <Input
+            placeholder={t('profile.edit.city')}
+            value={city}
+            onChangeText={setCity}
+            onFocus={scrollFocusedFieldIntoView}
+          />
           <Input
             placeholder={t('profile.edit.state')}
             value={stateValue}
             onChangeText={setStateValue}
+            onFocus={scrollFocusedFieldIntoView}
           />
           <Input
             placeholder={t('profile.edit.postalCode')}
             value={postalCode}
             onChangeText={setPostalCode}
+            onFocus={scrollFocusedFieldIntoView}
           />
           <Input
             placeholder={nationalIdLabel}
             keyboardType={isNigeria ? 'number-pad' : 'default'}
             value={nationalId}
             onChangeText={(value) => setNationalId(sanitizeNationalIdInput(value, countryCode))}
+            onFocus={scrollFocusedFieldIntoView}
           />
 
           <View style={styles.fieldGroup}>

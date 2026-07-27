@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { Callback, Context, Handler } from 'aws-lambda';
 import { configure as serverlessExpress } from '@codegenie/serverless-express';
 import { createGatewayApp } from './bootstrap';

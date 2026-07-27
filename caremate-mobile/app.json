@@ -44,6 +44,11 @@
             {
               "scheme": "https",
               "host": "getcaremate.com",
+              "pathPrefix": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "getcaremate.com",
               "pathPrefix": "/billing"
             },
             {
@@ -59,6 +64,11 @@
             {
               "scheme": "https",
               "host": "www.getcaremate.com",
+              "pathPrefix": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.getcaremate.com",
               "pathPrefix": "/billing"
             },
             {
@@ -70,6 +80,11 @@
               "scheme": "https",
               "host": "dev.getcaremate.com",
               "pathPrefix": "/emergency/share"
+            },
+            {
+              "scheme": "https",
+              "host": "dev.getcaremate.com",
+              "pathPrefix": "/articles"
             },
             {
               "scheme": "https",

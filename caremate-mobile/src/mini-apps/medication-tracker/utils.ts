@@ -107,6 +107,51 @@ export function getMedicationPatientLabel(medication: Medication): string {
   return 'You';
 }
 
+/** Strict 24-hour clock time `HH:mm` (00:00–23:59). */
+const HH_MM_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+export function isValidHhMm(value: string): boolean {
+  return HH_MM_RE.test(value.trim());
+}
+
+export function formatHhMm(hours: number, minutes: number): string {
+  const safeHours = Math.min(23, Math.max(0, Math.floor(hours)));
+  const safeMinutes = Math.min(59, Math.max(0, Math.floor(minutes)));
+  return `${String(safeHours).padStart(2, '0')}:${String(safeMinutes).padStart(2, '0')}`;
+}
+
+export function parseHhMmParts(value: string): { hours: number; minutes: number } | null {
+  const trimmed = value.trim();
+  if (!isValidHhMm(trimmed)) {
+    return null;
+  }
+  const [hoursRaw, minutesRaw] = trimmed.split(':');
+  return { hours: Number(hoursRaw), minutes: Number(minutesRaw) };
+}
+
+export function hhMmToDate(value: string, reference = new Date()): Date {
+  const parts = parseHhMmParts(value) ?? { hours: 8, minutes: 0 };
+  const date = new Date(reference.getTime());
+  date.setSeconds(0, 0);
+  date.setHours(parts.hours, parts.minutes, 0, 0);
+  return date;
+}
+
+export function dateToHhMm(date: Date): string {
+  return formatHhMm(date.getHours(), date.getMinutes());
+}
+
+/** True when every required dose slot has a valid `HH:mm` time. */
+export function areValidSlotTimes(times: string[], expectedCount: number): boolean {
+  if (expectedCount <= 0) {
+    return true;
+  }
+  if (times.length < expectedCount) {
+    return false;
+  }
+  return times.slice(0, expectedCount).every(isValidHhMm);
+}
+
 export function resolveSlotTimes(
   medication: Pick<Medication, 'frequency' | 'slotTimes'>,
 ): string[] {
@@ -116,20 +161,21 @@ export function resolveSlotTimes(
   }
   const defaults = defaultSlotTimesForFrequency(medication.frequency);
   const times = medication.slotTimes?.length ? medication.slotTimes : defaults;
-  return Array.from(
-    { length: option.dosesPerDay },
-    (_, index) => times[index] ?? defaults[index] ?? '08:00',
-  );
+  return Array.from({ length: option.dosesPerDay }, (_, index) => {
+    const candidate = times[index];
+    if (candidate && isValidHhMm(candidate)) {
+      return candidate.trim();
+    }
+    return defaults[index] ?? '08:00';
+  });
 }
 
 function parseHhMmToMinutes(value: string): number {
-  const [hoursRaw, minutesRaw] = value.split(':');
-  const hours = Number(hoursRaw);
-  const minutes = Number(minutesRaw);
-  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+  const parts = parseHhMmParts(value);
+  if (!parts) {
     return 8 * 60;
   }
-  return hours * 60 + minutes;
+  return parts.hours * 60 + parts.minutes;
 }
 
 function minutesSinceMidnight(date: Date): number {

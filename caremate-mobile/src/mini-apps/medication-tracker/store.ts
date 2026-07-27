@@ -9,6 +9,7 @@ import {
 } from '@/mini-apps/medication-tracker/constants';
 import {
   normalizeMedication,
+  isValidHhMm,
   type Medication,
   type MedicationDoseLog,
   type MedicationInstructions,
@@ -81,9 +82,10 @@ function buildMedicationFields(
     forKid,
     familyMemberId: forKid ? (input.familyMemberId ?? existing?.familyMemberId ?? null) : null,
     patientName: forKid ? (input.patientName ?? existing?.patientName ?? null) : null,
-    slotTimes: defaultSlotTimesForFrequency(frequency).map(
-      (fallback, index) => slotTimes[index] ?? fallback,
-    ),
+    slotTimes: defaultSlotTimesForFrequency(frequency).map((fallback, index) => {
+      const candidate = slotTimes[index];
+      return candidate && isValidHhMm(candidate) ? candidate.trim() : fallback;
+    }),
     instructions: input.instructions ?? existing?.instructions ?? { kind: 'none' },
     quantityRemaining:
       input.quantityRemaining !== undefined

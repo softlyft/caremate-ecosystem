@@ -280,6 +280,7 @@ class ProviderRepository extends BaseRepository {
         .delete()
         .eq('provider_id', entityId)
         .eq('user_id', userId);
+      await this.markProviderSynced(entityId);
       return;
     }
 
@@ -308,6 +309,7 @@ class ProviderRepository extends BaseRepository {
         .delete()
         .eq('provider_id', provider.id)
         .eq('user_id', userId);
+      await this.markProviderSynced(provider.id);
       return;
     }
 
@@ -317,6 +319,7 @@ class ProviderRepository extends BaseRepository {
       is_favorite: true,
       updated_at: provider.updatedAt,
     });
+    await this.markProviderSynced(provider.id);
   }
 
   /** Sync favorites only — do not mirror the full national catalog into SQLite. */
@@ -325,9 +328,14 @@ class ProviderRepository extends BaseRepository {
     await this.pullFavoritesFromRemote();
   }
 
-  /** Pull remote favorites (when signed in + online), then return local favorite providers. */
+  /**
+   * Return local favorite providers. When online, refresh from remote only if there is no
+   * pending local favorite toggle — otherwise a pull can resurrect a just-removed favorite
+   * before the outbound sync lands.
+   */
   async listFavorites(): Promise<Provider[]> {
-    if (await isOnline()) {
+    const pendingProviderIds = await this.pendingProviderSyncIds();
+    if (pendingProviderIds.size === 0 && (await isOnline())) {
       try {
         await this.pullFavoritesFromRemote();
       } catch {
@@ -335,6 +343,22 @@ class ProviderRepository extends BaseRepository {
       }
     }
     return this.findAll({ favoritesOnly: true });
+  }
+
+  private async markProviderSynced(providerId: string): Promise<void> {
+    const db = getDatabase();
+    await db
+      .update(providers)
+      .set({ syncStatus: 'synced', updatedAt: nowIso() })
+      .where(eq(providers.id, providerId));
+  }
+
+  private async pendingProviderSyncIds(): Promise<Set<string>> {
+    const { getPendingSyncOperations } = await import('@/sync/queue');
+    const pending = await getPendingSyncOperations();
+    return new Set(
+      pending.filter((item) => item.entityType === 'providers').map((item) => item.entityId),
+    );
   }
 
   private async pullFavoritesFromRemote(): Promise<void> {
@@ -368,10 +392,15 @@ class ProviderRepository extends BaseRepository {
     }
 
     const favoriteSet = new Set(favoriteIds);
+    const pendingProviderIds = await this.pendingProviderSyncIds();
     const db = getDatabase();
     const local = await db.select().from(providers).where(isNull(providers.deletedAt));
 
     for (const row of local) {
+      // Keep in-flight local favorite toggles; remote may still reflect the previous value.
+      if (row.syncStatus === 'pending' || pendingProviderIds.has(row.id)) {
+        continue;
+      }
       const shouldFavorite = favoriteSet.has(row.id);
       if (row.isFavorite === shouldFavorite) {
         continue;
