@@ -26,8 +26,11 @@ async function getAccessToken(): Promise<string | null> {
 }
 
 /**
- * Call the Health Data Gateway. Returns `null` when the gateway is not configured
- * or is unreachable / errors — callers must fall back to plaintext Supabase.
+ * Call the Health Data Gateway.
+ *
+ * - Returns `null` only when the gateway URL is unset (caller may use plaintext Supabase).
+ * - Throws `HealthDataGatewayError` when configured but auth/network/HTTP fails —
+ *   so PHI is never silently written in plaintext after cutover.
  */
 export async function gatewayRequest<T>(
   method: 'GET' | 'PUT' | 'POST',
@@ -40,7 +43,7 @@ export async function gatewayRequest<T>(
 
   const token = await getAccessToken();
   if (!token) {
-    return null;
+    throw new HealthDataGatewayError('Sign in required to sync via health data gateway');
   }
 
   const controller = new AbortController();
@@ -58,17 +61,38 @@ export async function gatewayRequest<T>(
       signal: controller.signal,
     });
 
-    if (!response.ok) {
+    if (response.status === 204 || response.status === 404) {
       return null;
     }
 
-    if (response.status === 204) {
-      return null;
+    if (!response.ok) {
+      let detail = '';
+      try {
+        const errBody = (await response.json()) as { message?: string };
+        if (errBody?.message) {
+          detail = `: ${errBody.message}`;
+        }
+      } catch {
+        // ignore non-JSON error bodies
+      }
+      throw new HealthDataGatewayError(
+        `Health data gateway ${method} ${path} failed (${response.status})${detail}`,
+        response.status,
+      );
     }
 
     return (await response.json()) as T;
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof HealthDataGatewayError) {
+      throw error;
+    }
+    const message =
+      error instanceof Error && error.name === 'AbortError'
+        ? 'Health data gateway timed out'
+        : error instanceof Error
+          ? error.message
+          : 'Health data gateway request failed';
+    throw new HealthDataGatewayError(message);
   } finally {
     clearTimeout(timeout);
   }

@@ -4,6 +4,7 @@ import { getDatabase } from '@/database/client';
 import { emergencyProfiles } from '@/database/schema';
 import {
   fetchEmergencyViaGateway,
+  isHealthDataGatewayConfigured,
   scrubEncryptedJson,
   scrubEncryptedText,
   upsertEmergencyViaGateway,
@@ -228,6 +229,9 @@ class EmergencyRepository extends BaseRepository {
 
     if (gatewayRow) {
       data = [gatewayRow];
+    } else if (isHealthDataGatewayConfigured()) {
+      // Gateway is the source of truth when configured; no plaintext Supabase pull.
+      return;
     } else {
       const { data: remote, error } = await supabase.from('emergency_profiles').select('*');
       if (error || !remote) {

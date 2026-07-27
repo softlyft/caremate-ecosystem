@@ -110,7 +110,7 @@ sam deploy --guided \
 Local HTTP (`main.ts`) and Lambda (`lambda.ts`) share `createGatewayApp()` — Nest is initialized once per cold start and reused on warm invocations.
 ## Mobile cutover
 
-Mobile profile / emergency sync prefers the gateway when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set, and **falls back to plaintext Supabase** if the gateway is unset, down, or errors. See [`caremate-mobile/docs/SYNC_ENGINE.md`](../caremate-mobile/docs/SYNC_ENGINE.md).
+Mobile profile / emergency sync uses the gateway when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set. Gateway auth accepts Supabase **ES256 JWKS** tokens (and legacy HS256). Sync failures stay queued — they do not fall back to plaintext. See [`caremate-mobile/docs/SYNC_ENGINE.md`](../caremate-mobile/docs/SYNC_ENGINE.md).
 
 ## Scripts
 
@@ -118,6 +118,5 @@ Mobile profile / emergency sync prefers the gateway when `EXPO_PUBLIC_HEALTH_DAT
 |--------|---------|
 | `npm run start:dev` / root `gateway:dev` | Watch mode (local HTTP) |
 | `npm run build` / root `gateway:build` | Nest compile |
-| `npm run build:lambda` | Nest compile **then** esbuild bundle → `dist-lambda/` (must use tsc output so Nest DI metadata survives) |
-| `npm run build:lambda` / root `gateway:build:lambda` | esbuild Lambda bundle |
+| `npm run build:lambda` / root `gateway:build:lambda` | Nest compile **then** esbuild → `dist-lambda/` (must use tsc output so Nest DI metadata survives) |
 | `npm test` | Unit tests (field cipher + PHI maps) |
