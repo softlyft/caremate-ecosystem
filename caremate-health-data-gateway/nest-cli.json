@@ -63,6 +63,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/emergency/tsconfig.lib.json"
       }
+    },
+    "mini-app-snapshots": {
+      "type": "library",
+      "root": "libs/mini-app-snapshots",
+      "entryFile": "index",
+      "sourceRoot": "libs/mini-app-snapshots/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mini-app-snapshots/tsconfig.lib.json"
+      }
     }
   }
 }

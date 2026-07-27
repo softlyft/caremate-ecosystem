@@ -13,6 +13,7 @@ import {
   unwrapDek,
   wrapDek,
 } from './field-cipher';
+import { decryptMiniAppPayload, encryptMiniAppPayload } from './mini-app-payload-cipher';
 
 type UserEncryptionKeyRow = {
   user_id: string;
@@ -140,6 +141,25 @@ export class EncryptionService {
     }
 
     return out;
+  }
+
+  /** Encrypt clinical leaf values inside a mini-app snapshot payload (structure stays plaintext). */
+  async encryptMiniAppSnapshotPayload(
+    userId: string,
+    appKey: string,
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const dek = await this.resolveDek(userId);
+    return encryptMiniAppPayload(appKey, payload, dek);
+  }
+
+  async decryptMiniAppSnapshotPayload(
+    userId: string,
+    appKey: string,
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const dek = await this.resolveDek(userId);
+    return decryptMiniAppPayload(appKey, payload, dek);
   }
 
   private async resolveDek(userId: string): Promise<Buffer> {

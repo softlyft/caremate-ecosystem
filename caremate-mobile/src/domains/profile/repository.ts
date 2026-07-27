@@ -457,6 +457,7 @@ class ProfileRepository extends BaseRepository {
     if (error) {
       throw new Error(error.message);
     }
+  }
 
   async syncSettingsToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {
     if (operation === 'delete') {

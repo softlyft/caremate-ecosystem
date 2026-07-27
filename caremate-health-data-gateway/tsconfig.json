@@ -29,7 +29,9 @@
       "@caremate/profile": ["libs/profile/src"],
       "@caremate/profile/*": ["libs/profile/src/*"],
       "@caremate/emergency": ["libs/emergency/src"],
-      "@caremate/emergency/*": ["libs/emergency/src/*"]
+      "@caremate/emergency/*": ["libs/emergency/src/*"],
+      "@caremate/mini-app-snapshots": ["libs/mini-app-snapshots/src"],
+      "@caremate/mini-app-snapshots/*": ["libs/mini-app-snapshots/src/*"]
     }
   }
 }

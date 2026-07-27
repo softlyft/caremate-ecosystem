@@ -3,6 +3,12 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase } from '@/database/client';
 import { miniAppSnapshots } from '@/database/schema';
+import {
+  fetchMiniAppSnapshotsViaGateway,
+  isHealthDataGatewayConfigured,
+  scrubEncryptedLeaves,
+  upsertMiniAppSnapshotViaGateway,
+} from '@/domains/health-data-gateway';
 import { BaseRepository } from '@/repositories/base-repository';
 import { supabase } from '@/lib/supabase';
 import { toJson } from '@/sync/cloud-types';
@@ -46,6 +52,13 @@ export type MiniAppSnapshotRecord = {
 
 function canSyncForUser(userId: string | null | undefined): userId is string {
   return Boolean(userId && userId !== GUEST_USER_ID);
+}
+
+function asPayloadRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
 }
 
 class MiniAppSnapshotRepository extends BaseRepository {
@@ -152,7 +165,10 @@ class MiniAppSnapshotRepository extends BaseRepository {
 
   async syncToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {
     if (operation === 'delete') {
-      await supabase.from('mini_app_snapshots').delete().eq('id', entityId);
+      const { error } = await supabase.from('mini_app_snapshots').delete().eq('id', entityId);
+      if (error) {
+        throw new Error(error.message);
+      }
       return;
     }
 
@@ -164,23 +180,56 @@ class MiniAppSnapshotRepository extends BaseRepository {
       updatedAt: string;
     };
 
-    await supabase.from('mini_app_snapshots').upsert({
+    const gatewayRow = await upsertMiniAppSnapshotViaGateway(snapshot);
+    if (gatewayRow) {
+      await this.markLocalSynced(snapshot.id);
+      return;
+    }
+
+    const { error } = await supabase.from('mini_app_snapshots').upsert({
       id: snapshot.id,
       user_id: snapshot.userId,
       app_key: snapshot.appKey,
       payload: toJson(snapshot.payload),
       updated_at: snapshot.updatedAt,
     });
+    if (error) {
+      throw new Error(error.message);
+    }
+    await this.markLocalSynced(snapshot.id);
   }
 
   async pullFromRemote(): Promise<void> {
-    const { data, error } = await supabase.from('mini_app_snapshots').select('*');
-    if (error || !data) {
+    const gatewayRows = await fetchMiniAppSnapshotsViaGateway();
+    let rows: Array<{
+      id: string;
+      user_id: string;
+      app_key: string;
+      payload: unknown;
+      updated_at?: string | null;
+    }> | null = null;
+
+    if (gatewayRows) {
+      rows = gatewayRows;
+    } else if (isHealthDataGatewayConfigured()) {
+      // Gateway is source of truth when configured.
       return;
+    } else {
+      const { data, error } = await supabase.from('mini_app_snapshots').select('*');
+      if (error || !data) {
+        return;
+      }
+      rows = data.map((row) => ({
+        id: String(row.id),
+        user_id: String(row.user_id),
+        app_key: String(row.app_key),
+        payload: scrubEncryptedLeaves(row.payload ?? {}),
+        updated_at: row.updated_at,
+      }));
     }
 
     const db = getDatabase();
-    for (const row of data) {
+    for (const row of rows) {
       if (!isMiniAppKey(String(row.app_key))) {
         continue;
       }
@@ -193,11 +242,12 @@ class MiniAppSnapshotRepository extends BaseRepository {
         .where(eq(miniAppSnapshots.id, id))
         .limit(1);
 
+      const payload = asPayloadRecord(row.payload);
       const values = {
         id,
         userId: String(row.user_id),
         appKey: String(row.app_key),
-        payload: stringifyJson(row.payload ?? {}),
+        payload: stringifyJson(payload),
         syncStatus: 'synced' as const,
         deletedAt: null,
         updatedAt: String(row.updated_at ?? timestamp),
@@ -218,6 +268,14 @@ class MiniAppSnapshotRepository extends BaseRepository {
         });
       }
     }
+  }
+
+  private async markLocalSynced(id: string): Promise<void> {
+    const db = getDatabase();
+    await db
+      .update(miniAppSnapshots)
+      .set({ syncStatus: 'synced', updatedAt: nowIso() })
+      .where(eq(miniAppSnapshots.id, id));
   }
 }
 

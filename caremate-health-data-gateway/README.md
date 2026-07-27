@@ -12,6 +12,9 @@ NestJS monorepo trust layer for field-level PHI encryption. Schema and migration
 | `GET /v1/profile` | Bearer JWT | Load + decrypt PHI for owner |
 | `PUT /v1/emergency` | Bearer JWT | Encrypt PHI → upsert `emergency_profiles` |
 | `GET /v1/emergency` | Bearer JWT | Load + decrypt PHI for owner |
+| `PUT /v1/mini-app-snapshots` | Bearer JWT | Encrypt PHI **leaves** inside `payload` → upsert |
+| `GET /v1/mini-app-snapshots` | Bearer JWT | List + decrypt PHI leaves for owner |
+| `GET /v1/mini-app-snapshots/:appKey` | Bearer JWT | Load one app snapshot + decrypt leaves |
 
 ## PHI fields encrypted
 
@@ -19,7 +22,9 @@ NestJS monorepo trust layer for field-level PHI encryption. Schema and migration
 
 **Emergency:** `blood_group`, `genotype`, `allergies`, `current_medications`, `chronic_conditions`, `emergency_contacts`, `preferred_hospital`, `insurance_provider`, `notes`
 
-Left plaintext: ids, `user_id`, `patient_id`, `email`, `full_name`, avatar/photo URLs, locale flags, `emergency_share_token`, timestamps.
+**Mini-app snapshots:** clinical leaf values per `app_key` (medication names/doses/notes, vital readings, immunization dates, pregnancy/period logs, etc.). Left plaintext: ids, subject pointers (`forKid`, `familyMemberId`, `profileId`, `vaccineId`), enums (`type`, `unit`, `frequency`), and payload structure (“who” keys).
+
+Left plaintext (profile/emergency): ids, `user_id`, `patient_id`, `email`, `full_name`, avatar/photo URLs, locale flags, `emergency_share_token`, timestamps.
 
 ## Crypto model
 
@@ -33,11 +38,12 @@ Left plaintext: ids, `user_id`, `patient_id`, `email`, `full_name`, avatar/photo
 
 ```
 apps/api/                 HTTP entry
-libs/common/              JWT guard, PHI field maps
+libs/common/              JWT guard, PHI field maps (+ mini-app leaf paths)
 libs/supabase-client/     Shared Supabase service-role client
 libs/encryption/          DEK bootstrap + field crypto
 libs/profile/             Profile APIs
 libs/emergency/           Emergency APIs
+libs/mini-app-snapshots/  Mini-app snapshot APIs (leaf PHI encryption)
 ```
 
 ## Local run
@@ -110,7 +116,7 @@ sam deploy --guided \
 Local HTTP (`main.ts`) and Lambda (`lambda.ts`) share `createGatewayApp()` — Nest is initialized once per cold start and reused on warm invocations.
 ## Mobile cutover
 
-Mobile profile / emergency sync uses the gateway when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set. Gateway auth accepts Supabase **ES256 JWKS** tokens (and legacy HS256). Sync failures stay queued — they do not fall back to plaintext. See [`caremate-mobile/docs/SYNC_ENGINE.md`](../caremate-mobile/docs/SYNC_ENGINE.md).
+Mobile profile / emergency / **mini-app snapshots** use the gateway when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set. Gateway auth accepts Supabase **ES256 JWKS** tokens (and legacy HS256). Mini-app PHI is encrypted as **leaf values** inside `payload` jsonb (ids / subject pointers stay plaintext). Sync failures stay queued — they do not fall back to plaintext. See [`caremate-mobile/docs/SYNC_ENGINE.md`](../caremate-mobile/docs/SYNC_ENGINE.md).
 
 ## Scripts
 

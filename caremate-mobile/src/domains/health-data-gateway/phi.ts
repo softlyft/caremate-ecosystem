@@ -22,3 +22,21 @@ export function scrubEncryptedJson(value: unknown): unknown {
   }
   return value ?? [];
 }
+
+/** Recursively drop `v1:` leaf values inside a mini-app payload (structure / who ids stay). */
+export function scrubEncryptedLeaves(value: unknown): unknown {
+  if (isEncryptedEnvelope(value)) {
+    return null;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => scrubEncryptedLeaves(item));
+  }
+  if (typeof value === 'object' && value !== null) {
+    const out: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+      out[key] = scrubEncryptedLeaves(child);
+    }
+    return out;
+  }
+  return value;
+}

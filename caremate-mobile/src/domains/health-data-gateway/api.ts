@@ -117,3 +117,51 @@ export async function upsertEmergencyViaGateway(
 export async function fetchEmergencyViaGateway(): Promise<GatewayEmergencyRow | null> {
   return gatewayRequest<GatewayEmergencyRow>('GET', '/v1/emergency');
 }
+
+export type GatewayMiniAppSnapshotRow = {
+  id: string;
+  user_id: string;
+  app_key: string;
+  payload: Record<string, unknown>;
+  updated_at?: string | null;
+  phi_encrypted_at?: string | null;
+  created_at?: string | null;
+};
+
+export function miniAppSnapshotToGatewayBody(snapshot: {
+  id: string;
+  userId: string;
+  appKey: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+}): Record<string, unknown> {
+  return {
+    id: snapshot.id,
+    user_id: snapshot.userId,
+    app_key: snapshot.appKey,
+    payload: snapshot.payload,
+    updated_at: snapshot.updatedAt,
+  };
+}
+
+/** Upsert via gateway. Returns the saved row, or `null` when gateway URL is unset. */
+export async function upsertMiniAppSnapshotViaGateway(snapshot: {
+  id: string;
+  userId: string;
+  appKey: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+}): Promise<GatewayMiniAppSnapshotRow | null> {
+  return gatewayRequest<GatewayMiniAppSnapshotRow>(
+    'PUT',
+    '/v1/mini-app-snapshots',
+    miniAppSnapshotToGatewayBody(snapshot),
+  );
+}
+
+/** List decrypted snapshots. `null` when gateway URL is unset. */
+export async function fetchMiniAppSnapshotsViaGateway(): Promise<
+  GatewayMiniAppSnapshotRow[] | null
+> {
+  return gatewayRequest<GatewayMiniAppSnapshotRow[]>('GET', '/v1/mini-app-snapshots');
+}
