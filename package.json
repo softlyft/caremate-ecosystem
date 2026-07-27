@@ -62,8 +62,5 @@
   },
   "overrides": {
     "tr46": "6.0.0"
-  },
-  "dependencies": {
-    "lightningcss": "^1.33.0"
   }
 }

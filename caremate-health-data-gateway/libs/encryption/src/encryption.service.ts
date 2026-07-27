@@ -13,6 +13,10 @@ import {
   unwrapDek,
   wrapDek,
 } from './field-cipher';
+import {
+  decryptMiniAppPayload,
+  encryptMiniAppPayload,
+} from './mini-app-payload-cipher';
 
 type UserEncryptionKeyRow = {
   user_id: string;
@@ -62,14 +66,21 @@ export class EncryptionService {
           return { created: false, keyVersion: raced.key_version };
         }
       }
-      this.logger.error(`Failed to persist DEK for ${userId}: ${error.message}`);
-      throw new InternalServerErrorException('Failed to bootstrap encryption key');
+      this.logger.error(
+        `Failed to persist DEK for ${userId}: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        'Failed to bootstrap encryption key',
+      );
     }
 
     return { created: true, keyVersion: 1 };
   }
 
-  async encryptValue(userId: string, plaintext: string | null | undefined): Promise<string | null> {
+  async encryptValue(
+    userId: string,
+    plaintext: string | null | undefined,
+  ): Promise<string | null> {
     if (plaintext == null || plaintext === '') {
       return plaintext ?? null;
     }
@@ -77,7 +88,10 @@ export class EncryptionService {
     return encryptField(plaintext, dek);
   }
 
-  async decryptValue(userId: string, stored: string | null | undefined): Promise<string | null> {
+  async decryptValue(
+    userId: string,
+    stored: string | null | undefined,
+  ): Promise<string | null> {
     if (stored == null || stored === '') {
       return stored ?? null;
     }
@@ -142,6 +156,25 @@ export class EncryptionService {
     return out;
   }
 
+  /** Encrypt clinical leaf values inside a mini-app snapshot payload (structure stays plaintext). */
+  async encryptMiniAppSnapshotPayload(
+    userId: string,
+    appKey: string,
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const dek = await this.resolveDek(userId);
+    return encryptMiniAppPayload(appKey, payload, dek);
+  }
+
+  async decryptMiniAppSnapshotPayload(
+    userId: string,
+    appKey: string,
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const dek = await this.resolveDek(userId);
+    return decryptMiniAppPayload(appKey, payload, dek);
+  }
+
   private async resolveDek(userId: string): Promise<Buffer> {
     let row = await this.getKeyRow(userId);
     if (!row) {
@@ -154,7 +187,9 @@ export class EncryptionService {
     return unwrapDek(row.wrapped_dek, this.masterKey);
   }
 
-  private async getKeyRow(userId: string): Promise<UserEncryptionKeyRow | null> {
+  private async getKeyRow(
+    userId: string,
+  ): Promise<UserEncryptionKeyRow | null> {
     const { data, error } = await this.supabase.admin
       .from('user_encryption_keys')
       .select('user_id, wrapped_dek, key_version')
@@ -166,6 +201,6 @@ export class EncryptionService {
       throw new InternalServerErrorException('Failed to load encryption key');
     }
 
-    return data as UserEncryptionKeyRow | null;
+    return data;
   }
 }

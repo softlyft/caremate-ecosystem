@@ -33,7 +33,7 @@ async function getAccessToken(): Promise<string | null> {
  *   so PHI is never silently written in plaintext after cutover.
  */
 export async function gatewayRequest<T>(
-  method: 'GET' | 'PUT' | 'POST',
+  method: 'GET' | 'PUT' | 'POST' | 'DELETE',
   path: string,
   body?: unknown,
 ): Promise<T | null> {
@@ -81,7 +81,11 @@ export async function gatewayRequest<T>(
       );
     }
 
-    return (await response.json()) as T;
+    const text = await response.text();
+    if (!text) {
+      return null;
+    }
+    return JSON.parse(text) as T;
   } catch (error) {
     if (error instanceof HealthDataGatewayError) {
       throw error;

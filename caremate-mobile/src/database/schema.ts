@@ -235,7 +235,7 @@ export const subscriptionEntitlements = sqliteTable('subscription_entitlements',
 
 /**
  * In-app notification inbox (title + body cards).
- * Local-first; cloud sync / push / email fan-out come later.
+ * Local-first; signed-in users sync to Supabase `notifications` via the sync queue.
  */
 export const notifications = sqliteTable('notifications', {
   id: text('id').primaryKey(),

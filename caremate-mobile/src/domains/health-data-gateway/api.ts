@@ -1,6 +1,6 @@
 import type { EmergencyProfile, Profile } from '@/types';
 
-import { gatewayRequest } from './client';
+import { gatewayRequest, isHealthDataGatewayConfigured } from './client';
 
 /** Snake_case row shape returned by gateway GET/PUT (matches Supabase columns). */
 export type GatewayProfileRow = {
@@ -116,4 +116,228 @@ export async function upsertEmergencyViaGateway(
 
 export async function fetchEmergencyViaGateway(): Promise<GatewayEmergencyRow | null> {
   return gatewayRequest<GatewayEmergencyRow>('GET', '/v1/emergency');
+}
+
+export type GatewayMiniAppSnapshotRow = {
+  id: string;
+  user_id: string;
+  app_key: string;
+  payload: Record<string, unknown>;
+  updated_at?: string | null;
+  phi_encrypted_at?: string | null;
+  created_at?: string | null;
+};
+
+export function miniAppSnapshotToGatewayBody(snapshot: {
+  id: string;
+  userId: string;
+  appKey: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+}): Record<string, unknown> {
+  return {
+    id: snapshot.id,
+    user_id: snapshot.userId,
+    app_key: snapshot.appKey,
+    payload: snapshot.payload,
+    updated_at: snapshot.updatedAt,
+  };
+}
+
+/** Upsert via gateway. Returns the saved row, or `null` when gateway URL is unset. */
+export async function upsertMiniAppSnapshotViaGateway(snapshot: {
+  id: string;
+  userId: string;
+  appKey: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+}): Promise<GatewayMiniAppSnapshotRow | null> {
+  return gatewayRequest<GatewayMiniAppSnapshotRow>(
+    'PUT',
+    '/v1/mini-app-snapshots',
+    miniAppSnapshotToGatewayBody(snapshot),
+  );
+}
+
+/** List decrypted snapshots. `null` when gateway URL is unset. */
+export async function fetchMiniAppSnapshotsViaGateway(): Promise<
+  GatewayMiniAppSnapshotRow[] | null
+> {
+  return gatewayRequest<GatewayMiniAppSnapshotRow[]>('GET', '/v1/mini-app-snapshots');
+}
+
+// ─── Family members ───────────────────────────────────────────────────────────
+
+export type GatewayFamilyMemberRow = {
+  id: string;
+  household_id: string;
+  kind: string;
+  linked_user_id: string | null;
+  full_name: string;
+  date_of_birth: string | null;
+  gender: string | null;
+  notes: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  phi_encrypted_at?: string | null;
+};
+
+export function familyMemberToGatewayBody(member: {
+  id: string;
+  householdId: string;
+  kind: string;
+  linkedUserId: string | null;
+  fullName: string;
+  dateOfBirth: string | null;
+  gender: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}): Record<string, unknown> {
+  return {
+    id: member.id,
+    household_id: member.householdId,
+    kind: member.kind,
+    linked_user_id: member.linkedUserId,
+    full_name: member.fullName,
+    date_of_birth: member.dateOfBirth,
+    gender: member.gender,
+    notes: member.notes,
+    created_at: member.createdAt,
+    updated_at: member.updatedAt,
+  };
+}
+
+export async function upsertFamilyMemberViaGateway(member: {
+  id: string;
+  householdId: string;
+  kind: string;
+  linkedUserId: string | null;
+  fullName: string;
+  dateOfBirth: string | null;
+  gender: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}): Promise<GatewayFamilyMemberRow | null> {
+  return gatewayRequest<GatewayFamilyMemberRow>(
+    'PUT',
+    '/v1/family/members',
+    familyMemberToGatewayBody(member),
+  );
+}
+
+export async function fetchFamilyMembersViaGateway(): Promise<GatewayFamilyMemberRow[] | null> {
+  return gatewayRequest<GatewayFamilyMemberRow[]>('GET', '/v1/family/members');
+}
+
+export async function deleteFamilyMemberViaGateway(memberId: string): Promise<boolean> {
+  if (!isHealthDataGatewayConfigured()) {
+    return false;
+  }
+  await gatewayRequest<unknown>('DELETE', `/v1/family/members/${memberId}`);
+  return true;
+}
+
+// ─── Messages ─────────────────────────────────────────────────────────────────
+
+export type GatewayMessageRow = {
+  id: string;
+  conversation_id: string;
+  sender_party_type: 'user' | 'organization';
+  sender_user_id: string | null;
+  sender_organization_id: string | null;
+  body: string;
+  subject: string | null;
+  created_at: string;
+};
+
+export type GatewayConversationRow = {
+  id: string;
+  kind: 'org_patient' | 'direct';
+  organization_id: string | null;
+  patient_user_id: string | null;
+  subject: string | null;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function fetchConversationsViaGateway(): Promise<GatewayConversationRow[] | null> {
+  return gatewayRequest<GatewayConversationRow[]>('GET', '/v1/messages/conversations');
+}
+
+export async function fetchMessagesViaGateway(
+  conversationId: string,
+): Promise<GatewayMessageRow[] | null> {
+  return gatewayRequest<GatewayMessageRow[]>('GET', `/v1/messages/conversations/${conversationId}`);
+}
+
+export async function postMessageReplyViaGateway(
+  conversationId: string,
+  body: string,
+  subject?: string | null,
+): Promise<GatewayMessageRow | null> {
+  return gatewayRequest<GatewayMessageRow>('POST', '/v1/messages/reply', {
+    conversation_id: conversationId,
+    body,
+    subject: subject ?? null,
+  });
+}
+
+export async function sealMessagesViaGateway(messageIds: string[]): Promise<boolean> {
+  if (messageIds.length === 0) return true;
+  const result = await gatewayRequest<{ sealed: number }>('POST', '/v1/messages/seal', {
+    message_ids: messageIds,
+  });
+  return result != null;
+}
+
+// ─── Documents ────────────────────────────────────────────────────────────────
+
+export type GatewayDocumentRow = {
+  id: string;
+  organization_id: string | null;
+  patient_id: string;
+  document_type: string;
+  title: string;
+  file_url: string;
+  file_name: string | null;
+  mime_type: string | null;
+  uploaded_by?: string | null;
+  source: 'provider' | 'patient';
+  created_at?: string | null;
+  updated_at?: string | null;
+  phi_encrypted_at?: string | null;
+};
+
+export async function fetchDocumentsViaGateway(): Promise<GatewayDocumentRow[] | null> {
+  return gatewayRequest<GatewayDocumentRow[]>('GET', '/v1/documents');
+}
+
+export async function upsertDocumentViaGateway(doc: {
+  id: string;
+  organizationId: string | null;
+  patientId: string;
+  documentType: string;
+  title: string;
+  fileUrl: string;
+  fileName: string | null;
+  mimeType: string | null;
+  uploadedBy: string | null;
+  source: 'provider' | 'patient';
+}): Promise<GatewayDocumentRow | null> {
+  return gatewayRequest<GatewayDocumentRow>('PUT', '/v1/documents', {
+    id: doc.id,
+    organization_id: doc.organizationId,
+    patient_id: doc.patientId,
+    document_type: doc.documentType,
+    title: doc.title,
+    file_url: doc.fileUrl,
+    file_name: doc.fileName,
+    mime_type: doc.mimeType,
+    uploaded_by: doc.uploadedBy,
+    source: doc.source,
+  });
 }

@@ -1,10 +1,31 @@
 export {
+  deleteFamilyMemberViaGateway,
+  fetchConversationsViaGateway,
+  fetchDocumentsViaGateway,
   fetchEmergencyViaGateway,
+  fetchFamilyMembersViaGateway,
+  fetchMessagesViaGateway,
+  fetchMiniAppSnapshotsViaGateway,
   fetchProfileViaGateway,
+  postMessageReplyViaGateway,
+  sealMessagesViaGateway,
+  upsertDocumentViaGateway,
   upsertEmergencyViaGateway,
+  upsertFamilyMemberViaGateway,
+  upsertMiniAppSnapshotViaGateway,
   upsertProfileViaGateway,
+  type GatewayConversationRow,
+  type GatewayDocumentRow,
   type GatewayEmergencyRow,
+  type GatewayFamilyMemberRow,
+  type GatewayMessageRow,
+  type GatewayMiniAppSnapshotRow,
   type GatewayProfileRow,
 } from './api';
 export { gatewayRequest, isHealthDataGatewayConfigured, HealthDataGatewayError } from './client';
-export { isEncryptedEnvelope, scrubEncryptedJson, scrubEncryptedText } from './phi';
+export {
+  isEncryptedEnvelope,
+  scrubEncryptedJson,
+  scrubEncryptedLeaves,
+  scrubEncryptedText,
+} from './phi';

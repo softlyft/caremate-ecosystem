@@ -25,7 +25,7 @@ export class ProfileService {
 
     const encrypted = await this.encryption.encryptFields(
       authUserId,
-      { ...dto } as Record<string, unknown>,
+      { ...dto },
       PROFILE_PHI_FIELDS,
     );
 

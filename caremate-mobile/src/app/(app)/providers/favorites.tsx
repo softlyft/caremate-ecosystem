@@ -17,12 +17,13 @@ export default function ProviderFavoritesScreen() {
     queryKey: QUERY_KEYS.providerFavorites,
     queryFn: () => providerRepository.listFavorites(),
   });
+  const { refetch } = query;
 
   // Refetch when returning from provider detail so unfavorite/favorite is visible immediately.
   useFocusEffect(
     useCallback(() => {
-      void query.refetch();
-    }, [query.refetch]),
+      void refetch();
+    }, [refetch]),
   );
 
   if (query.isLoading && query.data === undefined) {

@@ -25,7 +25,9 @@ export class EmergencyService {
 
   async upsert(authUserId: string, dto: UpsertEmergencyDto) {
     if (dto.user_id !== authUserId) {
-      throw new ForbiddenException('Cannot write another user emergency profile');
+      throw new ForbiddenException(
+        'Cannot write another user emergency profile',
+      );
     }
 
     await this.encryption.bootstrapUserKey(authUserId);
@@ -44,7 +46,7 @@ export class EmergencyService {
 
     const encrypted = await this.encryption.encryptFields(
       authUserId,
-      { ...dto } as Record<string, unknown>,
+      { ...dto },
       EMERGENCY_PHI_FIELDS,
     );
 

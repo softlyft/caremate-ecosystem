@@ -83,4 +83,44 @@ describe('PHI field maps', () => {
     );
     expect(EMERGENCY_PHI_FIELDS).toHaveLength(9);
   });
+
+  it('includes family / message / document PHI columns', () => {
+    const {
+      FAMILY_MEMBER_PHI_FIELDS,
+      MESSAGE_PHI_FIELDS,
+      DOCUMENT_PHI_FIELDS,
+    } = require('../../common/src/phi/phi-fields') as {
+      FAMILY_MEMBER_PHI_FIELDS: readonly string[];
+      MESSAGE_PHI_FIELDS: readonly string[];
+      DOCUMENT_PHI_FIELDS: readonly string[];
+    };
+    expect(FAMILY_MEMBER_PHI_FIELDS).toEqual([
+      'date_of_birth',
+      'gender',
+      'notes',
+    ]);
+    expect(MESSAGE_PHI_FIELDS).toEqual(['body', 'subject']);
+    expect(DOCUMENT_PHI_FIELDS).toEqual(['title', 'file_name']);
+  });
+});
+
+describe('mini-app PHI path maps', () => {
+  // Imported via sibling module to avoid jose ESM in the common barrel under Jest.
+  const { MINI_APP_PHI_PATHS } =
+    require('../../common/src/phi/mini-app-phi') as {
+      MINI_APP_PHI_PATHS: Record<string, readonly string[]>;
+    };
+
+  it('covers all six mini-app keys', () => {
+    expect(Object.keys(MINI_APP_PHI_PATHS).sort()).toEqual(
+      [
+        'checkup',
+        'immunization',
+        'medication',
+        'period',
+        'pregnancy',
+        'vitals',
+      ].sort(),
+    );
+  });
 });

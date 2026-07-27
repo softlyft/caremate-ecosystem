@@ -4,6 +4,7 @@ import { billingRepository } from '@/domains/billing/repository';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
 import { locationSampleRepository } from '@/domains/location/repository';
+import { notificationRepository } from '@/domains/notifications/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
@@ -128,6 +129,17 @@ export function registerDefaultSyncHandlers(): void {
       // Entitlements are server-owned (webhooks). Device never pushes.
     },
     pull: () => billingRepository.pullFromRemote(),
+  });
+
+  registerSyncHandler('notifications', {
+    push: (entityId, operation, payload) =>
+      notificationRepository.syncToRemote(entityId, operation, payload),
+    pull: async () => {
+      const userId = currentUserId();
+      if (userId) {
+        await notificationRepository.pullFromRemote(userId);
+      }
+    },
   });
 
   registerSyncHandler('ad_catalog', {

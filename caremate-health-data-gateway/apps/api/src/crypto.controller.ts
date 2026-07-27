@@ -1,9 +1,5 @@
 import { Controller, Post, UseGuards } from '@nestjs/common';
-import {
-  AuthUser,
-  CurrentUser,
-  SupabaseJwtGuard,
-} from '@caremate/common';
+import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { EncryptionService } from '@caremate/encryption';
 
 @Controller('v1/crypto')

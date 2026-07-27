@@ -63,6 +63,42 @@
       "compilerOptions": {
         "tsConfigPath": "libs/emergency/tsconfig.lib.json"
       }
+    },
+    "mini-app-snapshots": {
+      "type": "library",
+      "root": "libs/mini-app-snapshots",
+      "entryFile": "index",
+      "sourceRoot": "libs/mini-app-snapshots/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mini-app-snapshots/tsconfig.lib.json"
+      }
+    },
+    "family": {
+      "type": "library",
+      "root": "libs/family",
+      "entryFile": "index",
+      "sourceRoot": "libs/family/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/family/tsconfig.lib.json"
+      }
+    },
+    "messages": {
+      "type": "library",
+      "root": "libs/messages",
+      "entryFile": "index",
+      "sourceRoot": "libs/messages/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/messages/tsconfig.lib.json"
+      }
+    },
+    "documents": {
+      "type": "library",
+      "root": "libs/documents",
+      "entryFile": "index",
+      "sourceRoot": "libs/documents/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/documents/tsconfig.lib.json"
+      }
     }
   }
 }

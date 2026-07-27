@@ -23,7 +23,6 @@ export class SupabaseService implements OnModuleInit {
         persistSession: false,
       },
       realtime: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ws matches browser WebSocket ctor shape for realtime-js
         transport: ws as any,
       },
     });

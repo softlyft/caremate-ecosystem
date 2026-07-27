@@ -1,4 +1,12 @@
 import { config } from '@/constants/env';
+import {
+  fetchConversationsViaGateway,
+  fetchMessagesViaGateway,
+  isHealthDataGatewayConfigured,
+  postMessageReplyViaGateway,
+  scrubEncryptedText,
+  sealMessagesViaGateway,
+} from '@/domains/health-data-gateway';
 import { supabase } from '@/lib/supabase';
 
 /** Untyped access until messaging RPCs are fully reflected in `@caremate/db-types`. */
@@ -56,31 +64,59 @@ function conversationTitle(row: MessageConversation): string {
 export async function listPatientConversations(userId: string): Promise<MessageConversation[]> {
   if (!config.isSupabaseConfigured) return [];
 
-  const { data: participantRows, error: participantError } = await db
+  const gatewayRows = await fetchConversationsViaGateway();
+  let rows: ConversationRow[] = [];
+
+  if (gatewayRows) {
+    rows = gatewayRows.map((row) => ({
+      ...row,
+      last_message_preview: scrubEncryptedText(row.last_message_preview),
+      subject: scrubEncryptedText(row.subject),
+    }));
+  } else if (isHealthDataGatewayConfigured()) {
+    return [];
+  } else {
+    const { data: participantRows, error: participantError } = await db
+      .from('message_participants')
+      .select('conversation_id, last_read_at')
+      .eq('party_type', 'user')
+      .eq('user_id', userId);
+
+    if (participantError) throw participantError;
+    const myParticipation = (participantRows ?? []) as {
+      conversation_id: string;
+      last_read_at: string | null;
+    }[];
+    if (!myParticipation.length) return [];
+
+    const conversationIds = myParticipation.map((p) => p.conversation_id);
+
+    const { data, error } = await db
+      .from('message_conversations')
+      .select('*')
+      .in('id', conversationIds)
+      .order('last_message_at', { ascending: false });
+
+    if (error) throw error;
+    rows = ((data ?? []) as ConversationRow[]).map((row) => ({
+      ...row,
+      last_message_preview: scrubEncryptedText(row.last_message_preview),
+      subject: scrubEncryptedText(row.subject),
+    }));
+  }
+
+  if (!rows.length) return [];
+
+  const { data: participantRows } = await db
     .from('message_participants')
     .select('conversation_id, last_read_at')
     .eq('party_type', 'user')
     .eq('user_id', userId);
-
-  if (participantError) throw participantError;
   const myParticipation = (participantRows ?? []) as {
     conversation_id: string;
     last_read_at: string | null;
   }[];
-  if (!myParticipation.length) return [];
-
-  const conversationIds = myParticipation.map((p) => p.conversation_id);
   const readByConv = new Map(myParticipation.map((p) => [p.conversation_id, p.last_read_at]));
-
-  const { data, error } = await db
-    .from('message_conversations')
-    .select('*')
-    .in('id', conversationIds)
-    .order('last_message_at', { ascending: false });
-
-  if (error) throw error;
-  const rows = (data ?? []) as ConversationRow[];
-  if (!rows.length) return [];
 
   const orgIds = [...new Set(rows.map((r) => r.organization_id).filter(Boolean) as string[])];
   const directIds = rows.filter((r) => r.kind === 'direct').map((r) => r.id);
@@ -156,6 +192,24 @@ export async function countUnreadConversations(userId: string): Promise<number> 
 
 export async function listMessages(conversationId: string): Promise<MessageMessage[]> {
   if (!config.isSupabaseConfigured) return [];
+
+  const gatewayRows = await fetchMessagesViaGateway(conversationId);
+  if (gatewayRows) {
+    return gatewayRows.map((row) => ({
+      id: row.id,
+      conversation_id: row.conversation_id,
+      sender_party_type: row.sender_party_type,
+      sender_user_id: row.sender_user_id,
+      sender_organization_id: row.sender_organization_id,
+      body: scrubEncryptedText(row.body) ?? '',
+      subject: scrubEncryptedText(row.subject),
+      created_at: row.created_at,
+    }));
+  }
+  if (isHealthDataGatewayConfigured()) {
+    return [];
+  }
+
   const { data, error } = await db
     .from('message_messages')
     .select(
@@ -164,7 +218,11 @@ export async function listMessages(conversationId: string): Promise<MessageMessa
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true });
   if (error) throw error;
-  return (data ?? []) as MessageMessage[];
+  return ((data ?? []) as MessageMessage[]).map((row) => ({
+    ...row,
+    body: scrubEncryptedText(row.body) ?? '',
+    subject: scrubEncryptedText(row.subject),
+  }));
 }
 
 export async function markConversationRead(conversationId: string, userId: string): Promise<void> {
@@ -184,6 +242,23 @@ export async function sendPatientReply(
   if (!config.isSupabaseConfigured) {
     throw new Error('Supabase is not configured');
   }
+
+  const gatewayMessage = await postMessageReplyViaGateway(conversationId, body);
+  if (gatewayMessage) {
+    const message: MessageMessage = {
+      id: gatewayMessage.id,
+      conversation_id: gatewayMessage.conversation_id,
+      sender_party_type: gatewayMessage.sender_party_type,
+      sender_user_id: gatewayMessage.sender_user_id,
+      sender_organization_id: gatewayMessage.sender_organization_id,
+      body: gatewayMessage.body,
+      subject: gatewayMessage.subject,
+      created_at: gatewayMessage.created_at,
+    };
+    void notifyDirectMessagePush([message.id]);
+    return message;
+  }
+
   const { data, error } = await db.rpc('post_patient_message', {
     p_conversation_id: conversationId,
     p_body: body,
@@ -228,6 +303,7 @@ export async function startDirectConversation(input: {
     message: MessageMessage | null;
   };
   if (payload.message?.id) {
+    await sealMessagesViaGateway([payload.message.id]);
     void notifyDirectMessagePush([payload.message.id]);
   }
   return {

@@ -6,7 +6,7 @@ CareMate is **offline-first**: SQLite is the source of truth on device. Supabase
 
 Screens and domain UI **never** call Supabase for CRUD. They write through repositories (or mini-app synced storage); the engine drains the queue when the network allows.
 
-**Profile / emergency (optional gateway):** when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set, push/pull **require** the Health Data Gateway (PHI encrypted at rest). Failures stay in the sync queue instead of falling back to plaintext. If the URL is unset, sync uses plaintext Supabase. Ciphertext envelopes (`v1:…`) from a direct Supabase pull are scrubbed so SQLite never stores opaque values as if they were plaintext.
+**Profile / emergency / mini-app snapshots / family members / messages / document metadata (optional gateway):** when `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` is set, push/pull **require** the Health Data Gateway (PHI encrypted at rest). Mini-app snapshot `payload` keeps structure and identity (“who”) keys plaintext; only clinical leaf values are `v1:…` ciphertext. Family encrypts member `date_of_birth` / `gender` / `notes` under the household owner DEK. Messages encrypt `body` / `subject` / preview; documents encrypt `title` / `file_name` (file bytes still plaintext in Storage). Failures stay in the sync queue instead of falling back to plaintext. If the URL is unset, sync uses plaintext Supabase. Ciphertext envelopes (`v1:…`) from a direct Supabase pull are scrubbed so SQLite never stores opaque values as if they were plaintext.
 
 Related: [Data Layer](./data-layer.md) · [ADR-002](./adr/002-why-sqlite.md) · [ADR-003](./adr/003-why-supabase.md) · [ADR-005](./adr/005-repository-pattern.md)
 
@@ -215,6 +215,7 @@ runSyncCycle
 | `health_tips` | `domains/tips` (pull-only) |
 | `bookmarks` | `domains/articles` |
 | `article_reads` | `domains/articles` |
+| `notifications` | `domains/notifications` (signed-in only; guests local) |
 | `mini_app_snapshots` | `mini-apps/_kit` |
 
 Handlers are registered in `src/sync/register-default-handlers.ts` via `registerSyncHandler` (`src/sync/registry.ts`). New domains should **register**, not edit a hard-coded map inside `engine.ts`.
