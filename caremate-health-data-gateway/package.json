@@ -91,7 +91,10 @@
       "^@caremate/encryption(|/.*)$": "<rootDir>/libs/encryption/src/$1",
       "^@caremate/profile(|/.*)$": "<rootDir>/libs/profile/src/$1",
       "^@caremate/emergency(|/.*)$": "<rootDir>/libs/emergency/src/$1",
-      "^@caremate/mini-app-snapshots(|/.*)$": "<rootDir>/libs/mini-app-snapshots/src/$1"
+      "^@caremate/mini-app-snapshots(|/.*)$": "<rootDir>/libs/mini-app-snapshots/src/$1",
+      "^@caremate/family(|/.*)$": "<rootDir>/libs/family/src/$1",
+      "^@caremate/messages(|/.*)$": "<rootDir>/libs/messages/src/$1",
+      "^@caremate/documents(|/.*)$": "<rootDir>/libs/documents/src/$1"
     }
   }
 }

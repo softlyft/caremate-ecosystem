@@ -11,6 +11,13 @@ import type {
   FamilyMemberGender,
   FamilyMemberKind,
 } from '@/domains/family/types';
+import {
+  deleteFamilyMemberViaGateway,
+  fetchFamilyMembersViaGateway,
+  isHealthDataGatewayConfigured,
+  scrubEncryptedText,
+  upsertFamilyMemberViaGateway,
+} from '@/domains/health-data-gateway';
 import { createInAppNotification } from '@/domains/notifications/service';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
@@ -448,10 +455,17 @@ class FamilyRepository extends BaseRepository {
 
   async syncMemberToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {
     if (operation === 'delete') {
-      await supabase.from('family_members').delete().eq('id', entityId);
+      const viaGateway = await deleteFamilyMemberViaGateway(entityId);
+      if (!viaGateway) {
+        await supabase.from('family_members').delete().eq('id', entityId);
+      }
       return;
     }
     const member = payload as FamilyMember;
+    const gatewayRow = await upsertFamilyMemberViaGateway(member);
+    if (gatewayRow) {
+      return;
+    }
     await supabase.from('family_members').upsert({
       id: member.id,
       household_id: member.householdId,
@@ -539,21 +553,43 @@ class FamilyRepository extends BaseRepository {
       .select('*')
       .in('household_id', householdIds);
 
-    for (const row of members ?? []) {
-      await this.upsertMemberLocal({
-        id: row.id,
-        householdId: row.household_id,
-        kind: asMemberKind(row.kind),
-        linkedUserId: row.linked_user_id,
-        fullName: row.full_name,
-        dateOfBirth: row.date_of_birth,
-        gender: asMemberGender(row.gender),
-        notes: row.notes,
-        syncStatus: 'synced',
-        deletedAt: null,
-        createdAt: row.created_at ?? nowIso(),
-        updatedAt: row.updated_at ?? nowIso(),
-      });
+    const gatewayMembers = await fetchFamilyMembersViaGateway();
+    if (gatewayMembers) {
+      for (const row of gatewayMembers) {
+        await this.upsertMemberLocal({
+          id: row.id,
+          householdId: row.household_id,
+          kind: asMemberKind(row.kind),
+          linkedUserId: row.linked_user_id,
+          fullName: row.full_name,
+          dateOfBirth: scrubEncryptedText(row.date_of_birth),
+          gender: asMemberGender(scrubEncryptedText(row.gender)),
+          notes: scrubEncryptedText(row.notes),
+          syncStatus: 'synced',
+          deletedAt: null,
+          createdAt: row.created_at ?? nowIso(),
+          updatedAt: row.updated_at ?? nowIso(),
+        });
+      }
+    } else if (isHealthDataGatewayConfigured()) {
+      // Gateway is source of truth when configured — skip plaintext member pull.
+    } else {
+      for (const row of members ?? []) {
+        await this.upsertMemberLocal({
+          id: row.id,
+          householdId: row.household_id,
+          kind: asMemberKind(row.kind),
+          linkedUserId: row.linked_user_id,
+          fullName: row.full_name,
+          dateOfBirth: scrubEncryptedText(row.date_of_birth),
+          gender: asMemberGender(scrubEncryptedText(row.gender)),
+          notes: scrubEncryptedText(row.notes),
+          syncStatus: 'synced',
+          deletedAt: null,
+          createdAt: row.created_at ?? nowIso(),
+          updatedAt: row.updated_at ?? nowIso(),
+        });
+      }
     }
 
     await this.pullRequestsForUser(userId);

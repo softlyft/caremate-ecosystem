@@ -2,6 +2,12 @@ import { decode } from 'base64-arraybuffer';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 
+import {
+  fetchDocumentsViaGateway,
+  isHealthDataGatewayConfigured,
+  scrubEncryptedText,
+  upsertDocumentViaGateway,
+} from '@/domains/health-data-gateway';
 import { useAuthStore } from '@/features/auth/store';
 import { supabase } from '@/lib/supabase';
 import { createId } from '@/utils/helpers';
@@ -142,16 +148,42 @@ function resolveMimeType(fileName: string, mimeType: string | null | undefined):
 
 class ProviderDocumentsService {
   async listMine(): Promise<ProviderDocument[]> {
-    const { data, error } = await supabase
-      .from('provider_documents')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const gatewayRows = await fetchDocumentsViaGateway();
+    let rows: RemoteDocumentRow[];
 
-    if (error) {
-      throw error;
+    if (gatewayRows) {
+      rows = gatewayRows.map((row) => ({
+        id: row.id,
+        organization_id: row.organization_id,
+        patient_id: row.patient_id,
+        document_type: row.document_type as ProviderDocumentType,
+        title: scrubEncryptedText(row.title) ?? '',
+        file_url: row.file_url,
+        file_name: scrubEncryptedText(row.file_name),
+        mime_type: row.mime_type,
+        source: row.source,
+        created_at: row.created_at ?? new Date().toISOString(),
+        updated_at: row.updated_at ?? new Date().toISOString(),
+      }));
+    } else if (isHealthDataGatewayConfigured()) {
+      return [];
+    } else {
+      const { data, error } = await supabase
+        .from('provider_documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      rows = ((data ?? []) as RemoteDocumentRow[]).map((row) => ({
+        ...row,
+        title: scrubEncryptedText(row.title) ?? '',
+        file_name: scrubEncryptedText(row.file_name),
+      }));
     }
 
-    const rows = (data ?? []) as RemoteDocumentRow[];
     const names = await loadOrganizationNames(
       rows.map((r) => r.organization_id).filter((id): id is string => Boolean(id)),
     );
@@ -253,6 +285,46 @@ class ProviderDocumentsService {
     }
 
     const organizationId = params.organizationId?.trim() || null;
+
+    try {
+      const gatewayRow = await upsertDocumentViaGateway({
+        id: documentId,
+        organizationId,
+        patientId: userId,
+        documentType: params.documentType,
+        title,
+        fileUrl: path,
+        fileName,
+        mimeType,
+        uploadedBy: userId,
+        source: 'patient',
+      });
+
+      if (gatewayRow) {
+        const names = organizationId
+          ? await loadOrganizationNames([organizationId])
+          : new Map<string, string>();
+        return mapRow(
+          {
+            id: gatewayRow.id,
+            organization_id: gatewayRow.organization_id,
+            patient_id: gatewayRow.patient_id,
+            document_type: gatewayRow.document_type as ProviderDocumentType,
+            title: gatewayRow.title,
+            file_url: gatewayRow.file_url,
+            file_name: gatewayRow.file_name,
+            mime_type: gatewayRow.mime_type,
+            source: gatewayRow.source,
+            created_at: gatewayRow.created_at ?? new Date().toISOString(),
+            updated_at: gatewayRow.updated_at ?? new Date().toISOString(),
+          },
+          organizationId ? (names.get(organizationId) ?? null) : null,
+        );
+      }
+    } catch (error) {
+      await supabase.storage.from(BUCKET).remove([path]);
+      throw error;
+    }
 
     const { data, error } = await supabase
       .from('provider_documents')

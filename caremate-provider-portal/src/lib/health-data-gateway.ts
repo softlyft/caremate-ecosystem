@@ -1,7 +1,10 @@
-import { config } from '@/constants/env';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
-const GATEWAY_TIMEOUT_MS = 8_000;
+const GATEWAY_TIMEOUT_MS = 12_000;
+
+export function isHealthDataGatewayConfigured(): boolean {
+  return Boolean(process.env.HEALTH_DATA_GATEWAY_URL?.trim());
+}
 
 export class HealthDataGatewayError extends Error {
   constructor(
@@ -13,44 +16,34 @@ export class HealthDataGatewayError extends Error {
   }
 }
 
-/** True when the optional gateway base URL is configured. */
-export function isHealthDataGatewayConfigured(): boolean {
-  return config.isHealthDataGatewayConfigured;
-}
-
-async function getAccessToken(): Promise<string | null> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return session?.access_token ?? null;
-}
-
 /**
- * Call the Health Data Gateway.
- *
- * - Returns `null` only when the gateway URL is unset (caller may use plaintext Supabase).
- * - Throws `HealthDataGatewayError` when configured but auth/network/HTTP fails —
- *   so PHI is never silently written in plaintext after cutover.
+ * Call the Health Data Gateway with the signed-in portal user's JWT.
+ * Returns `null` when the gateway URL is unset (caller may use plaintext Supabase).
  */
 export async function gatewayRequest<T>(
   method: 'GET' | 'PUT' | 'POST' | 'DELETE',
   path: string,
   body?: unknown,
 ): Promise<T | null> {
-  if (!isHealthDataGatewayConfigured()) {
+  const base = process.env.HEALTH_DATA_GATEWAY_URL?.trim();
+  if (!base) {
     return null;
   }
 
-  const token = await getAccessToken();
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
   if (!token) {
-    throw new HealthDataGatewayError('Sign in required to sync via health data gateway');
+    throw new HealthDataGatewayError('Sign in required to use the health data gateway');
   }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GATEWAY_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${config.healthDataGatewayUrl}${path}`, {
+    const response = await fetch(`${base.replace(/\/$/, '')}${path}`, {
       method,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -73,7 +66,7 @@ export async function gatewayRequest<T>(
           detail = `: ${errBody.message}`;
         }
       } catch {
-        // ignore non-JSON error bodies
+        // ignore
       }
       throw new HealthDataGatewayError(
         `Health data gateway ${method} ${path} failed (${response.status})${detail}`,

@@ -1,12 +1,33 @@
 import { randomUUID } from 'crypto';
 import { createClient } from '@/lib/supabase/server';
 import { insertActivity } from '@/domains/activity/repository';
+import {
+  gatewayRequest,
+  isHealthDataGatewayConfigured,
+} from '@/lib/health-data-gateway';
 import type { DocumentType, ProviderDocument } from '@/types/database';
 
 export async function listDocuments(
   organizationId: string,
   options?: { patientId?: string; limit?: number },
 ): Promise<ProviderDocument[]> {
+  const gatewayRows = await gatewayRequest<ProviderDocument[]>(
+    'GET',
+    `/v1/documents?organizationId=${encodeURIComponent(organizationId)}`,
+  );
+
+  if (gatewayRows) {
+    let rows = gatewayRows;
+    if (options?.patientId) {
+      rows = rows.filter((r) => r.patient_id === options.patientId);
+    }
+    return rows.slice(0, options?.limit ?? 100);
+  }
+
+  if (isHealthDataGatewayConfigured()) {
+    return [];
+  }
+
   const supabase = await createClient();
   let query = supabase
     .from('provider_documents')
@@ -69,6 +90,31 @@ export async function uploadDocument(input: {
     });
 
   if (storageError) throw storageError;
+
+  const gatewayRow = await gatewayRequest<ProviderDocument>('PUT', '/v1/documents', {
+    id: documentId,
+    organization_id: input.organizationId,
+    patient_id: input.patientId,
+    document_type: input.documentType,
+    title: input.title,
+    file_url: path,
+    file_name: input.file.name,
+    mime_type: input.file.type || null,
+    uploaded_by: input.uploadedBy,
+    source: 'provider',
+  });
+
+  if (gatewayRow) {
+    await insertActivity({
+      organizationId: input.organizationId,
+      patientId: input.patientId,
+      connectionId: connection.id,
+      eventType: 'document_uploaded',
+      summary: `Document uploaded: ${input.title}`,
+      metadata: { document_id: documentId, document_type: input.documentType },
+    });
+    return gatewayRow;
+  }
 
   const { data, error } = await supabase
     .from('provider_documents')

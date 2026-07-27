@@ -1,4 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
+import {
+  gatewayRequest,
+  isHealthDataGatewayConfigured,
+} from '@/lib/health-data-gateway';
 import type { Json } from '@/types/database';
 
 export type MessageConversation = {
@@ -39,15 +43,29 @@ async function db(): Promise<any> {
 
 export async function listOrgConversations(organizationId: string): Promise<OrgInboxRow[]> {
   const supabase = await db();
-  const { data, error } = await supabase
-    .from('message_conversations')
-    .select('*')
-    .eq('organization_id', organizationId)
-    .eq('kind', 'org_patient')
-    .order('last_message_at', { ascending: false });
 
-  if (error) throw error;
-  const rows = (data ?? []) as MessageConversation[];
+  const gatewayRows = await gatewayRequest<MessageConversation[]>(
+    'GET',
+    `/v1/messages/conversations?organizationId=${encodeURIComponent(organizationId)}`,
+  );
+
+  let rows: MessageConversation[];
+  if (gatewayRows) {
+    rows = gatewayRows;
+  } else if (isHealthDataGatewayConfigured()) {
+    return [];
+  } else {
+    const { data, error } = await supabase
+      .from('message_conversations')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('kind', 'org_patient')
+      .order('last_message_at', { ascending: false });
+
+    if (error) throw error;
+    rows = (data ?? []) as MessageConversation[];
+  }
+
   if (!rows.length) return [];
 
   const patientIds = rows.map((r) => r.patient_user_id).filter(Boolean) as string[];
@@ -99,6 +117,17 @@ export async function listConversationMessages(
   organizationId: string,
   conversationId: string,
 ): Promise<MessageMessage[]> {
+  const gatewayRows = await gatewayRequest<MessageMessage[]>(
+    'GET',
+    `/v1/messages/conversations/${conversationId}`,
+  );
+  if (gatewayRows) {
+    return gatewayRows;
+  }
+  if (isHealthDataGatewayConfigured()) {
+    return [];
+  }
+
   const supabase = await db();
   const { data: conversation, error: convError } = await supabase
     .from('message_conversations')
@@ -144,6 +173,9 @@ export async function sendOrgMessage(input: {
   };
 
   const messageIds = payload.message_ids ?? [];
+  if (messageIds.length) {
+    await gatewayRequest('POST', '/v1/messages/seal', { message_ids: messageIds });
+  }
   await notifyPatientPush(supabase, input.organizationId, messageIds);
 
   return {
@@ -198,6 +230,10 @@ export async function replyOrgMessage(input: {
   const message = data as MessageMessage;
   if (message?.sender_organization_id !== input.organizationId) {
     throw new Error('Conversation does not belong to this organization');
+  }
+
+  if (message?.id) {
+    await gatewayRequest('POST', '/v1/messages/seal', { message_ids: [message.id] });
   }
 
   await notifyPatientPush(supabase, input.organizationId, [message.id]);

@@ -83,6 +83,25 @@ describe('PHI field maps', () => {
     );
     expect(EMERGENCY_PHI_FIELDS).toHaveLength(9);
   });
+
+  it('includes family / message / document PHI columns', () => {
+    const {
+      FAMILY_MEMBER_PHI_FIELDS,
+      MESSAGE_PHI_FIELDS,
+      DOCUMENT_PHI_FIELDS,
+    } = require('../../common/src/phi/phi-fields') as {
+      FAMILY_MEMBER_PHI_FIELDS: readonly string[];
+      MESSAGE_PHI_FIELDS: readonly string[];
+      DOCUMENT_PHI_FIELDS: readonly string[];
+    };
+    expect(FAMILY_MEMBER_PHI_FIELDS).toEqual([
+      'date_of_birth',
+      'gender',
+      'notes',
+    ]);
+    expect(MESSAGE_PHI_FIELDS).toEqual(['body', 'subject']);
+    expect(DOCUMENT_PHI_FIELDS).toEqual(['title', 'file_name']);
+  });
 });
 
 describe('mini-app PHI path maps', () => {

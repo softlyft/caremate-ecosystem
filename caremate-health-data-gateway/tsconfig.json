@@ -31,7 +31,13 @@
       "@caremate/emergency": ["libs/emergency/src"],
       "@caremate/emergency/*": ["libs/emergency/src/*"],
       "@caremate/mini-app-snapshots": ["libs/mini-app-snapshots/src"],
-      "@caremate/mini-app-snapshots/*": ["libs/mini-app-snapshots/src/*"]
+      "@caremate/mini-app-snapshots/*": ["libs/mini-app-snapshots/src/*"],
+      "@caremate/family": ["libs/family/src"],
+      "@caremate/family/*": ["libs/family/src/*"],
+      "@caremate/messages": ["libs/messages/src"],
+      "@caremate/messages/*": ["libs/messages/src/*"],
+      "@caremate/documents": ["libs/documents/src"],
+      "@caremate/documents/*": ["libs/documents/src/*"]
     }
   }
 }
