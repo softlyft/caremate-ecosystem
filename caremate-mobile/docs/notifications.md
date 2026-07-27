@@ -2,7 +2,7 @@
 
 [← Back to index](./README.md)
 
-> **Status:** Local in-app inbox implemented (SQLite + bell screen). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message`). Quiet hours and category prefs still pending.  
+> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message`). Quiet hours and category prefs still pending.  
 > Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push.
 
 ## Decisions (locked)
@@ -59,6 +59,8 @@ Home header Bell
 **Implemented (local inbox):**
 - SQLite `notifications` table + Drizzle migration `0001_*`
 - Repository / `createInAppNotification` helper for domains to enqueue cards
+- **Signed-in sync:** create / mark-read / guest→account migrate queue to Supabase; pull merges server rows (including edge push/email inbox rows) by id or `dedupe_key`
+- Guests stay local-only until account creation
 - Notifications screen with read-only cards; opening marks all as read
 - Indigo header / unread card treatment (`features/notifications/NotificationCard.tsx`) — distinct from Nearby blue and brand teal
 - Home bell navigates here; unread red dot when `read_at` is null

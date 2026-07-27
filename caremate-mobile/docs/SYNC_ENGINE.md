@@ -215,6 +215,7 @@ runSyncCycle
 | `health_tips` | `domains/tips` (pull-only) |
 | `bookmarks` | `domains/articles` |
 | `article_reads` | `domains/articles` |
+| `notifications` | `domains/notifications` (signed-in only; guests local) |
 | `mini_app_snapshots` | `mini-apps/_kit` |
 
 Handlers are registered in `src/sync/register-default-handlers.ts` via `registerSyncHandler` (`src/sync/registry.ts`). New domains should **register**, not edit a hard-coded map inside `engine.ts`.
