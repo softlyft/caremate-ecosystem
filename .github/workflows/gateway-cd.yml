@@ -110,9 +110,35 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Delete failed stack if stuck in ROLLBACK_COMPLETE
+        env:
+          SAM_CLI_TELEMETRY: '0'
+        run: |
+          set -euo pipefail
+          STATUS="$(aws cloudformation describe-stacks \
+            --stack-name "${STACK_NAME}" \
+            --query 'Stacks[0].StackStatus' \
+            --output text 2>/dev/null || echo 'DOES_NOT_EXIST')"
+          echo "Current stack status: ${STATUS}"
+          case "${STATUS}" in
+            ROLLBACK_COMPLETE|ROLLBACK_FAILED|CREATE_FAILED|DELETE_FAILED)
+              echo "Deleting unrecoverable stack ${STACK_NAME} (${STATUS})..."
+              aws cloudformation delete-stack --stack-name "${STACK_NAME}"
+              aws cloudformation wait stack-delete-complete --stack-name "${STACK_NAME}"
+              echo "Stack deleted."
+              ;;
+            DOES_NOT_EXIST)
+              echo "No existing stack — fresh create."
+              ;;
+            *)
+              echo "Stack is updatable (${STATUS})."
+              ;;
+          esac
+
       - name: Sam deploy
         working-directory: caremate-health-data-gateway
         env:
+          SAM_CLI_TELEMETRY: '0'
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}

@@ -73,6 +73,8 @@ The same Nest app runs on Lambda via `@codegenie/serverless-express`.
 
 Path filter: only changes under `caremate-health-data-gateway/**` (or the workflow file) trigger deploy. Manual run: Actions → **Gateway CD** → `workflow_dispatch` → pick `development` or `prod`.
 
+Before `sam deploy`, the workflow deletes the stack if it is stuck in `ROLLBACK_COMPLETE` / `CREATE_FAILED` (so you do not need a local AWS CLI).
+
 **One-time AWS + GitHub setup**
 
 1. IAM user with your custom SAM deploy policy + access key (use case: application running outside AWS).
