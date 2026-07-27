@@ -85,7 +85,7 @@ function pathMatches(patternParts: string[], pathParts: string[]): boolean {
     return false;
   }
   for (let i = 0; i < patternParts.length; i += 1) {
-    const pattern = patternParts[i]!;
+    const pattern = patternParts[i];
     if (pattern === '*') {
       continue;
     }
@@ -124,7 +124,9 @@ export function mapPayloadPhiLeaves(
     }
 
     if (Array.isArray(node)) {
-      return node.map((item, index) => walk(item, [...pathParts, String(index)]));
+      return node.map((item, index) =>
+        walk(item, [...pathParts, String(index)]),
+      );
     }
 
     if (isPlainObject(node)) {

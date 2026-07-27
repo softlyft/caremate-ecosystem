@@ -22,7 +22,10 @@ export async function createGatewayApp(): Promise<GatewayHttpApp> {
     AppModule,
     new ExpressAdapter(expressApp),
     {
-      logger: process.env.NODE_ENV === 'production' ? ['error', 'warn', 'log'] : undefined,
+      logger:
+        process.env.NODE_ENV === 'production'
+          ? ['error', 'warn', 'log']
+          : undefined,
     },
   );
 

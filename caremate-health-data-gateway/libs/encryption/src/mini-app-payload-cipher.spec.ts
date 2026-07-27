@@ -12,14 +12,24 @@ import {
   FIELD_CIPHER_PREFIX,
   generateDek,
 } from './field-cipher';
-import { decryptMiniAppPayload, encryptMiniAppPayload } from './mini-app-payload-cipher';
+import {
+  decryptMiniAppPayload,
+  encryptMiniAppPayload,
+} from './mini-app-payload-cipher';
 
 describe('mini-app PHI leaf cipher', () => {
   const dek = generateDek();
 
   it('exposes path maps for every mini-app key', () => {
     expect(Object.keys(MINI_APP_PHI_PATHS).sort()).toEqual(
-      ['checkup', 'immunization', 'medication', 'period', 'pregnancy', 'vitals'].sort(),
+      [
+        'checkup',
+        'immunization',
+        'medication',
+        'period',
+        'pregnancy',
+        'vitals',
+      ].sort(),
     );
   });
 
@@ -53,8 +63,8 @@ describe('mini-app PHI leaf cipher', () => {
     };
 
     const encrypted = encryptMiniAppPayload('medication', payload, dek);
-    const med = (encrypted.medications as Record<string, unknown>[])[0]!;
-    const log = (encrypted.logs as Record<string, unknown>[])[0]!;
+    const med = (encrypted.medications as Record<string, unknown>[])[0];
+    const log = (encrypted.logs as Record<string, unknown>[])[0];
 
     expect(med.id).toBe('med-1');
     expect(med.forKid).toBe(true);
@@ -69,7 +79,9 @@ describe('mini-app PHI leaf cipher', () => {
     expect(String(med.patientName)).toMatch(/^v1:/);
     expect(String(med.notes)).toMatch(/^v1:/);
     expect(String((med.slotTimes as string[])[0])).toMatch(/^v1:/);
-    expect(String((med.instructions as Record<string, unknown>).text)).toMatch(/^v1:/);
+    expect(String((med.instructions as Record<string, unknown>).text)).toMatch(
+      /^v1:/,
+    );
     expect((med.instructions as Record<string, unknown>).kind).toBe('custom');
     expect(String(log.notes)).toMatch(/^v1:/);
     expect(String(log.dateKey)).toMatch(/^v1:/);
@@ -97,7 +109,9 @@ describe('mini-app PHI leaf cipher', () => {
 
     const encrypted = encryptMiniAppPayload('pregnancy', payload, dek);
     expect(Object.keys(encrypted.dailyLogs as object)).toEqual(['2026-07-01']);
-    const day = (encrypted.dailyLogs as Record<string, Record<string, unknown>>)['2026-07-01']!;
+    const day = (
+      encrypted.dailyLogs as Record<string, Record<string, unknown>>
+    )['2026-07-01'];
     expect(String(day.mood)).toMatch(/^v1:/);
     expect(String((day.symptoms as string[])[0])).toMatch(/^v1:/);
     expect(String(day.kickCount)).toMatch(/^v1:/);
@@ -109,13 +123,15 @@ describe('mini-app PHI leaf cipher', () => {
   it('mapPayloadPhiLeaves encodes/decodes leaf types via JSON', () => {
     const paths = getMiniAppPhiPaths('vitals');
     const payload = {
-      entries: [{ id: 'e1', type: 'weight', unit: 'kg', value: 70.2, notes: 'am' }],
+      entries: [
+        { id: 'e1', type: 'weight', unit: 'kg', value: 70.2, notes: 'am' },
+      ],
       unitPrefs: { weight: 'kg' },
     };
     const encoded = mapPayloadPhiLeaves(payload, paths, (leaf: unknown) =>
       encryptField(encodePhiLeaf(leaf), dek),
     ) as Record<string, unknown>;
-    const entry = (encoded.entries as Record<string, unknown>[])[0]!;
+    const entry = (encoded.entries as Record<string, unknown>[])[0];
     expect(entry.id).toBe('e1');
     expect(entry.type).toBe('weight');
     expect(entry.unit).toBe('kg');

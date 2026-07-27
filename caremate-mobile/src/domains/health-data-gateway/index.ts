@@ -10,4 +10,9 @@ export {
   type GatewayProfileRow,
 } from './api';
 export { gatewayRequest, isHealthDataGatewayConfigured, HealthDataGatewayError } from './client';
-export { isEncryptedEnvelope, scrubEncryptedJson, scrubEncryptedLeaves, scrubEncryptedText } from './phi';
+export {
+  isEncryptedEnvelope,
+  scrubEncryptedJson,
+  scrubEncryptedLeaves,
+  scrubEncryptedText,
+} from './phi';

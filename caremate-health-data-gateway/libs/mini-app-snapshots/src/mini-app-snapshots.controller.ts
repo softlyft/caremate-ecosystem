@@ -1,9 +1,5 @@
 import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
-import {
-  AuthUser,
-  CurrentUser,
-  SupabaseJwtGuard,
-} from '@caremate/common';
+import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { UpsertMiniAppSnapshotDto } from './dto/upsert-mini-app-snapshot.dto';
 import { MiniAppSnapshotsService } from './mini-app-snapshots.service';
 

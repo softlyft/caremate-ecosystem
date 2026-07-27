@@ -1,4 +1,11 @@
-import { Allow, IsIn, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  Allow,
+  IsIn,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 const APP_KEYS = [
   'vitals',

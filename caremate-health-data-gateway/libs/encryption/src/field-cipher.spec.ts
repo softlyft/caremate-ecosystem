@@ -87,13 +87,21 @@ describe('PHI field maps', () => {
 
 describe('mini-app PHI path maps', () => {
   // Imported via sibling module to avoid jose ESM in the common barrel under Jest.
-  const { MINI_APP_PHI_PATHS } = require('../../common/src/phi/mini-app-phi') as {
-    MINI_APP_PHI_PATHS: Record<string, readonly string[]>;
-  };
+  const { MINI_APP_PHI_PATHS } =
+    require('../../common/src/phi/mini-app-phi') as {
+      MINI_APP_PHI_PATHS: Record<string, readonly string[]>;
+    };
 
   it('covers all six mini-app keys', () => {
     expect(Object.keys(MINI_APP_PHI_PATHS).sort()).toEqual(
-      ['checkup', 'immunization', 'medication', 'period', 'pregnancy', 'vitals'].sort(),
+      [
+        'checkup',
+        'immunization',
+        'medication',
+        'period',
+        'pregnancy',
+        'vitals',
+      ].sort(),
     );
   });
 });

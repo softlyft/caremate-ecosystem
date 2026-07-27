@@ -1,9 +1,5 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
-import {
-  AuthUser,
-  CurrentUser,
-  SupabaseJwtGuard,
-} from '@caremate/common';
+import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { UpsertEmergencyDto } from './dto/upsert-emergency.dto';
 import { EmergencyService } from './emergency.service';
 

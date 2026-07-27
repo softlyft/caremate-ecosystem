@@ -26,7 +26,7 @@ export function encryptMiniAppPayload(
     }
     return encryptField(encodePhiLeaf(leaf), dek);
   });
-  return (isPlainObject(next) ? next : {}) as Record<string, unknown>;
+  return isPlainObject(next) ? next : {};
 }
 
 export function decryptMiniAppPayload(
@@ -48,7 +48,7 @@ export function decryptMiniAppPayload(
     }
     return decodePhiLeaf(decryptField(leaf, dek));
   });
-  return (isPlainObject(next) ? next : {}) as Record<string, unknown>;
+  return isPlainObject(next) ? next : {};
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

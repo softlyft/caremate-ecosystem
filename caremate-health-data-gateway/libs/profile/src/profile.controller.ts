@@ -1,9 +1,5 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
-import {
-  AuthUser,
-  CurrentUser,
-  SupabaseJwtGuard,
-} from '@caremate/common';
+import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { UpsertProfileDto } from './dto/upsert-profile.dto';
 import { ProfileService } from './profile.service';
 

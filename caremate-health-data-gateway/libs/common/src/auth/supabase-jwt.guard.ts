@@ -67,7 +67,9 @@ export class SupabaseJwtGuard implements CanActivate {
 
   private getJwks() {
     if (!this.jwks) {
-      const supabaseUrl = this.config.getOrThrow<string>('SUPABASE_URL').replace(/\/$/, '');
+      const supabaseUrl = this.config
+        .getOrThrow<string>('SUPABASE_URL')
+        .replace(/\/$/, '');
       this.jwks = createRemoteJWKSet(
         new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`),
       );
@@ -81,7 +83,7 @@ export class SupabaseJwtGuard implements CanActivate {
       const { payload } = await jwtVerify(token, this.getJwks(), {
         algorithms: ['ES256', 'RS256'],
       });
-      return payload as SupabaseJwtPayload;
+      return payload;
     } catch {
       // Continue to legacy HS256.
     }
@@ -92,9 +94,13 @@ export class SupabaseJwtGuard implements CanActivate {
       throw new UnauthorizedException('Server JWT secret is not configured');
     }
 
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
-      algorithms: ['HS256'],
-    });
-    return payload as SupabaseJwtPayload;
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(secret),
+      {
+        algorithms: ['HS256'],
+      },
+    );
+    return payload;
   }
 }
