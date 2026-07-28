@@ -10,8 +10,8 @@ export const HOME_TRENDING_INT_SLOTS = 2;
 export const HOME_TRENDING_COUNTRY_SLOTS = 2;
 export const HOME_TRENDING_MAX_ITEMS = 1 + HOME_TRENDING_INT_SLOTS + HOME_TRENDING_COUNTRY_SLOTS;
 
-/** External news retained locally for today, yesterday, and 2 days ago. */
-export const EXTERNAL_NEWS_RETENTION_DAYS = 3;
+/** External news retained locally for one week (manual Currents sync is infrequent). */
+export const EXTERNAL_NEWS_RETENTION_DAYS = 7;
 
 export const LEARN_CATEGORIES: ArticleCategory[] = [
   ...HEALTH_CATEGORIES.map((category) => ({

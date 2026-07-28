@@ -47,7 +47,7 @@ Spacing between Home sections follows the shared **~16px** rhythm — see [UI & 
 | Providers | `providerRepository.findAll()` or nearby cache | Nearby row |
 | Health tips | `healthTipRepository` | Daily tip rotation |
 
-External health news is ingested manually in the SoftLyft admin portal (Currents → Supabase). Home/Learn pull the published catalog from Supabase into SQLite and keep only the last **3 calendar days** of external news (`firstSeenAt`). Unpublishing a story in admin removes it from devices on the next sync. Country slots still use `attributes.newsRegions` (INT + NG today).
+External health news is ingested manually in the SoftLyft admin portal (Currents → Supabase). Home/Learn pull the published catalog from Supabase into SQLite and keep only the last **7 calendar days** of external news (`firstSeenAt`). Unpublishing a story in admin removes it from devices on the next sync. Country slots still use `attributes.newsRegions` (INT + NG today).
 
 ## Learn
 
