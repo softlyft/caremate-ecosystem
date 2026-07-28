@@ -34,6 +34,8 @@ Implementation spans:
 | `signUp(email, password, fullName, phone)` | Creates Supabase user. If email confirmation is required, returns `{ needsEmailVerification: true }` and stays guest until OTP verify |
 | `verifySignupEmail(email, token, profile?)` | Verifies signup OTP (`verifyOtp` type `signup`), then bootstraps local account |
 | `resendSignupEmail(email)` | Resends signup confirmation email |
+| `verifyRecoveryEmail(email, token)` | Verifies recovery OTP (`verifyOtp` type `recovery`), then marks password recovery pending |
+| `resendRecoveryEmail(email)` | Resends the password-reset email (same as requesting reset again) |
 | `signOut()` | Clears push for this device, wipes local account data, clears session → guest |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
@@ -114,18 +116,25 @@ Both local stub steps are best-effort so a local DB hiccup does not fail auth. S
 
 ### Forgot password (`(auth)/forgot-password.tsx`)
 - Collects email and calls `authService.resetPassword` (`supabase.auth.resetPasswordForEmail`)
-- `redirectTo` prefers `https://{website}/auth/reset-password` (Universal / App Links) when the website host is configured; Expo Go keeps `Linking.createURL('auth/reset-password')` (e.g. `caremate://…` / `exp://…`)
-- Success message is intentionally generic (does not reveal whether the email exists)
+- Navigates to verify-reset so the user can enter the 6-digit code from email (same pattern as signup OTP)
+- Deep-link `redirectTo` remains as a fallback for older email templates / Universal Links
+
+### Verify reset code (`(auth)/verify-reset.tsx`)
+- User enters the 6-digit OTP from the recovery email (`{{ .Token }}` in the template)
+- Calls `verifyRecoveryEmail` → `supabase.auth.verifyOtp({ type: 'recovery' })` → sets `passwordRecoveryPending`
+- Then navigates to `auth/reset-password` to choose a new password
+- Resend uses `resendRecoveryEmail` (same as requesting reset again) with a short cooldown
 
 ### Reset password (`auth/reset-password.tsx`)
-- Opened from the email deep link via `AuthDeepLinkHandler`
-- Establishes a recovery session (`exchangeCodeForSession` or hash tokens), then user sets a new password with `authService.updatePassword`
+- Primary path: after successful recovery OTP verification
+- Secondary path: email deep link via `AuthDeepLinkHandler` (`exchangeCodeForSession` or hash tokens)
+- User sets a new password with `authService.updatePassword`
 - After success, user continues into the app signed in
 
-**Supabase Dashboard setup (required):**
-1. Auth → URL Configuration → add the exact redirect URI from the forgot-password screen (DEV shows it) or `caremate://auth/reset-password`
-2. Ensure the Site URL / additional redirect URLs allow that scheme
-3. Customize the “Reset password” email template if desired; the link must use Supabase’s redirect to the app URI
+**Supabase email recovery setup:**
+1. Auth → Email Templates → Reset password: include `{{ .Token }}` (6-digit code). Local template: `supabase/templates/recovery.html`
+2. Hosted projects must mirror this in the Dashboard; `config.toml` only applies to local Supabase
+3. Optional: keep redirect URLs allowlisted if you still support deep-link recovery as a fallback
 
 ### Onboarding (`(auth)/onboarding/*`)
 

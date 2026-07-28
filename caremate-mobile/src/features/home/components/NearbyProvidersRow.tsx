@@ -14,6 +14,8 @@ interface NearbyProvidersRowProps {
   providers: Provider[];
   /** True when we have no usable location and no cached providers to show. */
   locationNeeded?: boolean;
+  /** OS will not re-prompt; CTA should open Settings. */
+  permissionBlocked?: boolean;
   onEnableLocation?: () => void;
   enablePending?: boolean;
 }
@@ -57,6 +59,7 @@ function isVerified(provider: Provider): boolean {
 export function NearbyProvidersRow({
   providers,
   locationNeeded = false,
+  permissionBlocked = false,
   onEnableLocation,
   enablePending = false,
 }: NearbyProvidersRowProps) {
@@ -94,7 +97,9 @@ export function NearbyProvidersRow({
                   {t('home.nearby.locationNeeded.title')}
                 </AppText>
                 <AppText variant="quickActionSubtitle" style={styles.locationBody}>
-                  {t('home.nearby.locationNeeded.body')}
+                  {permissionBlocked
+                    ? t('home.nearby.locationNeeded.blockedBody')
+                    : t('home.nearby.locationNeeded.body')}
                 </AppText>
               </View>
             </View>
@@ -102,7 +107,9 @@ export function NearbyProvidersRow({
               <AppText variant="button" style={{ color: palette.primary }}>
                 {enablePending
                   ? t('nearby.locationNeeded.enabling')
-                  : t('home.nearby.locationNeeded.cta')}
+                  : permissionBlocked
+                    ? t('home.nearby.locationNeeded.openSettings')
+                    : t('home.nearby.locationNeeded.cta')}
               </AppText>
               <ChevronRight color={palette.primary} size={16} strokeWidth={2.5} />
             </View>

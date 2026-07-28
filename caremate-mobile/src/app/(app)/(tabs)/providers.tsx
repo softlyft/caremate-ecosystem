@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Heart, MapPinned, Search } from 'lucide-react-native';
-import { useDeferredValue, useMemo, useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { AppState, FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -17,13 +17,12 @@ import {
   NearbyProviderCard,
   getProviderTypeTheme,
 } from '@/domains/providers/components/NearbyProviderCard';
-import { resolveNearbyCoords } from '@/domains/providers/location';
+import { enableNearbyLocationAccess, resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { PRIMARY_PROVIDER_TYPES, type ProviderType } from '@/domains/providers/types';
-import { setDeviceDefaults } from '@/domains/onboarding/device-defaults';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { useNetworkStatus } from '@/hooks/use-network-status';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 
 const NEARBY_RESULT_LIMIT = 15;
 
@@ -66,6 +65,7 @@ export default function ProvidersTabScreen() {
   const hasUsableCoords = coordsQuery.data?.latitude != null && coordsQuery.data?.longitude != null;
   const needsLocationSetup = !isSearching && !hasUsableCoords;
   const usingLastKnown = Boolean(coordsQuery.data?.usingLastKnown);
+  const permissionBlocked = Boolean(coordsQuery.data?.permissionBlocked);
 
   const [locationRequestPending, setLocationRequestPending] = useState(false);
   const handleEnableLocation = async () => {
@@ -74,12 +74,23 @@ export default function ProvidersTabScreen() {
     }
     setLocationRequestPending(true);
     try {
-      await setDeviceDefaults({ locationMode: 'precise', locationSkipped: false });
+      await enableNearbyLocationAccess();
       await coordsQuery.refetch();
     } finally {
       setLocationRequestPending(false);
     }
   };
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void coordsQuery.refetch();
+      }
+    });
+    return () => sub.remove();
+    // refetch is stable enough for resume-from-Settings; avoid depending on the whole query object.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-subscribe if refetch identity changes
+  }, [coordsQuery.refetch]);
 
   const providersQuery = useQuery({
     queryKey: [
@@ -223,7 +234,9 @@ export default function ProvidersTabScreen() {
                   <AppText variant="caption" color="brand" style={styles.lastKnownActionLabel}>
                     {locationRequestPending
                       ? t('nearby.locationNeeded.enabling')
-                      : t('nearby.lastKnown.action')}
+                      : permissionBlocked
+                        ? t('nearby.lastKnown.openSettings')
+                        : t('nearby.lastKnown.action')}
                   </AppText>
                 </PressableScale>
               </View>
@@ -236,7 +249,7 @@ export default function ProvidersTabScreen() {
               <TextInput
                 style={styles.searchInput}
                 placeholder={t('nearby.searchPlaceholder')}
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={textColors.placeholder}
                 value={search}
                 onChangeText={setSearch}
                 autoCapitalize="none"
@@ -288,12 +301,22 @@ export default function ProvidersTabScreen() {
         ListEmptyComponent={
           needsLocationSetup ? (
             <EmptyState
-              title={t('nearby.locationNeeded.title')}
-              message={t('nearby.locationNeeded.message')}
+              title={
+                permissionBlocked
+                  ? t('nearby.locationNeeded.blockedTitle')
+                  : t('nearby.locationNeeded.title')
+              }
+              message={
+                permissionBlocked
+                  ? t('nearby.locationNeeded.blockedMessage')
+                  : t('nearby.locationNeeded.message')
+              }
               actionLabel={
                 locationRequestPending
                   ? t('nearby.locationNeeded.enabling')
-                  : t('nearby.locationNeeded.action')
+                  : permissionBlocked
+                    ? t('nearby.locationNeeded.openSettings')
+                    : t('nearby.locationNeeded.action')
               }
               onAction={() => {
                 void handleEnableLocation();

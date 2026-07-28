@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { AppState } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -22,8 +23,7 @@ import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { articleRepository } from '@/domains/articles/repository';
 import { HOME_TRENDING_MAX_ITEMS } from '@/domains/articles/utils/evergreen-articles';
-import { setDeviceDefaults } from '@/domains/onboarding/device-defaults';
-import { resolveNearbyCoords } from '@/domains/providers/location';
+import { enableNearbyLocationAccess, resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
 import { layoutSpacing, palette } from '@/theme';
 
@@ -90,12 +90,22 @@ export default function HomeScreen() {
     }
     setLocationRequestPending(true);
     try {
-      await setDeviceDefaults({ locationMode: 'precise', locationSkipped: false });
+      await enableNearbyLocationAccess();
       await coordsQuery.refetch();
     } finally {
       setLocationRequestPending(false);
     }
   };
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void coordsQuery.refetch();
+      }
+    });
+    return () => sub.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-subscribe if refetch identity changes
+  }, [coordsQuery.refetch]);
 
   useEffect(() => {
     let cancelled = false;
@@ -124,6 +134,7 @@ export default function HomeScreen() {
   const providers = providersQuery.data?.slice(0, 4) ?? [];
   const nearbyLocationNeeded =
     coordsQuery.data?.precision === 'none' && !providersQuery.isLoading && providers.length === 0;
+  const locationPermissionBlocked = Boolean(coordsQuery.data?.permissionBlocked);
   const feedFailed = localizationReady && articlesQuery.isError && articlesQuery.data === undefined;
 
   if (feedFailed) {
@@ -199,6 +210,7 @@ export default function HomeScreen() {
           <NearbyProvidersRow
             providers={providers}
             locationNeeded={nearbyLocationNeeded}
+            permissionBlocked={locationPermissionBlocked}
             onEnableLocation={() => {
               void handleEnableLocation();
             }}

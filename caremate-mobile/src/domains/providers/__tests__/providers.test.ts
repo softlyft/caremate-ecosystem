@@ -12,16 +12,18 @@ import {
   getProviderSeeds,
   mapFhirProviderBundle,
 } from '@/domains/providers/utils/fhir-providers';
-import { resolveNearbyCoords } from '@/domains/providers/location';
+import { resolveNearbyCoords, enableNearbyLocationAccess } from '@/domains/providers/location';
 
 jest.mock('expo-location', () => ({
   Accuracy: { Balanced: 3 },
+  getForegroundPermissionsAsync: jest.fn(),
   requestForegroundPermissionsAsync: jest.fn(),
   getCurrentPositionAsync: jest.fn(),
 }));
 
 jest.mock('@/domains/onboarding/device-defaults', () => ({
   getDeviceDefaults: jest.fn(),
+  setDeviceDefaults: jest.fn(),
 }));
 
 jest.mock('@/domains/location/repository', () => ({
@@ -38,11 +40,15 @@ jest.mock('@/features/auth/store', () => ({
 }));
 
 const Location = jest.requireMock('expo-location') as {
+  getForegroundPermissionsAsync: jest.Mock;
   requestForegroundPermissionsAsync: jest.Mock;
   getCurrentPositionAsync: jest.Mock;
 };
-const { getDeviceDefaults } = jest.requireMock('@/domains/onboarding/device-defaults') as {
+const { getDeviceDefaults, setDeviceDefaults } = jest.requireMock(
+  '@/domains/onboarding/device-defaults',
+) as {
   getDeviceDefaults: jest.Mock;
+  setDeviceDefaults: jest.Mock;
 };
 const { locationSampleRepository } = jest.requireMock('@/domains/location/repository') as {
   locationSampleRepository: {
@@ -124,12 +130,21 @@ describe('providers/open-in-maps', () => {
 });
 
 describe('providers/location', () => {
+  const openSettings = jest.spyOn(Linking, 'openSettings').mockResolvedValue(undefined as never);
+
   beforeEach(() => {
     getDeviceDefaults.mockReset();
+    setDeviceDefaults.mockReset();
+    Location.getForegroundPermissionsAsync.mockReset();
     Location.requestForegroundPermissionsAsync.mockReset();
     Location.getCurrentPositionAsync.mockReset();
     locationSampleRepository.recordSample.mockReset();
     locationSampleRepository.getLatest.mockReset();
+    openSettings.mockClear();
+  });
+
+  afterAll(() => {
+    openSettings.mockRestore();
   });
 
   it('falls back to last known sample when location mode is not precise', async () => {
@@ -151,8 +166,10 @@ describe('providers/location', () => {
       precision: 'last_known',
       locationEnabled: false,
       usingLastKnown: true,
+      permissionBlocked: false,
       sampleId: 'sample-1',
     });
+    expect(Location.getForegroundPermissionsAsync).not.toHaveBeenCalled();
     expect(Location.requestForegroundPermissionsAsync).not.toHaveBeenCalled();
   });
 
@@ -169,6 +186,7 @@ describe('providers/location', () => {
       longitude: null,
       precision: 'none',
       usingLastKnown: false,
+      permissionBlocked: false,
     });
   });
 
@@ -178,7 +196,10 @@ describe('providers/location', () => {
       state: null,
       locationMode: 'precise',
     });
-    Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'granted',
+      canAskAgain: true,
+    });
     Location.getCurrentPositionAsync.mockResolvedValue({
       coords: {
         latitude: 6.45,
@@ -205,8 +226,10 @@ describe('providers/location', () => {
       precision: 'gps',
       locationEnabled: true,
       usingLastKnown: false,
+      permissionBlocked: false,
       sampleId: 'sample-gps',
     });
+    expect(Location.requestForegroundPermissionsAsync).not.toHaveBeenCalled();
     expect(locationSampleRepository.recordSample).toHaveBeenCalledWith(
       'user-1',
       expect.objectContaining({
@@ -230,21 +253,68 @@ describe('providers/location', () => {
       latitude: 6.5,
       longitude: 3.3,
     });
-    Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'denied' });
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'denied',
+      canAskAgain: true,
+    });
 
     await expect(resolveNearbyCoords()).resolves.toMatchObject({
       precision: 'last_known',
       usingLastKnown: true,
       latitude: 6.5,
+      permissionBlocked: false,
     });
 
-    Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'granted',
+      canAskAgain: true,
+    });
     Location.getCurrentPositionAsync.mockRejectedValue(new Error('timeout'));
 
     await expect(resolveNearbyCoords()).resolves.toMatchObject({
       precision: 'last_known',
       usingLastKnown: true,
     });
+  });
+
+  it('marks permissionBlocked when the OS will not show the dialog again', async () => {
+    getDeviceDefaults.mockResolvedValue({
+      countryCode: 'NG',
+      state: null,
+      locationMode: 'precise',
+    });
+    locationSampleRepository.getLatest.mockResolvedValue(null);
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'denied',
+      canAskAgain: false,
+    });
+
+    await expect(resolveNearbyCoords()).resolves.toMatchObject({
+      precision: 'none',
+      permissionBlocked: true,
+    });
+  });
+
+  it('requests permission when enabling and opens Settings when blocked', async () => {
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'denied',
+      canAskAgain: true,
+    });
+    Location.requestForegroundPermissionsAsync.mockResolvedValue({
+      status: 'denied',
+      canAskAgain: false,
+    });
+
+    await expect(enableNearbyLocationAccess()).resolves.toEqual({
+      granted: false,
+      openedSettings: true,
+      canAskAgain: false,
+    });
+    expect(setDeviceDefaults).toHaveBeenCalledWith({
+      locationMode: 'precise',
+      locationSkipped: false,
+    });
+    expect(openSettings).toHaveBeenCalled();
   });
 });
 

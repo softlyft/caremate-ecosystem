@@ -28,6 +28,10 @@ interface AuthState {
     profile?: { fullName?: string; phone?: string },
   ) => Promise<void>;
   resendSignupEmail: (email: string) => Promise<void>;
+  /** Establish a recovery session from the 6-digit email code. */
+  verifyRecoveryEmail: (email: string, token: string) => Promise<void>;
+  /** Resend the password-reset email (same as requesting reset again). */
+  resendRecoveryEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
@@ -161,6 +165,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   resendSignupEmail: async (email) => {
     await authService.resendSignupEmail(email);
+  },
+
+  verifyRecoveryEmail: async (email, token) => {
+    set({ isLoading: true });
+    try {
+      const { user } = await authService.verifyRecoveryOtp(email, token);
+      const mapped = authService.mapUser(user);
+      set({
+        user: mapped,
+        isAuthenticated: Boolean(mapped),
+        isGuest: false,
+        passwordRecoveryPending: true,
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  resendRecoveryEmail: async (email) => {
+    await authService.resetPassword(email);
   },
 
   signOut: async () => {

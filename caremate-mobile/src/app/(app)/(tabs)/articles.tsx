@@ -26,7 +26,7 @@ import {
 } from '@/features/home/components/HealthCategoriesRow';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 import type { Article } from '@/types';
 
 const LIST_PAGE_SIZE = 10;
@@ -228,7 +228,7 @@ export default function ArticlesTabScreen() {
               <TextInput
                 style={styles.searchInput}
                 placeholder={t('learn.searchPlaceholder')}
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={textColors.placeholder}
                 value={search}
                 onChangeText={setSearch}
                 autoCapitalize="none"

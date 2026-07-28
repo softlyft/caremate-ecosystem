@@ -10,7 +10,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { providerConnectionService } from '@/domains/providers/connection-service';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 
 export default function ProviderConnectionRequestsScreen() {
   const { t } = useTranslation();
@@ -125,7 +125,7 @@ export default function ProviderConnectionRequestsScreen() {
                     value={reason}
                     onChangeText={setReason}
                     placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={textColors.placeholder}
                     multiline
                     editable={!busy}
                   />

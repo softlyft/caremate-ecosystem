@@ -8,8 +8,8 @@
 Root Stack (src/app/_layout.tsx)
 ├── index                    → Redirect based on onboarding/auth state
 ├── emergency-lock           → Public emergency card (caremate://emergency-lock)
-├── auth/reset-password      → New password after email deep link (caremate://auth/reset-password)
-├── (auth) Stack             → Onboarding, login, register, forgot-password
+├── auth/reset-password      → New password after reset code (or legacy email deep link)
+├── (auth) Stack             → Onboarding, login, register, verify-email, forgot-password, verify-reset
 └── (app) Stack              → Main app shell
     ├── (tabs) Tab Navigator → 5 bottom tabs
     └── Stack screens        → Detail, modal, mini-app routes
@@ -58,8 +58,9 @@ Group: `(auth)` — header hidden.
 | `/(auth)/onboarding/next` | `next.tsx` | Transition step |
 | `/(auth)/login` | `login.tsx` | Email/password, demo, guest continue |
 | `/(auth)/register` | `register.tsx` | Account creation |
-| `/(auth)/forgot-password` | `forgot-password.tsx` | Request password reset email |
-| `/auth/reset-password` | `auth/reset-password.tsx` | Set new password after email link |
+| `/(auth)/forgot-password` | `forgot-password.tsx` | Request password reset code email |
+| `/(auth)/verify-reset` | `verify-reset.tsx` | Enter 6-digit recovery code |
+| `/auth/reset-password` | `auth/reset-password.tsx` | Set new password after recovery OTP |
 
 **Note:** Onboarding is wired into the root entry flow when onboarding is incomplete.
 
@@ -246,10 +247,10 @@ via `ios.associatedDomains` + Android `intentFilters` (`autoVerify`).
 |-----------|--------|
 | `caremate://emergency-lock` | Legacy — retired lock card (points to Patient ID) |
 | `caremate://emergency/share/<token>` · `https://…/emergency/share/<token>` | Auth-gated emergency share (Patient ID QR) |
-| `caremate://auth/reset-password` · `https://…/auth/reset-password` | Password reset (allowlist both in Supabase Redirect URLs) |
+| `caremate://auth/reset-password` · `https://…/auth/reset-password` | Legacy password-reset deep link (optional fallback; primary flow uses in-app OTP) |
 | `caremate://billing/success\|cancel` · `https://…/billing/…` | Checkout return |
 
-Exact Expo Go / dev URIs may use `exp://…/--/auth/reset-password` via `Linking.createURL` — use the value shown on the forgot-password screen in `__DEV__`.
+Exact Expo Go / dev URIs may use `exp://…/--/auth/reset-password` via `Linking.createURL` when using the legacy deep-link fallback.
 
 ---
 

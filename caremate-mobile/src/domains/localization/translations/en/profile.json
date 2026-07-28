@@ -121,6 +121,7 @@
     "nin": "NIN (11 digits)",
     "nationalId": "National ID",
     "ninInvalid": "Nigerian NIN must be 11 digits.",
+    "phoneInvalid": "Enter a valid phone number (7–15 digits, optional leading +).",
     "nameRequired": "Full name is required.",
     "saveFailed": "Couldn't save profile",
     "practitionerTitle": "Are you a health practitioner?",

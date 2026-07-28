@@ -23,11 +23,15 @@
     "title": "Enable location to find CareMate providers nearby",
     "message": "We need your location to show CareMate providers near you. Enable location, or search for a provider by name above.",
     "action": "Enable location",
-    "enabling": "Enabling…"
+    "enabling": "Enabling…",
+    "openSettings": "Open Settings",
+    "blockedTitle": "Location access is blocked",
+    "blockedMessage": "CareMate can’t ask for location again on this device. Open Settings, turn on Location for CareMate, then return here."
   },
   "lastKnown": {
     "message": "Location is off. Showing CareMate providers near your last known place.",
-    "action": "Enable"
+    "action": "Enable",
+    "openSettings": "Open Settings"
   },
   "approximate": "Using approximate location based on your selected region",
   "outsideArea": "Outside your usual area — results may be limited",

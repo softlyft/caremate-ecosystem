@@ -17,7 +17,7 @@ import {
   type ProviderDocumentType,
 } from '@/domains/providers/documents-service';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 
 function typeLabel(
   t: (key: string, params?: Record<string, string | number>) => string,
@@ -257,7 +257,7 @@ export default function ProviderDocumentsScreen() {
               value={title}
               onChangeText={setTitle}
               placeholder={t('profile.documents.titlePlaceholder')}
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={textColors.placeholder}
             />
 
             <AppText variant="caption" style={styles.fieldLabel}>
