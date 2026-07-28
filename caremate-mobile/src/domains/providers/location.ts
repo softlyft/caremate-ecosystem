@@ -1,8 +1,9 @@
 import * as Location from 'expo-location';
+import { Linking } from 'react-native';
 
 import { GUEST_USER_ID } from '@/constants/guest';
 import { locationSampleRepository } from '@/domains/location/repository';
-import { getDeviceDefaults } from '@/domains/onboarding/device-defaults';
+import { getDeviceDefaults, setDeviceDefaults } from '@/domains/onboarding/device-defaults';
 import { useAuthStore } from '@/features/auth/store';
 
 export type NearbyLocationPrecision = 'gps' | 'last_known' | 'none';
@@ -18,7 +19,19 @@ export type NearbyCoords = {
   locationEnabled: boolean;
   /** True when ranking from the latest stored sample because live GPS is off. */
   usingLastKnown: boolean;
+  /**
+   * True when OS permission is denied and the system will not show the prompt again
+   * (`canAskAgain === false`). UI should offer Open Settings instead of Enable.
+   */
+  permissionBlocked: boolean;
   sampleId?: string;
+};
+
+export type EnableNearbyLocationResult = {
+  granted: boolean;
+  /** True when CareMate opened the system Settings app because the OS will not re-prompt. */
+  openedSettings: boolean;
+  canAskAgain: boolean;
 };
 
 function currentOwnerId(): string {
@@ -37,14 +50,21 @@ function emptyCoords(partial?: Partial<NearbyCoords>): NearbyCoords {
     precision: 'none',
     locationEnabled: false,
     usingLastKnown: false,
+    permissionBlocked: false,
     ...partial,
   };
 }
 
-async function fromLastKnownSample(options?: { locationEnabled?: boolean }): Promise<NearbyCoords> {
+async function fromLastKnownSample(options?: {
+  locationEnabled?: boolean;
+  permissionBlocked?: boolean;
+}): Promise<NearbyCoords> {
   const latest = await locationSampleRepository.getLatest(currentOwnerId());
   if (!latest) {
-    return emptyCoords({ locationEnabled: options?.locationEnabled ?? false });
+    return emptyCoords({
+      locationEnabled: options?.locationEnabled ?? false,
+      permissionBlocked: options?.permissionBlocked ?? false,
+    });
   }
 
   return {
@@ -54,6 +74,7 @@ async function fromLastKnownSample(options?: { locationEnabled?: boolean }): Pro
     precision: 'last_known',
     locationEnabled: options?.locationEnabled ?? false,
     usingLastKnown: true,
+    permissionBlocked: options?.permissionBlocked ?? false,
     sampleId: latest.id,
   };
 }
@@ -62,12 +83,13 @@ async function fromLastKnownSample(options?: { locationEnabled?: boolean }): Pro
  * Resolve coordinates for Nearby ranking.
  *
  * Priority:
- * 1. Fresh GPS when location mode is precise and permission is granted
+ * 1. Fresh GPS when location mode is precise and permission is already granted
  *    (captures full sample → SQLite last-20 → sync when signed in)
  * 2. Latest stored sample when location is off / denied / GPS fails
  * 3. No usable coords (UI shows enable-location empty state)
  *
- * Country/state capital pins are no longer used for Nearby ranking.
+ * Does not call `requestForegroundPermissionsAsync` — prompting is reserved for
+ * {@link enableNearbyLocationAccess} so denied/`canAskAgain: false` does not look like a no-op.
  */
 export async function resolveNearbyCoords(): Promise<NearbyCoords> {
   try {
@@ -78,9 +100,11 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
       return fromLastKnownSample({ locationEnabled: false });
     }
 
-    const permission = await Location.requestForegroundPermissionsAsync();
+    const permission = await Location.getForegroundPermissionsAsync();
+    const permissionBlocked = permission.status !== 'granted' && permission.canAskAgain === false;
+
     if (permission.status !== 'granted') {
-      return fromLastKnownSample({ locationEnabled: false });
+      return fromLastKnownSample({ locationEnabled: false, permissionBlocked });
     }
 
     const position = await Location.getCurrentPositionAsync({
@@ -107,9 +131,36 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
       precision: 'gps',
       locationEnabled: true,
       usingLastKnown: false,
+      permissionBlocked: false,
       sampleId: sample.id,
     };
   } catch {
     return fromLastKnownSample({ locationEnabled: false });
   }
+}
+
+/**
+ * Opt into precise Nearby location: persist preference, request OS permission when
+ * the system will still show a dialog, otherwise open Settings.
+ */
+export async function enableNearbyLocationAccess(): Promise<EnableNearbyLocationResult> {
+  await setDeviceDefaults({ locationMode: 'precise', locationSkipped: false });
+
+  let permission = await Location.getForegroundPermissionsAsync();
+
+  if (permission.status !== 'granted' && permission.canAskAgain !== false) {
+    permission = await Location.requestForegroundPermissionsAsync();
+  }
+
+  if (permission.status === 'granted') {
+    return { granted: true, openedSettings: false, canAskAgain: true };
+  }
+
+  const canAskAgain = permission.canAskAgain !== false;
+  if (!canAskAgain) {
+    await Linking.openSettings();
+    return { granted: false, openedSettings: true, canAskAgain: false };
+  }
+
+  return { granted: false, openedSettings: false, canAskAgain };
 }

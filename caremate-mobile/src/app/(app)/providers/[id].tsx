@@ -33,7 +33,7 @@ import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-m
 import { providerRepository } from '@/domains/providers/repository';
 import type { ProviderType } from '@/domains/providers/types';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 import type { Provider } from '@/types';
 
 function readRating(provider: Provider): number | null {
@@ -394,7 +394,7 @@ export default function ProviderDetailScreen() {
                         value={rejectionReason}
                         onChangeText={setRejectionReason}
                         placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
-                        placeholderTextColor="#9CA3AF"
+                        placeholderTextColor={textColors.placeholder}
                         multiline
                         editable={!respondMutation.isPending}
                       />

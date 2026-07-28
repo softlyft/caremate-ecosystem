@@ -30,7 +30,9 @@
     "locationNeeded": {
       "title": "See CareMate providers near you",
       "body": "Enable location to discover hospitals, clinics, and pharmacies around you — all within CareMate.",
-      "cta": "Enable location"
+      "cta": "Enable location",
+      "blockedBody": "Location access is blocked for CareMate. Open Settings to turn it on, then return here.",
+      "openSettings": "Open Settings"
     }
   },
   "dailyTip": {

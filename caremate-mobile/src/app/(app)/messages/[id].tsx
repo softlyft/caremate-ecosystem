@@ -26,7 +26,7 @@ import {
   type MessageMessage,
 } from '@/domains/messaging/repository';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, spacing, textColors } from '@/theme';
 
 function Bubble({ message, mine }: { message: MessageMessage; mine: boolean }) {
   return (
@@ -241,7 +241,7 @@ export default function MessageThreadScreen() {
           value={draft}
           onChangeText={setDraft}
           placeholder={t('messages.replyPlaceholder')}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={textColors.placeholder}
           multiline
           editable={!sending}
           textAlignVertical="top"

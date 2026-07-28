@@ -226,6 +226,10 @@ otp_expiry = 3600
 subject = "Your CareMate verification code"
 content_path = "./supabase/templates/confirmation.html"
 
+[auth.email.template.recovery]
+subject = "Your CareMate password reset code"
+content_path = "./supabase/templates/recovery.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true

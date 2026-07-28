@@ -16,8 +16,12 @@ export {
 } from '@/domains/providers/documents-service';
 export { providerRepository } from '@/domains/providers/repository';
 export { getLegacyProviderIds, getProviderSeeds } from '@/domains/providers/utils/fhir-providers';
-export { resolveNearbyCoords } from '@/domains/providers/location';
-export type { NearbyCoords, NearbyLocationPrecision } from '@/domains/providers/location';
+export { resolveNearbyCoords, enableNearbyLocationAccess } from '@/domains/providers/location';
+export type {
+  NearbyCoords,
+  NearbyLocationPrecision,
+  EnableNearbyLocationResult,
+} from '@/domains/providers/location';
 export {
   formatProviderType,
   isProviderType,

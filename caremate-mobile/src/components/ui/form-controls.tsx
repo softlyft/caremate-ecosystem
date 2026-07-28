@@ -7,6 +7,7 @@ import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { palette } from '@/theme';
+import { textColors } from '@/theme/typography';
 
 interface ButtonProps {
   label: string;
@@ -31,28 +32,39 @@ export function Button({ label, onPress, variant = 'primary', disabled }: Button
   );
 }
 
-export function InputControl(props: TextInputProps) {
+export function InputControl({
+  placeholderTextColor = textColors.placeholder,
+  ...props
+}: TextInputProps) {
   return (
-    <Input className="rounded-xl min-h-12 bg-secondary border-border">
-      <InputField className="text-[15px] font-sans" {...props} />
+    <Input className="rounded-xl min-h-12 bg-secondary border-input">
+      <InputField
+        className="text-[15px] font-sans"
+        placeholderTextColor={placeholderTextColor}
+        {...props}
+      />
     </Input>
   );
 }
 
 export { InputControl as Input };
 
-export function PasswordInput(props: TextInputProps) {
+export function PasswordInput({
+  placeholderTextColor = textColors.placeholder,
+  ...props
+}: TextInputProps) {
   const [visible, setVisible] = useState(false);
   const Icon = visible ? EyeOff : Eye;
 
   return (
-    <Input className="rounded-xl min-h-12 bg-secondary border-border">
+    <Input className="rounded-xl min-h-12 bg-secondary border-input">
       <InputField
         autoCapitalize="none"
         autoCorrect={false}
         className="text-[15px] font-sans"
         secureTextEntry={!visible}
         textContentType="password"
+        placeholderTextColor={placeholderTextColor}
         {...props}
       />
       <InputSlot

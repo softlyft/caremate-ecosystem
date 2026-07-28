@@ -22,6 +22,7 @@ import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { isValidNigerianNin, sanitizeNationalIdInput } from '@/domains/profile/national-id';
+import { isValidPhone, sanitizePhoneInput } from '@/domains/profile/phone';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerConnectionService } from '@/domains/providers/connection-service';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
@@ -125,7 +126,7 @@ function EditProfileForm({
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [fullName, setFullName] = useState(profile.fullName ?? '');
-  const [phone, setPhone] = useState(profile.phone ?? '');
+  const [phone, setPhone] = useState(() => sanitizePhoneInput(profile.phone ?? ''));
   const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? '');
   const [dobMonthRef, setDobMonthRef] = useState(() => initialMonthRef(profile.dateOfBirth));
   const [gender, setGender] = useState<Profile['gender']>(profile.gender);
@@ -243,12 +244,16 @@ function EditProfileForm({
       Alert.alert(t('profile.edit.ninInvalid'));
       return;
     }
+    if (phone.trim() && !isValidPhone(phone)) {
+      Alert.alert(t('profile.edit.phoneInvalid'));
+      return;
+    }
 
     setSaving(true);
     try {
       await profileRepository.save(userId, {
         fullName: name,
-        phone: phone.trim() || null,
+        phone: sanitizePhoneInput(phone.trim()) || null,
         dateOfBirth: dateOfBirth.trim() || null,
         gender,
         maritalStatus,
@@ -300,8 +305,11 @@ function EditProfileForm({
           <Input
             placeholder={t('profile.edit.phone')}
             keyboardType="phone-pad"
+            autoComplete="tel"
+            textContentType="telephoneNumber"
+            maxLength={16}
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={(value) => setPhone(sanitizePhoneInput(value))}
           />
 
           <View style={styles.fieldGroup}>

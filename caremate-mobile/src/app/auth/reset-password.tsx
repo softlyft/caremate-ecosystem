@@ -44,11 +44,12 @@ export default function ResetPasswordScreen() {
   async function onSubmit(values: ResetPasswordForm) {
     try {
       if (!isAuthenticated && !passwordRecoveryPending) {
-        Alert.alert(
-          'Link expired',
-          'Open the reset link from your email again, or request a new one.',
-          [{ text: 'Request new link', onPress: () => router.replace('/(auth)/forgot-password') }],
-        );
+        Alert.alert(t('auth.reset.expiredTitle'), t('auth.reset.expiredMessage'), [
+          {
+            text: t('auth.reset.requestNew'),
+            onPress: () => router.replace('/(auth)/forgot-password'),
+          },
+        ]);
         return;
       }
       await updatePassword(values.password);
@@ -66,10 +67,7 @@ export default function ResetPasswordScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle
-        title="Choose a new password"
-        subtitle="Enter a new password for your CareMate account."
-      />
+      <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
       <View style={styles.form}>
         <Controller
           control={control}
@@ -77,7 +75,7 @@ export default function ResetPasswordScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               secureTextEntry
-              placeholder="New password"
+              placeholder={t('auth.reset.password')}
               autoComplete="new-password"
               textContentType="newPassword"
               onBlur={onBlur}
@@ -103,7 +101,7 @@ export default function ResetPasswordScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               secureTextEntry
-              placeholder="Confirm new password"
+              placeholder={t('auth.reset.confirm')}
               autoComplete="new-password"
               textContentType="newPassword"
               onBlur={onBlur}
@@ -118,12 +116,12 @@ export default function ResetPasswordScreen() {
           </AppText>
         ) : null}
         <Button
-          label={isLoading ? 'Saving...' : 'Update password'}
+          label={isLoading ? t('common.loading') : t('auth.reset.submit')}
           disabled={isLoading}
           onPress={handleSubmit(onSubmit)}
         />
         <Button
-          label="Back to sign in"
+          label={t('auth.forgot.back')}
           variant="ghost"
           onPress={() => router.replace('/(auth)/login')}
         />

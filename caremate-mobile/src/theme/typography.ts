@@ -17,7 +17,8 @@ export const fontFamily = {
 export const textColors = {
   primary: palette.text,
   secondary: palette.textSecondary,
-  placeholder: '#9CA3AF',
+  /** Matches muted-foreground; ≥4.5:1 on white for readable placeholders */
+  placeholder: palette.textSecondary,
   disabled: '#D1D5DB',
   brand: palette.primary,
   inverse: '#FFFFFF',

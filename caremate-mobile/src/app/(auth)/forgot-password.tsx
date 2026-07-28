@@ -11,7 +11,6 @@ import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import { authService } from '@/services/auth-service';
 import { config } from '@/constants/env';
-import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
@@ -37,10 +36,12 @@ export default function ForgotPasswordScreen() {
         return;
       }
       setIsSubmitting(true);
-      await authService.resetPassword(values.email);
-      Alert.alert(t('auth.forgot.sent'), t('auth.forgot.subtitle'), [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      const email = values.email.trim().toLowerCase();
+      await authService.resetPassword(email);
+      router.replace({
+        pathname: '/(auth)/verify-reset',
+        params: { email },
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : t('common.error');
       Alert.alert(t('common.error'), message);
@@ -82,11 +83,6 @@ export default function ForgotPasswordScreen() {
         <Link href="/(auth)/login">
           <AppText variant="seeAll">{t('auth.forgot.back')}</AppText>
         </Link>
-        {__DEV__ ? (
-          <AppText variant="caption" color={colors.textMuted}>
-            Redirect URI: {getPasswordResetRedirectUri()}
-          </AppText>
-        ) : null}
       </View>
     </SafeAreaView>
   );

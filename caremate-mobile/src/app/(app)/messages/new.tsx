@@ -23,7 +23,7 @@ import {
   type MessageableUser,
 } from '@/domains/messaging/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, radius, spacing, textColors } from '@/theme';
 
 export default function NewMessageScreen() {
   const { t } = useTranslation();
@@ -69,7 +69,7 @@ export default function NewMessageScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder={t('messages.searchPlaceholder')}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={textColors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
           clearButtonMode="while-editing"

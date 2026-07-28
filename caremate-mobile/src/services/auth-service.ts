@@ -253,12 +253,41 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
+    // Email template shows a 6-digit {{ .Token }} (see supabase/templates/recovery.html).
+    // Users enter the code in-app via verifyOtp(type: 'recovery') — no browser redirect required.
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: getPasswordResetRedirectUri(),
     });
     if (error) {
       throw error;
     }
+  }
+
+  async verifyRecoveryOtp(email: string, token: string) {
+    if (!config.isSupabaseConfigured) {
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const code = token.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(code)) {
+      throw new Error('Enter the 6-digit code from your email');
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: normalizedEmail,
+      token: code,
+      type: 'recovery',
+    });
+    if (error) {
+      throw error;
+    }
+    if (!data.user || !data.session) {
+      throw new Error('Could not verify reset code. Try again or request a new one.');
+    }
+
+    await this.prepareLocalAccount(data.user, { email: normalizedEmail });
+    return data;
   }
 
   async updatePassword(password: string) {
