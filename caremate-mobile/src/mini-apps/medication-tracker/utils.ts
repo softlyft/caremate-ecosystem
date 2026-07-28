@@ -96,6 +96,27 @@ export function isMedicationScheduledOnDate(
   return true;
 }
 
+/** True when a fixed treatment window ended before `dateKey` (exclusive of end day). */
+export function isMedicationTreatmentEnded(
+  medication: Pick<Medication, 'endDate'>,
+  dateKey: string,
+): boolean {
+  return Boolean(medication.endDate && medication.endDate < dateKey);
+}
+
+/**
+ * Active flag for UI / caps: paused meds stay paused; ended courses cannot be active.
+ */
+export function resolveMedicationActiveState(
+  medication: Pick<Medication, 'active' | 'endDate'>,
+  dateKey: string,
+): boolean {
+  if (isMedicationTreatmentEnded(medication, dateKey)) {
+    return false;
+  }
+  return Boolean(medication.active);
+}
+
 export function getFrequencyLabel(frequency: MedicationFrequency): string {
   return getFrequencyOption(frequency).label;
 }
@@ -388,14 +409,17 @@ export function groupLogsByDate(
   return Array.from(byDate.entries()).map(([dateKey, items]) => ({ dateKey, items }));
 }
 
-export function normalizeMedication(medication: Medication): Medication {
+export function normalizeMedication(
+  medication: Medication,
+  todayKey: string = toDateKey(new Date()),
+): Medication {
   const frequency = medication.frequency ?? 'once-daily';
   const startDate = medication.startDate;
   let endDate = medication.endDate ?? null;
   if (endDate && startDate && endDate < startDate) {
     endDate = startDate;
   }
-  return {
+  const normalized: Medication = {
     ...medication,
     startDate,
     endDate,
@@ -416,6 +440,10 @@ export function normalizeMedication(medication: Medication): Medication {
         ? DEFAULT_REFILL_THRESHOLD
         : Number(medication.refillAtThreshold),
     refillDueDate: medication.refillDueDate ?? null,
+  };
+  return {
+    ...normalized,
+    active: resolveMedicationActiveState(normalized, todayKey),
   };
 }
 

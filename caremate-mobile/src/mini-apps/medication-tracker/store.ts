@@ -10,6 +10,7 @@ import {
 import {
   normalizeMedication,
   isValidHhMm,
+  toDateKey,
   type Medication,
   type MedicationDoseLog,
   type MedicationInstructions,
@@ -123,29 +124,38 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
       activeMedicationId: null,
       logs: [],
       addMedication: (input) => {
-        const medication: Medication = normalizeMedication({
-          id: uuidv4(),
-          active: true,
-          ...buildMedicationFields(input),
-        });
+        const todayKey = toDateKey(new Date());
+        const fields = buildMedicationFields(input);
+        const medication: Medication = normalizeMedication(
+          {
+            id: uuidv4(),
+            active: true,
+            ...fields,
+          },
+          todayKey,
+        );
         set({
           medications: [...get().medications, medication],
-          activeMedicationId: medication.id,
+          activeMedicationId: medication.active ? medication.id : get().activeMedicationId,
         });
         return medication;
       },
       updateMedication: (medicationId, input) => {
+        const todayKey = toDateKey(new Date());
         set({
           medications: get().medications.map((medication) => {
             if (medication.id !== medicationId) {
               return medication;
             }
-            return normalizeMedication({
-              ...medication,
-              ...buildMedicationFields(input, medication),
-              active: input.active ?? medication.active,
-              id: medication.id,
-            });
+            return normalizeMedication(
+              {
+                ...medication,
+                ...buildMedicationFields(input, medication),
+                active: input.active ?? medication.active,
+                id: medication.id,
+              },
+              todayKey,
+            );
           }),
         });
       },

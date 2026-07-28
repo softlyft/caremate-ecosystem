@@ -18,6 +18,7 @@
   "next": "Next",
   "done": "Done",
   "error": "Something went wrong",
+  "networkError": "No internet connection. Check your connection and try again.",
   "loadFailed": "Couldn't load this screen",
   "loadFailedMessage": "Check your connection and try again.",
   "offline": "You're offline",
