@@ -20,4 +20,4 @@ Server-only. Also add it to Amplify env for `caremate-admin-portal` (written int
 
 ## Device retention
 
-Mobile SQLite keeps external news for **3 calendar days** only (today, yesterday, 2 days ago), keyed by `first_seen_at`.
+Mobile SQLite keeps external news for **7 calendar days**, keyed by `first_seen_at`.

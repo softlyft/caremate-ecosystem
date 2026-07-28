@@ -34,7 +34,7 @@ export default async function ExternalNewsPage({
     <div>
       <PageHeader
         title="External news"
-        description="Currents health news synced manually for INT and NG. Published rows sync to devices; mobile keeps only the last 3 calendar days."
+        description="Currents health news synced manually for INT and NG. Published rows sync to devices; mobile keeps only the last 7 calendar days."
       />
 
       <form className="mb-4 flex flex-wrap gap-2">

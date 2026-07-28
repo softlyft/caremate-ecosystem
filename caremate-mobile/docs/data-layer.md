@@ -210,8 +210,8 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 | `findById(id)` | Single article |
 | `findTrending(limit, userKey?, countryCode?)` | Home mix: 1 evergreen + 2 INT + up to 2 country news from SQLite |
 | `getTrendingToday(limit, options)` | Offline-first trending (local only; passes `countryCode`) |
-| `pullFromRemote()` | Pull published catalog + external news from Supabase; reconcile unpublished external rows; purge external news older than 3 calendar days (`firstSeenAt`) |
-| `purgeStaleExternalNews()` | Soft-delete local external news outside today / yesterday / 2 days ago |
+| `pullFromRemote()` | Pull published catalog + external news from Supabase; reconcile unpublished external rows; purge external news older than 7 calendar days (`firstSeenAt`) |
+| `purgeStaleExternalNews()` | Soft-delete local external news outside the 7-day retention window |
 | `reconcileExternalNews(remoteLiveIds)` | Soft-delete local external news missing from the published remote set |
 | `toggleBookmark(userId, articleId)` | Add/remove bookmark + sync queue |
 | `getBookmarks(userId)` | Bookmarked articles |

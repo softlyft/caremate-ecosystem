@@ -159,36 +159,29 @@ describe('home trending news ordering', () => {
 describe('external news retention', () => {
   const now = new Date('2026-07-21T15:00:00.000Z');
 
-  it('keeps today / yesterday / two-days-ago and drops older', () => {
+  it('keeps stories within seven calendar days and drops older', () => {
     const today = makeArticle({
       id: 'currents-today',
       title: 'Today',
       sourceUrl: 'https://example.com/t',
       attributes: { firstSeenAt: '2026-07-21T08:00:00.000Z' },
     });
-    const yesterday = makeArticle({
-      id: 'currents-y',
-      title: 'Yesterday',
-      sourceUrl: 'https://example.com/y',
-      attributes: { firstSeenAt: '2026-07-20T08:00:00.000Z' },
+    const sixDays = makeArticle({
+      id: 'currents-6',
+      title: 'Six days',
+      sourceUrl: 'https://example.com/6',
+      attributes: { firstSeenAt: '2026-07-15T08:00:00.000Z' },
     });
-    const twoDays = makeArticle({
-      id: 'currents-2',
-      title: 'Two days',
-      sourceUrl: 'https://example.com/2',
-      attributes: { firstSeenAt: '2026-07-19T08:00:00.000Z' },
-    });
-    const threeDays = makeArticle({
-      id: 'currents-3',
-      title: 'Three days',
-      sourceUrl: 'https://example.com/3',
-      attributes: { firstSeenAt: '2026-07-18T08:00:00.000Z' },
+    const sevenDays = makeArticle({
+      id: 'currents-7',
+      title: 'Seven days',
+      sourceUrl: 'https://example.com/7',
+      attributes: { firstSeenAt: '2026-07-14T08:00:00.000Z' },
     });
 
     expect(isWithinExternalNewsRetention(today, now)).toBe(true);
-    expect(isWithinExternalNewsRetention(yesterday, now)).toBe(true);
-    expect(isWithinExternalNewsRetention(twoDays, now)).toBe(true);
-    expect(isWithinExternalNewsRetention(threeDays, now)).toBe(false);
+    expect(isWithinExternalNewsRetention(sixDays, now)).toBe(true);
+    expect(isWithinExternalNewsRetention(sevenDays, now)).toBe(false);
   });
 
   it('prefers firstSeenAt over createdAt for day bucketing', () => {

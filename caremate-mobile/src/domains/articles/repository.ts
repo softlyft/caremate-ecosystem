@@ -196,8 +196,8 @@ class ArticleRepository extends BaseRepository {
   }
 
   /**
-   * Soft-delete external news older than the 3-day retention window
-   * (today / yesterday / 2 days ago by first_seen).
+   * Soft-delete external news older than the retention window
+   * (see EXTERNAL_NEWS_RETENTION_DAYS / first_seen).
    */
   async purgeStaleExternalNews(now = new Date()): Promise<void> {
     const db = getDatabase();
@@ -670,6 +670,13 @@ class ArticleRepository extends BaseRepository {
     // RLS returns published live rows + published soft-deleted tombstones (any role).
     const { data, error } = await supabase.from('articles').select('*');
     if (error || !data) {
+      await this.purgeStaleExternalNews();
+      return;
+    }
+
+    // An empty successful payload is unusual (catalog should still have evergreen).
+    // Skip reconcile so we do not wipe the local Currents cache on a bad/empty response.
+    if (data.length === 0) {
       await this.purgeStaleExternalNews();
       return;
     }
