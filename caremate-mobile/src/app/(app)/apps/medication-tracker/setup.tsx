@@ -42,6 +42,7 @@ import {
   formatDisplayDate,
   endDateForDurationDays,
   durationDaysBetween,
+  isMedicationTreatmentEnded,
   normalizeMedication,
   areValidSlotTimes,
   toDateKey,
@@ -181,14 +182,37 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
   }, [isEditing, navigation, t]);
 
   const applyStartDate = (nextStart: string) => {
-    setStartDate(nextStart);
-    setMonthRef(monthStartForDateKey(nextStart));
     if (durationMode === 'preset' && durationDays != null) {
-      setEndDate(endDateForDurationDays(nextStart, durationDays));
+      const nextEnd = endDateForDurationDays(nextStart, durationDays);
+      if (nextEnd < todayKey) {
+        Alert.alert(
+          t('apps.medication.ui.treatmentEndedTitle'),
+          t('apps.medication.ui.treatmentEndedMessage'),
+        );
+        return;
+      }
+      setStartDate(nextStart);
+      setMonthRef(monthStartForDateKey(nextStart));
+      setEndDate(nextEnd);
       return;
     }
-    if (endDate && endDate < nextStart) {
-      setEndDate(nextStart);
+
+    let nextEnd = endDate;
+    if (nextEnd && nextEnd < nextStart) {
+      nextEnd = nextStart;
+    }
+    if (nextEnd && nextEnd < todayKey) {
+      Alert.alert(
+        t('apps.medication.ui.treatmentEndedTitle'),
+        t('apps.medication.ui.treatmentEndedMessage'),
+      );
+      return;
+    }
+
+    setStartDate(nextStart);
+    setMonthRef(monthStartForDateKey(nextStart));
+    if (nextEnd !== endDate) {
+      setEndDate(nextEnd);
     }
   };
 
@@ -200,9 +224,17 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
 
   const applyDurationPreset = (days: number) => {
     if (!startDate) return;
+    const nextEnd = endDateForDurationDays(startDate, days);
+    if (nextEnd < todayKey) {
+      Alert.alert(
+        t('apps.medication.ui.treatmentEndedTitle'),
+        t('apps.medication.ui.treatmentEndedMessage'),
+      );
+      return;
+    }
     setDurationMode('preset');
     setDurationDays(days);
-    setEndDate(endDateForDurationDays(startDate, days));
+    setEndDate(nextEnd);
     setCalendarMode('end');
   };
 
@@ -515,6 +547,13 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
               );
               return;
             }
+            if (dayKey < todayKey) {
+              Alert.alert(
+                t('apps.medication.ui.treatmentEndedTitle'),
+                t('apps.medication.ui.treatmentEndedMessage'),
+              );
+              return;
+            }
             setDurationMode('custom');
             setDurationDays(null);
             setEndDate(dayKey === endDate ? null : dayKey);
@@ -638,6 +677,13 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
             return;
           }
           if (!canSave) {
+            return;
+          }
+          if (isMedicationTreatmentEnded({ endDate }, todayKey)) {
+            Alert.alert(
+              t('apps.medication.ui.treatmentEndedTitle'),
+              t('apps.medication.ui.treatmentEndedMessage'),
+            );
             return;
           }
           if (forKid && !selectedChild) {

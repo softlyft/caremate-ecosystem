@@ -11,6 +11,7 @@ import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import { authService } from '@/services/auth-service';
 import { config } from '@/constants/env';
+import { toUserFacingErrorMessage } from '@/lib/user-facing-error';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
@@ -43,8 +44,10 @@ export default function ForgotPasswordScreen() {
         params: { email },
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : t('common.error');
-      Alert.alert(t('common.error'), message);
+      Alert.alert(
+        t('common.error'),
+        toUserFacingErrorMessage(error, t('common.error'), t('common.networkError')),
+      );
     } finally {
       setIsSubmitting(false);
     }

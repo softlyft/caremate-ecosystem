@@ -26,6 +26,7 @@ import { useTranslation } from '@/domains/localization';
 import { resolvePostSignupHref } from '@/domains/onboarding';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
 import { useAuthStore } from '@/features/auth/store';
+import { toUserFacingErrorMessage } from '@/lib/user-facing-error';
 import { palette, radius, useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
@@ -129,14 +130,10 @@ export default function RegisterScreen() {
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
-      const raw = error instanceof Error ? error.message : t('auth.register.error');
-      const message =
-        /Unable to resolve host|UnknownHostException|Network request failed|Failed to fetch/i.test(
-          raw,
-        )
-          ? 'No internet connection. Check device/emulator network and try again.'
-          : raw;
-      Alert.alert(t('auth.register.error'), message);
+      Alert.alert(
+        t('auth.register.error'),
+        toUserFacingErrorMessage(error, t('auth.register.error'), t('common.networkError')),
+      );
     }
   }
 

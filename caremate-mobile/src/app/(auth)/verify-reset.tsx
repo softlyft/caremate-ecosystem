@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,8 @@ import { config } from '@/constants/env';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
 import { useAuthStore } from '@/features/auth/store';
+import { useResendCooldown } from '@/hooks/use-resend-cooldown';
+import { toUserFacingErrorMessage } from '@/lib/user-facing-error';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
@@ -37,7 +39,7 @@ export default function VerifyResetScreen() {
   const verifyRecoveryEmail = useAuthStore((state) => state.verifyRecoveryEmail);
   const resendRecoveryEmail = useAuthStore((state) => state.resendRecoveryEmail);
   const isLoading = useAuthStore((state) => state.isLoading);
-  const [resendSeconds, setResendSeconds] = useState(RESEND_COOLDOWN_SECONDS);
+  const { resendSeconds, startCooldown } = useResendCooldown(RESEND_COOLDOWN_SECONDS);
   const [isResending, setIsResending] = useState(false);
 
   const schema = useMemo(
@@ -57,14 +59,6 @@ export default function VerifyResetScreen() {
     defaultValues: { code: '' },
   });
 
-  useEffect(() => {
-    if (resendSeconds <= 0) {
-      return;
-    }
-    const timer = setTimeout(() => setResendSeconds((value) => value - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [resendSeconds]);
-
   async function onSubmit(values: VerifyResetForm) {
     try {
       if (!config.isSupabaseConfigured) {
@@ -82,14 +76,10 @@ export default function VerifyResetScreen() {
       await verifyRecoveryEmail(email, values.code);
       router.replace('/auth/reset-password');
     } catch (error) {
-      const raw = error instanceof Error ? error.message : t('auth.verifyReset.error');
-      const message =
-        /Unable to resolve host|UnknownHostException|Network request failed|Failed to fetch/i.test(
-          raw,
-        )
-          ? 'No internet connection. Check device/emulator network and try again.'
-          : raw;
-      Alert.alert(t('auth.verifyReset.error'), message);
+      Alert.alert(
+        t('auth.verifyReset.error'),
+        toUserFacingErrorMessage(error, t('auth.verifyReset.error'), t('common.networkError')),
+      );
     }
   }
 
@@ -100,12 +90,12 @@ export default function VerifyResetScreen() {
     try {
       setIsResending(true);
       await resendRecoveryEmail(email);
-      setResendSeconds(RESEND_COOLDOWN_SECONDS);
+      startCooldown();
       Alert.alert(t('auth.verifyReset.resentTitle'), t('auth.verifyReset.resentMessage'));
     } catch (error) {
       Alert.alert(
         t('auth.verifyReset.error'),
-        error instanceof Error ? error.message : t('auth.verifyReset.error'),
+        toUserFacingErrorMessage(error, t('auth.verifyReset.error'), t('common.networkError')),
       );
     } finally {
       setIsResending(false);

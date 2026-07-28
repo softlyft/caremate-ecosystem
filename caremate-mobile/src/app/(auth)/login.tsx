@@ -14,6 +14,7 @@ import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
 import { useAuthStore } from '@/features/auth/store';
 import { authService } from '@/services/auth-service';
+import { isNetworkError, toUserFacingErrorMessage } from '@/lib/user-facing-error';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
@@ -47,8 +48,12 @@ export default function LoginScreen() {
       await signIn(values.email, values.password);
       await continueAfterAuth();
     } catch (error) {
-      const message = error instanceof Error ? error.message : t('auth.login.error');
-      if (/email not confirmed|confirm your email/i.test(message)) {
+      const message = toUserFacingErrorMessage(
+        error,
+        t('auth.login.error'),
+        t('common.networkError'),
+      );
+      if (!isNetworkError(error) && /email not confirmed|confirm your email/i.test(message)) {
         Alert.alert(t('auth.login.error'), t('auth.login.emailNotConfirmed'), [
           { text: t('common.cancel'), style: 'cancel' },
           {

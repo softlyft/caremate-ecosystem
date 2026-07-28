@@ -487,6 +487,8 @@
       "endDate": "End date",
       "endBeforeStartTitle": "End date too early",
       "endBeforeStartMessage": "Pick an end date on or after the start date.",
+      "treatmentEndedTitle": "Treatment already ended",
+      "treatmentEndedMessage": "That treatment period ends before today. Choose a later end date, a longer duration, or mark the medicine as ongoing.",
       "status": "Status",
       "active": "Active",
       "whichChild": "Which child?",

@@ -31,6 +31,7 @@ import {
   getStatusLabel,
   hhMmToDate,
   isMedicationScheduledOnDate,
+  isMedicationTreatmentEnded,
   isValidHhMm,
   needsRefill,
   nextSlotIndexForAsNeeded,
@@ -44,25 +45,31 @@ import {
 import { canActivateMedication, canAddMedication } from '@/domains/billing/entitlements';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
-const med = (overrides: Partial<Medication> = {}): Medication =>
-  normalizeMedication({
-    id: 'med-1',
-    name: 'Amoxicillin',
-    dosage: '500mg',
-    frequency: 'twice-daily',
-    startDate: '2026-07-01',
-    endDate: null,
-    active: true,
-    forKid: false,
-    familyMemberId: null,
-    patientName: null,
-    slotTimes: ['08:00', '20:00'],
-    instructions: { kind: 'none' },
-    quantityRemaining: null,
-    refillAtThreshold: 5,
-    refillDueDate: null,
-    ...overrides,
-  });
+/** Fixed "today" so historical course fixtures stay active under normalizeMedication. */
+const TEST_TODAY_KEY = '2026-07-16';
+
+const med = (overrides: Partial<Medication> = {}, todayKey: string = TEST_TODAY_KEY): Medication =>
+  normalizeMedication(
+    {
+      id: 'med-1',
+      name: 'Amoxicillin',
+      dosage: '500mg',
+      frequency: 'twice-daily',
+      startDate: '2026-07-01',
+      endDate: null,
+      active: true,
+      forKid: false,
+      familyMemberId: null,
+      patientName: null,
+      slotTimes: ['08:00', '20:00'],
+      instructions: { kind: 'none' },
+      quantityRemaining: null,
+      refillAtThreshold: 5,
+      refillDueDate: null,
+      ...overrides,
+    },
+    todayKey,
+  );
 
 describe('medication-tracker/dose times', () => {
   it('accepts only strict HH:mm values', () => {
@@ -205,6 +212,24 @@ describe('medication-tracker/utils', () => {
     expect(durationDaysBetween('2026-07-01', '2026-07-07')).toBe(7);
     expect(isMedicationScheduledOnDate(med({ endDate: '2026-07-17' }), '2026-07-17')).toBe(true);
     expect(isMedicationScheduledOnDate(med({ endDate: '2026-07-16' }), '2026-07-17')).toBe(false);
+  });
+
+  it('deactivates medicines whose treatment window already ended', () => {
+    expect(isMedicationTreatmentEnded(med({ endDate: '2026-07-20' }), '2026-07-27')).toBe(true);
+    expect(isMedicationTreatmentEnded(med({ endDate: '2026-07-27' }), '2026-07-27')).toBe(false);
+    expect(isMedicationTreatmentEnded(med({ endDate: null }), '2026-07-27')).toBe(false);
+
+    const ended = normalizeMedication(
+      med({ startDate: '2026-07-20', endDate: '2026-07-22', active: true }),
+      '2026-07-27',
+    );
+    expect(ended.active).toBe(false);
+
+    const stillRunning = normalizeMedication(
+      med({ startDate: '2026-07-20', endDate: '2026-07-30', active: true }),
+      '2026-07-27',
+    );
+    expect(stillRunning.active).toBe(true);
   });
 
   it('keeps an open as-needed row after doses are logged', () => {
@@ -501,7 +526,7 @@ describe('medication-tracker/store', () => {
       dosage: '500mg',
       frequency: 'twice-daily',
       startDate: '2026-07-21',
-      endDate: '2026-07-27',
+      endDate: '2026-08-27',
     });
 
     useMedicationTrackerStore.getState().updateMedication(medication.id, {
@@ -516,5 +541,7 @@ describe('medication-tracker/store', () => {
     const updated = useMedicationTrackerStore.getState().medications[0]!;
     expect(updated.startDate).toBe('2026-07-10');
     expect(updated.endDate).toBe('2026-07-16');
+    // Ended courses cannot remain active even if the write requests it.
+    expect(updated.active).toBe(false);
   });
 });
