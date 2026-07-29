@@ -26,6 +26,8 @@ export const WEBSITE_URLS = {
 export const STORAGE_KEYS = {
   onboardingComplete: 'caremate_onboarding_complete',
   deviceDefaults: 'caremate_device_defaults',
+  /** Last in-app route for restore after process death (e.g. Android permission revoke). */
+  lastAppRoute: 'caremate_last_app_route',
 } as const;
 
 export const SYNC_CONFIG = {

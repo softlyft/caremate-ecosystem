@@ -12,9 +12,9 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -68,16 +68,17 @@ export default function SearchScreen() {
       <View style={styles.meshAccent} pointerEvents="none" />
 
       <View style={styles.header}>
-        <PressableScale
+        <Button
           accessibilityRole="button"
           accessibilityLabel={t('common.goBack')}
           onPress={() => router.back()}
           style={[styles.backButton, shadow.soft]}
           scale={0.94}
           hitSlop={8}
+          variant="plain"
         >
           <ChevronLeft color={ACCENT} size={22} strokeWidth={2.4} />
-        </PressableScale>
+        </Button>
 
         <View style={[styles.searchShell, shadow.soft]}>
           <View style={styles.searchIcon}>
@@ -96,16 +97,17 @@ export default function SearchScreen() {
             accessibilityLabel={t('common.search')}
           />
           {query.length > 0 ? (
-            <PressableScale
+            <Button
               accessibilityRole="button"
               accessibilityLabel={t('search.clearA11y')}
               onPress={() => setQuery('')}
               style={styles.clearButton}
               hitSlop={8}
               scale={0.92}
+              variant="plain"
             >
               <X color={palette.textSecondary} size={16} strokeWidth={2.4} />
-            </PressableScale>
+            </Button>
           ) : null}
         </View>
       </View>
@@ -168,7 +170,7 @@ export default function SearchScreen() {
               {results.articles.map((article) => (
                 <CompactArticleCard key={article.id} article={article} />
               ))}
-              <PressableScale
+              <Button
                 onPress={() =>
                   router.push({
                     pathname: '/(app)/(tabs)/articles',
@@ -177,11 +179,12 @@ export default function SearchScreen() {
                 }
                 style={styles.seeAll}
                 scale={0.97}
+                variant="plain"
               >
                 <AppText variant="seeAll" color="brand">
                   {t('search.seeAllLearn')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </Section>
           </AnimatedSection>
         ) : null}
@@ -196,7 +199,7 @@ export default function SearchScreen() {
                   onPress={() => router.push(`/(app)/providers/${provider.id}`)}
                 />
               ))}
-              <PressableScale
+              <Button
                 onPress={() =>
                   router.push({
                     pathname: '/(app)/(tabs)/providers',
@@ -205,11 +208,12 @@ export default function SearchScreen() {
                 }
                 style={styles.seeAll}
                 scale={0.97}
+                variant="plain"
               >
                 <AppText variant="seeAll" color="brand">
                   {t('search.seeAllNearby')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </Section>
           </AnimatedSection>
         ) : null}
@@ -221,13 +225,14 @@ export default function SearchScreen() {
                 const Icon = tool.icon;
                 const { name, description } = getMiniAppLabel(tool.id, t);
                 return (
-                  <PressableScale
+                  <Button
                     key={tool.id}
                     style={[styles.toolCard, shadow.soft]}
                     onPress={() => router.push(tool.route)}
                     accessibilityRole="button"
                     accessibilityLabel={name}
                     scale={0.98}
+                    variant="plain"
                   >
                     <View style={[styles.toolIcon, { backgroundColor: tool.backgroundColor }]}>
                       <Icon color={tool.color} size={18} strokeWidth={2.25} />
@@ -238,7 +243,7 @@ export default function SearchScreen() {
                         {description}
                       </AppText>
                     </View>
-                  </PressableScale>
+                  </Button>
                 );
               })}
             </Section>

@@ -8,7 +8,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -17,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, Input } from '@/components/ui/form-controls';
 import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import {
@@ -42,7 +41,7 @@ import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { useTranslation } from '@/domains/localization';
-import { palette, radius, spacing, useAppTheme } from '@/theme';
+import { palette, spacing, useAppTheme } from '@/theme';
 
 const EMERGENCY_ACCENT = palette.brandPurple;
 const EMERGENCY_SOFT = palette.purpleLight;
@@ -87,6 +86,8 @@ export default function EmergencyEditScreen() {
   const [contactsSource, setContactsSource] = useState<EmergencyContact[] | undefined>(undefined);
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
   const [editingContactIndex, setEditingContactIndex] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const [contactError, setContactError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -336,11 +337,17 @@ export default function EmergencyEditScreen() {
   }
 
   async function onSubmit(values: EmergencyForm) {
+    if (savingRef.current) {
+      return;
+    }
+
     const emergencyContacts = resolveContactsForSave();
     if (!emergencyContacts) {
       return;
     }
 
+    savingRef.current = true;
+    setSaving(true);
     try {
       const saved = await emergencyRepository.save(userId, {
         fullName: joinFullName(values.firstName, values.lastName),
@@ -366,6 +373,9 @@ export default function EmergencyEditScreen() {
       const message =
         error instanceof Error ? error.message : t('emergency.edit.saveFailedMessage');
       Alert.alert(t('emergency.edit.saveFailed'), message);
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
   }
 
@@ -430,46 +440,34 @@ export default function EmergencyEditScreen() {
           <View style={styles.fieldGroup}>
             <AppText variant="cardTitle">{t('emergency.fields.bloodGroup')}</AppText>
             <View style={styles.chipRow}>
-              {BLOOD_GROUPS.map((group) => {
-                const selected = selectedBloodGroup === group;
-                return (
-                  <Pressable
-                    key={group}
-                    style={[styles.chip, selected && styles.chipSelected]}
-                    onPress={() => setValue('bloodGroup', group, { shouldValidate: true })}
-                  >
-                    <AppText
-                      variant="caption"
-                      style={selected ? styles.chipTextSelected : undefined}
-                    >
-                      {group}
-                    </AppText>
-                  </Pressable>
-                );
-              })}
+              {BLOOD_GROUPS.map((group) => (
+                <ChoiceChip
+                  key={group}
+                  label={group}
+                  selected={selectedBloodGroup === group}
+                  onPress={() => setValue('bloodGroup', group, { shouldValidate: true })}
+                  accent={EMERGENCY_ACCENT}
+                  soft={EMERGENCY_SOFT}
+                  disabled={saving}
+                />
+              ))}
             </View>
           </View>
 
           <View style={styles.fieldGroup}>
             <AppText variant="cardTitle">{t('emergency.fields.genotype')}</AppText>
             <View style={styles.chipRow}>
-              {GENOTYPES.map((genotype) => {
-                const selected = selectedGenotype === genotype;
-                return (
-                  <Pressable
-                    key={genotype}
-                    style={[styles.chip, selected && styles.chipSelected]}
-                    onPress={() => setValue('genotype', genotype, { shouldValidate: true })}
-                  >
-                    <AppText
-                      variant="caption"
-                      style={selected ? styles.chipTextSelected : undefined}
-                    >
-                      {genotype}
-                    </AppText>
-                  </Pressable>
-                );
-              })}
+              {GENOTYPES.map((genotype) => (
+                <ChoiceChip
+                  key={genotype}
+                  label={genotype}
+                  selected={selectedGenotype === genotype}
+                  onPress={() => setValue('genotype', genotype, { shouldValidate: true })}
+                  accent={EMERGENCY_ACCENT}
+                  soft={EMERGENCY_SOFT}
+                  disabled={saving}
+                />
+              ))}
             </View>
           </View>
 
@@ -479,7 +477,8 @@ export default function EmergencyEditScreen() {
             render={({ field }) => (
               <Input
                 placeholder={t('emergency.fields.allergiesPlaceholder')}
-                {...field}
+                value={field.value}
+                onBlur={field.onBlur}
                 onChangeText={field.onChange}
               />
             )}
@@ -490,7 +489,8 @@ export default function EmergencyEditScreen() {
             render={({ field }) => (
               <Input
                 placeholder={t('emergency.fields.medicationsPlaceholder')}
-                {...field}
+                value={field.value}
+                onBlur={field.onBlur}
                 onChangeText={field.onChange}
               />
             )}
@@ -501,7 +501,8 @@ export default function EmergencyEditScreen() {
             render={({ field }) => (
               <Input
                 placeholder={t('emergency.fields.conditionsPlaceholder')}
-                {...field}
+                value={field.value}
+                onBlur={field.onBlur}
                 onChangeText={field.onChange}
               />
             )}
@@ -512,7 +513,8 @@ export default function EmergencyEditScreen() {
             render={({ field }) => (
               <Input
                 placeholder={t('emergency.fields.hospital')}
-                {...field}
+                value={field.value}
+                onBlur={field.onBlur}
                 onChangeText={field.onChange}
               />
             )}
@@ -523,7 +525,8 @@ export default function EmergencyEditScreen() {
             render={({ field }) => (
               <Input
                 placeholder={t('emergency.fields.insurance')}
-                {...field}
+                value={field.value}
+                onBlur={field.onBlur}
                 onChangeText={field.onChange}
               />
             )}
@@ -535,7 +538,8 @@ export default function EmergencyEditScreen() {
               <Input
                 placeholder={t('emergency.fields.notes')}
                 multiline
-                {...field}
+                value={field.value}
+                onBlur={field.onBlur}
                 onChangeText={field.onChange}
               />
             )}
@@ -565,10 +569,11 @@ export default function EmergencyEditScreen() {
                       <AppText variant="caption">{contact.phone}</AppText>
                     </View>
                     <View style={styles.contactActions}>
-                      <Pressable
+                      <Button
                         onPress={() => beginEditContact(index)}
                         hitSlop={8}
                         disabled={isEditing}
+                        variant="plain"
                       >
                         <AppText
                           variant="seeAll"
@@ -576,12 +581,12 @@ export default function EmergencyEditScreen() {
                         >
                           {t('emergency.edit.editContact')}
                         </AppText>
-                      </Pressable>
-                      <Pressable onPress={() => removeContact(index)} hitSlop={8}>
+                      </Button>
+                      <Button onPress={() => removeContact(index)} hitSlop={8} variant="plain">
                         <AppText variant="seeAll" color={colors.danger}>
                           {t('emergency.edit.remove')}
                         </AppText>
-                      </Pressable>
+                      </Button>
                     </View>
                   </View>
                 );
@@ -662,7 +667,13 @@ export default function EmergencyEditScreen() {
             </AppText>
           ) : null}
 
-          <Button label={t('emergency.edit.save')} onPress={handleSubmit(onSubmit)} />
+          <Button
+            label={saving ? t('common.loading') : t('emergency.edit.save')}
+            disabled={saving}
+            onPress={() => {
+              void handleSubmit(onSubmit)();
+            }}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
@@ -684,23 +695,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: palette.background,
-    minWidth: 52,
-    alignItems: 'center',
-  },
-  chipSelected: {
-    backgroundColor: EMERGENCY_SOFT,
-    borderColor: EMERGENCY_ACCENT,
-  },
-  chipTextSelected: {
-    color: EMERGENCY_ACCENT,
   },
   contactCard: {
     borderWidth: 1,

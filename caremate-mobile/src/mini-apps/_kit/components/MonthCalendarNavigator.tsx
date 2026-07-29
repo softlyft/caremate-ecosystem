@@ -2,6 +2,7 @@ import { Check, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react-n
 import { useMemo, useRef, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { palette, radius, shadow, spacing } from '@/theme';
@@ -75,27 +76,29 @@ export function MonthCalendarNavigator({
   return (
     <>
       <View style={styles.header}>
-        <Pressable
+        <Button
           accessibilityLabel="Previous month"
           accessibilityRole="button"
           hitSlop={12}
           onPress={() => changeMonthBy(-1)}
           style={styles.arrowButton}
+          variant="plain"
         >
           <ChevronLeft color={palette.textSecondary} size={20} />
-        </Pressable>
+        </Button>
 
         <View style={styles.heading}>
-          <Pressable
+          <Button
             accessibilityHint="Opens month and year picker"
             accessibilityLabel={`Choose month and year, currently ${monthLabel}`}
             accessibilityRole="button"
             onPress={openPicker}
             style={styles.monthButton}
+            variant="plain"
           >
             <AppText variant="cardTitle">{monthLabel}</AppText>
             <ChevronDown color={palette.textSecondary} size={17} />
-          </Pressable>
+          </Button>
           {subtitle ? (
             <AppText variant="caption" style={styles.subtitle}>
               {subtitle}
@@ -103,27 +106,29 @@ export function MonthCalendarNavigator({
           ) : null}
         </View>
 
-        <Pressable
+        <Button
           accessibilityLabel="Next month"
           accessibilityRole="button"
           hitSlop={12}
           onPress={() => changeMonthBy(1)}
           style={styles.arrowButton}
+          variant="plain"
         >
           <ChevronRight color={palette.textSecondary} size={20} />
-        </Pressable>
+        </Button>
       </View>
 
       {!isCurrentMonth ? (
-        <Pressable
+        <Button
           accessibilityRole="button"
           onPress={() => onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1))}
           style={styles.todayButton}
+          variant="plain"
         >
           <AppText variant="caption" color={accentColor}>
             Today
           </AppText>
-        </Pressable>
+        </Button>
       ) : null}
 
       <Modal
@@ -155,15 +160,16 @@ export function MonthCalendarNavigator({
                   Select a year, then a month
                 </AppText>
               </View>
-              <Pressable
+              <Button
                 accessibilityLabel="Close"
                 accessibilityRole="button"
                 hitSlop={10}
                 onPress={() => setPickerOpen(false)}
                 style={styles.closeButton}
+                variant="plain"
               >
                 <X color={palette.textSecondary} size={20} />
-              </Pressable>
+              </Button>
             </View>
 
             <View style={styles.pickerBody}>
@@ -178,7 +184,7 @@ export function MonthCalendarNavigator({
                 renderItem={({ item: year }) => {
                   const selected = year === pickerYear;
                   return (
-                    <Pressable
+                    <Button
                       accessibilityRole="button"
                       accessibilityState={{ selected }}
                       onPress={() => setPickerYear(year)}
@@ -186,6 +192,7 @@ export function MonthCalendarNavigator({
                         styles.yearButton,
                         selected && { backgroundColor: `${accentColor}18` },
                       ]}
+                      variant="plain"
                     >
                       <AppText
                         variant="categoryPill"
@@ -193,7 +200,7 @@ export function MonthCalendarNavigator({
                       >
                         {year}
                       </AppText>
-                    </Pressable>
+                    </Button>
                   );
                 }}
                 showsVerticalScrollIndicator={false}
@@ -205,7 +212,7 @@ export function MonthCalendarNavigator({
                   const selected =
                     pickerYear === monthRef.getFullYear() && month === monthRef.getMonth();
                   return (
-                    <Pressable
+                    <Button
                       accessibilityLabel={`${label} ${pickerYear}`}
                       accessibilityRole="button"
                       accessibilityState={{ selected }}
@@ -215,12 +222,13 @@ export function MonthCalendarNavigator({
                         styles.monthOption,
                         selected && { backgroundColor: accentColor, borderColor: accentColor },
                       ]}
+                      variant="plain"
                     >
                       <AppText variant="categoryPill" color={selected ? '#FFFFFF' : palette.text}>
                         {label}
                       </AppText>
                       {selected ? <Check color="#FFFFFF" size={14} /> : null}
-                    </Pressable>
+                    </Button>
                   );
                 })}
               </View>

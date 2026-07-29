@@ -4,8 +4,8 @@ import { ChevronRight, ShieldPlus } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { useTranslation } from '@/domains/localization';
@@ -40,9 +40,10 @@ export function EmergencyBanner() {
   const ctaLabel = hasInput ? t('home.emergency.ctaUpdate') : t('home.emergency.cta');
 
   return (
-    <PressableScale
+    <Button
       style={[styles.wrapper, shadow.card]}
       onPress={() => router.push('/(app)/emergency/edit')}
+      variant="plain"
     >
       <LinearGradientFill
         colors={[
@@ -73,7 +74,7 @@ export function EmergencyBanner() {
           <ChevronRight color={palette.brandPurple} size={16} strokeWidth={2.5} />
         </View>
       </LinearGradientFill>
-    </PressableScale>
+    </Button>
   );
 }
 

@@ -9,9 +9,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import QRCode from 'react-native-qrcode-svg';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { buildEmergencyShareUrl, isValidEmergencyShareToken } from '@/domains/emergency/share';
@@ -117,11 +117,12 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
 
       {hasId && patientId ? (
         <>
-          <PressableScale
+          <Button
             accessibilityRole="button"
             accessibilityLabel={t('profile.patientId.flipA11y')}
             onPress={toggleFlip}
             style={[styles.atmShell, shadow.card]}
+            variant="plain"
           >
             <View style={styles.flipScene}>
               <Animated.View style={[styles.face, frontStyle]} pointerEvents="box-none">
@@ -208,7 +209,7 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                 </View>
               </Animated.View>
             </View>
-          </PressableScale>
+          </Button>
         </>
       ) : (
         <View style={styles.emptyCard}>
@@ -225,13 +226,14 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                 : t('profile.patientId.generateError')}
             </AppText>
           ) : null}
-          <PressableScale
+          <Button
             style={[
               styles.generateButton,
               (generateMutation.isPending || profileQuery.isLoading) && styles.generateDisabled,
             ]}
             onPress={() => generateMutation.mutate()}
             disabled={generateMutation.isPending || profileQuery.isLoading}
+            variant="plain"
           >
             {generateMutation.isPending ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -240,7 +242,7 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                 {t('profile.patientId.generate')}
               </AppText>
             )}
-          </PressableScale>
+          </Button>
         </View>
       )}
     </View>

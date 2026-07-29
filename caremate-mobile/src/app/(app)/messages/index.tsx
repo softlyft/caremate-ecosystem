@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { Plus } from 'lucide-react-native';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
@@ -28,10 +29,11 @@ function ConversationRow({ item }: { item: MessageConversation }) {
   const { t } = useTranslation();
   const title = item.title?.trim() || item.organization_name?.trim() || 'Provider';
   return (
-    <Pressable
+    <Button
       style={styles.row}
       onPress={() => router.push(`/(app)/messages/${item.id}`)}
       accessibilityRole="button"
+      variant="plain"
     >
       <View style={styles.avatar}>
         <AppText variant="cardTitle" style={styles.avatarLetter}>
@@ -60,7 +62,7 @@ function ConversationRow({ item }: { item: MessageConversation }) {
           {item.unread ? <View style={styles.unreadDot} /> : null}
         </View>
       </View>
-    </Pressable>
+    </Button>
   );
 }
 
@@ -91,17 +93,18 @@ export default function MessagesInboxScreen() {
     <View style={[styles.screen, { paddingBottom: insets.bottom + spacing.md }]}>
       {!isEmpty ? (
         <View style={styles.toolbar}>
-          <Pressable
+          <Button
             style={styles.newButton}
             onPress={() => router.push('/(app)/messages/new')}
             accessibilityRole="button"
             accessibilityLabel={t('messages.newMessageA11y')}
+            variant="plain"
           >
             <Plus color={palette.primaryDark} size={18} strokeWidth={2.4} />
             <AppText variant="seeAll" style={styles.newButtonLabel}>
               {t('messages.newMessage')}
             </AppText>
-          </Pressable>
+          </Button>
         </View>
       ) : null}
 

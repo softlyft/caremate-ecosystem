@@ -11,9 +11,9 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { localizationService, useTranslation } from '@/domains/localization';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
@@ -80,6 +80,7 @@ export default function OnboardingLocationScreen() {
       title={t('onboarding.location.title')}
       subtitle={t('onboarding.location.subtitle', { place: placeLabel })}
       onSkip={useApproximate}
+      busy={busy}
       hero={
         <View style={[styles.heroShell, shadow.card]}>
           <LinearGradientFill
@@ -102,7 +103,7 @@ export default function OnboardingLocationScreen() {
           <OnboardingPrimaryButton
             label={busy ? t('onboarding.location.checking') : t('onboarding.location.enable')}
             accent={theme.accent}
-            disabled={busy}
+            loading={busy}
             onPress={() => void enablePrecise()}
           />
           <OnboardingSecondaryButton
@@ -116,10 +117,11 @@ export default function OnboardingLocationScreen() {
       }
     >
       <Animated.View entering={FadeInDown.delay(120).duration(480)} style={styles.options}>
-        <PressableScale
+        <Button
           style={[styles.optionCard, shadow.soft]}
           disabled={busy}
           onPress={() => void enablePrecise()}
+          variant="plain"
         >
           <View style={[styles.optionIcon, { backgroundColor: theme.soft }]}>
             <Crosshair color={theme.accent} size={20} />
@@ -132,12 +134,13 @@ export default function OnboardingLocationScreen() {
               {t('onboarding.location.precise.hint')}
             </AppText>
           </View>
-        </PressableScale>
+        </Button>
 
-        <PressableScale
+        <Button
           style={[styles.optionCard, shadow.soft]}
           disabled={busy}
           onPress={useApproximate}
+          variant="plain"
         >
           <View style={[styles.optionIcon, { backgroundColor: theme.soft }]}>
             <MapPinned color={theme.accent} size={20} />
@@ -150,7 +153,7 @@ export default function OnboardingLocationScreen() {
               {t('onboarding.location.approximate.hint', { place: placeLabel })}
             </AppText>
           </View>
-        </PressableScale>
+        </Button>
       </Animated.View>
     </OnboardingShell>
   );

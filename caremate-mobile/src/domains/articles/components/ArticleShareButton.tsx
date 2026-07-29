@@ -1,7 +1,8 @@
+import { useRef, useState } from 'react';
 import { Share2 } from 'lucide-react-native';
 import { Share, StyleSheet, type ViewStyle } from 'react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
+import { Button } from '@/components/ui/form-controls';
 import { buildArticleShareContent } from '@/domains/articles/share';
 import { isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { useTranslation } from '@/domains/localization';
@@ -26,12 +27,19 @@ export function ArticleShareButton({
   hitSlop = 10,
 }: ArticleShareButtonProps) {
   const { t } = useTranslation();
+  const [sharing, setSharing] = useState(false);
+  const sharingRef = useRef(false);
 
   if (isExternalArticle(article)) {
     return null;
   }
 
   async function share() {
+    if (sharingRef.current) {
+      return;
+    }
+    sharingRef.current = true;
+    setSharing(true);
     const content = buildArticleShareContent(article, {
       continueReading: t('learn.shareContinue'),
     });
@@ -43,22 +51,26 @@ export function ArticleShareButton({
       });
     } catch {
       // User dismissed the sheet or share is unavailable.
+    } finally {
+      sharingRef.current = false;
+      setSharing(false);
     }
   }
 
   return (
-    <PressableScale
-      accessibilityRole="button"
+    <Button
       accessibilityLabel={t('learn.shareArticle')}
+      accessibilityState={{ busy: sharing }}
       hitSlop={hitSlop}
-      onPress={(event) => {
-        event?.stopPropagation?.();
+      disabled={sharing}
+      onPress={() => {
         void share();
       }}
       style={[styles.button, style]}
+      variant="plain"
     >
       <Share2 color={palette.textSecondary} size={size} strokeWidth={2.25} />
-    </PressableScale>
+    </Button>
   );
 }
 

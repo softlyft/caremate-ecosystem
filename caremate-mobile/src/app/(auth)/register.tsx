@@ -4,7 +4,7 @@ import type { Href } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
@@ -232,7 +232,7 @@ export default function RegisterScreen() {
           name="acceptedLegal"
           render={({ field: { onChange, value } }) => (
             <View style={styles.acceptRow}>
-              <Pressable
+              <Button
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: value }}
                 accessibilityLabel={t('auth.register.acceptRequired')}
@@ -243,27 +243,36 @@ export default function RegisterScreen() {
                   value ? styles.checkboxChecked : null,
                   formState.errors.acceptedLegal ? styles.checkboxError : null,
                 ]}
+                variant="plain"
               >
                 {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
-              </Pressable>
+              </Button>
               <View style={styles.acceptCopy}>
                 <AppText variant="caption" style={styles.acceptText}>
                   {t('auth.register.acceptLead')}{' '}
                 </AppText>
-                <Pressable onPress={() => void openLegalUrl(LEGAL_URLS.terms)} hitSlop={6}>
+                <Button
+                  onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
+                  hitSlop={6}
+                  variant="plain"
+                >
                   <AppText variant="caption" style={styles.acceptLink}>
                     {t('settings.legal.terms')}
                   </AppText>
-                </Pressable>
+                </Button>
                 <AppText variant="caption" style={styles.acceptText}>
                   {' '}
                   {t('auth.register.acceptAnd')}{' '}
                 </AppText>
-                <Pressable onPress={() => void openLegalUrl(LEGAL_URLS.privacy)} hitSlop={6}>
+                <Button
+                  onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
+                  hitSlop={6}
+                  variant="plain"
+                >
                   <AppText variant="caption" style={styles.acceptLink}>
                     {t('settings.legal.privacy')}
                   </AppText>
-                </Pressable>
+                </Button>
               </View>
             </View>
           )}

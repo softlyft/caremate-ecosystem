@@ -8,6 +8,17 @@ import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 
 export type PeriodPauseReason = 'pregnancy';
 
+/** Inclusive bounds for user-configured average cycle length (days). */
+export const CYCLE_LENGTH_MIN = 21;
+export const CYCLE_LENGTH_MAX = 45;
+
+export function clampCycleLength(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 28;
+  }
+  return Math.min(CYCLE_LENGTH_MAX, Math.max(CYCLE_LENGTH_MIN, Math.round(value)));
+}
+
 interface PeriodTrackerState {
   cycleLength: number;
   periodLength: number;
@@ -25,26 +36,42 @@ interface PeriodTrackerState {
 }
 
 /**
- * Start date of the most recent contiguous logged streak.
- * Used as the cycle anchor for next-period predictions.
+ * Start date + length of the most recent contiguous logged streak.
+ * Used as the cycle anchor for next-period predictions and Cycle Summary.
  */
-export function deriveLastPeriodStart(days: string[]): string | null {
+export function deriveLatestPeriodStreak(days: string[]): { start: string; length: number } | null {
   if (days.length === 0) {
     return null;
   }
   const sorted = [...days].sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime());
   let streakStart = sorted[sorted.length - 1]!;
+  let length = 1;
   for (let i = sorted.length - 1; i > 0; i -= 1) {
     const current = parseDateKey(sorted[i]!);
     const previous = parseDateKey(sorted[i - 1]!);
     const gapDays = Math.round((current.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24));
     if (gapDays <= 1) {
       streakStart = sorted[i - 1]!;
+      length += 1;
     } else {
       break;
     }
   }
-  return streakStart;
+  return { start: streakStart, length };
+}
+
+/** Start date of the most recent contiguous logged streak. */
+export function deriveLastPeriodStart(days: string[]): string | null {
+  return deriveLatestPeriodStreak(days)?.start ?? null;
+}
+
+function applyLoggedPeriodDays(loggedPeriodDays: string[]) {
+  const streak = deriveLatestPeriodStreak(loggedPeriodDays);
+  return {
+    loggedPeriodDays,
+    lastPeriodStart: streak?.start ?? null,
+    ...(streak ? { periodLength: streak.length } : {}),
+  };
 }
 
 export const usePeriodTrackerStore = create<PeriodTrackerState>()(
@@ -56,13 +83,9 @@ export const usePeriodTrackerStore = create<PeriodTrackerState>()(
       lastPeriodStart: null,
       paused: false,
       pausedReason: null,
-      setCycleLength: (cycleLength) => set({ cycleLength }),
+      setCycleLength: (cycleLength) => set({ cycleLength: clampCycleLength(cycleLength) }),
       setPeriodLength: (periodLength) => set({ periodLength }),
-      setLoggedPeriodDays: (loggedPeriodDays) =>
-        set({
-          loggedPeriodDays,
-          lastPeriodStart: deriveLastPeriodStart(loggedPeriodDays),
-        }),
+      setLoggedPeriodDays: (loggedPeriodDays) => set(applyLoggedPeriodDays(loggedPeriodDays)),
       togglePeriodDay: (dayKey) => {
         if (get().paused) {
           return;
@@ -72,10 +95,7 @@ export const usePeriodTrackerStore = create<PeriodTrackerState>()(
         const loggedPeriodDays = exists
           ? current.filter((day) => day !== dayKey)
           : [...current, dayKey];
-        set({
-          loggedPeriodDays,
-          lastPeriodStart: deriveLastPeriodStart(loggedPeriodDays),
-        });
+        set(applyLoggedPeriodDays(loggedPeriodDays));
       },
       pauseForPregnancy: () =>
         set({

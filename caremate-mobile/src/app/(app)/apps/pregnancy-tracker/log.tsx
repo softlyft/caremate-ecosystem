@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
+import { Button, Input } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
@@ -98,21 +99,23 @@ export default function PregnancyLogScreen() {
 
       <MiniAppCard index={3} title={t('apps.pregnancy.ui.babyKicks')} theme={theme}>
         <View style={styles.counterRow}>
-          <Pressable
+          <Button
             style={[styles.counterButton, { borderColor: theme.color }]}
             onPress={() => setKickCount((count) => Math.max(0, count - 1))}
+            variant="plain"
           >
             <Minus color={theme.color} size={18} />
-          </Pressable>
+          </Button>
           <AppText variant="screenTitle" style={{ color: theme.titleColor }}>
             {kickCount}
           </AppText>
-          <Pressable
+          <Button
             style={[styles.counterButton, { borderColor: theme.color }]}
             onPress={() => setKickCount((count) => count + 1)}
+            variant="plain"
           >
             <Plus color={theme.color} size={18} />
-          </Pressable>
+          </Button>
         </View>
         <AppText variant="caption" style={styles.muted}>
           {t('apps.pregnancy.ui.tapKickHint')}
@@ -120,14 +123,13 @@ export default function PregnancyLogScreen() {
       </MiniAppCard>
 
       <MiniAppCard index={4} title={t('apps.pregnancy.ui.notes')} theme={theme}>
-        <TextInput
+        <Input
           value={notes}
           onChangeText={setNotes}
           placeholder={t('apps.pregnancy.ui.notesPlaceholder')}
           multiline
           style={styles.notesInput}
           textAlignVertical="top"
-          placeholderTextColor={palette.textSecondary}
         />
       </MiniAppCard>
 
@@ -180,13 +182,7 @@ const styles = StyleSheet.create({
   },
   notesInput: {
     minHeight: 110,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: spacing.md,
-    backgroundColor: palette.surface,
-    fontSize: 15,
-    color: palette.text,
+    textAlignVertical: 'top',
   },
   muted: {
     color: palette.textSecondary,

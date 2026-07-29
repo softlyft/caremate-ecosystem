@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { getMiniAppLabel, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
@@ -29,7 +29,7 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
 
   return (
     <AnimatedSection index={index + 1}>
-      <PressableScale
+      <Button
         disabled={!app.available}
         style={[styles.shell, shadow.soft, !app.available ? styles.unavailable : null]}
         onPress={() => {
@@ -45,6 +45,7 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
         accessibilityRole="button"
         accessibilityLabel={name}
         accessibilityState={{ disabled: !app.available }}
+        variant="plain"
       >
         <LinearGradientFill
           colors={[
@@ -95,7 +96,7 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
             </AppText>
           </View>
         </LinearGradientFill>
-      </PressableScale>
+      </Button>
     </AnimatedSection>
   );
 }

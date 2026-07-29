@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -130,21 +130,22 @@ export default function ProviderConnectionRequestsScreen() {
                     editable={!busy}
                   />
                   <View style={styles.actions}>
-                    <PressableScale
-                      style={[styles.decline, busy ? styles.disabled : null]}
+                    <Button
+                      style={styles.decline}
                       disabled={busy}
                       onPress={() => {
                         setDecliningId(null);
                         setReason('');
                       }}
+                      variant="plain"
                     >
                       <AppText variant="button" style={styles.declineLabel}>
                         {t('common.cancel')}
                       </AppText>
-                    </PressableScale>
-                    <PressableScale
-                      style={[styles.approve, busy ? styles.disabled : null]}
-                      disabled={busy}
+                    </Button>
+                    <Button
+                      style={styles.approve}
+                      loading={busy}
                       onPress={() => {
                         setBusyId(request.id);
                         respondMutation.mutate({
@@ -153,39 +154,42 @@ export default function ProviderConnectionRequestsScreen() {
                           rejectionReason: reason,
                         });
                       }}
+                      variant="plain"
                     >
                       <AppText variant="button" style={styles.approveLabel}>
                         {t('nearby.connectionRequests.confirmDecline')}
                       </AppText>
-                    </PressableScale>
+                    </Button>
                   </View>
                 </View>
               ) : (
                 <View style={styles.actions}>
-                  <PressableScale
-                    style={[styles.approve, busy ? styles.disabled : null]}
-                    disabled={busy}
+                  <Button
+                    style={styles.approve}
+                    loading={busy}
                     onPress={() => {
                       setBusyId(request.id);
                       respondMutation.mutate({ connectionId: request.id, accept: true });
                     }}
+                    variant="plain"
                   >
                     <AppText variant="button" style={styles.approveLabel}>
                       {t('nearby.connectionRequests.approve')}
                     </AppText>
-                  </PressableScale>
-                  <PressableScale
-                    style={[styles.decline, busy ? styles.disabled : null]}
+                  </Button>
+                  <Button
+                    style={styles.decline}
                     disabled={busy}
                     onPress={() => {
                       setDecliningId(request.id);
                       setReason('');
                     }}
+                    variant="plain"
                   >
                     <AppText variant="button" style={styles.declineLabel}>
                       {t('nearby.connectionRequests.decline')}
                     </AppText>
-                  </PressableScale>
+                  </Button>
                 </View>
               )}
             </View>
@@ -270,8 +274,5 @@ const styles = StyleSheet.create({
   },
   declineLabel: {
     color: palette.text,
-  },
-  disabled: {
-    opacity: 0.5,
   },
 });

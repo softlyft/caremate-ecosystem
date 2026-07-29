@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
 import { BookOpen, ChevronLeft, X, type LucideIcon } from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { translateText } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow } from '@/theme';
@@ -32,7 +32,7 @@ function GlossyBackButton({
   const Icon = modal ? X : ChevronLeft;
 
   return (
-    <PressableScale
+    <Button
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={() => router.back()}
@@ -43,9 +43,10 @@ function GlossyBackButton({
       ]}
       scale={0.94}
       hitSlop={8}
+      variant="plain"
     >
       <Icon color={accent} size={modal ? 18 : 22} strokeWidth={2.4} />
-    </PressableScale>
+    </Button>
   );
 }
 

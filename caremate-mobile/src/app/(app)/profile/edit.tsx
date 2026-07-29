@@ -6,7 +6,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -17,11 +16,15 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, Input } from '@/components/ui/form-controls';
 import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
-import { isValidNigerianNin, sanitizeNationalIdInput } from '@/domains/profile/national-id';
+import {
+  isNigeriaCountry,
+  parseNationalId,
+  sanitizeNationalIdInput,
+} from '@/domains/profile/national-id';
 import { isValidPhone, sanitizePhoneInput } from '@/domains/profile/phone';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerConnectionService } from '@/domains/providers/connection-service';
@@ -29,7 +32,7 @@ import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import type { Profile } from '@/types';
-import { palette, radius, spacing } from '@/theme';
+import { palette, spacing } from '@/theme';
 
 const GENDERS: NonNullable<Profile['gender']>[] = ['male', 'female', 'other', 'unknown'];
 const MARITAL: NonNullable<Profile['maritalStatus']>[] = [
@@ -72,18 +75,7 @@ type ChipProps = {
 };
 
 function Chip({ label, selected, onPress }: ChipProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.chip, selected ? styles.chipSelected : null]}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-    >
-      <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-        {label}
-      </AppText>
-    </Pressable>
-  );
+  return <ChoiceChip label={label} selected={selected} onPress={onPress} />;
 }
 
 export default function EditProfileScreen() {
@@ -138,6 +130,7 @@ function EditProfileForm({
   const [stateValue, setStateValue] = useState(profile.state ?? '');
   const [postalCode, setPostalCode] = useState(profile.postalCode ?? '');
   const [nationalId, setNationalId] = useState(profile.nationalId ?? '');
+  const [nationalIdError, setNationalIdError] = useState<string | null>(null);
   const [isPractitioner, setIsPractitioner] = useState(Boolean(profile.isHealthPractitioner));
   const [saving, setSaving] = useState(false);
 
@@ -183,8 +176,15 @@ function EditProfileForm({
   });
 
   const countryCode = profile.countryCode ?? null;
-  const isNigeria = (countryCode ?? '').toUpperCase() === 'NG';
+  const isNigeria = isNigeriaCountry(countryCode);
   const nationalIdLabel = isNigeria ? t('profile.edit.nin') : t('profile.edit.nationalId');
+  const nationalIdMessages = useMemo(
+    () => ({
+      ninInvalid: t('profile.edit.ninInvalid'),
+      nationalIdInvalid: t('profile.edit.nationalIdInvalid'),
+    }),
+    [t],
+  );
   const todayKey = useMemo(() => toDateKey(new Date()), []);
   const currentYear = useMemo(() => new Date().getFullYear(), []);
 
@@ -240,10 +240,15 @@ function EditProfileForm({
       Alert.alert(t('profile.edit.nameRequired'));
       return;
     }
-    if (isNigeria && nationalId.trim() && !isValidNigerianNin(nationalId)) {
-      Alert.alert(t('profile.edit.ninInvalid'));
+
+    const nationalIdResult = parseNationalId(nationalId, countryCode, nationalIdMessages);
+    if (!nationalIdResult.ok) {
+      setNationalIdError(nationalIdResult.message);
+      Alert.alert(nationalIdResult.message);
       return;
     }
+    setNationalIdError(null);
+
     if (phone.trim() && !isValidPhone(phone)) {
       Alert.alert(t('profile.edit.phoneInvalid'));
       return;
@@ -261,7 +266,7 @@ function EditProfileForm({
         city: city.trim() || null,
         state: stateValue.trim() || null,
         postalCode: postalCode.trim() || null,
-        nationalId: nationalId.trim() || null,
+        nationalId: nationalIdResult.value,
         isHealthPractitioner: isPractitioner,
       });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
@@ -341,15 +346,16 @@ function EditProfileForm({
                 <AppText variant="body">
                   {t('profile.edit.dateOfBirthSelected', { date: formatDobLabel(dateOfBirth) })}
                 </AppText>
-                <Pressable
+                <Button
                   accessibilityRole="button"
                   onPress={() => setDateOfBirth('')}
                   hitSlop={8}
+                  variant="plain"
                 >
                   <AppText variant="caption" color="brand">
                     {t('common.clear')}
                   </AppText>
-                </Pressable>
+                </Button>
               </View>
             ) : null}
           </View>
@@ -409,10 +415,31 @@ function EditProfileForm({
           <Input
             placeholder={nationalIdLabel}
             keyboardType={isNigeria ? 'number-pad' : 'default'}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            maxLength={isNigeria ? 11 : 32}
             value={nationalId}
-            onChangeText={(value) => setNationalId(sanitizeNationalIdInput(value, countryCode))}
+            onChangeText={(value) => {
+              setNationalId(sanitizeNationalIdInput(value, countryCode));
+              if (nationalIdError) {
+                setNationalIdError(null);
+              }
+            }}
             onFocus={scrollFocusedFieldIntoView}
+            onBlur={() => {
+              const result = parseNationalId(nationalId, countryCode, nationalIdMessages);
+              setNationalIdError(result.ok ? null : result.message);
+            }}
           />
+          {nationalIdError ? (
+            <AppText variant="caption" style={styles.fieldError}>
+              {nationalIdError}
+            </AppText>
+          ) : (
+            <AppText variant="caption" style={styles.muted}>
+              {isNigeria ? t('profile.edit.ninHint') : t('profile.edit.nationalIdHint')}
+            </AppText>
+          )}
 
           <View style={styles.fieldGroup}>
             <AppText variant="cardTitle">{t('profile.edit.practitionerTitle')}</AppText>
@@ -499,6 +526,10 @@ const styles = StyleSheet.create({
   muted: {
     color: palette.textSecondary,
   },
+  fieldError: {
+    color: palette.danger,
+    marginTop: -spacing.sm,
+  },
   dobSelectedRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -509,21 +540,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: palette.primaryLight,
-    borderColor: palette.primary,
-  },
-  chipTextSelected: {
-    color: palette.primaryDark,
   },
   orgCard: {
     gap: spacing.sm,

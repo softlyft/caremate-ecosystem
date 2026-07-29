@@ -1,7 +1,7 @@
 import { Bookmark } from 'lucide-react-native';
 import { StyleSheet, ViewStyle } from 'react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
+import { Button } from '@/components/ui/form-controls';
 import { useArticleBookmark } from '@/domains/articles/hooks/use-article-bookmark';
 import { palette, radius } from '@/theme';
 
@@ -22,15 +22,12 @@ export function BookmarkToggleButton({
   const { isBookmarked, isToggling, toggle } = useArticleBookmark(articleId);
 
   return (
-    <PressableScale
-      accessibilityRole="button"
+    <Button
       accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Bookmark article'}
       accessibilityState={{ selected: isBookmarked, busy: isToggling }}
       hitSlop={hitSlop}
       disabled={isToggling}
-      onPress={(event) => {
-        // Avoid navigating when this control sits inside an article card pressable.
-        event?.stopPropagation?.();
+      onPress={() => {
         toggle();
       }}
       style={[
@@ -39,6 +36,7 @@ export function BookmarkToggleButton({
         isToggling ? styles.buttonBusy : null,
         style,
       ]}
+      variant="plain"
     >
       <Bookmark
         color={isBookmarked ? palette.primary : palette.textSecondary}
@@ -46,7 +44,7 @@ export function BookmarkToggleButton({
         size={size}
         strokeWidth={2.25}
       />
-    </PressableScale>
+    </Button>
   );
 }
 

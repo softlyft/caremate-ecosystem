@@ -2,10 +2,10 @@ import { router } from 'expo-router';
 import { Crown } from 'lucide-react-native';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { Button, Card } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { palette, radius, spacing } from '@/theme';
 
 type UpgradePromptProps = {
   title: string;
@@ -18,7 +18,7 @@ export function UpgradePrompt({ title, message, compact = false, style }: Upgrad
   const { t } = useTranslation();
 
   return (
-    <View style={[styles.shell, compact ? styles.shellCompact : null, shadow.soft, style]}>
+    <Card padded={!compact} style={[styles.shell, compact ? styles.shellCompact : null, style]}>
       <View style={styles.iconWrap}>
         <Crown color="#B45309" size={compact ? 18 : 22} strokeWidth={2.2} />
       </View>
@@ -30,27 +30,22 @@ export function UpgradePrompt({ title, message, compact = false, style }: Upgrad
           {message}
         </AppText>
       </View>
-      <PressableScale
+      <Button
+        label={t('profile.premium.upgradeCta')}
+        size="sm"
         style={styles.cta}
+        textStyle={styles.ctaLabel}
         onPress={() => router.push('/(app)/profile/premium')}
-        accessibilityRole="button"
         accessibilityLabel={t('profile.premium.upgradeCta')}
-      >
-        <AppText variant="caption" style={styles.ctaLabel}>
-          {t('profile.premium.upgradeCta')}
-        </AppText>
-      </PressableScale>
-    </View>
+      />
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   shell: {
-    borderRadius: radius.xl,
-    borderWidth: 1,
     borderColor: 'rgba(180, 83, 9, 0.22)',
     backgroundColor: '#FFFBEB',
-    padding: layoutSpacing.cardPadding,
     gap: spacing.sm,
   },
   shellCompact: {
@@ -79,9 +74,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     paddingHorizontal: 14,
     paddingVertical: 9,
+    minHeight: undefined,
   },
   ctaLabel: {
     color: '#FFFFFF',
     fontWeight: '600',
+    fontSize: 13,
   },
 });

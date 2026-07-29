@@ -4,9 +4,9 @@ import { Phone, ShieldAlert } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import {
@@ -62,11 +62,11 @@ export default function EmergencyShareScreen() {
         <AppText variant="subtitle" style={styles.muted}>
           {t('emergency.share.invalidMessage')}
         </AppText>
-        <PressableScale style={styles.cta} onPress={() => router.replace('/(app)/(tabs)')}>
+        <Button style={styles.cta} onPress={() => router.replace('/(app)/(tabs)')} variant="plain">
           <AppText variant="button" style={styles.ctaLabel}>
             {t('common.goBack')}
           </AppText>
-        </PressableScale>
+        </Button>
       </View>
     );
   }
@@ -86,11 +86,11 @@ export default function EmergencyShareScreen() {
         <AppText variant="subtitle" style={styles.muted}>
           {query.error instanceof Error ? query.error.message : t('emergency.share.errorMessage')}
         </AppText>
-        <PressableScale style={styles.cta} onPress={() => void query.refetch()}>
+        <Button style={styles.cta} onPress={() => void query.refetch()} variant="plain">
           <AppText variant="button" style={styles.ctaLabel}>
             {t('common.retry')}
           </AppText>
-        </PressableScale>
+        </Button>
       </View>
     );
   }
@@ -103,11 +103,11 @@ export default function EmergencyShareScreen() {
         <AppText variant="subtitle" style={styles.muted}>
           {t('emergency.share.notFoundMessage')}
         </AppText>
-        <PressableScale style={styles.cta} onPress={() => router.replace('/(app)/(tabs)')}>
+        <Button style={styles.cta} onPress={() => router.replace('/(app)/(tabs)')} variant="plain">
           <AppText variant="button" style={styles.ctaLabel}>
             {t('common.goBack')}
           </AppText>
-        </PressableScale>
+        </Button>
       </View>
     );
   }
@@ -199,24 +199,29 @@ export default function EmergencyShareScreen() {
               </AppText>
             ) : null}
             {contact.phone ? (
-              <PressableScale
+              <Button
                 style={styles.phoneRow}
                 onPress={() => void Linking.openURL(`tel:${contact.phone}`)}
+                variant="plain"
               >
                 <Phone color={palette.primary} size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.phoneLabel}>
                   {contact.phone}
                 </AppText>
-              </PressableScale>
+              </Button>
             ) : null}
           </View>
         ) : null}
 
-        <PressableScale style={styles.secondaryCta} onPress={() => router.replace('/(app)/(tabs)')}>
+        <Button
+          style={styles.secondaryCta}
+          onPress={() => router.replace('/(app)/(tabs)')}
+          variant="plain"
+        >
           <AppText variant="button" style={styles.secondaryCtaLabel}>
             {t('common.goBack')}
           </AppText>
-        </PressableScale>
+        </Button>
       </ScrollView>
     </View>
   );

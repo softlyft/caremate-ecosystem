@@ -1,16 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useDeferredValue, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState } from '@/components/ui/screen-states';
@@ -100,11 +93,12 @@ export default function NewMessageScreen() {
           contentContainerStyle={styles.list}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <Pressable
+            <Button
               style={styles.row}
               disabled={Boolean(startingId)}
               onPress={() => void handleSelect(item)}
               accessibilityRole="button"
+              variant="plain"
             >
               <View style={styles.avatar}>
                 <AppText variant="cardTitle" style={styles.avatarLetter}>
@@ -124,7 +118,7 @@ export default function NewMessageScreen() {
                 </AppText>
               </View>
               {startingId === item.user_id ? <ActivityIndicator color={palette.primary} /> : null}
-            </Pressable>
+            </Button>
           )}
         />
       )}

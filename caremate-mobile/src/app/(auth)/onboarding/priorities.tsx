@@ -3,9 +3,9 @@ import { BookOpen, MapPinned, Sparkles, ShieldPlus, Users } from 'lucide-react-n
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { FloatingToast, useShakeNudge } from '@/components/ui/FloatingToast';
 import { ONBOARDING_PRIORITY_IDS, useOnboardingDraftStore } from '@/domains/onboarding';
@@ -90,7 +90,7 @@ export default function OnboardingPrioritiesScreen() {
                 .springify()
                 .damping(18)}
             >
-              <PressableScale
+              <Button
                 style={[
                   styles.card,
                   shadow.soft,
@@ -106,6 +106,7 @@ export default function OnboardingPrioritiesScreen() {
                   togglePriority(id);
                 }}
                 scale={0.97}
+                variant="plain"
               >
                 <LinearGradientFill
                   colors={[
@@ -150,7 +151,7 @@ export default function OnboardingPrioritiesScreen() {
                     <View style={styles.checkIdle} />
                   )}
                 </LinearGradientFill>
-              </PressableScale>
+              </Button>
             </Animated.View>
           );
         })}

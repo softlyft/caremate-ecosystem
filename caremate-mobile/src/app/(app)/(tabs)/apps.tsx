@@ -3,9 +3,9 @@ import { LayoutGrid } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
@@ -54,11 +54,15 @@ export default function AppsTabScreen() {
               <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
                 {t('profile.premium.appsGuestBanner')}
               </AppText>
-              <PressableScale style={styles.guestCta} onPress={() => router.push('/(auth)/login')}>
+              <Button
+                style={styles.guestCta}
+                onPress={() => router.push('/(auth)/login')}
+                variant="plain"
+              >
                 <AppText variant="caption" style={styles.guestCtaLabel}>
                   {t('common.signIn')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </View>
           </AnimatedSection>
         ) : null}

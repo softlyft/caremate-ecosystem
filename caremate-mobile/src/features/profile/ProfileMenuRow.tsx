@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { layoutSpacing, palette, radius, shadow } from '@/theme';
+import { Button, Card } from '@/components/ui/form-controls';
+import { palette, radius } from '@/theme';
 
 type ProfileMenuRowProps = {
   icon: LucideIcon;
@@ -28,12 +28,12 @@ export function ProfileMenuRow({
   disabled,
 }: ProfileMenuRowProps) {
   return (
-    <PressableScale
-      style={[styles.row, disabled ? styles.disabled : null]}
+    <Button
+      style={styles.row}
       onPress={onPress}
       disabled={disabled}
-      accessibilityRole="button"
       accessibilityLabel={title}
+      variant="plain"
     >
       <View style={[styles.iconWrap, { backgroundColor: iconBackground }]}>
         <Icon color={iconColor} size={20} strokeWidth={2.25} />
@@ -49,38 +49,26 @@ export function ProfileMenuRow({
         ) : null}
       </View>
       {trailing ?? <ChevronRight color={palette.textSecondary} size={18} strokeWidth={2.25} />}
-    </PressableScale>
+    </Button>
   );
 }
 
 type ProfileCardProps = {
   children: ReactNode;
-  style?: object;
+  style?: StyleProp<ViewStyle>;
 };
 
 export function ProfileCard({ children, style }: ProfileCardProps) {
-  return <View style={[styles.card, shadow.soft, style]}>{children}</View>;
+  return <Card style={style}>{children}</Card>;
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    padding: layoutSpacing.cardPadding,
-    gap: 4,
-    overflow: 'hidden',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     paddingVertical: 10,
     paddingHorizontal: 4,
-  },
-  disabled: {
-    opacity: 0.55,
   },
   iconWrap: {
     width: 44,

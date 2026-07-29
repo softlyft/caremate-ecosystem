@@ -427,10 +427,10 @@ app/(app)/apps/vitals-tracker/
 
 | Field | Default | Description |
 |-------|---------|-------------|
-| `cycleLength` | 28 | Average cycle length (days) |
-| `periodLength` | 5 | Bleeding length (days) |
+| `cycleLength` | 28 | Average cycle length (days); user-adjustable via Cycle Summary steppers, clamped to 21–45 |
+| `periodLength` | 5 | Bleeding length (days); updates from the most recent contiguous logged streak |
 | `loggedPeriodDays` | `[]` | `YYYY-MM-DD` keys |
-| `lastPeriodStart` | derived | Earliest / latest period start used for predictions |
+| `lastPeriodStart` | derived | Start of the most recent contiguous logged streak (prediction anchor) |
 | `paused` | `false` | When true, predictions and logging are off |
 | `pausedReason` | `null` | Currently `pregnancy` when auto-paused |
 
@@ -438,7 +438,7 @@ app/(app)/apps/vitals-tracker/
 
 - Today hero — cycle day, days until next period
 - 7-day strip and month calendar (`MonthCalendarGrid`)
-- Cycle summary and simple predictions (`lastPeriodStart + cycleLength`)
+- Cycle summary (adjustable average cycle length with +/- steppers) and simple predictions (`lastPeriodStart + cycleLength`)
 - **Pregnancy pause** — setting up Pregnancy Tracker auto-pauses cycle predictions; resume anytime (re-pause while pregnant is available)
 
 `usePeriodTrackerHydrated()` gates taps until rehydration finishes.

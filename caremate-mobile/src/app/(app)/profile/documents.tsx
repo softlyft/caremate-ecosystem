@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FilePlus2, FileText, Link2 } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -158,12 +158,16 @@ export default function ProviderDocumentsScreen() {
         <AppText variant="sectionTitle">{t('profile.documents.title')}</AppText>
         <AppText variant="subtitle">{t('profile.documents.subtitle')}</AppText>
 
-        <PressableScale style={[styles.uploadCta, shadow.soft]} onPress={() => setUploadOpen(true)}>
+        <Button
+          style={[styles.uploadCta, shadow.soft]}
+          onPress={() => setUploadOpen(true)}
+          variant="plain"
+        >
           <FilePlus2 color="#FFFFFF" size={18} strokeWidth={2.25} />
           <AppText variant="button" style={styles.uploadCtaLabel}>
             {t('profile.documents.uploadCta')}
           </AppText>
-        </PressableScale>
+        </Button>
 
         {documents.length === 0 ? (
           <View style={[styles.card, shadow.soft]}>
@@ -180,10 +184,11 @@ export default function ProviderDocumentsScreen() {
                 : t('profile.documents.providerFallback'));
             return (
               <View key={doc.id} style={[styles.card, shadow.soft]}>
-                <PressableScale
+                <Button
                   style={styles.cardMain}
                   disabled={busy || openMutation.isPending}
                   onPress={() => openMutation.mutate(doc)}
+                  variant="plain"
                 >
                   <View style={styles.iconRing}>
                     <FileText color={palette.primary} size={20} strokeWidth={2.25} />
@@ -215,12 +220,13 @@ export default function ProviderDocumentsScreen() {
                       {busy ? t('profile.documents.opening') : t('profile.documents.tapToOpen')}
                     </AppText>
                   </View>
-                </PressableScale>
+                </Button>
                 {canLink ? (
-                  <PressableScale
+                  <Button
                     style={styles.linkBtn}
                     onPress={() => setLinkDoc(doc)}
                     disabled={linkMutation.isPending}
+                    variant="plain"
                   >
                     <Link2 color={palette.primary} size={16} />
                     <AppText variant="caption" color="brand" style={styles.linkBtnLabel}>
@@ -228,7 +234,7 @@ export default function ProviderDocumentsScreen() {
                         ? t('profile.documents.changeProvider')
                         : t('profile.documents.linkProvider')}
                     </AppText>
-                  </PressableScale>
+                  </Button>
                 ) : null}
               </View>
             );
@@ -271,10 +277,11 @@ export default function ProviderDocumentsScreen() {
               {PROVIDER_DOCUMENT_TYPES.map((type) => {
                 const active = type === documentType;
                 return (
-                  <Pressable
+                  <Button
                     key={type}
                     style={[styles.chip, active ? styles.chipActive : null]}
                     onPress={() => setDocumentType(type)}
+                    variant="plain"
                   >
                     <AppText
                       variant="caption"
@@ -282,7 +289,7 @@ export default function ProviderDocumentsScreen() {
                     >
                       {typeLabel(t, type)}
                     </AppText>
-                  </Pressable>
+                  </Button>
                 );
               })}
             </ScrollView>
@@ -294,23 +301,25 @@ export default function ProviderDocumentsScreen() {
               {t('profile.documents.providerOptionalHint')}
             </AppText>
             <ScrollView style={styles.orgList} nestedScrollEnabled>
-              <Pressable
+              <Button
                 style={[styles.orgRow, uploadOrgId === null ? styles.orgRowActive : null]}
                 onPress={() => setUploadOrgId(null)}
+                variant="plain"
               >
                 <AppText variant="body">{t('profile.documents.assignLater')}</AppText>
-              </Pressable>
+              </Button>
               {orgs.map((org) => (
-                <Pressable
+                <Button
                   key={org.organizationId}
                   style={[
                     styles.orgRow,
                     uploadOrgId === org.organizationId ? styles.orgRowActive : null,
                   ]}
                   onPress={() => setUploadOrgId(org.organizationId)}
+                  variant="plain"
                 >
                   <AppText variant="body">{org.name}</AppText>
-                </Pressable>
+                </Button>
               ))}
               {orgs.length === 0 ? (
                 <AppText variant="caption" style={styles.meta}>
@@ -320,24 +329,26 @@ export default function ProviderDocumentsScreen() {
             </ScrollView>
 
             <View style={styles.modalActions}>
-              <PressableScale
+              <Button
                 style={styles.secondaryBtn}
                 onPress={() => setUploadOpen(false)}
                 disabled={uploadMutation.isPending}
+                variant="plain"
               >
                 <AppText variant="button">{t('common.cancel')}</AppText>
-              </PressableScale>
-              <PressableScale
-                style={[styles.primaryBtn, uploadMutation.isPending ? styles.disabled : null]}
-                disabled={uploadMutation.isPending}
+              </Button>
+              <Button
+                style={styles.primaryBtn}
+                loading={uploadMutation.isPending}
                 onPress={() => uploadMutation.mutate()}
+                variant="plain"
               >
                 <AppText variant="button" style={styles.primaryBtnLabel}>
                   {uploadMutation.isPending
                     ? t('profile.documents.uploading')
                     : t('profile.documents.chooseFile')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </View>
           </View>
         </View>
@@ -358,18 +369,19 @@ export default function ProviderDocumentsScreen() {
               })}
             </AppText>
             <ScrollView style={styles.orgList} nestedScrollEnabled>
-              <Pressable
+              <Button
                 style={[
                   styles.orgRow,
                   linkDoc?.organizationId == null ? styles.orgRowActive : null,
                 ]}
                 onPress={() => linkMutation.mutate(null)}
                 disabled={linkMutation.isPending}
+                variant="plain"
               >
                 <AppText variant="body">{t('profile.documents.clearProvider')}</AppText>
-              </Pressable>
+              </Button>
               {orgs.map((org) => (
-                <Pressable
+                <Button
                   key={org.organizationId}
                   style={[
                     styles.orgRow,
@@ -377,9 +389,10 @@ export default function ProviderDocumentsScreen() {
                   ]}
                   onPress={() => linkMutation.mutate(org.organizationId)}
                   disabled={linkMutation.isPending}
+                  variant="plain"
                 >
                   <AppText variant="body">{org.name}</AppText>
-                </Pressable>
+                </Button>
               ))}
               {orgs.length === 0 ? (
                 <AppText variant="caption" style={styles.meta}>
@@ -387,9 +400,9 @@ export default function ProviderDocumentsScreen() {
                 </AppText>
               ) : null}
             </ScrollView>
-            <PressableScale style={styles.secondaryBtn} onPress={() => setLinkDoc(null)}>
+            <Button style={styles.secondaryBtn} onPress={() => setLinkDoc(null)} variant="plain">
               <AppText variant="button">{t('common.cancel')}</AppText>
-            </PressableScale>
+            </Button>
           </View>
         </View>
       </Modal>
@@ -477,9 +490,6 @@ const styles = StyleSheet.create({
   },
   linkBtnLabel: {
     fontWeight: '600',
-  },
-  disabled: {
-    opacity: 0.6,
   },
   modalBackdrop: {
     flex: 1,

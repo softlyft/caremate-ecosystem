@@ -2,8 +2,8 @@ import DateTimePicker, { type DateTimePickerEvent } from '@react-native-communit
 import { Clock } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { dateToHhMm, hhMmToDate, isValidHhMm } from '@/mini-apps/medication-tracker/utils';
@@ -49,7 +49,7 @@ export function DoseTimePicker({ label, value, onChange, accent, soft }: DoseTim
       <AppText variant="caption" style={styles.label}>
         {label}
       </AppText>
-      <PressableScale
+      <Button
         accessibilityRole="button"
         accessibilityLabel={t('apps.medication.ui.scheduleTimeA11y', {
           label,
@@ -57,6 +57,7 @@ export function DoseTimePicker({ label, value, onChange, accent, soft }: DoseTim
         })}
         onPress={() => setOpen(true)}
         style={[styles.field, { borderColor: `${accent}44`, backgroundColor: soft }]}
+        variant="plain"
       >
         <Clock color={accent} size={18} strokeWidth={2.25} />
         <AppText variant="body" style={styles.timeText}>
@@ -65,7 +66,7 @@ export function DoseTimePicker({ label, value, onChange, accent, soft }: DoseTim
         <AppText variant="caption" style={styles.changeHint}>
           {t('apps.medication.ui.scheduleTimeChange')}
         </AppText>
-      </PressableScale>
+      </Button>
 
       {open && useDialog ? (
         <DateTimePicker
@@ -84,20 +85,25 @@ export function DoseTimePicker({ label, value, onChange, accent, soft }: DoseTim
           animationType="fade"
           onRequestClose={() => setOpen(false)}
         >
-          <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
-            <Pressable style={styles.sheet} onPress={(event) => event.stopPropagation()}>
+          <View style={styles.backdrop}>
+            <Pressable
+              accessibilityLabel={t('common.cancel')}
+              onPress={() => setOpen(false)}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.sheet}>
               <View style={styles.sheetHeader}>
                 <AppText variant="cardTitle">{label}</AppText>
-                <PressableScale
-                  accessibilityRole="button"
+                <Button
                   accessibilityLabel={t('common.done')}
                   onPress={() => setOpen(false)}
                   style={[styles.doneButton, { backgroundColor: soft }]}
+                  variant="plain"
                 >
                   <AppText variant="button" style={{ color: accent }}>
                     {t('common.done')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </View>
               <DateTimePicker
                 value={pickerDate}
@@ -107,8 +113,8 @@ export function DoseTimePicker({ label, value, onChange, accent, soft }: DoseTim
                 onChange={onPickerChange}
                 style={styles.iosPicker}
               />
-            </Pressable>
-          </Pressable>
+            </View>
+          </View>
         </Modal>
       ) : null}
     </View>

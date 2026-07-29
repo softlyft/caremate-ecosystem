@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { markFamilyPromptDone } from '@/domains/onboarding';
@@ -48,24 +48,20 @@ export default function SetupFamilyPromptScreen() {
       </View>
 
       <View style={styles.footer}>
-        <PressableScale
-          style={[styles.primaryCta, busy ? styles.disabled : null]}
-          disabled={busy}
+        <Button
+          label={t('setup.familyPrompt.setup')}
+          style={styles.primaryCta}
+          loading={busy}
           onPress={() => void startFamily()}
-        >
-          <AppText variant="button" style={styles.primaryLabel}>
-            {t('setup.familyPrompt.setup')}
-          </AppText>
-        </PressableScale>
-        <PressableScale
-          style={[styles.secondaryCta, busy ? styles.disabled : null]}
+        />
+        <Button
+          label={t('setup.familyPrompt.notNow')}
+          variant="secondary"
+          style={styles.secondaryCta}
           disabled={busy}
           onPress={() => void skip()}
-        >
-          <AppText variant="button" style={styles.secondaryLabel}>
-            {t('setup.familyPrompt.notNow')}
-          </AppText>
-        </PressableScale>
+          textStyle={styles.secondaryLabel}
+        />
       </View>
     </SafeAreaView>
   );
@@ -103,24 +99,13 @@ const styles = StyleSheet.create({
   primaryCta: {
     backgroundColor: palette.brandBlue,
     borderRadius: radius.xl,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  primaryLabel: {
-    color: '#FFFFFF',
   },
   secondaryCta: {
     borderRadius: radius.xl,
-    borderWidth: 1.5,
     borderColor: palette.brandBlue,
     backgroundColor: palette.brandBlueLight,
-    paddingVertical: 14,
-    alignItems: 'center',
   },
   secondaryLabel: {
     color: palette.brandBlue,
-  },
-  disabled: {
-    opacity: 0.45,
   },
 });

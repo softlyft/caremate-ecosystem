@@ -23,6 +23,7 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/caremate-adaptive-icon.png"
       },
+      "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false,
       "permissions": ["android.permission.POST_NOTIFICATIONS"],
       "intentFilters": [

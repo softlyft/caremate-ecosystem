@@ -47,7 +47,10 @@ async function ensureAndroidChannel(): Promise<void> {
   });
 }
 
-async function getCurrentExpoPushToken(): Promise<string | null> {
+async function getCurrentExpoPushToken(options?: {
+  /** When true, prompt the OS if permission is not already granted (settings toggle). */
+  requestPermission?: boolean;
+}): Promise<string | null> {
   const platform = resolvePlatform();
   if (!platform) return null;
   if (!Device.isDevice && !__DEV__) return null;
@@ -59,7 +62,7 @@ async function getCurrentExpoPushToken(): Promise<string | null> {
 
   const { status: existing } = await Notifications.getPermissionsAsync();
   let finalStatus = existing;
-  if (existing !== 'granted') {
+  if (existing !== 'granted' && options?.requestPermission) {
     const { status } = await Notifications.requestPermissionsAsync();
     finalStatus = status;
   }
@@ -75,8 +78,12 @@ async function getCurrentExpoPushToken(): Promise<string | null> {
 /**
  * Register this device for Expo push when the user is signed in and notifications are enabled.
  * Guests and prefs-off are no-ops.
+ * By default does not re-prompt the OS (cold start / foreground); pass `requestPermission`
+ * when the user explicitly enables notifications in settings.
  */
-export async function syncPushRegistration(): Promise<void> {
+export async function syncPushRegistration(options?: {
+  requestPermission?: boolean;
+}): Promise<void> {
   try {
     const { user, isGuest, isAuthenticated } = useAuthStore.getState();
     const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
@@ -85,7 +92,9 @@ export async function syncPushRegistration(): Promise<void> {
       return;
     }
 
-    const token = await getCurrentExpoPushToken();
+    const token = await getCurrentExpoPushToken({
+      requestPermission: options?.requestPermission === true,
+    });
     if (!token) return;
 
     const platform = resolvePlatform();
@@ -153,5 +162,32 @@ export async function clearPushRegistration(): Promise<void> {
     await AsyncStorage.removeItem(REGISTERED_TOKEN_KEY);
   } catch (err) {
     console.warn('clearPushRegistration', err instanceof Error ? err.message : err);
+  }
+}
+
+/**
+ * Align remote push registration with the current OS permission.
+ * Clears the device token when permission was revoked; re-syncs when granted again.
+ * Never prompts the user.
+ */
+export async function reconcilePushRegistrationWithOsPermission(): Promise<void> {
+  try {
+    const { user, isGuest, isAuthenticated } = useAuthStore.getState();
+    const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
+    if (!isAuthenticated || isGuest || !user?.id || !notificationsEnabled) {
+      return;
+    }
+
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status === 'granted') {
+      await syncPushRegistration();
+      return;
+    }
+    await clearPushRegistration();
+  } catch (err) {
+    console.warn(
+      'reconcilePushRegistrationWithOsPermission',
+      err instanceof Error ? err.message : err,
+    );
   }
 }

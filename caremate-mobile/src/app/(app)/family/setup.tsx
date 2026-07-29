@@ -3,10 +3,10 @@ import { Users } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button, Card } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useFamilySetupStore } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
@@ -57,30 +57,32 @@ export default function FamilySetupScreen() {
         </AnimatedSection>
 
         <AnimatedSection index={1}>
-          <View style={[styles.card, shadow.soft]}>
-            <PressableScale
+          <Card style={styles.card}>
+            <Button
               style={[styles.primaryCta, shadow.soft]}
               onPress={() => {
                 setIsParent(true);
                 router.push('/(app)/family/kids-count');
               }}
+              variant="plain"
             >
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('family.setup.yesParent')}
               </AppText>
-            </PressableScale>
-            <PressableScale
+            </Button>
+            <Button
               style={styles.secondaryCta}
               onPress={() => {
                 setIsParent(false);
                 router.replace('/(app)/family');
               }}
+              variant="plain"
             >
               <AppText variant="button" style={styles.secondaryCtaLabel}>
                 {t('family.setup.notRightNow')}
               </AppText>
-            </PressableScale>
-          </View>
+            </Button>
+          </Card>
         </AnimatedSection>
       </Animated.ScrollView>
     </View>
@@ -142,11 +144,7 @@ const styles = StyleSheet.create({
     color: palette.textSecondary,
   },
   card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.06)',
-    padding: spacing.md,
     gap: spacing.sm,
   },
   primaryCta: {

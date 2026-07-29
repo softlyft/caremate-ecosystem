@@ -20,6 +20,7 @@
       "state": "State / province (optional)"
     },
     "statePlaceholder": "e.g. Greater Accra",
+    "selectPlaceholder": "Select a country",
     "searchPlaceholder": "Search countries",
     "searchEmpty": "No countries match that search."
   },

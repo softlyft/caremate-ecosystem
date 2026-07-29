@@ -7,12 +7,12 @@ import {
   FlatList,
   Keyboard,
   Platform,
-  Pressable,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
@@ -28,7 +28,16 @@ import {
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing, textColors } from '@/theme';
 
+function formatMessageTime(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
 function Bubble({ message, mine }: { message: MessageMessage; mine: boolean }) {
+  const timeLabel = formatMessageTime(message.created_at);
   return (
     <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleTheirs]}>
       {message.subject ? (
@@ -39,10 +48,23 @@ function Bubble({ message, mine }: { message: MessageMessage; mine: boolean }) {
       <AppText variant="body" style={mine ? styles.bubbleTextMine : styles.bubbleTextTheirs}>
         {message.body}
       </AppText>
+      {timeLabel ? (
+        <AppText
+          variant="caption"
+          style={[styles.bubbleTime, mine ? styles.bubbleTimeMine : styles.bubbleTimeTheirs]}
+        >
+          {timeLabel}
+        </AppText>
+      ) : null}
     </View>
   );
 }
 
+/**
+ * Lift the composer by whatever keyboard height the layout hasn't already absorbed.
+ * Android edge-to-edge can partially resize the window — subtracting only the remainder
+ * avoids both under-lift (covered input) and double-lift.
+ */
 function useKeyboardLift() {
   const insets = useSafeAreaInsets();
   const baselineHeightRef = useRef(Dimensions.get('window').height);
@@ -66,12 +88,17 @@ function useKeyboardLift() {
         return;
       }
 
-      // Android adjustResize already shrinks the window — don't add a second lift.
-      const windowAlreadyResized =
-        Platform.OS === 'android' &&
-        baselineHeightRef.current - windowHeight > keyboardHeight * 0.45;
       setKeyboardOpen(true);
-      setLift(windowAlreadyResized ? 0 : Math.max(keyboardHeight - bottomInset, 0));
+
+      if (Platform.OS === 'ios') {
+        setLift(Math.max(keyboardHeight - bottomInset, 0));
+        return;
+      }
+
+      // Android: only lift the portion not already taken by window resize / insets.
+      const shrunkBy = Math.max(0, baselineHeightRef.current - windowHeight);
+      const remaining = Math.max(0, keyboardHeight - shrunkBy);
+      setLift(remaining);
     };
 
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -246,15 +273,16 @@ export default function MessageThreadScreen() {
           editable={!sending}
           textAlignVertical="top"
         />
-        <Pressable
+        <Button
           style={[styles.sendButton, (!draft.trim() || sending) && styles.sendDisabled]}
           onPress={() => void handleSend()}
           disabled={!draft.trim() || sending}
+          variant="plain"
         >
           <AppText variant="seeAll" style={styles.sendLabel}>
             {sending ? t('messages.sending') : t('messages.send')}
           </AppText>
-        </Pressable>
+        </Button>
       </View>
     </View>
   );
@@ -307,6 +335,17 @@ const styles = StyleSheet.create({
   },
   bubbleTextTheirs: {
     color: palette.text,
+  },
+  bubbleTime: {
+    marginTop: 6,
+    fontSize: 11,
+    alignSelf: 'flex-end',
+  },
+  bubbleTimeMine: {
+    color: 'rgba(255,255,255,0.78)',
+  },
+  bubbleTimeTheirs: {
+    color: palette.textSecondary,
   },
   composer: {
     flexDirection: 'row',

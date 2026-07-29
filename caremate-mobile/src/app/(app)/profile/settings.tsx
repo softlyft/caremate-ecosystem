@@ -4,22 +4,21 @@ import {
   Bell,
   FileText,
   MapPin,
-  Search,
   Settings,
   Shield,
   Trash2,
   Users,
 } from 'lucide-react-native';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Input } from '@/components/ui/form-controls';
+import { CountrySelect } from '@/components/ui/CountrySelect';
+import { Button } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
@@ -60,7 +59,6 @@ export default function SettingsScreen() {
   const [countryDraft, setCountryDraft] = useState<string | null | undefined>(undefined);
   const [languageDraft, setLanguageDraft] = useState<string | null | undefined>(undefined);
   const [stateDraft, setStateDraft] = useState<string | undefined>(undefined);
-  const [countryQuery, setCountryQuery] = useState('');
   const [savingLocation, setSavingLocation] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -70,18 +68,6 @@ export default function SettingsScreen() {
   const languages = localizationService.getSupportedLanguages(countryCode);
   const resolvedLanguage = localizationService.normalizeLanguage(countryCode, languageCode);
 
-  const countries = useMemo(() => {
-    const all = localizationService.listCountryOptions();
-    const query = countryQuery.trim().toLowerCase();
-    if (!query) {
-      return all;
-    }
-    return all.filter(
-      (country) =>
-        country.name.toLowerCase().includes(query) || country.code.toLowerCase().includes(query),
-    );
-  }, [countryQuery]);
-
   async function updateNotifications(value: boolean) {
     setNotificationsEnabled(value);
     await Promise.all([
@@ -89,7 +75,7 @@ export default function SettingsScreen() {
       setDeviceDefaults({ notificationsEnabled: value }),
     ]);
     if (value) {
-      void syncPushRegistration();
+      void syncPushRegistration({ requestPermission: true });
     } else {
       void clearPushRegistration();
     }
@@ -222,15 +208,16 @@ export default function SettingsScreen() {
                 <AppText variant="caption" style={styles.muted}>
                   {t('settings.familySection.hint')}
                 </AppText>
-                <PressableScale
+                <Button
                   style={styles.secondaryCta}
                   onPress={() => router.push('/(app)/family')}
+                  variant="plain"
                 >
                   <Users color={ACCENT} size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
                     {t('settings.familySection.open')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </>
             )}
           </View>
@@ -263,51 +250,25 @@ export default function SettingsScreen() {
                 <AppText variant="caption" style={styles.fieldLabel}>
                   {t('settings.location.country')}
                 </AppText>
-                <View style={styles.searchRow}>
-                  <Search color={palette.primary} size={16} strokeWidth={2.25} />
-                  <View style={styles.searchInput}>
-                    <Input
-                      placeholder={t('settings.location.searchPlaceholder')}
-                      value={countryQuery}
-                      onChangeText={setCountryQuery}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                  </View>
-                </View>
-                <View style={styles.chipRow}>
-                  {countries.map((country) => {
-                    const selected = countryCode === country.code;
-                    return (
-                      <PressableScale
-                        key={country.code}
-                        style={[styles.chip, selected && styles.chipSelected]}
-                        scale={0.96}
-                        onPress={() => {
-                          if (selected) {
-                            return;
-                          }
-                          setCountryDraft(country.code);
-                          setLanguageDraft(localizationService.getDefaultLanguage(country.code));
-                          // State stays in schema but is not edited in UI yet.
-                          setStateDraft('');
-                        }}
-                      >
-                        <AppText
-                          variant="caption"
-                          style={selected ? styles.chipTextSelected : styles.chipText}
-                        >
-                          {country.name}
-                        </AppText>
-                      </PressableScale>
-                    );
-                  })}
-                </View>
-                {countryQuery.trim() && countries.length === 0 ? (
-                  <AppText variant="caption" style={styles.muted}>
-                    {t('settings.location.searchEmpty')}
-                  </AppText>
-                ) : null}
+                <CountrySelect
+                  value={countryCode}
+                  accent={ACCENT}
+                  soft={SOFT}
+                  placeholder={t('settings.location.selectPlaceholder')}
+                  searchPlaceholder={t('settings.location.searchPlaceholder')}
+                  searchEmptyLabel={t('settings.location.searchEmpty')}
+                  sheetTitle={t('settings.location.country')}
+                  closeAccessibilityLabel={t('common.close')}
+                  onChange={(code) => {
+                    if (!code) {
+                      return;
+                    }
+                    setCountryDraft(code);
+                    setLanguageDraft(localizationService.getDefaultLanguage(code));
+                    // State stays in schema but is not edited in UI yet.
+                    setStateDraft('');
+                  }}
+                />
 
                 {countryCode ? (
                   <>
@@ -318,11 +279,12 @@ export default function SettingsScreen() {
                       {languages.map((item) => {
                         const selected = resolvedLanguage === item;
                         return (
-                          <PressableScale
+                          <Button
                             key={item}
                             style={[styles.chip, selected && styles.chipSelected]}
                             scale={0.96}
                             onPress={() => setLanguageDraft(item)}
+                            variant="plain"
                           >
                             <AppText
                               variant="caption"
@@ -330,7 +292,7 @@ export default function SettingsScreen() {
                             >
                               {localizationService.getLanguageConfig(item).nativeName}
                             </AppText>
-                          </PressableScale>
+                          </Button>
                         );
                       })}
                     </View>
@@ -346,7 +308,7 @@ export default function SettingsScreen() {
                     })}
                   </AppText>
                 ) : null}
-                <PressableScale
+                <Button
                   style={[
                     styles.primaryCta,
                     savingLocation ? styles.ctaDisabled : null,
@@ -354,12 +316,13 @@ export default function SettingsScreen() {
                   ]}
                   disabled={savingLocation}
                   onPress={() => void saveLocation()}
+                  variant="plain"
                 >
                   <MapPin color="#FFFFFF" size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.primaryCtaLabel}>
                     {savingLocation ? t('settings.location.saving') : t('settings.location.save')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </>
             )}
           </View>
@@ -368,9 +331,10 @@ export default function SettingsScreen() {
         <AnimatedSection index={5}>
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={Shield} title={t('settings.legal.title')} />
-            <PressableScale
+            <Button
               style={styles.linkRow}
               onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
+              variant="plain"
             >
               <View style={styles.rowLeading}>
                 <View style={styles.rowIcon}>
@@ -380,11 +344,12 @@ export default function SettingsScreen() {
                   {t('settings.legal.privacy')}
                 </AppText>
               </View>
-            </PressableScale>
+            </Button>
             <View style={styles.divider} />
-            <PressableScale
+            <Button
               style={styles.linkRow}
               onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
+              variant="plain"
             >
               <View style={styles.rowLeading}>
                 <View style={styles.rowIcon}>
@@ -394,7 +359,7 @@ export default function SettingsScreen() {
                   {t('settings.legal.terms')}
                 </AppText>
               </View>
-            </PressableScale>
+            </Button>
           </View>
         </AnimatedSection>
 
@@ -405,16 +370,17 @@ export default function SettingsScreen() {
               <AppText variant="caption" style={styles.muted}>
                 {t('settings.account.deleteHint')}
               </AppText>
-              <PressableScale
+              <Button
                 style={[styles.dangerCta, deletingAccount ? styles.ctaDisabled : null, shadow.soft]}
                 disabled={deletingAccount}
                 onPress={confirmDeleteAccount}
+                variant="plain"
               >
                 <Trash2 color="#FFFFFF" size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.primaryCtaLabel}>
                   {deletingAccount ? t('settings.account.deleting') : t('settings.account.delete')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </View>
           </AnimatedSection>
         ) : null}
@@ -597,14 +563,6 @@ const styles = StyleSheet.create({
     color: ACCENT,
     fontFamily: fontFamily.semiBold,
     marginTop: spacing.xs,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  searchInput: {
-    flex: 1,
   },
   chipRow: {
     flexDirection: 'row',

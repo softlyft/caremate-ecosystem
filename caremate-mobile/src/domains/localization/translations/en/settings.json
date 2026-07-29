@@ -34,6 +34,7 @@
     "notSet": "Not set",
     "save": "Save location",
     "saving": "Saving...",
+    "selectPlaceholder": "Select a country",
     "searchPlaceholder": "Search countries",
     "searchEmpty": "No countries match that search."
   },
