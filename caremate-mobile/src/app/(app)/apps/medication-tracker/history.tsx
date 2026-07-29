@@ -35,7 +35,10 @@ export default function MedicationHistoryScreen() {
   const hydrated = useMedicationTrackerHydrated();
   const medicationsRaw = useMedicationTrackerStore((state) => state.medications);
   const logs = useMedicationTrackerStore((state) => state.logs);
-  const medications = useMemo(() => medicationsRaw.map(normalizeMedication), [medicationsRaw]);
+  const medications = useMemo(
+    () => medicationsRaw.map((medication) => normalizeMedication(medication)),
+    [medicationsRaw],
+  );
   const [filter, setFilter] = useState<HistoryFilter>('all');
 
   const filteredLogs = useMemo(() => {

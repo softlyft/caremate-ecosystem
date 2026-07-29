@@ -1,5 +1,10 @@
 export const DEFAULT_PAGE_SIZE = 50;
 
+export type ListPaging = {
+  page?: number;
+  pageSize?: number;
+};
+
 export type PaginatedResult<T> = {
   rows: T[];
   total: number;

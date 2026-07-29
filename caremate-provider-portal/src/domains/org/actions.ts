@@ -11,13 +11,9 @@ import type { Json } from '@/types/database';
 
 const updateSchema = z.object({
   description: z.string().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  email: z.string().email().optional().nullable().or(z.literal('')),
   website: z.string().optional().nullable(),
   logo_url: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
   emergency_contact: z.string().optional().nullable(),
-  services_offered: z.string().optional(),
   organization_type: z.enum(ORG_TYPES),
   opening_hours_text: z.string().optional().nullable(),
 });
@@ -27,13 +23,9 @@ export async function updateOrgProfileAction(formData: FormData) {
 
   const parsed = updateSchema.parse({
     description: formData.get('description') || null,
-    phone: formData.get('phone') || null,
-    email: formData.get('email') || null,
     website: formData.get('website') || null,
     logo_url: formData.get('logo_url') || null,
-    address: formData.get('address') || null,
     emergency_contact: formData.get('emergency_contact') || null,
-    services_offered: formData.get('services_offered') || '',
     organization_type: formData.get('organization_type'),
     opening_hours_text: formData.get('opening_hours_text') || null,
   });
@@ -47,23 +39,12 @@ export async function updateOrgProfileAction(formData: FormData) {
     }
   }
 
-  const services = parsed.services_offered
-    ? parsed.services_offered
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-    : [];
-
   await updateOrganizationProfile(session.activeOrganizationId, {
     description: parsed.description,
-    phone: parsed.phone,
-    email: parsed.email || null,
     website: parsed.website,
     logo_url: parsed.logo_url,
-    address: parsed.address,
     emergency_contact: parsed.emergency_contact,
     organization_type: parsed.organization_type,
-    services_offered: services,
     opening_hours,
   });
 

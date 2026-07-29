@@ -1,7 +1,10 @@
 import { formatDistanceToNow } from 'date-fns';
-import { listProfiles } from '@/domains/community/repository';
+import { listProfilesPage } from '@/domains/community/repository';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Card, CardContent } from '@/components/ui/card';
+import type { CommunityProfile } from '@/types/community';
 import {
   Table,
   TableBody,
@@ -11,13 +14,29 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function CommunityProfilesPage() {
-  let profiles: Awaited<ReturnType<typeof listProfiles>> = [];
+function profilesHref(page?: number): string {
+  const params = new URLSearchParams();
+  if (page && page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return `/dashboard/community/profiles${qs ? `?${qs}` : ''}`;
+}
+
+export default async function CommunityProfilesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  let profiles: PaginatedResult<CommunityProfile> = emptyPage(page);
   try {
-    profiles = await listProfiles();
+    profiles = await listProfilesPage({ page });
   } catch {
-    profiles = [];
+    profiles = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) => profilesHref(nextPage);
 
   return (
     <div>
@@ -40,14 +59,14 @@ export default async function CommunityProfilesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {profiles.length === 0 ? (
+              {profiles.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-muted">
                     No community members found.
                   </TableCell>
                 </TableRow>
               ) : (
-                profiles.map((p) => (
+                profiles.rows.map((p) => (
                   <TableRow key={p.user_id}>
                     <TableCell className="font-medium">{p.full_name}</TableCell>
                     <TableCell className="font-mono text-muted">{p.patient_id ?? '—'}</TableCell>
@@ -62,6 +81,7 @@ export default async function CommunityProfilesPage() {
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={profiles} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

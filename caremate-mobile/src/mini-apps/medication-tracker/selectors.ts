@@ -38,6 +38,6 @@ export function useActiveMedications(): Medication[] {
     if (medications.length === 0) {
       return EMPTY_MEDICATIONS;
     }
-    return medications.map(normalizeMedication);
+    return medications.map((medication) => normalizeMedication(medication));
   }, [medications]);
 }

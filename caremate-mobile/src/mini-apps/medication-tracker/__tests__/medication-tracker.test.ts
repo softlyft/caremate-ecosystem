@@ -68,7 +68,7 @@ const med = (overrides: Partial<Medication> = {}, todayKey: string = TEST_TODAY_
       refillDueDate: null,
       ...overrides,
     },
-    todayKey,
+    { todayKey },
   );
 
 describe('medication-tracker/dose times', () => {
@@ -221,13 +221,13 @@ describe('medication-tracker/utils', () => {
 
     const ended = normalizeMedication(
       med({ startDate: '2026-07-20', endDate: '2026-07-22', active: true }),
-      '2026-07-27',
+      { todayKey: '2026-07-27' },
     );
     expect(ended.active).toBe(false);
 
     const stillRunning = normalizeMedication(
       med({ startDate: '2026-07-20', endDate: '2026-07-30', active: true }),
-      '2026-07-27',
+      { todayKey: '2026-07-27' },
     );
     expect(stillRunning.active).toBe(true);
   });

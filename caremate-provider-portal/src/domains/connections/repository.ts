@@ -1,5 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { insertActivity } from '@/domains/activity/repository';
+import {
+  DEFAULT_PAGE_SIZE,
+  emptyPage,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type { PatientProviderConnection, Profile } from '@/types/database';
 
 export type ConnectionWithProfile = PatientProviderConnection & {
@@ -9,18 +17,33 @@ export type ConnectionWithProfile = PatientProviderConnection & {
 export async function listConnectionsByStatus(
   organizationId: string,
   status: PatientProviderConnection['status'],
-): Promise<ConnectionWithProfile[]> {
+  options?: {
+    page?: number;
+    pageSize?: number;
+    initiatedBy?: PatientProviderConnection['initiated_by'];
+  },
+): Promise<PaginatedResult<ConnectionWithProfile>> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const page = parsePage(options?.page);
+  const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
+  let query = supabase
     .from('patient_provider_connections')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('organization_id', organizationId)
     .eq('status', status)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
+  if (options?.initiatedBy) {
+    query = query.eq('initiated_by', options.initiatedBy);
+  }
+
+  const { data, error, count } = await query;
   if (error) throw error;
   const rows = (data ?? []) as PatientProviderConnection[];
-  if (!rows.length) return [];
+  if (!rows.length) return emptyPage(page, pageSize);
 
   const patientIds = rows.map((r) => r.patient_id);
   const { data: profiles } = await supabase
@@ -30,7 +53,7 @@ export async function listConnectionsByStatus(
 
   const byUser = new Map((profiles ?? []).map((p) => [p.user_id, p]));
 
-  return rows.map((r) => ({
+  const enriched = rows.map((r) => ({
     ...r,
     profile: byUser.get(r.patient_id)
       ? {
@@ -41,6 +64,8 @@ export async function listConnectionsByStatus(
         }
       : null,
   }));
+
+  return paginatedResult(enriched, count, page, pageSize);
 }
 
 export async function countConnections(

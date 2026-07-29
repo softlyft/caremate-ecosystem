@@ -80,7 +80,6 @@ export default function AppLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <SyncStatusBanner />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -351,6 +350,8 @@ export default function AppLayout() {
         {/* Nested navigator owns mini-app headers — see apps/_layout.tsx */}
         <Stack.Screen name="apps" options={{ headerShown: false }} />
       </Stack>
+      {/* Overlay after Stack so it paints on top without shifting layout */}
+      <SyncStatusBanner />
     </View>
   );
 }

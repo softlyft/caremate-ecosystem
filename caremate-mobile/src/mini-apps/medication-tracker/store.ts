@@ -132,7 +132,7 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
             active: true,
             ...fields,
           },
-          todayKey,
+          { todayKey },
         );
         set({
           medications: [...get().medications, medication],
@@ -154,7 +154,7 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
                 active: input.active ?? medication.active,
                 id: medication.id,
               },
-              todayKey,
+              { todayKey },
             );
           }),
         });

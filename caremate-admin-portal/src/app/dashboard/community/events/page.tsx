@@ -1,8 +1,11 @@
 import { format } from 'date-fns';
-import { listEvents } from '@/domains/community/repository';
+import { listEventsPage } from '@/domains/community/repository';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import type { CommunityEvent } from '@/types/community';
 import {
   Table,
   TableBody,
@@ -12,13 +15,29 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function CommunityEventsPage() {
-  let events: Awaited<ReturnType<typeof listEvents>> = [];
+function eventsHref(page?: number): string {
+  const params = new URLSearchParams();
+  if (page && page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return `/dashboard/community/events${qs ? `?${qs}` : ''}`;
+}
+
+export default async function CommunityEventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  let events: PaginatedResult<CommunityEvent & { chapter_name?: string }> = emptyPage(page);
   try {
-    events = await listEvents();
+    events = await listEventsPage({ page });
   } catch {
-    events = [];
+    events = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) => eventsHref(nextPage);
 
   return (
     <div>
@@ -40,14 +59,14 @@ export default async function CommunityEventsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events.length === 0 ? (
+              {events.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-muted">
                     No events found.
                   </TableCell>
                 </TableRow>
               ) : (
-                events.map((ev) => (
+                events.rows.map((ev) => (
                   <TableRow key={ev.id}>
                     <TableCell className="font-medium">{ev.title}</TableCell>
                     <TableCell className="text-muted">{ev.chapter_name ?? '—'}</TableCell>
@@ -67,6 +86,7 @@ export default async function CommunityEventsPage() {
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={events} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

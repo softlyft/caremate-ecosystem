@@ -10,6 +10,7 @@ import type {
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { createId, nowIso, parseJson, stringifyJson } from '@/utils/helpers';
+import { toJson } from '@/sync/cloud-types';
 
 type NotificationRow = typeof notifications.$inferSelect;
 
@@ -312,7 +313,7 @@ class NotificationRepository extends BaseRepository {
       severity: item.severity || 'info',
       entity_type: item.entityType,
       entity_id: item.entityId,
-      data: item.data ?? {},
+      data: toJson(item.data ?? {}),
       dedupe_key: item.dedupeKey,
       read_at: item.readAt,
       created_at: item.createdAt,

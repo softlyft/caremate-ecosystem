@@ -1,0 +1,82 @@
+import type { Json } from '@/types/database';
+
+export function organizationReference(orgId: string): Json {
+  return { reference: `Organization/${orgId}` };
+}
+
+export function locationReference(locationId: string): Json {
+  return { reference: `Location/${locationId}` };
+}
+
+export function buildLocationResource(input: {
+  id: string;
+  organizationId: string;
+  name: string;
+  status: string;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}): Json {
+  const telecom: Json[] = [];
+  if (input.phone?.trim()) {
+    telecom.push({ system: 'phone', value: input.phone.trim() });
+  }
+  if (input.email?.trim()) {
+    telecom.push({ system: 'email', value: input.email.trim() });
+  }
+
+  const position =
+    input.latitude != null && input.longitude != null
+      ? { latitude: input.latitude, longitude: input.longitude }
+      : null;
+
+  return {
+    resourceType: 'Location',
+    id: input.id,
+    status: input.status || 'active',
+    name: input.name,
+    mode: 'instance',
+    address: input.address?.trim()
+      ? { text: input.address.trim() }
+      : null,
+    contact: telecom.length
+      ? [{ telecom }]
+      : null,
+    position,
+    managingOrganization: organizationReference(input.organizationId),
+  };
+}
+
+export function buildHealthcareServiceResource(input: {
+  id: string;
+  organizationId: string;
+  locationId: string;
+  name: string;
+  active: boolean;
+  serviceType?: string | null;
+}): Json {
+  return {
+    resourceType: 'HealthcareService',
+    id: input.id,
+    active: input.active,
+    name: input.name,
+    providedBy: organizationReference(input.organizationId),
+    location: [locationReference(input.locationId)],
+    type: input.serviceType?.trim()
+      ? [
+          {
+            coding: [
+              {
+                system: 'https://caremate.com/coding-system',
+                code: input.serviceType.trim(),
+                display: input.serviceType.trim(),
+              },
+            ],
+            text: input.serviceType.trim(),
+          },
+        ]
+      : null,
+  };
+}

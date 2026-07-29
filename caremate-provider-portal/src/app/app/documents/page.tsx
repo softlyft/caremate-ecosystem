@@ -2,6 +2,8 @@ import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
 import { listDocuments } from '@/domains/documents/repository';
 import { listConnectedPatients } from '@/domains/patients/repository';
+import { hrefWithPage, parsePage } from '@/lib/pagination';
+import { PaginationBar } from '@/components/pagination-bar';
 import { DocumentUploadForm } from '@/components/features/document-upload-form';
 import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
 import { canWriteOrg } from '@/constants/roles';
@@ -16,19 +18,28 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function DocumentsPage() {
+export default async function DocumentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await requireProviderSession();
   const orgId = session.activeOrganizationId;
-  const [documents, { rows: patients }] = await Promise.all([
-    listDocuments(orgId),
-    listConnectedPatients(orgId, { limit: 200 }),
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  const [documents, patientsResult] = await Promise.all([
+    listDocuments(orgId, { page }),
+    listConnectedPatients(orgId, { page: 1, pageSize: 200 }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
 
-  const patientOptions = patients.map((p) => ({
+  const patientOptions = patientsResult.rows.map((p) => ({
     id: p.connection.patient_id,
     label: `${p.profile?.full_name ?? 'Unknown'} (${p.profile?.patient_id ?? '—'})`,
   }));
+
+  const hrefForPage = (p: number) => hrefWithPage('/app/documents', p);
 
   return (
     <div className="space-y-6">
@@ -67,14 +78,14 @@ export default async function DocumentsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {documents.length === 0 ? (
+                {documents.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center text-muted">
                       No documents yet.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  documents.map((doc) => (
+                  documents.rows.map((doc) => (
                     <TableRow key={doc.id}>
                       <TableCell className="font-medium">{doc.title}</TableCell>
                       <TableCell>
@@ -91,6 +102,7 @@ export default async function DocumentsPage() {
                 )}
               </TableBody>
             </Table>
+            <PaginationBar result={documents} hrefForPage={hrefForPage} />
           </CardContent>
         </Card>
       </div>

@@ -8,9 +8,18 @@ import type {
   Profile,
   EmergencyProfile,
   ProviderOrganization,
+  ProviderLocation,
+  ProviderHealthcareService,
 } from '@caremate/db-types';
 
-export type { Json, Profile, EmergencyProfile, ProviderOrganization };
+export type {
+  Json,
+  Profile,
+  EmergencyProfile,
+  ProviderOrganization,
+  ProviderLocation,
+  ProviderHealthcareService,
+};
 
 export type ProviderOrgType =
   | 'hospital'
@@ -413,6 +422,12 @@ type PortalFunctions = {
       p_display_name?: string;
     };
     Returns: ProviderOrgMember;
+  };
+  rebuild_provider_projection_for_location: {
+    Args: {
+      p_location_id: string;
+    };
+    Returns: undefined;
   };
 };
 

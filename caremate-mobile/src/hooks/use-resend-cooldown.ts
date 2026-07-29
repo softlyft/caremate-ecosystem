@@ -16,45 +16,40 @@ export function useResendCooldown(cooldownSeconds: number) {
   const [cooldownUntilMs, setCooldownUntilMs] = useState<number | null>(() =>
     cooldownSeconds > 0 ? Date.now() + cooldownSeconds * 1000 : null,
   );
-  const [resendSeconds, setResendSeconds] = useState(() =>
-    remainingSecondsUntil(cooldownSeconds > 0 ? Date.now() + cooldownSeconds * 1000 : null),
-  );
-
-  const syncRemaining = useCallback(() => {
-    setResendSeconds((current) => {
-      const next = remainingSecondsUntil(cooldownUntilMs);
-      return next === current ? current : next;
-    });
-  }, [cooldownUntilMs]);
+  const [clockMs, setClockMs] = useState(() => Date.now());
 
   useEffect(() => {
-    syncRemaining();
     if (cooldownUntilMs == null) {
       return;
     }
-    if (remainingSecondsUntil(cooldownUntilMs) <= 0) {
-      setCooldownUntilMs(null);
-      return;
-    }
 
-    const timer = setInterval(syncRemaining, 250);
+    const timer = setInterval(() => {
+      const now = Date.now();
+      setClockMs(now);
+      if (remainingSecondsUntil(cooldownUntilMs, now) <= 0) {
+        setCooldownUntilMs(null);
+      }
+    }, 250);
+
     return () => clearInterval(timer);
-  }, [cooldownUntilMs, syncRemaining]);
+  }, [cooldownUntilMs]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
-        syncRemaining();
+        setClockMs(Date.now());
       }
     });
     return () => sub.remove();
-  }, [syncRemaining]);
+  }, []);
 
   const startCooldown = useCallback(() => {
     const until = Date.now() + cooldownSeconds * 1000;
     setCooldownUntilMs(until);
-    setResendSeconds(remainingSecondsUntil(until));
+    setClockMs(Date.now());
   }, [cooldownSeconds]);
+
+  const resendSeconds = remainingSecondsUntil(cooldownUntilMs, clockMs);
 
   return { resendSeconds, startCooldown };
 }

@@ -1,6 +1,7 @@
 import { RefreshCw, X } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { useAuthStore } from '@/features/auth/store';
@@ -22,6 +23,7 @@ function summaryKey(summary: SyncQueueSummary): string {
 }
 
 export function SyncStatusBanner() {
+  const insets = useSafeAreaInsets();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [summary, setSummary] = useState<SyncQueueSummary>(EMPTY_SUMMARY);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -119,60 +121,80 @@ export function SyncStatusBanner() {
   return (
     <View
       accessibilityLiveRegion="polite"
-      style={[styles.container, hasFailures ? styles.failedContainer : styles.pendingContainer]}
+      pointerEvents="box-none"
+      style={[styles.overlay, { paddingTop: Math.max(insets.top, 8) }]}
     >
-      <AppText variant="quickActionSubtitle" style={styles.message}>
-        {message}
-      </AppText>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={hasFailures ? 'Retry failed sync' : 'Sync now'}
-        disabled={isRetrying}
-        onPress={() => void handleRetry()}
-        style={styles.action}
+      <View
+        style={[styles.container, hasFailures ? styles.failedContainer : styles.pendingContainer]}
       >
-        {isRetrying ? (
-          <ActivityIndicator color={palette.primaryDark} size="small" />
-        ) : (
-          <RefreshCw color={palette.primaryDark} size={16} strokeWidth={2.5} />
-        )}
-        <AppText variant="categoryPill" color={palette.primaryDark}>
-          {isRetrying ? 'Syncing' : hasFailures ? 'Retry' : 'Sync now'}
+        <AppText variant="quickActionSubtitle" style={styles.message}>
+          {message}
         </AppText>
-      </Pressable>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Dismiss sync status"
-        hitSlop={8}
-        onPress={() => {
-          clearDismissTimer();
-          setDismissedKey(key);
-        }}
-        style={styles.dismiss}
-      >
-        <X color={palette.textSecondary} size={16} strokeWidth={2.5} />
-      </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={hasFailures ? 'Retry failed sync' : 'Sync now'}
+          disabled={isRetrying}
+          onPress={() => void handleRetry()}
+          style={styles.action}
+        >
+          {isRetrying ? (
+            <ActivityIndicator color={palette.primaryDark} size="small" />
+          ) : (
+            <RefreshCw color={palette.primaryDark} size={16} strokeWidth={2.5} />
+          )}
+          <AppText variant="categoryPill" color={palette.primaryDark}>
+            {isRetrying ? 'Syncing' : hasFailures ? 'Retry' : 'Sync now'}
+          </AppText>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Dismiss sync status"
+          hitSlop={8}
+          onPress={() => {
+            clearDismissTimer();
+            setDismissedKey(key);
+          }}
+          style={styles.dismiss}
+        >
+          <X color={palette.textSecondary} size={16} strokeWidth={2.5} />
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    elevation: 100,
+  },
   container: {
     minHeight: 48,
-    paddingHorizontal: 16,
+    marginHorizontal: 12,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
   },
   pendingContainer: {
     backgroundColor: palette.primaryLight,
-    borderBottomColor: palette.primary,
+    borderColor: palette.primary,
   },
   failedContainer: {
     backgroundColor: '#FEF2F2',
-    borderBottomColor: palette.danger,
+    borderColor: palette.danger,
   },
   message: {
     flex: 1,

@@ -1,9 +1,12 @@
 import { formatDistanceToNow } from 'date-fns';
-import { listChapterRequests } from '@/domains/community/repository';
+import { listChapterRequestsPage } from '@/domains/community/repository';
 import { ChapterRequestActions } from '@/features/community/chapter-request-actions';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import type { CommunityChapterRequest } from '@/types/community';
 import {
   Table,
   TableBody,
@@ -13,13 +16,29 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function CommunityChapterRequestsPage() {
-  let requests: Awaited<ReturnType<typeof listChapterRequests>> = [];
+function requestsHref(page?: number): string {
+  const params = new URLSearchParams();
+  if (page && page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return `/dashboard/community/chapters/requests${qs ? `?${qs}` : ''}`;
+}
+
+export default async function CommunityChapterRequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  let requests: PaginatedResult<CommunityChapterRequest> = emptyPage(page);
   try {
-    requests = await listChapterRequests('pending');
+    requests = await listChapterRequestsPage({ status: 'pending', page });
   } catch {
-    requests = [];
+    requests = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) => requestsHref(nextPage);
 
   return (
     <div>
@@ -41,14 +60,14 @@ export default async function CommunityChapterRequestsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.length === 0 ? (
+              {requests.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-muted">
                     No pending chapter requests.
                   </TableCell>
                 </TableRow>
               ) : (
-                requests.map((req) => (
+                requests.rows.map((req) => (
                   <TableRow key={req.id}>
                     <TableCell>
                       <div className="font-medium">{req.name}</div>
@@ -73,6 +92,7 @@ export default async function CommunityChapterRequestsPage() {
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={requests} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

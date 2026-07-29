@@ -411,8 +411,9 @@ export function groupLogsByDate(
 
 export function normalizeMedication(
   medication: Medication,
-  todayKey: string = toDateKey(new Date()),
+  options?: { todayKey?: string },
 ): Medication {
+  const todayKey = options?.todayKey ?? toDateKey(new Date());
   const frequency = medication.frequency ?? 'once-daily';
   const startDate = medication.startDate;
   let endDate = medication.endDate ?? null;

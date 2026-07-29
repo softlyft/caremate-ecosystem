@@ -2,6 +2,14 @@ import { randomUUID } from 'crypto';
 import { createClient } from '@/lib/supabase/server';
 import { insertActivity } from '@/domains/activity/repository';
 import {
+  DEFAULT_PAGE_SIZE,
+  emptyPage,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
+import {
   gatewayRequest,
   isHealthDataGatewayConfigured,
 } from '@/lib/health-data-gateway';
@@ -9,8 +17,12 @@ import type { DocumentType, ProviderDocument } from '@/types/database';
 
 export async function listDocuments(
   organizationId: string,
-  options?: { patientId?: string; limit?: number },
-): Promise<ProviderDocument[]> {
+  options?: { patientId?: string; page?: number; pageSize?: number },
+): Promise<PaginatedResult<ProviderDocument>> {
+  const page = parsePage(options?.page);
+  const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
   const gatewayRows = await gatewayRequest<ProviderDocument[]>(
     'GET',
     `/v1/documents?organizationId=${encodeURIComponent(organizationId)}`,
@@ -21,28 +33,32 @@ export async function listDocuments(
     if (options?.patientId) {
       rows = rows.filter((r) => r.patient_id === options.patientId);
     }
-    return rows.slice(0, options?.limit ?? 100);
+    rows.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+    const slice = rows.slice(from, to + 1);
+    return paginatedResult(slice, rows.length, page, pageSize);
   }
 
   if (isHealthDataGatewayConfigured()) {
-    return [];
+    return emptyPage(page, pageSize);
   }
 
   const supabase = await createClient();
   let query = supabase
     .from('provider_documents')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('organization_id', organizationId)
     .order('created_at', { ascending: false })
-    .limit(options?.limit ?? 100);
+    .range(from, to);
 
   if (options?.patientId) {
     query = query.eq('patient_id', options.patientId);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data ?? []) as ProviderDocument[];
+  return paginatedResult((data ?? []) as ProviderDocument[], count, page, pageSize);
 }
 
 export async function countDocuments(organizationId: string): Promise<number> {

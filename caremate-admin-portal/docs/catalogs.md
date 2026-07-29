@@ -42,18 +42,40 @@ Tips are part of the mobile home experience and are synced into the mobile app�
 
 ## Providers
 
+Primary browse path is hierarchical catalog CRUD (organizations → locations → healthcare services). Flat list tabs remain secondary shortcuts. Workbook ingest and Nearby pin archive remain available.
+
 Routes:
 
-- `/dashboard/providers`
-- `/dashboard/providers/upload`
-- `/dashboard/providers/[id]`
+- `/dashboard/providers` — default Organizations tab; also Locations / Services / Nearby pins
+- `/dashboard/providers/organizations/new` — create organization
+- `/dashboard/providers/organizations/[id]` — edit organization + locations list
+- `/dashboard/providers/organizations/[id]/locations/new`
+- `/dashboard/providers/organizations/[id]/locations/[locationId]` — edit location + services list
+- `/dashboard/providers/organizations/[id]/locations/[locationId]/services/new`
+- `/dashboard/providers/organizations/[id]/locations/[locationId]/services/[serviceId]`
+- `/dashboard/providers/upload` — workbook ingest
+- `/dashboard/providers/[id]` — Nearby pin detail / pin archive
+- `/dashboard/providers/services/[id]` — redirects into the nested service route when possible
 
 Implemented behaviors:
 
-- List provider views across the projected provider catalog with **paginated** tables (`?page=`, 50 per page)
+- Create / update / soft-archive catalog orgs, locations, and healthcare services (`source: admin_portal`)
+- Rebuild Nearby pins via `rebuild_provider_projection_for_location` after location/service writes (and after org updates for each active location)
+- Paginated flat list shortcuts (`?page=`, 50 per page)
 - Upload provider workbooks through the external ingest service
-- Poll ingest job status
-- Archive provider rows in the projected `providers` table
+- Archive projected `providers` pin rows
+
+### Catalog edit fields
+
+- **Organization:** name, active
+- **Location:** name, status, address, phone, email, latitude, longitude
+- **Healthcare service:** name, active, service_type, location_id
+
+Editors (`admin` / `editor`) mutate; other staff stay read-only.
+
+### Claim contact email
+
+One org-wide email (same value on `provider_profiles.email` and every `provider_locations.email`). Used for provider claim. SoftLyft may change it on the organization page only while the profile is not `verified`; after verification it is locked. Providers cannot edit it.
 
 ### Upload flow
 
@@ -70,15 +92,15 @@ Supported resources:
 - `location`
 - `healthcareservice`
 
-### Archive flow
+### Pin archive flow
 
-Archiving updates the `providers` projection row:
+Archiving a Nearby pin updates the `providers` projection row:
 
 - `deleted_at`
 - `active = false`
 - `updated_at`
 
-This does not replace the underlying FHIR resource ingest model; it acts on the projected nearby directory row.
+Catalog soft-archive of a location (or its org) also rebuilds/deactivates the matching pin.
 
 ## Learn Media Upload
 

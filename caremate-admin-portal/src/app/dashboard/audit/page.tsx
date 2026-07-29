@@ -1,16 +1,36 @@
 import { redirect } from 'next/navigation';
 
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { canViewAuditLogs } from '@/constants/roles';
 import {
-  listAuditEvents,
+  listAuditEventsPage,
   listDistinctAuditActions,
   listDistinctAuditEntityTypes,
+  type AuditLogRow,
 } from '@/domains/audit/repository';
 import { AuditLogsTable } from '@/features/audit/audit-logs-table';
 import { getPortalSession } from '@/lib/auth';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
+
+function auditHref(opts: {
+  operation?: string;
+  action?: string;
+  entity?: string;
+  actor?: string;
+  page?: number;
+}): string {
+  const params = new URLSearchParams();
+  if (opts.operation) params.set('operation', opts.operation);
+  if (opts.action) params.set('action', opts.action);
+  if (opts.entity) params.set('entity', opts.entity);
+  if (opts.actor?.trim()) params.set('actor', opts.actor.trim());
+  if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  const qs = params.toString();
+  return `/dashboard/audit${qs ? `?${qs}` : ''}`;
+}
 
 export default async function AuditLogsPage({
   searchParams,
@@ -20,6 +40,7 @@ export default async function AuditLogsPage({
     action?: string;
     entity?: string;
     actor?: string;
+    page?: string;
   }>;
 }) {
   const session = await getPortalSession();
@@ -27,7 +48,8 @@ export default async function AuditLogsPage({
     redirect('/dashboard');
   }
 
-  const { operation, action, entity, actor } = await searchParams;
+  const { operation, action, entity, actor, page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
   const op =
     operation === 'create' ||
     operation === 'update' ||
@@ -36,27 +58,30 @@ export default async function AuditLogsPage({
       ? operation
       : undefined;
 
-  let rows: Awaited<ReturnType<typeof listAuditEvents>> = [];
+  let result: PaginatedResult<AuditLogRow> = emptyPage(page);
   let actions: string[] = [];
   let entities: string[] = [];
   let loadError: string | null = null;
 
   try {
-    [rows, actions, entities] = await Promise.all([
-      listAuditEvents({
+    [result, actions, entities] = await Promise.all([
+      listAuditEventsPage({
         operation: op,
         action: action || undefined,
         entityType: entity || undefined,
         actorEmail: actor || undefined,
-        limit: 150,
+        page,
       }),
       listDistinctAuditActions(),
       listDistinctAuditEntityTypes(),
     ]);
   } catch (err) {
     loadError = err instanceof Error ? err.message : 'Failed to load audit logs';
-    rows = [];
+    result = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) =>
+    auditHref({ operation, action, entity, actor, page: nextPage });
 
   return (
     <div>
@@ -113,7 +138,8 @@ export default async function AuditLogsPage({
         </button>
       </form>
 
-      <AuditLogsTable rows={rows} />
+      <AuditLogsTable rows={result.rows} />
+      <PaginationBar result={result} hrefForPage={hrefForPage} className="rounded-b-lg border border-t-0 border-border bg-white" />
     </div>
   );
 }

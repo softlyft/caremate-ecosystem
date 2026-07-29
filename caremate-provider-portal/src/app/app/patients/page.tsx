@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
 import { listConnectedPatients } from '@/domains/patients/repository';
+import { hrefWithPage, parsePage } from '@/lib/pagination';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,13 +19,17 @@ import {
 export default async function PatientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const session = await requireProviderSession();
-  const { q } = await searchParams;
-  const { rows, total } = await listConnectedPatients(session.activeOrganizationId, {
+  const { q, page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+  const result = await listConnectedPatients(session.activeOrganizationId, {
     search: q,
+    page,
   });
+
+  const hrefForPage = (p: number) => hrefWithPage('/app/patients', p, { q });
 
   return (
     <div className="space-y-6">
@@ -32,7 +38,7 @@ export default async function PatientsPage({
           <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">
             Connected patients
           </h1>
-          <p className="mt-1 text-sm text-muted">{total} approved connections</p>
+          <p className="mt-1 text-sm text-muted">{result.total} approved connections</p>
         </div>
         <form className="flex gap-2">
           <Input
@@ -68,14 +74,14 @@ export default async function PatientsPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.length === 0 ? (
+              {result.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-muted">
                     No connected patients yet.
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map(({ connection, profile, lastActivityAt, membership }) => (
+                result.rows.map(({ connection, profile, lastActivityAt, membership }) => (
                   <TableRow key={connection.id}>
                     <TableCell>
                       <Link
@@ -112,6 +118,7 @@ export default async function PatientsPage({
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={result} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

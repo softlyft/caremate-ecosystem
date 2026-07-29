@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
 import { listAppointments } from '@/domains/appointments/repository';
+import { hrefWithPage, parsePage } from '@/lib/pagination';
+import { PaginationBar } from '@/components/pagination-bar';
 import { AppointmentActions } from '@/components/features/appointment-actions';
 import { canWriteOrg } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
@@ -22,10 +24,18 @@ const STATUS_VARIANT: Record<string, 'default' | 'warning' | 'success' | 'danger
   rescheduled: 'default',
 };
 
-export default async function AppointmentsPage() {
+export default async function AppointmentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await requireProviderSession();
-  const appointments = await listAppointments(session.activeOrganizationId);
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+  const result = await listAppointments(session.activeOrganizationId, { page });
   const canWrite = canWriteOrg(session.activeRole);
+
+  const hrefForPage = (p: number) => hrefWithPage('/app/appointments', p);
 
   return (
     <div className="space-y-6">
@@ -52,14 +62,14 @@ export default async function AppointmentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {appointments.length === 0 ? (
+              {result.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted">
                     No appointment requests.
                   </TableCell>
                 </TableRow>
               ) : (
-                appointments.map((a) => (
+                result.rows.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell className="font-medium">
                       {a.profile?.full_name ?? 'Unknown'}
@@ -81,10 +91,10 @@ export default async function AppointmentsPage() {
             </TableBody>
           </Table>
 
-          {canWrite && appointments.length > 0 && (
+          {canWrite && result.rows.length > 0 && (
             <div className="space-y-4 border-t border-border p-4">
               <p className="text-sm font-medium">Update request</p>
-              {appointments
+              {result.rows
                 .filter((a) => a.status === 'pending' || a.status === 'confirmed')
                 .map((a) => (
                   <div key={a.id} className="rounded-lg border border-border p-3">
@@ -96,6 +106,8 @@ export default async function AppointmentsPage() {
                 ))}
             </div>
           )}
+
+          <PaginationBar result={result} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>
