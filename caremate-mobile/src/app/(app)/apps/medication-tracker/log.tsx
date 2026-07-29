@@ -42,7 +42,10 @@ export default function MedicationLogScreen() {
   const hydrated = useMedicationTrackerHydrated();
 
   const medicationsRaw = useMedicationTrackerStore((state) => state.medications);
-  const medications = useMemo(() => medicationsRaw.map(normalizeMedication), [medicationsRaw]);
+  const medications = useMemo(
+    () => medicationsRaw.map((medication) => normalizeMedication(medication)),
+    [medicationsRaw],
+  );
   const activeMedicationId = useMedicationTrackerStore((state) => state.activeMedicationId);
   const setActiveMedicationId = useMedicationTrackerStore((state) => state.setActiveMedicationId);
   const logs = useMedicationTrackerStore((state) => state.logs);

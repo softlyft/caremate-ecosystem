@@ -152,7 +152,10 @@ export default function MedicationTrackerScreen() {
   const logDose = useMedicationTrackerStore((state) => state.logDose);
   const removeDoseLog = useMedicationTrackerStore((state) => state.removeDoseLog);
 
-  const medications = useMemo(() => medicationsRaw.map(normalizeMedication), [medicationsRaw]);
+  const medications = useMemo(
+    () => medicationsRaw.map((medication) => normalizeMedication(medication)),
+    [medicationsRaw],
+  );
   const activeMedicationCount = countActiveMedications(medications);
   const canAddMoreMedications = canAddMedication(tier, activeMedicationCount);
 
