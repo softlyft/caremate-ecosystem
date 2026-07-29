@@ -1,7 +1,8 @@
 import { RefreshCw, X } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { useAuthStore } from '@/features/auth/store';
@@ -130,13 +131,12 @@ export function SyncStatusBanner() {
         <AppText variant="quickActionSubtitle" style={styles.message}>
           {message}
         </AppText>
-        <Pressable
+        <Button
           accessibilityRole="button"
           accessibilityLabel={hasFailures ? 'Retry failed sync' : 'Sync now'}
           disabled={isRetrying}
           onPress={() => void handleRetry()}
-          style={styles.action}
-        >
+          style={styles.action} variant="plain">
           {isRetrying ? (
             <ActivityIndicator color={palette.primaryDark} size="small" />
           ) : (
@@ -145,8 +145,8 @@ export function SyncStatusBanner() {
           <AppText variant="categoryPill" color={palette.primaryDark}>
             {isRetrying ? 'Syncing' : hasFailures ? 'Retry' : 'Sync now'}
           </AppText>
-        </Pressable>
-        <Pressable
+        </Button>
+        <Button
           accessibilityRole="button"
           accessibilityLabel="Dismiss sync status"
           hitSlop={8}
@@ -154,10 +154,9 @@ export function SyncStatusBanner() {
             clearDismissTimer();
             setDismissedKey(key);
           }}
-          style={styles.dismiss}
-        >
+          style={styles.dismiss} variant="plain">
           <X color={palette.textSecondary} size={16} strokeWidth={2.5} />
-        </Pressable>
+        </Button>
       </View>
     </View>
   );

@@ -9,9 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Input } from '@/components/ui/form-controls';
+import { Button, Input } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import {
@@ -270,14 +269,13 @@ export default function FamilyHubScreen() {
             </AppText>
           </LinearGradientFill>
         </View>
-        <PressableScale
+        <Button
           style={[styles.primaryCta, shadow.soft]}
-          onPress={() => router.push('/(auth)/login')}
-        >
+          onPress={() => router.push('/(auth)/login')} variant="plain">
           <AppText variant="button" style={styles.primaryCtaLabel}>
             {t('common.signIn')}
           </AppText>
-        </PressableScale>
+        </Button>
       </View>
     );
   }
@@ -332,27 +330,25 @@ export default function FamilyHubScreen() {
             <FamilyHero title={t('family.startTitle')} subtitle={t('family.startSubtitle')} />
           </AnimatedSection>
           <AnimatedSection index={1}>
-            <PressableScale
+            <Button
               style={[styles.primaryCta, shadow.soft]}
-              onPress={() => router.push('/(app)/family/setup')}
-            >
+              onPress={() => router.push('/(app)/family/setup')} variant="plain">
               <UserPlus color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('family.setupCta')}
               </AppText>
-            </PressableScale>
+            </Button>
           </AnimatedSection>
           {(requestsQuery.data?.length ?? 0) > 0 ? (
             <AnimatedSection index={2}>
-              <PressableScale
+              <Button
                 style={styles.secondaryCta}
-                onPress={() => router.push('/(app)/family/requests')}
-              >
+                onPress={() => router.push('/(app)/family/requests')} variant="plain">
                 <Link2 color={ACCENT} size={18} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.secondaryCtaLabel}>
                   {t('family.viewRequests', { count: requestsQuery.data!.length })}
                 </AppText>
-              </PressableScale>
+              </Button>
             </AnimatedSection>
           ) : null}
         </Animated.ScrollView>
@@ -404,15 +400,14 @@ export default function FamilyHubScreen() {
                   plural: requestCount === 1 ? '' : 's',
                 })}
               </AppText>
-              <PressableScale
+              <Button
                 style={styles.secondaryCta}
-                onPress={() => router.push('/(app)/family/requests')}
-              >
+                onPress={() => router.push('/(app)/family/requests')} variant="plain">
                 <Link2 color={ACCENT} size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.secondaryCtaLabel}>
                   {t('family.reviewRequests')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </View>
           </AnimatedSection>
         ) : null}
@@ -438,15 +433,14 @@ export default function FamilyHubScreen() {
                     </AppText>
                   </View>
                   {isHouseholdOwner && member.kind === 'spouse' ? (
-                    <PressableScale
+                    <Button
                       style={styles.removeChip}
                       disabled={busy}
-                      onPress={() => void handleRemoveMember(member.id)}
-                    >
+                      onPress={() => void handleRemoveMember(member.id)} variant="plain">
                       <AppText variant="caption" style={styles.removeChipLabel}>
                         {t('family.removeMember')}
                       </AppText>
-                    </PressableScale>
+                    </Button>
                   ) : null}
                 </View>
               </View>
@@ -478,15 +472,14 @@ export default function FamilyHubScreen() {
                         {t('family.pendingInviteMeta')}
                       </AppText>
                     </View>
-                    <PressableScale
+                    <Button
                       style={styles.removeChip}
                       disabled={busy}
-                      onPress={() => void handleCancelInvite(invite.id)}
-                    >
+                      onPress={() => void handleCancelInvite(invite.id)} variant="plain">
                       <AppText variant="caption" style={styles.removeChipLabel}>
                         {t('family.cancelInvite')}
                       </AppText>
-                    </PressableScale>
+                    </Button>
                   </View>
                 ))}
               </>
@@ -554,32 +547,30 @@ export default function FamilyHubScreen() {
                   {FAMILY_GENDERS.map((g) => {
                     const selected = childGender === g.value;
                     return (
-                      <PressableScale
+                      <Button
                         key={g.value}
                         style={[styles.chip, selected && styles.chipSelected]}
                         onPress={() => setChildGender(g.value)}
-                        scale={0.96}
-                      >
+                        scale={0.96} variant="plain">
                         <AppText
                           variant="caption"
                           style={selected ? styles.chipTextSelected : styles.chipText}
                         >
                           {g.label}
                         </AppText>
-                      </PressableScale>
+                      </Button>
                     );
                   })}
                 </View>
-                <PressableScale
+                <Button
                   style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
                   disabled={busy}
-                  onPress={() => void handleAddChild()}
-                >
+                  onPress={() => void handleAddChild()} variant="plain">
                   <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.primaryCtaLabel}>
                     {busy ? t('common.saving') : t('family.addChild')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </>
             )}
           </View>
@@ -631,15 +622,14 @@ export default function FamilyHubScreen() {
                   value={lookup}
                   onChangeText={setLookup}
                 />
-                <PressableScale
+                <Button
                   style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
                   disabled={busy || !lookup.trim()}
-                  onPress={() => void handleLookup()}
-                >
+                  onPress={() => void handleLookup()} variant="plain">
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
                     {busy ? t('family.searching') : t('family.find')}
                   </AppText>
-                </PressableScale>
+                </Button>
 
                 {matched ? (
                   <View style={styles.foundCard}>
@@ -659,15 +649,14 @@ export default function FamilyHubScreen() {
                         })}
                       </AppText>
                     ) : null}
-                    <PressableScale
+                    <Button
                       style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
                       disabled={busy}
-                      onPress={() => void handleConnect()}
-                    >
+                      onPress={() => void handleConnect()} variant="plain">
                       <AppText variant="button" style={styles.primaryCtaLabel}>
                         {t('family.connect')}
                       </AppText>
-                    </PressableScale>
+                    </Button>
                   </View>
                 ) : null}
 
@@ -683,24 +672,22 @@ export default function FamilyHubScreen() {
                       </AppText>
                     </View>
                     <View style={styles.inviteActions}>
-                      <PressableScale
+                      <Button
                         style={styles.secondaryCta}
-                        onPress={() => void handleCopyInvite()}
-                      >
+                        onPress={() => void handleCopyInvite()} variant="plain">
                         <Copy color={ACCENT} size={16} strokeWidth={2.25} />
                         <AppText variant="button" style={styles.secondaryCtaLabel}>
                           {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
                         </AppText>
-                      </PressableScale>
-                      <PressableScale
+                      </Button>
+                      <Button
                         style={styles.secondaryCta}
-                        onPress={() => void handleShareInvite()}
-                      >
+                        onPress={() => void handleShareInvite()} variant="plain">
                         <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
                         <AppText variant="button" style={styles.secondaryCtaLabel}>
                           {t('family.shareInvite')}
                         </AppText>
-                      </PressableScale>
+                      </Button>
                     </View>
                   </View>
                 ) : null}

@@ -18,10 +18,10 @@ import {
 } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
 import { WEBSITE_URLS } from '@/constants/config';
@@ -86,7 +86,7 @@ export default function ProfileTabScreen() {
       setDeviceDefaults({ notificationsEnabled: value }),
     ]);
     if (value) {
-      void syncPushRegistration();
+      void syncPushRegistration({ requestPermission: true });
     } else {
       void clearPushRegistration();
     }
@@ -128,13 +128,12 @@ export default function ProfileTabScreen() {
                 style={styles.identityInner}
               >
                 {!isGuest ? (
-                  <PressableScale
+                  <Button
                     style={styles.editButton}
                     accessibilityLabel={t('profile.edit.openA11y')}
-                    onPress={() => router.push('/(app)/profile/edit')}
-                  >
+                    onPress={() => router.push('/(app)/profile/edit')} variant="plain">
                     <Pencil color={palette.primary} size={18} strokeWidth={2.25} />
-                  </PressableScale>
+                  </Button>
                 ) : null}
                 <View style={styles.avatarRing}>
                   <View style={styles.avatar}>
@@ -165,22 +164,20 @@ export default function ProfileTabScreen() {
                   </View>
                 ) : (
                   <View style={styles.guestActions}>
-                    <PressableScale
+                    <Button
                       style={styles.primaryCta}
-                      onPress={() => router.push('/(auth)/login')}
-                    >
+                      onPress={() => router.push('/(auth)/login')} variant="plain">
                       <AppText variant="button" style={styles.primaryCtaLabel}>
                         {t('profile.guest.signIn')}
                       </AppText>
-                    </PressableScale>
-                    <PressableScale
+                    </Button>
+                    <Button
                       style={styles.secondaryCta}
-                      onPress={() => router.push('/(auth)/register')}
-                    >
+                      onPress={() => router.push('/(auth)/register')} variant="plain">
                       <AppText variant="button" style={styles.secondaryCtaLabel}>
                         {t('profile.guest.createAccount')}
                       </AppText>
-                    </PressableScale>
+                    </Button>
                   </View>
                 )}
               </LinearGradientFill>
@@ -338,12 +335,12 @@ export default function ProfileTabScreen() {
 
         {!isGuest ? (
           <AnimatedSection index={finishItems.length > 0 ? 5 : 4}>
-            <PressableScale style={styles.signOut} onPress={() => signOut()}>
+            <Button style={styles.signOut} onPress={() => signOut()} variant="plain">
               <LogOut color={palette.danger} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.signOutLabel}>
                 {t('profile.signOut')}
               </AppText>
-            </PressableScale>
+            </Button>
           </AnimatedSection>
         ) : null}
       </Animated.ScrollView>

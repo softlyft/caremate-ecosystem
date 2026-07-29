@@ -8,8 +8,8 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { palette } from '@/theme';
@@ -50,15 +50,14 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
   const labelColor = isFocused ? activeColor : idleColor;
 
   return (
-    <PressableScale
+    <Button
       accessibilityRole="button"
       accessibilityState={isFocused ? { selected: true } : {}}
       accessibilityLabel={label}
       onPress={onPress}
       onLongPress={onLongPress}
       style={styles.item}
-      scale={0.92}
-    >
+      scale={0.92} variant="plain">
       <View style={styles.iconSlot}>
         <Icon color={iconColor} size={22} strokeWidth={isFocused ? 2.6 : 2} />
       </View>
@@ -75,7 +74,7 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       >
         {label}
       </AppText>
-    </PressableScale>
+    </Button>
   );
 }
 
@@ -142,9 +141,9 @@ const styles = StyleSheet.create({
   },
   bar: {
     borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.82)',
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.55)',
+    borderColor: 'rgba(226, 232, 240, 0.95)',
     ...Platform.select({
       ios: {
         shadowColor: '#0F172A',

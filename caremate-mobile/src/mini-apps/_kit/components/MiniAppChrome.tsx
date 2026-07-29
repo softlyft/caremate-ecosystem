@@ -16,8 +16,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { Button, Card, ChoiceChip } from '@/components/ui/form-controls';
 import type { MiniAppId } from '@/mini-apps/_kit/registry';
 import { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -183,7 +183,7 @@ type CardProps = {
 export function MiniAppCard({ children, index = 1, style, title, eyebrow, theme }: CardProps) {
   return (
     <AnimatedSection index={index}>
-      <View style={[styles.card, shadow.soft, style]}>
+      <Card style={[styles.card, style]} padded={false}>
         {title || eyebrow ? (
           <View style={styles.cardHeader}>
             {eyebrow ? (
@@ -198,7 +198,7 @@ export function MiniAppCard({ children, index = 1, style, title, eyebrow, theme 
           </View>
         ) : null}
         {children}
-      </View>
+      </Card>
     </AnimatedSection>
   );
 }
@@ -213,24 +213,35 @@ type ChipProps = {
 };
 
 export function MiniAppChip({ label, selected, onPress, accent, soft, disabled }: ChipProps) {
-  return (
-    <PressableScale
-      disabled={disabled || !onPress}
-      onPress={onPress}
-      style={[
-        styles.chip,
-        selected
-          ? { backgroundColor: soft, borderColor: accent }
-          : { backgroundColor: palette.background, borderColor: palette.divider },
-      ]}
-    >
-      <AppText
-        variant="caption"
-        style={{ color: selected ? accent : palette.text, fontWeight: selected ? '600' : '500' }}
+  if (!onPress) {
+    return (
+      <View
+        style={[
+          styles.chip,
+          selected
+            ? { backgroundColor: soft, borderColor: accent }
+            : { backgroundColor: palette.background, borderColor: palette.divider },
+        ]}
       >
-        {label}
-      </AppText>
-    </PressableScale>
+        <AppText
+          variant="caption"
+          style={{ color: selected ? accent : palette.text, fontWeight: selected ? '600' : '500' }}
+        >
+          {label}
+        </AppText>
+      </View>
+    );
+  }
+
+  return (
+    <ChoiceChip
+      label={label}
+      selected={selected}
+      onPress={onPress}
+      accent={accent}
+      soft={soft}
+      disabled={disabled}
+    />
   );
 }
 
@@ -266,9 +277,9 @@ export function MiniAppRow({ title, subtitle, onPress, trailing, soft }: RowProp
   }
 
   return (
-    <PressableScale onPress={onPress} style={styles.rowPressable}>
+    <Button onPress={onPress} style={styles.rowPressable} variant="plain">
       {body}
-    </PressableScale>
+    </Button>
   );
 }
 
@@ -315,7 +326,8 @@ export function MiniAppCta({
 }) {
   return (
     <AnimatedSection index={index}>
-      <PressableScale
+      <Button
+        label={label}
         onPress={onPress}
         style={[
           styles.cta,
@@ -324,14 +336,9 @@ export function MiniAppCta({
             : { backgroundColor: accent },
           shadow.soft,
         ]}
-      >
-        <AppText
-          variant="button"
-          style={{ color: secondary ? accent : '#FFFFFF', textAlign: 'center' }}
-        >
-          {label}
-        </AppText>
-      </PressableScale>
+        textStyle={{ color: secondary ? accent : '#FFFFFF', textAlign: 'center' }}
+        variant="plain"
+      />
     </AnimatedSection>
   );
 }
@@ -436,13 +443,8 @@ const styles = StyleSheet.create({
     maxWidth: '96%',
   },
   card: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: palette.divider,
     padding: layoutSpacing.cardPadding,
     gap: spacing.sm,
-    overflow: 'hidden',
   },
   cardHeader: {
     gap: 2,

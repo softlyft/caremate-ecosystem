@@ -5,9 +5,8 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Input } from '@/components/ui/form-controls';
+import { Button, Input } from '@/components/ui/form-controls';
 import { localizationService, useTranslation } from '@/domains/localization';
 import { useOnboardingDraftStore } from '@/domains/onboarding';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
@@ -94,7 +93,7 @@ export default function OnboardingCountryScreen() {
               key={country.code}
               entering={FadeInDown.delay(Math.min(80 + index * 12, 280)).duration(360)}
             >
-              <PressableScale
+              <Button
                 style={[
                   styles.chip,
                   selected && {
@@ -111,8 +110,7 @@ export default function OnboardingCountryScreen() {
                   setLanguage(localizationService.getDefaultLanguage(country.code));
                   // State remains in schema/store but is not collected in UI yet.
                   setState('');
-                }}
-              >
+                }} variant="plain">
                 <AppText
                   variant="caption"
                   style={
@@ -121,7 +119,7 @@ export default function OnboardingCountryScreen() {
                 >
                   {country.name}
                 </AppText>
-              </PressableScale>
+              </Button>
             </Animated.View>
           );
         })}
@@ -142,7 +140,7 @@ export default function OnboardingCountryScreen() {
               const selected = resolvedLanguage === language;
               const label = localizationService.getLanguageConfig(language);
               return (
-                <PressableScale
+                <Button
                   key={language}
                   style={[
                     styles.chip,
@@ -152,8 +150,7 @@ export default function OnboardingCountryScreen() {
                     },
                   ]}
                   scale={0.95}
-                  onPress={() => setLanguage(language)}
-                >
+                  onPress={() => setLanguage(language)} variant="plain">
                   <AppText
                     variant="caption"
                     style={
@@ -164,7 +161,7 @@ export default function OnboardingCountryScreen() {
                   >
                     {label.nativeName}
                   </AppText>
-                </PressableScale>
+                </Button>
               );
             })}
           </View>

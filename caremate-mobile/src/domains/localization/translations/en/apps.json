@@ -647,6 +647,8 @@
       "thisWeek": "This week",
       "cycleSummary": "Cycle summary",
       "averageCycle": "Average cycle",
+      "decreaseAverageCycle": "Decrease average cycle length",
+      "increaseAverageCycle": "Increase average cycle length",
       "periodLength": "Period length",
       "loggedDays": "Logged days",
       "dayOfCycle": "Day {{day}} of your cycle",

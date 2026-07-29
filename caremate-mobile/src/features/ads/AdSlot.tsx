@@ -3,9 +3,9 @@ import { router, type Href } from 'expo-router';
 import { ArrowUpRight, Megaphone, Sparkles } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { trackCatalogClick, trackCatalogImpression, useAdForSlot } from '@/domains/ads';
 import type { AdSlotId, ResolvedCatalogAd } from '@/domains/ads/types';
@@ -146,13 +146,12 @@ function CatalogBanner({ ad, userId }: { ad: ResolvedCatalogAd; userId: string |
 
   if (hasCta) {
     return (
-      <PressableScale
+      <Button
         accessibilityRole="button"
         accessibilityLabel={`${badge}: ${ad.title}`}
-        onPress={onPress}
-      >
+        onPress={onPress} variant="plain">
         {content}
-      </PressableScale>
+      </Button>
     );
   }
 

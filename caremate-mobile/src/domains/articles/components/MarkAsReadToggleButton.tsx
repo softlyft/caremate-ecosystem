@@ -1,7 +1,7 @@
 import { BookOpen, CheckCheck } from 'lucide-react-native';
 import { StyleSheet, ViewStyle } from 'react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
+import { Button } from '@/components/ui/form-controls';
 import { useArticleReadStatus } from '@/domains/articles/hooks/use-article-read';
 import { palette, radius } from '@/theme';
 
@@ -28,14 +28,12 @@ export function MarkAsReadToggleButton({
   const Icon = isRead ? CheckCheck : BookOpen;
 
   return (
-    <PressableScale
-      accessibilityRole="button"
+    <Button
       accessibilityLabel={isRead ? 'Mark as unread' : 'Mark as read'}
       accessibilityState={{ selected: isRead, busy: isBusy }}
       hitSlop={hitSlop}
       disabled={isBusy}
-      onPress={(event) => {
-        event?.stopPropagation?.();
+      onPress={() => {
         toggleRead();
       }}
       style={[
@@ -44,9 +42,10 @@ export function MarkAsReadToggleButton({
         isBusy ? styles.buttonBusy : null,
         style,
       ]}
+      variant="plain"
     >
       <Icon color={color} size={size} strokeWidth={2.25} />
-    </PressableScale>
+    </Button>
   );
 }
 

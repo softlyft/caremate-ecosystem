@@ -13,10 +13,10 @@ import {
 import { useLayoutEffect, useState } from 'react';
 import { Alert, Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
@@ -294,7 +294,7 @@ export default function ProviderDetailScreen() {
               {t('nearby.detail.contact')}
             </AppText>
 
-            <PressableScale disabled={!canOpenMaps} onPress={openInMaps} style={styles.infoRow}>
+            <Button disabled={!canOpenMaps} onPress={openInMaps} style={styles.infoRow} variant="plain">
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <MapPin color={theme.accent} size={18} />
               </View>
@@ -314,11 +314,11 @@ export default function ProviderDetailScreen() {
                   </AppText>
                 ) : null}
               </View>
-            </PressableScale>
+            </Button>
 
             <View style={styles.divider} />
 
-            <PressableScale disabled={!detail.phone} onPress={callProvider} style={styles.infoRow}>
+            <Button disabled={!detail.phone} onPress={callProvider} style={styles.infoRow} variant="plain">
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Phone color={theme.accent} size={18} />
               </View>
@@ -333,11 +333,11 @@ export default function ProviderDetailScreen() {
                   {detail.phone ?? t('nearby.detail.phoneUnavailable')}
                 </AppText>
               </View>
-            </PressableScale>
+            </Button>
 
             <View style={styles.divider} />
 
-            <PressableScale disabled={!detail.email} onPress={emailProvider} style={styles.infoRow}>
+            <Button disabled={!detail.email} onPress={emailProvider} style={styles.infoRow} variant="plain">
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Mail color={theme.accent} size={18} />
               </View>
@@ -352,7 +352,7 @@ export default function ProviderDetailScreen() {
                   {detail.email ?? t('nearby.detail.emailUnavailable')}
                 </AppText>
               </View>
-            </PressableScale>
+            </Button>
           </View>
         </AnimatedSection>
 
@@ -399,7 +399,7 @@ export default function ProviderDetailScreen() {
                         editable={!respondMutation.isPending}
                       />
                       <View style={styles.connectRow}>
-                        <PressableScale
+                        <Button
                           style={[
                             styles.secondaryCta,
                             { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
@@ -408,13 +408,12 @@ export default function ProviderDetailScreen() {
                           onPress={() => {
                             setDeclining(false);
                             setRejectionReason('');
-                          }}
-                        >
+                          }} variant="plain">
                           <AppText variant="button" style={{ color: theme.accent }}>
                             {t('common.cancel')}
                           </AppText>
-                        </PressableScale>
-                        <PressableScale
+                        </Button>
+                        <Button
                           style={[
                             styles.primaryCta,
                             { backgroundColor: theme.accent, flex: 1 },
@@ -426,41 +425,38 @@ export default function ProviderDetailScreen() {
                               accept: false,
                               rejectionReason,
                             })
-                          }
-                        >
+                          } variant="plain">
                           <AppText variant="button" style={styles.primaryCtaLabel}>
                             {t('nearby.connectionRequests.confirmDecline')}
                           </AppText>
-                        </PressableScale>
+                        </Button>
                       </View>
                     </>
                   ) : (
                     <View style={styles.connectRow}>
-                      <PressableScale
+                      <Button
                         style={[
                           styles.primaryCta,
                           { backgroundColor: theme.accent, flex: 1 },
                           shadow.soft,
                         ]}
                         disabled={respondMutation.isPending}
-                        onPress={() => respondMutation.mutate({ accept: true })}
-                      >
+                        onPress={() => respondMutation.mutate({ accept: true })} variant="plain">
                         <AppText variant="button" style={styles.primaryCtaLabel}>
                           {t('nearby.detail.approveInbound')}
                         </AppText>
-                      </PressableScale>
-                      <PressableScale
+                      </Button>
+                      <Button
                         style={[
                           styles.secondaryCta,
                           { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
                         ]}
                         disabled={respondMutation.isPending}
-                        onPress={() => setDeclining(true)}
-                      >
+                        onPress={() => setDeclining(true)} variant="plain">
                         <AppText variant="button" style={{ color: theme.accent }}>
                           {t('nearby.detail.declineInbound')}
                         </AppText>
-                      </PressableScale>
+                      </Button>
                     </View>
                   )}
                 </View>
@@ -473,16 +469,15 @@ export default function ProviderDetailScreen() {
                   <AppText variant="caption" style={styles.connectHint}>
                     {t('nearby.detail.connectHint')}
                   </AppText>
-                  <PressableScale
+                  <Button
                     style={[styles.primaryCta, { backgroundColor: theme.accent }, shadow.soft]}
                     disabled={connectMutation.isPending || connectionQuery.isLoading}
-                    onPress={() => connectMutation.mutate()}
-                  >
+                    onPress={() => connectMutation.mutate()} variant="plain">
                     <Link2 color="#FFFFFF" size={18} strokeWidth={2.25} />
                     <AppText variant="button" style={styles.primaryCtaLabel}>
                       {t('nearby.detail.connect')}
                     </AppText>
-                  </PressableScale>
+                  </Button>
                 </View>
               )}
             </View>
@@ -491,7 +486,7 @@ export default function ProviderDetailScreen() {
 
         <AnimatedSection index={4}>
           <View style={styles.actions}>
-            <PressableScale
+            <Button
               style={[
                 styles.primaryCta,
                 { backgroundColor: theme.accent },
@@ -499,15 +494,14 @@ export default function ProviderDetailScreen() {
                 shadow.soft,
               ]}
               disabled={!canOpenMaps}
-              onPress={openInMaps}
-            >
+              onPress={openInMaps} variant="plain">
               <Navigation color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('nearby.detail.openInMaps')}
               </AppText>
-            </PressableScale>
+            </Button>
 
-            <PressableScale
+            <Button
               style={[
                 styles.secondaryCta,
                 {
@@ -516,8 +510,7 @@ export default function ProviderDetailScreen() {
                 },
               ]}
               onPress={() => favoriteMutation.mutate()}
-              disabled={favoriteMutation.isPending}
-            >
+              disabled={favoriteMutation.isPending} variant="plain">
               <Heart
                 color={theme.accent}
                 size={18}
@@ -527,7 +520,7 @@ export default function ProviderDetailScreen() {
               <AppText variant="button" style={{ color: theme.accent }}>
                 {detail.isFavorite ? t('nearby.detail.unfavorite') : t('nearby.detail.favorite')}
               </AppText>
-            </PressableScale>
+            </Button>
           </View>
         </AnimatedSection>
       </Animated.ScrollView>

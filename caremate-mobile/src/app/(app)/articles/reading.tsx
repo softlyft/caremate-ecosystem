@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { BookOpen, CheckCheck } from 'lucide-react-native';
 import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { Box } from '@/components/ui/box';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -86,15 +86,14 @@ function TabIcon({
   icon: typeof BookOpen;
 }) {
   return (
-    <PressableScale
+    <Button
       onPress={onPress}
       style={[styles.chip, active ? { backgroundColor: `${color}18`, borderColor: color } : null]}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ selected: active }}
-    >
+      accessibilityState={{ selected: active }} variant="plain">
       <Icon color={active ? color : palette.textSecondary} size={20} strokeWidth={2.35} />
-    </PressableScale>
+    </Button>
   );
 }
 

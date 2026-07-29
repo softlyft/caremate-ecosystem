@@ -25,8 +25,8 @@ import {
 import { StyleSheet, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/form-controls';
 import { formatProviderType, type ProviderType } from '@/domains/providers/types';
 import type { Provider } from '@/types';
 import { palette, radius, shadow } from '@/theme';
@@ -179,11 +179,11 @@ export function NearbyProviderCard({ provider, onPress }: NearbyProviderCardProp
   const distanceLabel = provider.distanceKm != null ? `${provider.distanceKm.toFixed(1)} km` : null;
 
   return (
-    <PressableScale
+    <Button
       style={[styles.shell, shadow.soft]}
       onPress={onPress}
-      accessibilityRole="button"
       accessibilityLabel={provider.name}
+      variant="plain"
     >
       <View style={styles.row}>
         <LinearGradientFill
@@ -268,7 +268,7 @@ export function NearbyProviderCard({ provider, onPress }: NearbyProviderCardProp
           ) : null}
         </View>
       </View>
-    </PressableScale>
+    </Button>
   );
 }
 

@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { getMonthMatrix, toDateKey } from '@/mini-apps/_kit/date-utils';
@@ -101,16 +102,14 @@ export function MonthCalendarGrid({
             }
 
             return (
-              <Pressable
+              <Button
                 key={dayKey}
                 accessibilityRole="button"
                 accessibilityLabel={`${date.toLocaleDateString()}, ${isSelected ? 'selected' : 'not selected'}`}
-                hitSlop={6}
-                style={({ pressed }) => [styles.dayCell, pressed && styles.dayCellPressed]}
-                onPress={() => onDayPress(dayKey)}
-              >
+                hitSlop={6} style={styles.dayCell}
+                onPress={() => onDayPress(dayKey)} variant="plain">
                 {content}
-              </Pressable>
+              </Button>
             );
           })}
         </View>
@@ -139,9 +138,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 4,
-  },
-  dayCellPressed: {
-    opacity: 0.7,
   },
   dayBubble: {
     width: 36,

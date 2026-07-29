@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { layoutSpacing, palette } from '@/theme';
@@ -28,10 +29,10 @@ export function SectionHeader({
         <AppText variant="sectionTitle">{title}</AppText>
       </View>
       {onSeeAll ? (
-        <Pressable style={styles.seeAll} onPress={onSeeAll} hitSlop={8}>
+        <Button style={styles.seeAll} onPress={onSeeAll} hitSlop={8} variant="plain">
           <AppText variant="seeAll">{seeAllLabel}</AppText>
           <ChevronRight color={palette.primary} size={16} strokeWidth={2.5} />
-        </Pressable>
+        </Button>
       ) : null}
     </View>
   );

@@ -5,15 +5,15 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
+import { IconButton } from '@/components/ui/form-controls';
 import { images } from '@/constants/assets';
 import { useTranslation } from '@/domains/localization';
 import { useUnreadMessageCount } from '@/domains/messaging/hooks';
 import { useUnreadNotificationCount } from '@/domains/notifications/hooks';
 import { getGreeting } from '@/features/home/constants';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
 
 const LOGO_ASPECT = 1774 / 887;
 const LOGO_HEIGHT = 44;
@@ -52,25 +52,23 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
         />
         <View style={styles.actions}>
           {!isGuest ? (
-            <PressableScale
-              style={styles.iconButton}
+            <IconButton
               accessibilityLabel={t('common.messages')}
               accessibilityHint={t('messages.openHint')}
               onPress={() => router.push('/(app)/messages')}
             >
               <MessageCircle color={palette.text} size={22} strokeWidth={2} />
               {hasUnreadMessages ? <View style={styles.unreadDot} /> : null}
-            </PressableScale>
+            </IconButton>
           ) : null}
-          <PressableScale
-            style={styles.iconButton}
+          <IconButton
             accessibilityLabel={t('common.notifications')}
             accessibilityHint={t('home.notifications.openHint')}
             onPress={() => router.push('/(app)/notifications')}
           >
             <Bell color={palette.text} size={22} strokeWidth={2} />
             {hasUnread ? <View style={styles.unreadDot} /> : null}
-          </PressableScale>
+          </IconButton>
         </View>
       </Animated.View>
 
@@ -139,18 +137,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     flexShrink: 0,
-  },
-  iconButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    borderRadius: radius.full,
-    backgroundColor: palette.background,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    ...shadow.soft,
   },
   unreadDot: {
     position: 'absolute',

@@ -6,10 +6,10 @@ import { ExternalLink, Sparkles } from 'lucide-react-native';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { learnArticleHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
@@ -211,15 +211,14 @@ export default function ArticleDetailScreen() {
 
         {article.sourceUrl ? (
           <AnimatedSection index={5}>
-            <PressableScale
+            <Button
               style={[styles.cta, shadow.soft]}
-              onPress={() => WebBrowser.openBrowserAsync(article.sourceUrl!)}
-            >
+              onPress={() => WebBrowser.openBrowserAsync(article.sourceUrl!)} variant="plain">
               <ExternalLink color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.ctaLabel}>
                 {t('learn.readFull')}
               </AppText>
-            </PressableScale>
+            </Button>
           </AnimatedSection>
         ) : null}
       </Animated.ScrollView>

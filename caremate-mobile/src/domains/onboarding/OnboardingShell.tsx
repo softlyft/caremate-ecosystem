@@ -11,9 +11,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
@@ -30,6 +30,8 @@ type OnboardingShellProps = PropsWithChildren<{
   onSkip?: () => void;
   skipLabel?: string;
   showBack?: boolean;
+  /** Disables back/skip while an async foot action runs. */
+  busy?: boolean;
   hero?: ReactNode;
 }>;
 
@@ -42,6 +44,7 @@ export function OnboardingShell({
   onSkip,
   skipLabel,
   showBack = true,
+  busy = false,
   hero,
 }: OnboardingShellProps) {
   const { t } = useTranslation();
@@ -79,18 +82,20 @@ export function OnboardingShell({
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         <View style={styles.topBar}>
           {showBack && step > 0 ? (
-            <PressableScale
+            <Button
               onPress={() => router.back()}
               hitSlop={8}
+              disabled={busy}
               style={[
                 styles.topChip,
                 { backgroundColor: `${theme.accent}14`, borderColor: `${theme.accent}33` },
               ]}
+              variant="plain"
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
                 {t('common.back')}
               </AppText>
-            </PressableScale>
+            </Button>
           ) : (
             <View style={styles.topChipPlaceholder} />
           )}
@@ -102,18 +107,20 @@ export function OnboardingShell({
           </View>
 
           {onSkip ? (
-            <PressableScale
+            <Button
               onPress={onSkip}
               hitSlop={8}
+              disabled={busy}
               style={[
                 styles.topChip,
                 { backgroundColor: `${theme.accent}14`, borderColor: `${theme.accent}33` },
               ]}
+              variant="plain"
             >
               <AppText variant="body" style={[styles.topActionText, { color: theme.accent }]}>
                 {skipLabel ?? t('common.next')}
               </AppText>
-            </PressableScale>
+            </Button>
           ) : (
             <View style={styles.topChipPlaceholder} />
           )}
@@ -171,29 +178,28 @@ export function OnboardingPrimaryButton({
   label,
   onPress,
   disabled,
+  loading,
   accent,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
   accent?: string;
 }) {
   const color = accent ?? palette.primary;
   return (
-    <PressableScale
-      style={[
-        styles.primaryCta,
-        { backgroundColor: color },
-        shadow.soft,
-        disabled ? styles.ctaDisabled : null,
-      ]}
+    <Button
+      style={[styles.primaryCta, { backgroundColor: color }, shadow.soft]}
       disabled={disabled}
+      loading={loading}
       onPress={onPress}
+      variant="plain"
     >
       <AppText variant="button" style={styles.primaryCtaLabel}>
         {label}
       </AppText>
-    </PressableScale>
+    </Button>
   );
 }
 
@@ -201,31 +207,31 @@ export function OnboardingSecondaryButton({
   label,
   onPress,
   disabled,
+  loading,
   accent,
   soft,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
   accent?: string;
   soft?: string;
 }) {
   const color = accent ?? palette.primary;
   const bg = soft ?? palette.primaryLight;
   return (
-    <PressableScale
-      style={[
-        styles.secondaryCta,
-        { borderColor: color, backgroundColor: bg },
-        disabled ? styles.ctaDisabled : null,
-      ]}
+    <Button
+      style={[styles.secondaryCta, { borderColor: color, backgroundColor: bg }]}
       disabled={disabled}
+      loading={loading}
       onPress={onPress}
+      variant="plain"
     >
       <AppText variant="button" style={{ color }}>
         {label}
       </AppText>
-    </PressableScale>
+    </Button>
   );
 }
 
@@ -335,8 +341,5 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     paddingVertical: 14,
     alignItems: 'center',
-  },
-  ctaDisabled: {
-    opacity: 0.45,
   },
 });

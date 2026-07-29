@@ -2,9 +2,9 @@ import { router } from 'expo-router';
 import { Newspaper } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { SectionHeader } from '@/components/motion/SectionHeader';
 import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import { HEALTH_CATEGORIES } from '@/features/home/constants';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
@@ -67,7 +67,7 @@ export function HealthCategoriesRow({
         decelerationRate="fast"
       >
         {showNewsOption ? (
-          <PressableScale
+          <Button
             style={[
               styles.chip,
               styles.newsChip,
@@ -75,17 +75,18 @@ export function HealthCategoriesRow({
               shadow.soft,
             ]}
             onPress={handleNewsPress}
+            variant="plain"
           >
             <View style={[styles.emojiWrap, { backgroundColor: palette.blueLight }]}>
               <Newspaper color={palette.brandBlue} size={15} strokeWidth={2.25} />
             </View>
             <AppText variant="categoryPill">{t('learn.news')}</AppText>
-          </PressableScale>
+          </Button>
         ) : null}
         {HEALTH_CATEGORIES.map((category) => {
           const selected = isFilterMode && selectedCategoryId === category.id;
           return (
-            <PressableScale
+            <Button
               key={category.id}
               style={[
                 styles.chip,
@@ -99,6 +100,7 @@ export function HealthCategoriesRow({
                 shadow.soft,
               ]}
               onPress={() => handleCategoryPress(category.id)}
+              variant="plain"
             >
               <View style={[styles.emojiWrap, { backgroundColor: category.color }]}>
                 <Text style={styles.emoji}>{category.emoji}</Text>
@@ -106,7 +108,7 @@ export function HealthCategoriesRow({
               <AppText variant="categoryPill" style={selected ? { color: category.accent } : null}>
                 {category.name}
               </AppText>
-            </PressableScale>
+            </Button>
           );
         })}
       </ScrollView>

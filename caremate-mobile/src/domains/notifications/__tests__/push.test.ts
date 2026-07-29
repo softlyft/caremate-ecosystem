@@ -1,4 +1,8 @@
-import { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
+import {
+  clearPushRegistration,
+  reconcilePushRegistrationWithOsPermission,
+  syncPushRegistration,
+} from '@/domains/notifications/push';
 import { useAuthStore } from '@/features/auth/store';
 import { useSettingsStore } from '@/domains/profile/store';
 
@@ -122,6 +126,7 @@ describe('push registration', () => {
 
     await syncPushRegistration();
 
+    expect(mockRequestPermissionsAsync).not.toHaveBeenCalled();
     expect(mockGetExpoPushTokenAsync).toHaveBeenCalledWith({ projectId: 'test-project-id' });
     expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -133,6 +138,38 @@ describe('push registration', () => {
     );
   });
 
+  it('does not re-prompt when OS permission is already denied', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
+    mockGetPermissionsAsync.mockResolvedValue({ status: 'denied' });
+
+    await syncPushRegistration();
+
+    expect(mockRequestPermissionsAsync).not.toHaveBeenCalled();
+    expect(mockGetExpoPushTokenAsync).not.toHaveBeenCalled();
+    expect(mockUpsert).not.toHaveBeenCalled();
+  });
+
+  it('requests permission when explicitly enabled from settings', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
+    mockGetPermissionsAsync.mockResolvedValue({ status: 'denied' });
+    mockRequestPermissionsAsync.mockResolvedValue({ status: 'granted' });
+
+    await syncPushRegistration({ requestPermission: true });
+
+    expect(mockRequestPermissionsAsync).toHaveBeenCalled();
+    expect(mockUpsert).toHaveBeenCalled();
+  });
+
   it('clears the current device token for the signed-in user', async () => {
     mockAuthGetState.mockReturnValue({
       user: { id: 'user-1' },
@@ -142,6 +179,21 @@ describe('push registration', () => {
 
     await clearPushRegistration();
 
+    expect(mockDeleteEq).toHaveBeenCalled();
+  });
+
+  it('reconciles by clearing when OS permission was revoked', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
+    mockGetPermissionsAsync.mockResolvedValue({ status: 'denied' });
+
+    await reconcilePushRegistrationWithOsPermission();
+
+    expect(mockUpsert).not.toHaveBeenCalled();
     expect(mockDeleteEq).toHaveBeenCalled();
   });
 });

@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
+import { Button } from '@/components/ui/form-controls';
 import { AppText } from '@/components/ui/AppText';
 import { ARTICLE_THUMBNAILS, HEALTH_CATEGORIES } from '@/domains/articles/categories';
 import { ArticleShareButton } from '@/domains/articles/components/ArticleShareButton';
@@ -97,47 +97,47 @@ function MetaPills({ article }: { article: Article }) {
 
 export function FeaturedArticleCard({ article }: { article: Article }) {
   return (
-    <PressableScale
-      style={[styles.featuredShell, shadow.card]}
-      onPress={() => router.push(`/(app)/articles/${article.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={article.title}
-    >
-      <View style={styles.featuredMedia}>
-        <ArticleThumbnail article={article} height={188} featured />
-        <LinearGradientFill
-          colors={[
-            { offset: '0%', color: 'transparent', opacity: 0 },
-            { offset: '100%', color: 'rgba(15, 23, 42, 0.55)', opacity: 1 },
-          ]}
-          angle={180}
-          style={styles.featuredScrim}
-        />
-        <View style={styles.featuredBadges}>
-          <MetaPills article={article} />
+    <View style={[styles.featuredShell, shadow.card]}>
+      <Button
+        style={styles.featuredPress}
+        onPress={() => router.push(`/(app)/articles/${article.id}`)}
+        accessibilityLabel={article.title}
+        variant="plain"
+      >
+        <View style={styles.featuredMedia}>
+          <ArticleThumbnail article={article} height={188} featured />
+          <LinearGradientFill
+            colors={[
+              { offset: '0%', color: 'transparent', opacity: 0 },
+              { offset: '100%', color: 'rgba(15, 23, 42, 0.55)', opacity: 1 },
+            ]}
+            angle={180}
+            style={styles.featuredScrim}
+          />
+          <View style={styles.featuredBadges}>
+            <MetaPills article={article} />
+          </View>
         </View>
-      </View>
-      <View style={styles.featuredBody}>
-        <AppText variant="articleTitle" numberOfLines={2} style={styles.featuredTitle}>
-          {article.title}
-        </AppText>
-        {article.summary ? (
-          <AppText variant="articleDescription" numberOfLines={2} style={styles.featuredSummary}>
-            {article.summary}
+        <View style={styles.featuredBody}>
+          <AppText variant="articleTitle" numberOfLines={2} style={styles.featuredTitle}>
+            {article.title}
           </AppText>
-        ) : null}
-        <View style={styles.featuredFooter}>
+          {article.summary ? (
+            <AppText variant="articleDescription" numberOfLines={2} style={styles.featuredSummary}>
+              {article.summary}
+            </AppText>
+          ) : null}
           <AppText variant="caption" color="brand" style={styles.readCta}>
             Read article
           </AppText>
-          <View style={styles.footerActions}>
-            <ArticleShareButton article={article} size={16} />
-            <MarkAsReadToggleButton articleId={article.id} size={16} />
-            <BookmarkToggleButton articleId={article.id} size={16} />
-          </View>
         </View>
+      </Button>
+      <View style={styles.featuredActions}>
+        <ArticleShareButton article={article} size={16} />
+        <MarkAsReadToggleButton articleId={article.id} size={16} />
+        <BookmarkToggleButton articleId={article.id} size={16} />
       </View>
-    </PressableScale>
+    </View>
   );
 }
 
@@ -145,37 +145,37 @@ export function CompactArticleCard({ article }: { article: Article }) {
   const accent = getCategoryAccent(article.categoryId);
 
   return (
-    <PressableScale
-      style={[styles.compactShell, shadow.soft]}
-      onPress={() => router.push(`/(app)/articles/${article.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={article.title}
-    >
-      <View style={styles.compactRow}>
-        <View style={[styles.compactThumbWrap, { borderColor: `${accent}55` }]}>
-          <ArticleThumbnail article={article} fill />
-        </View>
+    <View style={[styles.compactShell, shadow.soft]}>
+      <Button
+        style={styles.compactPress}
+        onPress={() => router.push(`/(app)/articles/${article.id}`)}
+        accessibilityLabel={article.title}
+        variant="plain"
+      >
+        <View style={styles.compactRow}>
+          <View style={[styles.compactThumbWrap, { borderColor: `${accent}55` }]}>
+            <ArticleThumbnail article={article} fill />
+          </View>
 
-        <View style={styles.compactBody}>
-          <MetaPills article={article} />
-          <AppText variant="providerName" numberOfLines={2} style={styles.compactTitle}>
-            {article.title}
-          </AppText>
-          {article.summary ? (
-            <AppText variant="providerMeta" numberOfLines={2} style={styles.compactSummary}>
-              {article.summary}
+          <View style={styles.compactBody}>
+            <MetaPills article={article} />
+            <AppText variant="providerName" numberOfLines={2} style={styles.compactTitle}>
+              {article.title}
             </AppText>
-          ) : null}
-          <View style={styles.compactFooter}>
-            <View style={styles.footerActions}>
-              <ArticleShareButton article={article} size={15} />
-              <MarkAsReadToggleButton articleId={article.id} size={15} />
-              <BookmarkToggleButton articleId={article.id} size={15} />
-            </View>
+            {article.summary ? (
+              <AppText variant="providerMeta" numberOfLines={2} style={styles.compactSummary}>
+                {article.summary}
+              </AppText>
+            ) : null}
           </View>
         </View>
+      </Button>
+      <View style={styles.compactActions}>
+        <ArticleShareButton article={article} size={15} />
+        <MarkAsReadToggleButton articleId={article.id} size={15} />
+        <BookmarkToggleButton articleId={article.id} size={15} />
       </View>
-    </PressableScale>
+    </View>
   );
 }
 
@@ -301,8 +301,12 @@ const styles = StyleSheet.create({
     right: 14,
     bottom: 14,
   },
+  featuredPress: {
+    alignItems: 'stretch',
+  },
   featuredBody: {
     padding: spacing.md,
+    paddingBottom: spacing.sm,
     gap: 8,
   },
   featuredTitle: {
@@ -314,19 +318,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  featuredFooter: {
-    marginTop: 4,
+  featuredActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  footerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
     gap: 8,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
   },
   readCta: {
     fontWeight: '600',
+    marginTop: 4,
   },
   compactShell: {
     borderRadius: radius.xxl,
@@ -334,6 +336,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.divider,
     overflow: 'hidden',
+  },
+  compactPress: {
+    alignItems: 'stretch',
   },
   compactRow: {
     flexDirection: 'row',
@@ -363,11 +368,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 17,
   },
-  compactFooter: {
+  compactActions: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    marginTop: 2,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
   },
   listStack: {
     gap: 12,

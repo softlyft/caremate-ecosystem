@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { getDeviceDefaults } from '@/domains/onboarding';
@@ -83,11 +83,11 @@ export default function SetupDoneScreen() {
       </View>
 
       <View style={styles.footer}>
-        <PressableScale style={styles.primaryCta} onPress={() => router.replace('/(app)/(tabs)')}>
-          <AppText variant="button" style={styles.primaryLabel}>
-            {t('setup.done.openHome')}
-          </AppText>
-        </PressableScale>
+        <Button
+          label={t('setup.done.openHome')}
+          onPress={() => router.replace('/(app)/(tabs)')}
+          style={styles.primaryCta}
+        />
       </View>
     </SafeAreaView>
   );
@@ -151,12 +151,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   primaryCta: {
-    backgroundColor: palette.primary,
     borderRadius: radius.xl,
     paddingVertical: 16,
-    alignItems: 'center',
-  },
-  primaryLabel: {
-    color: '#FFFFFF',
   },
 });

@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
+import { Minus, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { AD_SLOTS } from '@/domains/ads';
@@ -25,6 +27,8 @@ import {
   toDateKey,
 } from '@/mini-apps/period-tracker/utils';
 import {
+  CYCLE_LENGTH_MAX,
+  CYCLE_LENGTH_MIN,
   isPredictedPeriodDay,
   usePeriodTrackerHydrated,
   usePeriodTrackerStore,
@@ -52,6 +56,7 @@ export default function PeriodTrackerScreen() {
   const paused = usePeriodTrackerStore((state) => state.paused);
   const pausedReason = usePeriodTrackerStore((state) => state.pausedReason);
   const togglePeriodDay = usePeriodTrackerStore((state) => state.togglePeriodDay);
+  const setCycleLength = usePeriodTrackerStore((state) => state.setCycleLength);
   const pauseForPregnancy = usePeriodTrackerStore((state) => state.pauseForPregnancy);
   const resume = usePeriodTrackerStore((state) => state.resume);
 
@@ -119,14 +124,13 @@ export default function PeriodTrackerScreen() {
             onPress={resume}
           />
           {isPregnant ? (
-            <Pressable
+            <Button
               style={styles.pregnancyLink}
-              onPress={() => router.push('/(app)/apps/pregnancy-tracker')}
-            >
+              onPress={() => router.push('/(app)/apps/pregnancy-tracker')} variant="plain">
               <AppText variant="caption" style={{ color: theme.color }}>
                 {t('apps.period.ui.openPregnancyTracker')}
               </AppText>
-            </Pressable>
+            </Button>
           ) : null}
         </MiniAppCard>
       ) : null}
@@ -167,12 +171,11 @@ export default function PeriodTrackerScreen() {
               paused,
             );
             return (
-              <Pressable
+              <Button
                 key={key}
                 disabled={!interactive}
                 style={styles.stripDay}
-                onPress={() => togglePeriodDay(key)}
-              >
+                onPress={() => togglePeriodDay(key)} variant="plain">
                 <AppText variant="caption" style={styles.stripWeekday}>
                   {date.toLocaleDateString(undefined, { weekday: 'short' })}
                 </AppText>
@@ -188,7 +191,7 @@ export default function PeriodTrackerScreen() {
                     {date.getDate()}
                   </AppText>
                 </View>
-              </Pressable>
+              </Button>
             );
           })}
         </ScrollView>
@@ -241,9 +244,27 @@ export default function PeriodTrackerScreen() {
           title={t('apps.period.ui.averageCycle')}
           soft={theme.backgroundColor}
           trailing={
-            <AppText variant="body">
-              {t('apps.period.ui.daysCount', { count: cycleLength })}
-            </AppText>
+            <View style={styles.cycleStepper}>
+              <Button
+                variant="plain"
+                disabled={!hydrated || cycleLength <= CYCLE_LENGTH_MIN}
+                accessibilityLabel={t('apps.period.ui.decreaseAverageCycle')}
+                style={[styles.cycleStepperButton, { borderColor: theme.color }]}
+                onPress={() => setCycleLength(cycleLength - 1)}>
+                <Minus color={theme.color} size={16} />
+              </Button>
+              <AppText variant="body" style={styles.cycleStepperValue}>
+                {t('apps.period.ui.daysCount', { count: cycleLength })}
+              </AppText>
+              <Button
+                variant="plain"
+                disabled={!hydrated || cycleLength >= CYCLE_LENGTH_MAX}
+                accessibilityLabel={t('apps.period.ui.increaseAverageCycle')}
+                style={[styles.cycleStepperButton, { borderColor: theme.color }]}
+                onPress={() => setCycleLength(cycleLength + 1)}>
+                <Plus color={theme.color} size={16} />
+              </Button>
+            </View>
           }
         />
         <MiniAppRow
@@ -334,5 +355,23 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+  },
+  cycleStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  cycleStepperButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.background,
+  },
+  cycleStepperValue: {
+    minWidth: 72,
+    textAlign: 'center',
   },
 });

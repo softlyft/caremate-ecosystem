@@ -1,4 +1,8 @@
 'use client';
+/**
+ * Low-level Gluestack button primitives.
+ * Prefer `@/components/ui/form-controls` `Button` for app screens.
+ */
 import { createButton } from '@gluestack-ui/core/button/creator';
 import { UIIcon } from '@gluestack-ui/core/icon/creator';
 import {

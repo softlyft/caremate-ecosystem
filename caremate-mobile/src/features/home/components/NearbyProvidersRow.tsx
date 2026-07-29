@@ -3,9 +3,9 @@ import { BadgeCheck, Building2, ChevronRight, MapPin, Navigation, Star } from 'l
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { SectionHeader } from '@/components/motion/SectionHeader';
 import { AppText } from '@/components/ui/AppText';
+import { Button, Card } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import type { Provider } from '@/types';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
@@ -73,9 +73,10 @@ export function NearbyProvidersRow({
         onSeeAll={() => router.push('/(app)/(tabs)/providers')}
       />
       {providers.length === 0 && locationNeeded ? (
-        <PressableScale
+        <Button
           style={[styles.locationCardWrapper, shadow.card]}
           onPress={() => onEnableLocation?.()}
+          variant="plain"
         >
           <LinearGradientFill
             colors={[
@@ -114,9 +115,9 @@ export function NearbyProvidersRow({
               <ChevronRight color={palette.primary} size={16} strokeWidth={2.5} />
             </View>
           </LinearGradientFill>
-        </PressableScale>
+        </Button>
       ) : providers.length === 0 ? (
-        <View style={styles.emptyCard}>
+        <Card style={styles.emptyCard}>
           <View style={styles.emptyIcon}>
             <MapPin color={palette.primary} size={22} />
           </View>
@@ -126,7 +127,7 @@ export function NearbyProvidersRow({
           <AppText variant="body" style={styles.emptyBody}>
             {t('nearby.empty.message')}
           </AppText>
-        </View>
+        </Card>
       ) : (
         <ScrollView
           horizontal
@@ -141,10 +142,11 @@ export function NearbyProvidersRow({
             const iconColor = index % 2 === 0 ? palette.blueAccent : palette.primary;
 
             return (
-              <PressableScale
+              <Button
                 key={provider.id}
                 style={[styles.card, shadow.soft]}
                 onPress={() => router.push(`/(app)/providers/${provider.id}`)}
+                variant="plain"
               >
                 <LinearGradientFill colors={[...gradient]} style={styles.cardHeader}>
                   <View style={styles.iconWrap}>
@@ -178,7 +180,7 @@ export function NearbyProvidersRow({
                     </View>
                   ) : null}
                 </View>
-              </PressableScale>
+              </Button>
             );
           })}
         </ScrollView>
@@ -327,11 +329,7 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     marginHorizontal: layoutSpacing.screenHorizontal,
-    padding: layoutSpacing.cardPadding + 4,
-    borderRadius: radius.xxl,
     backgroundColor: palette.surface,
-    borderWidth: 1,
-    borderColor: palette.divider,
     alignItems: 'center',
     gap: 8,
   },

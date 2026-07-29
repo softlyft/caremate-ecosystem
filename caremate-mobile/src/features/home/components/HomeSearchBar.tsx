@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Search, Sparkles } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { PressableScale } from '@/components/motion/PressableScale';
+import { PressableCard } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, shadow } from '@/theme';
 import { fontFamily, textColors } from '@/theme/typography';
@@ -11,7 +11,8 @@ export function HomeSearchBar() {
   const { t } = useTranslation();
 
   return (
-    <PressableScale
+    <PressableCard
+      padded={false}
       style={styles.container}
       accessibilityRole="search"
       accessibilityLabel={t('home.searchA11y')}
@@ -28,7 +29,7 @@ export function HomeSearchBar() {
           <Sparkles color={palette.primary} size={14} />
         </View>
       </View>
-    </PressableScale>
+    </PressableCard>
   );
 }
 
@@ -37,8 +38,6 @@ const styles = StyleSheet.create({
     marginHorizontal: layoutSpacing.screenHorizontal,
     marginBottom: layoutSpacing.sectionTitleToContent,
     borderRadius: radius.xxl,
-    backgroundColor: palette.background,
-    borderWidth: 1,
     borderColor: 'rgba(13, 148, 136, 0.12)',
     ...shadow.card,
   },

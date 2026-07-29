@@ -17,6 +17,12 @@ Root Stack (src/app/_layout.tsx)
 
 Auth group and app group are siblings. The app does not force login first; it uses guest-first access and onboarding state to decide the first route.
 
+### Cold-start route restore
+
+After Android kills the process (e.g. when notification permission is revoked in system Settings), Expo Router state is gone. CareMate persists the last in-app href (`caremate_last_app_route`, 12h TTL) via `NavigationPersistence` and restores it from `src/app/index.tsx` before falling back to Home tabs.
+
+Auth, billing, and emergency-share surfaces are not restored.
+
 ---
 
 ## Bottom tabs

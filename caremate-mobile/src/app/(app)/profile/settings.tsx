@@ -17,9 +17,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Input } from '@/components/ui/form-controls';
+import { Button, Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
@@ -89,7 +88,7 @@ export default function SettingsScreen() {
       setDeviceDefaults({ notificationsEnabled: value }),
     ]);
     if (value) {
-      void syncPushRegistration();
+      void syncPushRegistration({ requestPermission: true });
     } else {
       void clearPushRegistration();
     }
@@ -222,15 +221,14 @@ export default function SettingsScreen() {
                 <AppText variant="caption" style={styles.muted}>
                   {t('settings.familySection.hint')}
                 </AppText>
-                <PressableScale
+                <Button
                   style={styles.secondaryCta}
-                  onPress={() => router.push('/(app)/family')}
-                >
+                  onPress={() => router.push('/(app)/family')} variant="plain">
                   <Users color={ACCENT} size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
                     {t('settings.familySection.open')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </>
             )}
           </View>
@@ -279,7 +277,7 @@ export default function SettingsScreen() {
                   {countries.map((country) => {
                     const selected = countryCode === country.code;
                     return (
-                      <PressableScale
+                      <Button
                         key={country.code}
                         style={[styles.chip, selected && styles.chipSelected]}
                         scale={0.96}
@@ -291,15 +289,14 @@ export default function SettingsScreen() {
                           setLanguageDraft(localizationService.getDefaultLanguage(country.code));
                           // State stays in schema but is not edited in UI yet.
                           setStateDraft('');
-                        }}
-                      >
+                        }} variant="plain">
                         <AppText
                           variant="caption"
                           style={selected ? styles.chipTextSelected : styles.chipText}
                         >
                           {country.name}
                         </AppText>
-                      </PressableScale>
+                      </Button>
                     );
                   })}
                 </View>
@@ -318,19 +315,18 @@ export default function SettingsScreen() {
                       {languages.map((item) => {
                         const selected = resolvedLanguage === item;
                         return (
-                          <PressableScale
+                          <Button
                             key={item}
                             style={[styles.chip, selected && styles.chipSelected]}
                             scale={0.96}
-                            onPress={() => setLanguageDraft(item)}
-                          >
+                            onPress={() => setLanguageDraft(item)} variant="plain">
                             <AppText
                               variant="caption"
                               style={selected ? styles.chipTextSelected : styles.chipText}
                             >
                               {localizationService.getLanguageConfig(item).nativeName}
                             </AppText>
-                          </PressableScale>
+                          </Button>
                         );
                       })}
                     </View>
@@ -346,20 +342,19 @@ export default function SettingsScreen() {
                     })}
                   </AppText>
                 ) : null}
-                <PressableScale
+                <Button
                   style={[
                     styles.primaryCta,
                     savingLocation ? styles.ctaDisabled : null,
                     shadow.soft,
                   ]}
                   disabled={savingLocation}
-                  onPress={() => void saveLocation()}
-                >
+                  onPress={() => void saveLocation()} variant="plain">
                   <MapPin color="#FFFFFF" size={16} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.primaryCtaLabel}>
                     {savingLocation ? t('settings.location.saving') : t('settings.location.save')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </>
             )}
           </View>
@@ -368,10 +363,9 @@ export default function SettingsScreen() {
         <AnimatedSection index={5}>
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={Shield} title={t('settings.legal.title')} />
-            <PressableScale
+            <Button
               style={styles.linkRow}
-              onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
-            >
+              onPress={() => void openLegalUrl(LEGAL_URLS.privacy)} variant="plain">
               <View style={styles.rowLeading}>
                 <View style={styles.rowIcon}>
                   <Shield color={ACCENT} size={16} strokeWidth={2.2} />
@@ -380,12 +374,11 @@ export default function SettingsScreen() {
                   {t('settings.legal.privacy')}
                 </AppText>
               </View>
-            </PressableScale>
+            </Button>
             <View style={styles.divider} />
-            <PressableScale
+            <Button
               style={styles.linkRow}
-              onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
-            >
+              onPress={() => void openLegalUrl(LEGAL_URLS.terms)} variant="plain">
               <View style={styles.rowLeading}>
                 <View style={styles.rowIcon}>
                   <FileText color={ACCENT} size={16} strokeWidth={2.2} />
@@ -394,7 +387,7 @@ export default function SettingsScreen() {
                   {t('settings.legal.terms')}
                 </AppText>
               </View>
-            </PressableScale>
+            </Button>
           </View>
         </AnimatedSection>
 
@@ -405,16 +398,15 @@ export default function SettingsScreen() {
               <AppText variant="caption" style={styles.muted}>
                 {t('settings.account.deleteHint')}
               </AppText>
-              <PressableScale
+              <Button
                 style={[styles.dangerCta, deletingAccount ? styles.ctaDisabled : null, shadow.soft]}
                 disabled={deletingAccount}
-                onPress={confirmDeleteAccount}
-              >
+                onPress={confirmDeleteAccount} variant="plain">
                 <Trash2 color="#FFFFFF" size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.primaryCtaLabel}>
                   {deletingAccount ? t('settings.account.deleting') : t('settings.account.delete')}
                 </AppText>
-              </PressableScale>
+              </Button>
             </View>
           </AnimatedSection>
         ) : null}

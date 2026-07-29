@@ -4,10 +4,10 @@ import { Heart, MapPinned, Search } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { AppState, FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -32,7 +32,7 @@ export default function ProvidersTabScreen() {
   const { online } = useNetworkStatus();
   const { q: queryParam } = useLocalSearchParams<{ q?: string }>();
   const initialQuery = Array.isArray(queryParam) ? (queryParam[0] ?? '') : (queryParam ?? '');
-  const [filter, setFilter] = useState<ProviderType | undefined>();
+  const [filter, setFilter] = useState<ProviderType>(PRIMARY_PROVIDER_TYPES[0]);
   const [search, setSearch] = useState(initialQuery);
   const deferredSearch = useDeferredValue(search);
   const [queryParamSnapshot, setQueryParamSnapshot] = useState(queryParam);
@@ -42,13 +42,11 @@ export default function ProvidersTabScreen() {
   }
 
   const filters = useMemo(
-    () => [
-      { label: t('common.all'), value: undefined as ProviderType | undefined },
-      ...PRIMARY_PROVIDER_TYPES.map((type) => ({
+    () =>
+      PRIMARY_PROVIDER_TYPES.map((type) => ({
         label: t(`home.providerTypes.${type}`),
         value: type as ProviderType,
       })),
-    ],
     [t],
   );
 
@@ -196,14 +194,13 @@ export default function ProvidersTabScreen() {
                   <AppText variant="screenTitle" style={styles.title}>
                     {t('nearby.title')}
                   </AppText>
-                  <PressableScale
+                  <Button
                     style={styles.favoritesCta}
                     onPress={() => router.push('/(app)/providers/favorites')}
                     accessibilityRole="button"
-                    accessibilityLabel={t('nearby.favorites.openA11y')}
-                  >
+                    accessibilityLabel={t('nearby.favorites.openA11y')} variant="plain">
                     <Heart color={palette.brandBlue} size={18} strokeWidth={2.25} />
-                  </PressableScale>
+                  </Button>
                 </View>
                 <AppText variant="subtitle" style={styles.subtitle}>
                   {t('nearby.subtitle')}
@@ -224,13 +221,12 @@ export default function ProvidersTabScreen() {
                 <AppText variant="caption" style={styles.statusNote}>
                   {t('nearby.lastKnown.message')}
                 </AppText>
-                <PressableScale
+                <Button
                   accessibilityRole="button"
                   onPress={() => {
                     void handleEnableLocation();
                   }}
-                  style={styles.lastKnownAction}
-                >
+                  style={styles.lastKnownAction} variant="plain">
                   <AppText variant="caption" color="brand" style={styles.lastKnownActionLabel}>
                     {locationRequestPending
                       ? t('nearby.locationNeeded.enabling')
@@ -238,7 +234,7 @@ export default function ProvidersTabScreen() {
                         ? t('nearby.lastKnown.openSettings')
                         : t('nearby.lastKnown.action')}
                   </AppText>
-                </PressableScale>
+                </Button>
               </View>
             ) : null}
 
@@ -264,19 +260,19 @@ export default function ProvidersTabScreen() {
               decelerationRate="fast"
             >
               {filters.map((item) => {
-                const active = item.value === filter || (!item.value && !filter);
-                const theme = item.value ? getProviderTypeTheme(item.value) : null;
-                const Icon = theme?.icon ?? MapPinned;
-                const iconBg = theme?.soft ?? palette.blueLight;
-                const iconColor = theme?.accent ?? palette.brandBlue;
+                const active = item.value === filter;
+                const theme = getProviderTypeTheme(item.value);
+                const Icon = theme.icon;
+                const iconBg = theme.soft;
+                const iconColor = theme.accent;
 
                 return (
-                  <PressableScale
-                    key={item.value ?? 'all'}
+                  <Button
+                    key={item.value}
                     style={[
                       styles.chip,
                       active ? styles.chipSelected : null,
-                      active && theme
+                      active
                         ? {
                             borderColor: theme.accent,
                             backgroundColor: theme.soft,
@@ -285,12 +281,13 @@ export default function ProvidersTabScreen() {
                       shadow.soft,
                     ]}
                     onPress={() => setFilter(item.value)}
+                    variant="plain"
                   >
                     <View style={[styles.iconWrap, { backgroundColor: iconBg }]}>
                       <Icon color={iconColor} size={15} strokeWidth={2.25} />
                     </View>
                     <AppText variant="categoryPill">{item.label}</AppText>
-                  </PressableScale>
+                  </Button>
                 );
               })}
             </ScrollView>

@@ -10,4 +10,8 @@ export {
   ensureWelcomeInAppNotification,
   markNotificationsRead,
 } from '@/domains/notifications/service';
-export { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
+export {
+  clearPushRegistration,
+  reconcilePushRegistrationWithOsPermission,
+  syncPushRegistration,
+} from '@/domains/notifications/push';

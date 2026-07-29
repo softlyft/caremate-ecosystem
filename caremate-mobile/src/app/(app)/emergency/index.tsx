@@ -12,10 +12,10 @@ import {
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -198,25 +198,23 @@ export default function EmergencyViewScreen() {
 
         <AnimatedSection index={3}>
           <View style={styles.actions}>
-            <PressableScale
+            <Button
               style={[styles.primaryCta, shadow.soft]}
-              onPress={() => router.push('/(app)/emergency/edit')}
-            >
+              onPress={() => router.push('/(app)/emergency/edit')} variant="plain">
               <UserRoundPen color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('emergency.editProfile')}
               </AppText>
-            </PressableScale>
+            </Button>
 
-            <PressableScale
+            <Button
               style={styles.secondaryCta}
-              onPress={() => router.push('/(app)/(tabs)/profile')}
-            >
+              onPress={() => router.push('/(app)/(tabs)/profile')} variant="plain">
               <QrCode color={ACCENT} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.secondaryCtaLabel}>
                 {t('emergency.showQr')}
               </AppText>
-            </PressableScale>
+            </Button>
           </View>
         </AnimatedSection>
       </Animated.ScrollView>

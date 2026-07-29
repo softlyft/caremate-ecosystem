@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
 import { ChevronLeft, X } from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import type { MiniAppId } from '@/mini-apps/_kit/registry';
 import { getMiniAppTheme } from '@/mini-apps/_kit/theme';
@@ -30,7 +30,7 @@ function MiniAppBackButton({
   const Icon = modal ? X : ChevronLeft;
 
   return (
-    <PressableScale
+    <Button
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={() => router.back()}
@@ -40,10 +40,9 @@ function MiniAppBackButton({
         shadow.soft,
       ]}
       scale={0.94}
-      hitSlop={8}
-    >
+      hitSlop={8} variant="plain">
       <Icon color={accent} size={modal ? 18 : 22} strokeWidth={2.4} />
-    </PressableScale>
+    </Button>
   );
 }
 

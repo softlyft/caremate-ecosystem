@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { ShieldAlert } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
@@ -62,11 +62,11 @@ export default function EmergencyLockScreen() {
           <AppText variant="body">{t('emergency.lock.retiredBody')}</AppText>
         </View>
 
-        <PressableScale style={styles.cta} onPress={() => router.replace('/(app)/(tabs)/profile')}>
-          <AppText variant="button" style={styles.ctaLabel}>
-            {t('emergency.lock.openPatientId')}
-          </AppText>
-        </PressableScale>
+        <Button
+          label={t('emergency.lock.openPatientId')}
+          style={styles.cta}
+          onPress={() => router.replace('/(app)/(tabs)/profile')}
+        />
       </ScrollView>
     </View>
   );
@@ -116,11 +116,5 @@ const styles = StyleSheet.create({
   cta: {
     marginTop: spacing.sm,
     borderRadius: radius.lg,
-    backgroundColor: palette.primary,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  ctaLabel: {
-    color: '#FFFFFF',
   },
 });

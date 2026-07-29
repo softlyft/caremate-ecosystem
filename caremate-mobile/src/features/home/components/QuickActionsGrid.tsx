@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { MapPin, Pill, ShieldPlus, Stethoscope } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
@@ -60,16 +61,17 @@ export function QuickActionsGrid() {
       <AppText variant="sectionTitle">{t('home.quickActions.sectionTitle')}</AppText>
       <View style={styles.grid}>
         {ACTIONS.map((action) => (
-          <Pressable
+          <Button
             key={action.titleKey}
             disabled={action.comingSoon}
-            onPress={action.onPress}
+            onPress={() => {
+              action.onPress?.();
+            }}
             style={[
               styles.card,
               shadow.soft,
               { backgroundColor: action.backgroundColor, opacity: action.comingSoon ? 0.75 : 1 },
-            ]}
-          >
+            ]} variant="plain">
             <action.icon color={action.iconColor} size={28} />
             <AppText variant="quickActionTitle" numberOfLines={2} style={styles.centeredText}>
               {t(action.titleKey)}
@@ -82,7 +84,7 @@ export function QuickActionsGrid() {
                 <AppText variant="comingSoon">{t('common.comingSoon')}</AppText>
               </View>
             ) : null}
-          </Pressable>
+          </Button>
         ))}
       </View>
     </View>

@@ -15,9 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
-import { Input } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, Input } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
@@ -35,6 +34,9 @@ import { markEmergencyEssentialsDone } from '@/domains/onboarding';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { fontFamily, palette, radius, spacing } from '@/theme';
 
+const CHIP_ACCENT = palette.brandPurple;
+const CHIP_SOFT = palette.purpleLight;
+
 export default function SetupEmergencyEssentialsScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -50,6 +52,7 @@ export default function SetupEmergencyEssentialsScreen() {
   const [icePhone, setIcePhone] = useState('');
   const [iceRelationship, setIceRelationship] = useState('');
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -88,15 +91,23 @@ export default function SetupEmergencyEssentialsScreen() {
   }
 
   async function handleSkip() {
+    if (busyRef.current) {
+      return;
+    }
+    busyRef.current = true;
     setBusy(true);
     try {
       await goNext();
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   }
 
   async function handleSave() {
+    if (busyRef.current) {
+      return;
+    }
     if (!bloodGroup || !genotype) {
       Alert.alert('Missing details', 'Select blood group and genotype to continue.');
       return;
@@ -117,6 +128,7 @@ export default function SetupEmergencyEssentialsScreen() {
       return;
     }
 
+    busyRef.current = true;
     setBusy(true);
     try {
       const existing = await emergencyRepository.findByUserId(userId);
@@ -145,6 +157,7 @@ export default function SetupEmergencyEssentialsScreen() {
         error instanceof Error ? error.message : 'Unable to save emergency essentials',
       );
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   }
@@ -166,11 +179,16 @@ export default function SetupEmergencyEssentialsScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
       >
         <View style={styles.header}>
-          <PressableScale onPress={() => void handleSkip()} hitSlop={8}>
+          <Button
+            onPress={() => void handleSkip()}
+            hitSlop={8}
+            disabled={busy}
+            variant="plain"
+          >
             <AppText variant="body" style={styles.skip}>
               {t('setup.emergency.skip')}
             </AppText>
-          </PressableScale>
+          </Button>
         </View>
 
         <ScrollView
@@ -198,48 +216,34 @@ export default function SetupEmergencyEssentialsScreen() {
             {t('emergency.fields.bloodGroup')}
           </AppText>
           <View style={styles.chipRow}>
-            {BLOOD_GROUPS.map((group) => {
-              const selected = bloodGroup === group;
-              return (
-                <PressableScale
-                  key={group}
-                  style={[styles.chip, selected && styles.chipSelected]}
-                  onPress={() => setBloodGroup(group)}
-                  scale={0.96}
-                >
-                  <AppText
-                    variant="caption"
-                    style={selected ? styles.chipTextSelected : styles.chipText}
-                  >
-                    {group}
-                  </AppText>
-                </PressableScale>
-              );
-            })}
+            {BLOOD_GROUPS.map((group) => (
+              <ChoiceChip
+                key={group}
+                label={group}
+                selected={bloodGroup === group}
+                onPress={() => setBloodGroup(group)}
+                accent={CHIP_ACCENT}
+                soft={CHIP_SOFT}
+                disabled={busy}
+              />
+            ))}
           </View>
 
           <AppText variant="caption" style={styles.fieldLabel}>
             {t('emergency.fields.genotype')}
           </AppText>
           <View style={styles.chipRow}>
-            {GENOTYPES.map((item) => {
-              const selected = genotype === item;
-              return (
-                <PressableScale
-                  key={item}
-                  style={[styles.chip, selected && styles.chipSelected]}
-                  onPress={() => setGenotype(item)}
-                  scale={0.96}
-                >
-                  <AppText
-                    variant="caption"
-                    style={selected ? styles.chipTextSelected : styles.chipText}
-                  >
-                    {item}
-                  </AppText>
-                </PressableScale>
-              );
-            })}
+            {GENOTYPES.map((item) => (
+              <ChoiceChip
+                key={item}
+                label={item}
+                selected={genotype === item}
+                onPress={() => setGenotype(item)}
+                accent={CHIP_ACCENT}
+                soft={CHIP_SOFT}
+                disabled={busy}
+              />
+            ))}
           </View>
 
           <Input
@@ -273,15 +277,12 @@ export default function SetupEmergencyEssentialsScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <PressableScale
-            style={[styles.primaryCta, busy ? styles.disabled : null]}
-            disabled={busy}
+          <Button
+            label={busy ? t('common.saving') : t('setup.emergency.save')}
+            style={styles.primaryCta}
+            loading={busy}
             onPress={() => void handleSave()}
-          >
-            <AppText variant="button" style={styles.primaryLabel}>
-              {busy ? t('common.saving') : t('setup.emergency.save')}
-            </AppText>
-          </PressableScale>
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -334,38 +335,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: palette.purpleLight,
-    borderColor: palette.brandPurple,
-  },
-  chipText: {
-    color: palette.textSecondary,
-  },
-  chipTextSelected: {
-    color: palette.brandPurple,
-    fontFamily: fontFamily.semiBold,
-  },
   footer: {
     padding: spacing.lg,
   },
   primaryCta: {
     backgroundColor: palette.brandPurple,
     borderRadius: radius.xl,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  primaryLabel: {
-    color: '#FFFFFF',
-  },
-  disabled: {
-    opacity: 0.45,
   },
 });

@@ -5,10 +5,10 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import { formatPriceAmount, premiumLabel } from '@/domains/billing/entitlement';
@@ -249,14 +249,13 @@ export default function PremiumScreen() {
 
         {isGuest ? (
           <AnimatedSection index={2}>
-            <PressableScale
+            <Button
               style={[styles.primaryCta, shadow.soft]}
-              onPress={() => router.push('/(auth)/login')}
-            >
+              onPress={() => router.push('/(auth)/login')} variant="plain">
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('profile.premium.signInToUpgrade')}
               </AppText>
-            </PressableScale>
+            </Button>
           </AnimatedSection>
         ) : (
           <>
@@ -297,11 +296,11 @@ export default function PremiumScreen() {
                             ? t('profile.premium.upgradeNeedsHousehold')
                             : t('profile.premium.noHousehold')}
                         </AppText>
-                        <PressableScale onPress={() => router.push('/(app)/family')}>
+                        <Button onPress={() => router.push('/(app)/family')} variant="plain">
                           <AppText variant="body" style={styles.link}>
                             {t('profile.premium.setUpFamily')}
                           </AppText>
-                        </PressableScale>
+                        </Button>
                       </View>
                     ) : null}
 
@@ -356,17 +355,18 @@ export default function PremiumScreen() {
                       {selectedPrices.map((price) => {
                         const disabled = paying || (selectedPlanType === 'family' && !householdId);
                         return (
-                          <PressableScale
+                          <Button
                             key={price.id}
                             disabled={disabled}
-                            style={[styles.secondaryCta, disabled ? styles.ctaDisabled : null]}
+                            style={styles.secondaryCta}
                             onPress={() => void pay(price.currency)}
+                            variant="plain"
                           >
                             <AppText variant="button" style={styles.secondaryCtaLabel}>
                               {price.provider === 'paystack' ? 'Paystack' : 'Stripe'} ·{' '}
                               {formatPriceAmount(price.amountMinor, price.currency)}
                             </AppText>
-                          </PressableScale>
+                          </Button>
                         );
                       })}
                     </View>
@@ -391,12 +391,12 @@ export default function PremiumScreen() {
         ) : null}
 
         <AnimatedSection index={5}>
-          <PressableScale style={styles.refreshCta} onPress={() => void refresh()}>
+          <Button style={styles.refreshCta} onPress={() => void refresh()} variant="plain">
             <RefreshCw color={ACCENT} size={16} strokeWidth={2.25} />
             <AppText variant="button" style={styles.refreshLabel}>
               {t('profile.premium.refresh')}
             </AppText>
-          </PressableScale>
+          </Button>
         </AnimatedSection>
       </Animated.ScrollView>
     </View>
@@ -471,17 +471,18 @@ function UpgradeQuoteBlock({
           date: new Date(quote.newPeriodEnd).toLocaleDateString(),
         })}
       </AppText>
-      <PressableScale
+      <Button
         disabled={disabled}
-        style={[styles.secondaryCta, disabled ? styles.ctaDisabled : null]}
+        style={styles.secondaryCta}
         onPress={() => onPay(quote.currency)}
+        variant="plain"
       >
         <AppText variant="button" style={styles.secondaryCtaLabel}>
           {quote.chargeMinor === 0
             ? t('profile.premium.upgradeZeroCharge')
             : `${quote.provider === 'paystack' ? 'Paystack' : 'Stripe'} · ${formatPriceAmount(quote.chargeMinor, quote.currency)}`}
         </AppText>
-      </PressableScale>
+      </Button>
     </View>
   );
 }
@@ -522,19 +523,18 @@ function Chip({
   icon?: typeof Crown;
 }) {
   return (
-    <PressableScale
+    <Button
       onPress={onPress}
       style={[styles.chip, active ? styles.chipActive : null]}
       accessibilityRole="button"
-      scale={0.96}
-    >
+      scale={0.96} variant="plain">
       {Icon ? (
         <Icon color={active ? ACCENT : palette.textSecondary} size={14} strokeWidth={2.2} />
       ) : null}
       <AppText variant="body" style={active ? styles.chipTextActive : styles.chipText}>
         {label}
       </AppText>
-    </PressableScale>
+    </Button>
   );
 }
 
@@ -724,9 +724,6 @@ const styles = StyleSheet.create({
   },
   secondaryCtaLabel: {
     color: ACCENT,
-  },
-  ctaDisabled: {
-    opacity: 0.45,
   },
   refreshCta: {
     flexDirection: 'row',

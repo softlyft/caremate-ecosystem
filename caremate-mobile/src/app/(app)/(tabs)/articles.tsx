@@ -4,10 +4,10 @@ import { Bookmark, BookOpen, CheckCheck, Search } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/form-controls';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
-import { PressableScale } from '@/components/motion/PressableScale';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -195,22 +195,20 @@ export default function ArticlesTabScreen() {
                     {t('learn.title')}
                   </AppText>
                   <View style={styles.libraryActions}>
-                    <PressableScale
+                    <Button
                       style={styles.iconCta}
                       onPress={() => router.push('/(app)/articles/reading')}
                       accessibilityRole="button"
-                      accessibilityLabel={t('learn.reading')}
-                    >
+                      accessibilityLabel={t('learn.reading')} variant="plain">
                       <CheckCheck color={palette.primary} size={18} strokeWidth={2.25} />
-                    </PressableScale>
-                    <PressableScale
+                    </Button>
+                    <Button
                       style={styles.iconCta}
                       onPress={() => router.push('/(app)/articles/bookmarks')}
                       accessibilityRole="button"
-                      accessibilityLabel={t('learn.bookmarks')}
-                    >
+                      accessibilityLabel={t('learn.bookmarks')} variant="plain">
                       <Bookmark color={palette.primary} size={18} strokeWidth={2.25} />
-                    </PressableScale>
+                    </Button>
                   </View>
                 </View>
                 <AppText variant="subtitle" style={styles.subtitle}>

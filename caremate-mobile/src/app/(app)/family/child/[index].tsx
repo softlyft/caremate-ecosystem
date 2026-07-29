@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
@@ -117,15 +117,14 @@ export default function FamilyChildFormScreen() {
           {FAMILY_GENDERS.map((g) => {
             const selected = gender === g.value;
             return (
-              <Pressable
+              <Button
                 key={g.value}
                 style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setValue('gender', g.value, { shouldValidate: true })}
-              >
+                onPress={() => setValue('gender', g.value, { shouldValidate: true })} variant="plain">
                 <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
                   {g.label}
                 </AppText>
-              </Pressable>
+              </Button>
             );
           })}
         </View>
