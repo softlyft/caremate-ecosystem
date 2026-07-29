@@ -22,13 +22,7 @@ import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/t
 import { textColors } from '@/theme/typography';
 
 export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'outline'
-  | 'ghost'
-  | 'destructive'
-  | 'link'
-  | 'plain';
+  'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'plain';
 
 export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
@@ -171,7 +165,9 @@ export function Button({
     >
       {children ??
         (label ? (
-          <Text style={[styles.buttonLabel, sizeStyle?.text, chrome?.text, textStyle]}>{label}</Text>
+          <Text style={[styles.buttonLabel, sizeStyle?.text, chrome?.text, textStyle]}>
+            {label}
+          </Text>
         ) : null)}
     </PressableScale>
   );

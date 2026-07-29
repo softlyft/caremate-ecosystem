@@ -200,7 +200,9 @@ export default function EmergencyViewScreen() {
           <View style={styles.actions}>
             <Button
               style={[styles.primaryCta, shadow.soft]}
-              onPress={() => router.push('/(app)/emergency/edit')} variant="plain">
+              onPress={() => router.push('/(app)/emergency/edit')}
+              variant="plain"
+            >
               <UserRoundPen color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('emergency.editProfile')}
@@ -209,7 +211,9 @@ export default function EmergencyViewScreen() {
 
             <Button
               style={styles.secondaryCta}
-              onPress={() => router.push('/(app)/(tabs)/profile')} variant="plain">
+              onPress={() => router.push('/(app)/(tabs)/profile')}
+              variant="plain"
+            >
               <QrCode color={ACCENT} size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.secondaryCtaLabel}>
                 {t('emergency.showQr')}

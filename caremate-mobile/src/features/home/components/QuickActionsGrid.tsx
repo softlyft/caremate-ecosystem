@@ -71,7 +71,9 @@ export function QuickActionsGrid() {
               styles.card,
               shadow.soft,
               { backgroundColor: action.backgroundColor, opacity: action.comingSoon ? 0.75 : 1 },
-            ]} variant="plain">
+            ]}
+            variant="plain"
+          >
             <action.icon color={action.iconColor} size={28} />
             <AppText variant="quickActionTitle" numberOfLines={2} style={styles.centeredText}>
               {t(action.titleKey)}

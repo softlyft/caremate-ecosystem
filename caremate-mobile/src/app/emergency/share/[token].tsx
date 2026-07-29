@@ -201,7 +201,9 @@ export default function EmergencyShareScreen() {
             {contact.phone ? (
               <Button
                 style={styles.phoneRow}
-                onPress={() => void Linking.openURL(`tel:${contact.phone}`)} variant="plain">
+                onPress={() => void Linking.openURL(`tel:${contact.phone}`)}
+                variant="plain"
+              >
                 <Phone color={palette.primary} size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.phoneLabel}>
                   {contact.phone}
@@ -211,7 +213,11 @@ export default function EmergencyShareScreen() {
           </View>
         ) : null}
 
-        <Button style={styles.secondaryCta} onPress={() => router.replace('/(app)/(tabs)')} variant="plain">
+        <Button
+          style={styles.secondaryCta}
+          onPress={() => router.replace('/(app)/(tabs)')}
+          variant="plain"
+        >
           <AppText variant="button" style={styles.secondaryCtaLabel}>
             {t('common.goBack')}
           </AppText>

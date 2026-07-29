@@ -18,10 +18,7 @@ export function UpgradePrompt({ title, message, compact = false, style }: Upgrad
   const { t } = useTranslation();
 
   return (
-    <Card
-      padded={!compact}
-      style={[styles.shell, compact ? styles.shellCompact : null, style]}
-    >
+    <Card padded={!compact} style={[styles.shell, compact ? styles.shellCompact : null, style]}>
       <View style={styles.iconWrap}>
         <Crown color="#B45309" size={compact ? 18 : 22} strokeWidth={2.2} />
       </View>

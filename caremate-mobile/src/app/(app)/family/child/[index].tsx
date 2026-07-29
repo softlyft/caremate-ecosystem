@@ -120,7 +120,9 @@ export default function FamilyChildFormScreen() {
               <Button
                 key={g.value}
                 style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setValue('gender', g.value, { shouldValidate: true })} variant="plain">
+                onPress={() => setValue('gender', g.value, { shouldValidate: true })}
+                variant="plain"
+              >
                 <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
                   {g.label}
                 </AppText>

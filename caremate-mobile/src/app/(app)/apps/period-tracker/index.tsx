@@ -126,7 +126,9 @@ export default function PeriodTrackerScreen() {
           {isPregnant ? (
             <Button
               style={styles.pregnancyLink}
-              onPress={() => router.push('/(app)/apps/pregnancy-tracker')} variant="plain">
+              onPress={() => router.push('/(app)/apps/pregnancy-tracker')}
+              variant="plain"
+            >
               <AppText variant="caption" style={{ color: theme.color }}>
                 {t('apps.period.ui.openPregnancyTracker')}
               </AppText>
@@ -175,7 +177,9 @@ export default function PeriodTrackerScreen() {
                 key={key}
                 disabled={!interactive}
                 style={styles.stripDay}
-                onPress={() => togglePeriodDay(key)} variant="plain">
+                onPress={() => togglePeriodDay(key)}
+                variant="plain"
+              >
                 <AppText variant="caption" style={styles.stripWeekday}>
                   {date.toLocaleDateString(undefined, { weekday: 'short' })}
                 </AppText>
@@ -250,7 +254,8 @@ export default function PeriodTrackerScreen() {
                 disabled={!hydrated || cycleLength <= CYCLE_LENGTH_MIN}
                 accessibilityLabel={t('apps.period.ui.decreaseAverageCycle')}
                 style={[styles.cycleStepperButton, { borderColor: theme.color }]}
-                onPress={() => setCycleLength(cycleLength - 1)}>
+                onPress={() => setCycleLength(cycleLength - 1)}
+              >
                 <Minus color={theme.color} size={16} />
               </Button>
               <AppText variant="body" style={styles.cycleStepperValue}>
@@ -261,7 +266,8 @@ export default function PeriodTrackerScreen() {
                 disabled={!hydrated || cycleLength >= CYCLE_LENGTH_MAX}
                 accessibilityLabel={t('apps.period.ui.increaseAverageCycle')}
                 style={[styles.cycleStepperButton, { borderColor: theme.color }]}
-                onPress={() => setCycleLength(cycleLength + 1)}>
+                onPress={() => setCycleLength(cycleLength + 1)}
+              >
                 <Plus color={theme.color} size={16} />
               </Button>
             </View>

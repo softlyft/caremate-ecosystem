@@ -44,7 +44,9 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
         }}
         accessibilityRole="button"
         accessibilityLabel={name}
-        accessibilityState={{ disabled: !app.available }} variant="plain">
+        accessibilityState={{ disabled: !app.available }}
+        variant="plain"
+      >
         <LinearGradientFill
           colors={[
             { offset: '0%', color: app.backgroundColor },

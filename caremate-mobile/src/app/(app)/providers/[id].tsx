@@ -294,7 +294,12 @@ export default function ProviderDetailScreen() {
               {t('nearby.detail.contact')}
             </AppText>
 
-            <Button disabled={!canOpenMaps} onPress={openInMaps} style={styles.infoRow} variant="plain">
+            <Button
+              disabled={!canOpenMaps}
+              onPress={openInMaps}
+              style={styles.infoRow}
+              variant="plain"
+            >
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <MapPin color={theme.accent} size={18} />
               </View>
@@ -318,7 +323,12 @@ export default function ProviderDetailScreen() {
 
             <View style={styles.divider} />
 
-            <Button disabled={!detail.phone} onPress={callProvider} style={styles.infoRow} variant="plain">
+            <Button
+              disabled={!detail.phone}
+              onPress={callProvider}
+              style={styles.infoRow}
+              variant="plain"
+            >
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Phone color={theme.accent} size={18} />
               </View>
@@ -337,7 +347,12 @@ export default function ProviderDetailScreen() {
 
             <View style={styles.divider} />
 
-            <Button disabled={!detail.email} onPress={emailProvider} style={styles.infoRow} variant="plain">
+            <Button
+              disabled={!detail.email}
+              onPress={emailProvider}
+              style={styles.infoRow}
+              variant="plain"
+            >
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Mail color={theme.accent} size={18} />
               </View>
@@ -408,7 +423,9 @@ export default function ProviderDetailScreen() {
                           onPress={() => {
                             setDeclining(false);
                             setRejectionReason('');
-                          }} variant="plain">
+                          }}
+                          variant="plain"
+                        >
                           <AppText variant="button" style={{ color: theme.accent }}>
                             {t('common.cancel')}
                           </AppText>
@@ -425,7 +442,9 @@ export default function ProviderDetailScreen() {
                               accept: false,
                               rejectionReason,
                             })
-                          } variant="plain">
+                          }
+                          variant="plain"
+                        >
                           <AppText variant="button" style={styles.primaryCtaLabel}>
                             {t('nearby.connectionRequests.confirmDecline')}
                           </AppText>
@@ -441,7 +460,9 @@ export default function ProviderDetailScreen() {
                           shadow.soft,
                         ]}
                         disabled={respondMutation.isPending}
-                        onPress={() => respondMutation.mutate({ accept: true })} variant="plain">
+                        onPress={() => respondMutation.mutate({ accept: true })}
+                        variant="plain"
+                      >
                         <AppText variant="button" style={styles.primaryCtaLabel}>
                           {t('nearby.detail.approveInbound')}
                         </AppText>
@@ -452,7 +473,9 @@ export default function ProviderDetailScreen() {
                           { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
                         ]}
                         disabled={respondMutation.isPending}
-                        onPress={() => setDeclining(true)} variant="plain">
+                        onPress={() => setDeclining(true)}
+                        variant="plain"
+                      >
                         <AppText variant="button" style={{ color: theme.accent }}>
                           {t('nearby.detail.declineInbound')}
                         </AppText>
@@ -472,7 +495,9 @@ export default function ProviderDetailScreen() {
                   <Button
                     style={[styles.primaryCta, { backgroundColor: theme.accent }, shadow.soft]}
                     disabled={connectMutation.isPending || connectionQuery.isLoading}
-                    onPress={() => connectMutation.mutate()} variant="plain">
+                    onPress={() => connectMutation.mutate()}
+                    variant="plain"
+                  >
                     <Link2 color="#FFFFFF" size={18} strokeWidth={2.25} />
                     <AppText variant="button" style={styles.primaryCtaLabel}>
                       {t('nearby.detail.connect')}
@@ -494,7 +519,9 @@ export default function ProviderDetailScreen() {
                 shadow.soft,
               ]}
               disabled={!canOpenMaps}
-              onPress={openInMaps} variant="plain">
+              onPress={openInMaps}
+              variant="plain"
+            >
               <Navigation color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('nearby.detail.openInMaps')}
@@ -510,7 +537,9 @@ export default function ProviderDetailScreen() {
                 },
               ]}
               onPress={() => favoriteMutation.mutate()}
-              disabled={favoriteMutation.isPending} variant="plain">
+              disabled={favoriteMutation.isPending}
+              variant="plain"
+            >
               <Heart
                 color={theme.accent}
                 size={18}

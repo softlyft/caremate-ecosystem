@@ -1,7 +1,18 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
@@ -9,7 +20,11 @@ import { Button, ChoiceChip, Input } from '@/components/ui/form-controls';
 import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
-import { isNigeriaCountry, parseNationalId, sanitizeNationalIdInput } from '@/domains/profile/national-id';
+import {
+  isNigeriaCountry,
+  parseNationalId,
+  sanitizeNationalIdInput,
+} from '@/domains/profile/national-id';
 import { isValidPhone, sanitizePhoneInput } from '@/domains/profile/phone';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerConnectionService } from '@/domains/providers/connection-service';
@@ -334,7 +349,9 @@ function EditProfileForm({
                 <Button
                   accessibilityRole="button"
                   onPress={() => setDateOfBirth('')}
-                  hitSlop={8} variant="plain">
+                  hitSlop={8}
+                  variant="plain"
+                >
                   <AppText variant="caption" color="brand">
                     {t('common.clear')}
                   </AppText>

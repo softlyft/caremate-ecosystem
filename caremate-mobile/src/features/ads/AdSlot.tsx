@@ -149,7 +149,9 @@ function CatalogBanner({ ad, userId }: { ad: ResolvedCatalogAd; userId: string |
       <Button
         accessibilityRole="button"
         accessibilityLabel={`${badge}: ${ad.title}`}
-        onPress={onPress} variant="plain">
+        onPress={onPress}
+        variant="plain"
+      >
         {content}
       </Button>
     );

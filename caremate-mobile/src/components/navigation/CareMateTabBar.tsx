@@ -57,7 +57,9 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       onPress={onPress}
       onLongPress={onLongPress}
       style={styles.item}
-      scale={0.92} variant="plain">
+      scale={0.92}
+      variant="plain"
+    >
       <View style={styles.iconSlot}>
         <Icon color={iconColor} size={22} strokeWidth={isFocused ? 2.6 : 2} />
       </View>

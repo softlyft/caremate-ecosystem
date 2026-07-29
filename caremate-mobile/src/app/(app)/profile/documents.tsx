@@ -158,7 +158,11 @@ export default function ProviderDocumentsScreen() {
         <AppText variant="sectionTitle">{t('profile.documents.title')}</AppText>
         <AppText variant="subtitle">{t('profile.documents.subtitle')}</AppText>
 
-        <Button style={[styles.uploadCta, shadow.soft]} onPress={() => setUploadOpen(true)} variant="plain">
+        <Button
+          style={[styles.uploadCta, shadow.soft]}
+          onPress={() => setUploadOpen(true)}
+          variant="plain"
+        >
           <FilePlus2 color="#FFFFFF" size={18} strokeWidth={2.25} />
           <AppText variant="button" style={styles.uploadCtaLabel}>
             {t('profile.documents.uploadCta')}
@@ -183,7 +187,9 @@ export default function ProviderDocumentsScreen() {
                 <Button
                   style={styles.cardMain}
                   disabled={busy || openMutation.isPending}
-                  onPress={() => openMutation.mutate(doc)} variant="plain">
+                  onPress={() => openMutation.mutate(doc)}
+                  variant="plain"
+                >
                   <View style={styles.iconRing}>
                     <FileText color={palette.primary} size={20} strokeWidth={2.25} />
                   </View>
@@ -219,7 +225,9 @@ export default function ProviderDocumentsScreen() {
                   <Button
                     style={styles.linkBtn}
                     onPress={() => setLinkDoc(doc)}
-                    disabled={linkMutation.isPending} variant="plain">
+                    disabled={linkMutation.isPending}
+                    variant="plain"
+                  >
                     <Link2 color={palette.primary} size={16} />
                     <AppText variant="caption" color="brand" style={styles.linkBtnLabel}>
                       {doc.organizationId
@@ -272,7 +280,9 @@ export default function ProviderDocumentsScreen() {
                   <Button
                     key={type}
                     style={[styles.chip, active ? styles.chipActive : null]}
-                    onPress={() => setDocumentType(type)} variant="plain">
+                    onPress={() => setDocumentType(type)}
+                    variant="plain"
+                  >
                     <AppText
                       variant="caption"
                       style={[styles.chipLabel, active ? styles.chipLabelActive : null]}
@@ -293,7 +303,9 @@ export default function ProviderDocumentsScreen() {
             <ScrollView style={styles.orgList} nestedScrollEnabled>
               <Button
                 style={[styles.orgRow, uploadOrgId === null ? styles.orgRowActive : null]}
-                onPress={() => setUploadOrgId(null)} variant="plain">
+                onPress={() => setUploadOrgId(null)}
+                variant="plain"
+              >
                 <AppText variant="body">{t('profile.documents.assignLater')}</AppText>
               </Button>
               {orgs.map((org) => (
@@ -303,7 +315,9 @@ export default function ProviderDocumentsScreen() {
                     styles.orgRow,
                     uploadOrgId === org.organizationId ? styles.orgRowActive : null,
                   ]}
-                  onPress={() => setUploadOrgId(org.organizationId)} variant="plain">
+                  onPress={() => setUploadOrgId(org.organizationId)}
+                  variant="plain"
+                >
                   <AppText variant="body">{org.name}</AppText>
                 </Button>
               ))}
@@ -361,7 +375,9 @@ export default function ProviderDocumentsScreen() {
                   linkDoc?.organizationId == null ? styles.orgRowActive : null,
                 ]}
                 onPress={() => linkMutation.mutate(null)}
-                disabled={linkMutation.isPending} variant="plain">
+                disabled={linkMutation.isPending}
+                variant="plain"
+              >
                 <AppText variant="body">{t('profile.documents.clearProvider')}</AppText>
               </Button>
               {orgs.map((org) => (
@@ -372,7 +388,9 @@ export default function ProviderDocumentsScreen() {
                     linkDoc?.organizationId === org.organizationId ? styles.orgRowActive : null,
                   ]}
                   onPress={() => linkMutation.mutate(org.organizationId)}
-                  disabled={linkMutation.isPending} variant="plain">
+                  disabled={linkMutation.isPending}
+                  variant="plain"
+                >
                   <AppText variant="body">{org.name}</AppText>
                 </Button>
               ))}

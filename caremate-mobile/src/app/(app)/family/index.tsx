@@ -271,7 +271,9 @@ export default function FamilyHubScreen() {
         </View>
         <Button
           style={[styles.primaryCta, shadow.soft]}
-          onPress={() => router.push('/(auth)/login')} variant="plain">
+          onPress={() => router.push('/(auth)/login')}
+          variant="plain"
+        >
           <AppText variant="button" style={styles.primaryCtaLabel}>
             {t('common.signIn')}
           </AppText>
@@ -332,7 +334,9 @@ export default function FamilyHubScreen() {
           <AnimatedSection index={1}>
             <Button
               style={[styles.primaryCta, shadow.soft]}
-              onPress={() => router.push('/(app)/family/setup')} variant="plain">
+              onPress={() => router.push('/(app)/family/setup')}
+              variant="plain"
+            >
               <UserPlus color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('family.setupCta')}
@@ -343,7 +347,9 @@ export default function FamilyHubScreen() {
             <AnimatedSection index={2}>
               <Button
                 style={styles.secondaryCta}
-                onPress={() => router.push('/(app)/family/requests')} variant="plain">
+                onPress={() => router.push('/(app)/family/requests')}
+                variant="plain"
+              >
                 <Link2 color={ACCENT} size={18} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.secondaryCtaLabel}>
                   {t('family.viewRequests', { count: requestsQuery.data!.length })}
@@ -402,7 +408,9 @@ export default function FamilyHubScreen() {
               </AppText>
               <Button
                 style={styles.secondaryCta}
-                onPress={() => router.push('/(app)/family/requests')} variant="plain">
+                onPress={() => router.push('/(app)/family/requests')}
+                variant="plain"
+              >
                 <Link2 color={ACCENT} size={16} strokeWidth={2.25} />
                 <AppText variant="button" style={styles.secondaryCtaLabel}>
                   {t('family.reviewRequests')}
@@ -436,7 +444,9 @@ export default function FamilyHubScreen() {
                     <Button
                       style={styles.removeChip}
                       disabled={busy}
-                      onPress={() => void handleRemoveMember(member.id)} variant="plain">
+                      onPress={() => void handleRemoveMember(member.id)}
+                      variant="plain"
+                    >
                       <AppText variant="caption" style={styles.removeChipLabel}>
                         {t('family.removeMember')}
                       </AppText>
@@ -475,7 +485,9 @@ export default function FamilyHubScreen() {
                     <Button
                       style={styles.removeChip}
                       disabled={busy}
-                      onPress={() => void handleCancelInvite(invite.id)} variant="plain">
+                      onPress={() => void handleCancelInvite(invite.id)}
+                      variant="plain"
+                    >
                       <AppText variant="caption" style={styles.removeChipLabel}>
                         {t('family.cancelInvite')}
                       </AppText>
@@ -551,7 +563,9 @@ export default function FamilyHubScreen() {
                         key={g.value}
                         style={[styles.chip, selected && styles.chipSelected]}
                         onPress={() => setChildGender(g.value)}
-                        scale={0.96} variant="plain">
+                        scale={0.96}
+                        variant="plain"
+                      >
                         <AppText
                           variant="caption"
                           style={selected ? styles.chipTextSelected : styles.chipText}
@@ -565,7 +579,9 @@ export default function FamilyHubScreen() {
                 <Button
                   style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
                   disabled={busy}
-                  onPress={() => void handleAddChild()} variant="plain">
+                  onPress={() => void handleAddChild()}
+                  variant="plain"
+                >
                   <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
                   <AppText variant="button" style={styles.primaryCtaLabel}>
                     {busy ? t('common.saving') : t('family.addChild')}
@@ -625,7 +641,9 @@ export default function FamilyHubScreen() {
                 <Button
                   style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
                   disabled={busy || !lookup.trim()}
-                  onPress={() => void handleLookup()} variant="plain">
+                  onPress={() => void handleLookup()}
+                  variant="plain"
+                >
                   <AppText variant="button" style={styles.secondaryCtaLabel}>
                     {busy ? t('family.searching') : t('family.find')}
                   </AppText>
@@ -652,7 +670,9 @@ export default function FamilyHubScreen() {
                     <Button
                       style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
                       disabled={busy}
-                      onPress={() => void handleConnect()} variant="plain">
+                      onPress={() => void handleConnect()}
+                      variant="plain"
+                    >
                       <AppText variant="button" style={styles.primaryCtaLabel}>
                         {t('family.connect')}
                       </AppText>
@@ -674,7 +694,9 @@ export default function FamilyHubScreen() {
                     <View style={styles.inviteActions}>
                       <Button
                         style={styles.secondaryCta}
-                        onPress={() => void handleCopyInvite()} variant="plain">
+                        onPress={() => void handleCopyInvite()}
+                        variant="plain"
+                      >
                         <Copy color={ACCENT} size={16} strokeWidth={2.25} />
                         <AppText variant="button" style={styles.secondaryCtaLabel}>
                           {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
@@ -682,7 +704,9 @@ export default function FamilyHubScreen() {
                       </Button>
                       <Button
                         style={styles.secondaryCta}
-                        onPress={() => void handleShareInvite()} variant="plain">
+                        onPress={() => void handleShareInvite()}
+                        variant="plain"
+                      >
                         <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
                         <AppText variant="button" style={styles.secondaryCtaLabel}>
                           {t('family.shareInvite')}

@@ -97,7 +97,9 @@ export default function NewMessageScreen() {
               style={styles.row}
               disabled={Boolean(startingId)}
               onPress={() => void handleSelect(item)}
-              accessibilityRole="button" variant="plain">
+              accessibilityRole="button"
+              variant="plain"
+            >
               <View style={styles.avatar}>
                 <AppText variant="cardTitle" style={styles.avatarLetter}>
                   {(item.full_name || '?').slice(0, 1).toUpperCase()}

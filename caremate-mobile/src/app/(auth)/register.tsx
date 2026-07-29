@@ -242,14 +242,20 @@ export default function RegisterScreen() {
                   styles.checkbox,
                   value ? styles.checkboxChecked : null,
                   formState.errors.acceptedLegal ? styles.checkboxError : null,
-                ]} variant="plain">
+                ]}
+                variant="plain"
+              >
                 {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
               </Button>
               <View style={styles.acceptCopy}>
                 <AppText variant="caption" style={styles.acceptText}>
                   {t('auth.register.acceptLead')}{' '}
                 </AppText>
-                <Button onPress={() => void openLegalUrl(LEGAL_URLS.terms)} hitSlop={6} variant="plain">
+                <Button
+                  onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
+                  hitSlop={6}
+                  variant="plain"
+                >
                   <AppText variant="caption" style={styles.acceptLink}>
                     {t('settings.legal.terms')}
                   </AppText>
@@ -258,7 +264,11 @@ export default function RegisterScreen() {
                   {' '}
                   {t('auth.register.acceptAnd')}{' '}
                 </AppText>
-                <Button onPress={() => void openLegalUrl(LEGAL_URLS.privacy)} hitSlop={6} variant="plain">
+                <Button
+                  onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
+                  hitSlop={6}
+                  variant="plain"
+                >
                   <AppText variant="caption" style={styles.acceptLink}>
                     {t('settings.legal.privacy')}
                   </AppText>

@@ -67,7 +67,13 @@ describe('period-tracker/deriveLatestPeriodStreak', () => {
 
   it('counts the length of the most recent contiguous streak', () => {
     expect(
-      deriveLatestPeriodStreak(['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-29', '2026-01-30']),
+      deriveLatestPeriodStreak([
+        '2026-01-01',
+        '2026-01-02',
+        '2026-01-03',
+        '2026-01-29',
+        '2026-01-30',
+      ]),
     ).toEqual({ start: '2026-01-29', length: 2 });
     expect(deriveLatestPeriodStreak(['2026-07-01', '2026-07-02', '2026-07-03'])).toEqual({
       start: '2026-07-01',
@@ -142,7 +148,9 @@ describe('period-tracker/store', () => {
   });
 
   it('keeps prior periodLength when logs are cleared', () => {
-    usePeriodTrackerStore.getState().setLoggedPeriodDays(['2026-07-01', '2026-07-02', '2026-07-03']);
+    usePeriodTrackerStore
+      .getState()
+      .setLoggedPeriodDays(['2026-07-01', '2026-07-02', '2026-07-03']);
     expect(usePeriodTrackerStore.getState().periodLength).toBe(3);
     usePeriodTrackerStore.getState().setLoggedPeriodDays([]);
     expect(usePeriodTrackerStore.getState().periodLength).toBe(3);

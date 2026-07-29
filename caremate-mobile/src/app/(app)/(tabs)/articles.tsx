@@ -199,14 +199,18 @@ export default function ArticlesTabScreen() {
                       style={styles.iconCta}
                       onPress={() => router.push('/(app)/articles/reading')}
                       accessibilityRole="button"
-                      accessibilityLabel={t('learn.reading')} variant="plain">
+                      accessibilityLabel={t('learn.reading')}
+                      variant="plain"
+                    >
                       <CheckCheck color={palette.primary} size={18} strokeWidth={2.25} />
                     </Button>
                     <Button
                       style={styles.iconCta}
                       onPress={() => router.push('/(app)/articles/bookmarks')}
                       accessibilityRole="button"
-                      accessibilityLabel={t('learn.bookmarks')} variant="plain">
+                      accessibilityLabel={t('learn.bookmarks')}
+                      variant="plain"
+                    >
                       <Bookmark color={palette.primary} size={18} strokeWidth={2.25} />
                     </Button>
                   </View>

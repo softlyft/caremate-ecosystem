@@ -91,7 +91,9 @@ function TabIcon({
       style={[styles.chip, active ? { backgroundColor: `${color}18`, borderColor: color } : null]}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ selected: active }} variant="plain">
+      accessibilityState={{ selected: active }}
+      variant="plain"
+    >
       <Icon color={active ? color : palette.textSecondary} size={20} strokeWidth={2.35} />
     </Button>
   );

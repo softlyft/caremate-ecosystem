@@ -121,7 +121,9 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
             accessibilityRole="button"
             accessibilityLabel={t('profile.patientId.flipA11y')}
             onPress={toggleFlip}
-            style={[styles.atmShell, shadow.card]} variant="plain">
+            style={[styles.atmShell, shadow.card]}
+            variant="plain"
+          >
             <View style={styles.flipScene}>
               <Animated.View style={[styles.face, frontStyle]} pointerEvents="box-none">
                 <View style={styles.atmClip}>
@@ -230,7 +232,9 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
               (generateMutation.isPending || profileQuery.isLoading) && styles.generateDisabled,
             ]}
             onPress={() => generateMutation.mutate()}
-            disabled={generateMutation.isPending || profileQuery.isLoading} variant="plain">
+            disabled={generateMutation.isPending || profileQuery.isLoading}
+            variant="plain"
+          >
             {generateMutation.isPending ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (

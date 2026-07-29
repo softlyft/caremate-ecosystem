@@ -35,7 +35,10 @@ export function isValidGeneralNationalId(value: string | null | undefined): bool
  * - NG: empty or exactly 11 digits
  * - Other countries: empty or 5–32 alphanumeric characters (no spaces/symbols)
  */
-export function createNationalIdSchema(countryCode: string | null | undefined, messages: NationalIdMessages) {
+export function createNationalIdSchema(
+  countryCode: string | null | undefined,
+  messages: NationalIdMessages,
+) {
   const nigeria = isNigeriaCountry(countryCode);
 
   return z

@@ -198,7 +198,9 @@ export default function ProvidersTabScreen() {
                     style={styles.favoritesCta}
                     onPress={() => router.push('/(app)/providers/favorites')}
                     accessibilityRole="button"
-                    accessibilityLabel={t('nearby.favorites.openA11y')} variant="plain">
+                    accessibilityLabel={t('nearby.favorites.openA11y')}
+                    variant="plain"
+                  >
                     <Heart color={palette.brandBlue} size={18} strokeWidth={2.25} />
                   </Button>
                 </View>
@@ -226,7 +228,9 @@ export default function ProvidersTabScreen() {
                   onPress={() => {
                     void handleEnableLocation();
                   }}
-                  style={styles.lastKnownAction} variant="plain">
+                  style={styles.lastKnownAction}
+                  variant="plain"
+                >
                   <AppText variant="caption" color="brand" style={styles.lastKnownActionLabel}>
                     {locationRequestPending
                       ? t('nearby.locationNeeded.enabling')

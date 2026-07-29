@@ -213,7 +213,9 @@ export default function ArticleDetailScreen() {
           <AnimatedSection index={5}>
             <Button
               style={[styles.cta, shadow.soft]}
-              onPress={() => WebBrowser.openBrowserAsync(article.sourceUrl!)} variant="plain">
+              onPress={() => WebBrowser.openBrowserAsync(article.sourceUrl!)}
+              variant="plain"
+            >
               <ExternalLink color="#FFFFFF" size={18} strokeWidth={2.25} />
               <AppText variant="button" style={styles.ctaLabel}>
                 {t('learn.readFull')}

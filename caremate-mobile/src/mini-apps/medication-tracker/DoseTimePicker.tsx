@@ -56,7 +56,9 @@ export function DoseTimePicker({ label, value, onChange, accent, soft }: DoseTim
           time: safeValue,
         })}
         onPress={() => setOpen(true)}
-        style={[styles.field, { borderColor: `${accent}44`, backgroundColor: soft }]} variant="plain">
+        style={[styles.field, { borderColor: `${accent}44`, backgroundColor: soft }]}
+        variant="plain"
+      >
         <Clock color={accent} size={18} strokeWidth={2.25} />
         <AppText variant="body" style={styles.timeText}>
           {safeValue}

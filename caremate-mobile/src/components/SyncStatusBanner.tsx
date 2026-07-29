@@ -136,7 +136,9 @@ export function SyncStatusBanner() {
           accessibilityLabel={hasFailures ? 'Retry failed sync' : 'Sync now'}
           disabled={isRetrying}
           onPress={() => void handleRetry()}
-          style={styles.action} variant="plain">
+          style={styles.action}
+          variant="plain"
+        >
           {isRetrying ? (
             <ActivityIndicator color={palette.primaryDark} size="small" />
           ) : (
@@ -154,7 +156,9 @@ export function SyncStatusBanner() {
             clearDismissTimer();
             setDismissedKey(key);
           }}
-          style={styles.dismiss} variant="plain">
+          style={styles.dismiss}
+          variant="plain"
+        >
           <X color={palette.textSecondary} size={16} strokeWidth={2.5} />
         </Button>
       </View>

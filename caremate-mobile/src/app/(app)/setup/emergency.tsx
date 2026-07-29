@@ -179,12 +179,7 @@ export default function SetupEmergencyEssentialsScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
       >
         <View style={styles.header}>
-          <Button
-            onPress={() => void handleSkip()}
-            hitSlop={8}
-            disabled={busy}
-            variant="plain"
-          >
+          <Button onPress={() => void handleSkip()} hitSlop={8} disabled={busy} variant="plain">
             <AppText variant="body" style={styles.skip}>
               {t('setup.emergency.skip')}
             </AppText>

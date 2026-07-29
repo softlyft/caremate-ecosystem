@@ -55,7 +55,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             CareMate hit an unexpected problem. Your data is safe — try restarting the screen.
           </Text>
           {__DEV__ ? <Text style={styles.detail}>{error.message}</Text> : null}
-          <Button accessibilityRole="button" onPress={this.handleRestart} style={styles.button} variant="plain">
+          <Button
+            accessibilityRole="button"
+            onPress={this.handleRestart}
+            style={styles.button}
+            variant="plain"
+          >
             <Text style={styles.buttonLabel}>Restart</Text>
           </Button>
         </ScrollView>

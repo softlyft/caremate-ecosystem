@@ -120,7 +120,9 @@ export default function OnboardingLocationScreen() {
         <Button
           style={[styles.optionCard, shadow.soft]}
           disabled={busy}
-          onPress={() => void enablePrecise()} variant="plain">
+          onPress={() => void enablePrecise()}
+          variant="plain"
+        >
           <View style={[styles.optionIcon, { backgroundColor: theme.soft }]}>
             <Crosshair color={theme.accent} size={20} />
           </View>
@@ -137,7 +139,9 @@ export default function OnboardingLocationScreen() {
         <Button
           style={[styles.optionCard, shadow.soft]}
           disabled={busy}
-          onPress={useApproximate} variant="plain">
+          onPress={useApproximate}
+          variant="plain"
+        >
           <View style={[styles.optionIcon, { backgroundColor: theme.soft }]}>
             <MapPinned color={theme.accent} size={20} />
           </View>

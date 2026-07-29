@@ -81,7 +81,9 @@ export function MonthCalendarNavigator({
           accessibilityRole="button"
           hitSlop={12}
           onPress={() => changeMonthBy(-1)}
-          style={styles.arrowButton} variant="plain">
+          style={styles.arrowButton}
+          variant="plain"
+        >
           <ChevronLeft color={palette.textSecondary} size={20} />
         </Button>
 
@@ -91,7 +93,9 @@ export function MonthCalendarNavigator({
             accessibilityLabel={`Choose month and year, currently ${monthLabel}`}
             accessibilityRole="button"
             onPress={openPicker}
-            style={styles.monthButton} variant="plain">
+            style={styles.monthButton}
+            variant="plain"
+          >
             <AppText variant="cardTitle">{monthLabel}</AppText>
             <ChevronDown color={palette.textSecondary} size={17} />
           </Button>
@@ -107,7 +111,9 @@ export function MonthCalendarNavigator({
           accessibilityRole="button"
           hitSlop={12}
           onPress={() => changeMonthBy(1)}
-          style={styles.arrowButton} variant="plain">
+          style={styles.arrowButton}
+          variant="plain"
+        >
           <ChevronRight color={palette.textSecondary} size={20} />
         </Button>
       </View>
@@ -116,7 +122,9 @@ export function MonthCalendarNavigator({
         <Button
           accessibilityRole="button"
           onPress={() => onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1))}
-          style={styles.todayButton} variant="plain">
+          style={styles.todayButton}
+          variant="plain"
+        >
           <AppText variant="caption" color={accentColor}>
             Today
           </AppText>
@@ -130,21 +138,21 @@ export function MonthCalendarNavigator({
         transparent
         visible={pickerOpen}
       >
-          <View style={styles.modalRoot}>
-            <Pressable
-              accessibilityLabel="Close month picker"
-              onPress={() => setPickerOpen(false)}
-              style={StyleSheet.absoluteFill}
-            />
-            <View
-              style={[
-                styles.sheet,
-                {
-                  maxHeight: sheetMaxHeight,
-                  paddingBottom: sheetBottomPadding,
-                },
-              ]}
-            >
+        <View style={styles.modalRoot}>
+          <Pressable
+            accessibilityLabel="Close month picker"
+            onPress={() => setPickerOpen(false)}
+            style={StyleSheet.absoluteFill}
+          />
+          <View
+            style={[
+              styles.sheet,
+              {
+                maxHeight: sheetMaxHeight,
+                paddingBottom: sheetBottomPadding,
+              },
+            ]}
+          >
             <View style={styles.sheetHeader}>
               <View>
                 <AppText variant="cardTitle">Choose month and year</AppText>
@@ -157,7 +165,9 @@ export function MonthCalendarNavigator({
                 accessibilityRole="button"
                 hitSlop={10}
                 onPress={() => setPickerOpen(false)}
-                style={styles.closeButton} variant="plain">
+                style={styles.closeButton}
+                variant="plain"
+              >
                 <X color={palette.textSecondary} size={20} />
               </Button>
             </View>
@@ -181,7 +191,9 @@ export function MonthCalendarNavigator({
                       style={[
                         styles.yearButton,
                         selected && { backgroundColor: `${accentColor}18` },
-                      ]} variant="plain">
+                      ]}
+                      variant="plain"
+                    >
                       <AppText
                         variant="categoryPill"
                         color={selected ? accentColor : palette.textSecondary}
@@ -209,7 +221,9 @@ export function MonthCalendarNavigator({
                       style={[
                         styles.monthOption,
                         selected && { backgroundColor: accentColor, borderColor: accentColor },
-                      ]} variant="plain">
+                      ]}
+                      variant="plain"
+                    >
                       <AppText variant="categoryPill" color={selected ? '#FFFFFF' : palette.text}>
                         {label}
                       </AppText>

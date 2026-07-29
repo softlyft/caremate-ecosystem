@@ -32,7 +32,9 @@ function ConversationRow({ item }: { item: MessageConversation }) {
     <Button
       style={styles.row}
       onPress={() => router.push(`/(app)/messages/${item.id}`)}
-      accessibilityRole="button" variant="plain">
+      accessibilityRole="button"
+      variant="plain"
+    >
       <View style={styles.avatar}>
         <AppText variant="cardTitle" style={styles.avatarLetter}>
           {title.slice(0, 1).toUpperCase()}
@@ -95,7 +97,9 @@ export default function MessagesInboxScreen() {
             style={styles.newButton}
             onPress={() => router.push('/(app)/messages/new')}
             accessibilityRole="button"
-            accessibilityLabel={t('messages.newMessageA11y')} variant="plain">
+            accessibilityLabel={t('messages.newMessageA11y')}
+            variant="plain"
+          >
             <Plus color={palette.primaryDark} size={18} strokeWidth={2.4} />
             <AppText variant="seeAll" style={styles.newButtonLabel}>
               {t('messages.newMessage')}

@@ -105,7 +105,9 @@ export default function OnboardingPrioritiesScreen() {
                   setShowHint(false);
                   togglePriority(id);
                 }}
-                scale={0.97} variant="plain">
+                scale={0.97}
+                variant="plain"
+              >
                 <LinearGradientFill
                   colors={[
                     { offset: '0%', color: selected ? visual.soft : '#FFFFFF' },

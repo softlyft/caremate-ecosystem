@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { CountrySelect } from '@/components/ui/CountrySelect';
 import { localizationService, useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
@@ -125,30 +126,20 @@ export default function CheckupPlannerSetupScreen() {
         <AppText variant="caption" style={styles.muted}>
           {t('apps.checkup.ui.regionHint')}
         </AppText>
-        <View style={styles.chipRow}>
-          <MiniAppChip
-            label={t('apps.checkup.ui.globalOption', {
-              code: localizationService.internationalCountryCode,
-            })}
-            selected={regionCode === null}
-            accent={theme.color}
-            soft={theme.backgroundColor}
-            onPress={() => setRegionCode(null)}
-          />
-          {localizationService
-            .listCountryOptions()
-            .filter((country) => country.code !== localizationService.internationalCountryCode)
-            .map((country) => (
-              <MiniAppChip
-                key={country.code}
-                label={country.name}
-                selected={regionCode === country.code}
-                accent={theme.color}
-                soft={theme.backgroundColor}
-                onPress={() => setRegionCode(country.code)}
-              />
-            ))}
-        </View>
+        <CountrySelect
+          value={regionCode}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          placeholder={t('apps.checkup.ui.regionSelectPlaceholder')}
+          searchPlaceholder={t('apps.checkup.ui.regionSearchPlaceholder')}
+          searchEmptyLabel={t('apps.checkup.ui.regionSearchEmpty')}
+          sheetTitle={t('apps.checkup.ui.regionOptional')}
+          nullOptionLabel={t('apps.checkup.ui.globalOption', {
+            code: localizationService.internationalCountryCode,
+          })}
+          closeAccessibilityLabel={t('common.close')}
+          onChange={setRegionCode}
+        />
       </MiniAppCard>
 
       <MiniAppCta

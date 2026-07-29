@@ -131,7 +131,9 @@ export default function ProfileTabScreen() {
                   <Button
                     style={styles.editButton}
                     accessibilityLabel={t('profile.edit.openA11y')}
-                    onPress={() => router.push('/(app)/profile/edit')} variant="plain">
+                    onPress={() => router.push('/(app)/profile/edit')}
+                    variant="plain"
+                  >
                     <Pencil color={palette.primary} size={18} strokeWidth={2.25} />
                   </Button>
                 ) : null}
@@ -166,14 +168,18 @@ export default function ProfileTabScreen() {
                   <View style={styles.guestActions}>
                     <Button
                       style={styles.primaryCta}
-                      onPress={() => router.push('/(auth)/login')} variant="plain">
+                      onPress={() => router.push('/(auth)/login')}
+                      variant="plain"
+                    >
                       <AppText variant="button" style={styles.primaryCtaLabel}>
                         {t('profile.guest.signIn')}
                       </AppText>
                     </Button>
                     <Button
                       style={styles.secondaryCta}
-                      onPress={() => router.push('/(auth)/register')} variant="plain">
+                      onPress={() => router.push('/(auth)/register')}
+                      variant="plain"
+                    >
                       <AppText variant="button" style={styles.secondaryCtaLabel}>
                         {t('profile.guest.createAccount')}
                       </AppText>

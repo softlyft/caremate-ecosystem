@@ -3,7 +3,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
@@ -564,7 +572,9 @@ export default function EmergencyEditScreen() {
                       <Button
                         onPress={() => beginEditContact(index)}
                         hitSlop={8}
-                        disabled={isEditing} variant="plain">
+                        disabled={isEditing}
+                        variant="plain"
+                      >
                         <AppText
                           variant="seeAll"
                           color={isEditing ? colors.textMuted : EMERGENCY_ACCENT}

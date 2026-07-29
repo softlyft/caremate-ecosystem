@@ -40,7 +40,9 @@ function MiniAppBackButton({
         shadow.soft,
       ]}
       scale={0.94}
-      hitSlop={8} variant="plain">
+      hitSlop={8}
+      variant="plain"
+    >
       <Icon color={accent} size={modal ? 18 : 22} strokeWidth={2.4} />
     </Button>
   );

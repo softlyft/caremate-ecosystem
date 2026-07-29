@@ -251,7 +251,9 @@ export default function PremiumScreen() {
           <AnimatedSection index={2}>
             <Button
               style={[styles.primaryCta, shadow.soft]}
-              onPress={() => router.push('/(auth)/login')} variant="plain">
+              onPress={() => router.push('/(auth)/login')}
+              variant="plain"
+            >
               <AppText variant="button" style={styles.primaryCtaLabel}>
                 {t('profile.premium.signInToUpgrade')}
               </AppText>
@@ -527,7 +529,9 @@ function Chip({
       onPress={onPress}
       style={[styles.chip, active ? styles.chipActive : null]}
       accessibilityRole="button"
-      scale={0.96} variant="plain">
+      scale={0.96}
+      variant="plain"
+    >
       {Icon ? (
         <Icon color={active ? ACCENT : palette.textSecondary} size={14} strokeWidth={2.2} />
       ) : null}

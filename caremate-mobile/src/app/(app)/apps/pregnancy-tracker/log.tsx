@@ -101,7 +101,9 @@ export default function PregnancyLogScreen() {
         <View style={styles.counterRow}>
           <Button
             style={[styles.counterButton, { borderColor: theme.color }]}
-            onPress={() => setKickCount((count) => Math.max(0, count - 1))} variant="plain">
+            onPress={() => setKickCount((count) => Math.max(0, count - 1))}
+            variant="plain"
+          >
             <Minus color={theme.color} size={18} />
           </Button>
           <AppText variant="screenTitle" style={{ color: theme.titleColor }}>
@@ -109,7 +111,9 @@ export default function PregnancyLogScreen() {
           </AppText>
           <Button
             style={[styles.counterButton, { borderColor: theme.color }]}
-            onPress={() => setKickCount((count) => count + 1)} variant="plain">
+            onPress={() => setKickCount((count) => count + 1)}
+            variant="plain"
+          >
             <Plus color={theme.color} size={18} />
           </Button>
         </View>

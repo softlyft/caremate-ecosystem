@@ -106,8 +106,11 @@ export function MonthCalendarGrid({
                 key={dayKey}
                 accessibilityRole="button"
                 accessibilityLabel={`${date.toLocaleDateString()}, ${isSelected ? 'selected' : 'not selected'}`}
-                hitSlop={6} style={styles.dayCell}
-                onPress={() => onDayPress(dayKey)} variant="plain">
+                hitSlop={6}
+                style={styles.dayCell}
+                onPress={() => onDayPress(dayKey)}
+                variant="plain"
+              >
                 {content}
               </Button>
             );

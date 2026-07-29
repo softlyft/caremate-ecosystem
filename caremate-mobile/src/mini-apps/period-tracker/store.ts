@@ -39,9 +39,7 @@ interface PeriodTrackerState {
  * Start date + length of the most recent contiguous logged streak.
  * Used as the cycle anchor for next-period predictions and Cycle Summary.
  */
-export function deriveLatestPeriodStreak(
-  days: string[],
-): { start: string; length: number } | null {
+export function deriveLatestPeriodStreak(days: string[]): { start: string; length: number } | null {
   if (days.length === 0) {
     return null;
   }

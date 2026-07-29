@@ -74,7 +74,9 @@ export default function SearchScreen() {
           onPress={() => router.back()}
           style={[styles.backButton, shadow.soft]}
           scale={0.94}
-          hitSlop={8} variant="plain">
+          hitSlop={8}
+          variant="plain"
+        >
           <ChevronLeft color={ACCENT} size={22} strokeWidth={2.4} />
         </Button>
 
@@ -101,7 +103,9 @@ export default function SearchScreen() {
               onPress={() => setQuery('')}
               style={styles.clearButton}
               hitSlop={8}
-              scale={0.92} variant="plain">
+              scale={0.92}
+              variant="plain"
+            >
               <X color={palette.textSecondary} size={16} strokeWidth={2.4} />
             </Button>
           ) : null}
@@ -174,7 +178,9 @@ export default function SearchScreen() {
                   })
                 }
                 style={styles.seeAll}
-                scale={0.97} variant="plain">
+                scale={0.97}
+                variant="plain"
+              >
                 <AppText variant="seeAll" color="brand">
                   {t('search.seeAllLearn')}
                 </AppText>
@@ -201,7 +207,9 @@ export default function SearchScreen() {
                   })
                 }
                 style={styles.seeAll}
-                scale={0.97} variant="plain">
+                scale={0.97}
+                variant="plain"
+              >
                 <AppText variant="seeAll" color="brand">
                   {t('search.seeAllNearby')}
                 </AppText>
@@ -223,7 +231,9 @@ export default function SearchScreen() {
                     onPress={() => router.push(tool.route)}
                     accessibilityRole="button"
                     accessibilityLabel={name}
-                    scale={0.98} variant="plain">
+                    scale={0.98}
+                    variant="plain"
+                  >
                     <View style={[styles.toolIcon, { backgroundColor: tool.backgroundColor }]}>
                       <Icon color={tool.color} size={18} strokeWidth={2.25} />
                     </View>
