@@ -35,18 +35,30 @@ This applies to the resource row’s own `id` and to parent references where rel
 - Name is required
 - Resource JSON is stored with scalar convenience columns
 - Existing orgs can also be matched through the current unique-name handling path
+- On chain ingest, temporary keys come from `identifier.code` (preferred) or a slugified name
 
 ## Location Rules
 
-- Must reference an organization UUID in `managingOrganization`
-- Missing/non-UUID parent references are treated as orphan rows and skipped
-- Projection rebuild happens after save
+- Name is required
+- On **chain** ingest: `managingOrganization` may be an org code, slugified org name, or UUID — resolved after orgs are written
+- On **single-resource** location ingest: non-UUID managing org → skipped (orphan)
+- Parent organization must exist before the location row is saved
 
 ## HealthcareService Rules
 
-- Must reference a location UUID
-- Organization is derived from the location when needed
-- Projection rebuild runs for affected locations
+- Name is required
+- On **chain** ingest: `location` may be a location code/name slug or UUID — resolved after locations are written
+- On **single-resource** HS ingest: non-UUID location → skipped (orphan)
+- `organization_id` is taken from the resolved location
+
+## Run artifacts (chain)
+
+```text
+runs/{dev|prod}/{YYYYMMDD-HHMMSS}/
+  originals/     # uploaded workbooks
+  cleaned/       # workbooks with UUIDs filled in
+  manifest.json  # counts, key maps, paths
+```
 
 ## Projection Behavior
 
@@ -63,4 +75,4 @@ The mobile app does not sync the full national provider catalog to SQLite. It qu
 
 ## Samples
 
-See `caremate-provider-ingestion/samples/README.md` and the sample workbooks for the expected upload sequence and UUID handoff process.
+See `caremate-provider-ingestion/samples/README.md` and the sample workbooks. Prefer `/v1/ingest/chain` so cleaned copies under `runs/` carry UUIDs for later updates.

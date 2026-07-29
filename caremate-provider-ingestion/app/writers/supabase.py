@@ -61,8 +61,8 @@ class SupabaseWriter:
         if not rows:
             return 0
         written = 0
-        chunk_size = 100
-        with httpx.Client(timeout=60.0) as client:
+        chunk_size = 200
+        with httpx.Client(timeout=180.0) as client:
             for i in range(0, len(rows), chunk_size):
                 chunk = [_json_safe(row) for row in rows[i : i + chunk_size]]
                 response = client.post(
@@ -74,6 +74,8 @@ class SupabaseWriter:
                     logger.error("%s upsert failed: %s %s", table, response.status_code, response.text)
                     raise RuntimeError(f"{table} upsert failed: {response.status_code} {response.text}")
                 written += len(chunk)
+                if i == 0 or (i // chunk_size) % 25 == 0:
+                    logger.info("%s upsert progress: %s/%s", table, written, len(rows))
         return written
 
     def select(
@@ -98,7 +100,62 @@ class SupabaseWriter:
         rows = self.select(table, params={"id": f"eq.{row_id}", "select": "*", "limit": "1"})
         return rows[0] if rows else None
 
-    def find_organization_by_name(self, name: str) -> dict[str, Any] | None:
+    def count_rows(self, table: str, *, active_only: bool = True) -> int:
+        """Exact row count via Prefer: count=exact (Content-Range)."""
+        self._require()
+        params: dict[str, str] = {"select": "id", "limit": "1"}
+        if active_only:
+            params["deleted_at"] = "is.null"
+        with httpx.Client(timeout=60.0) as client:
+            response = client.get(
+                f"{self._url}/rest/v1/{table}",
+                headers={
+                    **self._headers(prefer="count=exact"),
+                    "Accept": "application/json",
+                },
+                params=params,
+            )
+            if response.status_code >= 400:
+                raise RuntimeError(f"{table} count failed: {response.status_code} {response.text}")
+            # content-range: 0-0/42928 or */0
+            cr = response.headers.get("content-range") or ""
+            if "/" in cr:
+                total = cr.rsplit("/", 1)[-1]
+                if total.isdigit():
+                    return int(total)
+            data = response.json()
+            return len(data) if isinstance(data, list) else 0
+
+    def catalog_is_empty(self) -> bool:
+        """True when this env has no active organizations (new-env bootstrap)."""
+        return self.count_rows("provider_organizations", active_only=True) == 0
+
+    def list_organization_name_ids(self) -> dict[str, str]:
+        """Map casefolded trimmed name → organization UUID for all rows."""
+        mapping: dict[str, str] = {}
+        offset = 0
+        page_size = 1000
+        while True:
+            rows = self.select(
+                "provider_organizations",
+                params={
+                    "select": "id,name",
+                    "order": "created_at.asc",
+                    "limit": str(page_size),
+                    "offset": str(offset),
+                },
+            )
+            if not rows:
+                break
+            for row in rows:
+                name = str(row.get("name") or "").strip().casefold()
+                if name and name not in mapping:
+                    mapping[name] = str(row["id"])
+            if len(rows) < page_size:
+                break
+            offset += page_size
+        return mapping
+
         """Case-insensitive name match; prefer active row, else soft-deleted."""
         trimmed = name.strip()
         if not trimmed:

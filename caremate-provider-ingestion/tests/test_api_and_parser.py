@@ -126,3 +126,63 @@ class TestApi:
             )
             assert response.status_code == 202
             assert response.json()["resource"] == resource
+
+    def test_chain_endpoint_accepts_and_defaults_env_dev(
+        self, client: TestClient, monkeypatch: pytest.MonkeyPatch
+    ):
+        captured: dict = {}
+
+        def _capture(**kwargs):
+            captured.update(kwargs)
+
+        monkeypatch.setattr("app.main.run_chain_ingest_job", _capture)
+        response = client.post(
+            "/v1/ingest/chain",
+            headers={"Authorization": "Bearer test-key"},
+            data={"source": "unit-test"},
+            files={
+                "organization": (
+                    "org.xlsx",
+                    _xlsx_bytes(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            },
+        )
+        assert response.status_code == 202
+        body = response.json()
+        assert body["resource"] == "chain"
+        assert body["env"] == "dev"
+        assert captured["env"] == "dev"
+        assert captured["organization_filename"] == "org.xlsx"
+
+    def test_chain_endpoint_accepts_prod_via_query(
+        self, client: TestClient, monkeypatch: pytest.MonkeyPatch
+    ):
+        monkeypatch.setattr("app.main.run_chain_ingest_job", lambda **kwargs: None)
+        response = client.post(
+            "/v1/ingest/chain?env=prod",
+            headers={"Authorization": "Bearer test-key"},
+            files={
+                "organization": (
+                    "org.xlsx",
+                    _xlsx_bytes(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            },
+        )
+        assert response.status_code == 202
+        assert response.json()["env"] == "prod"
+
+    def test_chain_rejects_bad_env(self, client: TestClient):
+        response = client.post(
+            "/v1/ingest/chain?env=staging",
+            headers={"Authorization": "Bearer test-key"},
+            files={
+                "organization": (
+                    "org.xlsx",
+                    _xlsx_bytes(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            },
+        )
+        assert response.status_code == 400

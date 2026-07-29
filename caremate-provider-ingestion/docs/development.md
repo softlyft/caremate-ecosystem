@@ -18,8 +18,10 @@ Variables:
 | Variable | Purpose |
 |----------|---------|
 | `INGEST_API_KEY` | Bearer token for ingest endpoints |
-| `SUPABASE_URL` | Shared Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Privileged write access for ingest |
+| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Fallback when env-specific vars are empty |
+| `SUPABASE_URL_DEV` / `SUPABASE_SERVICE_ROLE_KEY_DEV` | Dev target for `?env=dev` |
+| `SUPABASE_URL_PROD` / `SUPABASE_SERVICE_ROLE_KEY_PROD` | Prod target for `?env=prod` |
+| `RUNS_DIR` | Artifact root (`runs/{env}/{timestamp}/`) |
 | `HOST` | Bind host |
 | `PORT` | Uvicorn port |
 
@@ -54,13 +56,9 @@ From the monorepo root:
 npm run ingest:test
 ```
 
-Coverage target is 80%+ on app logic (Supabase writer + full pipeline orchestration are excluded; they need live/integration fixtures).
+Coverage target is 80%+ on app logic (Supabase writer + single-resource `pipeline.py` are excluded; they need live/integration fixtures). Chain orchestration is unit-tested with a fake writer.
 
-Use order:
-
-1. organization
-2. location
-3. healthcareservice
+Prefer `POST /v1/ingest/chain?env=dev` for first-time catalog loads.
 
 ## Operational Notes
 

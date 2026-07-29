@@ -10,3 +10,7 @@ htmlcov/
 dist/
 build/
 .DS_Store
+runs/
+# Canonical workbooks live in Supabase Storage; keep README only in git
+samples/*.xlsx
+samples/*.xls
