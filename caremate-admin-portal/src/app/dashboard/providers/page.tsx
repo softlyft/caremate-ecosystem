@@ -8,7 +8,9 @@ import {
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { PROVIDER_TYPES, PROVIDER_TYPE_LABELS } from '@/constants/content';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -21,6 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import type {
+  Provider,
+  ProviderHealthcareService,
+  ProviderLocation,
+  ProviderOrganization,
+} from '@/types/database';
 
 const VIEWS = [
   { id: 'organizations', label: 'Organizations' },
@@ -35,37 +43,64 @@ function isView(value: string | undefined): value is ViewId {
   return VIEWS.some((v) => v.id === value);
 }
 
+function providersHref(opts: {
+  view: ViewId;
+  q?: string;
+  type?: string;
+  page?: number;
+}): string {
+  const params = new URLSearchParams();
+  params.set('view', opts.view);
+  if (opts.q?.trim()) params.set('q', opts.q.trim());
+  if (opts.view === 'pins' && opts.type) params.set('type', opts.type);
+  if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  return `/dashboard/providers?${params.toString()}`;
+}
+
 export default async function ProvidersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string; view?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; view?: string; page?: string }>;
 }) {
   const session = await getPortalSession();
   const canEdit = canEditCatalog(session?.role);
-  const { q, type, view: viewParam } = await searchParams;
+  const { q, type, view: viewParam, page: pageParam } = await searchParams;
   const view: ViewId = isView(viewParam) ? viewParam : 'organizations';
+  const page = parsePage(pageParam);
 
-  let organizations: Awaited<ReturnType<typeof listProviderOrganizations>> = [];
-  let locations: Awaited<ReturnType<typeof listProviderLocations>> = [];
-  let services: Awaited<ReturnType<typeof listProviderHealthcareServices>> = [];
-  let providers: Awaited<ReturnType<typeof listProviders>> = [];
+  let organizations: PaginatedResult<ProviderOrganization> = emptyPage(page);
+  let locations: PaginatedResult<ProviderLocation> = emptyPage(page);
+  let services: PaginatedResult<ProviderHealthcareService> = emptyPage(page);
+  let providers: PaginatedResult<Provider> = emptyPage(page);
 
   try {
     if (view === 'organizations') {
-      organizations = await listProviderOrganizations({ search: q });
+      organizations = await listProviderOrganizations({ search: q, page });
     } else if (view === 'locations') {
-      locations = await listProviderLocations({ search: q });
+      locations = await listProviderLocations({ search: q, page });
     } else if (view === 'services') {
-      services = await listProviderHealthcareServices({ search: q });
+      services = await listProviderHealthcareServices({ search: q, page });
     } else {
-      providers = await listProviders({ search: q, type: type || undefined });
+      providers = await listProviders({ search: q, type: type || undefined, page });
     }
   } catch {
-    organizations = [];
-    locations = [];
-    services = [];
-    providers = [];
+    organizations = emptyPage(page);
+    locations = emptyPage(page);
+    services = emptyPage(page);
+    providers = emptyPage(page);
   }
+
+  const activeResult =
+    view === 'organizations'
+      ? organizations
+      : view === 'locations'
+        ? locations
+        : view === 'services'
+          ? services
+          : providers;
+
+  const hrefForPage = (nextPage: number) =>
+    providersHref({ view, q, type, page: nextPage });
 
   return (
     <div>
@@ -79,7 +114,7 @@ export default async function ProvidersPage({
       <nav className="mb-4 flex flex-wrap gap-2">
         {VIEWS.map((v) => {
           const active = view === v.id;
-          const href = `/dashboard/providers?view=${v.id}${q ? `&q=${encodeURIComponent(q)}` : ''}`;
+          const href = providersHref({ view: v.id, q });
           return (
             <Link
               key={v.id}
@@ -128,14 +163,14 @@ export default async function ProvidersPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {organizations.length === 0 ? (
+                {organizations.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-muted">
                       No organizations yet. Upload an Organization workbook first.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  organizations.map((org) => (
+                  organizations.rows.map((org) => (
                     <TableRow key={org.id}>
                       <TableCell className="max-w-[18rem] font-mono text-xs">
                         <Link
@@ -184,7 +219,7 @@ export default async function ProvidersPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {locations.length === 0 ? (
+                {locations.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-muted">
                       No locations yet. Paste Organization UUIDs into managingOrganization, then
@@ -192,7 +227,7 @@ export default async function ProvidersPage({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  locations.map((loc) => (
+                  locations.rows.map((loc) => (
                     <TableRow key={loc.id}>
                       <TableCell className="max-w-[14rem] font-mono text-xs">
                         <Link
@@ -242,14 +277,14 @@ export default async function ProvidersPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {services.length === 0 ? (
+                {services.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-muted">
                       No healthcare services yet. Paste Location UUIDs into location, then upload.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  services.map((hs) => (
+                  services.rows.map((hs) => (
                     <TableRow key={hs.id}>
                       <TableCell className="max-w-[14rem] break-all font-mono text-xs">
                         <Link
@@ -309,14 +344,14 @@ export default async function ProvidersPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {providers.length === 0 ? (
+                {providers.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-muted">
                       No Nearby pins yet. Pins are created when Locations are ingested.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  providers.map((p) => {
+                  providers.rows.map((p) => {
                     const serviceCount = Array.isArray(p.healthcare_service_ids)
                       ? p.healthcare_service_ids.length
                       : 0;
@@ -374,6 +409,8 @@ export default async function ProvidersPage({
               </TableBody>
             </Table>
           ) : null}
+
+          <PaginationBar result={activeResult} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

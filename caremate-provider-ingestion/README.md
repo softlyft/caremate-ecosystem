@@ -20,13 +20,7 @@ Organization 1 ── N Location 1 ── N HealthcareService
               providers (1 pin per Location)
 ```
 
-Run ingest **separately**, in order:
-
-1. `POST /v1/ingest/organization`
-2. `POST /v1/ingest/location` (refs must be Organization UUIDs from step 1)
-3. `POST /v1/ingest/healthcareservice` (refs must be Org/Location UUIDs)
-
-**IDs:** omit UUID or use a non-UUID label → **insert** (Postgres `gen_random_uuid`). Paste the portal UUID back into the sheet → **update**.
+**Recommended:** `POST /v1/ingest/chain-from-samples?env=dev|prod` pulls shared Storage workbooks into `samples/`, detects empty vs existing catalog (`bootstrap` / `update`), then runs Org → Location → HS with UUID write-back. Manual multipart `POST /v1/ingest/chain` remains for ad-hoc uploads.
 
 ## Quick start
 

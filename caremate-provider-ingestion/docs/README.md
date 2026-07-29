@@ -14,7 +14,7 @@ This docs set covers the implemented CareMate caremate-provider-ingestion servic
 
 ## What the Service Does
 
-The ingestion service accepts provider workbooks and writes FHIR-shaped provider resources into Supabase:
+The ingestion service accepts provider workbooks and writes FHIR-shaped provider resources into Supabase. Prefer `POST /v1/ingest/chain?env=dev|prod` so Organization → Location → HealthcareService runs in one job with UUID write-back into `runs/{env}/.../cleaned/`.
 
 - `provider_organizations`
 - `provider_locations`
@@ -27,7 +27,11 @@ It then rebuilds the nearby `providers` projection used by the mobile app.
 | Area | Path |
 |------|------|
 | API server | `app/main.py` |
-| Job pipeline | `app/pipeline.py` |
+| Chain orchestration | `app/orchestrate.py` |
+| Single-resource pipeline | `app/pipeline.py` |
+| Key / slug resolution | `app/keys.py` |
+| Run artifacts | `app/run_storage.py` |
+| Workbook write-back | `app/workbook_writeback.py` |
 | Workbook parsing | `app/parsers/` |
 | Row mapping | `app/mappers/` |
 | Projection rebuilds | `app/projection.py` |

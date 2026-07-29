@@ -1,4 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
+import {
+  DEFAULT_PAGE_SIZE,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type {
   Provider,
   ProviderHealthcareService,
@@ -10,16 +17,28 @@ import {
   type ProviderFhirBundle,
 } from '@/domains/providers/fhir-bundle';
 
+export type { PaginatedResult };
+
+type ListPaging = {
+  page?: number;
+  pageSize?: number;
+};
+
 export async function listProviders(filters?: {
   search?: string;
   type?: string;
-}): Promise<Provider[]> {
+} & ListPaging): Promise<PaginatedResult<Provider>> {
   const supabase = await createClient();
+  const page = parsePage(filters?.page);
+  const pageSize = filters?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
   let query = supabase
     .from('providers')
-    .select('*')
+    .select('*', { count: 'exact' })
     .is('deleted_at', null)
-    .order('name', { ascending: true });
+    .order('name', { ascending: true })
+    .range(from, to);
 
   if (filters?.type) {
     query = query.eq('type', filters.type);
@@ -28,9 +47,9 @@ export async function listProviders(filters?: {
     query = query.or(`name.ilike.%${filters.search}%,address.ilike.%${filters.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data ?? []) as Provider[];
+  return paginatedResult((data ?? []) as Provider[], count, page, pageSize);
 }
 
 export async function getProvider(id: string): Promise<Provider | null> {
@@ -155,57 +174,72 @@ export async function listLocationsForOrganization(
 
 export async function listProviderOrganizations(filters?: {
   search?: string;
-}): Promise<ProviderOrganization[]> {
+} & ListPaging): Promise<PaginatedResult<ProviderOrganization>> {
   const supabase = await createClient();
+  const page = parsePage(filters?.page);
+  const pageSize = filters?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
   let query = supabase
     .from('provider_organizations')
-    .select('*')
+    .select('*', { count: 'exact' })
     .is('deleted_at', null)
-    .order('name', { ascending: true });
+    .order('name', { ascending: true })
+    .range(from, to);
 
   if (filters?.search) {
     query = query.ilike('name', `%${filters.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data ?? []) as ProviderOrganization[];
+  return paginatedResult((data ?? []) as ProviderOrganization[], count, page, pageSize);
 }
 
 export async function listProviderLocations(filters?: {
   search?: string;
-}): Promise<ProviderLocation[]> {
+} & ListPaging): Promise<PaginatedResult<ProviderLocation>> {
   const supabase = await createClient();
+  const page = parsePage(filters?.page);
+  const pageSize = filters?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
   let query = supabase
     .from('provider_locations')
-    .select('*')
+    .select('*', { count: 'exact' })
     .is('deleted_at', null)
-    .order('name', { ascending: true });
+    .order('name', { ascending: true })
+    .range(from, to);
 
   if (filters?.search) {
     query = query.or(`name.ilike.%${filters.search}%,address.ilike.%${filters.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data ?? []) as ProviderLocation[];
+  return paginatedResult((data ?? []) as ProviderLocation[], count, page, pageSize);
 }
 
 export async function listProviderHealthcareServices(filters?: {
   search?: string;
-}): Promise<ProviderHealthcareService[]> {
+} & ListPaging): Promise<PaginatedResult<ProviderHealthcareService>> {
   const supabase = await createClient();
+  const page = parsePage(filters?.page);
+  const pageSize = filters?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
   let query = supabase
     .from('provider_healthcare_services')
-    .select('*')
+    .select('*', { count: 'exact' })
     .is('deleted_at', null)
-    .order('name', { ascending: true });
+    .order('name', { ascending: true })
+    .range(from, to);
 
   if (filters?.search) {
     query = query.ilike('name', `%${filters.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data ?? []) as ProviderHealthcareService[];
+  return paginatedResult((data ?? []) as ProviderHealthcareService[], count, page, pageSize);
 }

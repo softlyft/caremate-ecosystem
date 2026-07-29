@@ -11,12 +11,12 @@
 ## High-Level Flow
 
 ```text
-Upload workbook
-  → FastAPI endpoint
+Upload workbook(s)
+  → FastAPI endpoint (single resource or /v1/ingest/chain)
   → BackgroundTasks job
   → Parse workbook rows
   → Map rows to resource payloads
-  → Write resource tables
+  → Write resource tables (chain: resolve keys + write cleaned xlsx)
   → Rebuild providers projection
   → Poll job status
 ```
@@ -28,22 +28,26 @@ Upload workbook
 | `app/main.py` | FastAPI routes, upload handling, job creation |
 | `app/auth.py` | Bearer API key enforcement |
 | `app/jobs.py` | In-memory job store and statuses |
-| `app/pipeline.py` | Main ingest orchestration |
+| `app/orchestrate.py` | Org → Location → HS chain + write-back |
+| `app/pipeline.py` | Single-resource ingest |
+| `app/keys.py` | Temp key / slug resolution |
+| `app/run_storage.py` | `runs/{env}/{timestamp}/` artifacts |
+| `app/workbook_writeback.py` | Fill UUIDs into cleaned workbooks |
 | `app/parsers/resource_xlsx.py` | Workbook row iteration |
 | `app/mappers/resource_rows.py` | Organization/location/service mapping |
 | `app/projection.py` | Rebuild `providers` projection |
 | `app/writers/supabase.py` | Supabase writes and lookups |
-| `app/settings.py` | Env configuration |
+| `app/settings.py` | Env configuration (dev/prod Supabase) |
 
 ## Resource Flow
 
-The implemented ingest order is:
+**Chain** (`POST /v1/ingest/chain?env=dev|prod`):
 
-1. Organization
-2. Location
-3. HealthcareService
+1. Organization → insert/update → key→UUID map → cleaned org workbook
+2. Location → resolve `managingOrganization` from map → insert → cleaned location workbook
+3. HealthcareService → resolve `location` from map → insert → cleaned HS workbook
 
-Location rows depend on organization UUIDs. HealthcareService rows depend on location UUIDs.
+**Single-resource** endpoints still require parent UUIDs already present (orphans skipped).
 
 ## Write Model
 

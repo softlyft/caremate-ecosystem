@@ -50,7 +50,7 @@ Routes:
 
 Implemented behaviors:
 
-- List provider views across the projected provider catalog
+- List provider views across the projected provider catalog with **paginated** tables (`?page=`, 50 per page)
 - Upload provider workbooks through the external ingest service
 - Poll ingest job status
 - Archive provider rows in the projected `providers` table

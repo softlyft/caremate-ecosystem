@@ -8,7 +8,8 @@ This suite covers the implemented FastAPI ingestion flows:
 
 - service startup and health
 - authenticated ingest endpoints
-- organization/location/healthcareservice sequencing
+- orchestrated chain ingest (`/v1/ingest/chain`) with UUID write-back
+- single-resource organization/location/healthcareservice endpoints
 - job polling
 - projection rebuild expectations
 - common failure scenarios
@@ -60,37 +61,39 @@ Expected:
 
 ## Ingest Flow Tests
 
-### Organization ingest
+### Chain ingest (recommended)
 
-- Upload the organization workbook to `POST /v1/ingest/organization`
-- Capture the returned `job_id`
+```bash
+curl -X POST "http://127.0.0.1:8090/v1/ingest/chain?env=dev" \
+  -H "Authorization: Bearer $INGEST_API_KEY" \
+  -F "organization=@caremate-provider-ingestion/samples/ng_provider_organization.xlsx" \
+  -F "location=@caremate-provider-ingestion/samples/ng_provider_location.xlsx" \
+  -F "healthcareservice=@caremate-provider-ingestion/samples/ng_provider_healthcareservice.xlsx"
+```
+
 - Poll `GET /v1/jobs/{job_id}` until completion
+- Inspect `runs/dev/{timestamp}/cleaned/` and `manifest.json`
 
 Expected:
 
-- job transitions through accepted/running/completed
-- completed job returns inserted/updated counts and IDs
-
-### Location ingest
-
-- Upload the location workbook after organization ingest
-- Poll the job to completion
-
-Expected:
-
-- valid organization-linked rows are written
-- orphan rows are skipped with reasons when parent UUIDs are missing or invalid
-
-### HealthcareService ingest
-
-- Upload the healthcare service workbook after location ingest
-- Poll the job to completion
-
-Expected:
-
-- valid location-linked rows are written
+- job completes with org/location/HS counts
+- cleaned workbooks contain generated UUIDs
+- location `managingOrganization` / HS `location` resolved from codes or name slugs
 - projection rebuild count is returned
-- orphan rows are skipped with reasons when parent location UUIDs are missing or invalid
+
+### Single-resource organization ingest
+
+- Upload to `POST /v1/ingest/organization`
+- Poll until completion
+
+Expected:
+
+- inserted/updated counts and IDs in job details
+
+### Single-resource location / healthcare service
+
+- Prefer chain for first loads; single endpoints require parent UUIDs already present
+- Orphan rows (non-UUID parents) are skipped with reasons
 
 ## Update Behavior Tests
 
@@ -146,7 +149,7 @@ Expected:
 
 You can test with curl, Postman, or the portal upload flow.
 
-Example pattern:
+Example pattern (single resource):
 
 ```bash
 curl -X POST http://127.0.0.1:8090/v1/ingest/organization \
@@ -154,6 +157,8 @@ curl -X POST http://127.0.0.1:8090/v1/ingest/organization \
   -F "file=@caremate-provider-ingestion/samples/ng_provider_organization.xlsx" \
   -F "source=csv_ingest"
 ```
+
+Prefer the chain curl above for end-to-end catalog loads.
 
 ## Known Constraints
 
