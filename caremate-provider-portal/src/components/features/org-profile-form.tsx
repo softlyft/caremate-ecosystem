@@ -14,9 +14,11 @@ import type { ProviderOrgType, ProviderProfile } from '@/types/database';
 export function OrgProfileForm({
   profile,
   organizationName,
+  contactEmail,
 }: {
   profile: ProviderProfile | null;
   organizationName: string;
+  contactEmail?: string | null;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -40,8 +42,21 @@ export function OrgProfileForm({
         <span className="text-muted">Organization name: </span>
         <span className="font-medium">{organizationName}</span>
         <p className="mt-1 text-xs text-muted">
-          Name is managed in CareMate admin (provider_organizations). Edit portal fields below.
+          Name is managed in CareMate admin. Claim contact email, phone, address, and services come
+          from the catalog — providers cannot change the claim email.
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="contact_email">Claim contact email</Label>
+        <Input
+          id="contact_email"
+          type="email"
+          readOnly
+          disabled
+          value={contactEmail ?? profile?.email ?? ''}
+          placeholder="Set by SoftLyft / ingest"
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -60,26 +75,10 @@ export function OrgProfileForm({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" defaultValue={profile?.phone ?? ''} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" defaultValue={profile?.email ?? ''} />
-        </div>
-        <div className="space-y-2">
           <Label htmlFor="website">Website</Label>
           <Input id="website" name="website" defaultValue={profile?.website ?? ''} />
         </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="address">Address</Label>
-          <Input id="address" name="address" defaultValue={profile?.address ?? ''} />
-        </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="logo_url">Logo URL</Label>
-          <Input id="logo_url" name="logo_url" defaultValue={profile?.logo_url ?? ''} />
-        </div>
-        <div className="space-y-2 sm:col-span-2">
+        <div className="space-y-2">
           <Label htmlFor="emergency_contact">Emergency contact</Label>
           <Input
             id="emergency_contact"
@@ -88,12 +87,8 @@ export function OrgProfileForm({
           />
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="services_offered">Services offered (comma-separated)</Label>
-          <Input
-            id="services_offered"
-            name="services_offered"
-            defaultValue={(profile?.services_offered ?? []).join(', ')}
-          />
+          <Label htmlFor="logo_url">Logo URL</Label>
+          <Input id="logo_url" name="logo_url" defaultValue={profile?.logo_url ?? ''} />
         </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="description">Description</Label>

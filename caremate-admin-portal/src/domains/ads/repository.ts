@@ -1,5 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
+import {
+  DEFAULT_PAGE_SIZE,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type ListPaging,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type { AdAdvertiser, AdCampaign, AdCreative, AdPlacement, AdRemoteConfig } from '@/types/database';
+
+export type { PaginatedResult };
 
 export type CampaignWithCreative = AdCampaign & {
   creative: AdCreative | null;
@@ -28,6 +38,47 @@ export async function listAdvertisers(): Promise<AdAdvertiser[]> {
   return data ?? [];
 }
 
+export async function listAdvertisersPage(
+  opts?: ListPaging,
+): Promise<PaginatedResult<AdAdvertiser>> {
+  const supabase = await createClient();
+  const page = parsePage(opts?.page);
+  const pageSize = opts?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
+  const { data, error, count } = await supabase
+    .from('ad_advertisers')
+    .select('*', { count: 'exact' })
+    .is('deleted_at', null)
+    .order('name', { ascending: true })
+    .range(from, to);
+  if (error) throw error;
+  return paginatedResult(data ?? [], count, page, pageSize);
+}
+
+async function enrichCampaigns(
+  campaigns: AdCampaign[],
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<CampaignWithCreative[]> {
+  const ids = campaigns.map((c) => c.id);
+  if (ids.length === 0) return [];
+
+  const [{ data: creatives }, { data: placements }, { data: advertisers }] = await Promise.all([
+    supabase.from('ad_creatives').select('*').in('campaign_id', ids).is('deleted_at', null),
+    supabase.from('ad_placements').select('*').in('campaign_id', ids).is('deleted_at', null),
+    supabase.from('ad_advertisers').select('*').is('deleted_at', null),
+  ]);
+
+  const advertiserMap = new Map((advertisers ?? []).map((a) => [a.id, a]));
+
+  return campaigns.map((campaign) => ({
+    ...campaign,
+    creative: (creatives ?? []).find((c) => c.campaign_id === campaign.id) ?? null,
+    placements: (placements ?? []).filter((p) => p.campaign_id === campaign.id),
+    advertiser: campaign.advertiser_id ? advertiserMap.get(campaign.advertiser_id) ?? null : null,
+  }));
+}
+
 export async function listCampaignsBySource(
   source: 'house' | 'sponsored',
 ): Promise<CampaignWithCreative[]> {
@@ -39,24 +90,29 @@ export async function listCampaignsBySource(
     .is('deleted_at', null)
     .order('priority', { ascending: false });
   if (error) throw error;
+  return enrichCampaigns(campaigns ?? [], supabase);
+}
 
-  const ids = (campaigns ?? []).map((c) => c.id);
-  if (ids.length === 0) return [];
+export async function listCampaignsBySourcePage(
+  source: 'house' | 'sponsored',
+  opts?: ListPaging,
+): Promise<PaginatedResult<CampaignWithCreative>> {
+  const supabase = await createClient();
+  const page = parsePage(opts?.page);
+  const pageSize = opts?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
 
-  const [{ data: creatives }, { data: placements }, { data: advertisers }] = await Promise.all([
-    supabase.from('ad_creatives').select('*').in('campaign_id', ids).is('deleted_at', null),
-    supabase.from('ad_placements').select('*').in('campaign_id', ids).is('deleted_at', null),
-    supabase.from('ad_advertisers').select('*').is('deleted_at', null),
-  ]);
+  const { data: campaigns, error, count } = await supabase
+    .from('ad_campaigns')
+    .select('*', { count: 'exact' })
+    .eq('source', source)
+    .is('deleted_at', null)
+    .order('priority', { ascending: false })
+    .range(from, to);
+  if (error) throw error;
 
-  const advertiserMap = new Map((advertisers ?? []).map((a) => [a.id, a]));
-
-  return (campaigns ?? []).map((campaign) => ({
-    ...campaign,
-    creative: (creatives ?? []).find((c) => c.campaign_id === campaign.id) ?? null,
-    placements: (placements ?? []).filter((p) => p.campaign_id === campaign.id),
-    advertiser: campaign.advertiser_id ? advertiserMap.get(campaign.advertiser_id) ?? null : null,
-  }));
+  const enriched = await enrichCampaigns(campaigns ?? [], supabase);
+  return paginatedResult(enriched, count, page, pageSize);
 }
 
 export async function listHouseCampaigns(): Promise<CampaignWithCreative[]> {

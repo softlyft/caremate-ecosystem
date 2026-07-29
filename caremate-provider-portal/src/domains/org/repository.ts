@@ -31,14 +31,10 @@ export async function updateOrganizationProfile(
   organizationId: string,
   input: Partial<{
     description: string | null;
-    phone: string | null;
-    email: string | null;
     website: string | null;
     logo_url: string | null;
-    address: string | null;
     opening_hours: Json;
     emergency_contact: string | null;
-    services_offered: string[];
     organization_type: ProviderProfile['organization_type'];
   }>,
 ): Promise<ProviderProfile> {

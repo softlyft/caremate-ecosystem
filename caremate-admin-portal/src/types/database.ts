@@ -7,6 +7,7 @@ export type {
   ProviderOrganization,
   ProviderLocation,
   ProviderHealthcareService,
+  ProviderProfile,
   HealthTip,
   AdRemoteConfig,
   AdCampaign,

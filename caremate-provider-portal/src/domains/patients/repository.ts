@@ -1,6 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { listPatientActivities } from '@/domains/activity/repository';
 import { getOrgMembershipForUser, listActiveMembershipsForUsers } from '@/domains/members/repository';
+import {
+  DEFAULT_PAGE_SIZE,
+  emptyPage,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type {
   EmergencyProfile,
   PatientProviderActivity,
@@ -29,23 +37,44 @@ export type PatientDetail = {
 
 export async function listConnectedPatients(
   organizationId: string,
-  options?: { search?: string; limit?: number; offset?: number },
-): Promise<{ rows: ConnectedPatientRow[]; total: number }> {
+  options?: { search?: string; page?: number; pageSize?: number },
+): Promise<PaginatedResult<ConnectedPatientRow>> {
   const supabase = await createClient();
-  const limit = options?.limit ?? 50;
-  const offset = options?.offset ?? 0;
+  const page = parsePage(options?.page);
+  const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+  const q = options?.search?.trim();
 
-  const { data, error, count } = await supabase
+  let matchingPatientIds: string[] | null = null;
+  if (q) {
+    const escaped = q.replace(/[%_\\]/g, '\\$&');
+    const { data: matchingProfiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .or(
+        `full_name.ilike.%${escaped}%,patient_id.ilike.%${escaped}%,phone.ilike.%${escaped}%`,
+      );
+    if (profileError) throw profileError;
+    matchingPatientIds = (matchingProfiles ?? []).map((p) => p.user_id);
+    if (!matchingPatientIds.length) return emptyPage(page, pageSize);
+  }
+
+  let query = supabase
     .from('patient_provider_connections')
     .select('*', { count: 'exact' })
     .eq('organization_id', organizationId)
     .eq('status', 'approved')
     .order('approved_at', { ascending: false })
-    .range(offset, offset + limit - 1);
+    .range(from, to);
 
+  if (matchingPatientIds) {
+    query = query.in('patient_id', matchingPatientIds);
+  }
+
+  const { data, error, count } = await query;
   if (error) throw error;
   const connections = (data ?? []) as PatientProviderConnection[];
-  if (!connections.length) return { rows: [], total: count ?? 0 };
+  if (!connections.length) return paginatedResult([], count, page, pageSize);
 
   const patientIds = connections.map((c) => c.patient_id);
   const [{ data: profiles }, { data: activities }, memberships] = await Promise.all([
@@ -70,8 +99,7 @@ export async function listConnectedPatients(
     }
   }
 
-  const q = options?.search?.trim().toLowerCase();
-  let rows: ConnectedPatientRow[] = connections.map((connection) => {
+  const rows: ConnectedPatientRow[] = connections.map((connection) => {
     const p = profileByUser.get(connection.patient_id);
     return {
       connection,
@@ -89,16 +117,7 @@ export async function listConnectedPatients(
     };
   });
 
-  if (q) {
-    rows = rows.filter((r) => {
-      const name = r.profile?.full_name?.toLowerCase() ?? '';
-      const caremateId = r.profile?.patient_id?.toLowerCase() ?? '';
-      const phone = r.profile?.phone?.toLowerCase() ?? '';
-      return name.includes(q) || caremateId.includes(q) || phone.includes(q);
-    });
-  }
-
-  return { rows, total: count ?? rows.length };
+  return paginatedResult(rows, count, page, pageSize);
 }
 
 export async function getPatientDetail(

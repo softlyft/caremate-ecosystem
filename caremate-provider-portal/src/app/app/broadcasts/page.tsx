@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { requireProviderSession } from '@/lib/auth';
 import { listOrgConversations } from '@/domains/messaging/repository';
 import { listConnectedPatients } from '@/domains/patients/repository';
+import { hrefWithPage, parsePage } from '@/lib/pagination';
+import { PaginationBar } from '@/components/pagination-bar';
 import { BroadcastComposeForm } from '@/components/features/broadcast-compose-form';
 import { canWriteOrg } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
@@ -16,19 +18,28 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function BroadcastsPage() {
+export default async function BroadcastsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await requireProviderSession();
   const orgId = session.activeOrganizationId;
-  const [conversations, { rows: patients }] = await Promise.all([
-    listOrgConversations(orgId),
-    listConnectedPatients(orgId, { limit: 200 }),
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  const [conversations, patientsResult] = await Promise.all([
+    listOrgConversations(orgId, { page }),
+    listConnectedPatients(orgId, { page: 1, pageSize: 200 }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
 
-  const patientOptions = patients.map((p) => ({
+  const patientOptions = patientsResult.rows.map((p) => ({
     id: p.connection.patient_id,
     label: `${p.profile?.full_name ?? 'Unknown'} (${p.profile?.patient_id ?? '—'})`,
   }));
+
+  const hrefForPage = (p: number) => hrefWithPage('/app/broadcasts', p);
 
   return (
     <div className="space-y-6">
@@ -70,14 +81,14 @@ export default async function BroadcastsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {conversations.length === 0 ? (
+                {conversations.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center text-muted">
                       No conversations yet. Send a message to get started.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  conversations.map((c) => (
+                  conversations.rows.map((c) => (
                     <TableRow key={c.id}>
                       <TableCell>
                         <Link
@@ -109,6 +120,7 @@ export default async function BroadcastsPage() {
                 )}
               </TableBody>
             </Table>
+            <PaginationBar result={conversations} hrefForPage={hrefForPage} />
           </CardContent>
         </Card>
       </div>

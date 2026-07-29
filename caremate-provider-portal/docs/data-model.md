@@ -6,7 +6,7 @@ Shared Supabase project. Provider portal tables are cloud-authoritative; the mob
 
 | Table | Purpose |
 |-------|---------|
-| `provider_profiles` | Portal-facing org profile + `verification_status` (`pending` \| `verified` \| `suspended`) |
+| `provider_profiles` | Portal-facing org profile + `verification_status` (`pending` \| `verified` \| `suspended`). **Editable by providers:** website, description, logo, emergency contact, opening hours, organization type. **Claim contact `email`:** must match location emails; providers cannot edit; CareMate admin may edit only while unverified (syncs to all locations). Legacy columns `phone`, `address`, `services_offered` remain in the schema but are unused by portal UI writes. |
 | `provider_org_members` | Staff membership + role (`owner` \| `administrator` \| `staff` \| `viewer`); optional `company_email`, `company_phone`, `position` |
 | `provider_org_claims` | Claim verification challenges (email + code) |
 | `patient_provider_connections` | Connection CRM row |

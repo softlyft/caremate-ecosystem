@@ -3221,6 +3221,10 @@ export type Database = {
         Args: { p_member_id: string }
         Returns: undefined
       }
+      rebuild_provider_projection_for_location: {
+        Args: { p_location_id: string }
+        Returns: undefined
+      }
       request_patient_provider_connection: {
         Args: { p_organization_id: string; p_patient_note?: string }
         Returns: {
@@ -3497,6 +3501,7 @@ export type ProviderOrganization = Database['public']['Tables']['provider_organi
 export type ProviderLocation = Database['public']['Tables']['provider_locations']['Row'];
 export type ProviderHealthcareService =
   Database['public']['Tables']['provider_healthcare_services']['Row'];
+export type ProviderProfile = Database['public']['Tables']['provider_profiles']['Row'];
 export type HealthTip = Database['public']['Tables']['health_tips']['Row'];
 export type AdRemoteConfig = Database['public']['Tables']['ad_remote_config']['Row'];
 export type AdCampaign = Database['public']['Tables']['ad_campaigns']['Row'];

@@ -1,8 +1,11 @@
 import { formatDistanceToNow } from 'date-fns';
-import { listResources } from '@/domains/community/repository';
+import { listResourcesPage } from '@/domains/community/repository';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import type { CommunityResource } from '@/types/community';
 import {
   Table,
   TableBody,
@@ -12,13 +15,29 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function CommunityResourcesPage() {
-  let resources: Awaited<ReturnType<typeof listResources>> = [];
+function resourcesHref(page?: number): string {
+  const params = new URLSearchParams();
+  if (page && page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return `/dashboard/community/resources${qs ? `?${qs}` : ''}`;
+}
+
+export default async function CommunityResourcesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  let resources: PaginatedResult<CommunityResource> = emptyPage(page);
   try {
-    resources = await listResources();
+    resources = await listResourcesPage({ page });
   } catch {
-    resources = [];
+    resources = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) => resourcesHref(nextPage);
 
   return (
     <div>
@@ -40,14 +59,14 @@ export default async function CommunityResourcesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {resources.length === 0 ? (
+              {resources.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-muted">
                     No resources found.
                   </TableCell>
                 </TableRow>
               ) : (
-                resources.map((r) => (
+                resources.rows.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell>
                       <div className="font-medium">{r.title}</div>
@@ -78,6 +97,7 @@ export default async function CommunityResourcesPage() {
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={resources} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

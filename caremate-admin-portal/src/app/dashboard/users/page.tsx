@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { listUsers } from '@/domains/users/repository';
+import { listUsersPage, type AdminUserRow } from '@/domains/users/repository';
 import { getPortalSession } from '@/lib/auth';
 import { canManageUsers } from '@/constants/roles';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
@@ -16,10 +18,18 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 
+function usersHref(opts: { q?: string; page?: number }): string {
+  const params = new URLSearchParams();
+  if (opts.q?.trim()) params.set('q', opts.q.trim());
+  if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  const qs = params.toString();
+  return `/dashboard/users${qs ? `?${qs}` : ''}`;
+}
+
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const session = await getPortalSession();
   if (!session || !canManageUsers(session.role)) {
@@ -30,13 +40,17 @@ export default async function UsersPage({
     );
   }
 
-  const { q } = await searchParams;
-  let users: Awaited<ReturnType<typeof listUsers>> = [];
+  const { q, page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  let users: PaginatedResult<AdminUserRow> = emptyPage(page);
   try {
-    users = await listUsers(q);
+    users = await listUsersPage({ search: q, page });
   } catch {
-    users = [];
+    users = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) => usersHref({ q, page: nextPage });
 
   return (
     <div>
@@ -67,14 +81,14 @@ export default async function UsersPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length === 0 ? (
+              {users.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-muted">
                     No users found.
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((u) => (
+                users.rows.map((u) => (
                   <TableRow key={u.id}>
                     <TableCell>
                       <Link
@@ -105,6 +119,7 @@ export default async function UsersPage({
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={users} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

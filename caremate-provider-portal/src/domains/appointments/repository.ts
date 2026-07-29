@@ -1,5 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { insertActivity } from '@/domains/activity/repository';
+import {
+  DEFAULT_PAGE_SIZE,
+  emptyPage,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type { AppointmentRequest, AppointmentStatus, Profile } from '@/types/database';
 
 export type AppointmentWithProfile = AppointmentRequest & {
@@ -8,21 +16,26 @@ export type AppointmentWithProfile = AppointmentRequest & {
 
 export async function listAppointments(
   organizationId: string,
-  status?: AppointmentStatus,
-): Promise<AppointmentWithProfile[]> {
+  options?: { status?: AppointmentStatus; page?: number; pageSize?: number },
+): Promise<PaginatedResult<AppointmentWithProfile>> {
   const supabase = await createClient();
+  const page = parsePage(options?.page);
+  const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
   let query = supabase
     .from('appointment_requests')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('organization_id', organizationId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
-  if (status) query = query.eq('status', status);
+  if (options?.status) query = query.eq('status', options.status);
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw error;
   const rows = (data ?? []) as AppointmentRequest[];
-  if (!rows.length) return [];
+  if (!rows.length) return emptyPage(page, pageSize);
 
   const patientIds = [...new Set(rows.map((r) => r.patient_id))];
   const { data: profiles } = await supabase
@@ -32,7 +45,7 @@ export async function listAppointments(
 
   const byUser = new Map((profiles ?? []).map((p) => [p.user_id, p]));
 
-  return rows.map((r) => ({
+  const enriched = rows.map((r) => ({
     ...r,
     profile: byUser.get(r.patient_id)
       ? {
@@ -42,6 +55,8 @@ export async function listAppointments(
         }
       : null,
   }));
+
+  return paginatedResult(enriched, count, page, pageSize);
 }
 
 export async function countAppointments(

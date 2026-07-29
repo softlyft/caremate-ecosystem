@@ -1,6 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { auditOperationKind } from '@/lib/audit-catalog';
+import {
+  DEFAULT_PAGE_SIZE,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type ListPaging,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type { AdminAuditEvent, Json } from '@/types/database';
+
+export type { PaginatedResult };
 
 export type AuditLogRow = {
   id: string;
@@ -19,7 +29,7 @@ export type ListAuditEventsInput = {
   actorEmail?: string;
   operation?: 'create' | 'update' | 'delete' | 'other';
   limit?: number;
-};
+} & ListPaging;
 
 function mapRow(row: AdminAuditEvent): AuditLogRow {
   return {
@@ -34,6 +44,64 @@ function mapRow(row: AdminAuditEvent): AuditLogRow {
   };
 }
 
+function operationOrFilter(operation: 'create' | 'update' | 'delete'): string {
+  if (operation === 'create') {
+    return [
+      'action.like.create_%',
+      'action.like.admin_activate%',
+      'action.like.ingest_%',
+      'action.like.upload_%',
+      'action.like.approve_%',
+      'action.like.award_%',
+      'action.like.add_%',
+    ].join(',');
+  }
+  if (operation === 'update') {
+    return [
+      'action.like.update_%',
+      'action.like.set_%',
+      'action.like.verify_%',
+      'action.like.unban_%',
+      'action.like.admin_upgrade%',
+      'action.like.assign_%',
+      'action.eq.password_reset',
+    ].join(',');
+  }
+  return [
+    'action.like.delete_%',
+    'action.like.archive_%',
+    'action.like.ban_%',
+    'action.like.reject_%',
+  ].join(',');
+}
+
+function applyAuditFilters<
+  Q extends {
+    eq: (column: string, value: string) => Q;
+    ilike: (column: string, pattern: string) => Q;
+    or: (filters: string) => Q;
+  },
+>(query: Q, input: Pick<ListAuditEventsInput, 'action' | 'entityType' | 'actorEmail' | 'operation'>): Q {
+  let q = query;
+  if (input.action?.trim()) {
+    q = q.eq('action', input.action.trim());
+  }
+  if (input.entityType?.trim()) {
+    q = q.eq('entity_type', input.entityType.trim());
+  }
+  if (input.actorEmail?.trim()) {
+    q = q.ilike('actor_email', `%${input.actorEmail.trim()}%`);
+  }
+  if (
+    input.operation === 'create' ||
+    input.operation === 'update' ||
+    input.operation === 'delete'
+  ) {
+    q = q.or(operationOrFilter(input.operation));
+  }
+  return q;
+}
+
 export async function listAuditEvents(
   input: ListAuditEventsInput = {},
 ): Promise<AuditLogRow[]> {
@@ -46,24 +114,59 @@ export async function listAuditEvents(
     .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (input.action?.trim()) {
-    query = query.eq('action', input.action.trim());
-  }
-  if (input.entityType?.trim()) {
-    query = query.eq('entity_type', input.entityType.trim());
-  }
-  if (input.actorEmail?.trim()) {
-    query = query.ilike('actor_email', `%${input.actorEmail.trim()}%`);
-  }
+  query = applyAuditFilters(query, input);
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
 
   const rows = (data ?? []).map(mapRow);
-  if (!input.operation) {
+  if (!input.operation || input.operation !== 'other') {
     return rows;
   }
   return rows.filter((row) => auditOperationKind(row.action) === input.operation);
+}
+
+export async function listAuditEventsPage(
+  input: ListAuditEventsInput = {},
+): Promise<PaginatedResult<AuditLogRow>> {
+  const supabase = await createClient();
+  const page = parsePage(input.page);
+  const pageSize = input.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+
+  if (input.operation === 'other') {
+    let query = supabase
+      .from('admin_audit_events')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    query = applyAuditFilters(query, {
+      action: input.action,
+      entityType: input.entityType,
+      actorEmail: input.actorEmail,
+    });
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+
+    const filtered = (data ?? [])
+      .map(mapRow)
+      .filter((row) => auditOperationKind(row.action) === 'other');
+    const slice = filtered.slice(from, to + 1);
+    return paginatedResult(slice, filtered.length, page, pageSize);
+  }
+
+  let query = supabase
+    .from('admin_audit_events')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  query = applyAuditFilters(query, input);
+
+  const { data, error, count } = await query;
+  if (error) throw new Error(error.message);
+  return paginatedResult((data ?? []).map(mapRow), count, page, pageSize);
 }
 
 export async function listDistinctAuditActions(): Promise<string[]> {

@@ -1,7 +1,16 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isStaffRole, type StaffRole } from '@/constants/roles';
 import { listAllAuthUsers } from '@/lib/list-auth-users';
+import {
+  DEFAULT_PAGE_SIZE,
+  paginatedResult,
+  parsePage,
+  type ListPaging,
+  type PaginatedResult,
+} from '@/lib/pagination';
 import type { Profile } from '@/types/database';
+
+export type { PaginatedResult };
 
 export type AdminUserRow = {
   id: string;
@@ -15,9 +24,10 @@ export type AdminUserRow = {
   hasSettings: boolean;
 };
 
-export async function listUsers(search?: string): Promise<AdminUserRow[]> {
+async function enrichUsers(
+  users: Awaited<ReturnType<typeof listAllAuthUsers>>,
+): Promise<AdminUserRow[]> {
   const admin = createAdminClient();
-  const users = await listAllAuthUsers();
   const ids = users.map((u) => u.id);
 
   if (ids.length === 0) return [];
@@ -32,23 +42,25 @@ export async function listUsers(search?: string): Promise<AdminUserRow[]> {
   const emergencySet = new Set((emergencies ?? []).map((e) => e.user_id));
   const settingsSet = new Set((settings ?? []).map((s) => s.user_id));
 
-  const q = search?.trim().toLowerCase();
+  return users.map((u) => {
+    const roleRaw = u.app_metadata?.role;
+    return {
+      id: u.id,
+      email: u.email ?? '—',
+      createdAt: u.created_at,
+      lastSignInAt: u.last_sign_in_at ?? null,
+      bannedUntil: u.banned_until ?? null,
+      role: isStaffRole(roleRaw) ? roleRaw : null,
+      profile: profileByUser.get(u.id) ?? null,
+      hasEmergencyProfile: emergencySet.has(u.id),
+      hasSettings: settingsSet.has(u.id),
+    } satisfies AdminUserRow;
+  });
+}
 
-  return users
-    .map((u) => {
-      const roleRaw = u.app_metadata?.role;
-      return {
-        id: u.id,
-        email: u.email ?? '—',
-        createdAt: u.created_at,
-        lastSignInAt: u.last_sign_in_at ?? null,
-        bannedUntil: u.banned_until ?? null,
-        role: isStaffRole(roleRaw) ? roleRaw : null,
-        profile: profileByUser.get(u.id) ?? null,
-        hasEmergencyProfile: emergencySet.has(u.id),
-        hasSettings: settingsSet.has(u.id),
-      } satisfies AdminUserRow;
-    })
+function filterAndSortUsers(rows: AdminUserRow[], search?: string): AdminUserRow[] {
+  const q = search?.trim().toLowerCase();
+  return rows
     .filter((u) => {
       if (!q) return true;
       return (
@@ -58,6 +70,25 @@ export async function listUsers(search?: string): Promise<AdminUserRow[]> {
       );
     })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function listUsers(search?: string): Promise<AdminUserRow[]> {
+  const users = await listAllAuthUsers();
+  const rows = await enrichUsers(users);
+  return filterAndSortUsers(rows, search);
+}
+
+export async function listUsersPage(
+  opts?: { search?: string } & ListPaging,
+): Promise<PaginatedResult<AdminUserRow>> {
+  const page = parsePage(opts?.page);
+  const pageSize = opts?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const users = await listAllAuthUsers();
+  const rows = await enrichUsers(users);
+  const filtered = filterAndSortUsers(rows, opts?.search);
+  const from = (page - 1) * pageSize;
+  const slice = filtered.slice(from, from + pageSize);
+  return paginatedResult(slice, filtered.length, page, pageSize);
 }
 
 export async function getUser(userId: string): Promise<AdminUserRow | null> {

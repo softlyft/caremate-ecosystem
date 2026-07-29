@@ -56,10 +56,29 @@ caremate-provider-portal/
 | `/app/broadcasts` | **Messages** — compose to connected patients + inbox |
 | `/app/broadcasts/[id]` | Org ↔ patient thread (reply) |
 | `/app/analytics` | Simple counts / growth |
-| `/app/organization` | Org profile + verification badge |
+| `/app/organization` | Portal profile + locations list |
+| `/app/organization/locations/new` | Create catalog location |
+| `/app/organization/locations/[id]` | Edit location + healthcare services |
+| `/app/organization/locations/[id]/services/new` | Create healthcare service |
+| `/app/organization/locations/[id]/services/[serviceId]` | Edit healthcare service |
 | `/app/settings` | Session / org switcher settings |
 
 Public: `/claim`, `/login`. Home redirects unauthenticated users to `/claim`.
+
+## Catalog locations & services
+
+Manage-role members (`owner` / `administrator`) create and update rows in `provider_locations` and `provider_healthcare_services` for the active org (same FK chain as spreadsheet ingest). Writes use `source: provider_portal` and call `rebuild_provider_projection_for_location` so Nearby `providers` pins stay in sync. Staff/viewer roles remain read-only on these screens.
+
+### Profile vs catalog field ownership
+
+| Live from catalog (Organization page derive-read) | Editable on `provider_profiles` |
+|---------------------------------------------------|---------------------------------|
+| Primary location phone / address | Website, description, logo, emergency contact, opening hours, organization type |
+| Healthcare service names | Verification status (read-only badge; set on claim / admin) |
+| Canonical org name (`provider_organizations`) | |
+| **Claim contact email** (profile + all locations, kept identical) | Providers never edit. SoftLyft admin may edit only while `verification_status ≠ verified`. |
+
+Legacy profile columns `phone`, `address`, and `services_offered` are no longer written by the portal UI (left as historical if present).
 
 ## Engineering notes
 

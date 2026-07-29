@@ -1,35 +1,58 @@
-import { listPayments } from '@/domains/billing/repository';
+import { listPaymentsPage, type PaymentRow } from '@/domains/billing/repository';
 import { getPortalSession } from '@/lib/auth';
 import { canManageBilling } from '@/constants/roles';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { BillingNav } from '@/features/billing/billing-nav';
 import { PaymentsTable } from '@/features/billing/payments-table';
 import { Select } from '@/components/ui/select';
 import { redirect } from 'next/navigation';
 
+function transactionsHref(opts: {
+  status?: string;
+  provider?: string;
+  plan?: string;
+  page?: number;
+}): string {
+  const params = new URLSearchParams();
+  if (opts.status) params.set('status', opts.status);
+  if (opts.provider) params.set('provider', opts.provider);
+  if (opts.plan) params.set('plan', opts.plan);
+  if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  const qs = params.toString();
+  return `/dashboard/billing/transactions${qs ? `?${qs}` : ''}`;
+}
+
 export default async function BillingTransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; provider?: string; plan?: string }>;
+  searchParams: Promise<{ status?: string; provider?: string; plan?: string; page?: string }>;
 }) {
   const session = await getPortalSession();
   if (!canManageBilling(session?.role)) {
     redirect('/dashboard/billing');
   }
 
-  const { status, provider, plan } = await searchParams;
-  let rows: Awaited<ReturnType<typeof listPayments>> = [];
+  const { status, provider, plan, page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
+
+  let result: PaginatedResult<PaymentRow> = emptyPage(page);
   let loadError: string | null = null;
   try {
-    rows = await listPayments({
+    result = await listPaymentsPage({
       status: status || undefined,
       provider: provider || undefined,
       planType: plan || undefined,
+      page,
     });
   } catch (err) {
     loadError = err instanceof Error ? err.message : 'Failed to load transactions';
-    rows = [];
+    result = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) =>
+    transactionsHref({ status, provider, plan, page: nextPage });
 
   return (
     <div>
@@ -77,7 +100,8 @@ export default async function BillingTransactionsPage({
         </button>
       </form>
 
-      <PaymentsTable rows={rows} />
+      <PaymentsTable rows={result.rows} />
+      <PaginationBar result={result} hrefForPage={hrefForPage} className="rounded-b-lg border border-t-0 border-border bg-white" />
     </div>
   );
 }

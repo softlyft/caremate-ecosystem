@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireProviderSession } from '@/lib/auth';
 import {
+  getOrgConversation,
   listConversationMessages,
-  listOrgConversations,
 } from '@/domains/messaging/repository';
 import { createClient } from '@/lib/supabase/server';
 import { canWriteOrg } from '@/constants/roles';
@@ -21,8 +21,7 @@ export default async function BroadcastThreadPage({
   const orgId = session.activeOrganizationId;
   const canWrite = canWriteOrg(session.activeRole);
 
-  const conversations = await listOrgConversations(orgId);
-  const conversation = conversations.find((c) => c.id === id);
+  const conversation = await getOrgConversation(orgId, id);
   if (!conversation) notFound();
 
   const messages = await listConversationMessages(orgId, id);

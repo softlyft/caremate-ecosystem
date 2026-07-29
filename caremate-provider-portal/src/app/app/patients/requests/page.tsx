@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
 import { listConnectionsByStatus } from '@/domains/connections/repository';
+import { parsePage } from '@/lib/pagination';
+import { PaginationBar } from '@/components/pagination-bar';
 import { ConnectionActions } from '@/components/features/connection-actions';
 import { RequestConnectionForm } from '@/components/features/request-connection-form';
 import { canWriteOrg } from '@/constants/roles';
@@ -15,13 +17,42 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function ConnectionRequestsPage() {
+function requestsHref(opts: { page?: number; outboundPage?: number }): string {
+  const params = new URLSearchParams();
+  if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  if (opts.outboundPage && opts.outboundPage > 1) {
+    params.set('outboundPage', String(opts.outboundPage));
+  }
+  const qs = params.toString();
+  return qs ? `/app/patients/requests?${qs}` : '/app/patients/requests';
+}
+
+export default async function ConnectionRequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; outboundPage?: string }>;
+}) {
   const session = await requireProviderSession();
-  const requests = await listConnectionsByStatus(session.activeOrganizationId, 'pending');
+  const { page: pageParam, outboundPage: outboundPageParam } = await searchParams;
+  const page = parsePage(pageParam);
+  const outboundPage = parsePage(outboundPageParam);
+
+  const [inbound, outbound] = await Promise.all([
+    listConnectionsByStatus(session.activeOrganizationId, 'pending', {
+      page,
+      initiatedBy: 'patient',
+    }),
+    listConnectionsByStatus(session.activeOrganizationId, 'pending', {
+      page: outboundPage,
+      initiatedBy: 'provider',
+    }),
+  ]);
   const canWrite = canWriteOrg(session.activeRole);
 
-  const inbound = requests.filter((r) => r.initiated_by === 'patient');
-  const outbound = requests.filter((r) => r.initiated_by === 'provider');
+  const hrefForInboundPage = (p: number) =>
+    requestsHref({ page: p, outboundPage: outboundPage > 1 ? outboundPage : undefined });
+  const hrefForOutboundPage = (p: number) =>
+    requestsHref({ page: page > 1 ? page : undefined, outboundPage: p });
 
   return (
     <div className="space-y-6">
@@ -51,7 +82,7 @@ export default async function ConnectionRequestsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Awaiting your review ({inbound.length})</CardTitle>
+          <CardTitle>Awaiting your review ({inbound.total})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -67,14 +98,14 @@ export default async function ConnectionRequestsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {inbound.length === 0 ? (
+              {inbound.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-muted">
                     No patient requests waiting for approval.
                   </TableCell>
                 </TableRow>
               ) : (
-                inbound.map((r) => (
+                inbound.rows.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="font-medium">
                       {r.profile?.full_name ?? 'Unknown'}
@@ -98,12 +129,13 @@ export default async function ConnectionRequestsPage() {
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={inbound} hrefForPage={hrefForInboundPage} />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Awaiting patient ({outbound.length})</CardTitle>
+          <CardTitle>Awaiting patient ({outbound.total})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -119,14 +151,14 @@ export default async function ConnectionRequestsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {outbound.length === 0 ? (
+              {outbound.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-muted">
                     No outbound requests waiting on patients.
                   </TableCell>
                 </TableRow>
               ) : (
-                outbound.map((r) => (
+                outbound.rows.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="font-medium">
                       {r.profile?.full_name ?? 'Unknown'}
@@ -152,6 +184,7 @@ export default async function ConnectionRequestsPage() {
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={outbound} hrefForPage={hrefForOutboundPage} />
         </CardContent>
       </Card>
     </div>

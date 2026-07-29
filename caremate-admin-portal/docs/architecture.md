@@ -24,10 +24,13 @@ Routes live under `src/app/`.
 | `/dashboard/learn/new` | Create article |
 | `/dashboard/learn/[id]` | Edit article |
 | `/dashboard/tips` | Health tips management |
-| `/dashboard/providers` | Providers directory views |
+| `/dashboard/providers` | Provider catalog (orgs default; flat location/service/pin tabs) |
+| `/dashboard/providers/organizations/new` | Create organization |
+| `/dashboard/providers/organizations/[id]` | Org edit + locations |
+| `/dashboard/providers/organizations/[id]/locations/...` | Location / healthcare service CRUD |
 | `/dashboard/providers/upload` | Provider ingest upload UI |
 | `/dashboard/providers/new` | Redirect to upload |
-| `/dashboard/providers/[id]` | Provider detail / archive |
+| `/dashboard/providers/[id]` | Nearby pin detail / archive |
 | `/dashboard/billing` | Subscription price management |
 | `/dashboard/billing/transactions` | Payment ledger |
 | `/dashboard/billing/subscribers` | Subscriber list + admin grant / Family upgrade |
@@ -62,7 +65,7 @@ Route/Page
 | `community` | Community Network chapters, members, awards, reports |
 | `dashboard` | Summary counts and dashboard metrics |
 | `media` | Learn media upload |
-| `providers` | Provider listing, ingest upload, archive |
+| `providers` | Provider listing, hierarchical catalog CRUD, ingest upload, pin archive |
 | `tips` | Health tip CRUD |
 | `users` | User listing and Auth Admin actions |
 

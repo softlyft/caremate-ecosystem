@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { listArticles } from '@/domains/articles/repository';
+import { listArticlesPage } from '@/domains/articles/repository';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { LEARN_CONTENT_TYPES, LEARN_CONTENT_TYPE_LABELS } from '@/constants/content';
 import { HEALTH_CATEGORIES } from '@/constants/categories';
+import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
+import { PaginationBar } from '@/components/pagination-bar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -17,26 +19,41 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import type { Article } from '@/types/database';
+
+function learnHref(opts: { q?: string; type?: string; category?: string; page?: number }): string {
+  const params = new URLSearchParams();
+  if (opts.q?.trim()) params.set('q', opts.q.trim());
+  if (opts.type) params.set('type', opts.type);
+  if (opts.category) params.set('category', opts.category);
+  if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  const qs = params.toString();
+  return `/dashboard/learn${qs ? `?${qs}` : ''}`;
+}
 
 export default async function LearnPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; category?: string; page?: string }>;
 }) {
   const session = await getPortalSession();
   const canEdit = canEditCatalog(session?.role);
-  const { q, type, category } = await searchParams;
+  const { q, type, category, page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
 
-  let articles: Awaited<ReturnType<typeof listArticles>> = [];
+  let articles: PaginatedResult<Article> = emptyPage(page);
   try {
-    articles = await listArticles({
+    articles = await listArticlesPage({
       search: q,
       contentType: type || undefined,
       categoryId: category || undefined,
+      page,
     });
   } catch {
-    articles = [];
+    articles = emptyPage(page);
   }
+
+  const hrefForPage = (nextPage: number) => learnHref({ q, type, category, page: nextPage });
 
   return (
     <div>
@@ -82,14 +99,14 @@ export default async function LearnPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {articles.length === 0 ? (
+              {articles.rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-muted">
                     No learn items yet.
                   </TableCell>
                 </TableRow>
               ) : (
-                articles.map((a) => (
+                articles.rows.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell>
                       <Link
@@ -119,6 +136,7 @@ export default async function LearnPage({
               )}
             </TableBody>
           </Table>
+          <PaginationBar result={articles} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
     </div>

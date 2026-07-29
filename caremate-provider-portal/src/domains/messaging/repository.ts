@@ -1,5 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import {
+  DEFAULT_PAGE_SIZE,
+  emptyPage,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
+import {
   gatewayRequest,
   isHealthDataGatewayConfigured,
 } from '@/lib/health-data-gateway';
@@ -41,33 +49,13 @@ async function db(): Promise<any> {
   return createClient();
 }
 
-export async function listOrgConversations(organizationId: string): Promise<OrgInboxRow[]> {
-  const supabase = await db();
-
-  const gatewayRows = await gatewayRequest<MessageConversation[]>(
-    'GET',
-    `/v1/messages/conversations?organizationId=${encodeURIComponent(organizationId)}`,
-  );
-
-  let rows: MessageConversation[];
-  if (gatewayRows) {
-    rows = gatewayRows;
-  } else if (isHealthDataGatewayConfigured()) {
-    return [];
-  } else {
-    const { data, error } = await supabase
-      .from('message_conversations')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .eq('kind', 'org_patient')
-      .order('last_message_at', { ascending: false });
-
-    if (error) throw error;
-    rows = (data ?? []) as MessageConversation[];
-  }
-
+async function enrichOrgInboxRows(
+  organizationId: string,
+  rows: MessageConversation[],
+): Promise<OrgInboxRow[]> {
   if (!rows.length) return [];
 
+  const supabase = await db();
   const patientIds = rows.map((r) => r.patient_user_id).filter(Boolean) as string[];
   const conversationIds = rows.map((r) => r.id);
 
@@ -111,6 +99,88 @@ export async function listOrgConversations(organizationId: string): Promise<OrgI
       unread,
     };
   });
+}
+
+export async function listOrgConversations(
+  organizationId: string,
+  options?: { page?: number; pageSize?: number },
+): Promise<PaginatedResult<OrgInboxRow>> {
+  const page = parsePage(options?.page);
+  const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+  const supabase = await db();
+
+  const gatewayRows = await gatewayRequest<MessageConversation[]>(
+    'GET',
+    `/v1/messages/conversations?organizationId=${encodeURIComponent(organizationId)}`,
+  );
+
+  if (gatewayRows) {
+    const sorted = [...gatewayRows].sort((a, b) => {
+      const aTs = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+      const bTs = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+      return bTs - aTs;
+    });
+    const slice = sorted.slice(from, to + 1);
+    const enriched = await enrichOrgInboxRows(organizationId, slice);
+    return paginatedResult(enriched, sorted.length, page, pageSize);
+  }
+
+  if (isHealthDataGatewayConfigured()) {
+    return emptyPage(page, pageSize);
+  }
+
+  const { data, error, count } = await supabase
+    .from('message_conversations')
+    .select('*', { count: 'exact' })
+    .eq('organization_id', organizationId)
+    .eq('kind', 'org_patient')
+    .order('last_message_at', { ascending: false })
+    .range(from, to);
+
+  if (error) throw error;
+  const rows = (data ?? []) as MessageConversation[];
+  if (!rows.length) return emptyPage(page, pageSize);
+
+  const enriched = await enrichOrgInboxRows(organizationId, rows);
+  return paginatedResult(enriched, count, page, pageSize);
+}
+
+export async function getOrgConversation(
+  organizationId: string,
+  conversationId: string,
+): Promise<OrgInboxRow | null> {
+  const supabase = await db();
+
+  const gatewayRows = await gatewayRequest<MessageConversation[]>(
+    'GET',
+    `/v1/messages/conversations?organizationId=${encodeURIComponent(organizationId)}`,
+  );
+
+  if (gatewayRows) {
+    const row = gatewayRows.find((r) => r.id === conversationId);
+    if (!row) return null;
+    const [enriched] = await enrichOrgInboxRows(organizationId, [row]);
+    return enriched ?? null;
+  }
+
+  if (isHealthDataGatewayConfigured()) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from('message_conversations')
+    .select('*')
+    .eq('id', conversationId)
+    .eq('organization_id', organizationId)
+    .eq('kind', 'org_patient')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  const [enriched] = await enrichOrgInboxRows(organizationId, [data as MessageConversation]);
+  return enriched ?? null;
 }
 
 export async function listConversationMessages(

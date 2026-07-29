@@ -106,10 +106,25 @@ export default async function ProvidersPage({
     <div>
       <PageHeader
         title="Providers"
-        description="Catalog tables hold Postgres UUIDs. Nearby pins appear after Location ingest (one pin per location)."
-        actionHref={canEdit ? '/dashboard/providers/upload' : undefined}
-        actionLabel={canEdit ? 'Upload providers' : undefined}
-      />
+        description="Browse organizations → locations → healthcare services. Flat tabs are shortcuts into the same catalog."
+      >
+        {canEdit ? (
+          <>
+            <Link
+              href="/dashboard/providers/organizations/new"
+              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary-dark"
+            >
+              Create organization
+            </Link>
+            <Link
+              href="/dashboard/providers/upload"
+              className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
+            >
+              Upload workbook
+            </Link>
+          </>
+        ) : null}
+      </PageHeader>
 
       <nav className="mb-4 flex flex-wrap gap-2">
         {VIEWS.map((v) => {
@@ -166,7 +181,7 @@ export default async function ProvidersPage({
                 {organizations.rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-muted">
-                      No organizations yet. Upload an Organization workbook first.
+                      No organizations yet. Create one or upload an Organization workbook.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -227,23 +242,34 @@ export default async function ProvidersPage({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  locations.rows.map((loc) => (
+                  locations.rows.map((loc) => {
+                    const catalogHref = `/dashboard/providers/organizations/${loc.organization_id}/locations/${loc.id}`;
+                    return (
                     <TableRow key={loc.id}>
                       <TableCell className="max-w-[14rem] font-mono text-xs">
                         <Link
-                          href={`/dashboard/providers/${loc.id}`}
+                          href={catalogHref}
                           className="break-all text-primary hover:underline"
                           title={loc.id}
                         >
                           {loc.id}
                         </Link>
                       </TableCell>
-                      <TableCell className="font-medium">{loc.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link href={catalogHref} className="text-primary hover:underline">
+                          {loc.name}
+                        </Link>
+                      </TableCell>
                       <TableCell
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={loc.organization_id}
                       >
-                        {loc.organization_id}
+                        <Link
+                          href={`/dashboard/providers/organizations/${loc.organization_id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {loc.organization_id}
+                        </Link>
                       </TableCell>
                       <TableCell className="max-w-xs truncate text-muted">
                         {loc.address ?? '—'}
@@ -251,14 +277,15 @@ export default async function ProvidersPage({
                       <TableCell>{loc.status}</TableCell>
                       <TableCell>
                         <Link
-                          href={`/dashboard/providers/${loc.id}?fhir=1`}
+                          href={`${catalogHref}?fhir=1`}
                           className="text-sm font-medium text-primary hover:underline"
                         >
                           View
                         </Link>
                       </TableCell>
                     </TableRow>
-                  ))
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -284,11 +311,16 @@ export default async function ProvidersPage({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  services.rows.map((hs) => (
+                  services.rows.map((hs) => {
+                    const catalogHref =
+                      hs.location_id != null
+                        ? `/dashboard/providers/organizations/${hs.organization_id}/locations/${hs.location_id}/services/${hs.id}`
+                        : `/dashboard/providers/organizations/${hs.organization_id}`;
+                    return (
                     <TableRow key={hs.id}>
                       <TableCell className="max-w-[14rem] break-all font-mono text-xs">
                         <Link
-                          href={`/dashboard/providers/services/${hs.id}`}
+                          href={catalogHref}
                           className="text-primary hover:underline"
                         >
                           {hs.id}
@@ -296,7 +328,7 @@ export default async function ProvidersPage({
                       </TableCell>
                       <TableCell className="font-medium">
                         <Link
-                          href={`/dashboard/providers/services/${hs.id}`}
+                          href={catalogHref}
                           className="text-primary hover:underline"
                         >
                           {hs.name}
@@ -306,25 +338,40 @@ export default async function ProvidersPage({
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={hs.location_id ?? undefined}
                       >
-                        {hs.location_id ?? '—'}
+                        {hs.location_id && hs.organization_id ? (
+                          <Link
+                            href={`/dashboard/providers/organizations/${hs.organization_id}/locations/${hs.location_id}`}
+                            className="text-primary hover:underline"
+                          >
+                            {hs.location_id}
+                          </Link>
+                        ) : (
+                          (hs.location_id ?? '—')
+                        )}
                       </TableCell>
                       <TableCell
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={hs.organization_id}
                       >
-                        {hs.organization_id}
+                        <Link
+                          href={`/dashboard/providers/organizations/${hs.organization_id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {hs.organization_id}
+                        </Link>
                       </TableCell>
                       <TableCell className="text-muted">{hs.service_type ?? '—'}</TableCell>
                       <TableCell>
                         <Link
-                          href={`/dashboard/providers/services/${hs.id}?fhir=1`}
+                          href={`${catalogHref}?fhir=1`}
                           className="text-sm font-medium text-primary hover:underline"
                         >
                           View
                         </Link>
                       </TableCell>
                     </TableRow>
-                  ))
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
