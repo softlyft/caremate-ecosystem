@@ -19,7 +19,11 @@ Shared Supabase project. Provider portal tables are cloud-authoritative; the mob
 | `message_direct_pairs` | Unique DM pair per org (`user_low` / `user_high`) |
 | `provider_broadcasts` + `provider_broadcast_recipients` | Legacy announcement audit (org send still may write a row) |
 | `provider_documents` | Document metadata; files in Storage bucket `provider-documents`. `organization_id` nullable for patient uploads; `source` is `provider` \| `patient`. |
-| `appointment_requests` | Patient-initiated appointment requests |
+| `appointment_requests` | Appointment requests + portal-scheduled visits (`source`, `checked_in_at`) |
+| `provider_appointment_availability` | Weekly availability windows for portal scheduling |
+| `provider_org_modules` | Per-org module enable overrides (missing row = catalog default) |
+| `lab_test_definitions` | Org lab test catalog |
+| `lab_orders` / `lab_order_items` | Lab order workflow + results |
 
 ### Profiles (patient identity)
 
@@ -58,6 +62,7 @@ Unique: `(patient_id, organization_id)`.
 | `20260724160000_direct_messaging.sql` | Org-scoped DMs, search/start RPCs, chat matrix helpers |
 | `20260802120000_connection_consent_scopes.sql` | Opt-in emergency: default `basic` only; strip auto emergency |
 | `20260802130000_patient_provider_consents.sql` | Consent registry + FHIR Consent rows; scopes cache sync |
+| `20260803120000_provider_modules_appointments_lab.sql` | Module overrides, availability, appointment status/source, lab tables |
 
 Also depends on catalog / identity migrations: FHIR orgs (`provider_organizations`…), `profiles.patient_id`, Nearby RPC.
 

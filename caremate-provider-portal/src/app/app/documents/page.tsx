@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { listDocuments } from '@/domains/documents/repository';
 import { listConnectedPatients } from '@/domains/patients/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
@@ -23,6 +24,7 @@ export default async function DocumentsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  await requireModule('documents');
   const session = await requireProviderSession();
   const orgId = session.activeOrganizationId;
   const { page: pageParam } = await searchParams;

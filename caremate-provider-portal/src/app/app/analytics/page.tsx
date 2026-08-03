@@ -1,8 +1,10 @@
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { getAnalyticsSnapshot } from '@/domains/analytics/repository';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function AnalyticsPage() {
+  await requireModule('analytics');
   const session = await requireProviderSession();
   const metrics = await getAnalyticsSnapshot(session.activeOrganizationId);
 

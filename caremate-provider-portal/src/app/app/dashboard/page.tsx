@@ -10,12 +10,14 @@ import {
   Send,
 } from 'lucide-react';
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { listRecentActivities } from '@/domains/activity/repository';
 import { getAnalyticsSnapshot } from '@/domains/analytics/repository';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function DashboardPage() {
+  await requireModule('dashboard');
   const session = await requireProviderSession();
   const orgId = session.activeOrganizationId;
   const [metrics, activities] = await Promise.all([

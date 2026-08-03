@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { getOrganizationProfile } from '@/domains/org/repository';
 import {
   getCatalogSummaryForOrganization,
@@ -26,6 +27,7 @@ export default async function OrganizationPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  await requireModule('organization');
   const session = await requireProviderSession();
   const { page: pageParam } = await searchParams;
   const page = parsePage(pageParam);

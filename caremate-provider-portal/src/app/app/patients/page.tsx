@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { listConnectedPatients } from '@/domains/patients/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -21,6 +22,7 @@ export default async function PatientsPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
+  await requireModule('patients');
   const session = await requireProviderSession();
   const { q, page: pageParam } = await searchParams;
   const page = parsePage(pageParam);

@@ -13,6 +13,8 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org 
 | Bidirectional connections, verification gate | [Connections](./connections.md) |
 | Org ↔ patient Messages + DMs | [Messaging](./messaging.md) |
 | Tables, migrations, RPCs | [Data model](./data-model.md) |
+| Capability modules, Lab, appointments | [Modules](./modules.md) |
+| Strategy vs shipped gaps | [Provider strategy gaps](./provider-strategy-gaps.md) |
 | Local setup, env, scripts | [Development](./development.md) |
 | AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) · [`../amplify.yml`](../amplify.yml) |
 | Security (claim OTP, uploads, headers) | [`../../docs/security.md`](../../docs/security.md) |
@@ -26,14 +28,15 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org 
 - Mark connected CareMate users as organization **staff** (optional company contact fields)
 - Secure document upload to a patient (patients view under Me → Documents in the app)
 - Patients can also upload their own files and link an org later when connected
-- Appointment **requests** (no calendar sync)
+- Appointment **scheduling** in portal (availability, staff schedule, request queue, check-in)
+- Optional **Laboratory** module (activate in Settings)
 - Org profile + claim-time verification badge
 
 Direct (person-to-person) chat is available in the **CareMate mobile app** for users linked to the same org when at least one is staff — see [Messaging](./messaging.md).
 
 ## Out of scope
 
-Billing, inventory, clinical notes / EMR, pharmacy stock, lab workflows, insurance claims, replacing the provider’s HMS.
+Billing, inventory, clinical notes / EMR, pharmacy stock, insurance claims, replacing the provider’s HMS. Mobile lab / appointment booking UI is deferred.
 
 ## Related docs
 

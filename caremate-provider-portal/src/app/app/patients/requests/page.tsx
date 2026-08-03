@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { listConnectionsByStatus } from '@/domains/connections/repository';
 import { parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -32,6 +33,7 @@ export default async function ConnectionRequestsPage({
 }: {
   searchParams: Promise<{ page?: string; outboundPage?: string }>;
 }) {
+  await requireModule('patients');
   const session = await requireProviderSession();
   const { page: pageParam, outboundPage: outboundPageParam } = await searchParams;
   const page = parsePage(pageParam);

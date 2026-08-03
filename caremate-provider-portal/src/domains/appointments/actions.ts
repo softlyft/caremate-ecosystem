@@ -3,10 +3,23 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireWriteAccess } from '@/lib/auth';
-import { updateAppointmentStatus } from '@/domains/appointments/repository';
+import {
+  createScheduledAppointment,
+  deleteAvailability,
+  updateAppointmentStatus,
+  upsertAvailability,
+} from '@/domains/appointments/repository';
 import type { AppointmentStatus } from '@/types/database';
 
-const statusSchema = z.enum(['pending', 'confirmed', 'rejected', 'completed', 'rescheduled']);
+const statusSchema = z.enum([
+  'pending',
+  'confirmed',
+  'rejected',
+  'completed',
+  'rescheduled',
+  'checked_in',
+  'cancelled',
+]);
 
 export async function updateAppointmentStatusAction(formData: FormData) {
   const session = await requireWriteAccess();
@@ -35,4 +48,59 @@ export async function updateAppointmentStatusAction(formData: FormData) {
   revalidatePath('/app/appointments');
   revalidatePath('/app/dashboard');
   revalidatePath('/app/analytics');
+}
+
+export async function scheduleAppointmentAction(formData: FormData) {
+  const session = await requireWriteAccess();
+  const patientId = String(formData.get('patient_id') || '');
+  const requestedDate = String(formData.get('requested_date') || '');
+  const requestedTime = (formData.get('requested_time') as string) || null;
+  const notes = (formData.get('notes') as string) || null;
+
+  if (!patientId || !requestedDate) {
+    throw new Error('Patient and date are required');
+  }
+
+  await createScheduledAppointment({
+    organizationId: session.activeOrganizationId,
+    patientId,
+    requestedDate,
+    requestedTime,
+    notes,
+    createdBy: session.user.id,
+  });
+
+  revalidatePath('/app/appointments');
+  revalidatePath('/app/dashboard');
+}
+
+export async function addAvailabilityAction(formData: FormData) {
+  const session = await requireWriteAccess();
+  const weekday = Number(formData.get('weekday'));
+  const startTime = String(formData.get('start_time') || '');
+  const endTime = String(formData.get('end_time') || '');
+  const slotMinutes = Number(formData.get('slot_minutes') || 30);
+
+  if (Number.isNaN(weekday) || weekday < 0 || weekday > 6) {
+    throw new Error('Invalid weekday');
+  }
+  if (!startTime || !endTime) throw new Error('Start and end time required');
+
+  await upsertAvailability({
+    organizationId: session.activeOrganizationId,
+    weekday,
+    startTime,
+    endTime,
+    slotMinutes,
+  });
+
+  revalidatePath('/app/appointments');
+}
+
+export async function deleteAvailabilityAction(formData: FormData) {
+  const session = await requireWriteAccess();
+  const id = String(formData.get('availability_id') || '');
+  if (!id) throw new Error('Missing availability id');
+  await deleteAvailability(session.activeOrganizationId, id);
+  revalidatePath('/app/appointments');
 }
