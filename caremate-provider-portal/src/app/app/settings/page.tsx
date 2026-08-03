@@ -3,6 +3,7 @@ import { OrgSwitcher } from '@/components/features/org-switcher';
 import { PROVIDER_ROLE_LABELS } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default async function SettingsPage() {
   const session = await requireProviderSession();
@@ -43,6 +44,23 @@ export default async function SettingsPage() {
             memberships={session.memberships}
             activeOrganizationId={session.activeOrganizationId}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Modules</CardTitle>
+          <CardDescription>
+            Activate optional capabilities such as Laboratory for this organization
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            href="/app/settings/modules"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            Manage modules →
+          </Link>
         </CardContent>
       </Card>
 

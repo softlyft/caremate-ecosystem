@@ -19,6 +19,27 @@ export function AppointmentActions({
 }) {
   const [pending, startTransition] = useTransition();
 
+  const options: { value: AppointmentStatus; label: string }[] =
+    currentStatus === 'pending'
+      ? [
+          { value: 'confirmed', label: 'Confirm' },
+          { value: 'rejected', label: 'Reject' },
+          { value: 'rescheduled', label: 'Reschedule' },
+        ]
+      : currentStatus === 'confirmed'
+        ? [
+            { value: 'checked_in', label: 'Check in' },
+            { value: 'rescheduled', label: 'Reschedule' },
+            { value: 'cancelled', label: 'Cancel' },
+            { value: 'completed', label: 'Complete' },
+          ]
+        : currentStatus === 'checked_in'
+          ? [
+              { value: 'completed', label: 'Complete' },
+              { value: 'cancelled', label: 'Cancel' },
+            ]
+          : [{ value: 'completed', label: 'Complete' }];
+
   return (
     <form
       className="flex flex-wrap items-end gap-2"
@@ -37,16 +58,17 @@ export function AppointmentActions({
       }}
     >
       <div className="space-y-1">
-        <Label htmlFor={`status-${appointmentId}`}>Status</Label>
+        <Label htmlFor={`status-${appointmentId}`}>Action</Label>
         <Select
           id={`status-${appointmentId}`}
           name="status"
-          defaultValue={currentStatus === 'pending' ? 'confirmed' : currentStatus}
+          defaultValue={options[0]?.value}
         >
-          <option value="confirmed">Confirm</option>
-          <option value="rejected">Reject</option>
-          <option value="rescheduled">Reschedule</option>
-          <option value="completed">Complete</option>
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
         </Select>
       </div>
       <div className="space-y-1">
@@ -59,7 +81,12 @@ export function AppointmentActions({
       </div>
       <div className="min-w-[160px] space-y-1">
         <Label htmlFor={`note-${appointmentId}`}>Note</Label>
-        <Textarea id={`note-${appointmentId}`} name="provider_note" className="min-h-[40px]" rows={1} />
+        <Textarea
+          id={`note-${appointmentId}`}
+          name="provider_note"
+          className="min-h-[40px]"
+          rows={1}
+        />
       </div>
       <Button type="submit" size="sm" loading={pending} loadingLabel="Saving…">
         Update

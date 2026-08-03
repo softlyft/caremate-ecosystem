@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { requireProviderSession } from '@/lib/auth';
+import { requireModule } from '@/domains/modules/guard';
 import { listOrgConversations } from '@/domains/messaging/repository';
 import { listConnectedPatients } from '@/domains/patients/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
@@ -23,6 +24,7 @@ export default async function BroadcastsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  await requireModule('messaging');
   const session = await requireProviderSession();
   const orgId = session.activeOrganizationId;
   const { page: pageParam } = await searchParams;

@@ -15,58 +15,89 @@ import {
   Building2,
   Settings,
   LogOut,
+  FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
 import { PROVIDER_ROLE_LABELS } from '@/constants/roles';
 import type { ProviderMemberRole } from '@/types/database';
+import type { ProviderModuleKey } from '@/domains/modules/catalog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-const NAV_GROUPS = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  module: ProviderModuleKey | 'settings';
+};
+
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: 'General',
-    items: [{ href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard }],
+    items: [{ href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard, module: 'dashboard' }],
   },
   {
     label: 'Patients',
     items: [
-      { href: '/app/patients', label: 'Connected Patients', icon: Users },
-      { href: '/app/patients/requests', label: 'Connection Requests', icon: UserPlus },
+      { href: '/app/patients', label: 'Connected Patients', icon: Users, module: 'patients' },
+      {
+        href: '/app/patients/requests',
+        label: 'Connection Requests',
+        icon: UserPlus,
+        module: 'patients',
+      },
     ],
   },
   {
     label: 'Engagement',
     items: [
-      { href: '/app/appointments', label: 'Appointments', icon: CalendarDays },
-      { href: '/app/documents', label: 'Documents', icon: FileText },
-      { href: '/app/broadcasts', label: 'Messages', icon: Megaphone },
-      { href: '/app/analytics', label: 'Analytics', icon: BarChart3 },
+      {
+        href: '/app/appointments',
+        label: 'Appointments',
+        icon: CalendarDays,
+        module: 'appointments',
+      },
+      { href: '/app/documents', label: 'Documents', icon: FileText, module: 'documents' },
+      { href: '/app/broadcasts', label: 'Messages', icon: Megaphone, module: 'messaging' },
+      { href: '/app/analytics', label: 'Analytics', icon: BarChart3, module: 'analytics' },
     ],
+  },
+  {
+    label: 'Clinical',
+    items: [{ href: '/app/lab', label: 'Laboratory', icon: FlaskConical, module: 'laboratory' }],
   },
   {
     label: 'Organization',
     items: [
-      { href: '/app/organization', label: 'Organization', icon: Building2 },
-      { href: '/app/settings', label: 'Settings', icon: Settings },
+      {
+        href: '/app/organization',
+        label: 'Organization',
+        icon: Building2,
+        module: 'organization',
+      },
+      { href: '/app/settings', label: 'Settings', icon: Settings, module: 'settings' },
     ],
   },
-] as const;
+];
 
 export function AppShell({
   children,
   email,
   role,
   organizationName,
+  enabledModules,
 }: {
   children: React.ReactNode;
   email: string;
   role: ProviderMemberRole;
   organizationName: string;
+  enabledModules: ProviderModuleKey[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [signingOut, startSignOut] = useTransition();
+  const enabled = new Set(enabledModules);
 
   const signOut = () => {
     startSignOut(async () => {
@@ -76,6 +107,13 @@ export function AppShell({
       router.refresh();
     });
   };
+
+  const visibleGroups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter(
+      (item) => item.module === 'settings' || enabled.has(item.module),
+    ),
+  })).filter((group) => group.items.length > 0);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -102,7 +140,7 @@ export function AppShell({
         </div>
 
         <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-3">
-          {NAV_GROUPS.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.label} className="flex flex-col gap-1">
               <p className="px-3 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-muted/70">
                 {group.label}
