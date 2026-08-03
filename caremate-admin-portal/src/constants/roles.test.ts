@@ -74,8 +74,9 @@ describe('portal RBAC helpers', () => {
 
 describe('portal catalog constants', () => {
   it('resolves health category names', () => {
-    assert.equal(HEALTH_CATEGORIES.length, 8);
-    assert.equal(categoryName('nutrition'), 'Nutrition');
+    assert.equal(HEALTH_CATEGORIES.length, 10);
+    assert.equal(categoryName('nutrition'), 'Nutrition & Healthy Living');
+    assert.equal(categoryName('heart'), 'Common Conditions');
     assert.equal(categoryName('unknown'), 'unknown');
   });
 

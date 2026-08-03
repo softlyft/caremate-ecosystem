@@ -39,7 +39,7 @@ export function TipForm({ tip, onDone }: { tip?: HealthTip; onDone?: () => void 
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      category_id: tip?.category_id ?? 'heart',
+      category_id: tip?.category_id ?? 'prevention',
       body: tip?.body ?? '',
       sort_order: tip?.sort_order ?? 0,
       is_active: tip?.is_active ?? true,

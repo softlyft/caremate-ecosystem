@@ -2,8 +2,12 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from '
 
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { ArticleDetailPage } from '@/pages/ArticleDetail';
+import { ArticlesCategoryPage } from '@/pages/ArticlesCategory';
+import { ArticlesIndexPage } from '@/pages/ArticlesIndex';
 import { CcnPage } from '@/pages/Ccn';
 import { CcnGuidePage } from '@/pages/CcnGuide';
+import { DocsIndexPage } from '@/pages/DocsIndex';
 import { GuidePage } from '@/pages/Guide';
 import { OpenInAppPage } from '@/pages/OpenInApp';
 import { PrivacyPage } from '@/pages/Privacy';
@@ -90,10 +94,61 @@ export default function App() {
           }
         />
         <Route
-          path="/guide"
+          path="/docs"
+          element={
+            <MarketingChrome>
+              <DocsIndexPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/docs/patient"
           element={
             <MarketingChrome>
               <GuidePage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/docs/community"
+          element={
+            <MarketingChrome>
+              <CcnGuidePage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/docs/providers"
+          element={
+            <MarketingChrome>
+              <ProviderGuidePage />
+            </MarketingChrome>
+          }
+        />
+        <Route path="/guide" element={<Navigate to="/docs/patient" replace />} />
+        <Route path="/ccn/guide" element={<Navigate to="/docs/community" replace />} />
+        <Route path="/providers/guide" element={<Navigate to="/docs/providers" replace />} />
+        <Route
+          path="/articles"
+          element={
+            <MarketingChrome>
+              <ArticlesIndexPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/articles/:category/:slug"
+          element={
+            <MarketingChrome>
+              <ArticleDetailPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/articles/:category"
+          element={
+            <MarketingChrome>
+              <ArticlesCategoryPage />
             </MarketingChrome>
           }
         />
@@ -106,26 +161,10 @@ export default function App() {
           }
         />
         <Route
-          path="/ccn/guide"
-          element={
-            <MarketingChrome>
-              <CcnGuidePage />
-            </MarketingChrome>
-          }
-        />
-        <Route
           path="/providers"
           element={
             <MarketingChrome>
               <ProvidersPage />
-            </MarketingChrome>
-          }
-        />
-        <Route
-          path="/providers/guide"
-          element={
-            <MarketingChrome>
-              <ProviderGuidePage />
             </MarketingChrome>
           }
         />

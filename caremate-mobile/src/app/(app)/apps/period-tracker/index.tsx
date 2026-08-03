@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Minus, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -33,6 +33,10 @@ import {
   usePeriodTrackerHydrated,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
+import {
+  assessPeriodDayToggle,
+  type PeriodIssue,
+} from '@/mini-apps/period-tracker/validation';
 import { usePregnancyTrackerStore } from '@/mini-apps/pregnancy-tracker/store';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, radius, spacing } from '@/theme';
@@ -63,6 +67,55 @@ export default function PeriodTrackerScreen() {
   const pregnancyLmp = usePregnancyTrackerStore((state) => state.lastMenstrualPeriod);
   const pregnancyDue = usePregnancyTrackerStore((state) => state.dueDate);
   const isPregnant = Boolean(pregnancyLmp && pregnancyDue);
+
+  const issueMessage = (issue: PeriodIssue): string =>
+    t(`apps.period.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const requestTogglePeriodDay = (dayKey: string) => {
+    const assessment = assessPeriodDayToggle({
+      dayKey,
+      todayKey,
+      paused,
+      loggedPeriodDays,
+      cycleLength,
+    });
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.period.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    const apply = () => togglePeriodDay(dayKey);
+
+    if (assessment.soft.length > 0) {
+      Alert.alert(
+        t('apps.period.validation.confirmTitle'),
+        assessment.soft.map(issueMessage).join('\n\n'),
+        [
+          { text: t('apps.period.validation.cancel'), style: 'cancel' },
+          { text: t('apps.period.validation.saveAnyway'), onPress: apply },
+        ],
+      );
+      return;
+    }
+
+    apply();
+  };
+
+  const requestResume = () => {
+    if (isPregnant) {
+      Alert.alert(
+        t('apps.period.validation.confirmTitle'),
+        t('apps.period.validation.resumeWhilePregnant'),
+        [
+          { text: t('apps.period.validation.cancel'), style: 'cancel' },
+          { text: t('apps.period.validation.saveAnyway'), onPress: () => resume() },
+        ],
+      );
+      return;
+    }
+    resume();
+  };
 
   const cycleDay = paused ? null : getCycleDay(lastPeriodStart, today);
   const nextPeriod = paused ? null : predictNextPeriodStart(lastPeriodStart, cycleLength);
@@ -121,7 +174,7 @@ export default function PeriodTrackerScreen() {
             accent={theme.color}
             soft={theme.backgroundColor}
             index={0}
-            onPress={resume}
+            onPress={requestResume}
           />
           {isPregnant ? (
             <Button
@@ -177,7 +230,7 @@ export default function PeriodTrackerScreen() {
                 key={key}
                 disabled={!interactive}
                 style={styles.stripDay}
-                onPress={() => togglePeriodDay(key)}
+                onPress={() => requestTogglePeriodDay(key)}
                 variant="plain"
               >
                 <AppText variant="caption" style={styles.stripWeekday}>
@@ -214,7 +267,7 @@ export default function PeriodTrackerScreen() {
           accentColor={theme.color}
           predictedColor="#FBCFE8"
           predictedBorderColor="#F472B6"
-          onDayPress={togglePeriodDay}
+          onDayPress={requestTogglePeriodDay}
           getDayState={(dayKey) => ({
             logged: loggedPeriodDays.includes(dayKey),
             predicted: isPredictedPeriodDay(

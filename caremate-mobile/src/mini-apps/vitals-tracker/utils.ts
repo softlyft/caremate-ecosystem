@@ -5,6 +5,7 @@ import type {
   VitalEntry,
   VitalType,
   VitalUnit,
+  VitalUnitPrefs,
   WeightUnit,
 } from '@/mini-apps/vitals-tracker/constants';
 import { VITAL_TYPES } from '@/mini-apps/vitals-tracker/constants';
@@ -57,7 +58,7 @@ export function unitLabel(unit: VitalUnit): string {
   }
 }
 
-export function formatVitalValue(entry: VitalEntry): string {
+export function formatVitalValue(entry: VitalEntry, prefs?: VitalUnitPrefs): string {
   if (entry.type === 'blood_pressure') {
     const sys = entry.systolic;
     const dia = entry.diastolic;
@@ -67,14 +68,45 @@ export function formatVitalValue(entry: VitalEntry): string {
     return `${roundDisplay(sys)}/${roundDisplay(dia)} ${unitLabel(entry.unit)}`;
   }
 
-  if (entry.type === 'height' && entry.unit === 'ft') {
-    const feet = entry.feet ?? 0;
-    const inches = entry.inches ?? 0;
-    return `${feet}'${inches}"`;
+  if (entry.type === 'height') {
+    if (entry.unit === 'ft') {
+      const feet = entry.feet ?? 0;
+      const inches = entry.inches ?? 0;
+      return `${feet}'${inches}"`;
+    }
+    if (entry.value == null || Number.isNaN(entry.value)) {
+      return '—';
+    }
+    if (prefs?.height === 'ft') {
+      const parts = cmToHeightParts(entry.value);
+      return `${parts.feet}'${parts.inches}"`;
+    }
+    return `${roundDisplay(entry.value)} ${unitLabel('cm')}`;
   }
 
   if (entry.value == null || Number.isNaN(entry.value)) {
     return '—';
+  }
+
+  if (prefs && entry.type === 'blood_sugar') {
+    const from: BloodSugarUnit = entry.unit === 'mmol_l' ? 'mmol_l' : 'mg_dl';
+    const to = prefs.blood_sugar;
+    const display = convertBloodSugar(entry.value, from, to);
+    return `${roundDisplay(display)} ${unitLabel(to)}`;
+  }
+
+  if (prefs && entry.type === 'body_temperature') {
+    const from: TemperatureUnit = entry.unit === 'f' ? 'f' : 'c';
+    const to = prefs.body_temperature;
+    const display = convertTemperature(entry.value, from, to);
+    return `${roundDisplay(display)} ${unitLabel(to)}`;
+  }
+
+  if (prefs && entry.type === 'weight') {
+    const from: WeightUnit = entry.unit === 'lbs' ? 'lbs' : 'kg';
+    const to = prefs.weight;
+    const display = convertWeight(entry.value, from, to);
+    return `${roundDisplay(display)} ${unitLabel(to)}`;
   }
 
   return `${roundDisplay(entry.value)} ${unitLabel(entry.unit)}`;
@@ -161,79 +193,6 @@ export function parsePositiveNumber(raw: string): number | null {
   const value = Number(trimmed);
   if (!Number.isFinite(value) || value < 0) return null;
   return value;
-}
-
-export function isValidVitalDraft(input: {
-  type: VitalType;
-  unit: VitalUnit;
-  valueText?: string;
-  systolicText?: string;
-  diastolicText?: string;
-  feetText?: string;
-  inchesText?: string;
-}): boolean {
-  if (input.type === 'blood_pressure') {
-    const sys = parsePositiveNumber(input.systolicText ?? '');
-    const dia = parsePositiveNumber(input.diastolicText ?? '');
-    return sys != null && dia != null && sys > 0 && dia > 0;
-  }
-
-  if (input.type === 'height' && input.unit === 'ft') {
-    const feet = parsePositiveNumber(input.feetText ?? '');
-    const inches = parsePositiveNumber(input.inchesText ?? '0');
-    return feet != null && inches != null && inches < 12;
-  }
-
-  const value = parsePositiveNumber(input.valueText ?? '');
-  if (value == null) return false;
-  if (input.type === 'oxygen_saturation') {
-    return value <= 100;
-  }
-  return true;
-}
-
-export function buildVitalEntryPayload(input: {
-  type: VitalType;
-  unit: VitalUnit;
-  valueText?: string;
-  systolicText?: string;
-  diastolicText?: string;
-  feetText?: string;
-  inchesText?: string;
-  notes?: string;
-}): Omit<VitalEntry, 'id' | 'recordedAt'> | null {
-  if (!isValidVitalDraft(input)) {
-    return null;
-  }
-
-  const notes = input.notes?.trim() || undefined;
-
-  if (input.type === 'blood_pressure') {
-    return {
-      type: input.type,
-      unit: 'mmHg',
-      systolic: parsePositiveNumber(input.systolicText ?? '')!,
-      diastolic: parsePositiveNumber(input.diastolicText ?? '')!,
-      notes,
-    };
-  }
-
-  if (input.type === 'height' && input.unit === 'ft') {
-    return {
-      type: input.type,
-      unit: 'ft',
-      feet: parsePositiveNumber(input.feetText ?? '')!,
-      inches: parsePositiveNumber(input.inchesText ?? '0') ?? 0,
-      notes,
-    };
-  }
-
-  return {
-    type: input.type,
-    unit: input.unit,
-    value: parsePositiveNumber(input.valueText ?? '')!,
-    notes,
-  };
 }
 
 export function orderedVitalTypes(): VitalType[] {

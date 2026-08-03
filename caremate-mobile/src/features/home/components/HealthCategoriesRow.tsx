@@ -106,7 +106,7 @@ export function HealthCategoriesRow({
                 <Text style={styles.emoji}>{category.emoji}</Text>
               </View>
               <AppText variant="categoryPill" style={selected ? { color: category.accent } : null}>
-                {category.name}
+                {category.shortLabel}
               </AppText>
             </Button>
           );

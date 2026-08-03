@@ -15,6 +15,10 @@ import {
   type ImmunizationProfile,
   type ImmunizationRecord,
 } from '@/mini-apps/immunization-tracker/utils';
+import {
+  assessImmunizationRecordDraft,
+  getPriorDosesInSeries,
+} from '@/mini-apps/immunization-tracker/validation';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
@@ -225,5 +229,102 @@ describe('immunization-tracker/store', () => {
 
     useImmunizationTrackerStore.getState().removeRecord(profile.id, 'bcg');
     expect(useImmunizationTrackerStore.getState().records).toHaveLength(0);
+  });
+});
+
+describe('immunization-tracker/validation', () => {
+  it('hard-blocks missing date and administered before DOB', () => {
+    expect(
+      assessImmunizationRecordDraft({
+        profile,
+        vaccineId: 'bcg',
+        administeredDate: null,
+        todayKey: '2026-03-01',
+        records: [],
+      }).hard?.code,
+    ).toBe('required_administered_date');
+
+    expect(
+      assessImmunizationRecordDraft({
+        profile,
+        vaccineId: 'bcg',
+        administeredDate: '2025-12-31',
+        todayKey: '2026-03-01',
+        records: [],
+      }).hard?.code,
+    ).toBe('administered_before_dob');
+  });
+
+  it('soft-warns future dates and far-from-recommended doses', () => {
+    const future = assessImmunizationRecordDraft({
+      profile,
+      vaccineId: 'bcg',
+      administeredDate: '2026-04-01',
+      todayKey: '2026-03-01',
+      records: [],
+    });
+    expect(future.hard).toBeNull();
+    expect(future.soft.some((s) => s.code === 'soft_administered_future')).toBe(true);
+
+    // Measles-1 recommended ~39 weeks after DOB 2026-01-01 ≈ late Sep 2026
+    const far = assessImmunizationRecordDraft({
+      profile,
+      vaccineId: 'measles-1',
+      administeredDate: '2026-01-02',
+      todayKey: '2026-03-01',
+      records: [],
+    });
+    expect(far.soft.some((s) => s.code === 'soft_very_early' || s.code === 'soft_far_from_recommended')).toBe(
+      true,
+    );
+  });
+
+  it('soft-warns when earlier doses in a series are missing', () => {
+    const penta2 = VACCINE_SCHEDULE.find((item) => item.id === 'penta-2')!;
+    expect(getPriorDosesInSeries(penta2).map((item) => item.id)).toContain('penta-1');
+
+    const assessment = assessImmunizationRecordDraft({
+      profile,
+      vaccineId: 'penta-2',
+      administeredDate: '2026-03-15',
+      todayKey: '2026-03-20',
+      records: [],
+    });
+    expect(assessment.soft.some((s) => s.code === 'soft_series_out_of_order')).toBe(true);
+
+    const withPrior = assessImmunizationRecordDraft({
+      profile,
+      vaccineId: 'penta-2',
+      administeredDate: '2026-03-15',
+      todayKey: '2026-03-20',
+      records: [
+        {
+          profileId: profile.id,
+          vaccineId: 'penta-1',
+          administeredDate: '2026-02-15',
+        },
+      ],
+    });
+    expect(withPrior.soft.some((s) => s.code === 'soft_series_out_of_order')).toBe(false);
+  });
+
+  it('builds a clean payload for a normal birth dose', () => {
+    const assessment = assessImmunizationRecordDraft({
+      profile,
+      vaccineId: 'bcg',
+      administeredDate: '2026-01-01',
+      provider: ' City Clinic ',
+      notes: ' batch A ',
+      todayKey: '2026-03-01',
+      records: [],
+    });
+    expect(assessment.hard).toBeNull();
+    expect(assessment.payload).toEqual({
+      profileId: profile.id,
+      vaccineId: 'bcg',
+      administeredDate: '2026-01-01',
+      provider: 'City Clinic',
+      notes: 'batch A',
+    });
   });
 });

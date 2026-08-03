@@ -125,7 +125,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 |----|---|-----|-------|----------|
 | NB-01 | P0 | Online or previously cached providers | Open Nearby | Provider list loads from nearby results or cached rows; screen does not crash if remote fetch fails. |
 | NB-01b | P1 | Nearby query fails with no cache | Open Nearby | ErrorState with Retry (not empty-state copy). |
-| NB-02 | P1 | List open | Filter Hospitals / Clinics / Pharmacies / Labs / Telemedicine / Blood Bank / Ambulance (etc.) | List filters by selected type; default is Hospitals. No All chip. |
+| NB-02 | P1 | List open | Filter Hospital / Clinic / Pharmacy / Laboratory / Imaging Centre / Dental Clinic / Eye Clinic / Insurance | List filters by selected type; default is Hospital. |
 | NB-02b | P1 | List open | Search by provider name keyword | Matching providers remain; others hide. |
 | NB-03 | P0 | Any | Open a provider | Detail shows name, type, contact, address as available. |
 | NB-04 | P1 | Signed-in | Toggle favorite on detail | Favorite state persists after leave/reopen. |

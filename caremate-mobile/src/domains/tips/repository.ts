@@ -1,5 +1,6 @@
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
 
+import { healthCategoryIdsForQuery } from '@/domains/articles/categories';
 import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
 import { healthTips } from '@/database/schema';
@@ -36,15 +37,16 @@ class HealthTipRepository extends BaseRepository {
 
   async findActiveByCategory(categoryId: string): Promise<LocalHealthTip[]> {
     const db = getDatabase();
+    const categoryIds = healthCategoryIdsForQuery(categoryId);
+    const categoryClause =
+      categoryIds.length === 1
+        ? eq(healthTips.categoryId, categoryIds[0]!)
+        : inArray(healthTips.categoryId, categoryIds);
     const rows = await db
       .select()
       .from(healthTips)
       .where(
-        and(
-          eq(healthTips.categoryId, categoryId),
-          isNull(healthTips.deletedAt),
-          eq(healthTips.isActive, true),
-        ),
+        and(categoryClause, isNull(healthTips.deletedAt), eq(healthTips.isActive, true)),
       )
       .orderBy(asc(healthTips.sortOrder));
 

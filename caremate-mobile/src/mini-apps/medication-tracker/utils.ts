@@ -50,6 +50,8 @@ export interface MedicationDoseLog {
   notes?: string;
   /** ISO timestamp when the dose was marked taken. */
   takenAt?: string;
+  /** True when logging this dose decremented quantityRemaining. */
+  didDecrementQuantity?: boolean;
 }
 
 export type DoseSlotStatus = 'taken' | 'due' | 'missed' | 'upcoming' | 'as-needed';

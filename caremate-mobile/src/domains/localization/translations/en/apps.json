@@ -243,6 +243,28 @@
       "notesOptional": "Notes (optional)",
       "removeCompletion": "Remove completion",
       "globalShort": "Global"
+    },
+    "validation": {
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Cancel",
+      "saveAnyway": "Save anyway",
+      "undoTitle": "Remove this completion?",
+      "undoMessage": "This checkup will show as not done for that year again.",
+      "undoConfirm": "Remove",
+      "requiredGender": "Please choose a gender option before saving.",
+      "requiredDob": "Please choose your date of birth before saving.",
+      "dobFuture": "Date of birth cannot be in the future.",
+      "invalidCheckup": "That checkup was not found. Go back and try again.",
+      "invalidYear": "That plan year looks unusual. Please open the checkup from your year checklist.",
+      "unusualCheck": "That looks unusual. Please check that you entered it correctly.",
+      "completedBeforeDob": "The completion date cannot be before your date of birth.",
+      "ageHigh": "This date of birth would make you {{age}}. Please confirm it is correct.",
+      "ageYoung": "At age {{age}}, few adult checkups will appear. Please confirm this date of birth is correct.",
+      "completedFuture": "This completion date is in the future. Please confirm you meant to log it ahead.",
+      "completedYearMismatch": "You logged {{completedYear}}, but this item is for the {{planYear}} plan. Please confirm that is intentional.",
+      "notesLong": "These notes are quite long. Please confirm before saving.",
+      "onceAlreadyLogged": "This one-time checkup was already logged for {{year}}. Please confirm you want to log it again."
     }
   },
   "immunization": {
@@ -396,6 +418,26 @@
       "overdue": "Overdue",
       "due-soon": "Due soon",
       "upcoming": "Upcoming"
+    },
+    "validation": {
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Cancel",
+      "saveAnyway": "Save anyway",
+      "undoTitle": "Remove this vaccine record?",
+      "undoMessage": "This dose will show as not given on the schedule again.",
+      "undoConfirm": "Remove",
+      "requiredProfile": "Choose a child with a date of birth before logging a vaccine.",
+      "invalidVaccine": "That vaccine was not found. Go back and try again.",
+      "requiredAdministeredDate": "Please choose the date this vaccine was given.",
+      "unusualCheck": "That looks unusual. Please check that you entered it correctly.",
+      "administeredBeforeDob": "The administered date cannot be before the child’s date of birth.",
+      "administeredFuture": "This administered date is in the future. Please confirm you meant to log it ahead.",
+      "veryEarly": "This date is {{days}} days earlier than the recommended date ({{recommended}}). Please confirm it is correct.",
+      "farFromRecommended": "This date is {{days}} days from the recommended date ({{recommended}}). Please confirm it is correct.",
+      "seriesOutOfOrder": "An earlier dose in this series is not logged yet ({{missing}}). Please confirm before saving.",
+      "providerLong": "The provider name is quite long. Please confirm before saving.",
+      "notesLong": "These notes are quite long. Please confirm before saving."
     }
   },
   "medication": {
@@ -544,6 +586,38 @@
       "doseMissedBody": "{{name}} — {{slot}} was missed. Catch up when you can.",
       "refillTitle": "Refill soon: {{name}}",
       "refillBody": "{{name}} is running low or due for a refill."
+    },
+    "validation": {
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Cancel",
+      "saveAnyway": "Save anyway",
+      "undoTitle": "Undo this dose?",
+      "undoMessage": "This will mark the dose as not taken. If stock was counted down, it will be restored.",
+      "undoConfirm": "Undo",
+      "requiredName": "Please enter the medicine name before saving.",
+      "requiredDosage": "Please enter the dosage (for example 500mg) before saving.",
+      "requiredStart": "Please choose a start date before saving.",
+      "endBeforeStart": "The end date should be on or after the start date.",
+      "treatmentEnded": "That treatment period ends before today. Choose a later end date, a longer duration, or mark the medicine as ongoing.",
+      "childRequired": "Choose which child this medicine is for.",
+      "slotTimesInvalid": "Choose a valid time for each dose using the clock picker.",
+      "slotTimesDuplicate": "Each dose needs a different time. Two doses cannot share the same clock time.",
+      "quantityInvalid": "Quantity left should be a whole number (0 or more), or left blank.",
+      "thresholdInvalid": "The refill reminder threshold should be a whole number (0 or more).",
+      "unusualCheck": "That looks unusual. Please check that you entered it correctly.",
+      "nameLong": "This medicine name is quite long. Please confirm it is correct.",
+      "dosageNoUnit": "This dosage looks like a number only. Did you mean to include a unit (mg, ml, tablet…)?",
+      "slotsTooClose": "These dose times are less than 2 hours apart. Please confirm that is intentional.",
+      "courseLong": "This course is longer than a year ({{days}} days). Please confirm it is correct.",
+      "refillBeforeStart": "The refill date is before the treatment start date. Please confirm it is correct.",
+      "quantityHigh": "That quantity ({{value}}) looks unusually high. Please confirm it is correct.",
+      "thresholdAboveQuantity": "The refill reminder is set above the quantity left. Please confirm that is intentional.",
+      "instructionsOtherEmpty": "You chose “Other” instructions but left the details blank. Please confirm before saving.",
+      "logBeforeStart": "This date is before the medicine start date. Please confirm before saving.",
+      "logAfterEnd": "This date is after the treatment end date. Please confirm before saving.",
+      "logFuture": "This date is in the future. Please confirm you meant to log it ahead.",
+      "asNeededMany": "You have already logged {{count}} as-needed doses for this medicine today. Please confirm before adding another."
     }
   },
   "pregnancy": {
@@ -642,6 +716,23 @@
       "1": "First trimester",
       "2": "Second trimester",
       "3": "Third trimester"
+    },
+    "validation": {
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Cancel",
+      "saveAnyway": "Save anyway",
+      "requiredDate": "Please choose a date before saving.",
+      "unusualCheck": "That looks unusual. Please check that you entered it correctly.",
+      "lmpFuture": "Your last period date cannot be in the future.",
+      "dueTooFar": "That due date is too far in the future to be realistic. Please check the date.",
+      "pastTerm": "This date suggests you may already be past {{weeks}} weeks pregnant. Please confirm it is correct.",
+      "dueInPast": "This due date is {{days}} days in the past. Please confirm you still want to use it.",
+      "nicknameLong": "This nickname is quite long. Please confirm it is correct.",
+      "willPausePeriod": "Saving your pregnancy timeline will pause Period Tracker predictions. Your period history stays saved.",
+      "kicksHigh": "That kick count ({{count}}) looks unusually high for one day. Please confirm it is correct.",
+      "notesLong": "These notes are quite long. Please confirm before saving.",
+      "emptyLog": "Nothing is filled in for today. Save an empty log anyway?"
     }
   },
   "period": {
@@ -676,6 +767,22 @@
       "pauseWhilePregnantBody": "You can pause cycle predictions while you're pregnant. Your history stays saved.",
       "openPregnancyTracker": "Open Pregnancy Tracker",
       "backToTracker": "Back"
+    },
+    "validation": {
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Cancel",
+      "saveAnyway": "Log anyway",
+      "clearTitle": "Clear all logged days?",
+      "clearMessage": "This removes every logged period day from this device. Predictions will reset until you log again.",
+      "clearConfirm": "Clear",
+      "trackingPaused": "Period tracking is paused. Resume tracking to log days.",
+      "unusualCheck": "That looks unusual. Please check that you entered it correctly.",
+      "dayFuture": "This date is in the future. Please confirm you meant to log it ahead.",
+      "dayFarPast": "This date is {{days}} days ago. Please confirm it belongs in your history.",
+      "periodLong": "That would make this period {{days}} days long. Please confirm it is correct.",
+      "periodVsCycle": "This period length ({{periodDays}} days) is as long as or longer than your average cycle ({{cycleDays}} days). Please confirm.",
+      "resumeWhilePregnant": "Pregnancy Tracker still has an active timeline. Resume period tracking anyway?"
     }
   },
   "vitalsTracker": {
@@ -687,7 +794,12 @@
     "logVital": "Log vital",
     "logTitle": "Log a vital",
     "logSubtitle": "Pick a measurement, enter the value, and save.",
-    "saveLog": "Save reading"
+    "saveLog": "Save reading",
+    "setupTitle": "Choose your units",
+    "setupSubtitle": "Pick how you usually measure — you can change this later.",
+    "setupCta": "Set up units",
+    "setupSave": "Save preferences",
+    "editUnits": "Edit units"
   },
   "vitals": {
     "types": {
@@ -714,6 +826,12 @@
       "percent": "%",
       "breaths_min": "breaths/min"
     },
+    "bloodSugarContext": {
+      "fasting": "Fasting",
+      "before_meal": "Before meal",
+      "two_hours_after_meal": "2 hours after meal",
+      "random": "Random"
+    },
     "ui": {
       "balance": "Snapshot",
       "latest": "Latest readings",
@@ -723,6 +841,7 @@
       "vital": "Vital",
       "unit": "Unit",
       "reading": "Reading",
+      "measurementType": "When was this measured?",
       "systolic": "Systolic",
       "diastolic": "Diastolic",
       "feet": "Feet",
@@ -730,7 +849,31 @@
       "valuePlaceholder": "Enter value",
       "bpHint": "Enter systolic / diastolic in mmHg",
       "notesOptional": "Notes (optional)",
-      "notesPlaceholder": "e.g. after morning walk"
+      "notesPlaceholder": "e.g. after morning walk",
+      "setupIntro": "Set your preferred units once so logging stays quick and consistent.",
+      "setupSugarHint": "Blood sugar readings are stored in mg/dL and shown in your preferred unit."
+    },
+    "validation": {
+      "checkTitle": "Please check this reading",
+      "confirmTitle": "Please confirm",
+      "cancel": "Cancel",
+      "saveAnyway": "Save anyway",
+      "useSuggestion": "Use {{value}}",
+      "requiredReading": "Please enter a reading before saving.",
+      "unusualCheck": "That value looks unusual. Please check that you entered it correctly.",
+      "unusualConfirm": "This reading is uncommon. Please verify before saving.",
+      "bpDiastolicOrder": "Diastolic pressure should be lower than systolic pressure.",
+      "bpUnusual": "This blood pressure reading is unusual. Please confirm it is correct.",
+      "bloodSugarContextRequired": "Choose when this blood sugar was measured (fasting, before meal, after meal, or random).",
+      "bloodSugarUnusual": "This reading is uncommon. Please verify before saving.",
+      "oxygenLow": "This oxygen level is lower than usual. Please confirm the reading, or try measuring again.",
+      "typoBloodSugar": "Did you mean {{suggested}}?",
+      "typoWeight": "Did you mean {{suggested}}?",
+      "typoTemperature": "Did you mean {{suggested}}°C?",
+      "trendWeight": "Your weight has changed significantly since your last entry ({{previous}} {{unit}}). Please confirm it is correct.",
+      "trendBloodPressure": "This reading is much higher or lower than your previous entry ({{previous}}). Please confirm before saving.",
+      "trendOxygen": "This oxygen reading differs from your last entry ({{previous}}%). Please confirm, or try measuring again.",
+      "trendGeneric": "This value differs significantly from your previous measurement ({{previous}} {{unit}}). Please confirm it is correct."
     }
   }
 }

@@ -1,7 +1,16 @@
 export {
   ARTICLE_THUMBNAILS,
   estimateReadingTime,
+  getHealthCategory,
+  getHealthCategoryName,
+  getHealthCategoryShortLabel,
   HEALTH_CATEGORIES,
+  healthCategoryIdsForQuery,
+  isHealthCategoryId,
+  LEGACY_HEALTH_CATEGORY_ID_MAP,
+  normalizeHealthCategoryId,
+  type HealthCategory,
+  type HealthCategoryId,
 } from '@/domains/articles/categories';
 
 type GreetingLabels = {
@@ -23,15 +32,7 @@ export const PROVIDER_TYPE_FILTERS = [
   { type: 'pharmacy' as const, color: '#CCFBF1' },
   { type: 'laboratory' as const, color: '#EDE9FE' },
   { type: 'imaging_centre' as const, color: '#FCE7F3' },
-  { type: 'blood_bank' as const, color: '#FEE2E2' },
-  { type: 'ambulance' as const, color: '#FEF3C7' },
-  { type: 'telemedicine' as const, color: '#E0F2FE' },
-  { type: 'insurance' as const, color: '#E0E7FF' },
-  { type: 'mental_health' as const, color: '#F3E8FF' },
   { type: 'dentist' as const, color: '#CFFAFE' },
   { type: 'eye_care' as const, color: '#DBEAFE' },
-  { type: 'home_care' as const, color: '#DCFCE7' },
-  { type: 'medical_equipment' as const, color: '#FFEDD5' },
-  { type: 'government_health' as const, color: '#E2E8F0' },
-  { type: 'ngo' as const, color: '#FEF3C7' },
+  { type: 'insurance' as const, color: '#E0E7FF' },
 ];

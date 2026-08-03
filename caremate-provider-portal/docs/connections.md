@@ -1,6 +1,49 @@
 # Connections
 
-Patient ↔ provider connections are a **CRM contact record**, not an EMR link. Approving only creates / updates a `patient_provider_connections` row — no health data is shared yet.
+Patient ↔ provider connections are a **CRM contact record**, not an EMR link. Approving a connection does **not** share clinical data — patients grant **FHIR Consent–aligned** privacy directives from a CareMate (and future custom) consent registry.
+
+## Consent model
+
+```
+consent_definitions          → catalog (system + future org-custom)
+patient_provider_consents    → FHIR Consent–shaped grants (source of truth)
+patient_provider_connections.shared_scopes  → denormalized permit cache for RLS
+```
+
+### `consent_definitions`
+
+| Field | Notes |
+|-------|--------|
+| `code` | Machine id in the scopes cache (`emergency`, later `vitals`, …) |
+| `source` | `system` (CareMate) or `organization` (future custom) |
+| `organization_id` | `null` for system; set for org-authored definitions |
+| `fhir_scope` | Default `patient-privacy` |
+| `fhir_category` / `fhir_policy_rule` | FHIR Consent category + OPTIN policy |
+| `data_class` | Logical coverage (`emergency_profile`, …) |
+
+Seeded today: system `emergency` → emergency profile.
+
+### `patient_provider_consents` (FHIR Consent mapping)
+
+| Column | FHIR |
+|--------|------|
+| `status` | `active` = granted; `inactive` = revoked |
+| `fhir_scope` | Consent.scope |
+| `provision_type` | Consent.provision.type (`permit`) |
+| `purpose` | PurposeOfUse (default `TREAT`) |
+| `patient_id` / `organization_id` | patient + actor (recipient org) |
+| `granted_at` / `revoked_at` | dateTime / period end |
+
+### `shared_scopes` (cache)
+
+| Scope | Meaning |
+|-------|---------|
+| `basic` | Always present — CRM identity only (not a Consent) |
+| other codes | Mirror of **active** permit definition codes |
+
+- Patients manage consent on **Me → Connections → Connected providers → [provider] → Add consent**.
+- Portal patient detail shows emergency data only when `'emergency' ∈ shared_scopes` (synced from an active consent).
+- Only patients write consent rows; a DB trigger refreshes `shared_scopes`. Direct scope edits by non-patients are blocked (except the sync path).
 
 ## Bidirectional model
 
@@ -39,7 +82,8 @@ Approved patients appear under `/app/patients`.
 |---------|----------|
 | Nearby → provider detail | Connect button only when org is verified and no existing connection row |
 | Me → Connections | Hub |
-| Me → Connections → Connected providers | Approved list |
+| Me → Connections → Connected providers | Approved list; tap to view + manage consent |
+| Me → Connections → Connected providers → [provider] | Add / remove CareMate consents (emergency profile first) |
 | Me → Connections → Provider connection requests | Inbound pending from providers; Approve / Decline (+ reason) |
 
 Catalog pin → org: `organization_id` on Nearby RPC / `providers.attributes.organization_id`.

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -15,11 +15,17 @@ import {
   MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
+import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import {
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
 import { calculateDueDateFromLmp, formatDueDate } from '@/mini-apps/pregnancy-tracker/utils';
+import {
+  assessPregnancySetupDraft,
+  type PregnancyIssue,
+} from '@/mini-apps/pregnancy-tracker/validation';
+import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 
 type SetupMode = 'lmp' | 'due-date';
@@ -30,6 +36,7 @@ export default function PregnancySetupScreen() {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
+  const todayKey = toDateKey(today);
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
@@ -41,9 +48,60 @@ export default function PregnancySetupScreen() {
   const setBabyNickname = usePregnancyTrackerStore((state) => state.setBabyNickname);
   const setFromLastPeriod = usePregnancyTrackerStore((state) => state.setFromLastPeriod);
   const setFromDueDate = usePregnancyTrackerStore((state) => state.setFromDueDate);
+  const periodPaused = usePeriodTrackerStore((state) => state.paused);
 
   const previewDueDate =
     mode === 'lmp' && selectedDate ? calculateDueDateFromLmp(selectedDate) : selectedDate;
+
+  const issueMessage = (issue: PregnancyIssue): string =>
+    t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const commitSetup = () => {
+    const assessment = assessPregnancySetupDraft({
+      mode,
+      selectedDate,
+      babyNickname,
+      todayKey,
+      periodTrackerActive: !periodPaused,
+    });
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.pregnancy.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    if (!assessment.payload) {
+      Alert.alert(
+        t('apps.pregnancy.validation.checkTitle'),
+        t('apps.pregnancy.validation.unusualCheck'),
+      );
+      return;
+    }
+
+    const save = () => {
+      setBabyNickname(assessment.payload!.babyNickname);
+      if (assessment.payload!.mode === 'lmp') {
+        setFromLastPeriod(assessment.payload!.selectedDate);
+      } else {
+        setFromDueDate(assessment.payload!.selectedDate);
+      }
+      router.back();
+    };
+
+    if (assessment.soft.length > 0) {
+      Alert.alert(
+        t('apps.pregnancy.validation.confirmTitle'),
+        assessment.soft.map(issueMessage).join('\n\n'),
+        [
+          { text: t('apps.pregnancy.validation.cancel'), style: 'cancel' },
+          { text: t('apps.pregnancy.validation.saveAnyway'), onPress: save },
+        ],
+      );
+      return;
+    }
+
+    save();
+  };
 
   if (!hydrated) {
     return (
@@ -125,25 +183,13 @@ export default function PregnancySetupScreen() {
         </View>
       ) : null}
 
-      <View style={!selectedDate ? styles.ctaDisabled : undefined}>
-        <MiniAppCta
-          label={t('apps.pregnancyTracker.setupSave')}
-          accent={theme.color}
-          soft={theme.backgroundColor}
-          index={3}
-          onPress={() => {
-            if (!selectedDate) {
-              return;
-            }
-            if (mode === 'lmp') {
-              setFromLastPeriod(selectedDate);
-            } else {
-              setFromDueDate(selectedDate);
-            }
-            router.back();
-          }}
-        />
-      </View>
+      <MiniAppCta
+        label={t('apps.pregnancyTracker.setupSave')}
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={3}
+        onPress={commitSetup}
+      />
     </MiniAppScreen>
   );
 }
@@ -166,8 +212,5 @@ const styles = StyleSheet.create({
   preview: {
     borderRadius: radius.xl,
     padding: spacing.md,
-  },
-  ctaDisabled: {
-    opacity: 0.5,
   },
 });

@@ -15,7 +15,16 @@ export {
 export {
   ARTICLE_THUMBNAILS,
   estimateReadingTime,
+  getHealthCategory,
+  getHealthCategoryName,
+  getHealthCategoryShortLabel,
   HEALTH_CATEGORIES,
+  healthCategoryIdsForQuery,
+  isHealthCategoryId,
+  LEGACY_HEALTH_CATEGORY_ID_MAP,
+  normalizeHealthCategoryId,
+  type HealthCategory,
+  type HealthCategoryId,
 } from '@/domains/articles/categories';
 export {
   formatLearnContentType,

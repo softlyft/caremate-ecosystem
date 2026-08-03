@@ -57,5 +57,51 @@
   "lastKnown": {
     "message": "定位已关闭。正在显示您上次已知位置附近的 CareMate 服务机构。",
     "action": "启用"
+  },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "Providers you are linked with in CareMate",
+    "guest": "Sign in to manage provider connections.",
+    "connectedTitle": "Connected providers",
+    "connectedSubtitle": "Open a provider to view details and manage consent.",
+    "connectedEmpty": "You are not connected to any providers yet.",
+    "connectedLoading": "Loading connected providers...",
+    "connectedCount": "{{count}} connected",
+    "connectedSince": "Connected {{date}}",
+    "listEmergencyShared": "Emergency profile shared",
+    "listEmergencyPending": "Emergency profile — consent not given",
+    "detailLoading": "Loading provider...",
+    "detailNotConnectedTitle": "Not connected",
+    "detailNotConnectedMessage": "This provider connection is no longer approved.",
+    "consentSectionTitle": "Consent",
+    "consentSectionSubtitle": "Choose what this provider can see. Connecting alone does not share your emergency profile.",
+    "addConsent": "Add consent",
+    "removeConsent": "Remove consent",
+    "grantedLabel": "Granted",
+    "availableLabel": "CareMate consents",
+    "grantedBadge": "Shared with this provider",
+    "noGrantedConsent": "You have not shared any health details with this provider yet.",
+    "noAvailableConsent": "All CareMate consents are already granted for this provider.",
+    "grantConfirmTitle": "Share with provider?",
+    "grantConfirmMessage": "Allow this provider to view your {{consent}}?",
+    "grantConfirmAction": "Share",
+    "revokeConfirmTitle": "Remove consent?",
+    "revokeConfirmMessage": "This provider will no longer be able to view your {{consent}}.",
+    "revokeConfirmAction": "Remove",
+    "consentFailedTitle": "Couldn't update consent",
+    "consentFailedMessage": "Please try again.",
+    "consents": {
+      "emergency": {
+        "title": "Emergency profile",
+        "description": "Blood group, allergies, conditions, insurance, and emergency contacts."
+      }
+    },
+    "requestsTitle": "Provider connection requests",
+    "requestsCount": "{{count}} waiting for your review",
+    "requestsEmptySubtitle": "No pending provider requests",
+    "loadFailed": {
+      "title": "Couldn't load connections",
+      "message": "Check your connection and try again."
+    }
   }
 }

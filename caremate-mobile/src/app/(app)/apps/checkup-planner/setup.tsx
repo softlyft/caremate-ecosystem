@@ -21,6 +21,10 @@ import {
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
 import { localizeGenderOptions } from '@/mini-apps/checkup-planner/localize';
+import {
+  assessProfileDraft,
+  type CheckupIssue,
+} from '@/mini-apps/checkup-planner/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
@@ -150,11 +154,47 @@ export default function CheckupPlannerSetupScreen() {
         soft={theme.backgroundColor}
         index={4}
         onPress={() => {
-          if (!dateOfBirth || !gender) {
+          const assessment = assessProfileDraft({
+            dateOfBirth,
+            gender,
+            regionCode,
+            todayKey: toDateKey(today),
+          });
+
+          const issueMessage = (issue: CheckupIssue): string =>
+            t(`apps.checkup.validation.${issue.messageKey}`, issue.params ?? {});
+
+          if (assessment.hard) {
+            Alert.alert(t('apps.checkup.validation.checkTitle'), issueMessage(assessment.hard));
             return;
           }
-          saveProfile({ dateOfBirth, gender, regionCode });
-          router.back();
+
+          if (!assessment.payload) {
+            Alert.alert(
+              t('apps.checkup.validation.checkTitle'),
+              t('apps.checkup.validation.unusualCheck'),
+            );
+            return;
+          }
+
+          const commit = () => {
+            saveProfile(assessment.payload!);
+            router.back();
+          };
+
+          if (assessment.soft.length > 0) {
+            Alert.alert(
+              t('apps.checkup.validation.confirmTitle'),
+              assessment.soft.map(issueMessage).join('\n\n'),
+              [
+                { text: t('apps.checkup.validation.cancel'), style: 'cancel' },
+                { text: t('apps.checkup.validation.saveAnyway'), onPress: commit },
+              ],
+            );
+            return;
+          }
+
+          commit();
         }}
       />
 

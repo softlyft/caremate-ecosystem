@@ -1,0 +1,374 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { router, useLocalSearchParams } from 'expo-router';
+import { ShieldPlus } from 'lucide-react-native';
+import { useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/form-controls';
+import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { QUERY_KEYS } from '@/constants/config';
+import { useTranslation } from '@/domains/localization';
+import {
+  listAvailableConsents,
+  listGrantedConsents,
+  resolveConsentDescription,
+  resolveConsentTitle,
+  type ConnectionConsentDefinition,
+} from '@/domains/providers/connection-consents';
+import { providerConnectionService } from '@/domains/providers/connection-service';
+import { useIsGuest } from '@/hooks/use-current-user-id';
+import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+
+export default function ConnectedProviderDetailScreen() {
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const isGuest = useIsGuest();
+  const queryClient = useQueryClient();
+  const { connectionId: rawId } = useLocalSearchParams<{ connectionId?: string }>();
+  const connectionId = typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : '';
+  const [pickingConsent, setPickingConsent] = useState(false);
+
+  const query = useQuery({
+    queryKey: [...QUERY_KEYS.providerConnections, 'detail', connectionId],
+    queryFn: () => providerConnectionService.getConnectionById(connectionId),
+    enabled: !isGuest && Boolean(connectionId),
+  });
+
+  const definitionsQuery = useQuery({
+    queryKey: [
+      ...QUERY_KEYS.providerConnections,
+      'consent-definitions',
+      query.data?.organizationId ?? 'system',
+    ],
+    queryFn: () =>
+      providerConnectionService.listConsentDefinitions(query.data?.organizationId ?? null),
+    enabled: !isGuest && Boolean(query.data?.organizationId),
+  });
+
+  const consentMutation = useMutation({
+    mutationFn: (params: {
+      scope: string;
+      granted: boolean;
+      definitionId?: string;
+    }) =>
+      providerConnectionService.setConsent({
+        connectionId,
+        scope: params.scope,
+        granted: params.granted,
+        definitionId: params.definitionId,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
+      setPickingConsent(false);
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('nearby.connections.consentFailedTitle'),
+        error instanceof Error ? error.message : t('nearby.connections.consentFailedMessage'),
+      );
+    },
+  });
+
+  if (isGuest) {
+    return (
+      <View style={styles.padded}>
+        <AppText variant="body">{t('nearby.connections.guest')}</AppText>
+      </View>
+    );
+  }
+
+  if (!connectionId) {
+    return (
+      <ErrorState
+        title={t('nearby.connections.loadFailed.title')}
+        message={t('nearby.connections.loadFailed.message')}
+        actionLabel={t('common.back')}
+        onAction={() => router.back()}
+      />
+    );
+  }
+
+  if (query.isLoading || (query.data && definitionsQuery.isLoading)) {
+    return <LoadingState title={t('nearby.connections.detailLoading')} />;
+  }
+
+  if (query.isError || !query.data) {
+    return (
+      <ErrorState
+        title={t('nearby.connections.loadFailed.title')}
+        message={
+          query.error instanceof Error
+            ? query.error.message
+            : t('nearby.connections.loadFailed.message')
+        }
+        actionLabel={t('common.retry')}
+        onAction={() => {
+          void query.refetch();
+        }}
+      />
+    );
+  }
+
+  const connection = query.data;
+  if (connection.status !== 'approved') {
+    return (
+      <ErrorState
+        title={t('nearby.connections.detailNotConnectedTitle')}
+        message={t('nearby.connections.detailNotConnectedMessage')}
+        actionLabel={t('common.back')}
+        onAction={() => router.back()}
+      />
+    );
+  }
+
+  const orgName =
+    connection.organizationName ?? t('nearby.connectionRequests.providerFallback');
+  const definitions = definitionsQuery.data ?? [];
+  const available = listAvailableConsents(connection.sharedScopes, definitions);
+  const granted = listGrantedConsents(connection.sharedScopes, definitions);
+  const busy = consentMutation.isPending;
+
+  const confirmGrant = (consent: ConnectionConsentDefinition) => {
+    const title = resolveConsentTitle(consent, t);
+    Alert.alert(
+      t('nearby.connections.grantConfirmTitle'),
+      t('nearby.connections.grantConfirmMessage', { consent: title }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('nearby.connections.grantConfirmAction'),
+          onPress: () =>
+            consentMutation.mutate({
+              scope: consent.scope,
+              granted: true,
+              definitionId: consent.definitionId,
+            }),
+        },
+      ],
+    );
+  };
+
+  const confirmRevoke = (consent: ConnectionConsentDefinition) => {
+    const title = resolveConsentTitle(consent, t);
+    Alert.alert(
+      t('nearby.connections.revokeConfirmTitle'),
+      t('nearby.connections.revokeConfirmMessage', { consent: title }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('nearby.connections.revokeConfirmAction'),
+          style: 'destructive',
+          onPress: () =>
+            consentMutation.mutate({
+              scope: consent.scope,
+              granted: false,
+              definitionId: consent.definitionId,
+            }),
+        },
+      ],
+    );
+  };
+
+  return (
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+    >
+      <View style={[styles.card, shadow.soft]}>
+        <AppText variant="sectionTitle">{orgName}</AppText>
+        <AppText variant="caption" style={styles.meta}>
+          {t('nearby.connections.connectedSince', {
+            date: new Date(connection.approvedAt ?? connection.createdAt).toLocaleDateString(),
+          })}
+        </AppText>
+        {connection.providerNote ? (
+          <AppText variant="body" style={styles.note}>
+            {connection.providerNote}
+          </AppText>
+        ) : null}
+      </View>
+
+      <View style={[styles.card, shadow.soft]}>
+        <View style={styles.sectionHeader}>
+          <ShieldPlus size={20} color={palette.primary} />
+          <AppText variant="body" style={styles.sectionTitle}>
+            {t('nearby.connections.consentSectionTitle')}
+          </AppText>
+        </View>
+        <AppText variant="subtitle">{t('nearby.connections.consentSectionSubtitle')}</AppText>
+
+        {granted.length > 0 ? (
+          <View style={styles.list}>
+            <AppText variant="caption" style={styles.listLabel}>
+              {t('nearby.connections.grantedLabel')}
+            </AppText>
+            {granted.map((consent) => {
+              const title = resolveConsentTitle(consent, t);
+              const description = resolveConsentDescription(consent, t);
+              return (
+                <View key={consent.definitionId ?? consent.scope} style={styles.consentRow}>
+                  <View style={styles.consentCopy}>
+                    <AppText variant="body" style={styles.consentTitle}>
+                      {title}
+                    </AppText>
+                    {description ? (
+                      <AppText variant="caption" style={styles.meta}>
+                        {description}
+                      </AppText>
+                    ) : null}
+                    <AppText variant="caption" style={styles.grantedBadge}>
+                      {t('nearby.connections.grantedBadge')}
+                    </AppText>
+                  </View>
+                  <Button
+                    label={t('nearby.connections.removeConsent')}
+                    variant="secondary"
+                    onPress={() => confirmRevoke(consent)}
+                    disabled={busy}
+                    loading={busy}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        ) : (
+          <AppText variant="body" style={styles.emptyConsent}>
+            {t('nearby.connections.noGrantedConsent')}
+          </AppText>
+        )}
+
+        {pickingConsent ? (
+          <View style={styles.list}>
+            <AppText variant="caption" style={styles.listLabel}>
+              {t('nearby.connections.availableLabel')}
+            </AppText>
+            {available.length === 0 ? (
+              <AppText variant="body">{t('nearby.connections.noAvailableConsent')}</AppText>
+            ) : (
+              available.map((consent) => {
+                const title = resolveConsentTitle(consent, t);
+                const description = resolveConsentDescription(consent, t);
+                return (
+                  <Pressable
+                    key={consent.definitionId ?? consent.scope}
+                    style={({ pressed }) => [styles.pickRow, pressed && styles.pressed]}
+                    onPress={() => confirmGrant(consent)}
+                    disabled={busy}
+                    accessibilityRole="button"
+                    accessibilityLabel={title}
+                  >
+                    <AppText variant="body" style={styles.consentTitle}>
+                      {title}
+                    </AppText>
+                    {description ? (
+                      <AppText variant="caption" style={styles.meta}>
+                        {description}
+                      </AppText>
+                    ) : null}
+                  </Pressable>
+                );
+              })
+            )}
+            <Button
+              label={t('common.cancel')}
+              variant="secondary"
+              onPress={() => setPickingConsent(false)}
+              disabled={busy}
+            />
+          </View>
+        ) : available.length > 0 ? (
+          <Button
+            label={t('nearby.connections.addConsent')}
+            onPress={() => setPickingConsent(true)}
+            disabled={busy}
+          />
+        ) : null}
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: palette.surface,
+  },
+  content: {
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.md,
+    gap: spacing.md,
+  },
+  padded: {
+    flex: 1,
+    padding: layoutSpacing.screenHorizontal,
+    justifyContent: 'center',
+  },
+  card: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    padding: layoutSpacing.cardPadding,
+    gap: spacing.sm,
+  },
+  meta: {
+    color: palette.textSecondary,
+  },
+  note: {
+    marginTop: spacing.xs,
+    color: textColors.secondary,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  sectionTitle: {
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  list: {
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  listLabel: {
+    color: palette.textSecondary,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  consentRow: {
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: palette.divider,
+  },
+  consentCopy: {
+    gap: 4,
+  },
+  consentTitle: {
+    fontWeight: '600',
+  },
+  grantedBadge: {
+    color: palette.primary,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  emptyConsent: {
+    color: palette.textSecondary,
+  },
+  pickRow: {
+    gap: 4,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.lg,
+    backgroundColor: palette.surface,
+    borderWidth: 1,
+    borderColor: palette.divider,
+  },
+  pressed: {
+    opacity: 0.85,
+  },
+});

@@ -13,6 +13,7 @@ const CORE_HOW_TO: Record<(typeof CORE_FEATURES)[number]['id'], string[]> = {
   learn: [
     'Use the Learn tab to browse CareMate articles and health news by category, or search from Home.',
     'Open an article to read it. Bookmark pieces you want again, and mark progress as you finish.',
+    'The same evergreen guides are also on the website under Articles, so you can share a link that opens in a browser.',
     'Bookmarks and reading history stay on your phone; they sync when you are signed in.',
   ],
   nearby: [
@@ -115,7 +116,8 @@ export function GuidePage() {
           </li>
           <li>
             <strong>Learn</strong> — health articles and news by category, with bookmarks and reading
-            progress.
+            progress. You can also browse the evergreen guides on the web at{' '}
+            <Link to="/articles">Articles</Link>.
           </li>
           <li>
             <strong>Nearby</strong> — hospitals, pharmacies, labs, and clinics around you.
@@ -236,11 +238,11 @@ export function GuidePage() {
 
         <p className={styles.meta}>Last updated: July 18, 2026</p>
         <p className={styles.back}>
-          <Link to="/">← Back to CareMate</Link>
+          <Link to="/docs">← All docs</Link>
           {' · '}
-          <Link to="/ccn/guide">Community guide</Link>
+          <Link to="/docs/community">Community guide</Link>
           {' · '}
-          <Link to="/providers/guide">Provider guide</Link>
+          <Link to="/docs/providers">Provider guide</Link>
         </p>
       </article>
     </main>

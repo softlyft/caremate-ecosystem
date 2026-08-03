@@ -100,11 +100,15 @@ export default async function PatientDetailPage({
           <CardHeader>
             <CardTitle>Emergency information</CardTitle>
             <CardDescription>
-              Shown when connection scope includes emergency
+              Visible only after the patient grants emergency profile consent
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            {emergency ? (
+            {!(connection.shared_scopes ?? []).includes('emergency') ? (
+              <p className="text-muted">
+                Patient has not given consent to share their emergency profile yet.
+              </p>
+            ) : emergency ? (
               <>
                 <Row label="Blood group" value={emergency.blood_group ?? '—'} />
                 <Row label="Allergies" value={jsonList(emergency.allergies)} />
@@ -116,7 +120,9 @@ export default async function PatientDetailPage({
                 <Row label="Emergency contacts" value={jsonList(contacts)} />
               </>
             ) : (
-              <p className="text-muted">Emergency profile not shared for this connection.</p>
+              <p className="text-muted">
+                Consent is granted, but no emergency profile is available yet.
+              </p>
             )}
           </CardContent>
         </Card>

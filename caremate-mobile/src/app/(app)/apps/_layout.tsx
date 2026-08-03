@@ -36,6 +36,15 @@ export default function AppsLayout() {
           backAccessibilityLabel: 'Close',
         })}
       />
+      <Stack.Screen
+        name="vitals-tracker/setup"
+        options={miniAppHeaderOptions({
+          appId: 'vitals-tracker',
+          title: 'Vitals setup',
+          modal: true,
+          backAccessibilityLabel: 'Close',
+        })}
+      />
 
       <Stack.Screen
         name="period-tracker/index"

@@ -236,6 +236,18 @@ export default function AppLayout() {
           })}
         />
         <Stack.Screen
+          name="providers/connections/[connectionId]"
+          options={glossyStackHeaderOptions({
+            title: 'Provider',
+            accent: palette.brandBlue,
+            soft: palette.brandBlueLight,
+            softEnd: '#EFF6FF',
+            titleColor: palette.brandBlue,
+            icon: Link2,
+            backAccessibilityLabel: 'Back to connected providers',
+          })}
+        />
+        <Stack.Screen
           name="providers/connections/requests"
           options={glossyStackHeaderOptions({
             title: 'Connection requests',

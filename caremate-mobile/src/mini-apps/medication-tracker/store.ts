@@ -199,6 +199,21 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
           return updated;
         }
 
+        let didDecrementQuantity = false;
+        let medications = get().medications;
+        if (decrementQuantity) {
+          medications = medications.map((medication) => {
+            if (medication.id !== medicationId || medication.quantityRemaining == null) {
+              return medication;
+            }
+            didDecrementQuantity = true;
+            return {
+              ...medication,
+              quantityRemaining: Math.max(0, medication.quantityRemaining - 1),
+            };
+          });
+        }
+
         const log: MedicationDoseLog = {
           id: uuidv4(),
           medicationId,
@@ -206,20 +221,8 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
           slotIndex,
           notes: notes?.trim() || undefined,
           takenAt,
+          didDecrementQuantity,
         };
-
-        let medications = get().medications;
-        if (decrementQuantity) {
-          medications = medications.map((medication) => {
-            if (medication.id !== medicationId || medication.quantityRemaining == null) {
-              return medication;
-            }
-            return {
-              ...medication,
-              quantityRemaining: Math.max(0, medication.quantityRemaining - 1),
-            };
-          });
-        }
 
         set({
           medications,
@@ -228,7 +231,28 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
         return log;
       },
       removeDoseLog: (logId) => {
-        set({ logs: get().logs.filter((log) => log.id !== logId) });
+        const log = get().logs.find((item) => item.id === logId);
+        if (!log) {
+          return;
+        }
+
+        let medications = get().medications;
+        if (log.didDecrementQuantity) {
+          medications = medications.map((medication) => {
+            if (medication.id !== log.medicationId || medication.quantityRemaining == null) {
+              return medication;
+            }
+            return {
+              ...medication,
+              quantityRemaining: medication.quantityRemaining + 1,
+            };
+          });
+        }
+
+        set({
+          medications,
+          logs: get().logs.filter((item) => item.id !== logId),
+        });
       },
       clearAll: () => set({ medications: [], activeMedicationId: null, logs: [] }),
     }),

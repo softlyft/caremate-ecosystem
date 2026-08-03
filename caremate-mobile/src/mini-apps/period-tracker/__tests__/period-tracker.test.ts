@@ -18,6 +18,7 @@ import {
   isPredictedPeriodDay,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
+import { assessPeriodDayToggle } from '@/mini-apps/period-tracker/validation';
 
 describe('period-tracker/utils', () => {
   it('handles date key math', () => {
@@ -187,5 +188,55 @@ describe('period-tracker/store', () => {
     expect(usePeriodTrackerStore.getState().paused).toBe(false);
     usePeriodTrackerStore.getState().togglePeriodDay('2026-07-02');
     expect(usePeriodTrackerStore.getState().loggedPeriodDays).toEqual(['2026-07-01', '2026-07-02']);
+  });
+});
+
+describe('period-tracker/validation', () => {
+  it('hard-blocks toggles while paused', () => {
+    expect(
+      assessPeriodDayToggle({
+        dayKey: '2026-07-16',
+        todayKey: '2026-07-16',
+        paused: true,
+        loggedPeriodDays: [],
+        cycleLength: 28,
+      }).hard?.code,
+    ).toBe('tracking_paused');
+  });
+
+  it('soft-warns future and far-past days when adding', () => {
+    const future = assessPeriodDayToggle({
+      dayKey: '2026-08-01',
+      todayKey: '2026-07-16',
+      paused: false,
+      loggedPeriodDays: [],
+      cycleLength: 28,
+    });
+    expect(future.hard).toBeNull();
+    expect(future.soft.some((s) => s.code === 'soft_day_future')).toBe(true);
+
+    const farPast = assessPeriodDayToggle({
+      dayKey: '2024-01-01',
+      todayKey: '2026-07-16',
+      paused: false,
+      loggedPeriodDays: [],
+      cycleLength: 28,
+    });
+    expect(farPast.soft.some((s) => s.code === 'soft_day_far_past')).toBe(true);
+  });
+
+  it('soft-warns unusually long period streaks', () => {
+    const logged = Array.from({ length: 10 }, (_, i) => {
+      const day = i + 1;
+      return `2026-07-${String(day).padStart(2, '0')}`;
+    });
+    const assessment = assessPeriodDayToggle({
+      dayKey: '2026-07-11',
+      todayKey: '2026-07-16',
+      paused: false,
+      loggedPeriodDays: logged,
+      cycleLength: 28,
+    });
+    expect(assessment.soft.some((s) => s.code === 'soft_period_long')).toBe(true);
   });
 });

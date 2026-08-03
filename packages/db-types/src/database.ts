@@ -1410,6 +1410,62 @@ export type Database = {
           },
         ]
       }
+      consent_definitions: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          data_class: string
+          description: string
+          fhir_category: Json
+          fhir_policy_rule: string
+          fhir_scope: string
+          id: string
+          organization_id: string | null
+          source: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          data_class: string
+          description?: string
+          fhir_category?: Json
+          fhir_policy_rule?: string
+          fhir_scope?: string
+          id?: string
+          organization_id?: string | null
+          source: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          data_class?: string
+          description?: string
+          fhir_category?: Json
+          fhir_policy_rule?: string
+          fhir_scope?: string
+          id?: string
+          organization_id?: string | null
+          source?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_definitions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emergency_profiles: {
         Row: {
           allergies: Json
@@ -2061,6 +2117,82 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "patient_provider_connections_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_provider_consents: {
+        Row: {
+          connection_id: string
+          created_at: string
+          definition_id: string
+          fhir_scope: string
+          granted_at: string | null
+          id: string
+          metadata: Json
+          organization_id: string
+          patient_id: string
+          provision_type: string
+          purpose: string
+          revoked_at: string | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          definition_id: string
+          fhir_scope?: string
+          granted_at?: string | null
+          id?: string
+          metadata?: Json
+          organization_id: string
+          patient_id: string
+          provision_type?: string
+          purpose?: string
+          revoked_at?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          definition_id?: string
+          fhir_scope?: string
+          granted_at?: string | null
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          patient_id?: string
+          provision_type?: string
+          purpose?: string
+          revoked_at?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_provider_consents_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "patient_provider_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_provider_consents_definition_id_fkey"
+            columns: ["definition_id"]
+            isOneToOne: false
+            referencedRelation: "consent_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_provider_consents_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "provider_organizations"

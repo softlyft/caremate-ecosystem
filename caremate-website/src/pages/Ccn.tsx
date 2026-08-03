@@ -25,7 +25,7 @@ export function CcnPage() {
             <a className={styles.ctaPrimary} href={COMMUNITY_URLS.join}>
               Join the network
             </a>
-            <Link className={styles.ctaSecondary} to="/ccn/guide">
+            <Link className={styles.ctaSecondary} to="/docs/community">
               Read the community guide
             </Link>
           </div>
@@ -128,7 +128,7 @@ export function CcnPage() {
             <a className={styles.ctaPrimaryDark} href={COMMUNITY_URLS.join}>
               Join CareMate Community
             </a>
-            <Link className={styles.ctaSecondaryDark} to="/ccn/guide">
+            <Link className={styles.ctaSecondaryDark} to="/docs/community">
               Community guide
             </Link>
           </div>

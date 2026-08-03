@@ -25,6 +25,10 @@ import {
   getUpcomingMilestones,
   toDateKey,
 } from '@/mini-apps/pregnancy-tracker/utils';
+import {
+  assessPregnancyLogDraft,
+  assessPregnancySetupDraft,
+} from '@/mini-apps/pregnancy-tracker/validation';
 import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import { identityTranslate } from '@/mini-apps/test-utils';
@@ -143,5 +147,60 @@ describe('pregnancy-tracker/store', () => {
       kickCount: 0,
       notes: '',
     });
+  });
+});
+
+describe('pregnancy-tracker/validation', () => {
+  it('hard-blocks missing date and future LMP', () => {
+    expect(
+      assessPregnancySetupDraft({
+        mode: 'lmp',
+        selectedDate: null,
+        babyNickname: 'Baby',
+        todayKey: '2026-07-16',
+        periodTrackerActive: false,
+      }).hard?.code,
+    ).toBe('required_date');
+
+    expect(
+      assessPregnancySetupDraft({
+        mode: 'lmp',
+        selectedDate: '2026-08-01',
+        babyNickname: 'Baby',
+        todayKey: '2026-07-16',
+        periodTrackerActive: false,
+      }).hard?.code,
+    ).toBe('lmp_future');
+  });
+
+  it('soft-warns past-term LMP and period pause', () => {
+    const past = assessPregnancySetupDraft({
+      mode: 'lmp',
+      selectedDate: '2025-01-01',
+      babyNickname: 'Ada',
+      todayKey: '2026-07-16',
+      periodTrackerActive: true,
+    });
+    expect(past.hard).toBeNull();
+    expect(past.soft.some((s) => s.code === 'soft_past_term')).toBe(true);
+    expect(past.soft.some((s) => s.code === 'soft_will_pause_period')).toBe(true);
+  });
+
+  it('soft-warns high kicks and empty logs', () => {
+    const kicks = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: [],
+      kickCount: 80,
+      notes: '',
+    });
+    expect(kicks.soft.some((s) => s.code === 'soft_kicks_high')).toBe(true);
+
+    const empty = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: [],
+      kickCount: 0,
+      notes: '  ',
+    });
+    expect(empty.soft.some((s) => s.code === 'soft_empty_log')).toBe(true);
   });
 });

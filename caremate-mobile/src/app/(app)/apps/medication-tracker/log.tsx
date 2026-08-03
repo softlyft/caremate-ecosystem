@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -27,6 +27,10 @@ import {
   toDateKey,
 } from '@/mini-apps/medication-tracker/utils';
 import { localizeFrequencyLabel, localizeSlotLabel } from '@/mini-apps/medication-tracker/localize';
+import {
+  assessDoseLog,
+  type MedicationIssue,
+} from '@/mini-apps/medication-tracker/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -109,6 +113,58 @@ export default function MedicationLogScreen() {
   }
 
   const isAsNeeded = selectedFrequency.dosesPerDay === 0;
+
+  const issueMessage = (issue: MedicationIssue): string =>
+    t(`apps.medication.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const commitDoseLog = (slot: number, confirmSoft = true) => {
+    const assessment = assessDoseLog({
+      medication: selectedMedication,
+      dateKey,
+      slotIndex: slot,
+      notes,
+      todayKey,
+      logs,
+      isUpdate: Boolean(existingLog && !isAsNeeded),
+    });
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    if (!assessment.payload) {
+      Alert.alert(
+        t('apps.medication.validation.checkTitle'),
+        t('apps.medication.validation.unusualCheck'),
+      );
+      return;
+    }
+
+    const save = () => {
+      logDose({
+        medicationId: assessment.payload!.medicationId,
+        dateKey: assessment.payload!.dateKey,
+        slotIndex: assessment.payload!.slotIndex,
+        notes: assessment.payload!.notes,
+      });
+      router.back();
+    };
+
+    if (confirmSoft && assessment.soft.length > 0) {
+      Alert.alert(
+        t('apps.medication.validation.confirmTitle'),
+        assessment.soft.map(issueMessage).join('\n\n'),
+        [
+          { text: t('apps.medication.validation.cancel'), style: 'cancel' },
+          { text: t('apps.medication.validation.saveAnyway'), onPress: save },
+        ],
+      );
+      return;
+    }
+
+    save();
+  };
 
   return (
     <MiniAppScreen>
@@ -237,13 +293,7 @@ export default function MedicationLogScreen() {
           const nextSlot = isAsNeeded
             ? nextSlotIndexForAsNeeded(selectedMedication.id, dateKey, logs)
             : slotIndex;
-          logDose({
-            medicationId: selectedMedication.id,
-            dateKey,
-            slotIndex: nextSlot,
-            notes,
-          });
-          router.back();
+          commitDoseLog(nextSlot);
         }}
       />
 
@@ -255,8 +305,21 @@ export default function MedicationLogScreen() {
           secondary
           index={6}
           onPress={() => {
-            removeDoseLog(existingLog.id);
-            router.back();
+            Alert.alert(
+              t('apps.medication.validation.undoTitle'),
+              t('apps.medication.validation.undoMessage'),
+              [
+                { text: t('apps.medication.validation.cancel'), style: 'cancel' },
+                {
+                  text: t('apps.medication.validation.undoConfirm'),
+                  style: 'destructive',
+                  onPress: () => {
+                    removeDoseLog(existingLog.id);
+                    router.back();
+                  },
+                },
+              ],
+            );
           }}
         />
       ) : null}

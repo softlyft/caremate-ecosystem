@@ -10,6 +10,8 @@ Shared Supabase project. Provider portal tables are cloud-authoritative; the mob
 | `provider_org_members` | Staff membership + role (`owner` \| `administrator` \| `staff` \| `viewer`); optional `company_email`, `company_phone`, `position` |
 | `provider_org_claims` | Claim verification challenges (email + code) |
 | `patient_provider_connections` | Connection CRM row |
+| `consent_definitions` | CareMate / future org-custom consent catalog (FHIR-aligned) |
+| `patient_provider_consents` | Per-connection FHIR Consent–shaped grants (source of truth) |
 | `patient_provider_activities` | Timeline / audit-ish events |
 | `message_conversations` | Chat threads (`org_patient` \| `direct`) |
 | `message_participants` | User or organization party + read cursor |
@@ -33,7 +35,7 @@ Relevant columns for engagement: `patient_id` (12-digit CareMate ID), FHIR-orien
 | `initiated_by` | `patient` \| `provider` |
 | `rejection_reason` | Required when rejected |
 | `patient_note` / `provider_note` | Optional request notes |
-| `shared_scopes` | Default `basic`, `emergency` (data share later) |
+| `shared_scopes` | Denormalized permit cache (`basic` + active consent codes). Source of truth: `patient_provider_consents`. |
 
 Unique: `(patient_id, organization_id)`.
 
@@ -54,7 +56,8 @@ Unique: `(patient_id, organization_id)`.
 | `20260724140000_profile_fhir_practitioner.sql` | Profile FHIR fields + `is_health_practitioner` |
 | `20260724150000_mark_connected_patient_as_staff.sql` | Company fields on members + `mark_connected_patient_as_staff` |
 | `20260724160000_direct_messaging.sql` | Org-scoped DMs, search/start RPCs, chat matrix helpers |
-| `20260724170000_fix_message_rls_recursion.sql` | Security-definer participant helpers (fix inbox RLS recursion) |
+| `20260802120000_connection_consent_scopes.sql` | Opt-in emergency: default `basic` only; strip auto emergency |
+| `20260802130000_patient_provider_consents.sql` | Consent registry + FHIR Consent rows; scopes cache sync |
 
 Also depends on catalog / identity migrations: FHIR orgs (`provider_organizations`…), `profiles.patient_id`, Nearby RPC.
 

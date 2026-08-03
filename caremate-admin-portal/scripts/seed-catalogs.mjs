@@ -40,16 +40,33 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(portalRoot, '.env'));
 loadEnvFile(path.join(portalRoot, '.env.local'));
 
-const CATEGORY_NAMES = {
-  heart: 'Heart Health',
-  child: 'Child Health',
-  pregnancy: 'Pregnancy',
-  mental: 'Mental Health',
-  medication: 'Medication',
-  nutrition: 'Nutrition',
-  fitness: 'Fitness',
-  infectious: 'Infectious Diseases',
+const LEGACY_CATEGORY_ID_MAP = {
+  heart: 'conditions',
+  child: 'family',
+  pregnancy: 'family',
+  mental: 'mental',
+  medication: 'medicines',
+  nutrition: 'nutrition',
+  fitness: 'nutrition',
+  infectious: 'conditions',
 };
+
+const CATEGORY_NAMES = {
+  prevention: 'Everyday Health & Prevention',
+  conditions: 'Common Conditions',
+  symptoms: 'Symptoms & When to Seek Care',
+  family: 'Family Health',
+  emergency: 'Emergency & First Aid',
+  care_system: 'Healthcare Navigation',
+  medicines: 'Medicines & Treatments',
+  mental: 'Mental Health & Well-being',
+  tests: 'Tests & Procedures',
+  nutrition: 'Nutrition & Healthy Living',
+};
+
+function resolveCategoryId(rawId) {
+  return LEGACY_CATEGORY_ID_MAP[rawId] ?? rawId;
+}
 
 const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -74,8 +91,9 @@ async function seedArticles() {
   const rows = [];
   const now = new Date().toISOString();
 
-  for (const [categoryId, items] of Object.entries(learn)) {
+  for (const [rawCategoryId, items] of Object.entries(learn)) {
     if (!Array.isArray(items)) continue;
+    const categoryId = resolveCategoryId(rawCategoryId);
     for (const item of items) {
       rows.push({
         id: item.id,
@@ -158,11 +176,12 @@ async function seedTips() {
   const now = new Date().toISOString();
   const rows = [];
 
-  for (const [categoryId, bodies] of Object.entries(tips)) {
+  for (const [rawCategoryId, bodies] of Object.entries(tips)) {
     if (!Array.isArray(bodies)) continue;
+    const categoryId = resolveCategoryId(rawCategoryId);
     bodies.forEach((body, index) => {
       rows.push({
-        id: `tip-${categoryId}-${index + 1}`,
+        id: `tip-${rawCategoryId}-${index + 1}`,
         category_id: categoryId,
         body,
         sort_order: index,

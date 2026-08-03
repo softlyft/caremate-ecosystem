@@ -71,19 +71,19 @@ Mirrored in portal `constants/content.ts` and ingest `PROVIDER_TYPES`.
 | `pharmacy` | Pharmacy | ✅ |
 | `laboratory` | Laboratory | ✅ |
 | `imaging_centre` | Imaging Centre | ✅ |
-| `blood_bank` | Blood Bank | ✅ |
-| `ambulance` | Ambulance Service | ✅ |
-| `telemedicine` | Telemedicine | ✅ |
-| `insurance` | Insurance / HMO | ✅ |
-| `mental_health` | Mental Health | ✅ |
 | `dentist` | Dental Clinic | ✅ |
-| `eye_care` | Eye Care | ✅ |
-| `home_care` | Home Care | ✅ |
-| `medical_equipment` | Medical Equipment & Supplies | ✅ |
-| `government_health` | Government Health Services | ✅ |
-| `ngo` | NGO | ✅ |
+| `eye_care` | Eye Clinic | ✅ |
+| `insurance` | Insurance | ✅ |
+| `blood_bank` | Blood Bank | — |
+| `ambulance` | Ambulance Service | — |
+| `telemedicine` | Telemedicine | — |
+| `mental_health` | Mental Health | — |
+| `home_care` | Home Care | — |
+| `medical_equipment` | Medical Equipment & Supplies | — |
+| `government_health` | Government Health Services | — |
+| `ngo` | NGO | — |
 
-`PRIMARY_PROVIDER_TYPES` drives the Nearby chip row (order matches the product list above).
+`PRIMARY_PROVIDER_TYPES` drives the Nearby chip row (order matches the product category list above). Other types remain valid in the data model / ingest for later.
 
 ## Provider Portal (engagement)
 
@@ -96,7 +96,7 @@ Patient ↔ provider **connections**, documents, **messages**, and appointment r
 | Messaging (org threads + DMs) | [`docs/messaging.md`](../../caremate-provider-portal/docs/messaging.md) |
 | Claim + verification | [`docs/auth-claim.md`](../../caremate-provider-portal/docs/auth-claim.md) |
 
-**Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
+**Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. **Connecting does not share clinical data** — patients grant FHIR Consent–aligned directives from **Me → Connections → Connected providers → [provider] → Add consent** (registry starts with emergency profile; `shared_scopes` is a denormalized cache). Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
 
 **Documents (shipped):** patients upload under **Me → Documents** (org optional; link later after connect); providers upload to connected patients; both appear in the same list (signed URL open). Patient-sourced files are visible to a provider only after the patient links that org and the connection is approved.
 

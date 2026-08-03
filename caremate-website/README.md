@@ -8,13 +8,21 @@ provider marketing + guide, privacy, and terms.
 | Path | Purpose |
 |------|---------|
 | `/` | Patient-facing welcome + CareMate for providers section |
-| `/guide` | Patient guide |
+| `/docs` | Docs hub — pick patient, community, or provider guide |
+| `/docs/patient` | Patient guide (how to use the app) |
+| `/docs/community` | Community enrollment + contributor guide |
+| `/docs/providers` | Provider guide (claim, connections, messages, mark-as-staff) |
+| `/articles` | Evergreen health article categories |
+| `/articles/:category` | Articles in a category |
+| `/articles/:category/:slug` | Article detail (canonical) |
+| `/articles/:id` | Redirects to canonical category/slug (legacy app shares) |
 | `/ccn` | Community Network marketing |
-| `/ccn/guide` | Community enrollment + contributor guide |
 | `/providers` | Provider marketing (portal positioning) |
-| `/providers/guide` | Provider guide (claim, connections, messages, mark-as-staff) |
 | `/privacy` | Privacy policy |
 | `/terms` | Terms of service |
+
+Legacy guide URLs redirect: `/guide` → `/docs/patient`, `/ccn/guide` → `/docs/community`, `/providers/guide` → `/docs/providers`.
+
 
 ## Develop
 

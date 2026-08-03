@@ -16,6 +16,19 @@ export type TemperatureUnit = 'c' | 'f';
 export type WeightUnit = 'kg' | 'lbs';
 export type HeightUnit = 'cm' | 'ft';
 
+export const BLOOD_SUGAR_CONTEXTS = [
+  'fasting',
+  'before_meal',
+  'two_hours_after_meal',
+  'random',
+] as const;
+
+export type BloodSugarContext = (typeof BLOOD_SUGAR_CONTEXTS)[number];
+
+export type VitalSource = 'manual' | 'device';
+
+export type BloodPressurePosition = 'sitting' | 'standing' | 'lying';
+
 export type VitalUnit =
   | 'mmHg'
   | BloodSugarUnit
@@ -34,7 +47,7 @@ export interface VitalUnitPrefs {
 }
 
 export const DEFAULT_UNIT_PREFS: VitalUnitPrefs = {
-  blood_sugar: 'mmol_l',
+  blood_sugar: 'mg_dl',
   body_temperature: 'c',
   weight: 'kg',
   height: 'cm',
@@ -45,13 +58,21 @@ export interface VitalEntry {
   type: VitalType;
   recordedAt: string;
   unit: VitalUnit;
-  /** Single-value vitals (not BP / not height-in-ft). */
+  /** Single-value vitals (not BP). Stored in canonical units when possible. */
   value?: number;
   systolic?: number;
   diastolic?: number;
-  /** Height in feet+inches when unit is `ft`. */
+  /** Legacy height in feet+inches when unit is `ft` (new entries store cm). */
   feet?: number;
   inches?: number;
+  /** Required for blood sugar interpretation. */
+  bloodSugarContext?: BloodSugarContext;
+  /** How the reading was captured. */
+  source?: VitalSource;
+  /** Optional BP posture context. */
+  bpPosition?: BloodPressurePosition;
+  /** Optional connected / home device label. */
+  deviceName?: string;
   notes?: string;
 }
 
@@ -63,7 +84,7 @@ export const VITAL_TYPE_META: Record<
   }
 > = {
   blood_pressure: { defaultUnit: 'mmHg', hasUnitPicker: false },
-  blood_sugar: { defaultUnit: 'mmol_l', hasUnitPicker: true },
+  blood_sugar: { defaultUnit: 'mg_dl', hasUnitPicker: true },
   heart_rate: { defaultUnit: 'bpm', hasUnitPicker: false },
   body_temperature: { defaultUnit: 'c', hasUnitPicker: true },
   weight: { defaultUnit: 'kg', hasUnitPicker: true },

@@ -1,4 +1,9 @@
-import { estimateReadingTime, HEALTH_CATEGORIES } from '@/domains/articles/categories';
+import {
+  estimateReadingTime,
+  getHealthCategoryName,
+  HEALTH_CATEGORIES,
+  normalizeHealthCategoryId,
+} from '@/domains/articles/categories';
 import {
   formatLearnContentType,
   isLearnContentType,
@@ -36,8 +41,29 @@ function makeArticle(partial: Partial<Article> & Pick<Article, 'id' | 'title'>):
 
 describe('articles/categories', () => {
   it('exposes the Learn health category catalog', () => {
-    expect(HEALTH_CATEGORIES.length).toBeGreaterThanOrEqual(8);
+    expect(HEALTH_CATEGORIES).toHaveLength(10);
     expect(HEALTH_CATEGORIES.every((category) => category.slug && category.accent)).toBe(true);
+    expect(HEALTH_CATEGORIES.every((category) => category.shortLabel && category.name)).toBe(true);
+    expect(HEALTH_CATEGORIES.map((category) => category.id)).toEqual([
+      'prevention',
+      'conditions',
+      'symptoms',
+      'family',
+      'emergency',
+      'care_system',
+      'medicines',
+      'mental',
+      'tests',
+      'nutrition',
+    ]);
+  });
+
+  it('maps legacy category ids to the new taxonomy', () => {
+    expect(normalizeHealthCategoryId('heart')).toBe('conditions');
+    expect(normalizeHealthCategoryId('pregnancy')).toBe('family');
+    expect(normalizeHealthCategoryId('medication')).toBe('medicines');
+    expect(getHealthCategoryName('infectious')).toBe('Common Conditions');
+    expect(getHealthCategoryName('prevention')).toBe('Everyday Health & Prevention');
   });
 
   it('estimates reading time with a 3-minute floor', () => {
