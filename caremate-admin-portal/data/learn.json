@@ -1,5 +1,6 @@
 {
-  "heart": [
+  "prevention": [],
+  "conditions": [
     {
       "id": "evergreen-heart-1",
       "title": "Know your blood pressure numbers",
@@ -29,9 +30,40 @@
       "title": "Cholesterol basics in plain language",
       "summary": "LDL, HDL, and triglycerides each play a different role in heart risk.",
       "content": "LDL is often called “bad” cholesterol because high levels can contribute to plaque in arteries. HDL helps carry cholesterol away and is generally protective when higher. Triglycerides rise with excess sugar, alcohol, and low activity.\n\nA fasting or non-fasting lipid panel helps your clinician interpret your risk alongside blood pressure, smoking status, and family history.\n\nDiet, exercise, and sometimes medication can improve your numbers. Do not stop prescribed medicine without medical advice."
+    },
+    {
+      "id": "evergreen-infectious-1",
+      "title": "Hand hygiene that actually works",
+      "summary": "Soap, water, and key moments cut transmission of many infections.",
+      "content": "Wash with soap for at least 20 seconds before eating, after using the toilet, after coughing or sneezing into your hands, and after caring for someone who is ill.\n\nIf soap and water are unavailable, use alcohol-based hand rub when hands are not visibly dirty.\n\nKeep nails reasonably short and avoid touching your eyes, nose, and mouth with unwashed hands."
+    },
+    {
+      "id": "evergreen-infectious-2",
+      "title": "Cough and sneeze etiquette",
+      "summary": "Covering correctly protects the people around you.",
+      "content": "Cough or sneeze into a tissue or your elbow—not your bare hands. Dispose of tissues and wash hands afterward.\n\nStay home from work, school, or gatherings when you have a fever or productive cough if you can, especially around infants and older adults.\n\nWear a mask in crowded indoor spaces when you are ill or when local guidance recommends it."
+    },
+    {
+      "id": "evergreen-infectious-3",
+      "title": "When a cold might be something more",
+      "summary": "Duration, breathing trouble, and high fever change the plan.",
+      "content": "Most colds improve within a week. Seek care for trouble breathing, chest pain, confusion, persistent high fever, symptoms that suddenly worsen, or illness in high-risk people (infants, pregnant people, older adults, immunocompromised).\n\nHydration and rest help viral illnesses. Antibiotics are not routine for uncomplicated colds.\n\nAsk a clinician about testing when influenza, COVID-19, malaria, or other local infections are circulating."
+    },
+    {
+      "id": "evergreen-infectious-4",
+      "title": "Food and water precautions while traveling",
+      "summary": "Simple choices reduce traveler’s diarrhea and related infections.",
+      "content": "Prefer sealed bottled or boiled water when tap water is uncertain. Avoid ice of unknown origin and raw foods washed in unsafe water.\n\nChoose hot, thoroughly cooked meals. Peel fruits yourself.\n\nPack oral rehydration supplies and know where to seek care if vomiting and diarrhea become severe."
+    },
+    {
+      "id": "evergreen-infectious-5",
+      "title": "Vaccines and boosters for adults",
+      "summary": "Immunization is not only for children.",
+      "content": "Adults may need tetanus boosters, influenza vaccines, COVID-19 updates, hepatitis vaccines, or others based on age, job, travel, and health conditions.\n\nAsk at clinic visits which vaccines you are due for. Pregnancy and chronic disease can change recommendations.\n\nKeeping a personal vaccine record prevents duplicate or missed doses."
     }
   ],
-  "child": [
+  "symptoms": [],
+  "family": [
     {
       "id": "evergreen-child-1",
       "title": "When a child’s fever needs attention",
@@ -61,9 +93,7 @@
       "title": "Nutrition building blocks for growing kids",
       "summary": "Regular meals with variety support growth, energy, and concentration.",
       "content": "Offer fruits, vegetables, proteins, dairy or fortified alternatives, and whole grains across the week. Children may need repeated gentle exposure before accepting new foods.\n\nLimit sugary drinks and keep ultraprocessed snacks as occasional foods rather than daily staples.\n\nIf growth seems slow, appetite suddenly changes, or you worry about deficiencies, discuss screening and practical meal ideas with a clinician."
-    }
-  ],
-  "pregnancy": [
+    },
     {
       "id": "evergreen-pregnancy-1",
       "title": "Early pregnancy warning signs to know",
@@ -93,6 +123,40 @@
       "title": "Mental health while expecting",
       "summary": "Mood changes are common; persistent depression or anxiety deserves support.",
       "content": "Hormonal shifts, sleep loss, and life changes can affect mood in pregnancy. Tell someone if you feel hopeless, panic often, or cannot bond with the pregnancy.\n\nSupport can include counseling, peer groups, and medication that a clinician judges safe for pregnancy.\n\nPartners and family can help by sharing chores, attending visits, and checking in without judgment."
+    }
+  ],
+  "emergency": [],
+  "care_system": [],
+  "medicines": [
+    {
+      "id": "evergreen-medication-1",
+      "title": "How to take medicines safely",
+      "summary": "Right drug, dose, time, and route prevent many avoidable problems.",
+      "content": "Read the label every time. Check the name, dose, and whether the medicine is with food or on an empty stomach.\n\nUse only the measuring device that comes with liquid medicines—not kitchen spoons. Do not share prescription drugs.\n\nIf you miss a dose, follow the package or pharmacist advice. Do not double up unless instructed."
+    },
+    {
+      "id": "evergreen-medication-2",
+      "title": "Storing medicines at home",
+      "summary": "Heat, humidity, and curious children are common storage risks.",
+      "content": "Keep medicines in a cool, dry place away from direct sun unless the label says otherwise. Bathrooms are often too humid.\n\nUse child-resistant containers and store them out of children’s reach and sight. Check expiry dates during a monthly tidy.\n\nAsk a pharmacist how to dispose of unused opioids, antibiotics, and sharps safely in your area."
+    },
+    {
+      "id": "evergreen-medication-3",
+      "title": "Antibiotics: finish the plan you were given",
+      "summary": "Stopping early can leave infection behind and encourage resistance.",
+      "content": "Take antibiotics exactly as prescribed, even if you feel better midway—unless your clinician tells you to stop.\n\nAntibiotics do not treat viruses like most colds and flu. Using them “just in case” can cause side effects and resistance.\n\nTell your clinician about rashes, severe diarrhea, or breathing difficulty after a dose."
+    },
+    {
+      "id": "evergreen-medication-4",
+      "title": "Interactions: food, drinks, and other drugs",
+      "summary": "Some combinations change how strong a medicine becomes.",
+      "content": "Grapefruit, alcohol, herbal teas, and over-the-counter cold remedies can interact with prescriptions. Always list everything you take—including supplements—at clinic visits.\n\nPharmacists can check interactions quickly if you bring your full list.\n\nNever combine sedating medicines with alcohol. When in doubt, ask before you mix."
+    },
+    {
+      "id": "evergreen-medication-5",
+      "title": "Building a simple medication routine",
+      "summary": "Reminders and pill organizers reduce missed and double doses.",
+      "content": "Link doses to daily anchors like breakfast or brushing teeth. Phone alarms and shared family reminders help.\n\nA weekly pill organizer works for many people if filled carefully once a week. Keep a written list of drug names and doses in your wallet or phone.\n\nBring that list to every appointment and emergency visit."
     }
   ],
   "mental": [
@@ -127,38 +191,7 @@
       "content": "Set app limits or move social apps off your home screen. Avoid news doomscrolling right before bed.\n\nReplace one scroll session with a short walk, stretch, or message to a real person.\n\nCurate feeds toward accounts that educate or uplift rather than inflame. Your attention is a health resource."
     }
   ],
-  "medication": [
-    {
-      "id": "evergreen-medication-1",
-      "title": "How to take medicines safely",
-      "summary": "Right drug, dose, time, and route prevent many avoidable problems.",
-      "content": "Read the label every time. Check the name, dose, and whether the medicine is with food or on an empty stomach.\n\nUse only the measuring device that comes with liquid medicines—not kitchen spoons. Do not share prescription drugs.\n\nIf you miss a dose, follow the package or pharmacist advice. Do not double up unless instructed."
-    },
-    {
-      "id": "evergreen-medication-2",
-      "title": "Storing medicines at home",
-      "summary": "Heat, humidity, and curious children are common storage risks.",
-      "content": "Keep medicines in a cool, dry place away from direct sun unless the label says otherwise. Bathrooms are often too humid.\n\nUse child-resistant containers and store them out of children’s reach and sight. Check expiry dates during a monthly tidy.\n\nAsk a pharmacist how to dispose of unused opioids, antibiotics, and sharps safely in your area."
-    },
-    {
-      "id": "evergreen-medication-3",
-      "title": "Antibiotics: finish the plan you were given",
-      "summary": "Stopping early can leave infection behind and encourage resistance.",
-      "content": "Take antibiotics exactly as prescribed, even if you feel better midway—unless your clinician tells you to stop.\n\nAntibiotics do not treat viruses like most colds and flu. Using them “just in case” can cause side effects and resistance.\n\nTell your clinician about rashes, severe diarrhea, or breathing difficulty after a dose."
-    },
-    {
-      "id": "evergreen-medication-4",
-      "title": "Interactions: food, drinks, and other drugs",
-      "summary": "Some combinations change how strong a medicine becomes.",
-      "content": "Grapefruit, alcohol, herbal teas, and over-the-counter cold remedies can interact with prescriptions. Always list everything you take—including supplements—at clinic visits.\n\nPharmacists can check interactions quickly if you bring your full list.\n\nNever combine sedating medicines with alcohol. When in doubt, ask before you mix."
-    },
-    {
-      "id": "evergreen-medication-5",
-      "title": "Building a simple medication routine",
-      "summary": "Reminders and pill organizers reduce missed and double doses.",
-      "content": "Link doses to daily anchors like breakfast or brushing teeth. Phone alarms and shared family reminders help.\n\nA weekly pill organizer works for many people if filled carefully once a week. Keep a written list of drug names and doses in your wallet or phone.\n\nBring that list to every appointment and emergency visit."
-    }
-  ],
+  "tests": [],
   "nutrition": [
     {
       "id": "evergreen-nutrition-1",
@@ -189,9 +222,7 @@
       "title": "Food safety at home",
       "summary": "Clean hands, separate raw foods, and thorough cooking prevent many illnesses.",
       "content": "Wash hands before cooking and after handling raw meat, eggs, or pets. Keep raw and ready-to-eat foods on separate surfaces.\n\nCook meats and leftovers to safe temperatures and refrigerate promptly. When in doubt about spoilage, throw it out.\n\nUse clean water for drinking and washing produce."
-    }
-  ],
-  "fitness": [
+    },
     {
       "id": "evergreen-fitness-1",
       "title": "Start moving with a walking habit",
@@ -221,38 +252,6 @@
       "title": "Listen to pain versus normal effort",
       "summary": "Knowing the difference keeps you progressing safely.",
       "content": "Muscle burn and heavier breathing during exercise can be normal. Sudden sharp pain, swelling, or joint instability is not.\n\nScale back intensity after illness and rebuild gradually. Hydrate and avoid extreme heat when possible.\n\nPeople with chronic conditions should ask clinicians which activities and heart-rate ranges are appropriate."
-    }
-  ],
-  "infectious": [
-    {
-      "id": "evergreen-infectious-1",
-      "title": "Hand hygiene that actually works",
-      "summary": "Soap, water, and key moments cut transmission of many infections.",
-      "content": "Wash with soap for at least 20 seconds before eating, after using the toilet, after coughing or sneezing into your hands, and after caring for someone who is ill.\n\nIf soap and water are unavailable, use alcohol-based hand rub when hands are not visibly dirty.\n\nKeep nails reasonably short and avoid touching your eyes, nose, and mouth with unwashed hands."
-    },
-    {
-      "id": "evergreen-infectious-2",
-      "title": "Cough and sneeze etiquette",
-      "summary": "Covering correctly protects the people around you.",
-      "content": "Cough or sneeze into a tissue or your elbow—not your bare hands. Dispose of tissues and wash hands afterward.\n\nStay home from work, school, or gatherings when you have a fever or productive cough if you can, especially around infants and older adults.\n\nWear a mask in crowded indoor spaces when you are ill or when local guidance recommends it."
-    },
-    {
-      "id": "evergreen-infectious-3",
-      "title": "When a cold might be something more",
-      "summary": "Duration, breathing trouble, and high fever change the plan.",
-      "content": "Most colds improve within a week. Seek care for trouble breathing, chest pain, confusion, persistent high fever, symptoms that suddenly worsen, or illness in high-risk people (infants, pregnant people, older adults, immunocompromised).\n\nHydration and rest help viral illnesses. Antibiotics are not routine for uncomplicated colds.\n\nAsk a clinician about testing when influenza, COVID-19, malaria, or other local infections are circulating."
-    },
-    {
-      "id": "evergreen-infectious-4",
-      "title": "Food and water precautions while traveling",
-      "summary": "Simple choices reduce traveler’s diarrhea and related infections.",
-      "content": "Prefer sealed bottled or boiled water when tap water is uncertain. Avoid ice of unknown origin and raw foods washed in unsafe water.\n\nChoose hot, thoroughly cooked meals. Peel fruits yourself.\n\nPack oral rehydration supplies and know where to seek care if vomiting and diarrhea become severe."
-    },
-    {
-      "id": "evergreen-infectious-5",
-      "title": "Vaccines and boosters for adults",
-      "summary": "Immunization is not only for children.",
-      "content": "Adults may need tetanus boosters, influenza vaccines, COVID-19 updates, hepatitis vaccines, or others based on age, job, travel, and health conditions.\n\nAsk at clinic visits which vaccines you are due for. Pregnancy and chronic disease can change recommendations.\n\nKeeping a personal vaccine record prevents duplicate or missed doses."
     }
   ]
 }

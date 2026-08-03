@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
 import { Button, Input } from '@/components/ui/form-controls';
 
@@ -23,6 +23,10 @@ import {
   localizeMoodOptions,
   localizeSymptomOptions,
 } from '@/mini-apps/pregnancy-tracker/localize';
+import {
+  assessPregnancyLogDraft,
+  type PregnancyIssue,
+} from '@/mini-apps/pregnancy-tracker/validation';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 
@@ -48,6 +52,54 @@ export default function PregnancyLogScreen() {
         ? current.filter((item) => item !== symptom)
         : [...current, symptom],
     );
+  };
+
+  const issueMessage = (issue: PregnancyIssue): string =>
+    t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const commitLog = () => {
+    const assessment = assessPregnancyLogDraft({
+      dateKey: todayKey,
+      mood,
+      symptoms,
+      kickCount,
+      notes,
+    });
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.pregnancy.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    if (!assessment.payload) {
+      Alert.alert(
+        t('apps.pregnancy.validation.checkTitle'),
+        t('apps.pregnancy.validation.unusualCheck'),
+      );
+      return;
+    }
+
+    const save = () => {
+      upsertDailyLog({
+        ...getTodayLog(todayKey),
+        ...assessment.payload!,
+      });
+      router.back();
+    };
+
+    if (assessment.soft.length > 0) {
+      Alert.alert(
+        t('apps.pregnancy.validation.confirmTitle'),
+        assessment.soft.map(issueMessage).join('\n\n'),
+        [
+          { text: t('apps.pregnancy.validation.cancel'), style: 'cancel' },
+          { text: t('apps.pregnancy.validation.saveAnyway'), onPress: save },
+        ],
+      );
+      return;
+    }
+
+    save();
   };
 
   if (!hydrated) {
@@ -138,16 +190,7 @@ export default function PregnancyLogScreen() {
         accent={theme.color}
         soft={theme.backgroundColor}
         index={5}
-        onPress={() => {
-          upsertDailyLog({
-            ...getTodayLog(todayKey),
-            mood,
-            symptoms,
-            kickCount,
-            notes: notes.trim(),
-          });
-          router.back();
-        }}
+        onPress={commitLog}
       />
     </MiniAppScreen>
   );

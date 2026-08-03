@@ -15,7 +15,7 @@ import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
-import { ARTICLE_THUMBNAILS, HEALTH_CATEGORIES } from '@/domains/articles/categories';
+import { ARTICLE_THUMBNAILS, getHealthCategory } from '@/domains/articles/categories';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { ArticleShareButton } from '@/domains/articles/components/ArticleShareButton';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
@@ -27,10 +27,11 @@ import { AdSlot } from '@/features/ads/AdSlot';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 function getCategoryMeta(categoryId: string) {
-  const match = HEALTH_CATEGORIES.find((category) => category.id === categoryId);
+  const match = getHealthCategory(categoryId);
   return {
     color: match?.color ?? palette.primaryLight,
     emoji: match?.emoji ?? '✨',
+    name: match?.name,
   };
 }
 
@@ -144,7 +145,7 @@ export default function ArticleDetailScreen() {
               </View>
               <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.92)' }]}>
                 <AppText variant="caption" style={styles.pillMutedText}>
-                  {category.emoji} {article.categoryName}
+                  {category.emoji} {category.name ?? article.categoryName}
                 </AppText>
               </View>
             </View>

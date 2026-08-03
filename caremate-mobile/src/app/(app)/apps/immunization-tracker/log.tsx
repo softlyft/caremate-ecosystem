@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -13,6 +13,10 @@ import {
 } from '@/mini-apps/immunization-tracker/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/immunization-tracker/utils';
 import { localizeVaccine } from '@/mini-apps/immunization-tracker/localize';
+import {
+  assessImmunizationRecordDraft,
+  type ImmunizationIssue,
+} from '@/mini-apps/immunization-tracker/validation';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -56,8 +60,9 @@ export default function ImmunizationLogScreen() {
     profiles[0]?.id ??
     null;
 
+  const profile = profiles.find((item) => item.id === profileId);
   const profileRecords = records.filter((record) => record.profileId === profileId);
-  const profileName = profiles.find((profile) => profile.id === profileId)?.name;
+  const profileName = profile?.name;
 
   const defaultVaccineId =
     typeof initialVaccineId === 'string' && VACCINE_SCHEDULE.some((v) => v.id === initialVaccineId)
@@ -82,6 +87,53 @@ export default function ImmunizationLogScreen() {
     setAdministeredDate(record?.administeredDate ?? todayKey);
     setProvider(record?.provider ?? '');
     setNotes(record?.notes ?? '');
+  };
+
+  const issueMessage = (issue: ImmunizationIssue): string =>
+    t(`apps.immunization.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const commitRecord = () => {
+    const assessment = assessImmunizationRecordDraft({
+      profile,
+      vaccineId: selectedVaccineId,
+      administeredDate,
+      provider,
+      notes,
+      todayKey,
+      records: profileRecords,
+    });
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.immunization.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    if (!assessment.payload) {
+      Alert.alert(
+        t('apps.immunization.validation.checkTitle'),
+        t('apps.immunization.validation.unusualCheck'),
+      );
+      return;
+    }
+
+    const save = () => {
+      upsertRecord(assessment.payload!);
+      router.back();
+    };
+
+    if (assessment.soft.length > 0) {
+      Alert.alert(
+        t('apps.immunization.validation.confirmTitle'),
+        assessment.soft.map(issueMessage).join('\n\n'),
+        [
+          { text: t('apps.immunization.validation.cancel'), style: 'cancel' },
+          { text: t('apps.immunization.validation.saveAnyway'), onPress: save },
+        ],
+      );
+      return;
+    }
+
+    save();
   };
 
   if (!hydrated) {
@@ -199,31 +251,17 @@ export default function ImmunizationLogScreen() {
         />
       </MiniAppCard>
 
-      <View style={!administeredDate ? styles.ctaDisabled : undefined}>
-        <MiniAppCta
-          label={
-            existingRecord
-              ? t('apps.immunizationTracker.updateRecord')
-              : t('apps.immunizationTracker.saveVaccine')
-          }
-          accent={theme.color}
-          soft={theme.backgroundColor}
-          index={5}
-          onPress={() => {
-            if (!administeredDate) {
-              return;
-            }
-            upsertRecord({
-              profileId,
-              vaccineId: selectedVaccineId,
-              administeredDate,
-              provider: provider.trim() || undefined,
-              notes: notes.trim() || undefined,
-            });
-            router.back();
-          }}
-        />
-      </View>
+      <MiniAppCta
+        label={
+          existingRecord
+            ? t('apps.immunizationTracker.updateRecord')
+            : t('apps.immunizationTracker.saveVaccine')
+        }
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        index={5}
+        onPress={commitRecord}
+      />
 
       {existingRecord ? (
         <MiniAppCta
@@ -233,8 +271,21 @@ export default function ImmunizationLogScreen() {
           secondary
           index={6}
           onPress={() => {
-            removeRecord(profileId, selectedVaccineId);
-            router.back();
+            Alert.alert(
+              t('apps.immunization.validation.undoTitle'),
+              t('apps.immunization.validation.undoMessage'),
+              [
+                { text: t('apps.immunization.validation.cancel'), style: 'cancel' },
+                {
+                  text: t('apps.immunization.validation.undoConfirm'),
+                  style: 'destructive',
+                  onPress: () => {
+                    removeRecord(profileId, selectedVaccineId);
+                    router.back();
+                  },
+                },
+              ],
+            );
           }}
         />
       ) : null}
@@ -248,15 +299,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
-  muted: {
-    color: palette.textSecondary,
-    flex: 1,
-    textAlign: 'center',
-  },
   selectedDate: {
     fontWeight: '600',
-  },
-  ctaDisabled: {
-    opacity: 0.45,
   },
 });

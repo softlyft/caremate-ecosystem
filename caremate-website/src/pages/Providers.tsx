@@ -17,7 +17,7 @@ export function ProvidersPage() {
             already use the CareMate app.
           </p>
           <div className={styles.ctaRow}>
-            <Link className={styles.ctaPrimary} to="/providers/guide">
+            <Link className={styles.ctaPrimary} to="/docs/providers">
               Read the provider guide
             </Link>
             <a className={styles.ctaSecondary} href="#capabilities">
@@ -131,7 +131,7 @@ export function ProvidersPage() {
             what CareMate does — and does not — replace.
           </p>
           <div className={styles.ctaRow}>
-            <Link className={styles.ctaPrimaryDark} to="/providers/guide">
+            <Link className={styles.ctaPrimaryDark} to="/docs/providers">
               Provider guide
             </Link>
             <Link className={styles.ctaSecondaryDark} to="/">

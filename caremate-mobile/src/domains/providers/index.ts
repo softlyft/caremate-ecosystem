@@ -7,6 +7,19 @@ export {
   type PatientProviderConnection,
 } from '@/domains/providers/connection-service';
 export {
+  CAREMATE_SYSTEM_CONSENT_CODES,
+  CONNECTION_CONSENTS,
+  applyConsentScope,
+  hasConsentScope,
+  listAvailableConsents,
+  listGrantedConsents,
+  type CareMateSystemConsentCode,
+  type ConsentDefinition,
+  type ConnectionConsentDefinition,
+  type ConnectionConsentScope,
+  type PatientProviderConsent,
+} from '@/domains/providers/connection-consents';
+export {
   providerDocumentsService,
   PROVIDER_DOCUMENT_TYPES,
   type DocumentOrgOption,

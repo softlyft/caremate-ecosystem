@@ -6,7 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { Button } from '@/components/ui/form-controls';
 import { AppText } from '@/components/ui/AppText';
-import { ARTICLE_THUMBNAILS, HEALTH_CATEGORIES } from '@/domains/articles/categories';
+import { ARTICLE_THUMBNAILS, getHealthCategory } from '@/domains/articles/categories';
 import { ArticleShareButton } from '@/domains/articles/components/ArticleShareButton';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
@@ -15,11 +15,15 @@ import { palette, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
 function getCategoryAccent(categoryId: string): string {
-  return HEALTH_CATEGORIES.find((category) => category.id === categoryId)?.color ?? '#CBD5E1';
+  return getHealthCategory(categoryId)?.color ?? '#CBD5E1';
 }
 
 function getCategoryEmoji(categoryId: string): string {
-  return HEALTH_CATEGORIES.find((category) => category.id === categoryId)?.emoji ?? '✨';
+  return getHealthCategory(categoryId)?.emoji ?? '✨';
+}
+
+function getCategoryDisplayName(article: Article): string {
+  return getHealthCategory(article.categoryId)?.name ?? article.categoryName;
 }
 
 function ArticleThumbnail({
@@ -88,7 +92,7 @@ function MetaPills({ article }: { article: Article }) {
       </View>
       <View style={styles.pillMuted}>
         <AppText variant="caption" style={styles.pillMutedText} numberOfLines={1}>
-          {article.categoryName}
+          {getCategoryDisplayName(article)}
         </AppText>
       </View>
     </View>

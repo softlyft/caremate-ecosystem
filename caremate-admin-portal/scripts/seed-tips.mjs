@@ -61,15 +61,31 @@ const admin = createClient(url, key, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
+const LEGACY_CATEGORY_ID_MAP = {
+  heart: 'conditions',
+  child: 'family',
+  pregnancy: 'family',
+  mental: 'mental',
+  medication: 'medicines',
+  nutrition: 'nutrition',
+  fitness: 'nutrition',
+  infectious: 'conditions',
+};
+
+function resolveCategoryId(rawId) {
+  return LEGACY_CATEGORY_ID_MAP[rawId] ?? rawId;
+}
+
 const tips = JSON.parse(fs.readFileSync(tipsPath, 'utf8'));
 const now = new Date().toISOString();
 const rows = [];
 
-for (const [categoryId, bodies] of Object.entries(tips)) {
+for (const [rawCategoryId, bodies] of Object.entries(tips)) {
   if (!Array.isArray(bodies)) continue;
+  const categoryId = resolveCategoryId(rawCategoryId);
   bodies.forEach((body, index) => {
     rows.push({
-      id: `tip-${categoryId}-${index + 1}`,
+      id: `tip-${rawCategoryId}-${index + 1}`,
       category_id: categoryId,
       body,
       sort_order: index,

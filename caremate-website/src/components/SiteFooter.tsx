@@ -17,11 +17,13 @@ export function SiteFooter() {
           </div>
         </div>
         <nav className={styles.links} aria-label="Footer">
-          <Link to="/guide">Patient guide</Link>
+          <Link to="/docs">Docs</Link>
+          <Link to="/docs/patient">Patient guide</Link>
+          <Link to="/docs/community">Community guide</Link>
+          <Link to="/docs/providers">Provider guide</Link>
+          <Link to="/articles">Articles</Link>
           <Link to="/ccn">Community Network</Link>
-          <Link to="/ccn/guide">Community guide</Link>
           <Link to="/providers">For providers</Link>
-          <Link to="/providers/guide">Provider guide</Link>
           <Link to="/privacy">Privacy policy</Link>
           <Link to="/terms">Terms of service</Link>
         </nav>

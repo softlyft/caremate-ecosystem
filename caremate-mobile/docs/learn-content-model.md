@@ -97,7 +97,8 @@ Renderers choose layout from `contentType` and read only the keys they need.
 ```
 Learn tab
   ├── Format chips: All | Article | Video | Podcast | …
-  ├── Topic row: Heart | Child | …  (existing HEALTH_CATEGORIES)
+  ├── Topic row: Prevention | Conditions | Symptoms | Family | …  (HEALTH_CATEGORIES shortLabel)
+  ├── Opened category title uses full name (e.g. Everyday Health & Prevention)
   └── Cards → detail by contentType
         article  → text reader (+ optional sourceUrl)
         video    → player / external

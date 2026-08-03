@@ -1,7 +1,11 @@
-import { HEALTH_CATEGORIES } from '@/features/home/constants';
+import {
+  HEALTH_CATEGORIES,
+  normalizeHealthCategoryId,
+  type HealthCategoryId,
+} from '@/features/home/constants';
 import { healthTipRepository } from '@/domains/tips/repository';
 
-export type HealthTipCategoryId = (typeof HEALTH_CATEGORIES)[number]['id'];
+export type HealthTipCategoryId = HealthCategoryId;
 
 export interface DailyHealthTipResult {
   categoryId: HealthTipCategoryId;
@@ -40,7 +44,9 @@ export async function getDailyHealthTip(
   const categoryIndex = (day + userHash) % categories.length;
   const category = categories[categoryIndex];
 
-  const categoryTips = tips.filter((tip) => tip.categoryId === category.id);
+  const categoryTips = tips.filter(
+    (tip) => normalizeHealthCategoryId(tip.categoryId) === category.id,
+  );
   const pool = categoryTips.length > 0 ? categoryTips : tips;
   const tipIndex = (day + userHash) % pool.length;
   const chosen = pool[tipIndex];
@@ -50,7 +56,7 @@ export async function getDailyHealthTip(
 
   return {
     categoryId: category.id,
-    categoryName: category.name,
+    categoryName: category.shortLabel,
     emoji: category.emoji,
     tip: chosen.body,
     tipIndex,

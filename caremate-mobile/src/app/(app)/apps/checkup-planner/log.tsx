@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
@@ -20,6 +20,10 @@ import {
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
 import { localizeCadence, localizeCheckup } from '@/mini-apps/checkup-planner/localize';
+import {
+  assessCompletionDraft,
+  type CheckupIssue,
+} from '@/mini-apps/checkup-planner/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
@@ -100,6 +104,55 @@ export default function CheckupPlannerLogScreen() {
 
   const localizedCheckup = localizeCheckup(checkup, t);
 
+  const issueMessage = (issue: CheckupIssue): string =>
+    t(`apps.checkup.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const commitCompletion = () => {
+    const assessment = assessCompletionDraft({
+      checkupId: checkup.id,
+      year,
+      completedDate,
+      notes,
+      profile,
+      todayKey,
+      currentYear,
+      completions,
+      checkup,
+    });
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.checkup.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    if (!assessment.payload) {
+      Alert.alert(
+        t('apps.checkup.validation.checkTitle'),
+        t('apps.checkup.validation.unusualCheck'),
+      );
+      return;
+    }
+
+    const save = () => {
+      markComplete(assessment.payload!);
+      router.back();
+    };
+
+    if (assessment.soft.length > 0) {
+      Alert.alert(
+        t('apps.checkup.validation.confirmTitle'),
+        assessment.soft.map(issueMessage).join('\n\n'),
+        [
+          { text: t('apps.checkup.validation.cancel'), style: 'cancel' },
+          { text: t('apps.checkup.validation.saveAnyway'), onPress: save },
+        ],
+      );
+      return;
+    }
+
+    save();
+  };
+
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
@@ -150,15 +203,7 @@ export default function CheckupPlannerLogScreen() {
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}
-        onPress={() => {
-          markComplete({
-            checkupId: checkup.id,
-            year,
-            completedDate,
-            notes,
-          });
-          router.back();
-        }}
+        onPress={commitCompletion}
       />
 
       {existing ? (
@@ -169,8 +214,21 @@ export default function CheckupPlannerLogScreen() {
           secondary
           index={5}
           onPress={() => {
-            removeCompletion(checkup.id, year);
-            router.back();
+            Alert.alert(
+              t('apps.checkup.validation.undoTitle'),
+              t('apps.checkup.validation.undoMessage'),
+              [
+                { text: t('apps.checkup.validation.cancel'), style: 'cancel' },
+                {
+                  text: t('apps.checkup.validation.undoConfirm'),
+                  style: 'destructive',
+                  onPress: () => {
+                    removeCompletion(checkup.id, year);
+                    router.back();
+                  },
+                },
+              ],
+            );
           }}
         />
       ) : null}

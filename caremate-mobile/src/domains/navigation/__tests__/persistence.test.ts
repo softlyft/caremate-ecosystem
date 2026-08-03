@@ -18,8 +18,8 @@ describe('navigation/persistence', () => {
     expect(toRestorableAppHref('/articles/abc-123')).toBe('/(app)/articles/abc-123');
     expect(toRestorableAppHref('/')).toBe('/(app)/(tabs)');
     expect(toRestorableAppHref('/profile')).toBe('/(app)/(tabs)/profile');
-    expect(toRestorableAppHref('/articles', { category: 'heart' })).toBe(
-      '/(app)/(tabs)/articles?category=heart',
+    expect(toRestorableAppHref('/articles', { category: 'conditions' })).toBe(
+      '/(app)/(tabs)/articles?category=conditions',
     );
     expect(toRestorableAppHref('/apps/period-tracker')).toBe('/(app)/apps/period-tracker');
   });

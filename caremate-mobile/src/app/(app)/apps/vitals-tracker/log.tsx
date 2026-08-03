@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { AppText } from '@/components/ui/AppText';
@@ -15,6 +15,7 @@ import {
 } from '@/mini-apps/_kit';
 import {
   VITAL_TYPE_META,
+  type BloodSugarContext,
   type BloodSugarUnit,
   type HeightUnit,
   type TemperatureUnit,
@@ -22,14 +23,17 @@ import {
   type VitalUnit,
   type WeightUnit,
 } from '@/mini-apps/vitals-tracker/constants';
-import { localizeUnitChip, localizeVitalTypeOptions } from '@/mini-apps/vitals-tracker/localize';
+import {
+  localizeBloodSugarContextOptions,
+  localizeUnitChip,
+  localizeVitalTypeOptions,
+} from '@/mini-apps/vitals-tracker/localize';
 import {
   preferUnitForType,
   useVitalsTrackerHydrated,
   useVitalsTrackerStore,
 } from '@/mini-apps/vitals-tracker/store';
 import {
-  buildVitalEntryPayload,
   convertBloodSugar,
   convertTemperature,
   convertWeight,
@@ -37,6 +41,13 @@ import {
   cmToHeightParts,
   parsePositiveNumber,
 } from '@/mini-apps/vitals-tracker/utils';
+import {
+  assessVitalDraft,
+  getPreviousEntry,
+  type VitalAssessment,
+  type VitalDraftInput,
+  type VitalIssue,
+} from '@/mini-apps/vitals-tracker/validation';
 import { palette, spacing } from '@/theme';
 
 const APP_ID = 'vitals-tracker' as const;
@@ -46,6 +57,7 @@ export default function VitalsLogScreen() {
   const theme = getMiniAppTheme(APP_ID);
   const hydrated = useVitalsTrackerHydrated();
   const unitPrefs = useVitalsTrackerStore((state) => state.unitPrefs);
+  const entries = useVitalsTrackerStore((state) => state.entries);
   const addEntry = useVitalsTrackerStore((state) => state.addEntry);
   const setUnitPrefs = useVitalsTrackerStore((state) => state.setUnitPrefs);
 
@@ -57,8 +69,10 @@ export default function VitalsLogScreen() {
   const [feetText, setFeetText] = useState('');
   const [inchesText, setInchesText] = useState('');
   const [notes, setNotes] = useState('');
+  const [bloodSugarContext, setBloodSugarContext] = useState<BloodSugarContext | null>(null);
 
   const typeOptions = useMemo(() => localizeVitalTypeOptions(t), [t]);
+  const sugarContextOptions = useMemo(() => localizeBloodSugarContextOptions(t), [t]);
 
   if (!hydrated) {
     return (
@@ -76,6 +90,7 @@ export default function VitalsLogScreen() {
     setDiastolicText('');
     setFeetText('');
     setInchesText('');
+    setBloodSugarContext(null);
   };
 
   const switchUnit = (next: VitalUnit) => {
@@ -138,6 +153,110 @@ export default function VitalsLogScreen() {
     }
   })();
 
+  const buildDraft = (overrides?: Partial<VitalDraftInput>): VitalDraftInput => ({
+    type,
+    unit,
+    valueText,
+    systolicText,
+    diastolicText,
+    feetText,
+    inchesText,
+    notes,
+    bloodSugarContext,
+    ...overrides,
+  });
+
+  const issueMessage = (issue: VitalIssue): string =>
+    t(`apps.vitals.validation.${issue.messageKey}`, issue.params ?? {});
+
+  const savePayload = (assessment: VitalAssessment) => {
+    if (!assessment.payload) return;
+    addEntry({ ...assessment.payload, source: 'manual' });
+    router.back();
+  };
+
+  const confirmSoftThenSave = (assessment: VitalAssessment, draft: VitalDraftInput) => {
+    const previous = getPreviousEntry(entries, type);
+    const typo = assessment.soft.find((issue) => issue.code === 'typo_suggestion');
+    const softMessages = assessment.soft.map(issueMessage).filter(Boolean);
+
+    if (typo && typo.suggestedDisplayValue != null && !assessment.payload) {
+      Alert.alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
+        { text: t('apps.vitals.validation.cancel'), style: 'cancel' },
+        {
+          text: t('apps.vitals.validation.useSuggestion', {
+            value: typo.suggestedDisplayValue,
+          }),
+          onPress: () => {
+            const next = assessVitalDraft(
+              { ...draft, valueText: String(typo.suggestedDisplayValue) },
+              previous,
+            );
+            if (next.hard) {
+              Alert.alert(t('apps.vitals.validation.checkTitle'), issueMessage(next.hard));
+              return;
+            }
+            if (next.soft.length > 0 && next.payload) {
+              confirmSoftThenSave(next, {
+                ...draft,
+                valueText: String(typo.suggestedDisplayValue),
+              });
+              return;
+            }
+            savePayload(next);
+          },
+        },
+      ]);
+      return;
+    }
+
+    if (assessment.soft.length === 0) {
+      savePayload(assessment);
+      return;
+    }
+
+    Alert.alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
+      { text: t('apps.vitals.validation.cancel'), style: 'cancel' },
+      {
+        text: t('apps.vitals.validation.saveAnyway'),
+        onPress: () => savePayload(assessment),
+      },
+    ]);
+  };
+
+  const handleSave = () => {
+    const draft = buildDraft();
+    const previous = getPreviousEntry(entries, type);
+    const assessment = assessVitalDraft(draft, previous);
+
+    if (assessment.hard) {
+      Alert.alert(t('apps.vitals.validation.checkTitle'), issueMessage(assessment.hard));
+      return;
+    }
+
+    if (!assessment.payload && assessment.soft.some((s) => s.code === 'typo_suggestion')) {
+      confirmSoftThenSave(assessment, draft);
+      return;
+    }
+
+    if (!assessment.payload) {
+      Alert.alert(
+        t('apps.vitals.validation.checkTitle'),
+        t('apps.vitals.validation.unusualCheck'),
+      );
+      return;
+    }
+
+    if (assessment.soft.length > 0) {
+      confirmSoftThenSave(assessment, draft);
+      return;
+    }
+
+    savePayload(assessment);
+  };
+
+  let cardIndex = 1;
+
   return (
     <MiniAppScreen>
       <MiniAppHero
@@ -147,7 +266,7 @@ export default function VitalsLogScreen() {
         subtitle={t('apps.vitalsTracker.logSubtitle')}
       />
 
-      <MiniAppCard index={1} title={t('apps.vitals.ui.vital')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.vitals.ui.vital')} theme={theme}>
         <View style={styles.chipRow}>
           {typeOptions.map((option) => (
             <MiniAppChip
@@ -162,8 +281,25 @@ export default function VitalsLogScreen() {
         </View>
       </MiniAppCard>
 
+      {type === 'blood_sugar' ? (
+        <MiniAppCard index={cardIndex++} title={t('apps.vitals.ui.measurementType')} theme={theme}>
+          <View style={styles.chipRow}>
+            {sugarContextOptions.map((option) => (
+              <MiniAppChip
+                key={option.id}
+                label={option.label}
+                selected={option.id === bloodSugarContext}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => setBloodSugarContext(option.id)}
+              />
+            ))}
+          </View>
+        </MiniAppCard>
+      ) : null}
+
       {VITAL_TYPE_META[type].hasUnitPicker ? (
-        <MiniAppCard index={2} title={t('apps.vitals.ui.unit')} theme={theme}>
+        <MiniAppCard index={cardIndex++} title={t('apps.vitals.ui.unit')} theme={theme}>
           <View style={styles.chipRow}>
             {unitOptions.map((option) => (
               <MiniAppChip
@@ -179,7 +315,7 @@ export default function VitalsLogScreen() {
         </MiniAppCard>
       ) : null}
 
-      <MiniAppCard index={3} title={t('apps.vitals.ui.reading')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.vitals.ui.reading')} theme={theme}>
         {type === 'blood_pressure' ? (
           <View style={styles.bpRow}>
             <View style={styles.bpField}>
@@ -248,7 +384,7 @@ export default function VitalsLogScreen() {
         ) : null}
       </MiniAppCard>
 
-      <MiniAppCard index={4} title={t('apps.vitals.ui.notesOptional')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.vitals.ui.notesOptional')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
@@ -261,21 +397,7 @@ export default function VitalsLogScreen() {
         label={t('apps.vitalsTracker.saveLog')}
         accent={theme.color}
         soft={theme.backgroundColor}
-        onPress={() => {
-          const payload = buildVitalEntryPayload({
-            type,
-            unit,
-            valueText,
-            systolicText,
-            diastolicText,
-            feetText,
-            inchesText,
-            notes,
-          });
-          if (!payload) return;
-          addEntry(payload);
-          router.back();
-        }}
+        onPress={handleSave}
       />
     </MiniAppScreen>
   );

@@ -4,6 +4,7 @@ import { localizationService } from '@/domains/localization';
 import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
 import { articles, articleReads, bookmarks } from '@/database/schema';
+import { healthCategoryIdsForQuery } from '@/domains/articles/categories';
 import {
   articleMatchesNewsRegion,
   getLegacySeedIds,
@@ -246,13 +247,18 @@ class ArticleRepository extends BaseRepository {
   async findByCategory(categoryId: string, userKey = 'guest', search?: string): Promise<Article[]> {
     const db = getDatabase();
     const term = search?.trim();
+    const categoryIds = healthCategoryIdsForQuery(categoryId);
+    const categoryClause =
+      categoryIds.length === 1
+        ? eq(articles.categoryId, categoryIds[0]!)
+        : inArray(articles.categoryId, categoryIds);
     const rows = term
       ? await db
           .select()
           .from(articles)
           .where(
             and(
-              eq(articles.categoryId, categoryId),
+              categoryClause,
               isNull(articles.deletedAt),
               or(
                 like(articles.title, `%${term}%`),
@@ -264,7 +270,7 @@ class ArticleRepository extends BaseRepository {
       : await db
           .select()
           .from(articles)
-          .where(and(eq(articles.categoryId, categoryId), isNull(articles.deletedAt)));
+          .where(and(categoryClause, isNull(articles.deletedAt)));
     const mapped = rows.map(mapArticle).filter((article) => !isExternalArticle(article));
     return orderLearnFeed(mapped, userKey);
   }

@@ -24,6 +24,10 @@ import {
   resolvePlannerRegion,
   type CheckupPlannerProfile,
 } from '@/mini-apps/checkup-planner/utils';
+import {
+  assessCompletionDraft,
+  assessProfileDraft,
+} from '@/mini-apps/checkup-planner/validation';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
 const adultFemale: CheckupPlannerProfile = {
@@ -212,5 +216,126 @@ describe('checkup-planner/store', () => {
 
     useCheckupPlannerStore.getState().clearProfile();
     expect(useCheckupPlannerStore.getState().profile).toBeNull();
+  });
+});
+
+describe('checkup-planner/validation', () => {
+  it('hard-requires gender and DOB, and blocks future DOB', () => {
+    expect(
+      assessProfileDraft({
+        dateOfBirth: '1990-01-01',
+        gender: null,
+        regionCode: null,
+        todayKey: '2026-07-16',
+      }).hard?.code,
+    ).toBe('required_gender');
+
+    expect(
+      assessProfileDraft({
+        dateOfBirth: null,
+        gender: 'female',
+        regionCode: null,
+        todayKey: '2026-07-16',
+      }).hard?.code,
+    ).toBe('required_dob');
+
+    expect(
+      assessProfileDraft({
+        dateOfBirth: '2026-08-01',
+        gender: 'female',
+        regionCode: null,
+        todayKey: '2026-07-16',
+      }).hard?.code,
+    ).toBe('dob_future');
+  });
+
+  it('soft-warns extreme ages without blocking', () => {
+    const young = assessProfileDraft({
+      dateOfBirth: '2024-01-01',
+      gender: 'male',
+      regionCode: 'NG',
+      todayKey: '2026-07-16',
+    });
+    expect(young.hard).toBeNull();
+    expect(young.soft.some((s) => s.code === 'soft_age_young')).toBe(true);
+
+    const old = assessProfileDraft({
+      dateOfBirth: '1890-01-01',
+      gender: 'female',
+      regionCode: null,
+      todayKey: '2026-07-16',
+    });
+    expect(old.hard).toBeNull();
+    expect(old.soft.some((s) => s.code === 'soft_age_high')).toBe(true);
+  });
+
+  it('validates completion dates against DOB, future, and plan year', () => {
+    const profile: CheckupPlannerProfile = {
+      dateOfBirth: '1990-06-01',
+      gender: 'female',
+      regionCode: 'NG',
+    };
+
+    expect(
+      assessCompletionDraft({
+        checkupId: 'general-checkup',
+        year: 2026,
+        completedDate: '1989-01-01',
+        profile,
+        todayKey: '2026-07-16',
+        currentYear: 2026,
+        completions: [],
+      }).hard?.code,
+    ).toBe('completed_before_dob');
+
+    const future = assessCompletionDraft({
+      checkupId: 'general-checkup',
+      year: 2026,
+      completedDate: '2026-08-01',
+      profile,
+      todayKey: '2026-07-16',
+      currentYear: 2026,
+      completions: [],
+    });
+    expect(future.hard).toBeNull();
+    expect(future.soft.some((s) => s.code === 'soft_completed_future')).toBe(true);
+
+    const mismatch = assessCompletionDraft({
+      checkupId: 'general-checkup',
+      year: 2026,
+      completedDate: '2025-03-01',
+      profile,
+      todayKey: '2026-07-16',
+      currentYear: 2026,
+      completions: [],
+    });
+    expect(mismatch.soft.some((s) => s.code === 'soft_completed_year_mismatch')).toBe(true);
+  });
+
+  it('soft-warns when a once-cadence checkup was logged in another year', () => {
+    const profile: CheckupPlannerProfile = {
+      dateOfBirth: '1980-01-01',
+      gender: 'female',
+      regionCode: null,
+    };
+    const onceItem = CHECKUP_CATALOG.find((item) => item.cadence === 'once');
+    expect(onceItem).toBeTruthy();
+    const onceAssessment = assessCompletionDraft({
+      checkupId: onceItem!.id,
+      year: 2026,
+      completedDate: '2026-03-01',
+      profile,
+      todayKey: '2026-07-16',
+      currentYear: 2026,
+      completions: [
+        {
+          checkupId: onceItem!.id,
+          year: 2020,
+          completedDate: '2020-03-01',
+        },
+      ],
+      checkup: onceItem,
+    });
+    expect(onceAssessment.soft.some((s) => s.code === 'soft_once_already_logged')).toBe(true);
   });
 });

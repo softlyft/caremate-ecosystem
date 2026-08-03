@@ -16,9 +16,12 @@ import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
 interface VitalsTrackerState {
   entries: VitalEntry[];
   unitPrefs: VitalUnitPrefs;
+  /** Mini-app unit onboarding completed (not global onboarding). */
+  hasCompletedSetup: boolean;
   addEntry: (input: Omit<VitalEntry, 'id' | 'recordedAt'> & { recordedAt?: string }) => VitalEntry;
   removeEntry: (entryId: string) => void;
   setUnitPrefs: (prefs: Partial<VitalUnitPrefs>) => void;
+  completeSetup: (prefs?: Partial<VitalUnitPrefs>) => void;
   clearAll: () => void;
 }
 
@@ -27,6 +30,7 @@ export const useVitalsTrackerStore = create<VitalsTrackerState>()(
     (set, get) => ({
       entries: [],
       unitPrefs: { ...DEFAULT_UNIT_PREFS },
+      hasCompletedSetup: false,
       addEntry: (input) => {
         const entry: VitalEntry = {
           id: uuidv4(),
@@ -38,6 +42,10 @@ export const useVitalsTrackerStore = create<VitalsTrackerState>()(
           diastolic: input.diastolic,
           feet: input.feet,
           inches: input.inches,
+          bloodSugarContext: input.bloodSugarContext,
+          source: input.source ?? 'manual',
+          bpPosition: input.bpPosition,
+          deviceName: input.deviceName?.trim() || undefined,
           notes: input.notes?.trim() || undefined,
         };
         set({ entries: [entry, ...get().entries] });
@@ -49,10 +57,31 @@ export const useVitalsTrackerStore = create<VitalsTrackerState>()(
       setUnitPrefs: (prefs) => {
         set({ unitPrefs: { ...get().unitPrefs, ...prefs } });
       },
-      clearAll: () => set({ entries: [], unitPrefs: { ...DEFAULT_UNIT_PREFS } }),
+      completeSetup: (prefs) => {
+        set({
+          unitPrefs: prefs ? { ...get().unitPrefs, ...prefs } : get().unitPrefs,
+          hasCompletedSetup: true,
+        });
+      },
+      clearAll: () =>
+        set({
+          entries: [],
+          unitPrefs: { ...DEFAULT_UNIT_PREFS },
+          hasCompletedSetup: false,
+        }),
     }),
     {
       name: 'caremate-vitals-tracker',
+      version: 1,
+      migrate: (persisted) => {
+        const state = (persisted ?? {}) as Partial<VitalsTrackerState>;
+        return {
+          entries: state.entries ?? [],
+          unitPrefs: { ...DEFAULT_UNIT_PREFS, ...(state.unitPrefs ?? {}) },
+          // Existing installs (pre-setup flag) should not be forced through onboarding again.
+          hasCompletedSetup: state.hasCompletedSetup ?? true,
+        };
+      },
       storage: createJSONStorage(() => createMiniAppSyncedStorage('vitals')),
     },
   ),

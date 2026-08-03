@@ -42,14 +42,15 @@ import {
   formatDisplayDate,
   endDateForDurationDays,
   durationDaysBetween,
-  isMedicationTreatmentEnded,
   normalizeMedication,
-  areValidSlotTimes,
   toDateKey,
   type Medication,
-  type MedicationInstructions,
 } from '@/mini-apps/medication-tracker/utils';
 import { DoseTimePicker } from '@/mini-apps/medication-tracker/DoseTimePicker';
+import {
+  assessMedicationWrite,
+  type MedicationIssue,
+} from '@/mini-apps/medication-tracker/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');
@@ -255,11 +256,6 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
   const frequencyOption = getFrequencyOption(frequency);
   const showSchedule = frequencyOption.dosesPerDay > 0;
 
-  const canSave =
-    Boolean(name.trim() && startDate) &&
-    (!endDate || !startDate || endDate >= startDate) &&
-    (!forKid || Boolean(familyMemberId && selectedChild)) &&
-    (!showSchedule || areValidSlotTimes(slotTimes, frequencyOption.dosesPerDay));
   const activeMedicationCount = countActiveMedications(medications);
   const atCreateLimit = !isEditing && !canAddMedication(tier, activeMedicationCount);
   const atActivateLimit =
@@ -271,20 +267,8 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
     setSlotTimes(defaultSlotTimesForFrequency(next));
   };
 
-  const buildInstructions = (): MedicationInstructions => ({
-    kind: instructionKind,
-    text:
-      instructionKind === 'other' || instructionKind === 'none'
-        ? instructionText.trim() || undefined
-        : undefined,
-  });
-
-  const parseOptionalNumber = (raw: string): number | null => {
-    const trimmed = raw.trim();
-    if (!trimmed) return null;
-    const value = Number(trimmed);
-    return Number.isFinite(value) && value >= 0 ? value : null;
-  };
+  const issueMessage = (issue: MedicationIssue): string =>
+    t(`apps.medication.validation.${issue.messageKey}`, issue.params ?? {});
 
   const intro = useMemo(
     () => (isEditing ? t('apps.medication.ui.updateHint') : t('apps.medication.ui.addHint')),
@@ -666,61 +650,68 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
         soft={theme.backgroundColor}
         index={11}
         onPress={() => {
-          if (blockedByCap || !startDate || !name.trim()) {
+          if (blockedByCap) {
             return;
           }
-          if (showSchedule && !areValidSlotTimes(slotTimes, frequencyOption.dosesPerDay)) {
-            Alert.alert(
-              t('apps.medication.ui.scheduleTimeInvalidTitle'),
-              t('apps.medication.ui.scheduleTimeInvalidMessage'),
-            );
-            return;
-          }
-          if (!canSave) {
-            return;
-          }
-          if (isMedicationTreatmentEnded({ endDate }, todayKey)) {
-            Alert.alert(
-              t('apps.medication.ui.treatmentEndedTitle'),
-              t('apps.medication.ui.treatmentEndedMessage'),
-            );
-            return;
-          }
-          if (forKid && !selectedChild) {
-            Alert.alert(
-              t('apps.medication.ui.selectChildTitle'),
-              t('apps.medication.ui.selectChildMessage'),
-            );
-            return;
-          }
-          const patientPayload = {
-            forKid,
-            familyMemberId: forKid ? familyMemberId : null,
-            patientName: forKid ? (selectedChild?.fullName ?? null) : null,
-          };
-          const payload = {
+
+          const assessment = assessMedicationWrite({
             name,
             dosage,
             frequency,
             startDate,
             endDate,
             notes,
+            forKid,
+            familyMemberId,
+            patientName: forKid ? (selectedChild?.fullName ?? null) : null,
             slotTimes: showSchedule ? slotTimes : [],
-            instructions: buildInstructions(),
-            quantityRemaining: parseOptionalNumber(quantityText),
-            refillAtThreshold: parseOptionalNumber(refillThresholdText) ?? DEFAULT_REFILL_THRESHOLD,
+            instructionKind,
+            instructionText,
+            quantityText,
+            refillThresholdText,
             refillDueDate,
-            ...patientPayload,
-          };
-          if (isEditing && editing) {
-            updateMedication(editing.id, {
-              ...payload,
-              active,
-            });
-          } else {
-            addMedication(payload);
+            todayKey,
+            hasSelectedChild: Boolean(selectedChild),
+          });
+
+          if (assessment.hard) {
+            Alert.alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
+            return;
           }
-          router.back();
+
+          if (!assessment.payload) {
+            Alert.alert(
+              t('apps.medication.validation.checkTitle'),
+              t('apps.medication.validation.unusualCheck'),
+            );
+            return;
+          }
+
+          const commit = () => {
+            if (isEditing && editing) {
+              updateMedication(editing.id, {
+                ...assessment.payload!,
+                active,
+              });
+            } else {
+              addMedication(assessment.payload!);
+            }
+            router.back();
+          };
+
+          if (assessment.soft.length > 0) {
+            Alert.alert(
+              t('apps.medication.validation.confirmTitle'),
+              assessment.soft.map(issueMessage).join('\n\n'),
+              [
+                { text: t('apps.medication.validation.cancel'), style: 'cancel' },
+                { text: t('apps.medication.validation.saveAnyway'), onPress: commit },
+              ],
+            );
+            return;
+          }
+
+          commit();
         }}
       />
 

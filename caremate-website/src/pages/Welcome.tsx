@@ -114,8 +114,8 @@ export function WelcomePage() {
               <a className={styles.heroJump} href="#core">
                 See what is inside
               </a>
-              <Link className={styles.heroJump} to="/guide">
-                Patient guide
+              <Link className={styles.heroJump} to="/docs">
+                Docs
               </Link>
               <Link className={styles.heroJump} to="/ccn">
                 Community Network
@@ -254,7 +254,7 @@ export function WelcomePage() {
           <Link className={styles.providerCtaPrimary} to="/providers">
             Explore for providers
           </Link>
-          <Link className={styles.providerCtaSecondary} to="/providers/guide">
+          <Link className={styles.providerCtaSecondary} to="/docs/providers">
             Provider guide
           </Link>
         </div>

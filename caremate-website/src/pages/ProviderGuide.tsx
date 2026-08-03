@@ -199,7 +199,7 @@ export function ProviderGuidePage() {
           </li>
           <li>
             The patient app guide covers how patients use CareMate day to day — see{' '}
-            <Link to="/guide">Patient guide</Link>.
+            <Link to="/docs/patient">Patient guide</Link>.
           </li>
         </ul>
 
@@ -226,9 +226,11 @@ export function ProviderGuidePage() {
 
         <p className={styles.meta}>Last updated: July 19, 2026</p>
         <p className={styles.back}>
-          <Link to="/providers">← Back to providers</Link>
+          <Link to="/docs">← All docs</Link>
           {' · '}
-          <Link to="/ccn/guide">Community guide</Link>
+          <Link to="/providers">Providers</Link>
+          {' · '}
+          <Link to="/docs/community">Community guide</Link>
           {' · '}
           <Link to="/">CareMate home</Link>
         </p>

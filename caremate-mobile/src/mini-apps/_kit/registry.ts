@@ -55,11 +55,11 @@ export const MINI_APPS: MiniAppDefinition[] = [
     available: true,
   },
   {
-    id: 'immunization-tracker',
-    route: '/(app)/apps/immunization-tracker',
-    icon: Syringe,
-    color: '#059669',
-    backgroundColor: '#D1FAE5',
+    id: 'period-tracker',
+    route: '/(app)/apps/period-tracker',
+    icon: CalendarHeart,
+    color: '#DB2777',
+    backgroundColor: '#FCE7F3',
     available: true,
   },
   {
@@ -71,11 +71,11 @@ export const MINI_APPS: MiniAppDefinition[] = [
     available: true,
   },
   {
-    id: 'period-tracker',
-    route: '/(app)/apps/period-tracker',
-    icon: CalendarHeart,
-    color: '#DB2777',
-    backgroundColor: '#FCE7F3',
+    id: 'immunization-tracker',
+    route: '/(app)/apps/immunization-tracker',
+    icon: Syringe,
+    color: '#059669',
+    backgroundColor: '#D1FAE5',
     available: true,
   },
 ];

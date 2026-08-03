@@ -177,9 +177,11 @@ export function CcnGuidePage() {
 
         <p className={styles.meta}>Last updated: July 21, 2026</p>
         <p className={styles.back}>
-          <Link to="/ccn">← Back to Community Network</Link>
+          <Link to="/docs">← All docs</Link>
           {' · '}
-          <Link to="/guide">Patient guide</Link>
+          <Link to="/ccn">Community Network</Link>
+          {' · '}
+          <Link to="/docs/patient">Patient guide</Link>
           {' · '}
           <a href={COMMUNITY_URLS.join}>Join now</a>
         </p>

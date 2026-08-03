@@ -20,7 +20,7 @@ import {
   getRecentEntries,
   orderedVitalTypes,
 } from '@/mini-apps/vitals-tracker/utils';
-import { palette } from '@/theme';
+import { palette, spacing } from '@/theme';
 
 const APP_ID = 'vitals-tracker' as const;
 
@@ -29,12 +29,38 @@ export default function VitalsTrackerScreen() {
   const theme = getMiniAppTheme(APP_ID);
   const hydrated = useVitalsTrackerHydrated();
   const entries = useVitalsTrackerStore((state) => state.entries);
+  const unitPrefs = useVitalsTrackerStore((state) => state.unitPrefs);
+  const hasCompletedSetup = useVitalsTrackerStore((state) => state.hasCompletedSetup);
 
   if (!hydrated) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator color={theme.color} />
       </View>
+    );
+  }
+
+  if (!hasCompletedSetup) {
+    return (
+      <MiniAppScreen>
+        <MiniAppHero
+          appId={APP_ID}
+          eyebrow={t('apps.vitalsTracker.eyebrow')}
+          title={t('apps.vitalsTracker.setupTitle')}
+          subtitle={t('apps.vitalsTracker.setupSubtitle')}
+        />
+        <MiniAppCard index={1} theme={theme}>
+          <AppText variant="body" style={styles.emptyHint}>
+            {t('apps.vitals.ui.setupIntro')}
+          </AppText>
+        </MiniAppCard>
+        <MiniAppCta
+          label={t('apps.vitalsTracker.setupCta')}
+          onPress={() => router.push('/(app)/apps/vitals-tracker/setup')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+        />
+      </MiniAppScreen>
     );
   }
 
@@ -73,7 +99,7 @@ export default function VitalsTrackerScreen() {
                 title={localizeVitalType(type, t)}
                 subtitle={
                   entry
-                    ? `${formatVitalValue(entry)} · ${formatRecordedAt(entry.recordedAt)}`
+                    ? `${formatVitalValue(entry, unitPrefs)} · ${formatRecordedAt(entry.recordedAt)}`
                     : t('apps.vitals.ui.noReading')
                 }
                 accent={theme.color}
@@ -89,7 +115,7 @@ export default function VitalsTrackerScreen() {
             <MiniAppRow
               key={entry.id}
               title={localizeVitalType(entry.type, t)}
-              subtitle={`${formatVitalValue(entry)} · ${formatRecordedAt(entry.recordedAt)}`}
+              subtitle={`${formatVitalValue(entry, unitPrefs)} · ${formatRecordedAt(entry.recordedAt)}`}
               accent={theme.color}
             />
           ))}
@@ -102,12 +128,21 @@ export default function VitalsTrackerScreen() {
         </MiniAppCard>
       )}
 
-      <MiniAppCta
-        label={t('apps.vitalsTracker.logVital')}
-        onPress={() => router.push('/(app)/apps/vitals-tracker/log')}
-        accent={theme.color}
-        soft={theme.backgroundColor}
-      />
+      <View style={styles.ctaStack}>
+        <MiniAppCta
+          label={t('apps.vitalsTracker.logVital')}
+          onPress={() => router.push('/(app)/apps/vitals-tracker/log')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+        />
+        <MiniAppCta
+          label={t('apps.vitalsTracker.editUnits')}
+          onPress={() => router.push('/(app)/apps/vitals-tracker/setup')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          secondary
+        />
+      </View>
     </MiniAppScreen>
   );
 }
@@ -122,5 +157,8 @@ const styles = StyleSheet.create({
   emptyHint: {
     color: palette.textSecondary,
     lineHeight: 22,
+  },
+  ctaStack: {
+    gap: spacing.sm,
   },
 });

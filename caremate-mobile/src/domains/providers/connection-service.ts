@@ -1,3 +1,9 @@
+import {
+  type ConsentDefinition,
+  type ConnectionConsentScope,
+  hasConsentScope,
+  normalizeSharedScopes,
+} from '@/domains/providers/connection-consents';
 import { supabase } from '@/lib/supabase';
 import type { Provider } from '@/types';
 
@@ -10,6 +16,11 @@ export type PatientProviderConnection = {
   organizationId: string;
   status: ConnectionStatus;
   initiatedBy: ConnectionInitiatedBy;
+  /**
+   * Denormalized permit cache. Always includes `basic`.
+   * Other codes mirror active `patient_provider_consents` (source of truth).
+   */
+  sharedScopes: string[];
   patientNote: string | null;
   providerNote: string | null;
   rejectionReason: string | null;
@@ -28,6 +39,7 @@ type RemoteConnectionRow = {
   organization_id: string;
   status: ConnectionStatus;
   initiated_by: ConnectionInitiatedBy;
+  shared_scopes: string[] | null;
   patient_note: string | null;
   provider_note: string | null;
   rejection_reason: string | null;
@@ -36,6 +48,34 @@ type RemoteConnectionRow = {
   created_at: string;
   updated_at: string;
 };
+
+type RemoteConsentDefinitionRow = {
+  id: string;
+  code: string;
+  organization_id: string | null;
+  source: 'system' | 'organization';
+  fhir_scope: string;
+  fhir_policy_rule: string;
+  data_class: string;
+  title: string;
+  description: string;
+  active: boolean;
+};
+
+function mapConsentDefinition(row: RemoteConsentDefinitionRow): ConsentDefinition {
+  return {
+    id: row.id,
+    code: row.code,
+    organizationId: row.organization_id,
+    source: row.source,
+    fhirScope: row.fhir_scope,
+    fhirPolicyRule: row.fhir_policy_rule,
+    dataClass: row.data_class,
+    title: row.title,
+    description: row.description,
+    active: row.active,
+  };
+}
 
 function mapRow(
   row: RemoteConnectionRow,
@@ -48,6 +88,7 @@ function mapRow(
     organizationId: row.organization_id,
     status: row.status,
     initiatedBy: row.initiated_by,
+    sharedScopes: normalizeSharedScopes(row.shared_scopes ?? []),
     patientNote: row.patient_note,
     providerNote: row.provider_note,
     rejectionReason: row.rejection_reason,
@@ -135,6 +176,30 @@ class ProviderConnectionService {
       throw error;
     }
     return Boolean(data);
+  }
+
+  async getConnectionById(connectionId: string): Promise<PatientProviderConnection | null> {
+    const { data, error } = await supabase
+      .from('patient_provider_connections')
+      .select('*')
+      .eq('id', connectionId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+    if (!data) {
+      return null;
+    }
+
+    const row = data as RemoteConnectionRow;
+    const names = await loadOrganizationNames([row.organization_id]);
+    const staffOrgIds = await loadMyStaffOrganizationIds([row.organization_id]);
+    return mapRow(
+      row,
+      names.get(row.organization_id) ?? null,
+      staffOrgIds.has(row.organization_id),
+    );
   }
 
   async getConnectionForOrganization(
@@ -278,6 +343,8 @@ class ProviderConnectionService {
               approved_at: now,
               rejected_at: null,
               rejection_reason: null,
+              // Connection ≠ health-data share — emergency requires separate consent.
+              shared_scopes: ['basic'],
             }
           : {
               status: 'rejected',
@@ -314,6 +381,174 @@ class ProviderConnectionService {
     if (activityError) {
       throw activityError;
     }
+  }
+
+  /**
+   * Active CareMate system definitions + optional org-custom definitions for this connection.
+   */
+  async listConsentDefinitions(organizationId?: string | null): Promise<ConsentDefinition[]> {
+    let query = supabase.from('consent_definitions').select('*').eq('active', true);
+
+    if (organizationId) {
+      query = query.or(`organization_id.is.null,organization_id.eq.${organizationId}`);
+    } else {
+      query = query.is('organization_id', null);
+    }
+
+    const { data, error } = await query.order('code', { ascending: true });
+    if (error) {
+      throw error;
+    }
+
+    return ((data ?? []) as RemoteConsentDefinitionRow[]).map(mapConsentDefinition);
+  }
+
+  /**
+   * Grant or revoke a catalog consent on an approved connection.
+   * Writes `patient_provider_consents`; `shared_scopes` is synced by DB trigger.
+   */
+  async setConsent(params: {
+    connectionId: string;
+    scope: ConnectionConsentScope;
+    granted: boolean;
+    /** Prefer definition id when known from the registry. */
+    definitionId?: string;
+  }): Promise<PatientProviderConnection> {
+    const existing = await this.getConnectionById(params.connectionId);
+    if (!existing) {
+      throw new Error('Connection not found');
+    }
+    if (existing.status !== 'approved') {
+      throw new Error('Consent can only be managed on approved connections');
+    }
+
+    const scope = params.scope.trim();
+    if (!scope || scope === 'basic') {
+      throw new Error('Invalid consent scope');
+    }
+
+    let definition: ConsentDefinition | undefined;
+    if (params.definitionId) {
+      const { data, error } = await supabase
+        .from('consent_definitions')
+        .select('*')
+        .eq('id', params.definitionId)
+        .eq('active', true)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) definition = mapConsentDefinition(data as RemoteConsentDefinitionRow);
+    }
+
+    if (!definition) {
+      const definitions = await this.listConsentDefinitions(existing.organizationId);
+      definition = definitions.find((d) => d.code === scope);
+    }
+
+    if (!definition) {
+      throw new Error(`Unknown consent definition: ${scope}`);
+    }
+
+    const already = hasConsentScope(existing.sharedScopes, definition.code);
+    if (params.granted === already) {
+      return existing;
+    }
+
+    const now = new Date().toISOString();
+
+    if (params.granted) {
+      // Prefer reactivating a prior inactive/draft row for this definition.
+      const { data: prior, error: priorError } = await supabase
+        .from('patient_provider_consents')
+        .select('id, status')
+        .eq('connection_id', params.connectionId)
+        .eq('definition_id', definition.id)
+        .neq('status', 'active')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (priorError) throw priorError;
+
+      if (prior?.id) {
+        const { error } = await supabase
+          .from('patient_provider_consents')
+          .update({
+            status: 'active',
+            provision_type: 'permit',
+            granted_at: now,
+            revoked_at: null,
+            fhir_scope: definition.fhirScope,
+            purpose: 'TREAT',
+            source: 'patient',
+          })
+          .eq('id', prior.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('patient_provider_consents').insert({
+          connection_id: params.connectionId,
+          patient_id: existing.patientId,
+          organization_id: existing.organizationId,
+          definition_id: definition.id,
+          status: 'active',
+          fhir_scope: definition.fhirScope,
+          provision_type: 'permit',
+          purpose: 'TREAT',
+          granted_at: now,
+          revoked_at: null,
+          source: 'patient',
+        });
+        if (error) throw error;
+      }
+    } else {
+      const { data: active, error: activeError } = await supabase
+        .from('patient_provider_consents')
+        .select('id')
+        .eq('connection_id', params.connectionId)
+        .eq('definition_id', definition.id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (activeError) throw activeError;
+      if (!active?.id) {
+        return existing;
+      }
+
+      const { error } = await supabase
+        .from('patient_provider_consents')
+        .update({
+          status: 'inactive',
+          revoked_at: now,
+        })
+        .eq('id', active.id);
+      if (error) throw error;
+    }
+
+    const { error: activityError } = await supabase.from('patient_provider_activities').insert({
+      organization_id: existing.organizationId,
+      patient_id: existing.patientId,
+      connection_id: existing.id,
+      event_type: params.granted ? 'consent_granted' : 'consent_revoked',
+      summary: params.granted
+        ? `Patient granted ${definition.code} consent`
+        : `Patient revoked ${definition.code} consent`,
+      metadata: {
+        scope: definition.code,
+        definition_id: definition.id,
+        data_class: definition.dataClass,
+        fhir_scope: definition.fhirScope,
+        granted: params.granted,
+      },
+    });
+
+    if (activityError) {
+      throw activityError;
+    }
+
+    const refreshed = await this.getConnectionById(params.connectionId);
+    if (!refreshed) {
+      throw new Error('Connection not found after consent update');
+    }
+    return refreshed;
   }
 }
 

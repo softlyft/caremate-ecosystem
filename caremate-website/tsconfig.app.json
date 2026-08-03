@@ -20,7 +20,8 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@evergreen-learn": ["../caremate-admin-portal/data/learn.json"]
     }
   },
   "include": ["src"]

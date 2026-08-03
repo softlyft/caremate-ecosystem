@@ -25,24 +25,16 @@ export const PROVIDER_TYPES = [
 
 export type ProviderType = (typeof PROVIDER_TYPES)[number];
 
-/** Nearby filter chips (order = UI). */
+/** Nearby filter chips (order = product category list). */
 export const PRIMARY_PROVIDER_TYPES = [
   'hospital',
   'clinic',
   'pharmacy',
   'laboratory',
   'imaging_centre',
-  'blood_bank',
-  'ambulance',
-  'telemedicine',
-  'insurance',
-  'mental_health',
   'dentist',
   'eye_care',
-  'home_care',
-  'medical_equipment',
-  'government_health',
-  'ngo',
+  'insurance',
 ] as const satisfies readonly ProviderType[];
 
 export type PrimaryProviderType = (typeof PRIMARY_PROVIDER_TYPES)[number];
@@ -56,10 +48,10 @@ export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
   blood_bank: 'Blood Bank',
   ambulance: 'Ambulance Service',
   telemedicine: 'Telemedicine',
-  insurance: 'Insurance / HMO',
+  insurance: 'Insurance',
   mental_health: 'Mental Health',
   dentist: 'Dental Clinic',
-  eye_care: 'Eye Care',
+  eye_care: 'Eye Clinic',
   home_care: 'Home Care',
   medical_equipment: 'Medical Equipment & Supplies',
   government_health: 'Government Health Services',

@@ -7,12 +7,22 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@evergreen-learn': path.resolve(
+        __dirname,
+        '../caremate-admin-portal/data/learn.json',
+      ),
     },
   },
   server: {
     host: '0.0.0.0',
     port: 5175,
     strictPort: true,
+    fs: {
+      allow: [
+        path.resolve(__dirname),
+        path.resolve(__dirname, '../caremate-admin-portal/data'),
+      ],
+    },
   },
   preview: {
     host: '0.0.0.0',

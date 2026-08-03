@@ -74,16 +74,14 @@ describe('mini-apps/_kit/registry + theme', () => {
   it('lists six available mini apps with routes', () => {
     expect(MINI_APPS).toHaveLength(6);
     expect(MINI_APPS.every((app) => app.available)).toBe(true);
-    expect(MINI_APPS.map((app) => app.id)).toEqual(
-      expect.arrayContaining([
-        'vitals-tracker',
-        'period-tracker',
-        'pregnancy-tracker',
-        'immunization-tracker',
-        'medication-tracker',
-        'checkup-planner',
-      ]),
-    );
+    expect(MINI_APPS.map((app) => app.id)).toEqual([
+      'vitals-tracker',
+      'medication-tracker',
+      'checkup-planner',
+      'period-tracker',
+      'pregnancy-tracker',
+      'immunization-tracker',
+    ]);
     expect(MINI_APPS[0]?.id).toBe('vitals-tracker');
   });
 

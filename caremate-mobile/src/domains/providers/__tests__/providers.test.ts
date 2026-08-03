@@ -60,10 +60,20 @@ const { locationSampleRepository } = jest.requireMock('@/domains/location/reposi
 describe('providers/types', () => {
   it('validates and formats provider types', () => {
     expect(PROVIDER_TYPES).toContain('hospital');
-    expect(PRIMARY_PROVIDER_TYPES).toContain('pharmacy');
+    expect(PRIMARY_PROVIDER_TYPES).toEqual([
+      'hospital',
+      'clinic',
+      'pharmacy',
+      'laboratory',
+      'imaging_centre',
+      'dentist',
+      'eye_care',
+      'insurance',
+    ]);
     expect(isProviderType('clinic')).toBe(true);
     expect(isProviderType('spa')).toBe(false);
     expect(formatProviderType('blood_bank')).toBe('Blood Bank');
+    expect(formatProviderType('eye_care')).toBe('Eye Clinic');
     expect(formatProviderType('urgent_care')).toBe('urgent care');
   });
 });

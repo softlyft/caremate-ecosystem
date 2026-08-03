@@ -42,6 +42,13 @@ import {
   type Medication,
   type MedicationDoseLog,
 } from '@/mini-apps/medication-tracker/utils';
+import {
+  assessDoseLog,
+  assessMedicationWrite,
+  hasDuplicateSlotTimes,
+  parseOptionalNonNegativeInteger,
+  slotsTooClose,
+} from '@/mini-apps/medication-tracker/validation';
 import { canActivateMedication, canAddMedication } from '@/domains/billing/entitlements';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
@@ -495,6 +502,7 @@ describe('medication-tracker/store', () => {
 
     useMedicationTrackerStore.getState().removeDoseLog(log.id);
     expect(useMedicationTrackerStore.getState().logs).toHaveLength(0);
+    expect(useMedicationTrackerStore.getState().medications[0]!.quantityRemaining).toBe(10);
   });
 
   it('clears patient fields when switching a med off forKid', () => {
@@ -543,5 +551,115 @@ describe('medication-tracker/store', () => {
     expect(updated.endDate).toBe('2026-07-16');
     // Ended courses cannot remain active even if the write requests it.
     expect(updated.active).toBe(false);
+  });
+});
+
+describe('medication-tracker/validation', () => {
+  const baseWrite = {
+    name: 'Metformin',
+    dosage: '500mg',
+    frequency: 'twice-daily' as const,
+    startDate: '2026-07-01',
+    endDate: null as string | null,
+    forKid: false,
+    familyMemberId: null as string | null,
+    patientName: null as string | null,
+    slotTimes: ['08:00', '20:00'],
+    instructionKind: 'none' as const,
+    instructionText: '',
+    quantityText: '',
+    refillThresholdText: '',
+    refillDueDate: null as string | null,
+    todayKey: '2026-07-16',
+    hasSelectedChild: false,
+  };
+
+  it('hard-requires dosage and rejects duplicate slot times', () => {
+    expect(
+      assessMedicationWrite({ ...baseWrite, dosage: '  ' }).hard?.code,
+    ).toBe('required_dosage');
+
+    expect(
+      assessMedicationWrite({
+        ...baseWrite,
+        slotTimes: ['08:00', '08:00'],
+      }).hard?.code,
+    ).toBe('slot_times_duplicate');
+  });
+
+  it('soft-warns digits-only dosage and close slots without blocking', () => {
+    const digits = assessMedicationWrite({ ...baseWrite, dosage: '500' });
+    expect(digits.hard).toBeNull();
+    expect(digits.soft.some((s) => s.code === 'soft_dosage_no_unit')).toBe(true);
+
+    const close = assessMedicationWrite({
+      ...baseWrite,
+      slotTimes: ['08:00', '09:00'],
+    });
+    expect(close.hard).toBeNull();
+    expect(close.soft.some((s) => s.code === 'soft_slots_close')).toBe(true);
+  });
+
+  it('soft-flags dose logs outside the course or in the future', () => {
+    const medication = med({
+      startDate: '2026-07-10',
+      endDate: '2026-07-20',
+      frequency: 'once-daily',
+    });
+
+    const before = assessDoseLog({
+      medication,
+      dateKey: '2026-07-05',
+      slotIndex: 0,
+      todayKey: '2026-07-16',
+      logs: [],
+    });
+    expect(before.soft.some((s) => s.code === 'soft_log_before_start')).toBe(true);
+
+    const after = assessDoseLog({
+      medication,
+      dateKey: '2026-07-25',
+      slotIndex: 0,
+      todayKey: '2026-07-16',
+      logs: [],
+    });
+    expect(after.soft.some((s) => s.code === 'soft_log_after_end')).toBe(true);
+
+    const future = assessDoseLog({
+      medication,
+      dateKey: '2026-07-18',
+      slotIndex: 0,
+      todayKey: '2026-07-16',
+      logs: [],
+    });
+    expect(future.soft.some((s) => s.code === 'soft_log_future')).toBe(true);
+  });
+
+  it('soft-warns when many as-needed doses are already logged today', () => {
+    const medication = med({ frequency: 'as-needed', slotTimes: [] });
+    const logs = Array.from({ length: 8 }, (_, index) => ({
+      id: `log-${index}`,
+      medicationId: medication.id,
+      dateKey: '2026-07-16',
+      slotIndex: index,
+    }));
+    const assessment = assessDoseLog({
+      medication,
+      dateKey: '2026-07-16',
+      slotIndex: 8,
+      todayKey: '2026-07-16',
+      logs,
+    });
+    expect(assessment.soft.some((s) => s.code === 'soft_as_needed_many')).toBe(true);
+  });
+
+  it('parses optional non-negative integers strictly', () => {
+    expect(parseOptionalNonNegativeInteger('')).toEqual({ value: null, error: false });
+    expect(parseOptionalNonNegativeInteger('12')).toEqual({ value: 12, error: false });
+    expect(parseOptionalNonNegativeInteger('12.5').error).toBe(true);
+    expect(parseOptionalNonNegativeInteger('-1').error).toBe(true);
+    expect(hasDuplicateSlotTimes(['08:00', '08:00'], 2)).toBe(true);
+    expect(slotsTooClose(['08:00', '09:30'], 2)).toBe(true);
+    expect(slotsTooClose(['08:00', '12:00'], 2)).toBe(false);
   });
 });
