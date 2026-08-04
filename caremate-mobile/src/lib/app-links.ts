@@ -11,7 +11,9 @@ export function isAllowedAppLinkHostname(hostname: string): boolean {
     host === 'getcaremate.com' ||
     host === 'www.getcaremate.com' ||
     host === 'dev.getcaremate.com' ||
-    host.endsWith('.getcaremate.com')
+    host.endsWith('.getcaremate.com') ||
+    // Temporary Amplify hosts until custom domains are ready
+    host.endsWith('.amplifyapp.com')
   );
 }
 

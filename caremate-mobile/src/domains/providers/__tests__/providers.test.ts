@@ -68,7 +68,6 @@ describe('providers/types', () => {
       'imaging_centre',
       'dentist',
       'eye_care',
-      'insurance',
     ]);
     expect(isProviderType('clinic')).toBe(true);
     expect(isProviderType('spa')).toBe(false);

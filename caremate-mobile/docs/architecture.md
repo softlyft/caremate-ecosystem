@@ -176,7 +176,7 @@ See **[Security](./security.md)** for the full hardening map. Summary:
 |-------|-------------------|
 | Supabase session tokens | Expo SecureStore (native); AsyncStorage on web |
 | SQLite PHI | SQLCipher (`caremate.secure.db`) + Keychain/Keystore key |
-| Mini-app health blobs | User-scoped AsyncStorage; cleared on sign-out |
+| Mini-app health blobs | User-scoped AsyncStorage; cleared on account switch / delete (kept across sign-out for same device email) |
 | Session tokens | SecureStore (`authStorage`) |
 | Onboarding flag | SecureStore |
 | Checkout session handoff | Single-use Edge Function code (no tokens in URL) |

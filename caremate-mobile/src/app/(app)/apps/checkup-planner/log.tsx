@@ -4,7 +4,10 @@ import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
+import { isCheckupItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -18,7 +21,7 @@ import {
   useCheckupPlannerHydrated,
   useCheckupPlannerStore,
 } from '@/mini-apps/checkup-planner/store';
-import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
+import { buildYearSchedule, formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
 import { localizeCadence, localizeCheckup } from '@/mini-apps/checkup-planner/localize';
 import {
   assessCompletionDraft,
@@ -30,6 +33,7 @@ const theme = getMiniAppTheme('checkup-planner');
 
 export default function CheckupPlannerLogScreen() {
   const { t } = useTranslation();
+  const tier = usePremiumTier();
   const { checkupId: paramCheckupId, year: paramYear } = useLocalSearchParams<{
     checkupId?: string;
     year?: string;
@@ -102,6 +106,32 @@ export default function CheckupPlannerLogScreen() {
     );
   }
 
+  const scheduleItem = buildYearSchedule(profile, completions, year).find(
+    (item) => item.checkup.id === checkup.id,
+  );
+  const itemUnlocked = isCheckupItemUnlocked(tier, {
+    year,
+    stableIndexInYear: scheduleItem?.stableIndexInYear ?? Number.MAX_SAFE_INTEGER,
+    currentYear,
+  });
+
+  if (!itemUnlocked) {
+    return (
+      <MiniAppScreen>
+        <UpgradePrompt
+          title={t('profile.premium.checkupLockedTitle')}
+          message={t('profile.premium.checkupLockedMessage')}
+        />
+        <MiniAppCta
+          label={t('common.goBack')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.back()}
+        />
+      </MiniAppScreen>
+    );
+  }
+
   const localizedCheckup = localizeCheckup(checkup, t);
 
   const issueMessage = (issue: CheckupIssue): string =>
@@ -169,7 +199,12 @@ export default function CheckupPlannerLogScreen() {
         <MonthCalendarNavigator
           accentColor={theme.color}
           monthRef={monthRef}
-          onMonthChange={setMonthRef}
+          onMonthChange={(next) => {
+            const maxMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            setMonthRef(next > maxMonth ? maxMonth : next);
+          }}
+          maximumYear={today.getFullYear()}
+          maximumMonth={new Date(today.getFullYear(), today.getMonth(), 1)}
         />
         <AppText variant="caption" style={styles.muted}>
           {t('apps.checkup.ui.dateCompleted')}
@@ -178,10 +213,19 @@ export default function CheckupPlannerLogScreen() {
           monthRef={monthRef}
           interactive
           accentColor={theme.color}
-          onDayPress={setCompletedDate}
+          onDayPress={(dayKey) => {
+            if (dayKey > todayKey) {
+              return;
+            }
+            if (dayKey < profile.dateOfBirth) {
+              return;
+            }
+            setCompletedDate(dayKey);
+          }}
           getDayState={(dayKey) => ({
             selected: dayKey === completedDate,
             today: dayKey === todayKey,
+            disabled: dayKey > todayKey || dayKey < profile.dateOfBirth,
           })}
         />
         <AppText variant="body">

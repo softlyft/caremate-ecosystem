@@ -5,7 +5,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -18,6 +17,10 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Card, ChoiceChip } from '@/components/ui/form-controls';
+import {
+  MiniAppKeyboardContext,
+  useScheduleFocusedInputScroll,
+} from '@/hooks/use-keyboard-aware-scroll';
 import type { MiniAppId } from '@/mini-apps/_kit/registry';
 import { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -35,37 +38,21 @@ export function MiniAppScreen({
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
     const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
       setKeyboardHeight(event.endCoordinates.height);
-      const keyboardTop = event.endCoordinates.screenY;
-
-      // Wait for KeyboardAvoidingView / insets to settle, then bring the focused field into view.
-      requestAnimationFrame(() => {
-        setTimeout(
-          () => {
-            const input = TextInput.State.currentlyFocusedInput?.();
-            if (!input || !scrollRef.current) return;
-
-            input.measureInWindow((_x, y, _width, height) => {
-              const overlap = y + height + spacing.md - keyboardTop;
-              if (overlap <= 0) return;
-              scrollRef.current?.scrollTo({
-                y: Math.max(0, scrollYRef.current + overlap),
-                animated: true,
-              });
-            });
-          },
-          Platform.OS === 'ios' ? 80 : 120,
-        );
-      });
+      keyboardApi.scheduleScrollIntoView();
     });
     const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
       setKeyboardHeight(0);
     });
 
@@ -73,13 +60,14 @@ export function MiniAppScreen({
       showSub.remove();
       hideSub.remove();
     };
-  }, []);
+  }, [keyboardApi]);
 
   // Extra scroll room so bottom fields (Notes, Provider, refill threshold) can rise above the keyboard.
-  // Android adjustResize already shrinks the window — don't add a second keyboard-height pad.
+  // Applied on both platforms: Android resize alone is not enough when content is short or focus
+  // moves between fields while the keyboard stays open.
   const bottomPad =
-    Platform.OS === 'ios' && keyboardHeight > 0
-      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
       : insets.bottom + spacing.xl;
 
   const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + MINI_APP_HEADER_HEIGHT : 0;
@@ -89,26 +77,30 @@ export function MiniAppScreen({
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={keyboardVerticalOffset}
-    >
-      <ScrollView
-        ref={scrollRef}
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-        contentInsetAdjustmentBehavior="automatic"
-        scrollEventThrottle={16}
-        onScroll={onScroll}
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+    <MiniAppKeyboardContext.Provider value={keyboardApi}>
+      <KeyboardAvoidingView
+        style={styles.screen}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        {children}
-      </ScrollView>
-    </KeyboardAvoidingView>
+        <ScrollView
+          ref={scrollRef}
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          // Avoid stacking RN content insets on top of KeyboardAvoidingView + our bottom pad.
+          automaticallyAdjustKeyboardInsets={false}
+          contentInsetAdjustmentBehavior="never"
+          nestedScrollEnabled
+          scrollEventThrottle={16}
+          onScroll={onScroll}
+          contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+        >
+          {children}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </MiniAppKeyboardContext.Provider>
   );
 }
 

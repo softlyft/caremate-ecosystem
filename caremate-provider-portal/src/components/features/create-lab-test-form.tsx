@@ -17,12 +17,13 @@ export function CreateLabTestForm() {
       className="grid gap-3 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
-        const fd = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const fd = new FormData(form);
         start(async () => {
           try {
             await createLabTestAction(fd);
             toast.success('Test added to catalog');
-            (e.target as HTMLFormElement).reset();
+            form.reset();
           } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Could not add test');
           }

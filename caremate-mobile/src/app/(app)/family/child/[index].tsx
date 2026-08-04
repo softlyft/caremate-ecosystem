@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +10,8 @@ import { Button, Input } from '@/components/ui/form-controls';
 import { createChildProfileSchema, FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
+import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
+import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 type ChildForm = {
@@ -18,6 +20,29 @@ type ChildForm = {
   gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
   notes?: string;
 };
+
+function initialDobMonth(dateOfBirth: string | null | undefined): Date {
+  const today = new Date();
+  if (dateOfBirth) {
+    try {
+      const parsed = parseDateKey(dateOfBirth);
+      if (!Number.isNaN(parsed.getTime())) {
+        return new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+      }
+    } catch {
+      // fall through
+    }
+  }
+  return new Date(today.getFullYear() - 3, today.getMonth(), 1);
+}
+
+function formatDobLabel(dateKey: string): string {
+  return parseDateKey(dateKey).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
 
 export default function FamilyChildFormScreen() {
   const { t } = useTranslation();
@@ -28,6 +53,11 @@ export default function FamilyChildFormScreen() {
   const children = useFamilySetupStore((s) => s.children);
   const upsertChild = useFamilySetupStore((s) => s.upsertChild);
   const existing = children[index];
+
+  const today = useMemo(() => new Date(), []);
+  const todayKey = toDateKey(today);
+  const currentYear = today.getFullYear();
+  const [dobMonthRef, setDobMonthRef] = useState(() => initialDobMonth(existing?.dateOfBirth));
 
   const childSchema = useMemo(
     () =>
@@ -50,6 +80,7 @@ export default function FamilyChildFormScreen() {
   });
 
   const gender = useWatch({ control, name: 'gender' });
+  const dateOfBirth = useWatch({ control, name: 'dateOfBirth' });
 
   function onSubmit(values: ChildForm) {
     upsertChild(index, {
@@ -98,19 +129,50 @@ export default function FamilyChildFormScreen() {
             />
           )}
         />
-        <Controller
-          control={control}
-          name="dateOfBirth"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder={t('family.child.dobPlaceholder')}
-              autoCapitalize="none"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
+
+        <View style={styles.dobField}>
+          <AppText variant="body">{t('family.child.dob')}</AppText>
+          <AppText variant="caption" style={styles.muted}>
+            {t('family.child.dobHint')}
+          </AppText>
+          <MonthCalendarNavigator
+            accentColor={palette.primary}
+            monthRef={dobMonthRef}
+            onMonthChange={setDobMonthRef}
+            maximumYear={currentYear}
+          />
+          <MonthCalendarGrid
+            monthRef={dobMonthRef}
+            interactive
+            accentColor={palette.primary}
+            onDayPress={(dayKey) => {
+              if (dayKey > todayKey) return;
+              setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
+            }}
+            getDayState={(dayKey) => ({
+              selected: dayKey === dateOfBirth,
+              today: dayKey === todayKey,
+              disabled: dayKey > todayKey,
+            })}
+          />
+          {dateOfBirth ? (
+            <View style={styles.dobSelectedRow}>
+              <AppText variant="body">
+                {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
+              </AppText>
+              <Button
+                accessibilityRole="button"
+                onPress={() => setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })}
+                hitSlop={8}
+                variant="plain"
+              >
+                <AppText variant="caption" color="brand">
+                  {t('common.clear')}
+                </AppText>
+              </Button>
+            </View>
+          ) : null}
+        </View>
 
         <AppText variant="body">{t('family.child.gender')}</AppText>
         <View style={styles.chipRow}>
@@ -173,6 +235,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.divider,
     padding: layoutSpacing.cardPadding,
+    gap: spacing.sm,
+  },
+  dobField: {
+    gap: spacing.sm,
+  },
+  muted: {
+    color: palette.textSecondary,
+  },
+  dobSelectedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: spacing.sm,
   },
   chipRow: {

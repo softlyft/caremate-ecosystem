@@ -18,7 +18,7 @@ interface ArticleShareButtonProps {
 
 /**
  * Share control for CareMate guides only — external news has no share icon.
- * Payload includes a deep link back into CareMate (and cover image URL when set).
+ * Payload includes a public website link (and cover image URL when set).
  */
 export function ArticleShareButton({
   article,

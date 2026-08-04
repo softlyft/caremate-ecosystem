@@ -188,13 +188,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    const userId = get().user?.id;
     const { clearPushRegistration } = await import('@/domains/notifications/push');
-    const { wipeLocalAccountData } = await import('@/domains/auth/wipe-local-account');
+    const { clearMiniAppMemoryState } = await import('@/domains/auth/wipe-local-account');
     await clearPushRegistration();
-    if (userId && !get().isGuest) {
-      await wipeLocalAccountData(userId);
-    }
+    // Keep SQLite / AsyncStorage for the device-bound account so the same email
+    // can sign back in without re-entering emergency and other local essentials.
+    // A different account must confirm a full reset before auth (see confirmDeviceAccountForAuth).
+    clearMiniAppMemoryState();
     await authService.signOut();
     trackEvent(AnalyticsEvents.signOut);
     // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.

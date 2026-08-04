@@ -8,10 +8,16 @@ import {
   takeLastAppHref,
   toRestorableAppHref,
 } from '@/domains/navigation/persistence';
+import {
+  isNavigationRestoreComplete,
+  markNavigationRestoreComplete,
+  resetNavigationRestoreGate,
+} from '@/domains/navigation/restore-gate';
 
 describe('navigation/persistence', () => {
   beforeEach(async () => {
     await AsyncStorage.removeItem(STORAGE_KEYS.lastAppRoute);
+    resetNavigationRestoreGate();
   });
 
   it('maps pathnames to /(app) hrefs', () => {
@@ -47,5 +53,17 @@ describe('navigation/persistence', () => {
       }),
     );
     await expect(takeLastAppHref()).resolves.toBeNull();
+  });
+});
+
+describe('navigation/restore-gate', () => {
+  beforeEach(() => {
+    resetNavigationRestoreGate();
+  });
+
+  it('starts closed and opens after mark', () => {
+    expect(isNavigationRestoreComplete()).toBe(false);
+    markNavigationRestoreComplete();
+    expect(isNavigationRestoreComplete()).toBe(true);
   });
 });

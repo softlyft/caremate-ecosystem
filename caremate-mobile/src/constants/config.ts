@@ -28,6 +28,11 @@ export const STORAGE_KEYS = {
   deviceDefaults: 'caremate_device_defaults',
   /** Last in-app route for restore after process death (e.g. Android permission revoke). */
   lastAppRoute: 'caremate_last_app_route',
+  /**
+   * Email + userId bound to this device after sign-in / sign-up.
+   * Sign-out keeps local PHI; a different account must confirm a full local reset first.
+   */
+  deviceAccountBinding: 'caremate_device_account_binding',
 } as const;
 
 export const SYNC_CONFIG = {

@@ -10,6 +10,8 @@ type DayState = {
   logged?: boolean;
   predicted?: boolean;
   today?: boolean;
+  /** Non-interactive day (e.g. future date for completed doses). */
+  disabled?: boolean;
 };
 
 type MonthCalendarGridProps = {
@@ -64,6 +66,7 @@ export function MonthCalendarGrid({
             const dayKey = toDateKey(date);
             const state = getDayState?.(dayKey) ?? {};
             const isSelected = state.selected ?? state.logged ?? false;
+            const isDisabled = Boolean(state.disabled);
 
             const bubbleStyle = [
               styles.dayBubble,
@@ -79,21 +82,25 @@ export function MonthCalendarGrid({
                   borderColor: predictedBorderColor,
                   borderStyle: 'dashed' as const,
                 },
-              state.today && styles.todayRing,
+              state.today && !isDisabled && styles.todayRing,
+              isDisabled && styles.disabledBubble,
             ];
 
             const content = (
               <View style={bubbleStyle}>
                 <AppText
                   variant="caption"
-                  style={isSelected || state.logged ? styles.selectedDayText : undefined}
+                  style={[
+                    isSelected || state.logged ? styles.selectedDayText : undefined,
+                    isDisabled ? styles.disabledDayText : undefined,
+                  ]}
                 >
                   {date.getDate()}
                 </AppText>
               </View>
             );
 
-            if (!interactive || !onDayPress) {
+            if (!interactive || !onDayPress || isDisabled) {
               return (
                 <View key={dayKey} style={styles.dayCell}>
                   {content}
@@ -156,5 +163,12 @@ const styles = StyleSheet.create({
   todayRing: {
     borderWidth: 2,
     borderColor: palette.primary,
+  },
+  disabledBubble: {
+    backgroundColor: palette.surface,
+    opacity: 0.55,
+  },
+  disabledDayText: {
+    color: palette.textSecondary,
   },
 });

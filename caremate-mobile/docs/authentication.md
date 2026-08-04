@@ -36,7 +36,8 @@ Implementation spans:
 | `resendSignupEmail(email)` | Resends signup confirmation email |
 | `verifyRecoveryEmail(email, token)` | Verifies recovery OTP (`verifyOtp` type `recovery`), then marks password recovery pending |
 | `resendRecoveryEmail(email)` | Resends the password-reset email (same as requesting reset again) |
-| `signOut()` | Clears push for this device, wipes local account data, clears session → guest |
+| `signOut()` | Clears push for this device, clears in-memory mini-app state, clears session → guest. **Does not** wipe SQLite / persisted local data (same email can return). |
+| `deleteAccount()` | Cloud delete + wipe local account data + clear device account binding |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
 | `updatePassword(password)` | Completes password reset from the recovery flow |
@@ -87,6 +88,24 @@ On successful `signUpWithEmail` **with a session** (confirmations off), or after
 3. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
 
 Both local stub steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs entitlement hydrate and invalidates Premium/ads queries, then triggers a full sync.
+
+After bootstrap succeeds, **`bindDeviceAccount`** stores `{ email, userId }` in SecureStore (`STORAGE_KEYS.deviceAccountBinding`) so sign-out can keep local data for that email.
+
+---
+
+## Device account binding (same-device reuse)
+
+CareMate keeps **one primary account email per device** for local PHI continuity:
+
+| Event | Behavior |
+|-------|----------|
+| Sign-in / sign-up / session restore | Bind device to that account email + userId |
+| Sign-out | Clear session + push + in-memory mini-apps; **keep** SQLite rows and user-scoped AsyncStorage |
+| Same email signs back in | No wipe — emergency profile and other local data remain |
+| Different email tries sign-in / sign-up | Alert with masked previous email; **Proceed** wipes previous local account then continues; **Cancel** aborts |
+| Account delete | Wipe local data + clear device binding |
+
+Login and register call `confirmDeviceAccountForAuth` before talking to Supabase. Recovery OTP (`verify-reset`) uses the same gate.
 
 ---
 

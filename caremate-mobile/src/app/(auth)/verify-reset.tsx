@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
+import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
 import { useAuthStore } from '@/features/auth/store';
@@ -70,6 +71,16 @@ export default function VerifyResetScreen() {
       }
       if (!email) {
         Alert.alert(t('auth.verifyReset.error'), t('auth.verifyReset.missingEmail'));
+        return;
+      }
+
+      const allowed = await confirmDeviceAccountForAuth(email, {
+        title: t('auth.deviceAccount.title'),
+        message: (maskedEmail) => t('auth.deviceAccount.message', { email: maskedEmail }),
+        proceed: t('auth.deviceAccount.proceed'),
+        cancel: t('common.cancel'),
+      });
+      if (!allowed) {
         return;
       }
 

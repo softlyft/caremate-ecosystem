@@ -10,8 +10,8 @@ This document describes CareMate mobile’s **security layer**: what we protect,
 
 | Threat | Primary controls |
 |--------|------------------|
-| Stolen / resold / rooted device reading local PHI | SQLCipher at rest + wipe on sign-out |
-| Shared device (family tablet): account A → account B leakage | User-scoped mini-app storage, wipe on sign-out, guest migrate only on explicit sign-in |
+| Stolen / resold / rooted device reading local PHI | SQLCipher at rest + wipe on account switch / delete |
+| Shared device (family tablet): account A → account B leakage | Device account binding + confirm-before-reset when email differs; user-scoped mini-app storage |
 | Session theft via browser URL / deep link | Checkout handoff codes; allowlisted auth callback paths |
 | Password-reset link opened by someone else | `passwordRecoveryPending` gates app routes until password update |
 | PII enumeration via family “find user” | Masked lookup RPC + rate limit |
@@ -35,7 +35,7 @@ Out of scope for the mobile app alone: server RLS correctness (owned by Supabase
 | Legacy | Plaintext `caremate.db` is deleted on first secure boot; signed-in users rehydrate via sync |
 | Backups | Android backup / data-extraction rules exclude `caremate.secure.db` (+ WAL/SHM) |
 
-Wipe-on-sign-out still clears user rows (defense-in-depth for shared devices).
+Wipe on account switch / delete clears user rows (shared-device isolation). Sign-out keeps local rows for the device-bound email so the same user can return without re-entering essentials.
 
 ### Session tokens
 
@@ -48,11 +48,11 @@ Never put refresh tokens in plain AsyncStorage on native.
 
 ### Mini-app Zustand blobs
 
-Persisted under **user-scoped** AsyncStorage keys (`caremate-…:{userId}` / `:guest`) so one account cannot adopt another’s medications / period / pregnancy state. Cleared on sign-out / account delete.
+Persisted under **user-scoped** AsyncStorage keys (`caremate-…:{userId}` / `:guest`) so one account cannot adopt another’s medications / period / pregnancy state. Cleared on account switch / delete (not on sign-out for the same device-bound email).
 
 ### Emergency lock surface
 
-Lock/home widgets are retired (always cleared). Emergency share is via opaque Patient ID QR + authenticated RPC (`get_emergency_by_share_token`). Snapshot cleared on sign-out / delete (`syncEmergencyLockSurface(null)`).
+Lock/home widgets are retired (always cleared). Emergency share is via opaque Patient ID QR + authenticated RPC (`get_emergency_by_share_token`). Snapshot cleared on account switch / delete (`syncEmergencyLockSurface(null)`).
 
 ---
 
@@ -87,8 +87,10 @@ and the Play signing SHA-256 before store launch.
 | Control | Behavior |
 |---------|----------|
 | Guest → account migrate | Only in `prepareLocalAccount` (explicit sign-in / sign-up), **not** on every sync cycle |
-| Sign-out | Clear push token for **this device**, wipe local account SQLite + mini-apps + queues + lock surface, then Supabase sign-out |
-| Account delete | Same wipe + server `delete-account` (JWT-validated) |
+| Device account binding | SecureStore `{ email, userId }` after auth; gates a different email behind reset confirm |
+| Sign-out | Clear push token for **this device**, clear in-memory mini-apps, then Supabase sign-out — **keep** SQLite + persisted mini-app keys for the bound email |
+| Account switch (different email) | User confirms → `wipeLocalAccountData` + clear binding, then auth continues |
+| Account delete | Same wipe + clear binding + server `delete-account` (JWT-validated) |
 | Guest push | No Expo token upload |
 | Sync push | Skipped while guest |
 | Family lookup | Masked name / email / phone; no DOB; ≤30 lookups / hour / caller |
@@ -127,7 +129,7 @@ Registered Expo tokens are stored locally so sign-out deletes **only this device
 |---------|----------|
 | SQLCipher open + key | `src/database/client.ts`, `src/database/encryption-key.ts` |
 | Session storage | `src/lib/storage.ts`, `src/lib/supabase.ts` |
-| Sign-out / wipe | `src/features/auth/store.ts`, `src/domains/auth/wipe-local-account.ts` |
+| Sign-out / device bind / wipe | `src/features/auth/store.ts`, `src/domains/auth/device-account-binding.ts`, `src/domains/auth/wipe-local-account.ts` |
 | Mini-app scoped storage | `src/mini-apps/_kit/synced-storage.ts` |
 | Guest migrate | `src/domains/auth/migrate-guest-data.ts` (call site: auth prepare only) |
 | Deep links | `src/lib/auth-deep-link.ts`, `src/components/AuthDeepLinkHandler.tsx` |

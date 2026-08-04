@@ -1,6 +1,7 @@
 import { AD_SLOTS } from '@/domains/ads/types';
 import {
   FAMILY_ADULT_INVITE_LIMIT,
+  FREE_IMMUNIZATION_MAX_WEEKS,
   FREE_MEDICATION_LIMIT,
   canActivateMedication,
   canAddChild,
@@ -14,6 +15,7 @@ import {
   isImmunizationScheduleItemUnlocked,
   shouldSuppressAdForUser,
 } from '@/domains/billing/entitlements';
+import { VACCINE_SCHEDULE } from '@/mini-apps/immunization-tracker/constants';
 
 describe('billing entitlements', () => {
   it('blocks mini-apps for guests', () => {
@@ -43,14 +45,14 @@ describe('billing entitlements', () => {
     const currentYear = 2026;
     expect(isCheckupYearUnlocked('free', currentYear, currentYear)).toBe(true);
     expect(isCheckupYearUnlocked('free', currentYear + 1, currentYear)).toBe(false);
-    expect(isCheckupItemUnlocked('free', { year: currentYear, indexInYear: 1, currentYear })).toBe(
-      true,
-    );
-    expect(isCheckupItemUnlocked('free', { year: currentYear, indexInYear: 2, currentYear })).toBe(
-      false,
-    );
     expect(
-      isCheckupItemUnlocked('personal', { year: currentYear, indexInYear: 9, currentYear }),
+      isCheckupItemUnlocked('free', { year: currentYear, stableIndexInYear: 1, currentYear }),
+    ).toBe(true);
+    expect(
+      isCheckupItemUnlocked('free', { year: currentYear, stableIndexInYear: 2, currentYear }),
+    ).toBe(false);
+    expect(
+      isCheckupItemUnlocked('personal', { year: currentYear, stableIndexInYear: 9, currentYear }),
     ).toBe(true);
   });
 
@@ -58,6 +60,22 @@ describe('billing entitlements', () => {
     expect(isImmunizationScheduleItemUnlocked('free', 8)).toBe(true);
     expect(isImmunizationScheduleItemUnlocked('free', 9)).toBe(false);
     expect(isImmunizationScheduleItemUnlocked('family', 52)).toBe(true);
+  });
+
+  it('keeps free loggable vaccines within the two-month unlock window', () => {
+    const unlocked = VACCINE_SCHEDULE.filter((vaccine) =>
+      isImmunizationScheduleItemUnlocked('free', vaccine.recommendedAgeWeeks),
+    );
+    expect(unlocked.length).toBeGreaterThan(0);
+    expect(unlocked.length).toBeLessThan(VACCINE_SCHEDULE.length);
+    expect(
+      unlocked.every((vaccine) => vaccine.recommendedAgeWeeks <= FREE_IMMUNIZATION_MAX_WEEKS),
+    ).toBe(true);
+    expect(
+      VACCINE_SCHEDULE.some(
+        (vaccine) => !isImmunizationScheduleItemUnlocked('free', vaccine.recommendedAgeWeeks),
+      ),
+    ).toBe(true);
   });
 
   it('limits family children and adult invites by tier', () => {

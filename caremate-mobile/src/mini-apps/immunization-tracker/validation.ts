@@ -17,7 +17,7 @@ export type ImmunizationIssueCode =
   | 'required_administered_date'
   | 'invalid_administered_date'
   | 'administered_before_dob'
-  | 'soft_administered_future'
+  | 'administered_future'
   | 'soft_far_from_recommended'
   | 'soft_very_early'
   | 'soft_series_out_of_order'
@@ -134,7 +134,11 @@ export function assessImmunizationRecordDraft(
   }
 
   if (draft.administeredDate > draft.todayKey) {
-    soft.push({ code: 'soft_administered_future', messageKey: 'administeredFuture' });
+    return {
+      hard: { code: 'administered_future', messageKey: 'administeredFuture' },
+      soft: [],
+      payload: null,
+    };
   }
 
   const recommendedDate = getRecommendedDate(

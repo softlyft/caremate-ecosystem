@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
+import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { continueAfterAuth } from '@/domains/emergency/continue-after-auth';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
@@ -45,7 +46,17 @@ export default function LoginScreen() {
         );
         return;
       }
-      await signIn(values.email, values.password);
+      const email = values.email.trim().toLowerCase();
+      const allowed = await confirmDeviceAccountForAuth(email, {
+        title: t('auth.deviceAccount.title'),
+        message: (maskedEmail) => t('auth.deviceAccount.message', { email: maskedEmail }),
+        proceed: t('auth.deviceAccount.proceed'),
+        cancel: t('common.cancel'),
+      });
+      if (!allowed) {
+        return;
+      }
+      await signIn(email, values.password);
       await continueAfterAuth();
     } catch (error) {
       const message = toUserFacingErrorMessage(

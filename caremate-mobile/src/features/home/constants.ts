@@ -34,5 +34,4 @@ export const PROVIDER_TYPE_FILTERS = [
   { type: 'imaging_centre' as const, color: '#FCE7F3' },
   { type: 'dentist' as const, color: '#CFFAFE' },
   { type: 'eye_care' as const, color: '#DBEAFE' },
-  { type: 'insurance' as const, color: '#E0E7FF' },
 ];

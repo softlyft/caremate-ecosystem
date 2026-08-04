@@ -34,7 +34,6 @@ export const PRIMARY_PROVIDER_TYPES = [
   'imaging_centre',
   'dentist',
   'eye_care',
-  'insurance',
 ] as const satisfies readonly ProviderType[];
 
 export type PrimaryProviderType = (typeof PRIMARY_PROVIDER_TYPES)[number];

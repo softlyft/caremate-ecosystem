@@ -7,6 +7,7 @@ import { LoadingState } from '@/components/ui/screen-states';
 import { isImmunizationScheduleItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
 import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { useFamilyImmunizationChildren } from '@/mini-apps/immunization-tracker/use-family-children';
 import {
   useActiveImmunizationProfile,
@@ -245,18 +246,29 @@ export default function ImmunizationTrackerScreen() {
             color={STATUS_COLORS[summary.nextDue.status]}
             background={STATUS_BACKGROUNDS[summary.nextDue.status]}
           />
-          <MiniAppCta
-            label={t('apps.immunizationTracker.logVaccine')}
-            accent={theme.color}
-            soft={theme.backgroundColor}
-            index={5}
-            onPress={() =>
-              router.push({
-                pathname: '/(app)/apps/immunization-tracker/log',
-                params: { vaccineId: summary.nextDue!.vaccine.id, profileId: profile!.id },
-              })
-            }
-          />
+          {isImmunizationScheduleItemUnlocked(
+            tier,
+            summary.nextDue.vaccine.recommendedAgeWeeks,
+          ) ? (
+            <MiniAppCta
+              label={t('apps.immunizationTracker.logVaccine')}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              index={5}
+              onPress={() =>
+                router.push({
+                  pathname: '/(app)/apps/immunization-tracker/log',
+                  params: { vaccineId: summary.nextDue!.vaccine.id, profileId: profile!.id },
+                })
+              }
+            />
+          ) : (
+            <UpgradePrompt
+              title={t('profile.premium.immunizationLockedTitle')}
+              message={t('profile.premium.immunizationLockedMessage')}
+              compact
+            />
+          )}
         </MiniAppCard>
       ) : null}
 

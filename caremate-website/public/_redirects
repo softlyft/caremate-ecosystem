@@ -1,0 +1,2 @@
+# SPA fallback — static files (including /.well-known/*) win over this rewrite.
+/*    /index.html   200

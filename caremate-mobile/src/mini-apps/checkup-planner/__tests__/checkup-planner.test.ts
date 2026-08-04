@@ -1,4 +1,8 @@
 import {
+  FREE_CHECKUP_VISIBLE_COUNT,
+  isCheckupItemUnlocked,
+} from '@/domains/billing/entitlements';
+import {
   CHECKUP_CATALOG,
   getCadenceIntervalYears,
   getCadenceLabel,
@@ -140,6 +144,45 @@ describe('checkup-planner/utils', () => {
       year,
     );
     expect(withBoneDone.find((item) => item.checkup.id === 'bone-density-women')).toBeUndefined();
+  });
+
+  it('keeps stable free-tier indexes when items are completed and re-sorted', () => {
+    const year = new Date().getFullYear();
+    const before = buildYearSchedule(adultFemale, [], year);
+    expect(before.length).toBeGreaterThanOrEqual(3);
+
+    const byCatalogOrder = [...before].sort(
+      (a, b) => a.stableIndexInYear - b.stableIndexInYear,
+    );
+    const first = byCatalogOrder[0]!;
+    const third = byCatalogOrder[2]!;
+
+    expect(first.stableIndexInYear).toBe(0);
+    expect(third.stableIndexInYear).toBe(2);
+
+    const after = buildYearSchedule(
+      adultFemale,
+      [{ checkupId: first.checkup.id, year, completedDate: `${year}-01-15` }],
+      year,
+    );
+    const firstAfter = after.find((item) => item.checkup.id === first.checkup.id)!;
+    const thirdAfter = after.find((item) => item.checkup.id === third.checkup.id)!;
+
+    expect(firstAfter.status).toBe('completed');
+    expect(firstAfter.stableIndexInYear).toBe(0);
+    expect(thirdAfter.stableIndexInYear).toBe(2);
+    expect(
+      isCheckupItemUnlocked('free', {
+        year,
+        stableIndexInYear: thirdAfter.stableIndexInYear,
+        currentYear: year,
+      }),
+    ).toBe(false);
+    expect(FREE_CHECKUP_VISIBLE_COUNT).toBe(2);
+    // Status sort puts completed last, but unlock index must not shift.
+    expect(after.findIndex((item) => item.checkup.id === third.checkup.id)).toBeLessThan(
+      after.findIndex((item) => item.checkup.id === first.checkup.id),
+    );
   });
 
   it('summarizes year progress and status labels', () => {
@@ -297,8 +340,8 @@ describe('checkup-planner/validation', () => {
       currentYear: 2026,
       completions: [],
     });
-    expect(future.hard).toBeNull();
-    expect(future.soft.some((s) => s.code === 'soft_completed_future')).toBe(true);
+    expect(future.hard?.code).toBe('completed_future');
+    expect(future.payload).toBeNull();
 
     const mismatch = assessCompletionDraft({
       checkupId: 'general-checkup',
@@ -309,6 +352,7 @@ describe('checkup-planner/validation', () => {
       currentYear: 2026,
       completions: [],
     });
+    expect(mismatch.hard).toBeNull();
     expect(mismatch.soft.some((s) => s.code === 'soft_completed_year_mismatch')).toBe(true);
   });
 

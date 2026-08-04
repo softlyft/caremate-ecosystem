@@ -1,6 +1,8 @@
 # Amplify Hosting — website, payment, admin portal, provider portal, community portal
 
-Deploy five Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
+Deploy Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
+
+**Production website + payment** now prefer **Cloudflare Pages** on branch **`prod`** — see [`cloudflare-pages.md`](./cloudflare-pages.md). Amplify rows below remain useful for portals and any leftover `main` web deploys.
 
 | Amplify app (suggested name) | App root (monorepo) | Framework | Build output |
 |------------------------------|---------------------|-----------|--------------|
@@ -73,8 +75,8 @@ After the payment domain is live, point the mobile app’s hosted checkout base 
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon / publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret in Amplify |
-| `NEXT_PUBLIC_APP_URL` | e.g. `https://admin.getcaremate.com` |
-| `NEXT_PUBLIC_WEBSITE_URL` | e.g. `https://getcaremate.com` (password-reset redirect target) |
+| `NEXT_PUBLIC_APP_URL` | Temporary: `https://main.d3gvtqx2uzn788.amplifyapp.com` (later `https://admin.getcaremate.com`) |
+| `NEXT_PUBLIC_WEBSITE_URL` | Temporary: `https://main.dim7uuolmjgc9.amplifyapp.com` (password-reset redirect target) |
 | `CURRENTS_API_KEY` | Server-only — Currents health news sync for External News admin |
 | `PROVIDER_INGEST_URL` | Optional until ingest is hosted; production FastAPI base URL |
 | `PROVIDER_INGEST_API_KEY` | Optional; must match ingest service |
@@ -91,8 +93,8 @@ Amplify Console → App → **Hosting** → **Environment variables** → apply 
 | `NEXT_PUBLIC_SUPABASE_URL` | Same Supabase project as mobile / admin |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret |
-| `NEXT_PUBLIC_APP_URL` | e.g. `https://provider.getcaremate.com` |
-| `NEXT_PUBLIC_WEBSITE_URL` | e.g. `https://getcaremate.com` |
+| `NEXT_PUBLIC_APP_URL` | Temporary: `https://main.d9xyppes84zqr.amplifyapp.com` (later `https://provider.getcaremate.com`) |
+| `NEXT_PUBLIC_WEBSITE_URL` | Temporary: `https://main.dim7uuolmjgc9.amplifyapp.com` |
 
 Do **not** expose claim or password-reset OTPs in the browser. OTPs are emailed via Edge Functions:
 
@@ -130,7 +132,21 @@ Expect:
 
 ## Custom domains (after first green deploy)
 
-Official CareMate hosts:
+### Temporary Amplify hosts (until custom domains are ready)
+
+Use these Amplify default domains for env vars, EAS, emails, and cross-app links while `*.getcaremate.com` DNS is unfinished:
+
+| App | Temporary host |
+|-----|----------------|
+| Main website | `https://main.dim7uuolmjgc9.amplifyapp.com` |
+| Admin portal | `https://main.d3gvtqx2uzn788.amplifyapp.com` |
+| Provider portal | `https://main.d9xyppes84zqr.amplifyapp.com` |
+| Community portal | `https://main.d2tlpjx9a9kklb.amplifyapp.com` |
+| Payment | `https://main.d1wcqa3tsdavz8.amplifyapp.com` |
+
+Set matching values in each Amplify app’s **Environment variables**, mobile `eas.json` / `.env.*`, and Supabase Auth **Redirect URLs** (include `https://main.dim7uuolmjgc9.amplifyapp.com/auth/reset-password`). Redeploy after changing.
+
+### Official CareMate hosts (target)
 
 | App | Development | Production |
 |-----|-------------|------------|

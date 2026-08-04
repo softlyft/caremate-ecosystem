@@ -14,7 +14,8 @@
       "associatedDomains": [
         "applinks:getcaremate.com",
         "applinks:www.getcaremate.com",
-        "applinks:dev.getcaremate.com"
+        "applinks:dev.getcaremate.com",
+        "applinks:main.dim7uuolmjgc9.amplifyapp.com"
       ]
     },
     "android": {
@@ -90,6 +91,26 @@
             {
               "scheme": "https",
               "host": "dev.getcaremate.com",
+              "pathPrefix": "/billing"
+            },
+            {
+              "scheme": "https",
+              "host": "main.dim7uuolmjgc9.amplifyapp.com",
+              "pathPrefix": "/auth"
+            },
+            {
+              "scheme": "https",
+              "host": "main.dim7uuolmjgc9.amplifyapp.com",
+              "pathPrefix": "/emergency/share"
+            },
+            {
+              "scheme": "https",
+              "host": "main.dim7uuolmjgc9.amplifyapp.com",
+              "pathPrefix": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "main.dim7uuolmjgc9.amplifyapp.com",
               "pathPrefix": "/billing"
             }
           ]

@@ -21,6 +21,8 @@ Auth group and app group are siblings. The app does not force login first; it us
 
 After Android kills the process (e.g. when notification permission is revoked in system Settings), Expo Router state is gone. CareMate persists the last in-app href (`caremate_last_app_route`, 12h TTL) via `NavigationPersistence` and restores it from `src/app/index.tsx` before falling back to Home tabs.
 
+`NavigationPersistence` waits for a restore gate (`markNavigationRestoreComplete`) so the bootstrap `/` path cannot overwrite a saved article (or other deep link) before `takeLastAppHref` runs. It also flushes the current route when the app goes inactive/background (common when jumping to system Settings).
+
 Auth, billing, and emergency-share surfaces are not restored.
 
 ---
@@ -255,6 +257,7 @@ via `ios.associatedDomains` + Android `intentFilters` (`autoVerify`).
 | `caremate://emergency/share/<token>` · `https://…/emergency/share/<token>` | Auth-gated emergency share (Patient ID QR) |
 | `caremate://auth/reset-password` · `https://…/auth/reset-password` | Legacy password-reset deep link (optional fallback; primary flow uses in-app OTP) |
 | `caremate://billing/success\|cancel` · `https://…/billing/…` | Checkout return |
+| **Article share (outbound)** | Always `https://{website}/articles/<id>` (public web page; website redirects to category/slug). Legacy inbound `caremate://articles/<id>` still opens the app. |
 
 Exact Expo Go / dev URIs may use `exp://…/--/auth/reset-password` via `Linking.createURL` when using the legacy deep-link fallback.
 

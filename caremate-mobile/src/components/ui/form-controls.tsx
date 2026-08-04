@@ -18,6 +18,7 @@ import { PressableScale } from '@/components/motion/PressableScale';
 import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Text as GSText } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useMiniAppKeyboardAwareFocusHandler } from '@/hooks/use-keyboard-aware-scroll';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import { textColors } from '@/theme/typography';
 
@@ -271,14 +272,17 @@ export function ChoiceChip({
 
 export function InputControl({
   placeholderTextColor = textColors.placeholder,
+  onFocus,
   ...props
 }: TextInputProps) {
+  const wrapFocus = useMiniAppKeyboardAwareFocusHandler();
   return (
     <Input className="rounded-xl min-h-12 bg-secondary border-input">
       <InputField
+        {...props}
         className="text-[15px] font-sans"
         placeholderTextColor={placeholderTextColor}
-        {...props}
+        onFocus={wrapFocus(onFocus)}
       />
     </Input>
   );
@@ -288,21 +292,24 @@ export { InputControl as Input };
 
 export function PasswordInput({
   placeholderTextColor = textColors.placeholder,
+  onFocus,
   ...props
 }: TextInputProps) {
   const [visible, setVisible] = useState(false);
   const Icon = visible ? EyeOff : Eye;
+  const wrapFocus = useMiniAppKeyboardAwareFocusHandler();
 
   return (
     <Input className="rounded-xl min-h-12 bg-secondary border-input">
       <InputField
+        {...props}
         autoCapitalize="none"
         autoCorrect={false}
         className="text-[15px] font-sans"
         secureTextEntry={!visible}
         textContentType="password"
         placeholderTextColor={placeholderTextColor}
-        {...props}
+        onFocus={wrapFocus(onFocus)}
       />
       <InputSlot
         accessibilityLabel={visible ? 'Hide password' : 'Show password'}

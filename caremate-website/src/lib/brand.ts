@@ -3,11 +3,12 @@ function trimTrailingSlash(value: string): string {
 }
 
 const siteUrl = trimTrailingSlash(
-  (import.meta.env.VITE_SITE_URL as string | undefined)?.trim() || 'https://getcaremate.com',
+  (import.meta.env.VITE_SITE_URL as string | undefined)?.trim() ||
+    'https://main.dim7uuolmjgc9.amplifyapp.com',
 );
 const communityPortalUrl = trimTrailingSlash(
   (import.meta.env.VITE_COMMUNITY_PORTAL_URL as string | undefined)?.trim() ||
-    'https://community.getcaremate.com',
+    'https://main.d2tlpjx9a9kklb.amplifyapp.com',
 );
 
 export const SITE_URL = siteUrl;

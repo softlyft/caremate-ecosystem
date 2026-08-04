@@ -29,12 +29,13 @@ export function ScheduleAppointmentForm({
       className="grid gap-3 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
-        const fd = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const fd = new FormData(form);
         start(async () => {
           try {
             await scheduleAppointmentAction(fd);
             toast.success('Appointment scheduled');
-            (e.target as HTMLFormElement).reset();
+            form.reset();
           } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Could not schedule');
           }
