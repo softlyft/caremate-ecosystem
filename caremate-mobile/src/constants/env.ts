@@ -11,10 +11,11 @@ const healthDataGatewayUrl = trimTrailingSlash(
   process.env.EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL?.trim() || '',
 );
 const websiteUrl = trimTrailingSlash(
-  process.env.EXPO_PUBLIC_WEBSITE_URL?.trim() || 'https://getcaremate.com',
+  process.env.EXPO_PUBLIC_WEBSITE_URL?.trim() || 'https://main.dim7uuolmjgc9.amplifyapp.com',
 );
 const communityPortalUrl = trimTrailingSlash(
-  process.env.EXPO_PUBLIC_COMMUNITY_PORTAL_URL?.trim() || 'https://community.getcaremate.com',
+  process.env.EXPO_PUBLIC_COMMUNITY_PORTAL_URL?.trim() ||
+    'https://main.d2tlpjx9a9kklb.amplifyapp.com',
 );
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN ?? '';
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? '';

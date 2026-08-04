@@ -233,7 +233,7 @@ describe('immunization-tracker/store', () => {
 });
 
 describe('immunization-tracker/validation', () => {
-  it('hard-blocks missing date and administered before DOB', () => {
+  it('hard-blocks missing date, administered before DOB, and future dates', () => {
     expect(
       assessImmunizationRecordDraft({
         profile,
@@ -253,19 +253,19 @@ describe('immunization-tracker/validation', () => {
         records: [],
       }).hard?.code,
     ).toBe('administered_before_dob');
+
+    expect(
+      assessImmunizationRecordDraft({
+        profile,
+        vaccineId: 'bcg',
+        administeredDate: '2026-04-01',
+        todayKey: '2026-03-01',
+        records: [],
+      }).hard?.code,
+    ).toBe('administered_future');
   });
 
-  it('soft-warns future dates and far-from-recommended doses', () => {
-    const future = assessImmunizationRecordDraft({
-      profile,
-      vaccineId: 'bcg',
-      administeredDate: '2026-04-01',
-      todayKey: '2026-03-01',
-      records: [],
-    });
-    expect(future.hard).toBeNull();
-    expect(future.soft.some((s) => s.code === 'soft_administered_future')).toBe(true);
-
+  it('soft-warns far-from-recommended doses', () => {
     // Measles-1 recommended ~39 weeks after DOB 2026-01-01 ≈ late Sep 2026
     const far = assessImmunizationRecordDraft({
       profile,
@@ -274,6 +274,7 @@ describe('immunization-tracker/validation', () => {
       todayKey: '2026-03-01',
       records: [],
     });
+    expect(far.hard).toBeNull();
     expect(far.soft.some((s) => s.code === 'soft_very_early' || s.code === 'soft_far_from_recommended')).toBe(
       true,
     );

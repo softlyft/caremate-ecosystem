@@ -37,9 +37,15 @@ function clearMiniAppStores(): void {
   usePeriodTrackerStore.getState().clearAll();
 }
 
+/** Clear in-memory mini-app stores without touching persisted AsyncStorage / SQLite. */
+export function clearMiniAppMemoryState(): void {
+  clearMiniAppStores();
+}
+
 /**
  * Clear in-memory + AsyncStorage mini-app state and emergency lock surface.
- * Used on sign-out and account deletion so the next account cannot inherit PHI.
+ * Used on account switch / deletion so the next account cannot inherit PHI.
+ * Sign-out does not call this — local rows stay bound to the device account email.
  */
 export async function clearSessionDeviceState(userId?: string | null): Promise<void> {
   clearMiniAppStores();

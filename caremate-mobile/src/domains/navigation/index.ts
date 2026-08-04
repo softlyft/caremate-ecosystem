@@ -6,3 +6,8 @@ export {
   takeLastAppHref,
   toRestorableAppHref,
 } from '@/domains/navigation/persistence';
+export {
+  isNavigationRestoreComplete,
+  markNavigationRestoreComplete,
+  resetNavigationRestoreGate,
+} from '@/domains/navigation/restore-gate';

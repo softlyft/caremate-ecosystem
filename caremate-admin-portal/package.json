@@ -12,6 +12,7 @@
     "test": "tsx --test 'src/**/*.test.ts'",
     "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "seed:articles": "node scripts/seed-articles.mjs",
+    "build:learn": "python3 scripts/build-learn-json.py",
     "seed:tips": "node scripts/seed-tips.mjs",
     "seed:catalogs": "node scripts/seed-catalogs.mjs",
     "test:coverage": "tsx --test --experimental-test-coverage --test-coverage-include='src/constants/**/*.ts' --test-coverage-include='src/lib/audit-catalog.ts' --test-coverage-include='src/lib/utils.ts' --test-coverage-include='src/domains/billing/utils.ts' --test-coverage-include='src/domains/ads/constants.ts' --test-coverage-exclude='**/*.test.ts' 'src/**/*.test.ts'"

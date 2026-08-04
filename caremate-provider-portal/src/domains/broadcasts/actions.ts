@@ -51,7 +51,7 @@ export async function sendBroadcastAction(formData: FormData) {
     throw new Error('No approved recipients.');
   }
 
-  revalidatePath('/app/broadcasts');
+  // Client resets the compose form then `router.refresh()` — avoid remount race on this path.
   revalidatePath('/app/dashboard');
   revalidatePath('/app/analytics');
   revalidatePath('/app/patients');

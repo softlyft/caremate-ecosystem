@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,16 +15,23 @@ export function BroadcastComposeForm({
 }: {
   patients: { id: string; label: string }[];
 }) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
   const [audience, setAudience] = useState<'all' | 'selected'>('all');
   const [selected, setSelected] = useState<string[]>([]);
 
   return (
     <form
+      ref={formRef}
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const form = formRef.current;
+        if (!form) {
+          return;
+        }
+        const formData = new FormData(form);
         formData.set('audience', audience);
         if (audience === 'selected') {
           formData.set('patient_ids', selected.join(','));
@@ -31,10 +39,11 @@ export function BroadcastComposeForm({
         startTransition(async () => {
           try {
             await sendBroadcastAction(formData);
-            toast.success('Message sent');
-            e.currentTarget.reset();
+            formRef.current?.reset();
             setSelected([]);
             setAudience('all');
+            toast.success('Message sent');
+            router.refresh();
           } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Failed to send');
           }

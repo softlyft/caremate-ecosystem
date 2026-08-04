@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BrandLoader } from '@/components/ui/BrandLoader';
-import { takeLastAppHref } from '@/domains/navigation';
+import { markNavigationRestoreComplete, takeLastAppHref } from '@/domains/navigation';
 import { useAuthStore } from '@/features/auth/store';
 import { authService } from '@/services/auth-service';
 import { palette } from '@/theme';
@@ -30,14 +30,26 @@ export default function Index() {
   }, [isInitialized]);
 
   useEffect(() => {
-    if (!isInitialized || onboardingComplete !== true || passwordRecoveryPending) {
+    if (!isInitialized || onboardingComplete === null) {
       return;
     }
+
+    // Auth / onboarding exits never consume a last route — still release the gate
+    // so NavigationPersistence can run once the user reaches the app shell.
+    if (passwordRecoveryPending || onboardingComplete === false) {
+      setRestoreHref(null);
+      markNavigationRestoreComplete();
+      return;
+    }
+
     let mounted = true;
     void takeLastAppHref().then((href) => {
-      if (mounted) {
-        setRestoreHref(href);
+      if (!mounted) {
+        return;
       }
+      setRestoreHref(href);
+      // Consume-once finished (href or null). Allow persistence of subsequent routes.
+      markNavigationRestoreComplete();
     });
     return () => {
       mounted = false;

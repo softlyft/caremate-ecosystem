@@ -1,6 +1,7 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRef, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,19 +15,28 @@ export function DocumentUploadForm({
 }: {
   patients: { id: string; label: string }[];
 }) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
 
   return (
     <form
+      ref={formRef}
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const form = formRef.current;
+        if (!form) {
+          return;
+        }
+        const formData = new FormData(form);
         startTransition(async () => {
           try {
             await uploadDocumentAction(formData);
+            // Reset before refresh — revalidate/remount must not race a stale form node.
+            formRef.current?.reset();
             toast.success('Document uploaded');
-            e.currentTarget.reset();
+            router.refresh();
           } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Upload failed');
           }
@@ -62,7 +72,13 @@ export function DocumentUploadForm({
       </div>
       <div className="space-y-2">
         <Label htmlFor="file">File</Label>
-        <Input id="file" name="file" type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" />
+        <Input
+          id="file"
+          name="file"
+          type="file"
+          required
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
+        />
       </div>
       <Button
         type="submit"

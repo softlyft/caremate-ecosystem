@@ -1,8 +1,29 @@
 import { useGlobalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useMemo, useRef } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 
-import { saveLastAppHref, toRestorableAppHref } from '@/domains/navigation';
+import {
+  isNavigationRestoreComplete,
+  saveLastAppHref,
+  toRestorableAppHref,
+} from '@/domains/navigation';
 import { useAuthStore } from '@/features/auth/store';
+
+function persistHref(
+  pathname: string,
+  params: Record<string, string | undefined>,
+  lastSaved: { current: string | null },
+): void {
+  if (!isNavigationRestoreComplete()) {
+    return;
+  }
+  const href = toRestorableAppHref(pathname, params);
+  if (!href || href === lastSaved.current) {
+    return;
+  }
+  lastSaved.current = href;
+  void saveLastAppHref(href);
+}
 
 /**
  * Persists the current in-app route so cold starts after process death
@@ -17,18 +38,37 @@ export function NavigationPersistence() {
   const category = typeof params.category === 'string' ? params.category : undefined;
   const q = typeof params.q === 'string' ? params.q : undefined;
   const stableParams = useMemo(() => ({ category, q }), [category, q]);
+  const pathnameRef = useRef(pathname);
+  const paramsRef = useRef(stableParams);
+  pathnameRef.current = pathname;
+  paramsRef.current = stableParams;
 
   useEffect(() => {
     if (!isInitialized || passwordRecoveryPending || !pathname) {
       return;
     }
-    const href = toRestorableAppHref(pathname, stableParams);
-    if (!href || href === lastSaved.current) {
+    persistHref(pathname, stableParams, lastSaved);
+  }, [isInitialized, passwordRecoveryPending, pathname, stableParams]);
+
+  // Flush before Android may kill the process after a Settings permission change.
+  useEffect(() => {
+    if (!isInitialized || passwordRecoveryPending) {
       return;
     }
-    lastSaved.current = href;
-    void saveLastAppHref(href);
-  }, [isInitialized, passwordRecoveryPending, pathname, stableParams]);
+
+    const onChange = (next: AppStateStatus) => {
+      if (next === 'background' || next === 'inactive') {
+        const path = pathnameRef.current;
+        if (!path) {
+          return;
+        }
+        persistHref(path, paramsRef.current, lastSaved);
+      }
+    };
+
+    const sub = AppState.addEventListener('change', onChange);
+    return () => sub.remove();
+  }, [isInitialized, passwordRecoveryPending]);
 
   return null;
 }

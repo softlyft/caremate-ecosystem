@@ -11,9 +11,9 @@
       "env": {
         "APP_ENV": "development",
         "EXPO_PUBLIC_APP_ENV": "development",
-        "EXPO_PUBLIC_WEBSITE_URL": "https://dev.getcaremate.com",
-        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community-dev.getcaremate.com",
-        "EXPO_PUBLIC_PAYMENT_URL": "https://pay-dev.getcaremate.com"
+        "EXPO_PUBLIC_WEBSITE_URL": "https://main.dim7uuolmjgc9.amplifyapp.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://main.d2tlpjx9a9kklb.amplifyapp.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://main.d1wcqa3tsdavz8.amplifyapp.com"
       }
     },
     "internal-android": {
@@ -25,9 +25,9 @@
       "env": {
         "APP_ENV": "internal",
         "EXPO_PUBLIC_APP_ENV": "internal",
-        "EXPO_PUBLIC_WEBSITE_URL": "https://dev.getcaremate.com",
-        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community-dev.getcaremate.com",
-        "EXPO_PUBLIC_PAYMENT_URL": "https://pay-dev.getcaremate.com"
+        "EXPO_PUBLIC_WEBSITE_URL": "https://main.dim7uuolmjgc9.amplifyapp.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://main.d2tlpjx9a9kklb.amplifyapp.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://main.d1wcqa3tsdavz8.amplifyapp.com"
       }
     },
     "staging": {
@@ -37,9 +37,9 @@
       "env": {
         "APP_ENV": "staging",
         "EXPO_PUBLIC_APP_ENV": "staging",
-        "EXPO_PUBLIC_WEBSITE_URL": "https://dev.getcaremate.com",
-        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community-dev.getcaremate.com",
-        "EXPO_PUBLIC_PAYMENT_URL": "https://pay-dev.getcaremate.com"
+        "EXPO_PUBLIC_WEBSITE_URL": "https://main.dim7uuolmjgc9.amplifyapp.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://main.d2tlpjx9a9kklb.amplifyapp.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://main.d1wcqa3tsdavz8.amplifyapp.com"
       }
     },
     "testflight": {
@@ -51,9 +51,9 @@
       "env": {
         "APP_ENV": "testflight",
         "EXPO_PUBLIC_APP_ENV": "testflight",
-        "EXPO_PUBLIC_WEBSITE_URL": "https://getcaremate.com",
-        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community.getcaremate.com",
-        "EXPO_PUBLIC_PAYMENT_URL": "https://pay.getcaremate.com"
+        "EXPO_PUBLIC_WEBSITE_URL": "https://main.dim7uuolmjgc9.amplifyapp.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://main.d2tlpjx9a9kklb.amplifyapp.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://main.d1wcqa3tsdavz8.amplifyapp.com"
       }
     },
     "production": {
@@ -62,9 +62,9 @@
       "env": {
         "APP_ENV": "production",
         "EXPO_PUBLIC_APP_ENV": "production",
-        "EXPO_PUBLIC_WEBSITE_URL": "https://getcaremate.com",
-        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://community.getcaremate.com",
-        "EXPO_PUBLIC_PAYMENT_URL": "https://pay.getcaremate.com"
+        "EXPO_PUBLIC_WEBSITE_URL": "https://main.dim7uuolmjgc9.amplifyapp.com",
+        "EXPO_PUBLIC_COMMUNITY_PORTAL_URL": "https://main.d2tlpjx9a9kklb.amplifyapp.com",
+        "EXPO_PUBLIC_PAYMENT_URL": "https://main.d1wcqa3tsdavz8.amplifyapp.com"
       }
     }
   },

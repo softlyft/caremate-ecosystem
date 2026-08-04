@@ -5,7 +5,10 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
+import { isImmunizationScheduleItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import { VACCINE_SCHEDULE } from '@/mini-apps/immunization-tracker/constants';
 import {
   useImmunizationTrackerHydrated,
@@ -28,19 +31,24 @@ import {
   StatusPill,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import { palette, spacing } from '@/theme';
+import { spacing } from '@/theme';
 
 const APP_ID = 'immunization-tracker' as const;
 
 export default function ImmunizationLogScreen() {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
+  const tier = usePremiumTier();
   const { vaccineId: initialVaccineId, profileId: paramProfileId } = useLocalSearchParams<{
     vaccineId?: string;
     profileId?: string;
   }>();
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
+  const maxMonth = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth(), 1),
+    [today],
+  );
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
@@ -51,6 +59,25 @@ export default function ImmunizationLogScreen() {
   const records = useImmunizationTrackerStore((state) => state.records);
   const upsertRecord = useImmunizationTrackerStore((state) => state.upsertRecord);
   const removeRecord = useImmunizationTrackerStore((state) => state.removeRecord);
+
+  const unlockedVaccines = useMemo(
+    () =>
+      VACCINE_SCHEDULE.filter((vaccine) =>
+        isImmunizationScheduleItemUnlocked(tier, vaccine.recommendedAgeWeeks),
+      ),
+    [tier],
+  );
+
+  const lockedDeepLink = useMemo(() => {
+    if (typeof initialVaccineId !== 'string') {
+      return false;
+    }
+    const vaccine = VACCINE_SCHEDULE.find((item) => item.id === initialVaccineId);
+    if (!vaccine) {
+      return false;
+    }
+    return !isImmunizationScheduleItemUnlocked(tier, vaccine.recommendedAgeWeeks);
+  }, [initialVaccineId, tier]);
 
   const profileId =
     (typeof paramProfileId === 'string' && profiles.some((profile) => profile.id === paramProfileId)
@@ -65,26 +92,35 @@ export default function ImmunizationLogScreen() {
   const profileName = profile?.name;
 
   const defaultVaccineId =
-    typeof initialVaccineId === 'string' && VACCINE_SCHEDULE.some((v) => v.id === initialVaccineId)
+    typeof initialVaccineId === 'string' &&
+    unlockedVaccines.some((vaccine) => vaccine.id === initialVaccineId)
       ? initialVaccineId
-      : VACCINE_SCHEDULE[0].id;
+      : (unlockedVaccines[0]?.id ?? VACCINE_SCHEDULE[0].id);
 
   const [selectedVaccineId, setSelectedVaccineId] = useState(defaultVaccineId);
   const existingRecord = profileRecords.find((record) => record.vaccineId === selectedVaccineId);
+  const initialAdministeredDate = existingRecord?.administeredDate ?? todayKey;
   const [administeredDate, setAdministeredDate] = useState(
-    existingRecord?.administeredDate ?? todayKey,
+    initialAdministeredDate > todayKey ? todayKey : initialAdministeredDate,
   );
   const [provider, setProvider] = useState(existingRecord?.provider ?? '');
   const [notes, setNotes] = useState(existingRecord?.notes ?? '');
 
-  const selectedVaccine = localizeVaccine(
-    VACCINE_SCHEDULE.find((vaccine) => vaccine.id === selectedVaccineId)!,
-    t,
-  );
+  const selectedVaccineDefinition =
+    VACCINE_SCHEDULE.find((vaccine) => vaccine.id === selectedVaccineId) ?? unlockedVaccines[0];
+  const selectedVaccine = selectedVaccineDefinition
+    ? localizeVaccine(selectedVaccineDefinition, t)
+    : null;
+
   const selectVaccine = (vaccineId: string) => {
+    const vaccine = VACCINE_SCHEDULE.find((item) => item.id === vaccineId);
+    if (!vaccine || !isImmunizationScheduleItemUnlocked(tier, vaccine.recommendedAgeWeeks)) {
+      return;
+    }
     setSelectedVaccineId(vaccineId);
     const record = profileRecords.find((item) => item.vaccineId === vaccineId);
-    setAdministeredDate(record?.administeredDate ?? todayKey);
+    const nextDate = record?.administeredDate ?? todayKey;
+    setAdministeredDate(nextDate > todayKey ? todayKey : nextDate);
     setProvider(record?.provider ?? '');
     setNotes(record?.notes ?? '');
   };
@@ -93,6 +129,17 @@ export default function ImmunizationLogScreen() {
     t(`apps.immunization.validation.${issue.messageKey}`, issue.params ?? {});
 
   const commitRecord = () => {
+    if (
+      !selectedVaccineDefinition ||
+      !isImmunizationScheduleItemUnlocked(tier, selectedVaccineDefinition.recommendedAgeWeeks)
+    ) {
+      Alert.alert(
+        t('profile.premium.immunizationLockedTitle'),
+        t('profile.premium.immunizationLockedMessage'),
+      );
+      return;
+    }
+
     const assessment = assessImmunizationRecordDraft({
       profile,
       vaccineId: selectedVaccineId,
@@ -159,6 +206,23 @@ export default function ImmunizationLogScreen() {
     );
   }
 
+  if (lockedDeepLink || unlockedVaccines.length === 0) {
+    return (
+      <MiniAppScreen>
+        <UpgradePrompt
+          title={t('profile.premium.immunizationLockedTitle')}
+          message={t('profile.premium.immunizationLockedMessage')}
+        />
+        <MiniAppCta
+          label={t('common.goBack')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          onPress={() => router.back()}
+        />
+      </MiniAppScreen>
+    );
+  }
+
   return (
     <MiniAppScreen>
       <MiniAppHero
@@ -175,7 +239,7 @@ export default function ImmunizationLogScreen() {
         theme={theme}
       >
         <View style={styles.chipRow}>
-          {VACCINE_SCHEDULE.map((vaccine) => {
+          {unlockedVaccines.map((vaccine) => {
             const selected = vaccine.id === selectedVaccineId;
             const completed = profileRecords.some((record) => record.vaccineId === vaccine.id);
             const localized = localizeVaccine(vaccine, t);
@@ -191,7 +255,9 @@ export default function ImmunizationLogScreen() {
             );
           })}
         </View>
-        <AppText variant="quickActionSubtitle">{selectedVaccine.description}</AppText>
+        {selectedVaccine ? (
+          <AppText variant="quickActionSubtitle">{selectedVaccine.description}</AppText>
+        ) : null}
         {existingRecord ? (
           <StatusPill
             label={t('apps.immunization.ui.alreadyLoggedPill')}
@@ -205,16 +271,33 @@ export default function ImmunizationLogScreen() {
         <MonthCalendarNavigator
           accentColor={theme.color}
           monthRef={monthRef}
-          onMonthChange={setMonthRef}
+          onMonthChange={(next) => {
+            setMonthRef(next > maxMonth ? maxMonth : next);
+          }}
           subtitle={t('apps.immunization.ui.tapAdministeredDate')}
+          maximumYear={today.getFullYear()}
+          maximumMonth={maxMonth}
         />
 
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
           accentColor={theme.color}
-          onDayPress={setAdministeredDate}
-          getDayState={(dayKey) => ({ selected: dayKey === administeredDate })}
+          onDayPress={(dayKey) => {
+            if (dayKey > todayKey) {
+              return;
+            }
+            if (profile?.dateOfBirth && dayKey < profile.dateOfBirth) {
+              return;
+            }
+            setAdministeredDate(dayKey);
+          }}
+          getDayState={(dayKey) => ({
+            selected: dayKey === administeredDate,
+            today: dayKey === todayKey,
+            disabled:
+              dayKey > todayKey || Boolean(profile?.dateOfBirth && dayKey < profile.dateOfBirth),
+          })}
         />
 
         {administeredDate ? (

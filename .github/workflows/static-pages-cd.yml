@@ -15,10 +15,10 @@
 # Variables (optional, Environment `prod`):
 #   CLOUDFLARE_PAGES_PROJECT_WEBSITE  — default caremate-website
 #   CLOUDFLARE_PAGES_PROJECT_PAYMENT  — default caremate-payment
-#   VITE_SITE_URL                     — default https://getcaremate.com
-#   VITE_COMMUNITY_PORTAL_URL         — default https://community.getcaremate.com
-#   VITE_PAYMENT_SITE_URL             — default https://pay.getcaremate.com
-#   VITE_WEBSITE_URL                  — default https://getcaremate.com (payment → marketing site)
+#   VITE_SITE_URL                     — temporary Amplify website host (see docs/amplify-hosting.md)
+#   VITE_COMMUNITY_PORTAL_URL         — temporary Amplify community host
+#   VITE_PAYMENT_SITE_URL             — temporary Amplify payment host
+#   VITE_WEBSITE_URL                  — temporary Amplify website host (payment → marketing site)
 name: Static Pages CD
 
 on:
@@ -89,8 +89,8 @@ jobs:
     timeout-minutes: 20
     environment: prod
     env:
-      VITE_SITE_URL: ${{ vars.VITE_SITE_URL || 'https://getcaremate.com' }}
-      VITE_COMMUNITY_PORTAL_URL: ${{ vars.VITE_COMMUNITY_PORTAL_URL || 'https://community.getcaremate.com' }}
+      VITE_SITE_URL: ${{ vars.VITE_SITE_URL || 'https://main.dim7uuolmjgc9.amplifyapp.com' }}
+      VITE_COMMUNITY_PORTAL_URL: ${{ vars.VITE_COMMUNITY_PORTAL_URL || 'https://main.d2tlpjx9a9kklb.amplifyapp.com' }}
       CF_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_WEBSITE || 'caremate-website' }}
     steps:
       - name: Checkout
@@ -150,8 +150,8 @@ jobs:
     timeout-minutes: 20
     environment: prod
     env:
-      VITE_SITE_URL: ${{ vars.VITE_PAYMENT_SITE_URL || 'https://pay.getcaremate.com' }}
-      VITE_WEBSITE_URL: ${{ vars.VITE_WEBSITE_URL || 'https://getcaremate.com' }}
+      VITE_SITE_URL: ${{ vars.VITE_PAYMENT_SITE_URL || 'https://main.d1wcqa3tsdavz8.amplifyapp.com' }}
+      VITE_WEBSITE_URL: ${{ vars.VITE_WEBSITE_URL || 'https://main.dim7uuolmjgc9.amplifyapp.com' }}
       CF_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_PAYMENT || 'caremate-payment' }}
     steps:
       - name: Checkout

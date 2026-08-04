@@ -19,9 +19,9 @@ export type CheckupIssueCode =
   | 'invalid_year'
   | 'invalid_completed_date'
   | 'completed_before_dob'
+  | 'completed_future'
   | 'soft_age_high'
   | 'soft_age_young'
-  | 'soft_completed_future'
   | 'soft_completed_year_mismatch'
   | 'soft_notes_long'
   | 'soft_once_already_logged';
@@ -192,7 +192,11 @@ export function assessCompletionDraft(draft: CompletionDraft): CompletionAssessm
   }
 
   if (draft.completedDate > draft.todayKey) {
-    soft.push({ code: 'soft_completed_future', messageKey: 'completedFuture' });
+    return {
+      hard: { code: 'completed_future', messageKey: 'completedFuture' },
+      soft: [],
+      payload: null,
+    };
   }
 
   const completedYear = Number(draft.completedDate.slice(0, 4));

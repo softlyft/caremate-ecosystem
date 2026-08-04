@@ -167,10 +167,10 @@ export default function CheckupPlannerScreen() {
               ))}
             </PremiumLockedOverlay>
           ) : (
-            schedule.map((item, index) => {
+            schedule.map((item) => {
               const itemUnlocked = isCheckupItemUnlocked(tier, {
                 year: selectedYear,
-                indexInYear: index,
+                stableIndexInYear: item.stableIndexInYear,
                 currentYear,
               });
               const row = (

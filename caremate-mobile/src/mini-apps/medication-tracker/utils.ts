@@ -85,6 +85,24 @@ export function durationDaysBetween(startDate: string, endDate: string): number 
   return Math.max(1, daysBetween(parseDateKey(startDate), parseDateKey(endDate)) + 1);
 }
 
+const DEFAULT_DURATION_PRESETS = [3, 5, 7, 14, 30] as const;
+
+/** Map a start/end pair to Ongoing / preset chip / Custom for the treatment UI. */
+export function resolveTreatmentDurationSelection(
+  startDate: string,
+  endDate: string | null,
+  presets: readonly number[] = DEFAULT_DURATION_PRESETS,
+): { mode: 'ongoing' | 'preset' | 'custom'; days: number | null } {
+  if (!endDate) {
+    return { mode: 'ongoing', days: null };
+  }
+  const days = durationDaysBetween(startDate, endDate);
+  if (presets.includes(days)) {
+    return { mode: 'preset', days };
+  }
+  return { mode: 'custom', days: null };
+}
+
 export function isMedicationScheduledOnDate(
   medication: Pick<Medication, 'startDate' | 'endDate'>,
   dateKey: string,

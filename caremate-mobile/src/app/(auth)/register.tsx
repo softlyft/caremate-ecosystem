@@ -21,6 +21,7 @@ import {
   sanitizePersonNameInput,
   sanitizePhoneInput,
 } from '@/domains/emergency/validation';
+import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
 import { resolvePostSignupHref } from '@/domains/onboarding';
@@ -110,8 +111,18 @@ export default function RegisterScreen() {
         );
         return;
       }
+      const email = values.email.trim().toLowerCase();
+      const allowed = await confirmDeviceAccountForAuth(email, {
+        title: t('auth.deviceAccount.title'),
+        message: (maskedEmail) => t('auth.deviceAccount.message', { email: maskedEmail }),
+        proceed: t('auth.deviceAccount.proceed'),
+        cancel: t('common.cancel'),
+      });
+      if (!allowed) {
+        return;
+      }
       const result = await signUp(
-        values.email.trim().toLowerCase(),
+        email,
         values.password,
         joinFullName(values.firstName, values.lastName),
         values.phone.trim(),

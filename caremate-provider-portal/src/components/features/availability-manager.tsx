@@ -82,12 +82,13 @@ export function AvailabilityManager({
           className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
           onSubmit={(e) => {
             e.preventDefault();
-            const fd = new FormData(e.currentTarget);
+            const form = e.currentTarget;
+            const fd = new FormData(form);
             start(async () => {
               try {
                 await addAvailabilityAction(fd);
                 toast.success('Availability added');
-                (e.target as HTMLFormElement).reset();
+                form.reset();
               } catch (err) {
                 toast.error(err instanceof Error ? err.message : 'Failed');
               }

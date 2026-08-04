@@ -80,9 +80,14 @@ export function isCheckupYearUnlocked(
   return year <= currentYear;
 }
 
+/**
+ * Free unlock uses a stable catalog-order index among the year's eligible
+ * items (`CheckupYearItem.stableIndexInYear`), not the display index after
+ * status sorting. Completing a free checkup must not unlock the next one.
+ */
 export function isCheckupItemUnlocked(
   tier: PremiumTier,
-  params: { year: number; indexInYear: number; currentYear: number },
+  params: { year: number; stableIndexInYear: number; currentYear: number },
 ): boolean {
   if (isPremiumTier(tier)) {
     return true;
@@ -90,7 +95,7 @@ export function isCheckupItemUnlocked(
   if (params.year > params.currentYear) {
     return false;
   }
-  return params.indexInYear < FREE_CHECKUP_VISIBLE_COUNT;
+  return params.stableIndexInYear < FREE_CHECKUP_VISIBLE_COUNT;
 }
 
 export function isImmunizationScheduleItemUnlocked(

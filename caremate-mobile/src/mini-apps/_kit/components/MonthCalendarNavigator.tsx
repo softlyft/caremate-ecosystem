@@ -13,6 +13,8 @@ type MonthCalendarNavigatorProps = {
   accentColor?: string;
   minimumYear?: number;
   maximumYear?: number;
+  /** Inclusive latest month the user may navigate to (day is ignored). */
+  maximumMonth?: Date;
   subtitle?: string;
 };
 
@@ -20,12 +22,28 @@ const MONTHS = Array.from({ length: 12 }, (_, month) =>
   new Date(2024, month, 1).toLocaleDateString(undefined, { month: 'short' }),
 );
 
+function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function isMonthBefore(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() < b.getFullYear() ||
+    (a.getFullYear() === b.getFullYear() && a.getMonth() < b.getMonth())
+  );
+}
+
+function isMonthAfter(a: Date, b: Date): boolean {
+  return isMonthBefore(b, a);
+}
+
 export function MonthCalendarNavigator({
   monthRef,
   onMonthChange,
   accentColor = palette.primary,
   minimumYear = new Date().getFullYear() - 100,
   maximumYear = new Date().getFullYear() + 20,
+  maximumMonth,
   subtitle,
 }: MonthCalendarNavigatorProps) {
   const { height } = useWindowDimensions();
@@ -33,17 +51,25 @@ export function MonthCalendarNavigator({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState(monthRef.getFullYear());
   const yearListRef = useRef<FlatList<number>>(null);
+  const maxMonthStart = useMemo(
+    () => (maximumMonth ? startOfMonth(maximumMonth) : null),
+    [maximumMonth],
+  );
+  const effectiveMaximumYear = maxMonthStart
+    ? Math.min(maximumYear, maxMonthStart.getFullYear())
+    : maximumYear;
   const years = useMemo(
     () =>
       Array.from(
-        { length: Math.max(1, maximumYear - minimumYear + 1) },
+        { length: Math.max(1, effectiveMaximumYear - minimumYear + 1) },
         (_, index) => minimumYear + index,
       ),
-    [maximumYear, minimumYear],
+    [effectiveMaximumYear, minimumYear],
   );
   const today = new Date();
   const isCurrentMonth =
     monthRef.getFullYear() === today.getFullYear() && monthRef.getMonth() === today.getMonth();
+  const canGoNext = !maxMonthStart || isMonthBefore(monthRef, maxMonthStart);
   const monthLabel = monthRef.toLocaleDateString(undefined, {
     month: 'long',
     year: 'numeric',
@@ -53,15 +79,23 @@ export function MonthCalendarNavigator({
   const sheetMaxHeight = Math.min(height * 0.72, 520) + Math.max(insets.bottom, 0);
 
   const changeMonthBy = (offset: number) => {
-    onMonthChange(new Date(monthRef.getFullYear(), monthRef.getMonth() + offset, 1));
+    if (offset > 0 && !canGoNext) {
+      return;
+    }
+    const next = startOfMonth(new Date(monthRef.getFullYear(), monthRef.getMonth() + offset, 1));
+    if (maxMonthStart && isMonthAfter(next, maxMonthStart)) {
+      onMonthChange(maxMonthStart);
+      return;
+    }
+    onMonthChange(next);
   };
 
   const openPicker = () => {
-    setPickerYear(monthRef.getFullYear());
+    setPickerYear(Math.min(monthRef.getFullYear(), effectiveMaximumYear));
     setPickerOpen(true);
     requestAnimationFrame(() => {
       yearListRef.current?.scrollToIndex({
-        index: Math.max(0, monthRef.getFullYear() - minimumYear),
+        index: Math.max(0, Math.min(monthRef.getFullYear(), effectiveMaximumYear) - minimumYear),
         animated: false,
         viewPosition: 0.5,
       });
@@ -69,7 +103,11 @@ export function MonthCalendarNavigator({
   };
 
   const selectMonth = (month: number) => {
-    onMonthChange(new Date(pickerYear, month, 1));
+    const next = startOfMonth(new Date(pickerYear, month, 1));
+    if (maxMonthStart && isMonthAfter(next, maxMonthStart)) {
+      return;
+    }
+    onMonthChange(next);
     setPickerOpen(false);
   };
 
@@ -109,12 +147,17 @@ export function MonthCalendarNavigator({
         <Button
           accessibilityLabel="Next month"
           accessibilityRole="button"
+          accessibilityState={{ disabled: !canGoNext }}
+          disabled={!canGoNext}
           hitSlop={12}
           onPress={() => changeMonthBy(1)}
-          style={styles.arrowButton}
+          style={[styles.arrowButton, !canGoNext && styles.arrowButtonDisabled]}
           variant="plain"
         >
-          <ChevronRight color={palette.textSecondary} size={20} />
+          <ChevronRight
+            color={!canGoNext ? palette.divider : palette.textSecondary}
+            size={20}
+          />
         </Button>
       </View>
 
@@ -209,22 +252,37 @@ export function MonthCalendarNavigator({
 
               <View style={styles.monthGrid}>
                 {MONTHS.map((label, month) => {
+                  const candidate = startOfMonth(new Date(pickerYear, month, 1));
+                  const monthDisabled = Boolean(
+                    maxMonthStart && isMonthAfter(candidate, maxMonthStart),
+                  );
                   const selected =
                     pickerYear === monthRef.getFullYear() && month === monthRef.getMonth();
                   return (
                     <Button
                       accessibilityLabel={`${label} ${pickerYear}`}
                       accessibilityRole="button"
-                      accessibilityState={{ selected }}
+                      accessibilityState={{ selected, disabled: monthDisabled }}
+                      disabled={monthDisabled}
                       key={label}
                       onPress={() => selectMonth(month)}
                       style={[
                         styles.monthOption,
                         selected && { backgroundColor: accentColor, borderColor: accentColor },
+                        monthDisabled && styles.monthOptionDisabled,
                       ]}
                       variant="plain"
                     >
-                      <AppText variant="categoryPill" color={selected ? '#FFFFFF' : palette.text}>
+                      <AppText
+                        variant="categoryPill"
+                        color={
+                          monthDisabled
+                            ? palette.textSecondary
+                            : selected
+                              ? '#FFFFFF'
+                              : palette.text
+                        }
+                      >
                         {label}
                       </AppText>
                       {selected ? <Check color="#FFFFFF" size={14} /> : null}
@@ -254,6 +312,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: radius.full,
     backgroundColor: palette.surface,
+  },
+  arrowButtonDisabled: {
+    opacity: 0.45,
   },
   heading: {
     flex: 1,
@@ -351,5 +412,9 @@ const styles = StyleSheet.create({
     borderColor: palette.divider,
     borderRadius: radius.lg,
     backgroundColor: palette.background,
+  },
+  monthOptionDisabled: {
+    opacity: 0.4,
+    backgroundColor: palette.surface,
   },
 });

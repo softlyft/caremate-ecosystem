@@ -4,6 +4,7 @@
  */
 const ALLOWED_HTTPS_HOST_SUFFIXES = [
   'getcaremate.com',
+  'amplifyapp.com',
   'localhost',
   '127.0.0.1',
 ];

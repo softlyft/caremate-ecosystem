@@ -32,6 +32,12 @@ export interface CheckupYearItem {
   year: number;
   status: CheckupItemStatus;
   ageInYear: number;
+  /**
+   * 0-based index among this year's eligible items in catalog order,
+   * assigned before status sort. Used for Free-tier unlock so completing
+   * an item cannot promote later checkups into free slots.
+   */
+  stableIndexInYear: number;
   completion?: CheckupCompletion;
 }
 
@@ -151,7 +157,7 @@ export function buildYearSchedule(
   const age = getAgeInYear(profile.dateOfBirth, year);
   const currentYear = new Date().getFullYear();
 
-  const items: CheckupYearItem[] = [];
+  const items: Omit<CheckupYearItem, 'stableIndexInYear'>[] = [];
 
   for (const checkup of CHECKUP_CATALOG) {
     if (!matchesGender(checkup.gender, profile.gender)) {
@@ -211,6 +217,11 @@ export function buildYearSchedule(
     });
   }
 
+  const withStableIndex = items.map((item, index) => ({
+    ...item,
+    stableIndexInYear: index,
+  }));
+
   const order: Record<CheckupItemStatus, number> = {
     overdue: 0,
     due: 1,
@@ -218,7 +229,7 @@ export function buildYearSchedule(
     completed: 3,
   };
 
-  return items.sort((a, b) => {
+  return withStableIndex.sort((a, b) => {
     const statusDiff = order[a.status] - order[b.status];
     if (statusDiff !== 0) {
       return statusDiff;

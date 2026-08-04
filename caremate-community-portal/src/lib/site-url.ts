@@ -5,5 +5,8 @@ export function getAppUrl(): string {
 
 /** CareMate marketing site origin. */
 export function getWebsiteUrl(): string {
-  return (process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://getcaremate.com').replace(/\/$/, '');
+  return (process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://main.dim7uuolmjgc9.amplifyapp.com').replace(
+    /\/$/,
+    '',
+  );
 }

@@ -38,12 +38,13 @@ export function CreateLabOrderForm({
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
-        const fd = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const fd = new FormData(form);
         start(async () => {
           try {
             await createLabOrderAction(fd);
             toast.success('Lab order created');
-            (e.target as HTMLFormElement).reset();
+            form.reset();
           } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Could not create order');
           }

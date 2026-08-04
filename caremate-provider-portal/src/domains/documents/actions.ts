@@ -52,7 +52,8 @@ export async function uploadDocumentAction(formData: FormData) {
     file,
   });
 
-  revalidatePath('/app/documents');
+  // Do not revalidate `/app/documents` here — the client resets the form then calls
+  // `router.refresh()` so remount cannot race `form.reset()`.
   revalidatePath('/app/dashboard');
   revalidatePath(`/app/patients/${parsed.patientId}`);
   revalidatePath('/app/analytics');

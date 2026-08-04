@@ -99,6 +99,7 @@ describe('return URL allowlist', () => {
     expect(isAllowedAppReturnUrl('caremate://billing/cancel?x=1')).toBe(true);
     expect(isAllowedAppReturnUrl('https://pay.getcaremate.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('https://pay-dev.getcaremate.com/success')).toBe(true);
+    expect(isAllowedAppReturnUrl('https://main.d1wcqa3tsdavz8.amplifyapp.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('javascript:alert(1)')).toBe(false);
     expect(isAllowedAppReturnUrl('caremate://evil')).toBe(false);
     expect(sanitizeAppReturnUrl('javascript:x', 'caremate://billing/success')).toBe(

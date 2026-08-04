@@ -43,6 +43,7 @@ import {
   endDateForDurationDays,
   durationDaysBetween,
   normalizeMedication,
+  resolveTreatmentDurationSelection,
   toDateKey,
   type Medication,
 } from '@/mini-apps/medication-tracker/utils';
@@ -57,7 +58,7 @@ const theme = getMiniAppTheme('medication-tracker');
 
 const DURATION_PRESETS = [3, 5, 7, 14, 30] as const;
 
-type CalendarMode = 'start' | 'end' | 'refill';
+type CalendarMode = 'start' | 'end';
 type DurationMode = 'ongoing' | 'preset' | 'custom';
 
 function resolveSearchParam(value: string | string[] | undefined): string | undefined {
@@ -165,6 +166,10 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
     editing?.familyMemberId ?? null,
   );
   const [calendarMode, setCalendarMode] = useState<CalendarMode>('start');
+  const [refillMonthRef, setRefillMonthRef] = useState(() =>
+    monthStartForDateKey(editing?.refillDueDate ?? todayKey),
+  );
+  const [showRefillCalendar, setShowRefillCalendar] = useState(Boolean(editing?.refillDueDate));
   const [durationMode, setDurationMode] = useState<DurationMode>(() => {
     if (!editing?.endDate || !editing.startDate) return 'ongoing';
     const days = durationDaysBetween(editing.startDate, editing.endDate);
@@ -236,7 +241,8 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
     setDurationMode('preset');
     setDurationDays(days);
     setEndDate(nextEnd);
-    setCalendarMode('end');
+    // Stay on start date so changing the start keeps this preset and recalculates the end.
+    setCalendarMode('start');
   };
 
   const applyCustomDuration = () => {
@@ -246,6 +252,45 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
     if (!endDate && startDate) {
       setEndDate(startDate);
     }
+  };
+
+  const applyEndDate = (dayKey: string) => {
+    if (!startDate || dayKey < startDate) {
+      Alert.alert(
+        t('apps.medication.ui.endBeforeStartTitle'),
+        t('apps.medication.ui.endBeforeStartMessage'),
+      );
+      return;
+    }
+    if (dayKey < todayKey) {
+      Alert.alert(
+        t('apps.medication.ui.treatmentEndedTitle'),
+        t('apps.medication.ui.treatmentEndedMessage'),
+      );
+      return;
+    }
+
+    if (durationMode === 'preset' && durationDays != null) {
+      const expectedEnd = endDateForDurationDays(startDate, durationDays);
+      if (dayKey === expectedEnd) {
+        // Same as the preset end — keep the preset selected.
+        setEndDate(expectedEnd);
+        return;
+      }
+    }
+
+    if (durationMode === 'custom' && dayKey === endDate) {
+      // Clear custom end → ongoing.
+      setEndDate(null);
+      setDurationMode('ongoing');
+      setDurationDays(null);
+      return;
+    }
+
+    const selection = resolveTreatmentDurationSelection(startDate, dayKey, DURATION_PRESETS);
+    setDurationMode(selection.mode);
+    setDurationDays(selection.days);
+    setEndDate(dayKey);
   };
 
   const selectedChild =
@@ -498,13 +543,6 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
               }
             }}
           />
-          <MiniAppChip
-            label={t('apps.medication.ui.refillDueDate')}
-            selected={calendarMode === 'refill'}
-            accent={theme.color}
-            soft={theme.backgroundColor}
-            onPress={() => setCalendarMode('refill')}
-          />
         </View>
         <MonthCalendarNavigator
           accentColor={theme.color}
@@ -516,50 +554,26 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {
-            if (calendarMode === 'refill') {
-              setRefillDueDate(dayKey === refillDueDate ? null : dayKey);
-              return;
-            }
             if (calendarMode === 'start') {
               applyStartDate(dayKey);
               return;
             }
-            if (!startDate || dayKey < startDate) {
-              Alert.alert(
-                t('apps.medication.ui.endBeforeStartTitle'),
-                t('apps.medication.ui.endBeforeStartMessage'),
-              );
-              return;
-            }
-            if (dayKey < todayKey) {
-              Alert.alert(
-                t('apps.medication.ui.treatmentEndedTitle'),
-                t('apps.medication.ui.treatmentEndedMessage'),
-              );
-              return;
-            }
-            setDurationMode('custom');
-            setDurationDays(null);
-            setEndDate(dayKey === endDate ? null : dayKey);
-            if (dayKey === endDate) {
-              setDurationMode('ongoing');
-            }
+            applyEndDate(dayKey);
           }}
           getDayState={(dayKey) => {
             const inRange =
               Boolean(startDate && endDate) && dayKey > startDate! && dayKey < endDate!;
-            if (calendarMode === 'refill') {
-              return { selected: dayKey === refillDueDate, predicted: inRange };
-            }
             if (calendarMode === 'end') {
               return {
                 selected: dayKey === endDate,
                 predicted: inRange || dayKey === startDate,
+                today: dayKey === todayKey,
               };
             }
             return {
               selected: dayKey === startDate,
               predicted: inRange || dayKey === endDate,
+              today: dayKey === todayKey,
             };
           }}
         />
@@ -571,13 +585,6 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
                   end: formatDisplayDate(endDate),
                 })
               : t('apps.medication.ui.startsOngoing', { date: formatDisplayDate(startDate) })}
-          </AppText>
-        ) : null}
-        {calendarMode === 'refill' ? (
-          <AppText variant="body">
-            {refillDueDate
-              ? t('apps.medication.ui.refillOn', { date: formatDisplayDate(refillDueDate) })
-              : t('apps.medication.ui.refillDateOptional')}
           </AppText>
         ) : null}
       </MiniAppCard>
@@ -601,6 +608,61 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
           placeholder={String(DEFAULT_REFILL_THRESHOLD)}
           keyboardType="number-pad"
         />
+        <View style={[styles.chipRow, styles.spacedInput]}>
+          <MiniAppChip
+            label={
+              refillDueDate
+                ? t('apps.medication.ui.refillOn', { date: formatDisplayDate(refillDueDate) })
+                : t('apps.medication.ui.refillDueDate')
+            }
+            selected={showRefillCalendar || Boolean(refillDueDate)}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => {
+              setShowRefillCalendar((open) => !open);
+              if (refillDueDate) {
+                setRefillMonthRef(monthStartForDateKey(refillDueDate));
+              }
+            }}
+          />
+          {refillDueDate ? (
+            <MiniAppChip
+              label={t('apps.medication.ui.clearRefillDate')}
+              selected={false}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={() => {
+                setRefillDueDate(null);
+                setShowRefillCalendar(false);
+              }}
+            />
+          ) : null}
+        </View>
+        {showRefillCalendar ? (
+          <>
+            <AppText variant="caption" style={[styles.muted, styles.spacedInput]}>
+              {t('apps.medication.ui.refillDateOptional')}
+            </AppText>
+            <MonthCalendarNavigator
+              accentColor={theme.color}
+              monthRef={refillMonthRef}
+              onMonthChange={setRefillMonthRef}
+            />
+            <MonthCalendarGrid
+              monthRef={refillMonthRef}
+              interactive
+              accentColor={theme.color}
+              onDayPress={(dayKey) => {
+                setRefillDueDate(dayKey === refillDueDate ? null : dayKey);
+                setRefillMonthRef(monthStartForDateKey(dayKey));
+              }}
+              getDayState={(dayKey) => ({
+                selected: dayKey === refillDueDate,
+                today: dayKey === todayKey,
+              })}
+            />
+          </>
+        ) : null}
       </MiniAppCard>
 
       <MiniAppCard index={9} title={t('apps.medication.ui.notesOptional')} theme={theme}>

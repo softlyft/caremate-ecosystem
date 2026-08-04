@@ -42,9 +42,9 @@ Manual checklist for the Provider Portal MVP. Prefer a claimed org with a known 
 
 | ID | Priority | Steps | Expected |
 |----|----------|-------|----------|
-| PP-30 | P1 | Upload document for connected patient | Stored; visible on patient detail in portal |
+| PP-30 | P1 | Upload document for connected patient | Stored; visible on patient detail in portal; success toast only (no `.reset` / null error); form clears |
 | PP-30b | P0 | Patient: Me → Documents after upload | Document listed; tap opens file |
-| PP-31 | P0 | Messages → send to all connected | Threads created; patient inbox shows; push when device registered |
+| PP-31 | P0 | Messages → send to all connected | Threads created; patient inbox shows; push when device registered; UI shows success toast (not a `.reset` / null error) and form clears once |
 | PP-31b | P0 | Patient replies in mobile thread | Message appears; portal thread reply works |
 | PP-31c | P1 | Patient detail → Mark as staff | Membership created; Staff badge on patients list |
 | PP-31d | P1 | Mobile: New message → search staff/patient by name or Patient ID | DM opens when chat matrix allows |

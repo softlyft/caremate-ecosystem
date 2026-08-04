@@ -39,6 +39,7 @@ import {
   parseHhMmParts,
   resolveScheduledStatus,
   resolveSlotTimes,
+  resolveTreatmentDurationSelection,
   type Medication,
   type MedicationDoseLog,
 } from '@/mini-apps/medication-tracker/utils';
@@ -217,6 +218,15 @@ describe('medication-tracker/utils', () => {
   it('computes inclusive duration end dates', () => {
     expect(endDateForDurationDays('2026-07-01', 7)).toBe('2026-07-07');
     expect(durationDaysBetween('2026-07-01', '2026-07-07')).toBe(7);
+    expect(resolveTreatmentDurationSelection('2026-07-10', null).mode).toBe('ongoing');
+    expect(resolveTreatmentDurationSelection('2026-07-10', '2026-07-12')).toEqual({
+      mode: 'preset',
+      days: 3,
+    });
+    expect(resolveTreatmentDurationSelection('2026-07-10', '2026-07-13')).toEqual({
+      mode: 'custom',
+      days: null,
+    });
     expect(isMedicationScheduledOnDate(med({ endDate: '2026-07-17' }), '2026-07-17')).toBe(true);
     expect(isMedicationScheduledOnDate(med({ endDate: '2026-07-16' }), '2026-07-17')).toBe(false);
   });

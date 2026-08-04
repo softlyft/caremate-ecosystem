@@ -73,7 +73,7 @@ Mirrored in portal `constants/content.ts` and ingest `PROVIDER_TYPES`.
 | `imaging_centre` | Imaging Centre | ✅ |
 | `dentist` | Dental Clinic | ✅ |
 | `eye_care` | Eye Clinic | ✅ |
-| `insurance` | Insurance | ✅ |
+| `insurance` | Insurance | — (data model only; not in Nearby chips) |
 | `blood_bank` | Blood Bank | — |
 | `ambulance` | Ambulance Service | — |
 | `telemedicine` | Telemedicine | — |

@@ -21,11 +21,12 @@ export type RenderedEmail = {
 const BRAND = {
   name: 'CareMate',
   tagline: 'Your Health. Our Priority.',
-  siteUrl: 'https://getcaremate.com',
+  // Temporary Amplify hosts until getcaremate.com custom domains are ready.
+  siteUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com',
   supportEmail: 'hello@getcaremate.com',
-  logoUrl: 'https://getcaremate.com/caremate-logo.png',
-  privacyUrl: 'https://getcaremate.com/privacy',
-  termsUrl: 'https://getcaremate.com/terms',
+  logoUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com/caremate-logo.png',
+  privacyUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com/privacy',
+  termsUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com/terms',
   primary: '#0d9488',
   primaryDark: '#0f766e',
   text: '#111827',
@@ -326,7 +327,7 @@ export function renderProviderOrgClaimOtp(vars: {
     preheader,
     tone: 'default',
     ctaLabel: 'Open Provider Portal',
-    ctaUrl: 'https://provider.getcaremate.com/claim',
+    ctaUrl: 'https://main.d9xyppes84zqr.amplifyapp.com/claim',
     bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
         Enter this code to claim <strong style="color:${BRAND.primaryDark};">${escapeHtml(orgName)}</strong> on the CareMate Provider Portal.
       </p>
@@ -361,7 +362,7 @@ export function renderProviderPasswordResetOtp(vars: {
     preheader,
     tone: 'default',
     ctaLabel: 'Open Provider Portal',
-    ctaUrl: 'https://provider.getcaremate.com/forgot-password',
+    ctaUrl: 'https://main.d9xyppes84zqr.amplifyapp.com/forgot-password',
     bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
         Enter this code to reset your password on the CareMate Provider Portal.
       </p>

@@ -1,6 +1,10 @@
 import { STORAGE_KEYS } from '@/constants/config';
 import { identityFromAuthUser } from '@/domains/auth/auth-identity';
 import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-account';
+import {
+  bindDeviceAccount,
+  clearDeviceAccountBinding,
+} from '@/domains/auth/device-account-binding';
 import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
 import { wipeLocalAccountData } from '@/domains/auth/wipe-local-account';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
@@ -53,6 +57,15 @@ export class AuthService {
       await hydrateAccountEntitlements(user.id);
     } catch {
       // Sync engine will retry; auth must still succeed.
+    }
+
+    try {
+      await bindDeviceAccount(
+        user.id,
+        overrides?.email ?? user.email ?? identityFromAuthUser(user).email,
+      );
+    } catch {
+      // Device binding is best-effort; auth must still succeed.
     }
   }
 
@@ -239,6 +252,12 @@ export class AuthService {
       await wipeLocalAccountData(userId);
     } catch {
       // Cloud delete already succeeded; local wipe is best-effort.
+    }
+
+    try {
+      await clearDeviceAccountBinding();
+    } catch {
+      // Binding clear is best-effort after account delete.
     }
 
     try {

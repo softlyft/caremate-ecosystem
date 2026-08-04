@@ -155,7 +155,7 @@ Responsibilities:
 **Key storage:** `expo-secure-store` (`caremate_sqlite_cipher_key_v1`, this-device-only)  
 **Config:** `app.json` → `expo-sqlite` plugin `useSQLCipher: true` (requires a **dev/production native rebuild**, not Expo Go)
 
-Web builds stay unencrypted (SQLCipher is native-only). Wipe-on-sign-out remains as defense-in-depth for shared devices.
+Web builds stay unencrypted (SQLCipher is native-only). Local user rows are wiped on account switch / delete; sign-out keeps them for the device-bound email.
 
 Full security map: [Security](./security.md).
 

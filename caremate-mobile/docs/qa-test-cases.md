@@ -36,6 +36,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | SM-02 | P0 | Running app | Tap all 5 tabs: Home, Learn, Nearby, Apps, Me | Each tab opens; tab bar highlights active tab. |
 | SM-03 | P0 | Signed-in + online | Kill app → relaunch | Session restored; still signed in. |
 | SM-04 | P0 | Any | Force-close during Home load → reopen | Recovers without blank freeze. |
+| SM-05 | P0 | Android; viewing an article (or other inner screen) | Open system Settings → turn CareMate notification permission **off** → return to app | App may restart through splash; restores the same article/inner screen (not Home). Turning permission **on** also returns to the same screen. |
 
 ---
 
@@ -53,7 +54,9 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | AU-07b | P1 | Reset email received on device | Open reset link → app opens reset screen → set matching new passwords → submit | Password updated; can sign in with new password. |
 | AU-07c | P2 | Expired/invalid reset link | Open stale link or open `/auth/reset-password` cold | Link expired / request-new-link path; no crash. |
 | AU-08 | P0 | Guest | Browse Home / Learn / Nearby / Apps | All usable without account. |
-| AU-09 | P0 | Signed-in | Me → Sign Out | Returns to guest state; CTAs to Sign In / Create Account. |
+| AU-09 | P0 | Signed-in | Me → Sign Out | Returns to guest state; CTAs to Sign In / Create Account. Local emergency / mini-app data for that email remains on device. |
+| AU-09b | P0 | Signed-in with emergency | Sign out → kill app → reopen → sign in same email | Emergency profile and Me essentials still present (not “Finish emergency essentials”). |
+| AU-09c | P0 | Device bound to email A | Sign out → sign in / register as email B | Alert shows masked prior email; Cancel leaves data; Proceed resets local data then continues. |
 | AU-10 | P2 | Signed-in | Me tab preferences | Biometric unlock toggle is not shown (deferred until app-lock is enforced). |
 | AU-11 | P2 | — | — | Biometric app-lock removed (no Settings toggle). |
 | AU-12 | P1 | Airplane mode | Attempt login/register | User-facing network failure message (not raw stack trace). |
@@ -115,6 +118,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | LN-09b | P0 | Any | Open article detail | Status becomes Reading; appears under Learn → Reading. |
 | LN-09c | P0 | Open article | Scroll near end or tap mark-as-read | Status becomes Read; shows under Reading → Read tab. |
 | LN-09d | P1 | Read article | Tap mark-as-read again | Cleared / unread; removed from Read list. |
+| LN-09e | P0 | Evergreen article | Share → WhatsApp / Messages / paste in Chrome | Share text contains an `https://…/articles/<id>` link (clickable); opens public website article (not `caremate://`). |
 | LN-10 | P1 | Offline | Open Learn / open saved article | Cached content readable; no crash. |
 
 ---
@@ -150,6 +154,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 |----|---|-----|-------|----------|
 | EM-01 | P0 | Guest or signed-in | Me / Home → Emergency → create/edit | Can save full name + medical fields + at least one ICE contact. |
 | EM-01b | P1 | Edit form | Try save with zero ICE contacts | Blocked with “at least one ICE contact” error. |
+| EM-01c | P0 | Signed-in with saved emergency | Sign out → reopen → sign in same account | Emergency details still loaded; Me does not force “Finish emergency essentials”. |
 | EM-02 | P0 | Profile exists | View emergency profile | Shows blood group, genotype, allergies, meds, contacts, notes as entered. |
 | EM-02b | P1 | Emergency query fails with no local row | Open Emergency view | ErrorState with Retry (not “no profile yet” empty). |
 | EM-03 | P1 | Edit | Add emergency contact (name, phone, relationship) | Saved and displayed. |
@@ -198,7 +203,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | FM-01 | P0 | Signed-in, no household | Me → Family → Set up → Yes I’m a parent | Moves to kids count. |
 | FM-01b | P1 | Household query fails | Open Family hub | ErrorState with Retry. |
 | FM-02 | P0 | In setup | Enter N kids (e.g. 2) → Continue | Child 1 form appears. |
-| FM-03 | P0 | Child form | Enter full name, DOB `YYYY-MM-DD`, gender → Next/Review | Advances; review lists kids. |
+| FM-03 | P0 | Child form | Enter full name, pick DOB on calendar, gender → Next/Review | Advances; review lists kids. Calendar is used (no manual YYYY-MM-DD typing). |
 | FM-04 | P0 | Review | Create family | Household created; Family hub shows children. |
 | FM-05 | P1 | Setup | Choose 0 kids → Review → Create | Household allowed; can add child later from hub. |
 | FM-06 | P1 | Hub | Add another child (name, DOB, gender) | Appears in children list. |
@@ -260,6 +265,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 |----|---|-----|-------|----------|
 | AP-01 | P0 | Any | Open Apps | All 6 mini-apps listed with icons. |
 | AP-02 | P0 | Any | Open each mini-app | Each opens its home screen without crash. |
+| AP-02b | P0 | Log/setup forms | Focus bottom fields (Notes, Provider / clinic, Remind when at or below) | Soft keyboard does not cover the active field; form scrolls so the caret stays visible. |
 | AP-03 | P2 | Coming soon flag (if any) | Tap disabled card | Cannot open / shows coming soon. |
 
 ---
@@ -271,6 +277,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | MD-01 | P0 | Any | Apps → Medication Assistant | Dashboard opens (Due now / Upcoming / Taken). |
 | MD-02 | P0 | — | Add medicine → Name, dosage, once daily, start today → save | Appears in list; today’s dose slot shown with time. |
 | MD-02b | P0 | Add medicine | Set treatment to 7 days (or custom end) → save | Doses appear only through the end date; day after end has no slots. |
+| MD-02c | P0 | Add medicine | Select “3 days”, then pick a future start date | Duration stays “3 days” (not Custom); end date shifts with the start. Refill date is only under Refill tracking. |
 | MD-03 | P0 | Add medicine screen | See **Is this for a kid?** | Field visible with No / Yes options **above** name/dosage. |
 | MD-04 | P0 | Family kids exist | Yes — for a kid → select child → save | Medicine shows child name on list/doses. |
 | MD-05 | P1 | No family kids | Yes — for a kid | CTA to set up / open Family; cannot save for kid without selection. |
@@ -300,6 +307,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | IM-03 | P0 | Family with kids + DOB | Open Immunization | Children load; switcher chips; schedule for active child. |
 | IM-04 | P1 | Family, kids without DOB only | Open Immunization | Treats as needs children / incomplete; directs to Family. |
 | IM-05 | P0 | Child loaded | Log a vaccine | Record shows completed on schedule. |
+| IM-05b | P0 | Log vaccine | Try to pick / save a future administered date | Future days disabled (or blocked); cannot save “Given [future date]”. |
 | IM-06 | P1 | Multi-child | Switch child chip | Schedule/records switch per child. |
 | IM-07 | P1 | Setup route | Open immunization setup | Redirects to Family (no local add-child form). |
 | IM-08 | P1 | Overdue vaccine | View attention card | Shows overdue/due soon; can log from CTA. |
@@ -317,6 +325,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | CK-04 | P1 | Male 50+ | Setup | Prostate discussion items appear. |
 | CK-05 | P1 | Toggle next year | Switch year | Checklist uses next calendar year. |
 | CK-06 | P0 | Due item | Log completion | Status → completed for that year. |
+| CK-06b | P0 | Log checkup | Try to pick / save a future completion date | Future days disabled (or blocked); cannot mark done with a future date. |
 | CK-07 | P1 | Region NG vs INT | Change region | Region-specific items show/hide appropriately. |
 | CK-08 | P2 | Educational copy | Read disclaimer | Guidance-only messaging present. |
 
@@ -409,10 +418,10 @@ Spec: [Premium & plans](./premium-and-plans.md). Gates are enforced — run thes
 |----|---|-----|-------|----------|
 | PG-01 | P0 | Guest | Open Apps tab; tap any mini-app | Sign-in / register prompt; no tracker UI |
 | PG-02 | P0 | Free signed-in | Add 4th active medication (or reactivate when already at 3) | Blocked; upgrade CTA |
-| PG-03 | P0 | Free signed-in | Checkup planner with 3+ items this year | First 2 visible; rest blurred |
+| PG-03 | P0 | Free signed-in | Checkup planner with 3+ items this year; mark one free item done | First 2 by catalog order stay unlocked; previously blurred items stay locked (completing must not unlock the next) |
 | PG-04 | P0 | Free signed-in | Checkup planner next year | Year blurred |
 | PG-05 | P0 | Standard Premium | Checkup + immunization | No blur; full schedule |
-| PG-06 | P0 | Free signed-in | Immunization schedule | First 2 months clear; rest blurred |
+| PG-06 | P0 | Free signed-in | Immunization schedule; open Log Vaccine from a free dose | First 2 months clear; rest blurred. Log screen lists only unlocked doses — Premium doses not selectable. |
 | PG-07 | P1 | Free signed-in | Pregnancy / Period with ads enabled | Catalog or AdMob in slots |
 | PG-08 | P1 | Standard Premium | Pregnancy / Period | No ads in mini-app slots |
 | PG-09 | P0 | Free household | Add 2nd child | Blocked; Family upgrade CTA |

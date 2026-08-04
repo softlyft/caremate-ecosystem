@@ -95,14 +95,15 @@ All mini-apps require a **signed-in patient account**. Limits below apply after 
 
 ### Checkup Planner (detail)
 
-- **Free — current year:** show the first two checkups in chronological order for the active profile; blur later checkups in the same year (overlay + upgrade prompt).
+- **Free — current year:** unlock the first two checkups by **stable catalog order** for the active profile’s eligible items this year; blur later checkups (overlay + upgrade prompt). Completing a free checkup must not unlock the next catalog item.
 - **Free — future years:** blur the full year (no peek beyond current-year rules).
 - **Premium:** render full multi-year schedule with no blur.
 
 ### Immunization Tracker (detail)
 
-- Schedule is age/month based; on Free, only the **first two months** of the recommended series are readable.
+- Schedule is age/month based; on Free, only the **first two months** of the recommended series are readable / loggable.
 - Remaining months/items are visible in layout but **blurred** with upgrade CTA.
+- **Log Vaccine** lists only unlocked doses for Free; deep links to Premium doses show the upgrade prompt (cannot select or save locked vaccines).
 - Premium: full schedule unlocked.
 - Child list comes from family profiles; Free still limited to **one child** (see family table).
 

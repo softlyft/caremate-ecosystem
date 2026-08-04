@@ -1,257 +1,922 @@
 {
-  "prevention": [],
+  "prevention": [
+    {
+      "id": "evergreen-prevention-1",
+      "title": "Sleep as everyday prevention",
+      "summary": "Consistent sleep supports immunity, mood, and metabolic health.",
+      "content": "Most adults do better with seven to nine hours most nights. Keep a steady bedtime and wake time, including weekends when you can.\n\nA darker cooler room and less caffeine after mid-afternoon help. Limit bright screens in the last hour before bed.\n\nLoud snoring, gasping, or heavy daytime sleepiness deserve a clinic mention. Sleep problems pair often with high blood pressure and weight concerns.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-2",
+      "title": "Move most days, even in short bursts",
+      "summary": "Regular activity protects the heart, joints, and mental health.",
+      "content": "Aim for about 150 minutes of moderate activity weekly if safe for you. Brisk walking, dancing, cycling, and active chores all count.\n\nSpread sessions across the week instead of one exhausting day. Add simple strength work twice weekly, such as sit-to-stands.\n\nBreak long sitting with short standing or walking breaks. Stop for chest pain, severe breathlessness, or unusual dizziness.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-3",
+      "title": "Hand hygiene that prevents infections",
+      "summary": "Soap, water, and key moments cut the spread of many germs.",
+      "content": "Wash with soap for at least twenty seconds at key moments. Wash before eating and after toilet use or caring for someone ill.\n\nDry hands fully; damp hands spread germs more easily. Use alcohol rub when soap is unavailable and hands look clean.\n\nAvoid touching eyes, nose, and mouth with unwashed hands. Model the habit for children at home and in shared spaces.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-4",
+      "title": "Vaccines and boosters for adults",
+      "summary": "Immunization needs continue after childhood.",
+      "content": "Adults may need tetanus, influenza, COVID-19, hepatitis, or other vaccines. Needs depend on age, pregnancy, work, travel, and long-term conditions.\n\nBring any vaccine record to avoid gaps and duplicate doses. Pregnancy and chronic disease can change recommendations.\n\nMild arm soreness after shots is common and usually settles. Seek care for breathing trouble, hives, or facial swelling after vaccination.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-5",
+      "title": "Sun, heat, and skin protection",
+      "summary": "Outdoor habits lower burn, heat strain, and some skin cancer risk.",
+      "content": "Seek shade in peak midday sun when you can. Wear a hat, sunglasses, and lightweight long sleeves outdoors.\n\nUse broad-spectrum sunscreen and reapply after sweat or swimming. Drink water often in hot weather, especially with outdoor work.\n\nDizziness, confusion, or stopping sweat can signal heat emergency. Check skin monthly for new or changing moles and non-healing sores.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-6",
+      "title": "Oral health beyond brushing once",
+      "summary": "Gums and teeth affect comfort, nutrition, and wider health talks.",
+      "content": "Brush twice daily with fluoride toothpaste. Clean between teeth with floss or interdental brushes.\n\nReplace toothbrushes every few months or after illness. Limit frequent sugary snacks and drinks that bathe teeth in sugar.\n\nSee dental care for pain, swelling, bleeding gums, or loose teeth. People with diabetes should pay special attention to gum health.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-7",
+      "title": "Safe drinking water and food basics",
+      "summary": "Everyday choices prevent many stomach infections.",
+      "content": "Use sealed, boiled, or treated water when tap quality is uncertain. Avoid ice of unknown origin while traveling.\n\nCook meats thoroughly and separate raw from cooked foods. Refrigerate leftovers promptly and wash hands before food prep.\n\nSeek care for bloody diarrhea, high fever, or clear dehydration. Oral rehydration solution replaces fluids and salts in milder illness.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-8",
+      "title": "Know your numbers: BP, sugar, weight",
+      "summary": "A few metrics help you and your clinician act early.",
+      "content": "Track blood pressure, indicated blood sugar, waist size, and weight trends. Use validated home monitors with consistent technique.\n\nSit quietly before blood pressure checks with arm at heart level. Log dates and share patterns at appointments, not only single spikes.\n\nUnexplained large weight changes deserve timely review. Very high readings with symptoms need urgent clinical attention.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-9",
+      "title": "Tobacco, alcohol, and harm reduction",
+      "summary": "Cutting back protects lungs, liver, heart, sleep, and cancer risk.",
+      "content": "No tobacco product is safe for lung or heart health. Ask about nicotine replacement, medicines, and counseling to quit.\n\nIf you drink, stay within local low-risk guidelines. Avoid binge drinking and never drink and drive.\n\nSkip alcohol in pregnancy and with interacting medicines. Keep homes and cars smoke-free to protect children and adults.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-10",
+      "title": "Stress routines that protect health",
+      "summary": "Chronic stress shows up in sleep, blood pressure, and resilience.",
+      "content": "Short daily practices help: walking, slow breathing, prayer, or journaling. Protect small rest blocks the way you protect important meetings.\n\nSocial connection and morning outdoor light support mood and sleep. Limit late-night news scrolling when it leaves you tense.\n\nSeek mental health support when worry or low mood disrupt life. Asking for help early is prevention, not failure.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-11",
+      "title": "Workplace and commute safety habits",
+      "summary": "Injuries and fatigue often come from rushed routines.",
+      "content": "Use seat belts and appropriate helmets; avoid phones while driving. Leave extra travel time so speed is not the default under pressure.\n\nSet desks and screens so wrists and necks stay comfortable. Lift with bent knees and keep loads close; ask for help when heavy.\n\nKnow workplace first-aid points and keep emergency contacts updated. Plan recovery sleep after night shifts whenever possible.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-12",
+      "title": "Hearing and vision checks over time",
+      "summary": "Senses change gradually—screening catches treatable problems.",
+      "content": "Book eye checks for blur, diabetes, eye pain, or reading trouble. Sudden floaters with flashes need prompt review.\n\nChildren need vision screening in school and clinic routines. Protect hearing around loud machinery, generators, and music events.\n\nAsk for hearing review if conversations are hard in noisy rooms. Sudden vision loss is an emergency until proven otherwise.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-13",
+      "title": "Mosquito and vector bite prevention",
+      "summary": "Nets, screens, and water control cut malaria and related risks.",
+      "content": "Sleep under insecticide-treated nets in malaria areas. Repair screens and empty containers that hold stagnant water.\n\nWear longer sleeves at dusk when bites often increase. Use repellents recommended as safe for children or pregnancy.\n\nSeek care for fever after travel to malaria regions, even weeks later. Community clean-ups and covered water storage help everyone.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-14",
+      "title": "Sexual health and consent basics",
+      "summary": "Respect, communication, and testing protect partners and fertility.",
+      "content": "Consent must be clear and can be withdrawn at any time. Discuss contraception and infection prevention before sex.\n\nCondoms reduce many infection risks when used correctly every time. Get tested with new partners, symptoms, or pregnancy plans.\n\nMany infections are treatable; delays can harm fertility and newborns. Ask about HPV, hepatitis B, and local confidential clinic services.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-prevention-15",
+      "title": "Build a simple personal health kit",
+      "summary": "A small kit supports minor issues without delaying emergencies.",
+      "content": "Keep oral rehydration salts, a thermometer, plasters, and gauze together. Store antiseptic and personal medicines away from children.\n\nCheck expiry dates twice a year and replace what is out of date. Include a written list of allergies, medicines, and emergency contacts.\n\nThat list helps responders if you cannot speak for yourself. Know local emergency numbers; kits never replace urgent care for stroke or chest pain.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    }
+  ],
   "conditions": [
     {
       "id": "evergreen-heart-1",
       "title": "Know your blood pressure numbers",
       "summary": "Understanding systolic and diastolic readings helps you spot risk early.",
-      "content": "Blood pressure is written as two numbers: systolic (pressure when the heart beats) over diastolic (pressure when the heart rests). A healthy adult reading is often around 120/80 mmHg, but your clinician may set a personal target.\n\nCheck at the same time of day when possible, sit quietly for a few minutes first, and keep a simple log. Sudden severe headache, chest pain, or shortness of breath with very high readings needs urgent care.\n\nLifestyle basics that support heart health include reducing excess salt, staying active most days, limiting alcohol, not smoking, and managing stress and sleep."
+      "content": "Blood pressure is written as systolic over diastolic. Many adults aim near 120/80 mmHg; your target may differ.\n\nCheck at similar times, sit quietly, and support the arm at heart level. Keep a dated log and share patterns at appointments.\n\nSevere headache, chest pain, or breathlessness with very high readings needs urgent care. Salt reduction, activity, less alcohol, no smoking, and sleep support healthier numbers.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-heart-2",
       "title": "Everyday habits that protect your heart",
       "summary": "Small daily choices add up for long-term cardiovascular health.",
-      "content": "Your heart benefits from consistent, realistic habits more than short intense bursts of change. Aim for at least 150 minutes of moderate activity a week, such as brisk walking, if your clinician agrees it is safe for you.\n\nEat more vegetables, fruits, beans, and whole grains. Choose lean proteins and healthier fats like nuts and fish when available. Cut back on ultra-processed snacks and sugary drinks.\n\nIf you have diabetes, high cholesterol, or a family history of heart disease, ask about screening and medication that may further lower risk."
+      "content": "Consistent habits beat short intense bursts of change. Aim for 150 minutes of moderate activity weekly if safe.\n\nFill plates with vegetables, fruits, beans, and whole grains when you can. Prefer healthier fats like nuts and fish; cut sugary drinks.\n\nAsk about screening if you have diabetes, high cholesterol, or family history. Do not stop prescribed heart medicines without medical advice.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-heart-3",
       "title": "Chest pain: when to seek help fast",
-      "summary": "Not all chest discomfort is a heart attack, but some warning signs need emergency care.",
-      "content": "Call emergency services if chest pain is crushing or pressure-like, spreads to the arm, jaw, or back, or comes with sweating, nausea, dizziness, or severe shortness of breath.\n\nWomen and older adults may notice unusual fatigue, indigestion-like discomfort, or breathlessness more than classic chest pain.\n\nDo not drive yourself if you suspect a heart emergency. While waiting for help, sit or lie down and follow dispatcher instructions."
+      "summary": "Some chest discomfort needs emergency care even if you feel unsure.",
+      "content": "Call emergency services for crushing pressure-like chest pain. Pain spreading to arm, jaw, or back is a warning sign.\n\nSweating, nausea, dizziness, or severe breathlessness raise urgency. Women and older adults may notice fatigue or indigestion-like discomfort.\n\nDo not drive yourself if you suspect a heart emergency. Sit or lie down and follow dispatcher instructions while waiting.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-heart-4",
       "title": "Salt, fluid, and heart strain",
       "summary": "Too much salt can raise blood pressure and make the heart work harder.",
-      "content": "Most people get more salt from packaged foods, seasonings, and restaurant meals than from the salt shaker alone. Reading labels and cooking more meals at home can help you cut back gradually.\n\nIf you have heart failure or kidney disease, your care team may also limit fluids. Follow those instructions carefully and report sudden weight gain, swelling, or worsening breathlessness.\n\nFlavor food with herbs, citrus, garlic, and spices instead of relying only on salt."
+      "content": "Most salt comes from packaged foods and restaurant meals. Cooking at home and reading labels help you cut back gradually.\n\nHeart failure or kidney disease may also need fluid limits. Report sudden weight gain, swelling, or worse breathlessness.\n\nFlavor food with herbs, citrus, garlic, and spices. Ask what daily salt target fits your conditions and medicines.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-heart-5",
       "title": "Cholesterol basics in plain language",
       "summary": "LDL, HDL, and triglycerides each play a different role in heart risk.",
-      "content": "LDL is often called “bad” cholesterol because high levels can contribute to plaque in arteries. HDL helps carry cholesterol away and is generally protective when higher. Triglycerides rise with excess sugar, alcohol, and low activity.\n\nA fasting or non-fasting lipid panel helps your clinician interpret your risk alongside blood pressure, smoking status, and family history.\n\nDiet, exercise, and sometimes medication can improve your numbers. Do not stop prescribed medicine without medical advice."
+      "content": "High LDL contributes to plaque in arteries. HDL helps carry cholesterol away from artery walls.\n\nTriglycerides rise with excess sugar, alcohol, and low activity. Lipid results are read with blood pressure, smoking, and family history.\n\nDiet, exercise, and medicines can improve numbers. Do not stop statins just because you feel well.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-infectious-1",
       "title": "Hand hygiene that actually works",
       "summary": "Soap, water, and key moments cut transmission of many infections.",
-      "content": "Wash with soap for at least 20 seconds before eating, after using the toilet, after coughing or sneezing into your hands, and after caring for someone who is ill.\n\nIf soap and water are unavailable, use alcohol-based hand rub when hands are not visibly dirty.\n\nKeep nails reasonably short and avoid touching your eyes, nose, and mouth with unwashed hands."
+      "content": "Wash twenty seconds before eating and after toilet use. Wash after coughing into hands or caring for someone ill.\n\nDry thoroughly; use alcohol rub when hands look clean but soap is missing. Avoid touching your face with unwashed hands in clinics and transit.\n\nProtect infants and older adults in your household with the same habit. Make hand hygiene a shared family routine, not one person’s chore.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-infectious-2",
       "title": "Cough and sneeze etiquette",
       "summary": "Covering correctly protects the people around you.",
-      "content": "Cough or sneeze into a tissue or your elbow—not your bare hands. Dispose of tissues and wash hands afterward.\n\nStay home from work, school, or gatherings when you have a fever or productive cough if you can, especially around infants and older adults.\n\nWear a mask in crowded indoor spaces when you are ill or when local guidance recommends it."
+      "content": "Cough or sneeze into a tissue or your elbow, not bare palms. Dispose of tissues and wash hands afterward.\n\nStay home with fever or heavy cough when you can. Protect infants and older adults from close exposure when ill.\n\nMasks help in crowded indoor spaces when you are sick. Kind communication reduces stigma around staying home.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-infectious-3",
       "title": "When a cold might be something more",
       "summary": "Duration, breathing trouble, and high fever change the plan.",
-      "content": "Most colds improve within a week. Seek care for trouble breathing, chest pain, confusion, persistent high fever, symptoms that suddenly worsen, or illness in high-risk people (infants, pregnant people, older adults, immunocompromised).\n\nHydration and rest help viral illnesses. Antibiotics are not routine for uncomplicated colds.\n\nAsk a clinician about testing when influenza, COVID-19, malaria, or other local infections are circulating."
+      "content": "Most colds improve within a week with rest and fluids. Seek care for trouble breathing, chest pain, or confusion.\n\nPersistent high fever or sudden worsening needs review. Infants, pregnant people, and immunocompromised adults are higher risk.\n\nAntibiotics are not routine for uncomplicated viral colds. Ask about testing when influenza, COVID-19, or malaria is circulating.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-infectious-4",
       "title": "Food and water precautions while traveling",
       "summary": "Simple choices reduce traveler’s diarrhea and related infections.",
-      "content": "Prefer sealed bottled or boiled water when tap water is uncertain. Avoid ice of unknown origin and raw foods washed in unsafe water.\n\nChoose hot, thoroughly cooked meals. Peel fruits yourself.\n\nPack oral rehydration supplies and know where to seek care if vomiting and diarrhea become severe."
+      "content": "Prefer sealed bottled or boiled water when tap water is uncertain. Avoid ice of unknown origin and raw foods washed in unsafe water.\n\nChoose hot thoroughly cooked meals and peel fruits yourself. Pack oral rehydration supplies for the trip.\n\nKnow where to seek care if vomiting and diarrhea become severe. Travel clinics advise vaccines and malaria prevention by destination.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-infectious-5",
-      "title": "Vaccines and boosters for adults",
-      "summary": "Immunization is not only for children.",
-      "content": "Adults may need tetanus boosters, influenza vaccines, COVID-19 updates, hepatitis vaccines, or others based on age, job, travel, and health conditions.\n\nAsk at clinic visits which vaccines you are due for. Pregnancy and chronic disease can change recommendations.\n\nKeeping a personal vaccine record prevents duplicate or missed doses."
+      "title": "Adult vaccines beyond childhood schedules",
+      "summary": "Immunization continues through adult life.",
+      "content": "Ask which adult vaccines you are due for at clinic visits. Jobs, travel, pregnancy, and chronic disease change the list.\n\nKeep a personal vaccine record on paper or phone. Records prevent missed doses and unnecessary duplicates.\n\nMild arm soreness after vaccination is common. Seek urgent care for severe allergic symptoms after a shot.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-conditions-6",
+      "title": "Living with type 2 diabetes day to day",
+      "summary": "Steady habits and monitoring reduce complications over years.",
+      "content": "Type 2 diabetes means insulin does not work well enough. Meal timing, fiber-rich foods, activity, and medicines work together.\n\nLearn your glucose targets and signs of lows such as shakiness. Carry a quick sugar source if your medicines can cause hypoglycemia.\n\nFoot, eye, kidney, and blood pressure checks prevent complications. Keep appointments even when you feel well; damage can be silent.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-conditions-7",
+      "title": "Asthma control between flare-ups",
+      "summary": "Preventers and triggers matter as much as rescue inhalers.",
+      "content": "Asthma narrows airways and flares with smoke, dust, colds, or allergens. Take controller inhalers as prescribed even on good days if planned.\n\nKnow preventer versus reliever inhalers and check your technique. Ask a clinician or pharmacist to watch you use your device.\n\nSeek urgent care for speaking only in short phrases or blue lips. A written action plan helps families respond consistently.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-conditions-8",
+      "title": "Understanding anemia symptoms",
+      "summary": "Low red blood cells leave you tired—but causes differ.",
+      "content": "Anemia may come from iron lack, blood loss, malaria, or chronic disease. Fatigue, pale skin, breathlessness, and dizziness are clues, not a full diagnosis.\n\nDo not start high-dose iron without knowing the cause. Testing guides safer treatment and avoids harm from excess iron.\n\nPregnancy, childhood growth, and heavy periods need special attention. Black stools, vomiting blood, or collapse are emergencies.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-conditions-9",
+      "title": "Kidney health: what to watch for",
+      "summary": "Kidneys filter waste—protect them by managing upstream risks.",
+      "content": "High blood pressure and diabetes drive much chronic kidney disease. Control those conditions and avoid unnecessary long-term painkiller overuse.\n\nFoamy urine, swelling, or low urine output need follow-up. Lab creatinine changes may require medicine dose adjustments.\n\nAsk before herbal mixtures if you already have kidney disease. Early specialist referral can slow progression for many people.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-conditions-10",
+      "title": "Arthritis pain without giving up movement",
+      "summary": "Gentle activity often protects joints better than total rest.",
+      "content": "Mix movement, strength, and paced rest for joint pain. Water exercise and short walks are often easier than sudden long runs.\n\nA healthier weight reduces load on knees and hips when achievable. Heat, ice, and clinician-guided pain plans can ease flares.\n\nHot swollen joints with fever need prompt review. Sudden inability to bear weight can signal infection or injury.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     }
   ],
-  "symptoms": [],
+  "symptoms": [
+    {
+      "id": "evergreen-symptoms-1",
+      "title": "Fever: what the number does not tell alone",
+      "summary": "How you look and drink matters as much as the thermometer.",
+      "content": "Fever is a body response, not always an emergency by itself. Note age, alertness, fluid intake, and other symptoms with the reading.\n\nBabies under three months with fever need urgent assessment. Seek care for stiff neck, rash with fever, confusion, or breathing trouble.\n\nUse age-appropriate fever medicine only as labeled. Never give aspirin to children unless a clinician specifically advises it.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-2",
+      "title": "Shortness of breath you should not ignore",
+      "summary": "Breathing trouble can escalate quickly—know urgent patterns.",
+      "content": "Sudden severe breathlessness needs emergency care. Breathing trouble with chest pain, blue lips, or confusion is urgent.\n\nInability to speak full sentences is a danger sign. People with asthma, heart failure, or anemia may notice gradual change.\n\nTrack whether stairs or walking distance suddenly worsen. Do not wait overnight if breathing is rapidly getting worse.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-3",
+      "title": "Headache red flags",
+      "summary": "Most headaches settle—some patterns need same-day care.",
+      "content": "Sudden worst headache of your life needs emergency assessment. Headache with fever and stiff neck is urgent.\n\nWeakness, vision loss, or speech trouble with headache is urgent. Head injury with worsening headache needs review.\n\nTrack migraine patterns and triggers in a simple diary. Frequent painkiller use can itself worsen headaches over time.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-4",
+      "title": "Abdominal pain: mild versus urgent",
+      "summary": "Location, fever, and vomiting guide how fast to act.",
+      "content": "Mild cramps after rich meals often settle with rest and fluids. Severe pain that prevents walking needs prompt care.\n\nPain with vomiting blood, black stools, or fainting is an emergency. Pregnancy plus abdominal pain needs urgent evaluation.\n\nRigid abdomen or pain with high fever can signal serious infection. Do not ignore pain that migrates to the lower right abdomen.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-5",
+      "title": "Dizziness and fainting clues",
+      "summary": "Brief lightheadedness differs from stroke-like symptoms.",
+      "content": "Stand up slowly if you feel lightheaded after lying down. Drink fluids if heat or dehydration may be involved.\n\nFainting with chest pain or irregular heartbeat needs urgent care. Sudden imbalance with facial droop or speech trouble suggests stroke pathways.\n\nMedicines for blood pressure can contribute to dizziness. Keep a list of episodes to share with your clinician.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-6",
+      "title": "Chest tightness that is not classic pain",
+      "summary": "Pressure, burning, or heaviness can still be cardiac.",
+      "content": "Describe tightness, burning, or heaviness clearly to responders. Symptoms with exertion that ease at rest still matter.\n\nNausea, sweating, or jaw discomfort can accompany heart ischemia. Anxiety can cause chest symptoms, but do not self-diagnose in a crisis.\n\nWhen unsure, treat new severe chest symptoms as urgent. Known heart disease raises the threshold for seeking help early.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-7",
+      "title": "Persistent cough beyond a simple cold",
+      "summary": "Duration and accompanying signs change the next step.",
+      "content": "Cough lasting more than three weeks deserves clinical review. Coughing blood needs prompt assessment.\n\nNight sweats, weight loss, or fever with cough need evaluation. Asthma, reflux, and post-nasal drip are common contributors.\n\nSmoking history should always be shared with your clinician. Wheeze or breathlessness with cough may need inhaler review.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-8",
+      "title": "Urinary burning and frequency",
+      "summary": "Bladder infections are common—complications still matter.",
+      "content": "Burning, urgency, and frequent small voids suggest urinary infection. Drink fluids and seek care if symptoms persist or worsen.\n\nFever, back pain, or vomiting can signal kidney involvement. Pregnancy plus urinary symptoms needs timely review.\n\nMen with urinary symptoms may need prostate-related assessment. Complete prescribed antibiotics when they are given.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-9",
+      "title": "Rash with fever or rapid spread",
+      "summary": "Skin changes plus systemic signs raise urgency.",
+      "content": "Fever with a new non-blanching rash needs urgent care. Rapidly spreading redness and pain can signal cellulitis.\n\nBlistering rashes after new medicines need prompt advice. Itchy hives with lip swelling or wheeze can be anaphylaxis.\n\nPhotograph progressing rashes to show clinicians change over hours. Do not delay care while waiting for an outpatient slot if you feel very unwell.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-10",
+      "title": "Swelling in legs or sudden face puffiness",
+      "summary": "Edema has many causes—some need same-day review.",
+      "content": "One-sided leg swelling with pain can suggest clot risk. Breathlessness with leg swelling may involve heart strain.\n\nSudden facial swelling with allergy signs is an emergency. Kidney and liver disease can cause progressive swelling.\n\nHigh salt intake and some medicines worsen fluid retention. Report rapid weight gain of several kilos over days.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-11",
+      "title": "Unusual fatigue that does not improve",
+      "summary": "Tiredness is common—red flags still deserve labs and history.",
+      "content": "Fatigue after short sleep often improves with rest and routine. Fatigue with weight loss, night sweats, or fevers needs review.\n\nBreathlessness, pale skin, or heavy periods may point to anemia. Thyroid, depression, and chronic infections are other considerations.\n\nList medicines and supplements when you seek assessment. Sudden collapse or confusion with fatigue needs emergency care.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-12",
+      "title": "Blood in stool or vomit",
+      "summary": "Visible blood is a reason to seek care promptly.",
+      "content": "Vomiting blood or coffee-ground material is an emergency. Black tarry stools can mean digested blood from higher in the gut.\n\nBright red blood may be local, but still needs assessment. Dizziness or fainting with bleeding raises urgency further.\n\nDo not take more anti-inflammatories if they may be irritating the stomach. Bring a medicine list including over-the-counter pain pills.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-13",
+      "title": "Confusion or sudden behavior change",
+      "summary": "New confusion is a medical urgent sign at any age.",
+      "content": "Sudden confusion can come from infection, low sugar, stroke, or medicines. Older adults may show urinary infection as confusion rather than fever alone.\n\nCheck for trauma, missed medicines, or alcohol withdrawal context. Face droop, arm weakness, or speech trouble suggest stroke pathways.\n\nKeep the person safe from falls while you seek emergency help. Bring the medication list to the hospital or clinic.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-14",
+      "title": "Eye pain, sudden vision change, or chemical splash",
+      "summary": "Eyes need fast action for some problems.",
+      "content": "Sudden vision loss is an emergency until proven otherwise. Eye pain with nausea or halos can signal acute pressure problems.\n\nChemical splashes need immediate prolonged water rinsing, then care. New floaters with flashes deserve prompt ophthalmology review.\n\nContact lens pain with redness can mean serious infection. Do not delay because you hope blur will clear overnight.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-symptoms-15",
+      "title": "Allergic reactions: mild versus emergency",
+      "summary": "Know when antihistamines are not enough.",
+      "content": "Mild itchy hives without breathing trouble may settle with advice and antihistamines. Lip, tongue, or throat swelling is an emergency.\n\nWheeze, trouble breathing, or collapse means call emergency services. If you carry epinephrine, use it as trained for anaphylaxis.\n\nAvoid the suspected trigger and seek follow-up allergy guidance. Document reactions so future clinicians see the pattern quickly.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    }
+  ],
   "family": [
     {
       "id": "evergreen-child-1",
       "title": "When a child’s fever needs attention",
-      "summary": "Age, how the child looks, and other symptoms matter as much as the number on the thermometer.",
-      "content": "A fever is the body’s response to infection. For many older children who are drinking, alert, and otherwise well, supportive care and monitoring may be enough.\n\nSeek urgent care for babies under 3 months with fever, any child who is very sleepy or hard to wake, has a stiff neck, rash with fever, trouble breathing, persistent vomiting, or seizures.\n\nUse age-appropriate fever medicine only as directed. Never give aspirin to children unless a clinician specifically advises it."
+      "summary": "Age, how the child looks, and other symptoms matter as much as the number.",
+      "content": "Fever is a response to infection; older alert children may need monitoring and fluids. Babies under three months with fever need urgent care.\n\nSeek help if a child is very sleepy, hard to wake, or has a stiff neck. Rash with fever, breathing trouble, seizures, or persistent vomiting are urgent.\n\nUse age-appropriate fever medicine only as directed on the label. Never give aspirin to children unless a clinician specifically advises it.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services."
     },
     {
       "id": "evergreen-child-2",
       "title": "Hydration and oral rehydration for kids",
-      "summary": "Fluids matter most when children have diarrhea, vomiting, or hot-weather illness.",
-      "content": "Offer small, frequent sips of clean water or oral rehydration solution rather than large amounts at once if a child is nauseated.\n\nWatch for dry mouth, fewer wet diapers or trips to the toilet, sunken eyes, and unusual irritability or lethargy—these can signal dehydration.\n\nContinue breastfeeding if that is how the baby usually feeds. Avoid sugary sodas and undiluted fruit juice as the main fluid during illness."
+      "summary": "Fluids matter most with diarrhea, vomiting, or hot-weather illness.",
+      "content": "Offer small frequent sips rather than large amounts if nausea is present. Use clean water or oral rehydration solution as advised.\n\nWatch for dry mouth, fewer wet diapers, sunken eyes, or unusual lethargy. Continue breastfeeding if that is the baby’s usual feeding.\n\nAvoid sugary sodas and undiluted juice as the main fluid during illness. Seek care when dehydration signs appear or vomiting prevents all fluids.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-child-3",
-      "title": "Safe sleep for infants",
-      "summary": "Simple sleep setup choices lower the risk of sleep-related infant death.",
-      "content": "Place babies on their back to sleep on a firm, flat surface with a fitted sheet only. Keep soft bedding, pillows, bumpers, and loose blankets out of the sleep space.\n\nRoom-sharing without bed-sharing is recommended for the early months. Avoid smoke exposure around the baby.\n\nIf you are unsure about swaddling, pacifiers, or sleep positioners, ask your pediatric clinician for guidance that matches your baby’s age."
+      "title": "Vaccines for children on schedule",
+      "summary": "Timely immunization prevents many serious childhood infections.",
+      "content": "Follow the national schedule discussed at clinic visits. Bring the vaccine card to every visit to catch missed doses.\n\nMild fever or soreness after shots is common and usually short-lived. Ask which vaccines are due before school entry or travel.\n\nChildren with special health conditions may need extra doses. Never skip vaccines because a child looks healthy today.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-child-4",
-      "title": "Keeping childhood vaccines on track",
-      "summary": "Immunization schedules protect children and the people around them.",
-      "content": "Vaccines train the immune system to recognize serious diseases before a child is exposed. Missing doses can leave gaps in protection.\n\nBring your child’s card or digital record to visits and ask which vaccines are due. Catch-up schedules exist if doses were delayed.\n\nMild fever or soreness after a shot is common. Seek care for allergic reactions, high fever with unusual symptoms, or anything that worries you after vaccination."
+      "title": "Safe sleep for babies",
+      "summary": "Simple sleep setup lowers sudden infant death risk.",
+      "content": "Place babies on their back to sleep on a firm flat surface. Keep soft bedding, pillows, and loose blankets out of the sleep space.\n\nShare a room when recommended, but avoid soft shared sleep surfaces. Avoid smoke exposure around infants.\n\nDress babies for the room temperature without overheating. Ask your clinician about safe sleep if you have twins or preterm babies.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-child-5",
       "title": "Nutrition building blocks for growing kids",
-      "summary": "Regular meals with variety support growth, energy, and concentration.",
-      "content": "Offer fruits, vegetables, proteins, dairy or fortified alternatives, and whole grains across the week. Children may need repeated gentle exposure before accepting new foods.\n\nLimit sugary drinks and keep ultraprocessed snacks as occasional foods rather than daily staples.\n\nIf growth seems slow, appetite suddenly changes, or you worry about deficiencies, discuss screening and practical meal ideas with a clinician."
+      "summary": "Variety and regular meals support growth better than perfection.",
+      "content": "Offer fruits, vegetables, proteins, and energy foods across the week. Limit sugary drinks; prefer water and milk as age-appropriate.\n\nEat together when possible so children learn calm meal routines. Watch for poor weight gain, extreme pickiness with fatigue, or frequent illness.\n\nAsk about vitamin or mineral needs based on local guidance. Avoid forcing finishes; repeated gentle exposure helps acceptance.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-pregnancy-1",
-      "title": "Early pregnancy warning signs to know",
-      "summary": "Some symptoms are common; others need same-day or emergency care.",
-      "content": "Mild nausea, breast tenderness, and fatigue are common early on. Contact a clinician urgently for heavy bleeding, severe one-sided pain, fainting, severe headache with vision changes, or reduced fetal movement later in pregnancy.\n\nStart prenatal care as soon as pregnancy is confirmed. Share your full medical history, medicines, and any previous pregnancy complications.\n\nAvoid alcohol, smoking, and drugs. Ask before taking herbal products or over-the-counter medicines."
+      "title": "Early pregnancy warning signs",
+      "summary": "Some symptoms need same-day care even in early weeks.",
+      "content": "Heavy bleeding, severe one-sided pain, or fainting need urgent care. Severe vomiting that prevents fluids needs review.\n\nFever in pregnancy should not be ignored. Start prenatal visits as soon as pregnancy is known when possible.\n\nShare all medicines and herbal products at the first visit. Know the nearest facility that can assess pregnancy emergencies.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-pregnancy-2",
-      "title": "Prenatal nutrition essentials",
-      "summary": "Folate, iron, protein, and hydration support mother and baby.",
-      "content": "A prenatal vitamin with folic acid is recommended before conception and in early pregnancy to help prevent neural tube defects. Iron needs often rise as blood volume increases.\n\nEat balanced meals with vegetables, fruits, proteins, dairy or alternatives, and whole grains. Food safety matters: avoid unpasteurized dairy and undercooked meats as advised by your clinician.\n\nIf nausea limits eating, focus on what you can keep down and ask about safe anti-nausea options."
+      "title": "Nutrition and supplements in pregnancy",
+      "summary": "Balanced eating plus recommended supplements support mother and baby.",
+      "content": "Take folic acid as advised before and in early pregnancy when possible. Eat iron-rich foods and ask about iron supplements if prescribed.\n\nStay hydrated and limit excess caffeine according to local guidance. Avoid alcohol in pregnancy.\n\nFood safety matters: thoroughly cooked meats and safe water help. Discuss any special diet with your clinician so gaps are covered.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-pregnancy-3",
-      "title": "Movement and rest during pregnancy",
-      "summary": "Most pregnancies benefit from gentle, regular activity unless advised otherwise.",
-      "content": "Walking, prenatal yoga, and swimming are common options when your clinician says exercise is safe. Stop if you feel chest pain, dizziness, vaginal bleeding, or painful contractions.\n\nListen to your body as pregnancy progresses—balance and joint comfort can change. Side sleeping, especially on the left side later in pregnancy, may improve comfort for some people.\n\nRest is productive too. Short naps and earlier bedtimes can help when sleep is fragmented."
+      "title": "Movement and rest while pregnant",
+      "summary": "Gentle activity helps many pregnancies when clinicians agree it is safe.",
+      "content": "Walking and prenatal-appropriate exercise often support mood and sleep. Avoid contact sports and activities with high fall risk unless cleared.\n\nRest with legs elevated if swelling bothers you and advice allows. Stop activity for bleeding, severe dizziness, or regular painful contractions.\n\nSleep on the side later in pregnancy if recommended for you. Ask before starting a new intense fitness program while pregnant.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-pregnancy-4",
-      "title": "Preparing for labor and birth",
-      "summary": "A simple birth plan and packed bag reduce stress when labor starts.",
-      "content": "Discuss preferred pain relief, who will be present, and newborn care preferences with your care team ahead of time. Plans can change for safety—flexibility matters.\n\nKnow the signs of labor: regular contractions that intensify, water breaking, or bloody show. Ask your clinic when to come in based on your risk level and distance from care.\n\nPack documents, clothes, toiletries, phone charger, and newborn essentials before your due window."
+      "title": "Danger signs in later pregnancy",
+      "summary": "Headache, vision change, and reduced baby movements matter.",
+      "content": "Severe headache, vision spots, or sudden hand and face swelling need urgent care. Reduced fetal movements should be assessed promptly.\n\nVaginal bleeding or fluid leaking before labor needs review. Regular painful contractions before term need assessment.\n\nFever or burning urination can still be serious in pregnancy. Keep emergency transport plans ready in the third trimester.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-pregnancy-5",
-      "title": "Mental health while expecting",
-      "summary": "Mood changes are common; persistent depression or anxiety deserves support.",
-      "content": "Hormonal shifts, sleep loss, and life changes can affect mood in pregnancy. Tell someone if you feel hopeless, panic often, or cannot bond with the pregnancy.\n\nSupport can include counseling, peer groups, and medication that a clinician judges safe for pregnancy.\n\nPartners and family can help by sharing chores, attending visits, and checking in without judgment."
+      "title": "Postpartum recovery and mental health",
+      "summary": "Healing after birth includes body and mood support.",
+      "content": "Heavy bleeding soaking pads hourly needs urgent care. Fever, wound redness, or foul discharge need review.\n\nBaby blues are common; ongoing low mood or scary thoughts need help. Sleep when the baby sleeps when you can, and accept practical support.\n\nAsk about contraception timing that fits feeding plans. Attend postpartum checks even if you feel mostly fine.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-family-6",
+      "title": "Caring for older adults at home",
+      "summary": "Mobility, medicines, and social contact shape healthy aging.",
+      "content": "Reduce trip hazards and improve lighting to prevent falls. Review medicine lists regularly for duplicates and side effects.\n\nEncourage walking and strength within ability and clinical advice. Watch for confusion that may signal infection or medicine effects.\n\nSupport hearing and vision checks that preserve independence. Loneliness affects health—plan regular contact and community links.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-family-7",
+      "title": "Family emergency plans that work",
+      "summary": "A written plan helps when someone suddenly falls ill.",
+      "content": "List local emergency numbers and nearest open facilities. Keep allergy and medicine lists for each household member.\n\nAgree who carries phones and transport money at night. Practice how children call for help and share an address.\n\nStore a small first-aid kit where everyone can find it. Update the plan after moves, new diagnoses, or new babies.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-family-8",
+      "title": "Supporting a household member with chronic illness",
+      "summary": "Practical help beats advice alone.",
+      "content": "Offer rides to appointments and help organize medicine schedules. Learn warning signs specific to their condition with their consent.\n\nShare cooking and shopping that fits dietary guidance. Avoid shaming setbacks; celebrate small consistent habits.\n\nCaregivers need rest too—ask relatives or community groups for relief. Join clinic education sessions when invited.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-family-9",
+      "title": "Adolescent health conversations at home",
+      "summary": "Respectful talk about bodies, consent, and mental load matters.",
+      "content": "Create private calm moments for questions without lectures. Discuss consent, contraception, and infection prevention honestly.\n\nWatch for withdrawal, sleep collapse, or talk of self-harm. Support school and sport balance rather than perfection pressure.\n\nConfidential clinic services may help teens ask what they cannot ask at home. Model healthy phone and sleep habits as adults.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-family-10",
+      "title": "Breastfeeding and infant feeding support",
+      "summary": "Feeding choices deserve skilled support, not judgment.",
+      "content": "Skin-to-skin and early feeding help many breastfeeding starts. Painful cracked nipples or poor weight gain need lactation or clinic help.\n\nExclusive breastfeeding guidance varies by context—follow local clinical advice. If using formula, prepare feeds with safe water and clean bottles.\n\nWatch wet diapers and alertness as feeding adequacy clues. Ask for help early rather than struggling alone for weeks.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     }
   ],
-  "emergency": [],
-  "care_system": [],
+  "emergency": [
+    {
+      "id": "evergreen-emergency-1",
+      "title": "Call for help: what to say clearly",
+      "summary": "Clear information speeds the right response.",
+      "content": "State your exact location and the main problem in one sentence. Share the person’s age range, consciousness, and breathing status.\n\nDo not hang up until the dispatcher says you may. Put the phone on speaker if you must give first aid.\n\nSend someone to guide responders if it is safe. Keep the scene as calm and lighted as you can.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-2",
+      "title": "Choking: back blows and when to act",
+      "summary": "A silent choking person needs immediate help.",
+      "content": "If someone cannot cough, speak, or breathe, act at once. Call for emergency help while starting first aid if others are present.\n\nUse age-appropriate back blows and abdominal thrusts if trained. Infants need different techniques than adults—learn them before a crisis.\n\nContinue until the object clears or the person becomes unresponsive. Even after success, seek review if breathing remains noisy or painful.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-3",
+      "title": "Severe bleeding control",
+      "summary": "Pressure and elevation save time before professionals arrive.",
+      "content": "Apply firm direct pressure with a clean cloth on the wound. Add more cloth without removing the first layer if it soaks through.\n\nElevate the limb if it does not worsen pain from a fracture concern. Use a tourniquet only if trained and bleeding is life-threatening on a limb.\n\nDo not remove embedded objects; stabilize them and get help. Watch for shock: pale skin, rapid pulse, confusion, or fainting.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-4",
+      "title": "Stroke signs: act fast",
+      "summary": "Face, Arm, Speech, Time remains a useful memory aid.",
+      "content": "Sudden face droop, arm weakness, or speech trouble needs emergency care. Note the time symptoms started for clinicians.\n\nDo not give food, drink, or aspirin unless told by professionals. Keep the person sitting or lying safely while waiting.\n\nSudden severe imbalance or vision loss can also be stroke-related. Faster arrival improves treatment options in many settings.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-5",
+      "title": "Seizure first aid without panic",
+      "summary": "Protect the person; do not force objects into the mouth.",
+      "content": "Ease the person to the ground and clear sharp objects nearby. Cushion the head and turn them on their side when possible.\n\nDo not restrain movements or put fingers in the mouth. Time the seizure; call emergency help if it lasts over five minutes.\n\nCall help sooner for first seizures, pregnancy, or repeated seizures. Stay until they are fully awake and oriented.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-6",
+      "title": "Burns: cool water first",
+      "summary": "Cooling quickly reduces damage; some burns need hospital care.",
+      "content": "Cool the burn under clean running water for about twenty minutes. Remove tight items near the area before swelling increases.\n\nDo not apply butter, toothpaste, or traditional pastes. Cover loosely with clean non-fluffy material afterward.\n\nSeek care for burns on face, hands, joints, or genitals. Large, deep, or chemical and electrical burns need emergency care.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-7",
+      "title": "Suspected heart attack response",
+      "summary": "Fast recognition and rest while help comes matter.",
+      "content": "Call emergency services for pressure-like chest pain with warning signs. Have the person rest sitting or lying comfortably.\n\nLoosen tight clothing and keep the space calm. If local protocols advise aspirin and the person is not allergic, follow dispatcher guidance.\n\nDo not leave them alone if you can stay safely. Be ready to describe medicines and allergies to responders.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-8",
+      "title": "Poisoning and overdose basics",
+      "summary": "Bring containers; do not force vomiting unless told.",
+      "content": "Call emergency or poison guidance with the product name if known. Do not induce vomiting unless a professional instructs you.\n\nMove the person to fresh air for inhaled fumes if safe for you. Rinse skin or eyes with water for chemical contact.\n\nKeep the person awake and breathing while waiting when possible. Take the medicine bottle or packaging to the facility.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-9",
+      "title": "Fractures and sprains until help arrives",
+      "summary": "Immobilize and avoid unnecessary movement.",
+      "content": "Support the injured limb in the position found if moving hurts. Ice wrapped in cloth can ease swelling for many sprains.\n\nDo not try to realign a deformed bone yourself. Open fractures with bone visible need sterile cover and urgent care.\n\nWatch fingers or toes for color and sensation changes. Seek care for inability to bear weight or numbness.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-10",
+      "title": "Allergic emergency and epinephrine",
+      "summary": "Anaphylaxis can progress in minutes.",
+      "content": "Lip, tongue, or throat swelling with breathing trouble is an emergency. Use prescribed epinephrine as trained, then call emergency services.\n\nLay the person flat unless breathing is easier sitting upright. Avoid the suspected trigger and note what was eaten or injected.\n\nA second dose may be advised if symptoms persist—follow training. Everyone with prior anaphylaxis should have an action plan.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-11",
+      "title": "Heat stroke versus heat exhaustion",
+      "summary": "Confusion and very high temperature need emergency cooling help.",
+      "content": "Move the person to shade and loosen clothing. Cool with water and fanning while awaiting help for severe cases.\n\nHeat stroke can include confusion, seizures, or hot dry skin. Offer sips of water only if the person is fully awake.\n\nWorkers and athletes in humid heat are at special risk. Do not leave someone alone if mental status is altered.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-12",
+      "title": "Drowning response and water safety",
+      "summary": "Seconds matter; do not become a second victim.",
+      "content": "Call for help and reach with a stick or throw a float if possible. Enter water to rescue only if you are trained and it is safe.\n\nStart CPR if trained when the person is unresponsive and not breathing normally. Even after recovery, hospital review is important.\n\nSupervise children closely around buckets, baths, and open water. Barriers and swim skills reduce risk but never replace supervision.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-13",
+      "title": "Snakebite first steps",
+      "summary": "Keep still, seek care, avoid harmful traditional cuts.",
+      "content": "Move away from the snake and keep the person as still as possible. Remove rings and tight items near the bite before swelling.\n\nDo not cut, suck, or apply ice as routine first aid. Do not use tight tourniquets unless local expert guidance says otherwise.\n\nGet to a facility that can assess antivenom need. Photograph the snake only if it is safe and distant—do not hunt it.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-14",
+      "title": "Electric shock safety",
+      "summary": "Turn off power before touching the person if you can.",
+      "content": "Shut off the source or disconnect power before contact when possible. Do not touch someone still in contact with live electricity.\n\nCall emergency services for any significant shock. Check breathing and start CPR if trained and needed.\n\nBurns may look small on the surface yet be deeper. Fall injuries after shock also need assessment.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-emergency-15",
+      "title": "Road crash first actions",
+      "summary": "Scene safety comes before first aid.",
+      "content": "Ensure oncoming traffic will not hit you or the injured. Call emergency services with location and number of injured people.\n\nTurn off vehicle ignition if safe and accessible. Avoid moving people with possible spine injuries unless immediate danger.\n\nControl severe bleeding with pressure while waiting. Stay until professionals arrive unless the scene becomes unsafe.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    }
+  ],
+  "care_system": [
+    {
+      "id": "evergreen-care-1",
+      "title": "How to prepare for a clinic visit",
+      "summary": "A short plan helps you leave with clearer next steps.",
+      "content": "Write your top three concerns before you arrive. Bring all medicines and supplements in their packages if possible.\n\nNote symptom start dates and what makes them better or worse. Ask who to call if results need follow-up.\n\nConfirm the cost or insurance steps before procedures when you can. Leave with written instructions for medicines and return timing.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-2",
+      "title": "Choosing urgent care versus emergency departments",
+      "summary": "Match the facility to how dangerous symptoms look.",
+      "content": "Emergency departments handle life-threatening problems day and night. Urgent care suits many fevers, sprains, and infections when stable.\n\nChest pain, stroke signs, severe breathing trouble, and major trauma need emergency pathways. If unsure and symptoms escalate, choose the higher level of care.\n\nKnow which nearby facilities are open overnight. Bring ID, payment method, and medicine lists to either setting.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-3",
+      "title": "Understanding referrals and specialists",
+      "summary": "Referrals connect primary care with deeper expertise.",
+      "content": "Ask why a referral is recommended and how soon to go. Confirm whether you need test results before the specialist visit.\n\nBring prior notes and imaging reports if you have copies. Ask how information will return to your primary clinician.\n\nIf wait times are long, ask about interim warning signs. Keep a folder or phone album of key reports.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-4",
+      "title": "Reading a basic prescription label",
+      "summary": "Dose, timing, and duration prevent common medicine mistakes.",
+      "content": "Check the medicine name against what the clinician said. Note how many times daily and whether to take with food.\n\nClarify what to do if you miss a dose. Ask how long the course lasts, especially for antibiotics.\n\nStore as labeled—some medicines need cool dry places. Never share prescription medicines with others.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-5",
+      "title": "Consent and asking questions without fear",
+      "summary": "You can request plain-language explanations before procedures.",
+      "content": "Ask about benefits, risks, and alternatives in words you understand. Request an interpreter if language is a barrier.\n\nYou may pause to think or involve a trusted person when appropriate. Emergency care can proceed to save life when consent is impossible.\n\nWrite answers down or ask staff to write key points. Respectful questions improve safety for everyone.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-6",
+      "title": "Keeping a personal health summary",
+      "summary": "A one-page summary helps new clinicians treat you safely.",
+      "content": "List conditions, surgeries, allergies, and regular medicines. Include emergency contacts and your preferred hospital if any.\n\nNote vaccines and major test dates when known. Update after each significant clinic change.\n\nStore a photo of the page on your phone offline. Share it during emergencies when you cannot speak well.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-7",
+      "title": "Navigating lab results follow-up",
+      "summary": "Results only help if someone reviews and explains them.",
+      "content": "Ask when and how results will be shared. Do not assume no news means normal without confirmation.\n\nRequest a call or visit for abnormal values that need action. Bring printed or electronic copies to the next appointment.\n\nAsk which numbers matter most for your condition. Clarify lifestyle or medicine changes tied to the results.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-8",
+      "title": "Insurance, cash, and asking about costs",
+      "summary": "Cost questions are legitimate parts of care planning.",
+      "content": "Ask for estimates before non-emergency procedures when possible. Clarify what is included: consult, tests, medicines, follow-up.\n\nRequest generic medicine options if clinically appropriate. Ask about payment plans or social support desks.\n\nKeep receipts for reimbursement if your plan allows. Emergency care should not be delayed solely for payment talks—stabilize first.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-9",
+      "title": "Telehealth visits that actually help",
+      "summary": "Remote care works best with preparation and clear limits.",
+      "content": "Test your connection and sit in a quiet private space. Have medicines and a symptom timeline ready to show on camera.\n\nDescribe severity and duration precisely. Ask when in-person care is still required.\n\nConfirm how prescriptions will be sent to a pharmacy. Seek emergency care for red-flag symptoms instead of waiting on a call.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-10",
+      "title": "Hospital discharge: leaving safely",
+      "summary": "The day you leave is a high-risk transition.",
+      "content": "Review new medicines against old ones before you go. Know warning signs that mean return urgently.\n\nConfirm follow-up appointments and who to call with questions. Understand wound care, diet, and activity limits.\n\nArrange transport and home support if mobility is limited. Keep discharge papers with your health summary.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-11",
+      "title": "Finding trustworthy health information",
+      "summary": "Not every viral tip is safe or relevant to you.",
+      "content": "Prefer clinic handouts and recognized public health sites. Be cautious with miracle cures and unverified herbal claims.\n\nCheck dates—guidance changes as evidence grows. Discuss online findings with a clinician before acting.\n\nWatch for scams asking for payment for free public advice. CareMate Learn articles are educational starting points, not prescriptions.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-12",
+      "title": "Second opinions without burning bridges",
+      "summary": "Complex decisions can benefit from another clinical view.",
+      "content": "Ask politely for your records to share with another clinician. Second opinions are common for surgery and cancer pathways.\n\nBring organized copies rather than fragmented messages. Explain you want clarity, not conflict.\n\nCompare recommendations and ask questions about differences. Choose the plan you understand and can follow safely.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-13",
+      "title": "Pharmacy counseling you should request",
+      "summary": "Pharmacists catch interactions and timing issues.",
+      "content": "Ask whether new medicines interact with what you already take. Confirm if alcohol, driving, or food restrictions apply.\n\nClarify measuring tools for liquid medicines. Ask about common side effects and which ones need a call.\n\nCheck the name on the bag before leaving the counter. Return if labeling looks different from what you expected.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-14",
+      "title": "Community health workers and local clinics",
+      "summary": "Primary care networks extend beyond hospitals.",
+      "content": "Community clinics handle many vaccinations and chronic disease checks. Community health workers can help with education and follow-up.\n\nAsk which services need appointments versus walk-in hours. Bring identity documents required for registration if any.\n\nUse local services for prevention so hospitals stay free for crises. Feedback helps clinics improve waiting and communication.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-care-15",
+      "title": "Patient rights and respectful care",
+      "summary": "Dignity and privacy are part of quality healthcare.",
+      "content": "You can expect privacy during examinations as much as the setting allows. Ask who is in the room and why.\n\nYou may request same-gender clinicians when available for sensitive exams. Discrimination should be reported through facility channels.\n\nClear consent matters for procedures and student involvement. Respectful partnerships improve adherence and outcomes.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    }
+  ],
   "medicines": [
     {
       "id": "evergreen-medication-1",
       "title": "How to take medicines safely",
-      "summary": "Right drug, dose, time, and route prevent many avoidable problems.",
-      "content": "Read the label every time. Check the name, dose, and whether the medicine is with food or on an empty stomach.\n\nUse only the measuring device that comes with liquid medicines—not kitchen spoons. Do not share prescription drugs.\n\nIf you miss a dose, follow the package or pharmacist advice. Do not double up unless instructed."
+      "summary": "Timing, food, and completing courses prevent many problems.",
+      "content": "Take medicines exactly as labeled unless a clinician changes the plan. Ask whether doses should be with food, water, or an empty stomach.\n\nUse reminders so busy days do not cause skipped doses. Do not double doses after a miss unless instructed.\n\nFinish antibiotic courses as directed even if you feel better. Tell clinicians about all herbs and over-the-counter products.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-medication-2",
       "title": "Storing medicines at home",
-      "summary": "Heat, humidity, and curious children are common storage risks.",
-      "content": "Keep medicines in a cool, dry place away from direct sun unless the label says otherwise. Bathrooms are often too humid.\n\nUse child-resistant containers and store them out of children’s reach and sight. Check expiry dates during a monthly tidy.\n\nAsk a pharmacist how to dispose of unused opioids, antibiotics, and sharps safely in your area."
+      "summary": "Heat, humidity, and curious children create avoidable risks.",
+      "content": "Store most medicines in a cool dry place away from sunlight. Keep medicines locked away from children and pets.\n\nDo not store tablets in steamy bathrooms if labels warn against moisture. Check expiry dates during seasonal clean-ups.\n\nAsk a pharmacist how to dispose of unused opioids or antibiotics. Keep medicines in original labeled containers when possible.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-medication-3",
-      "title": "Antibiotics: finish the plan you were given",
-      "summary": "Stopping early can leave infection behind and encourage resistance.",
-      "content": "Take antibiotics exactly as prescribed, even if you feel better midway—unless your clinician tells you to stop.\n\nAntibiotics do not treat viruses like most colds and flu. Using them “just in case” can cause side effects and resistance.\n\nTell your clinician about rashes, severe diarrhea, or breathing difficulty after a dose."
+      "title": "Side effects versus allergies",
+      "summary": "Knowing the difference guides how urgently you respond.",
+      "content": "Nausea or mild stomach upset can be side effects—ask if they will settle. Rash, swelling, or breathing trouble can signal allergy or anaphylaxis.\n\nStop the medicine and seek urgent care for severe allergic signs. Report side effects that disrupt sleep, mood, or daily function.\n\nDo not restart a medicine that caused a serious reaction without advice. Carry allergy information on your phone and health summary.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-medication-4",
-      "title": "Interactions: food, drinks, and other drugs",
-      "summary": "Some combinations change how strong a medicine becomes.",
-      "content": "Grapefruit, alcohol, herbal teas, and over-the-counter cold remedies can interact with prescriptions. Always list everything you take—including supplements—at clinic visits.\n\nPharmacists can check interactions quickly if you bring your full list.\n\nNever combine sedating medicines with alcohol. When in doubt, ask before you mix."
+      "title": "Pain medicines: use with care",
+      "summary": "Common painkillers still have dose limits and interaction risks.",
+      "content": "Follow package maximum doses for paracetamol and anti-inflammatories. Liver disease changes safe paracetamol limits—ask first.\n\nStomach ulcers, kidney disease, and some heart conditions limit anti-inflammatories. Avoid mixing multiple products that contain the same ingredient.\n\nLong-term daily painkiller use needs clinical review. Seek help for overdose suspicions immediately.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-medication-5",
-      "title": "Building a simple medication routine",
-      "summary": "Reminders and pill organizers reduce missed and double doses.",
-      "content": "Link doses to daily anchors like breakfast or brushing teeth. Phone alarms and shared family reminders help.\n\nA weekly pill organizer works for many people if filled carefully once a week. Keep a written list of drug names and doses in your wallet or phone.\n\nBring that list to every appointment and emergency visit."
+      "title": "Antibiotics: when they help",
+      "summary": "Antibiotics treat bacterial infections, not most viral colds.",
+      "content": "They will not shorten most uncomplicated colds or flu-like viruses. Unnecessary use drives resistance and side effects.\n\nTake the full prescribed course at evenly spaced times. Do not share leftover antibiotics with family members.\n\nAsk why an antibiotic is chosen and what infection it targets. Report severe diarrhea while on antibiotics promptly.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-6",
+      "title": "Using inhalers the right way",
+      "summary": "Technique often matters more than brand differences.",
+      "content": "Shake and prime devices as instructed for your inhaler type. Breathe out first, seal lips, inhale steadily, then hold briefly if advised.\n\nSpacers help many people get more medicine into the lungs. Rinse the mouth after steroid inhalers when recommended.\n\nTrack how often you need reliever doses—frequent use needs review. Ask a pharmacist to watch your technique yearly.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-7",
+      "title": "Insulin and diabetes supplies basics",
+      "summary": "Safe storage and rotation protect glucose control.",
+      "content": "Store unopened insulin as labeled, often refrigerated. Do not freeze insulin or leave pens in hot cars.\n\nRotate injection sites to reduce skin lumps. Never share needles or pens.\n\nCarry quick sugar and know low-glucose symptoms. Ask how to adjust doses during illness only under clinical guidance.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-8",
+      "title": "Blood pressure pills: sticking with the plan",
+      "summary": "Feeling fine does not mean hypertension is gone.",
+      "content": "Take tablets at the same time daily for steadier control. Refill before the pack ends to avoid gaps.\n\nDizziness after starting or increasing doses deserves a call. Do not stop suddenly without advice—some medicines need tapering.\n\nHome readings help clinicians fine-tune therapy. Share all other medicines that might raise blood pressure.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-9",
+      "title": "Traveling with medicines",
+      "summary": "Packing and documentation prevent border and heat problems.",
+      "content": "Carry medicines in hand luggage with original labels. Bring extra days of supply for delays.\n\nAsk for a clinician letter for syringes or controlled medicines if needed. Keep temperature-sensitive products in recommended cool packs.\n\nKnow local brand names or generic names at your destination. Set phone reminders for time-zone dose shifts.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-10",
+      "title": "Herbals and supplements still interact",
+      "summary": "Natural does not mean risk-free with prescription drugs.",
+      "content": "Tell clinicians about every herbal tea, powder, and capsule. Some products affect bleeding risk or liver enzymes.\n\nPregnancy and kidney disease change what is safe. Avoid megadoses unless prescribed and monitored.\n\nBuy from reputable sources to reduce contamination risk. Stop products before surgery when your surgical team advises.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-11",
+      "title": "Liquid medicines and measuring tools",
+      "summary": "Kitchen spoons are inaccurate for doses.",
+      "content": "Use the syringe or cup that comes with the medicine. Ask for a demonstration if markings are unclear.\n\nShake suspensions when labels say so. Refrigerate only if the label requires it.\n\nWrite the child’s weight-based dose plan from the clinician. Do not guess leftover amounts after spills—ask for advice.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-12",
+      "title": "Eye and ear drops without contamination",
+      "summary": "Clean technique protects sensitive tissues.",
+      "content": "Wash hands before applying drops. Avoid touching the dropper tip to eye, ear, or skin.\n\nWait between different drop medicines as instructed. Discard bottles by the labeled beyond-use date after opening.\n\nStop and seek care if pain, vision change, or discharge worsens. Store caps clean and replace them promptly.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-13",
+      "title": "Mental health medicines: patience and monitoring",
+      "summary": "Benefits often build over weeks; side effects need reporting.",
+      "content": "Antidepressants and related medicines may take time to help. Do not stop suddenly without a taper plan when required.\n\nReport worsening mood, agitation, or unusual behavior promptly. Alcohol can worsen sedation and judgment on some medicines.\n\nKeep follow-up visits even when you start feeling better. Share pregnancy plans so regimens can be reviewed safely.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-14",
+      "title": "Cold and cough remedies: read the label",
+      "summary": "Multi-ingredient products can overlap accidentally.",
+      "content": "Check whether a cold remedy already contains paracetamol. Sedating antihistamines affect driving and work safety.\n\nChildren need age-specific products—not adult leftovers. Honey is not for infants under one year.\n\nSeek care when cough comes with breathing trouble or high fever. Ask a pharmacist to compare options with your other medicines.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-medicines-15",
+      "title": "What to do after a missed dose",
+      "summary": "The safe answer depends on the medicine type.",
+      "content": "Check the leaflet or ask a pharmacist for that specific drug. Many once-daily medicines can be taken when remembered if far from the next dose.\n\nDo not double up automatically. Missed contraceptive or insulin doses need product-specific guidance.\n\nSet better reminders after a miss rather than guessing repeatedly. Bring a list of frequent misses to your next clinic visit.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     }
   ],
   "mental": [
     {
       "id": "evergreen-mental-1",
       "title": "Spotting burnout before it peaks",
-      "summary": "Exhaustion, cynicism, and reduced effectiveness are classic burnout signals.",
-      "content": "Burnout often builds slowly: sleep that does not restore you, dread before work or caregiving, irritability, and feeling numb or detached.\n\nStart with basics—consistent sleep and wake times, short breaks, and saying no to one optional demand this week. Talk with a trusted person about what feels unsustainable.\n\nIf you have thoughts of self-harm, seek urgent help through local emergency services or a crisis line."
+      "summary": "Exhaustion, cynicism, and reduced efficacy are warning patterns.",
+      "content": "Burnout often mixes deep tiredness with detachment from work or study. Sleep debt, endless overtime, and lack of recovery days accelerate it.\n\nSmall boundaries—protected breaks and realistic to-do lists—help early. Talk with a trusted person or manager about workload when safe.\n\nPersistent hopelessness deserves professional mental health support. Physical checkups can rule out contributors like anemia or thyroid issues.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-mental-2",
       "title": "Grounding techniques for anxious moments",
-      "summary": "Simple sensory exercises can interrupt spiraling worry.",
-      "content": "Try the 5-4-3-2-1 method: name five things you see, four you can touch, three you hear, two you smell, and one you taste.\n\nSlow breathing helps many people: inhale for four counts, exhale for six. Repeat for a few minutes.\n\nThese tools complement—not replace—professional care for ongoing anxiety, panic attacks, or trauma symptoms."
+      "summary": "Simple sensory tools can lower intensity while you seek longer help.",
+      "content": "Name five things you see, four you feel, three you hear, two you smell, one you taste. Slow exhales longer than inhales can reduce panic intensity.\n\nPlant your feet and notice solid contact with the floor. These tools complement—not replace—therapy or medicines when needed.\n\nSeek urgent help for chest pain with anxiety until cardiac causes are considered. Practice grounding on calm days so it is familiar in storms.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-mental-3",
-      "title": "Sleep and mood are tightly linked",
-      "summary": "Protecting sleep often improves emotional resilience the next day.",
-      "content": "Keep a regular sleep schedule, dim screens before bed, and reserve the bed for sleep when you can. Limit caffeine late in the day.\n\nIf racing thoughts keep you awake, jot a short worry list to revisit tomorrow, then return to a calm routine like reading or stretching.\n\nPersistent insomnia, nightmares, or daytime collapse deserve a clinical conversation—sleep disorders and depression often overlap."
+      "title": "Sleep and mood travel together",
+      "summary": "Protecting sleep is a core mental health habit.",
+      "content": "Irregular sleep worsens irritability, focus, and worry. Keep a wind-down routine and consistent wake time when possible.\n\nLimit late caffeine and alcohol that fragment rest. If racing thoughts block sleep, write a short next-day list earlier in the evening.\n\nChronic insomnia deserves clinical review. Sudden severe mood change with sleeplessness needs prompt assessment.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-mental-4",
-      "title": "Talking to someone when you are struggling",
-      "summary": "Naming what you feel is a first step toward support.",
-      "content": "You do not need a perfect script. Try: “I have been overwhelmed and I need to talk,” or “I am not okay and I need help finding care.”\n\nChoose a trusted friend, family member, faith leader, or clinician. If the first person cannot help, ask who else might.\n\nIn a crisis, contact emergency services. You deserve support even if your pain does not feel “serious enough.”"
+      "title": "Talking with someone you trust",
+      "summary": "Connection reduces isolation that fuels distress.",
+      "content": "Choose a person who listens without immediate judgment. Use specific examples: sleep, appetite, concentration, and hope levels.\n\nAsk for practical help such as a clinic companion if useful. You do not owe anyone every detail to deserve support.\n\nIf friends cannot help enough, professional counseling is appropriate. Helplines exist in many regions for acute despair—use them.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-mental-5",
-      "title": "Digital habits that calm the mind",
-      "summary": "Endless scrolling can fuel comparison and anxiety.",
-      "content": "Set app limits or move social apps off your home screen. Avoid news doomscrolling right before bed.\n\nReplace one scroll session with a short walk, stretch, or message to a real person.\n\nCurate feeds toward accounts that educate or uplift rather than inflame. Your attention is a health resource."
+      "title": "When low mood needs clinical care",
+      "summary": "Duration, function loss, and safety concerns raise urgency.",
+      "content": "Two weeks of low mood with lost interest deserves assessment. Inability to work, study, or care for children are important signals.\n\nThoughts of self-harm require urgent professional help now. Depression is a medical condition, not a character failure.\n\nTherapy, medicines, or both may be recommended. Follow-up visits matter as much as the first prescription.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-6",
+      "title": "Panic attacks versus medical emergencies",
+      "summary": "Panic feels terrifying—some symptoms still need emergency exclusion.",
+      "content": "Panic often peaks within minutes with fear of dying or losing control. New chest pain or one-sided weakness still warrants emergency pathways.\n\nOnce medical causes are addressed, panic-focused therapy helps many people. Breathing into a bag is outdated advice for most situations.\n\nAvoid excess caffeine if it triggers attacks. Track triggers to discuss with a clinician.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-7",
+      "title": "Social media and comparison fatigue",
+      "summary": "Feeds can distort reality and sleep.",
+      "content": "Curated highlight reels are not full lives. Set app time limits if scrolling worsens mood.\n\nAvoid screens in the last hour before bed when possible. Mute accounts that consistently leave you ashamed or angry.\n\nReplace some scroll time with outdoor light or real conversation. Seek help if online harassment leads to despair or fear.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-8",
+      "title": "Supporting a friend in crisis",
+      "summary": "Listen, stay, and connect them to help.",
+      "content": "Ask directly about safety if you worry about suicide—asking does not plant the idea. Stay with them while you contact emergency or crisis services if needed.\n\nRemove immediate means of harm when it is safe to do so. Avoid promises of total secrecy when life is at risk.\n\nOffer to help book appointments or attend the first visit. Care for your own stress after supporting someone in crisis.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-9",
+      "title": "Grief that needs extra support",
+      "summary": "Mourning is natural; stuck overwhelming grief can be treated.",
+      "content": "Wave-like sadness after loss is common. Seek help if you cannot function for weeks or feel permanently numb.\n\nAnniversary dates often intensify feelings—plan gentle support. Children grieve differently; keep routines and honest age-fit explanations.\n\nCultural mourning practices can coexist with clinical care. Complicated grief therapy exists when pain remains disabling.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-10",
+      "title": "Workplace stress boundaries",
+      "summary": "Sustainable performance needs recovery.",
+      "content": "Define end-of-day shut-down rituals for messages when possible. Take real meal breaks away from screens.\n\nUse leave days instead of banking burnout. Document workload facts for constructive talks with supervisors.\n\nPeer support groups at work help some teams. Persistent bullying or unsafe pressure deserves formal reporting channels.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-11",
+      "title": "Breathing and body tension release",
+      "summary": "Physical tension feeds mental tension.",
+      "content": "Try slow box breathing: inhale, hold, exhale, hold in equal counts. Unclench jaw and drop shoulders several times a day.\n\nShort stretching breaks reduce accumulated stress signals. Warm showers or walks can interrupt rumination loops.\n\nCombine body tools with counseling when distress is ongoing. Stop any technique that causes dizziness or distress and seek guidance.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-12",
+      "title": "Parenting stress and asking for relief",
+      "summary": "Caregiver overwhelm is common and solvable with support.",
+      "content": "Sleep disruption with infants strains patience and mood. Ask relatives or friends for concrete help: meals, laundry, watching the child.\n\nPostpartum mood disorders need clinical care, not tougher willpower. Partner check-ins about workload prevent silent resentment.\n\nCommunity parenting groups reduce isolation. If you fear harming your child or yourself, seek emergency help immediately.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-13",
+      "title": "Focus problems and when to assess further",
+      "summary": "Attention struggles have many causes across ages.",
+      "content": "Sleep loss, depression, and anxiety commonly hurt focus. Sudden concentration collapse with other neurologic signs needs urgent care.\n\nSchool or work accommodations may help while assessment proceeds. Limit multitasking myths; single-task blocks often work better.\n\nDiscuss concerns with a clinician rather than self-starting stimulants. Bring examples from home and work to the evaluation.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-14",
+      "title": "Substance use and mental health loops",
+      "summary": "Alcohol and drugs can mask and worsen anxiety or depression.",
+      "content": "Short-term relief from substances often deepens long-term symptoms. Withdrawal can cause anxiety, insomnia, and low mood.\n\nBe honest with clinicians—confidentiality rules usually protect care quality. Cutting down plans work better with support than willpower alone.\n\nEmergency care is needed for overdose, seizures, or suicidal crisis. Recovery communities and counseling both have roles.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-mental-15",
+      "title": "Building a personal wellbeing toolkit",
+      "summary": "Stack small reliable habits instead of waiting for motivation.",
+      "content": "Choose one movement, one connection, and one rest habit weekly. Keep crisis numbers saved in your phone.\n\nMaintain a short list of people you can text honestly. Schedule enjoyable activities, not only duties.\n\nReview the toolkit monthly and drop what does not help. Professional care remains appropriate alongside self-care tools.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     }
   ],
-  "tests": [],
+  "tests": [
+    {
+      "id": "evergreen-tests-1",
+      "title": "What fasting before a blood test means",
+      "summary": "Clear instructions prevent misleading results.",
+      "content": "Fasting usually means no food for a set number of hours, often eight to twelve. Water is commonly allowed unless told otherwise.\n\nAsk whether black coffee or medicines are permitted before your specific test. Bring your medicine list to the draw.\n\nReschedule if you ate by mistake rather than guessing. Confirm how results will be communicated afterward.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-2",
+      "title": "Understanding a complete blood count",
+      "summary": "CBC looks at red cells, white cells, and platelets.",
+      "content": "Low red cells can relate to anemia from many causes. White cells may rise with infection or inflammation.\n\nPlatelets matter for clotting and bleeding risk. Results need context from symptoms and other labs.\n\nAsk which values are most important for your case. Repeat tests sometimes confirm unexpected findings.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-3",
+      "title": "Blood sugar and HbA1c explained",
+      "summary": "One checks now; the other reflects months of average sugar.",
+      "content": "Fingerstick or lab glucose shows a moment in time. HbA1c estimates average sugar over roughly three months.\n\nTargets differ by age, pregnancy, and other conditions. Illness can temporarily raise glucose readings.\n\nBring home logs to appointments if you monitor. Ask how diet and medicines will change based on results.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-4",
+      "title": "Cholesterol panels without panic",
+      "summary": "Numbers guide risk talks alongside lifestyle and family history.",
+      "content": "LDL, HDL, and triglycerides are read together. Fasting requirements depend on the lab protocol.\n\nHigh results do not mean immediate crisis for everyone. Clinicians combine lipids with blood pressure and smoking status.\n\nLifestyle changes and medicines may both be options. Recheck intervals depend on your risk level.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-5",
+      "title": "Malaria testing when fever appears",
+      "summary": "Timing and local methods matter for accuracy.",
+      "content": "Seek testing promptly for fever in malaria regions or after travel there. Rapid tests and microscopy are common tools.\n\nA single negative test may need repeat if suspicion remains high. Do not wait for severe symptoms before testing when risk is high.\n\nComplete prescribed treatment fully if malaria is confirmed. Prevention with nets remains essential even after treatment.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-6",
+      "title": "Urine tests for infection and beyond",
+      "summary": "A simple sample can reveal infection, sugar, or pregnancy.",
+      "content": "Clean-catch technique reduces contamination. Drink enough to provide a sample but follow lab timing rules.\n\nTell staff if you are on antibiotics already. Culture results may take longer than dipstick screens.\n\nFollow up so positives lead to the right medicine. Pregnancy tests have timing windows—ask if unsure.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-7",
+      "title": "ECG: what it can and cannot show",
+      "summary": "An ECG records heart electrical patterns in minutes.",
+      "content": "It can detect rhythm problems and some signs of heart strain. A normal ECG does not always rule out all heart disease.\n\nTell technicians about chest symptoms happening during the test. Bring prior ECGs for comparison when available.\n\nFurther tests like blood work or imaging may still be needed. Ask for a plain-language summary of major findings.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-8",
+      "title": "X-rays and radiation in plain words",
+      "summary": "Benefits usually outweigh small radiation doses when indicated.",
+      "content": "X-rays help assess bones, chest infections, and some abdominal issues. Tell staff if you might be pregnant before imaging.\n\nLead shields may be used according to modern protocols. Ask why the image is needed and whether alternatives exist.\n\nBring prior images to avoid repeats when possible. Results often need a radiologist report plus clinician explanation.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-9",
+      "title": "Ultrasound without ionizing radiation",
+      "summary": "Sound waves create images for pregnancy, abdomen, and vessels.",
+      "content": "Ultrasound does not use X-ray radiation. You may need a full bladder or fasting depending on the study.\n\nWear comfortable clothing and arrive on time for gel prep. Ask whether you will receive images or only a report.\n\nAbnormal findings need clinical follow-up plans. Emergency ultrasound can speed care in trauma and pregnancy pain.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-10",
+      "title": "HIV and other STI testing basics",
+      "summary": "Knowing status enables treatment and prevention for partners.",
+      "content": "Testing windows matter after a possible exposure. Confidential services are available in many clinics.\n\nPositive results have effective treatments for several infections. Partner notification support exists in many programs.\n\nRetesting may be advised after treatment or new exposures. Vaccines and condoms remain prevention tools alongside testing.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-11",
+      "title": "Stool tests you might be asked for",
+      "summary": "Samples detect parasites, blood, or infection depending on the order.",
+      "content": "Follow collection instructions exactly, including timing. Do not contaminate samples with urine if the lab warns against it.\n\nReturn samples within the time window given. Tell the lab about recent antibiotics or travel.\n\nResults guide targeted treatment rather than guesswork. Ask how you will receive and act on the report.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-12",
+      "title": "Blood pressure checks done right",
+      "summary": "Technique errors create false high or low readings.",
+      "content": "Sit quietly for a few minutes before measurement. Keep feet on the floor and arm supported at heart level.\n\nUse a cuff that fits your arm size. Avoid talking during the reading.\n\nCompare clinic and home devices if numbers disagree widely. Very high readings with symptoms need urgent care pathways.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-13",
+      "title": "Pregnancy scans and check timing",
+      "summary": "Schedules vary; ask what each scan is looking for.",
+      "content": "Early scans may confirm location and dates. Later scans assess growth and placenta position among other findings.\n\nArrive with required paperwork and prior reports. Ask whether a full bladder is needed.\n\nUrgent scans may be arranged for bleeding or pain. Discuss results with your antenatal clinician, not only the imaging desk.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-14",
+      "title": "Allergy testing overview",
+      "summary": "Skin or blood tests support—not replace—clinical history.",
+      "content": "Share a detailed list of reactions and timings. Some medicines must stop before skin testing—follow instructions.\n\nPositive tests show sensitization, not always clinical allergy. Negative tests may still miss some triggers.\n\nEmergency plans remain important for prior anaphylaxis. Ask how results change avoidance or treatment plans.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-tests-15",
+      "title": "Getting copies of your results",
+      "summary": "Personal records improve continuity across facilities.",
+      "content": "Request printed or electronic copies after visits. Store them with your personal health summary.\n\nCheck names and dates for accuracy. Share prior results to reduce duplicate testing.\n\nAsk for explanations of abbreviations you do not understand. Keep sensitive results private on locked devices.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    }
+  ],
   "nutrition": [
     {
       "id": "evergreen-nutrition-1",
       "title": "Build a balanced plate without perfection",
-      "summary": "Half vegetables and fruits, plus protein and whole grains, is a practical template.",
-      "content": "Fill half your plate with vegetables and fruits when you can. Add a protein source—beans, eggs, fish, poultry, meat, or dairy—and a portion of whole grains or starchy foods.\n\nLocal, seasonal produce counts. Frozen vegetables are nutritious and convenient.\n\nProgress beats perfection: improving one meal a day still helps."
+      "summary": "Patterns across the week matter more than one perfect meal.",
+      "content": "Fill half the plate with vegetables or fruits when you can. Add proteins such as beans, eggs, fish, or lean meats.\n\nInclude whole grains or local staples for steady energy. Use oils and fats thoughtfully rather than eliminating them entirely.\n\nSkip all-or-nothing rules that collapse after one snack. Adjust portions to appetite, activity, and clinical advice.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-nutrition-2",
       "title": "Sugar, drinks, and steady energy",
-      "summary": "Sugary drinks spike energy then leave you drained.",
-      "content": "Water should be your default drink. Limit sodas, energy drinks, and sweetened juices.\n\nIf you want flavor, try fruit-infused water or unsweetened tea. For children, offer water and milk more often than juice.\n\nReading labels helps—sugar hides in sauces, yogurts, and breakfast cereals."
+      "summary": "Sweet drinks raise sugar quickly without lasting fullness.",
+      "content": "Prefer water as the default daily drink. Limit sodas, energy drinks, and frequent sweet juices.\n\nRead labels for hidden sugars in packaged beverages. Pair sweet foods with protein or fiber when you choose them.\n\nPeople with diabetes need individualized drink guidance. Hydration still matters—plain water first.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-nutrition-3",
       "title": "Protein on a budget",
-      "summary": "Beans, eggs, and tinned fish are affordable protein workhorses.",
-      "content": "Lentils, beans, groundnuts, eggs, and canned fish provide protein without always buying expensive cuts of meat.\n\nCombine plant proteins across the day with grains and dairy or fortified alternatives for a complete pattern.\n\nBatch-cook stews and soups so protein-rich meals are ready on busy days."
+      "summary": "Beans, eggs, and small fish can cover needs affordably.",
+      "content": "Cook beans in batches for several meals. Eggs are versatile when food safety storage is good.\n\nDried fish or small portions of meat can stretch across stews. Combine grains and legumes across the day for variety.\n\nAsk clinicians about protein needs in kidney disease—limits may apply. Protein supports healing, immunity, and muscle maintenance.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-nutrition-4",
-      "title": "Eating well with limited appetite",
-      "summary": "Small, nutrient-dense meals help when full plates feel impossible.",
-      "content": "Try smaller portions more often. Choose foods that pack calories and nutrients: nut butters, eggs, yogurt, smoothies, and soft stews.\n\nEat when energy is highest in the day. Keep easy snacks visible.\n\nIf weight loss is unintentional or swallowing is hard, see a clinician promptly."
+      "title": "Fiber for digestion and fullness",
+      "summary": "Vegetables, fruits, beans, and whole grains support gut comfort.",
+      "content": "Increase fiber gradually to reduce bloating. Drink water as fiber intake rises.\n\nWhole fruits usually beat frequent fruit juice for fiber. Constipation often improves with fiber, fluids, and walking.\n\nSudden severe abdominal pain still needs clinical review. Some gut conditions need tailored fiber advice—ask first.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-nutrition-5",
-      "title": "Food safety at home",
-      "summary": "Clean hands, separate raw foods, and thorough cooking prevent many illnesses.",
-      "content": "Wash hands before cooking and after handling raw meat, eggs, or pets. Keep raw and ready-to-eat foods on separate surfaces.\n\nCook meats and leftovers to safe temperatures and refrigerate promptly. When in doubt about spoilage, throw it out.\n\nUse clean water for drinking and washing produce."
+      "title": "Salt smarter at home",
+      "summary": "Flavor can stay high while sodium comes down.",
+      "content": "Taste food before automatically adding salt. Use herbs, citrus, garlic, and pepper for flavor.\n\nCut back gradually so preferences adapt. Watch packaged seasonings and instant noodles for hidden salt.\n\nHeart and kidney conditions may need stricter limits. Ask what daily target fits your medicines and labs.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-fitness-1",
-      "title": "Start moving with a walking habit",
-      "summary": "Brisk walking is one of the most accessible ways to build fitness.",
-      "content": "Begin with 10–15 minutes most days and add a few minutes weekly. Walk as if you are slightly late—breathing harder but still able to talk.\n\nComfortable shoes and a safe route matter more than fancy gear. Invite a friend for accountability.\n\nIf you have chest pain, dizziness, or joint injuries, get medical advice before increasing intensity."
+      "title": "Walking as medicine you can start today",
+      "summary": "Brisk walking improves heart, mood, and blood sugar control.",
+      "content": "Start with ten comfortable minutes if you are new to activity. Build toward most days of the week.\n\nWear supportive shoes and choose safer routes and times. Use talking pace as a guide—you should still converse.\n\nStop for chest pain or severe breathlessness. Track streaks rather than perfection to stay consistent.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-fitness-2",
-      "title": "Strength training without a gym",
-      "summary": "Bodyweight moves build muscle and support healthy aging.",
-      "content": "Try squats to a chair, wall push-ups, glute bridges, and standing marches. Aim for 2–3 short sessions a week.\n\nQuality form beats high reps with poor control. Rest between sets and breathe steadily.\n\nMuscle supports blood sugar control, balance, and independence as you age."
+      "title": "Strength without a gym membership",
+      "summary": "Bodyweight moves protect muscle as we age.",
+      "content": "Try sit-to-stands from a chair for leg strength. Wall push-ups build upper body safely for beginners.\n\nCarry groceries with good posture as functional training. Two sessions weekly already help many adults.\n\nBreathe steadily; do not hold breath during strain. Get advice before heavy lifting with hernia, heart, or joint disease.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-fitness-3",
-      "title": "Warm up, cool down, and recover",
-      "summary": "Preparation and recovery reduce injury and next-day stiffness.",
-      "content": "Spend 3–5 minutes marching, arm circles, or easy mobility before harder effort. After exercise, walk slowly and stretch gently.\n\nSleep, protein-rich meals, and rest days are part of training—not a break from it.\n\nSharp pain is a stop signal; muscle fatigue is different from joint injury pain."
+      "title": "Warm-ups and injury prevention",
+      "summary": "A few minutes of prep reduce strains.",
+      "content": "Start with easy movement before harder effort. Increase distance or intensity by small weekly steps.\n\nRest sore areas that worsen with every session. Cross-train with different activities to share load.\n\nReplace worn shoes that cause foot or knee pain. Seek care for swelling, locking joints, or sharp pain.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-fitness-4",
-      "title": "Staying active with a busy schedule",
-      "summary": "Short sessions still count when life is full.",
-      "content": "Stack movement onto existing routines: stairs instead of the elevator, walking meetings, or 7-minute home circuits between tasks.\n\nThree 10-minute bouts can match one 30-minute session for many health benefits.\n\nSchedule workouts like appointments. Consistency beats rare heroic workouts."
+      "title": "Activity with chronic conditions",
+      "summary": "Most conditions benefit from tailored movement plans.",
+      "content": "Ask clinicians what intensity is safe for you. Diabetes: carry quick sugar if medicines risk lows.\n\nAsthma: warm up and keep relievers accessible. Arthritis: prefer low-impact options like swimming or cycling.\n\nHeart disease: follow cardiac rehab guidance when available. Report new chest symptoms during exercise promptly.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     },
     {
       "id": "evergreen-fitness-5",
-      "title": "Listen to pain versus normal effort",
-      "summary": "Knowing the difference keeps you progressing safely.",
-      "content": "Muscle burn and heavier breathing during exercise can be normal. Sudden sharp pain, swelling, or joint instability is not.\n\nScale back intensity after illness and rebuild gradually. Hydrate and avoid extreme heat when possible.\n\nPeople with chronic conditions should ask clinicians which activities and heart-rate ranges are appropriate."
+      "title": "Rest days and recovery",
+      "summary": "Progress needs recovery as much as effort.",
+      "content": "Schedule easier days between hard sessions. Sleep is the foundation of recovery.\n\nGentle walking on rest days beats total inactivity for many people. Persistent fatigue may mean you are progressing too fast.\n\nHydrate and eat enough protein to support repair. Children and teens need rest to grow safely with sports.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-nutrition-6",
+      "title": "Eating patterns during shift work",
+      "summary": "Irregular hours challenge metabolism and sleep.",
+      "content": "Anchor one consistent mealtime when possible. Pack balanced foods instead of relying only on vending snacks.\n\nLimit heavy greasy meals right before daytime sleep. Use caffeine earlier in the shift, not near planned sleep.\n\nKeep water visible during long shifts. Ask occupational health for tailored advice when available.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-nutrition-7",
+      "title": "Healthy weight goals without shame",
+      "summary": "Sustainable habits beat crash diets.",
+      "content": "Focus on behaviors: meals, movement, sleep, and stress. Rapid extreme restriction often rebounds.\n\nMeasure progress with energy, labs, and clothes—not only the scale. Medical conditions and medicines affect weight regulation.\n\nSeek clinical programs for obesity when lifestyle alone is not enough. Avoid products promising miracle overnight fat loss.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-nutrition-8",
+      "title": "Hydration beyond the hype",
+      "summary": "Thirst, urine color, and climate guide needs better than rigid liters.",
+      "content": "Pale yellow urine often suggests adequate hydration for many people. Drink more in heat, illness with fever, or heavy sweating.\n\nWater is usually best; sugary drinks are not hydration heroes. Heart or kidney disease may need fluid limits—follow clinical advice.\n\nOral rehydration helps during diarrhea when appropriate. Dizziness and dry mouth can signal you need fluids and rest.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-nutrition-9",
+      "title": "Eating well in pregnancy and breastfeeding",
+      "summary": "Needs rise; alcohol still does not belong.",
+      "content": "Take recommended prenatal vitamins including folic acid guidance. Emphasize iron-rich foods and safe protein sources.\n\nAvoid alcohol while pregnant; discuss alcohol while breastfeeding with clinicians. Food safety reduces infection risks for mother and baby.\n\nSmall frequent meals can ease nausea for some. Ask about local food assistance if access is limited.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
+    },
+    {
+      "id": "evergreen-nutrition-10",
+      "title": "Reading packaged food labels",
+      "summary": "Serving size tricks hide sugar and salt.",
+      "content": "Start with serving size before comparing numbers. Scan sugar, salt, and saturated fat per serving.\n\nIngredient lists order items by amount. Beware multiple names for sugars on one label.\n\nChoose products you understand over marketing claims. Whole foods without labels still form the base of healthy patterns.\n\nThis article is for general health education and does not replace personal medical advice. If you are unsure or feel seriously unwell, contact a qualified clinician or emergency services. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately. Write down questions before clinic visits, bring your medicine list, and share how symptoms change across days so clinicians can advise more accurately."
     }
   ]
 }
