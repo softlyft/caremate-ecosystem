@@ -1,6 +1,8 @@
 # Amplify Hosting — website, payment, admin portal, provider portal, community portal
 
-Deploy five Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
+Deploy Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
+
+**Production website + payment** now prefer **Cloudflare Pages** on branch **`prod`** — see [`cloudflare-pages.md`](./cloudflare-pages.md). Amplify rows below remain useful for portals and any leftover `main` web deploys.
 
 | Amplify app (suggested name) | App root (monorepo) | Framework | Build output |
 |------------------------------|---------------------|-----------|--------------|

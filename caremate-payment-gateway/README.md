@@ -51,9 +51,18 @@ Return deep links are allowlisted (`caremate://billing/success|cancel` only). Se
 
 ## Deploy
 
-### AWS Amplify (recommended)
+### Production (Cloudflare Pages · recommended)
 
-Monorepo Amplify app root: `caremate-payment-gateway`. Spec: [`amplify.yml`](./amplify.yml).
+Merge / push to branch **`prod`** → GitHub Actions **Static Pages CD** → Cloudflare Pages project `caremate-payment`.
+
+1. Follow [`../docs/cloudflare-pages.md`](../docs/cloudflare-pages.md) (API token, Environment secrets, custom domain `pay.getcaremate.com`).
+2. Set Environment secrets `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (baked in at build time).
+3. SPA routing ships via `public/_redirects`.
+4. Set mobile `EXPO_PUBLIC_PAYMENT_URL` to `https://pay.getcaremate.com` (prod).
+
+### Legacy (AWS Amplify)
+
+Monorepo Amplify app root: `caremate-payment-gateway` (typically branch `main`). Spec: [`../amplify.yml`](../amplify.yml).
 
 1. Create Amplify app → branch **`main`** → monorepo root `caremate-payment-gateway`.
 2. Set build-time env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
