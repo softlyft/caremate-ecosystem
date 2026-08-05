@@ -3,7 +3,6 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   Users,
   UserPlus,
-  CalendarDays,
   FileText,
   Megaphone,
   Upload,
@@ -28,7 +27,6 @@ export default async function DashboardPage() {
   const cards = [
     { label: 'Connected Patients', value: metrics.connectedPatients, icon: Users, href: '/app/patients' },
     { label: 'Pending Requests', value: metrics.pendingRequests, icon: UserPlus, href: '/app/patients/requests' },
-    { label: 'Appointment Requests', value: metrics.appointmentRequests, icon: CalendarDays, href: '/app/appointments' },
     { label: 'Shared Documents', value: metrics.documentsShared, icon: FileText, href: '/app/documents' },
     { label: 'Broadcasts Sent', value: metrics.broadcastsSent, icon: Megaphone, href: '/app/broadcasts' },
   ];

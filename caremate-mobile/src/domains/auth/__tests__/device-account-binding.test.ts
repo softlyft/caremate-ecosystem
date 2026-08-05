@@ -38,8 +38,17 @@ describe('device-account-binding', () => {
 
   it('normalizes and masks emails', () => {
     expect(normalizeAccountEmail('  Jo.Doe@Example.COM ')).toBe('jo.doe@example.com');
+    expect(normalizeAccountEmail('  Chanc.eski7+news@Gmail.COM ')).toBe('chanceski7@gmail.com');
+    expect(normalizeAccountEmail('chanceski7@googlemail.com')).toBe('chanceski7@gmail.com');
     expect(maskAccountEmail('jordan@gmail.com')).toBe('jo***@g***.com');
     expect(maskAccountEmail('ab@x.co')).toBe('a***@x***.co');
+  });
+
+  it('treats Gmail dot variants as the same device-bound account', async () => {
+    storage.getItem.mockResolvedValue(
+      JSON.stringify({ email: 'chanceski7@gmail.com', userId: 'u1' }),
+    );
+    await expect(getDeviceAccountConflict('chanc.eski7@gmail.com')).resolves.toBeNull();
   });
 
   it('reports no conflict when unbound or same email', async () => {

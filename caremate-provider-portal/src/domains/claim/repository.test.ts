@@ -11,6 +11,8 @@ import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 describe('claim helpers', () => {
   it('normalizes email', () => {
     assert.equal(normalizeEmail('  Ada@Example.COM '), 'ada@example.com');
+    assert.equal(normalizeEmail('  Chanc.eski7+tag@Gmail.COM '), 'chanceski7@gmail.com');
+    assert.equal(normalizeEmail('user.name@googlemail.com'), 'username@gmail.com');
   });
 
   it('hashes claim codes stably', () => {

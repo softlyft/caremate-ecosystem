@@ -1,6 +1,8 @@
 {
   "title": "Apps",
   "subtitle": "Personal health tools that work offline",
+  "reorderHint": "Hold a card, then drag to rearrange. Order stays on this device.",
+  "reorderHintA11y": "Double-tap and hold, then drag to rearrange",
   "readyCount": "{{count}} tools ready",
   "comingSoon": "Coming soon",
   "registry": {

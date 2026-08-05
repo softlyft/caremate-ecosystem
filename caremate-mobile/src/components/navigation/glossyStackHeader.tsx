@@ -16,7 +16,7 @@ type GlossyHeaderConfig = {
   titleColor?: string;
   icon?: LucideIcon;
   backAccessibilityLabel?: string;
-  /** Used when cold-start restore left no history for `router.back()`. */
+  /** Used when there is no history for `router.back()` (e.g. opened via deep link). */
   backFallbackHref?: Href;
   modal?: boolean;
 };

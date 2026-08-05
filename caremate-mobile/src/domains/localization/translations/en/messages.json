@@ -27,5 +27,7 @@
   "unknownUser": "CareMate member",
   "practitionerLabel": "Staff",
   "patientLabel": "Patient",
-  "directBadge": "Direct"
+  "directBadge": "Direct",
+  "today": "Today",
+  "yesterday": "Yesterday"
 }

@@ -8,6 +8,32 @@ export type DeviceAccountBinding = {
 };
 
 export function normalizeAccountEmail(email: string): string {
+  const normalized = email.trim().toLowerCase();
+  const at = normalized.lastIndexOf('@');
+  if (at <= 0 || at === normalized.length - 1) {
+    return normalized;
+  }
+
+  let local = normalized.slice(0, at);
+  let domain = normalized.slice(at + 1);
+
+  if (domain === 'googlemail.com') {
+    domain = 'gmail.com';
+  }
+
+  if (domain === 'gmail.com') {
+    const plus = local.indexOf('+');
+    if (plus >= 0) {
+      local = local.slice(0, plus);
+    }
+    local = local.replace(/\./g, '');
+  }
+
+  return `${local}@${domain}`;
+}
+
+/** Trim + lower only — used as a login fallback for accounts created before Gmail canonicalization. */
+export function legacyNormalizeAccountEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 

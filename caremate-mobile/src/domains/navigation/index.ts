@@ -1,5 +1,6 @@
 export {
   LAST_ROUTE_MAX_AGE_MS,
+  clearLastAppHref,
   isRestorableAppHref,
   peekLastAppHref,
   saveLastAppHref,

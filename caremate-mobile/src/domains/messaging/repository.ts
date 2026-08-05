@@ -185,11 +185,6 @@ export async function listPatientConversations(userId: string): Promise<MessageC
   });
 }
 
-export async function countUnreadConversations(userId: string): Promise<number> {
-  const list = await listPatientConversations(userId);
-  return list.filter((c) => c.unread).length;
-}
-
 export async function listMessages(conversationId: string): Promise<MessageMessage[]> {
   if (!config.isSupabaseConfigured) return [];
 

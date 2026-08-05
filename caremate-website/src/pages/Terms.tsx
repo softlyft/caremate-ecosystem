@@ -35,9 +35,9 @@ export function TermsPage() {
 
         <h2>Subscriptions</h2>
         <p>
-          Paid CareMate plans are offered according to in-app pricing and store or payment-provider
-          terms. Fees, renewals, and cancellations follow the checkout flow and provider policies
-          presented at purchase.
+          Paid CareMate plans are offered according to current consumer pricing (see{' '}
+          <Link to="/pricing">Pricing</Link>) and the in-app checkout with store or payment-provider
+          terms. Fees, renewals, and cancellations follow the flow presented at purchase.
         </p>
 
         <h2>Availability</h2>

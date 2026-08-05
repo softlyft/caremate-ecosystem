@@ -8,9 +8,10 @@ import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import { config } from '@/constants/env';
+import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
 import { authService } from '@/services/auth-service';
-import { config } from '@/constants/env';
 import { toUserFacingErrorMessage } from '@/lib/user-facing-error';
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
@@ -37,7 +38,7 @@ export default function ForgotPasswordScreen() {
         return;
       }
       setIsSubmitting(true);
-      const email = values.email.trim().toLowerCase();
+      const email = normalizeAccountEmail(values.email);
       await authService.resetPassword(email);
       router.replace({
         pathname: '/(auth)/verify-reset',

@@ -22,6 +22,7 @@ import {
   sanitizePhoneInput,
 } from '@/domains/emergency/validation';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
+import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
 import { resolvePostSignupHref } from '@/domains/onboarding';
@@ -111,7 +112,7 @@ export default function RegisterScreen() {
         );
         return;
       }
-      const email = values.email.trim().toLowerCase();
+      const email = normalizeAccountEmail(values.email);
       const allowed = await confirmDeviceAccountForAuth(email, {
         title: t('auth.deviceAccount.title'),
         message: (maskedEmail) => t('auth.deviceAccount.message', { email: maskedEmail }),
