@@ -1,8 +1,5 @@
 /**
- * Cold-start gate so NavigationPersistence does not overwrite a persisted deep
- * link with the bootstrap `/` (or tabs home) before index can restore it.
- *
- * Module state resets on process death — exactly when we need the gate again.
+ * Legacy restore gate. Cold-start route restore was removed; helpers remain for tests.
  */
 
 let restoreComplete = false;

@@ -103,7 +103,7 @@ Mode hosts: set in Amplify / EAS env (see [amplify-hosting](../../docs/amplify-h
 |-----|-----------------|---------|
 | `onboardingComplete` | `caremate_onboarding_complete` | Skip onboarding flag |
 | `deviceDefaults` | `caremate_device_defaults` | Country / language chosen in onboarding |
-| `lastAppRoute` | `caremate_last_app_route` | Restore route after process death |
+| `lastAppRoute` | `caremate_last_app_route` | Legacy; cleared on cold start (not used for restore) |
 | `deviceAccountBinding` | `caremate_device_account_binding` | Email + userId bound to this device (sign-out keeps local data for that email) |
 
 ### `SYNC_CONFIG`

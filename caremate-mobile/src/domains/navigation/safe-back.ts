@@ -1,8 +1,8 @@
 import { router, type Href } from 'expo-router';
 
 /**
- * When cold-start restore lands on a leaf screen via Redirect, there is no
- * navigation history — `router.back()` is a no-op and the user would be trapped.
+ * When a leaf screen has no navigation history (deep link, replace),
+ * `router.back()` is a no-op and the user would be trapped.
  * Prefer the nearest tab/home for that surface.
  */
 export function resolveBackFallbackHref(pathname: string): Href {

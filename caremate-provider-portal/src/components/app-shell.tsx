@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Users,
   UserPlus,
-  CalendarDays,
   FileText,
   Megaphone,
   BarChart3,
@@ -52,12 +51,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: 'Engagement',
     items: [
-      {
-        href: '/app/appointments',
-        label: 'Appointments',
-        icon: CalendarDays,
-        module: 'appointments',
-      },
       { href: '/app/documents', label: 'Documents', icon: FileText, module: 'documents' },
       { href: '/app/broadcasts', label: 'Messages', icon: Megaphone, module: 'messaging' },
       { href: '/app/analytics', label: 'Analytics', icon: BarChart3, module: 'analytics' },

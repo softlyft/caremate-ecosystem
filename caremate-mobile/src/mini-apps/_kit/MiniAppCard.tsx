@@ -14,6 +14,8 @@ import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 type MiniAppCardProps = {
   app: MiniAppDefinition;
   index: number;
+  onLongPress?: () => void;
+  isDragging?: boolean;
 };
 
 function lightenForGradient(_hex: string): string {
@@ -21,7 +23,7 @@ function lightenForGradient(_hex: string): string {
   return '#FFFFFF';
 }
 
-export function MiniAppCard({ app, index }: MiniAppCardProps) {
+export function MiniAppCard({ app, index, onLongPress, isDragging = false }: MiniAppCardProps) {
   const { t } = useTranslation();
   const isGuest = useIsGuest();
   const Icon = app.icon;
@@ -30,8 +32,13 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
   return (
     <AnimatedSection index={index + 1}>
       <Button
-        disabled={!app.available}
-        style={[styles.shell, shadow.soft, !app.available ? styles.unavailable : null]}
+        disabled={!app.available && !onLongPress}
+        style={[
+          styles.shell,
+          shadow.soft,
+          !app.available ? styles.unavailable : null,
+          isDragging ? styles.dragging : null,
+        ]}
         onPress={() => {
           if (!app.available) {
             return;
@@ -42,8 +49,11 @@ export function MiniAppCard({ app, index }: MiniAppCardProps) {
           }
           router.push(app.route);
         }}
+        onLongPress={onLongPress}
+        delayLongPress={280}
         accessibilityRole="button"
         accessibilityLabel={name}
+        accessibilityHint={onLongPress ? t('apps.reorderHintA11y') : undefined}
         accessibilityState={{ disabled: !app.available }}
         variant="plain"
       >
@@ -107,6 +117,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.06)',
+  },
+  dragging: {
+    opacity: 0.92,
+    transform: [{ scale: 1.02 }],
+    borderColor: 'rgba(13, 148, 136, 0.35)',
   },
   unavailable: {
     opacity: 0.62,

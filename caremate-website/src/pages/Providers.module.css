@@ -1,5 +1,5 @@
 .hero {
-  padding: calc(6rem + env(safe-area-inset-top, 0px)) var(--space-lg) clamp(3rem, 6vw, 4.5rem);
+  padding: calc(5.5rem + env(safe-area-inset-top, 0px)) var(--space-md) clamp(2.5rem, 6vw, 4.5rem);
   background:
     radial-gradient(ellipse 70% 55% at 10% 0%, rgba(13, 148, 136, 0.18), transparent 55%),
     radial-gradient(ellipse 50% 40% at 90% 20%, rgba(37, 99, 235, 0.12), transparent 50%),
@@ -95,7 +95,7 @@
 .stripInner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.35rem var(--space-lg);
+  padding: 1.35rem var(--space-md);
   display: grid;
   gap: 1rem;
 }
@@ -117,7 +117,7 @@
 
 .section,
 .sectionAlt {
-  padding: clamp(3.5rem, 8vw, 5.5rem) var(--space-lg);
+  padding: clamp(2.75rem, 7vw, 5.5rem) var(--space-md);
 }
 
 .section {
@@ -265,7 +265,7 @@
 }
 
 .closing {
-  padding: clamp(3.5rem, 8vw, 5rem) var(--space-lg);
+  padding: clamp(2.75rem, 7vw, 5rem) var(--space-md);
   background:
     radial-gradient(ellipse at 20% 0%, rgba(13, 148, 136, 0.2), transparent 45%),
     linear-gradient(180deg, #0b1220 0%, #041411 100%);
@@ -323,7 +323,21 @@
 }
 
 @media (min-width: 720px) {
+  .hero {
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+  }
+
+  .section,
+  .sectionAlt,
+  .closing {
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+  }
+
   .stripInner {
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }

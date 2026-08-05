@@ -4,6 +4,8 @@ import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-acc
 import {
   bindDeviceAccount,
   clearDeviceAccountBinding,
+  legacyNormalizeAccountEmail,
+  normalizeAccountEmail,
 } from '@/domains/auth/device-account-binding';
 import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
 import { wipeLocalAccountData } from '@/domains/auth/wipe-local-account';
@@ -16,6 +18,19 @@ import type { AuthUser } from '@/types';
 
 /** Legacy SecureStore key from the removed biometric unlock feature. */
 const LEGACY_BIOMETRIC_ENABLED_KEY = 'caremate_biometric_enabled';
+
+/** Prefer canonical email; include pre-canonicalization form for existing accounts. */
+function authEmailsToTry(email: string): string[] {
+  const canonical = normalizeAccountEmail(email);
+  const legacy = legacyNormalizeAccountEmail(email);
+  return canonical === legacy ? [canonical] : [canonical, legacy];
+}
+
+function isInvalidCredentialError(error: { message?: string; status?: number } | null): boolean {
+  if (!error) return false;
+  const message = (error.message ?? '').toLowerCase();
+  return message.includes('invalid login credentials') || message.includes('invalid credentials');
+}
 
 export class AuthService {
   /**
@@ -100,16 +115,27 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      throw error;
+    const emails = authEmailsToTry(email);
+    let lastError: { message?: string; status?: number } | null = null;
+
+    for (const candidate of emails) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: candidate,
+        password,
+      });
+      if (!error) {
+        if (data.user) {
+          await this.prepareLocalAccount(data.user);
+        }
+        return data;
+      }
+      lastError = error;
+      if (!isInvalidCredentialError(error)) {
+        throw error;
+      }
     }
 
-    if (data.user) {
-      await this.prepareLocalAccount(data.user);
-    }
-
-    return data;
+    throw lastError ?? new Error('Sign in failed');
   }
 
   async signUpWithEmail(email: string, password: string, fullName: string, phone: string) {
@@ -117,7 +143,7 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = normalizeAccountEmail(email);
     const normalizedPhone = phone.trim();
     const { data, error } = await supabase.auth.signUp({
       email: normalizedEmail,
@@ -171,35 +197,41 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
     const code = token.replace(/\s+/g, '');
     if (!/^\d{6}$/.test(code)) {
       throw new Error('Enter the 6-digit code from your email');
     }
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email: normalizedEmail,
-      token: code,
-      type: 'signup',
-    });
-    if (error) {
-      throw error;
-    }
-    if (!data.user || !data.session) {
-      throw new Error('Could not verify email. Try the code again or request a new one.');
+    const emails = authEmailsToTry(email);
+    let lastError: { message?: string } | null = null;
+
+    for (const candidate of emails) {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: candidate,
+        token: code,
+        type: 'signup',
+      });
+      if (!error) {
+        if (!data.user || !data.session) {
+          throw new Error('Could not verify email. Try the code again or request a new one.');
+        }
+
+        await this.prepareLocalAccount(
+          data.user,
+          {
+            email: candidate,
+            ...(profile?.fullName ? { fullName: profile.fullName } : {}),
+            ...(profile?.phone ? { phone: profile.phone } : {}),
+          },
+          { forceDeviceDefaults: true },
+        );
+
+        return data;
+      }
+      lastError = error;
     }
 
-    await this.prepareLocalAccount(
-      data.user,
-      {
-        email: normalizedEmail,
-        ...(profile?.fullName ? { fullName: profile.fullName } : {}),
-        ...(profile?.phone ? { phone: profile.phone } : {}),
-      },
-      { forceDeviceDefaults: true },
-    );
-
-    return data;
+    throw lastError ?? new Error('Could not verify email. Try the code again or request a new one.');
   }
 
   async resendSignupEmail(email: string) {
@@ -207,13 +239,19 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: email.trim().toLowerCase(),
-    });
-    if (error) {
-      throw error;
+    const emails = authEmailsToTry(email);
+    let lastError: { message?: string } | null = null;
+    for (const candidate of emails) {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: candidate,
+      });
+      if (!error) {
+        return;
+      }
+      lastError = error;
     }
+    throw lastError ?? new Error('Could not resend verification email');
   }
 
   async signOut() {
@@ -274,12 +312,19 @@ export class AuthService {
 
     // Email template shows a 6-digit {{ .Token }} (see supabase/templates/recovery.html).
     // Users enter the code in-app via verifyOtp(type: 'recovery') — no browser redirect required.
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-      redirectTo: getPasswordResetRedirectUri(),
-    });
-    if (error) {
-      throw error;
+    // Try canonical then legacy so pre-normalization Gmail accounts still receive the code.
+    const emails = authEmailsToTry(email);
+    let lastError: { message?: string } | null = null;
+    for (const candidate of emails) {
+      const { error } = await supabase.auth.resetPasswordForEmail(candidate, {
+        redirectTo: getPasswordResetRedirectUri(),
+      });
+      if (!error) {
+        return;
+      }
+      lastError = error;
     }
+    throw lastError ?? new Error('Could not send password reset email');
   }
 
   async verifyRecoveryOtp(email: string, token: string) {
@@ -287,26 +332,31 @@ export class AuthService {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
     const code = token.replace(/\s+/g, '');
     if (!/^\d{6}$/.test(code)) {
       throw new Error('Enter the 6-digit code from your email');
     }
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email: normalizedEmail,
-      token: code,
-      type: 'recovery',
-    });
-    if (error) {
-      throw error;
-    }
-    if (!data.user || !data.session) {
-      throw new Error('Could not verify reset code. Try again or request a new one.');
+    const emails = authEmailsToTry(email);
+    let lastError: { message?: string } | null = null;
+
+    for (const candidate of emails) {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: candidate,
+        token: code,
+        type: 'recovery',
+      });
+      if (!error) {
+        if (!data.user || !data.session) {
+          throw new Error('Could not verify reset code. Try again or request a new one.');
+        }
+        await this.prepareLocalAccount(data.user, { email: candidate });
+        return data;
+      }
+      lastError = error;
     }
 
-    await this.prepareLocalAccount(data.user, { email: normalizedEmail });
-    return data;
+    throw lastError ?? new Error('Could not verify reset code. Try again or request a new one.');
   }
 
   async updatePassword(password: string) {

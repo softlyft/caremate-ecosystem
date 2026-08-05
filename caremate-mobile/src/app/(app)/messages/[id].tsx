@@ -28,12 +28,94 @@ import {
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing, textColors } from '@/theme';
 
+type ThreadItem =
+  | { kind: 'day'; id: string; label: string }
+  | { kind: 'message'; id: string; message: MessageMessage };
+
+function sameLocalDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function localDayKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 function formatMessageTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return '';
   }
   return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDayLabel(iso: string, todayLabel: string, yesterdayLabel: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const now = new Date();
+  if (sameLocalDay(date, now)) {
+    return todayLabel;
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (sameLocalDay(date, yesterday)) {
+    return yesterdayLabel;
+  }
+
+  const options: Intl.DateTimeFormatOptions =
+    date.getFullYear() === now.getFullYear()
+      ? { weekday: 'short', month: 'short', day: 'numeric' }
+      : { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+
+  return date.toLocaleDateString(undefined, options);
+}
+
+function buildThreadItems(
+  messages: MessageMessage[],
+  todayLabel: string,
+  yesterdayLabel: string,
+): ThreadItem[] {
+  const items: ThreadItem[] = [];
+  let lastDayKey: string | null = null;
+
+  for (const message of messages) {
+    const createdAt = new Date(message.created_at);
+    if (!Number.isNaN(createdAt.getTime())) {
+      const dayKey = localDayKey(createdAt);
+      if (dayKey !== lastDayKey) {
+        const label = formatDayLabel(message.created_at, todayLabel, yesterdayLabel);
+        if (label) {
+          items.push({ kind: 'day', id: `day-${dayKey}`, label });
+          lastDayKey = dayKey;
+        }
+      }
+    }
+
+    items.push({ kind: 'message', id: message.id, message });
+  }
+
+  return items;
+}
+
+function DaySeparator({ label }: { label: string }) {
+  return (
+    <View style={styles.daySeparator} accessibilityRole="header">
+      <View style={styles.daySeparatorLine} />
+      <AppText variant="caption" style={styles.daySeparatorLabel}>
+        {label}
+      </AppText>
+      <View style={styles.daySeparatorLine} />
+    </View>
+  );
 }
 
 function Bubble({ message, mine }: { message: MessageMessage; mine: boolean }) {
@@ -129,7 +211,7 @@ export default function MessageThreadScreen() {
   const { t } = useTranslation();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
-  const listRef = useRef<FlatList<MessageMessage>>(null);
+  const listRef = useRef<FlatList<ThreadItem>>(null);
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   const conversationId = Array.isArray(rawId) ? rawId[0] : rawId;
   const messagesQuery = useConversationMessages(conversationId ?? '');
@@ -137,6 +219,8 @@ export default function MessageThreadScreen() {
   const [sending, setSending] = useState(false);
   const [title, setTitle] = useState(t('messages.threadTitle'));
   const { lift, composerPaddingBottom, keyboardOpen } = useKeyboardLift();
+  const todayLabel = t('messages.today');
+  const yesterdayLabel = t('messages.yesterday');
 
   useEffect(() => {
     if (!conversationId) return;
@@ -150,7 +234,6 @@ export default function MessageThreadScreen() {
           );
         }
         await markConversationRead(conversationId, userId);
-        await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messagesUnread });
         await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
       } catch {
         // best-effort
@@ -162,6 +245,10 @@ export default function MessageThreadScreen() {
   }, [conversationId, userId, queryClient, t]);
 
   const messages = useMemo(() => messagesQuery.data ?? [], [messagesQuery.data]);
+  const threadItems = useMemo(
+    () => buildThreadItems(messages, todayLabel, yesterdayLabel),
+    [messages, todayLabel, yesterdayLabel],
+  );
 
   useEffect(() => {
     if (messages.length === 0) return;
@@ -191,7 +278,6 @@ export default function MessageThreadScreen() {
       setDraft('');
       await messagesQuery.refetch();
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
-      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messagesUnread });
     } catch (error) {
       Alert.alert(
         t('messages.sendFailedTitle'),
@@ -230,7 +316,7 @@ export default function MessageThreadScreen() {
       </View>
       <FlatList
         ref={listRef}
-        data={messages}
+        data={threadItems}
         keyExtractor={(item) => item.id}
         style={styles.listFlex}
         keyboardShouldPersistTaps="handled"
@@ -246,12 +332,18 @@ export default function MessageThreadScreen() {
             message={t('messages.threadEmptyMessage')}
           />
         }
-        renderItem={({ item }) => (
-          <Bubble
-            message={item}
-            mine={item.sender_party_type === 'user' && item.sender_user_id === userId}
-          />
-        )}
+        renderItem={({ item }) =>
+          item.kind === 'day' ? (
+            <DaySeparator label={item.label} />
+          ) : (
+            <Bubble
+              message={item.message}
+              mine={
+                item.message.sender_party_type === 'user' && item.message.sender_user_id === userId
+              }
+            />
+          )
+        }
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
       />
       <View
@@ -306,6 +398,22 @@ const styles = StyleSheet.create({
   },
   listEmpty: {
     flexGrow: 1,
+  },
+  daySeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginVertical: spacing.sm,
+  },
+  daySeparatorLine: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: palette.divider,
+  },
+  daySeparatorLabel: {
+    color: palette.textSecondary,
+    fontWeight: '600',
+    paddingHorizontal: spacing.xs,
   },
   bubble: {
     maxWidth: '82%',

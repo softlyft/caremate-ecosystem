@@ -26,13 +26,15 @@ export const WEBSITE_URLS = {
 export const STORAGE_KEYS = {
   onboardingComplete: 'caremate_onboarding_complete',
   deviceDefaults: 'caremate_device_defaults',
-  /** Last in-app route for restore after process death (e.g. Android permission revoke). */
+  /** Legacy key; cleared on cold start. Not used for route restore anymore. */
   lastAppRoute: 'caremate_last_app_route',
   /**
    * Email + userId bound to this device after sign-in / sign-up.
    * Sign-out keeps local PHI; a different account must confirm a full local reset first.
    */
   deviceAccountBinding: 'caremate_device_account_binding',
+  /** Device-only mini-app card order on the Apps tab (never synced). */
+  miniAppsOrder: 'caremate_mini_apps_order',
 } as const;
 
 export const SYNC_CONFIG = {
@@ -71,6 +73,5 @@ export const QUERY_KEYS = {
   notifications: ['notifications'] as const,
   notificationsUnread: ['notifications', 'unread'] as const,
   messages: ['messages'] as const,
-  messagesUnread: ['messages', 'unread'] as const,
   ads: ['ads'] as const,
 } as const;

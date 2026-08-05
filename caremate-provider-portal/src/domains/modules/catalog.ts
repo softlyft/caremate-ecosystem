@@ -61,7 +61,7 @@ export const PROVIDER_MODULES: readonly ProviderModuleDefinition[] = [
     key: 'appointments',
     name: 'Appointments',
     description: 'Availability, scheduling, request queue, and check-in.',
-    defaultEnabled: true,
+    defaultEnabled: false,
     activatable: false,
     hrefs: ['/app/appointments'],
     navGroup: 'Engagement',

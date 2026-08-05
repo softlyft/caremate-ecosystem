@@ -17,15 +17,12 @@ Root Stack (src/app/_layout.tsx)
 
 Auth group and app group are siblings. The app does not force login first; it uses guest-first access and onboarding state to decide the first route.
 
-### Cold-start route restore
+### Cold start vs background
 
-After Android kills the process (e.g. when notification permission is revoked in system Settings), Expo Router state is gone. CareMate persists the last in-app href (`caremate_last_app_route`, 12h TTL) via `NavigationPersistence` and restores it from `src/app/index.tsx` before falling back to Home tabs.
+- **Fully closed / process death:** bootstrap `src/app/index.tsx` always sends signed-in users to Home tabs (`/(app)/(tabs)`). CareMate does **not** restore the last deep screen after a full relaunch (that made startup slower and left leaf screens with an empty back stack).
+- **Minimized / backgrounded:** the OS keeps the JS runtime and Expo Router stack in memory, so returning to the app continues on the same screen with working back navigation.
 
-`NavigationPersistence` waits for a restore gate (`markNavigationRestoreComplete`) so the bootstrap `/` path cannot overwrite a saved article (or other deep link) before `takeLastAppHref` runs. It also flushes the current route when the app goes inactive/background (common when jumping to system Settings).
-
-Auth, billing, and emergency-share surfaces are not restored.
-
-Restored leaf screens (clinic detail, article, etc.) often have **no back stack** because restore uses a top-level `Redirect`. Glossy headers call `routerBackOrFallback`: if `router.canGoBack()` is false, they `replace` to the nearest safe tab (e.g. Nearby for clinic detail) instead of a no-op back.
+Any legacy `caremate_last_app_route` snapshot is cleared on cold start. Soft back (`routerBackOrFallback`) still applies when a leaf screen truly has no history (e.g. opened via a deep link).
 
 ---
 

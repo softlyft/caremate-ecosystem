@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AppText } from '@/components/ui/AppText';
 import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
+import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
 import { resolvePostSignupHref } from '@/domains/onboarding';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
@@ -39,7 +40,7 @@ export default function VerifyEmailScreen() {
     fullName?: string | string[];
     phone?: string | string[];
   }>();
-  const email = firstParam(params.email).trim().toLowerCase();
+  const email = normalizeAccountEmail(firstParam(params.email));
   const fullName = firstParam(params.fullName).trim();
   const phone = firstParam(params.phone).trim();
 

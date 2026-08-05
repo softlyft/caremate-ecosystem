@@ -109,8 +109,13 @@ export async function saveLastAppHref(href: string): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.lastAppRoute, JSON.stringify(payload));
 }
 
+export async function clearLastAppHref(): Promise<void> {
+  await AsyncStorage.removeItem(STORAGE_KEYS.lastAppRoute);
+}
+
 /**
- * Return a still-fresh last app route and clear it (consume-once) so index does not loop.
+ * Return a still-fresh last app route and clear it (consume-once).
+ * Kept for tests / legacy callers — cold start no longer restores this href.
  */
 export async function takeLastAppHref(
   now = Date.now(),

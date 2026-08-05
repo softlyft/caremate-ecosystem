@@ -197,7 +197,11 @@ export function GuidePage() {
         </ul>
 
         <h2 id="plans">Free and Premium</h2>
-        <p>Core Home, Learn, Nearby, and Emergency stay available without Premium.</p>
+        <p>
+          Core Home, Learn, Nearby, and Emergency stay available without Premium. See{' '}
+          <Link to="/pricing">current CareMate pricing</Link> for Free, CareMate Premium, and
+          CareMate Family amounts in Nigeria (NGN) and internationally (USD).
+        </p>
         <ul className={styles.list}>
           <li>
             <strong>Free</strong> — explore guest features; with an account, use mini-apps with limits
@@ -205,9 +209,12 @@ export function GuidePage() {
             and one child in Family).
           </li>
           <li>
-            <strong>Premium</strong> — unlock fuller medication, checkup, and immunization lists,
-            remove ads on Premium surfaces, and expand family (more kids and spouse on Family
-            Premium).
+            <strong>CareMate Premium</strong> — unlock fuller medication, checkup, and immunization
+            lists, remove ads on Premium surfaces, and add intelligence and document features.
+          </li>
+          <li>
+            <strong>CareMate Family</strong> — everything in Premium plus household seats (adults and
+            children), shared dashboards, and family coordination tools.
           </li>
         </ul>
         <p>

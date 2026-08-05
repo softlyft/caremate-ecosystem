@@ -11,6 +11,7 @@ import { DocsIndexPage } from '@/pages/DocsIndex';
 import { GuidePage } from '@/pages/Guide';
 import { OpenInAppPage } from '@/pages/OpenInApp';
 import { PrivacyPage } from '@/pages/Privacy';
+import { PricingPage } from '@/pages/Pricing';
 import { ProviderGuidePage } from '@/pages/ProviderGuide';
 import { ProvidersPage } from '@/pages/Providers';
 import { TermsPage } from '@/pages/Terms';
@@ -165,6 +166,14 @@ export default function App() {
           element={
             <MarketingChrome>
               <ProvidersPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <MarketingChrome>
+              <PricingPage />
             </MarketingChrome>
           }
         />

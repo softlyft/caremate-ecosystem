@@ -3,7 +3,7 @@
   background:
     radial-gradient(circle at top left, rgba(13, 148, 136, 0.1), transparent 40%),
     var(--cm-surface);
-  padding: calc(5.5rem + env(safe-area-inset-top, 0px)) var(--space-lg) var(--space-3xl);
+  padding: calc(5.25rem + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-3xl);
 }
 
 .article {

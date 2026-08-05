@@ -10,6 +10,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
+import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { continueAfterAuth } from '@/domains/emergency/continue-after-auth';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
@@ -46,7 +47,7 @@ export default function LoginScreen() {
         );
         return;
       }
-      const email = values.email.trim().toLowerCase();
+      const email = normalizeAccountEmail(values.email);
       const allowed = await confirmDeviceAccountForAuth(email, {
         title: t('auth.deviceAccount.title'),
         message: (maskedEmail) => t('auth.deviceAccount.message', { email: maskedEmail }),
@@ -72,7 +73,7 @@ export default function LoginScreen() {
             onPress: () =>
               router.push({
                 pathname: '/(auth)/verify-email',
-                params: { email: values.email.trim().toLowerCase() },
+                params: { email: normalizeAccountEmail(values.email) },
               } as Href),
           },
         ]);

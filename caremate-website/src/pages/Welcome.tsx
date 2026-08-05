@@ -86,10 +86,6 @@ export function WelcomePage() {
         <div className={styles.heroAtmosphere} aria-hidden="true" />
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
-            <p className={styles.brandMark}>
-              <img src="/caremate-splash-icon.png" alt="" width={48} height={48} />
-              <span>{BRAND.name}</span>
-            </p>
             <h1
               id="welcome-heading"
               className={styles.headline}
@@ -109,20 +105,6 @@ export function WelcomePage() {
               <a className={styles.ctaSecondary} href={APP_STORE_URLS.android}>
                 Get it on Android
               </a>
-            </div>
-            <div className={styles.heroJumps}>
-              <a className={styles.heroJump} href="#core">
-                See what is inside
-              </a>
-              <Link className={styles.heroJump} to="/docs">
-                Docs
-              </Link>
-              <Link className={styles.heroJump} to="/ccn">
-                Community Network
-              </Link>
-              <Link className={styles.heroJump} to="/providers">
-                For providers
-              </Link>
             </div>
           </div>
 

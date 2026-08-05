@@ -47,6 +47,7 @@ export type ButtonProps = {
   accessibilityState?: AccessibilityState;
   hitSlop?: number | Insets;
   testID?: string;
+  delayLongPress?: number;
 };
 
 const VARIANT_STYLES: Record<
@@ -134,6 +135,7 @@ export function Button({
   accessibilityState,
   hitSlop,
   testID,
+  delayLongPress,
 }: ButtonProps) {
   const isPlain = variant === 'plain';
   const chrome = isPlain ? null : VARIANT_STYLES[variant];
@@ -150,6 +152,7 @@ export function Button({
         disabled: isDisabled,
         busy: Boolean(loading || accessibilityState?.busy),
       }}
+      delayLongPress={delayLongPress}
       disabled={isDisabled}
       hitSlop={hitSlop}
       onLongPress={onLongPress}
