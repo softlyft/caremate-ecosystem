@@ -95,7 +95,16 @@ export class MessagesService {
     }
 
     const rows = (listResult.data ?? []) as ConversationRow[];
-    return Promise.all(rows.map((row) => this.decryptConversation(row)));
+    const allowed: ConversationRow[] = [];
+    for (const row of rows) {
+      if (
+        row.patient_user_id &&
+        (await this.hasMessagingConsent(organizationId, row.patient_user_id))
+      ) {
+        allowed.push(row);
+      }
+    }
+    return Promise.all(allowed.map((row) => this.decryptConversation(row)));
   }
 
   async listMessages(authUserId: string, conversationId: string) {
@@ -122,6 +131,20 @@ export class MessagesService {
       authUserId,
       dto.conversation_id,
     );
+
+    if (
+      conversation.kind === 'org_patient' &&
+      conversation.organization_id &&
+      conversation.patient_user_id
+    ) {
+      const allowed = await this.hasMessagingConsent(
+        conversation.organization_id,
+        conversation.patient_user_id,
+      );
+      if (!allowed) {
+        throw new ForbiddenException('Messaging consent required');
+      }
+    }
 
     const keyUserId = this.resolveKeyUserId(conversation, authUserId);
     await this.encryption.bootstrapUserKey(keyUserId);
@@ -335,10 +358,39 @@ export class MessagesService {
 
     if (conversation.organization_id) {
       await this.requireOrgMember(authUserId, conversation.organization_id);
+      if (
+        conversation.kind === 'org_patient' &&
+        conversation.patient_user_id &&
+        !(await this.hasMessagingConsent(
+          conversation.organization_id,
+          conversation.patient_user_id,
+        ))
+      ) {
+        throw new ForbiddenException('Messaging consent required');
+      }
       return conversation;
     }
 
     throw new ForbiddenException('Not allowed to access this conversation');
+  }
+
+  private async hasMessagingConsent(
+    organizationId: string,
+    patientId: string,
+  ): Promise<boolean> {
+    const result = await this.supabase.admin
+      .from('patient_provider_connections')
+      .select('id, shared_scopes, status')
+      .eq('organization_id', organizationId)
+      .eq('patient_id', patientId)
+      .eq('status', 'approved')
+      .maybeSingle();
+
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    const scopes = (result.data?.shared_scopes ?? []) as string[];
+    return scopes.includes('messaging');
   }
 
   private async requireOrgMember(authUserId: string, organizationId: string) {

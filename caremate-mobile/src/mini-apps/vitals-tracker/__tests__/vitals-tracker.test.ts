@@ -162,16 +162,15 @@ describe('vitals-tracker/validation', () => {
   });
 
   it('hard and soft ranges for other vitals', () => {
-    expect(
-      assessVitalDraft({ type: 'heart_rate', unit: 'bpm', valueText: '15' }).hard?.code,
-    ).toBe('out_of_range');
+    expect(assessVitalDraft({ type: 'heart_rate', unit: 'bpm', valueText: '15' }).hard?.code).toBe(
+      'out_of_range',
+    );
     expect(
       assessVitalDraft({ type: 'heart_rate', unit: 'bpm', valueText: '35' }).soft[0]?.code,
     ).toBe('soft_unusual');
 
     expect(
-      assessVitalDraft({ type: 'oxygen_saturation', unit: 'percent', valueText: '101' }).hard
-        ?.code,
+      assessVitalDraft({ type: 'oxygen_saturation', unit: 'percent', valueText: '101' }).hard?.code,
     ).toBe('out_of_range');
     expect(
       assessVitalDraft({ type: 'oxygen_saturation', unit: 'percent', valueText: '82' }).soft[0]
@@ -198,13 +197,13 @@ describe('vitals-tracker/validation', () => {
   });
 
   it('detects likely typos', () => {
-    expect(detectTypoSuggestion({ type: 'blood_sugar', unit: 'mg_dl', value: 1200 })?.suggested).toBe(
-      120,
-    );
+    expect(
+      detectTypoSuggestion({ type: 'blood_sugar', unit: 'mg_dl', value: 1200 })?.suggested,
+    ).toBe(120);
     expect(detectTypoSuggestion({ type: 'weight', unit: 'kg', value: 700 })?.suggested).toBe(70);
-    expect(detectTypoSuggestion({ type: 'body_temperature', unit: 'c', value: 370 })?.suggested).toBe(
-      37,
-    );
+    expect(
+      detectTypoSuggestion({ type: 'body_temperature', unit: 'c', value: 370 })?.suggested,
+    ).toBe(37);
 
     const sugarTypo = assessVitalDraft({
       type: 'blood_sugar',
@@ -224,10 +223,7 @@ describe('vitals-tracker/validation', () => {
       unit: 'kg' as const,
       value: 72,
     };
-    const jump = assessVitalDraft(
-      { type: 'weight', unit: 'kg', valueText: '170' },
-      previousWeight,
-    );
+    const jump = assessVitalDraft({ type: 'weight', unit: 'kg', valueText: '170' }, previousWeight);
     expect(jump.hard).toBeNull();
     expect(jump.soft.some((s) => s.messageKey === 'trendWeight')).toBe(true);
 

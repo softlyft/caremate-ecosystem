@@ -45,9 +45,7 @@ describe('device-account-binding', () => {
   it('reports no conflict when unbound or same email', async () => {
     await expect(getDeviceAccountConflict('a@b.com')).resolves.toBeNull();
 
-    storage.getItem.mockResolvedValue(
-      JSON.stringify({ email: 'same@caremate.com', userId: 'u1' }),
-    );
+    storage.getItem.mockResolvedValue(JSON.stringify({ email: 'same@caremate.com', userId: 'u1' }));
     await expect(getDeviceAccountConflict('Same@Caremate.com')).resolves.toBeNull();
   });
 

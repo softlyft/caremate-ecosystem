@@ -82,6 +82,23 @@ const EXT_MIME: Record<string, string> = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 };
 
+const MIME_EXT: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'application/msword': 'doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+};
+
+function mimeToExt(mimeType: string | null | undefined): string {
+  if (!mimeType) {
+    return 'bin';
+  }
+  return MIME_EXT[mimeType.toLowerCase()] ?? 'bin';
+}
+
 async function loadOrganizationNames(organizationIds: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(organizationIds.filter(Boolean))];
   if (unique.length === 0) {
@@ -229,6 +246,42 @@ class ProviderDocumentsService {
     }
 
     return data.signedUrl;
+  }
+
+  /**
+   * Download a document into the app cache for reliable in-app preview.
+   * Avoids opening an external browser (which often fails on signed storage URLs).
+   */
+  async prepareLocalPreview(doc: ProviderDocument): Promise<{
+    uri: string;
+    remoteUrl: string;
+    mimeType: string | null;
+    fileName: string | null;
+    title: string;
+  }> {
+    const remoteUrl = await this.createViewUrl(doc.filePath);
+    const ext = doc.fileName?.includes('.')
+      ? doc.fileName.slice(doc.fileName.lastIndexOf('.') + 1)
+      : mimeToExt(doc.mimeType);
+    const safeExt = (ext || 'bin').replace(/[^a-zA-Z0-9]/g, '') || 'bin';
+    const cacheDir = FileSystem.cacheDirectory;
+    if (!cacheDir) {
+      throw new Error('Could not access document cache');
+    }
+    const target = `${cacheDir}provider-doc-${doc.id}.${safeExt}`;
+
+    const result = await FileSystem.downloadAsync(remoteUrl, target);
+    if (result.status < 200 || result.status >= 300) {
+      throw new Error('Could not download document');
+    }
+
+    return {
+      uri: result.uri,
+      remoteUrl,
+      mimeType: doc.mimeType ?? result.headers?.['Content-Type'] ?? null,
+      fileName: doc.fileName,
+      title: doc.title,
+    };
   }
 
   async pickAndUpload(params: {

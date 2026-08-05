@@ -94,9 +94,7 @@ export function isValidDateKey(value: string): boolean {
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }
 
-export function assessPregnancySetupDraft(
-  draft: PregnancySetupDraft,
-): PregnancySetupAssessment {
+export function assessPregnancySetupDraft(draft: PregnancySetupDraft): PregnancySetupAssessment {
   const soft: PregnancyIssue[] = [];
 
   if (!draft.selectedDate) {
@@ -220,8 +218,7 @@ export function assessPregnancyLogDraft(draft: PregnancyLogDraft): PregnancyLogA
     });
   }
 
-  const mood =
-    draft.mood && MOOD_SET.has(draft.mood) ? draft.mood : undefined;
+  const mood = draft.mood && MOOD_SET.has(draft.mood) ? draft.mood : undefined;
   const symptoms = draft.symptoms.filter((item) => SYMPTOM_SET.has(item));
 
   if (!mood && symptoms.length === 0 && kickCount === 0 && !notes) {

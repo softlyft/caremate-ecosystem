@@ -11,3 +11,4 @@ export {
   markNavigationRestoreComplete,
   resetNavigationRestoreGate,
 } from '@/domains/navigation/restore-gate';
+export { resolveBackFallbackHref, routerBackOrFallback } from '@/domains/navigation/safe-back';

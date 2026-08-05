@@ -343,7 +343,8 @@ class ProviderConnectionService {
               approved_at: now,
               rejected_at: null,
               rejection_reason: null,
-              // Connection ≠ health-data share — emergency requires separate consent.
+              // Connection ≠ clinical share — emergency stays opt-in.
+              // Messaging consent is auto-granted by DB trigger on approve.
               shared_scopes: ['basic'],
             }
           : {

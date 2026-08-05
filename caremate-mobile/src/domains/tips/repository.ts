@@ -45,9 +45,7 @@ class HealthTipRepository extends BaseRepository {
     const rows = await db
       .select()
       .from(healthTips)
-      .where(
-        and(categoryClause, isNull(healthTips.deletedAt), eq(healthTips.isActive, true)),
-      )
+      .where(and(categoryClause, isNull(healthTips.deletedAt), eq(healthTips.isActive, true)))
       .orderBy(asc(healthTips.sortOrder));
 
     return rows.map((row) => ({

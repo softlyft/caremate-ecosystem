@@ -134,7 +134,9 @@ export function healthCategoryIdsForQuery(canonicalId: string): string[] {
   return [normalized, ...legacy.filter((id) => id !== normalized)];
 }
 
-export function getHealthCategory(categoryId: string | null | undefined): HealthCategory | undefined {
+export function getHealthCategory(
+  categoryId: string | null | undefined,
+): HealthCategory | undefined {
   if (!categoryId) {
     return undefined;
   }
@@ -142,7 +144,10 @@ export function getHealthCategory(categoryId: string | null | undefined): Health
   return HEALTH_CATEGORIES.find((category) => category.id === normalized);
 }
 
-export function getHealthCategoryName(categoryId: string | null | undefined, fallback = ''): string {
+export function getHealthCategoryName(
+  categoryId: string | null | undefined,
+  fallback = '',
+): string {
   return getHealthCategory(categoryId)?.name ?? fallback;
 }
 

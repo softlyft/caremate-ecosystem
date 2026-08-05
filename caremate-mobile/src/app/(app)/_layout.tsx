@@ -185,6 +185,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: MapPinned,
             backAccessibilityLabel: 'Back to Nearby',
+            backFallbackHref: '/(app)/(tabs)/providers',
           })}
         />
         <Stack.Screen
@@ -197,6 +198,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: MapPinned,
             backAccessibilityLabel: 'Back to Nearby',
+            backFallbackHref: '/(app)/(tabs)/providers',
           })}
         />
         <Stack.Screen
@@ -209,6 +211,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: Heart,
             backAccessibilityLabel: 'Back to Nearby',
+            backFallbackHref: '/(app)/(tabs)/providers',
           })}
         />
         <Stack.Screen
@@ -221,6 +224,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: Link2,
             backAccessibilityLabel: 'Back to Me',
+            backFallbackHref: '/(app)/(tabs)/profile',
           })}
         />
         <Stack.Screen
@@ -233,6 +237,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: Link2,
             backAccessibilityLabel: 'Back to Connections',
+            backFallbackHref: '/(app)/providers/connections',
           })}
         />
         <Stack.Screen
@@ -245,6 +250,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: Link2,
             backAccessibilityLabel: 'Back to connected providers',
+            backFallbackHref: '/(app)/providers/connections/connected',
           })}
         />
         <Stack.Screen
@@ -257,6 +263,7 @@ export default function AppLayout() {
             titleColor: palette.brandBlue,
             icon: Link2,
             backAccessibilityLabel: 'Back to Connections',
+            backFallbackHref: '/(app)/providers/connections',
           })}
         />
         <Stack.Screen
@@ -269,6 +276,7 @@ export default function AppLayout() {
             titleColor: palette.primaryDark,
             icon: UserRoundPen,
             backAccessibilityLabel: 'Back to Me',
+            backFallbackHref: '/(app)/(tabs)/profile',
           })}
         />
         <Stack.Screen

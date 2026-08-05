@@ -67,6 +67,7 @@ Tap → `router.push(app.route)`.
 | Hydration | `use*Hydrated()` via `persist.hasHydrated` / `onFinishHydration`; disable writes until hydrated |
 | Filtered selectors | Do **not** return a new array from a Zustand selector each call (React 19 `getSnapshot` loop). Select stable slices, derive with `useMemo`, use a module-level empty array constant |
 | UI | `StyleSheet` + `AppText` + `Button`/`Input` + `palette` / `layoutSpacing` / `shadow.soft` |
+| Validation dialogs | Branded `alert` / `confirm` from `components/ui/AppDialogHost` (not React Native `Alert`) for hard blocks, soft “save anyway”, and undo confirms |
 | Dates | Prefer `shared/date-utils.ts`; reuse `MonthCalendarGrid` from period-tracker |
 | Screens | Default exports only (Expo Router) |
 

@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import {
@@ -191,7 +192,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
     if (durationMode === 'preset' && durationDays != null) {
       const nextEnd = endDateForDurationDays(nextStart, durationDays);
       if (nextEnd < todayKey) {
-        Alert.alert(
+        void alert(
           t('apps.medication.ui.treatmentEndedTitle'),
           t('apps.medication.ui.treatmentEndedMessage'),
         );
@@ -208,7 +209,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
       nextEnd = nextStart;
     }
     if (nextEnd && nextEnd < todayKey) {
-      Alert.alert(
+      void alert(
         t('apps.medication.ui.treatmentEndedTitle'),
         t('apps.medication.ui.treatmentEndedMessage'),
       );
@@ -232,7 +233,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
     if (!startDate) return;
     const nextEnd = endDateForDurationDays(startDate, days);
     if (nextEnd < todayKey) {
-      Alert.alert(
+      void alert(
         t('apps.medication.ui.treatmentEndedTitle'),
         t('apps.medication.ui.treatmentEndedMessage'),
       );
@@ -256,14 +257,14 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
 
   const applyEndDate = (dayKey: string) => {
     if (!startDate || dayKey < startDate) {
-      Alert.alert(
+      void alert(
         t('apps.medication.ui.endBeforeStartTitle'),
         t('apps.medication.ui.endBeforeStartMessage'),
       );
       return;
     }
     if (dayKey < todayKey) {
-      Alert.alert(
+      void alert(
         t('apps.medication.ui.treatmentEndedTitle'),
         t('apps.medication.ui.treatmentEndedMessage'),
       );
@@ -711,7 +712,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
         accent={theme.color}
         soft={theme.backgroundColor}
         index={11}
-        onPress={() => {
+        onPress={async () => {
           if (blockedByCap) {
             return;
           }
@@ -737,12 +738,12 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
           });
 
           if (assessment.hard) {
-            Alert.alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
+            void alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
             return;
           }
 
           if (!assessment.payload) {
-            Alert.alert(
+            void alert(
               t('apps.medication.validation.checkTitle'),
               t('apps.medication.validation.unusualCheck'),
             );
@@ -762,14 +763,15 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
           };
 
           if (assessment.soft.length > 0) {
-            Alert.alert(
-              t('apps.medication.validation.confirmTitle'),
-              assessment.soft.map(issueMessage).join('\n\n'),
-              [
-                { text: t('apps.medication.validation.cancel'), style: 'cancel' },
-                { text: t('apps.medication.validation.saveAnyway'), onPress: commit },
-              ],
-            );
+            const ok = await confirm({
+              title: t('apps.medication.validation.confirmTitle'),
+              message: assessment.soft.map(issueMessage).join('\n\n'),
+              cancelLabel: t('apps.medication.validation.cancel'),
+              confirmLabel: t('apps.medication.validation.saveAnyway'),
+            });
+            if (ok) {
+              commit();
+            }
             return;
           }
 
@@ -784,22 +786,18 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
           soft={theme.backgroundColor}
           secondary
           index={12}
-          onPress={() => {
-            Alert.alert(
-              t('apps.medication.ui.removeConfirmTitle'),
-              t('apps.medication.ui.removeConfirmMessage'),
-              [
-                { text: t('common.cancel'), style: 'cancel' },
-                {
-                  text: t('common.remove'),
-                  style: 'destructive',
-                  onPress: () => {
-                    removeMedication(editing.id);
-                    router.back();
-                  },
-                },
-              ],
-            );
+          onPress={async () => {
+            const ok = await confirm({
+              title: t('apps.medication.ui.removeConfirmTitle'),
+              message: t('apps.medication.ui.removeConfirmMessage'),
+              cancelLabel: t('common.cancel'),
+              confirmLabel: t('common.remove'),
+              confirmVariant: 'destructive',
+            });
+            if (ok) {
+              removeMedication(editing.id);
+              router.back();
+            }
           }}
         />
       ) : null}

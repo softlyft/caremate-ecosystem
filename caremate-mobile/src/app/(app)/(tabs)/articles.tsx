@@ -19,7 +19,11 @@ import {
 import { articleRepository } from '@/domains/articles/repository';
 import { useTranslation } from '@/domains/localization';
 import { AdSlot } from '@/features/ads/AdSlot';
-import { HEALTH_CATEGORIES, isHealthCategoryId, normalizeHealthCategoryId } from '@/features/home/constants';
+import {
+  HEALTH_CATEGORIES,
+  isHealthCategoryId,
+  normalizeHealthCategoryId,
+} from '@/features/home/constants';
 import {
   HealthCategoriesRow,
   type HealthCategoryId,
@@ -40,9 +44,7 @@ function parseCategoryParam(value: string | string[] | undefined): HealthCategor
   if (isHealthCategoryId(normalized)) {
     return normalized;
   }
-  const match = HEALTH_CATEGORIES.find(
-    (category) => category.id === raw || category.slug === raw,
-  );
+  const match = HEALTH_CATEGORIES.find((category) => category.id === raw || category.slug === raw);
   return match?.id ?? null;
 }
 

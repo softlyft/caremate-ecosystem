@@ -1,10 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { DOCUMENT_TYPES } from '@/constants/document-types';
-import { requireWriteAccess } from '@/lib/auth';
-import { uploadDocument } from '@/domains/documents/repository';
+import { requireProviderSession, requireWriteAccess } from '@/lib/auth';
+import { createDocumentSignedUrl, uploadDocument } from '@/domains/documents/repository';
 
 const MAX_BYTES = 20 * 1024 * 1024;
 const ALLOWED_MIME = new Set([
@@ -57,4 +58,12 @@ export async function uploadDocumentAction(formData: FormData) {
   revalidatePath('/app/dashboard');
   revalidatePath(`/app/patients/${parsed.patientId}`);
   revalidatePath('/app/analytics');
+}
+
+/** Open a document via a short-lived signed storage URL (same bucket as the CareMate app). */
+export async function openDocumentAction(formData: FormData) {
+  const session = await requireProviderSession();
+  const documentId = z.string().uuid().parse(formData.get('document_id'));
+  const signedUrl = await createDocumentSignedUrl(session.activeOrganizationId, documentId);
+  redirect(signedUrl);
 }

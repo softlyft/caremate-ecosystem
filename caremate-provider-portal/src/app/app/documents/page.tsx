@@ -6,6 +6,7 @@ import { listConnectedPatients } from '@/domains/patients/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
 import { DocumentUploadForm } from '@/components/features/document-upload-form';
+import { OpenDocumentButton } from '@/components/features/open-document-button';
 import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
 import { canWriteOrg } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
@@ -48,7 +49,8 @@ export default async function DocumentsPage({
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Documents</h1>
         <p className="mt-1 text-sm text-muted">
-          Share files with connected patients. They can open them in the CareMate app under Me → Documents.
+          Share files with connected patients. Open them here, or patients can open them in the
+          CareMate app under Me → Documents.
         </p>
       </div>
 
@@ -77,12 +79,13 @@ export default async function DocumentsPage({
                   <TableHead>Type</TableHead>
                   <TableHead>Patient</TableHead>
                   <TableHead>Uploaded</TableHead>
+                  <TableHead className="w-[1%] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {documents.rows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted">
+                    <TableCell colSpan={5} className="text-center text-muted">
                       No documents yet.
                     </TableCell>
                   </TableRow>
@@ -98,6 +101,9 @@ export default async function DocumentsPage({
                       <TableCell className="font-mono text-xs">{doc.patient_id.slice(0, 8)}…</TableCell>
                       <TableCell>
                         {format(new Date(doc.created_at), 'MMM d, yyyy')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <OpenDocumentButton documentId={doc.id} />
                       </TableCell>
                     </TableRow>
                   ))

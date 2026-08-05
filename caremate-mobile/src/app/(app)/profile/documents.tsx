@@ -1,9 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FilePlus2, FileText, Link2 } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, Modal, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
+import { WebView } from 'react-native-webview';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -19,11 +29,38 @@ import {
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 
+type DocumentPreview = {
+  uri: string;
+  remoteUrl: string;
+  title: string;
+  mimeType: string | null;
+  fileName: string | null;
+};
+
 function typeLabel(
   t: (key: string, params?: Record<string, string | number>) => string,
   documentType: ProviderDocumentType,
 ): string {
   return t(`profile.documents.types.${documentType}`);
+}
+
+function isImagePreview(mimeType: string | null, fileName: string | null): boolean {
+  if (mimeType?.startsWith('image/')) {
+    return true;
+  }
+  const lower = fileName?.toLowerCase() ?? '';
+  return ['.jpg', '.jpeg', '.png', '.webp'].some((ext) => lower.endsWith(ext));
+}
+
+function isPdfPreview(mimeType: string | null, fileName: string | null): boolean {
+  if (mimeType === 'application/pdf') {
+    return true;
+  }
+  return Boolean(fileName?.toLowerCase().endsWith('.pdf'));
+}
+
+function canPreviewInApp(mimeType: string | null, fileName: string | null): boolean {
+  return isImagePreview(mimeType, fileName) || isPdfPreview(mimeType, fileName);
 }
 
 export default function ProviderDocumentsScreen() {
@@ -32,6 +69,8 @@ export default function ProviderDocumentsScreen() {
   const isGuest = useIsGuest();
   const queryClient = useQueryClient();
   const [openingId, setOpeningId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<DocumentPreview | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [linkDoc, setLinkDoc] = useState<ProviderDocument | null>(null);
   const [title, setTitle] = useState('');
@@ -53,12 +92,13 @@ export default function ProviderDocumentsScreen() {
   const orgs = orgsQuery.data ?? [];
 
   const openMutation = useMutation({
-    mutationFn: async (doc: ProviderDocument) => {
-      const url = await providerDocumentsService.createViewUrl(doc.filePath);
-      await WebBrowser.openBrowserAsync(url);
-    },
+    mutationFn: (doc: ProviderDocument) => providerDocumentsService.prepareLocalPreview(doc),
     onMutate: (doc) => {
       setOpeningId(doc.id);
+    },
+    onSuccess: (local) => {
+      setPreview(local);
+      setPreviewLoading(canPreviewInApp(local.mimeType, local.fileName));
     },
     onError: (error) => {
       Alert.alert(
@@ -70,6 +110,11 @@ export default function ProviderDocumentsScreen() {
       setOpeningId(null);
     },
   });
+
+  const closePreview = () => {
+    setPreview(null);
+    setPreviewLoading(false);
+  };
 
   const uploadMutation = useMutation({
     mutationFn: () =>
@@ -241,6 +286,87 @@ export default function ProviderDocumentsScreen() {
           })
         )}
       </ScrollView>
+
+      <Modal
+        visible={Boolean(preview)}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={closePreview}
+      >
+        <View style={[styles.viewerScreen, { paddingTop: insets.top }]}>
+          <View style={styles.viewerHeader}>
+            <Button
+              accessibilityLabel={t('common.cancel')}
+              onPress={closePreview}
+              style={styles.viewerCancel}
+              variant="plain"
+            >
+              <AppText variant="button" color="brand">
+                {t('common.cancel')}
+              </AppText>
+            </Button>
+            <AppText variant="cardTitle" numberOfLines={1} style={styles.viewerTitle}>
+              {preview?.title ?? ''}
+            </AppText>
+            <View style={styles.viewerHeaderSpacer} />
+          </View>
+
+          {preview ? (
+            <View style={styles.viewerBody}>
+              {!canPreviewInApp(preview.mimeType, preview.fileName) ? (
+                <View style={styles.viewerFallback}>
+                  <AppText variant="sectionTitle" style={styles.viewerFallbackTitle}>
+                    {t('profile.documents.previewUnavailableTitle')}
+                  </AppText>
+                  <AppText variant="body" style={styles.meta}>
+                    {t('profile.documents.previewUnavailableMessage')}
+                  </AppText>
+                </View>
+              ) : isImagePreview(preview.mimeType, preview.fileName) ? (
+                <ScrollView
+                  contentContainerStyle={styles.imageScroll}
+                  maximumZoomScale={4}
+                  minimumZoomScale={1}
+                >
+                  <Image
+                    accessibilityLabel={preview.title}
+                    onLoadEnd={() => setPreviewLoading(false)}
+                    resizeMode="contain"
+                    source={{ uri: preview.uri }}
+                    style={styles.previewImage}
+                  />
+                </ScrollView>
+              ) : (
+                <WebView
+                  allowFileAccess
+                  allowUniversalAccessFromFileURLs
+                  originWhitelist={['*', 'file://', 'https://', 'http://']}
+                  onLoadEnd={() => setPreviewLoading(false)}
+                  onError={() => setPreviewLoading(false)}
+                  setSupportMultipleWindows={false}
+                  source={{
+                    // iOS WKWebView renders local/remote PDFs; Android WebView handles https PDFs better than file://.
+                    uri:
+                      Platform.OS === 'android' && isPdfPreview(preview.mimeType, preview.fileName)
+                        ? preview.remoteUrl
+                        : preview.uri,
+                  }}
+                  style={styles.webView}
+                />
+              )}
+
+              {previewLoading && canPreviewInApp(preview.mimeType, preview.fileName) ? (
+                <View style={styles.viewerLoading}>
+                  <ActivityIndicator color={palette.primary} size="large" />
+                  <AppText variant="caption" style={styles.meta}>
+                    {t('profile.documents.viewerLoading')}
+                  </AppText>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+      </Modal>
 
       <Modal
         visible={uploadOpen}
@@ -584,5 +710,68 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: palette.surface,
+  },
+  viewerScreen: {
+    flex: 1,
+    backgroundColor: palette.background,
+  },
+  viewerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.divider,
+    backgroundColor: palette.surface,
+  },
+  viewerCancel: {
+    minHeight: 44,
+    paddingHorizontal: spacing.sm,
+    justifyContent: 'center',
+  },
+  viewerTitle: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  viewerHeaderSpacer: {
+    minWidth: 64,
+  },
+  viewerBody: {
+    flex: 1,
+    backgroundColor: '#111827',
+  },
+  webView: {
+    flex: 1,
+    backgroundColor: '#111827',
+  },
+  imageScroll: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.md,
+  },
+  previewImage: {
+    width: '100%',
+    minHeight: 320,
+    height: 520,
+  },
+  viewerLoading: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    backgroundColor: 'rgba(17, 24, 39, 0.72)',
+  },
+  viewerFallback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    gap: spacing.sm,
+    backgroundColor: palette.background,
+  },
+  viewerFallbackTitle: {
+    textAlign: 'center',
   },
 });

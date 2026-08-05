@@ -11,7 +11,7 @@
  */
 
 /** Known CareMate system consent codes (i18n + offline). Not an allowlist for auth. */
-export const CAREMATE_SYSTEM_CONSENT_CODES = ['emergency'] as const;
+export const CAREMATE_SYSTEM_CONSENT_CODES = ['emergency', 'messaging'] as const;
 
 export type CareMateSystemConsentCode = (typeof CAREMATE_SYSTEM_CONSENT_CODES)[number];
 
@@ -33,11 +33,7 @@ export type ConsentDefinition = {
   active: boolean;
 };
 
-export type PatientProviderConsentStatus =
-  | 'draft'
-  | 'active'
-  | 'inactive'
-  | 'entered-in-error';
+export type PatientProviderConsentStatus = 'draft' | 'active' | 'inactive' | 'entered-in-error';
 
 export type PatientProviderConsent = {
   id: string;
@@ -77,6 +73,13 @@ export const CONNECTION_CONSENTS: readonly ConnectionConsentDefinition[] = [
     titleKey: 'nearby.connections.consents.emergency.title',
     descriptionKey: 'nearby.connections.consents.emergency.description',
   },
+  {
+    scope: 'messaging',
+    dataClass: 'messaging',
+    fhirScope: 'patient-privacy',
+    titleKey: 'nearby.connections.consents.messaging.title',
+    descriptionKey: 'nearby.connections.consents.messaging.description',
+  },
 ] as const;
 
 export function isCareMateSystemConsentCode(value: string): value is CareMateSystemConsentCode {
@@ -115,9 +118,7 @@ export function normalizeSharedScopes(scopes: readonly string[]): string[] {
   return [...new Set(cleaned)];
 }
 
-export function definitionToConsentUi(
-  definition: ConsentDefinition,
-): ConnectionConsentDefinition {
+export function definitionToConsentUi(definition: ConsentDefinition): ConnectionConsentDefinition {
   const systemMirror = CONNECTION_CONSENTS.find((c) => c.scope === definition.code);
   return {
     definitionId: definition.id,

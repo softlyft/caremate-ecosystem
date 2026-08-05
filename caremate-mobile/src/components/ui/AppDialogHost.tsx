@@ -1,0 +1,124 @@
+import { Modal, StyleSheet, View } from 'react-native';
+
+import { alert, confirm, useAppDialogStore } from '@/components/ui/app-dialog';
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/form-controls';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+
+export { alert, confirm, useAppDialogStore };
+export type {
+  AppDialogAction,
+  AppDialogAlertButton,
+  AppDialogConfirmOptions,
+} from '@/components/ui/app-dialog';
+
+/**
+ * Root host for branded alerts/confirms. Mount once under GluestackUIProvider.
+ */
+export function AppDialogHost() {
+  const current = useAppDialogStore((state) => state.current);
+  const complete = useAppDialogStore((state) => state.complete);
+
+  const cancelAction =
+    current?.actions.find((action) => action.result === false) ??
+    current?.actions.find((action) => action.variant === 'secondary') ??
+    null;
+
+  const handleAction = (index: number) => {
+    if (!current) {
+      return;
+    }
+    const action = current.actions[index];
+    if (!action) {
+      return;
+    }
+    action.onPress?.();
+    complete(action.result);
+  };
+
+  return (
+    <Modal
+      animationType="fade"
+      onRequestClose={() => {
+        if (!current) {
+          return;
+        }
+        if (cancelAction) {
+          cancelAction.onPress?.();
+          complete(cancelAction.result ?? false);
+          return;
+        }
+        const only = current.actions[0];
+        only?.onPress?.();
+        complete(only?.result);
+      }}
+      presentationStyle="overFullScreen"
+      statusBarTranslucent
+      transparent
+      visible={Boolean(current)}
+    >
+      {current ? (
+        <View accessibilityViewIsModal style={styles.backdrop}>
+          <View accessibilityRole="alert" style={[styles.card, shadow.card]}>
+            <AppText variant="sectionTitle" style={styles.title}>
+              {current.title}
+            </AppText>
+            {current.message ? (
+              <AppText variant="body" style={styles.message}>
+                {current.message}
+              </AppText>
+            ) : null}
+            <View style={styles.actions}>
+              {current.actions.map((action, index) => (
+                <Button
+                  key={`${current.id}-${action.label}-${index}`}
+                  label={action.label}
+                  onPress={() => handleAction(index)}
+                  size="sm"
+                  style={styles.actionButton}
+                  variant={
+                    action.variant ??
+                    (index === current.actions.length - 1 ? 'primary' : 'secondary')
+                  }
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+      ) : null}
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+  },
+  card: {
+    backgroundColor: palette.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
+  title: {
+    color: palette.text,
+  },
+  message: {
+    color: palette.textSecondary,
+  },
+  actions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  actionButton: {
+    minWidth: 96,
+  },
+});

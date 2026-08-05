@@ -1,7 +1,4 @@
-import {
-  FREE_CHECKUP_VISIBLE_COUNT,
-  isCheckupItemUnlocked,
-} from '@/domains/billing/entitlements';
+import { FREE_CHECKUP_VISIBLE_COUNT, isCheckupItemUnlocked } from '@/domains/billing/entitlements';
 import {
   CHECKUP_CATALOG,
   getCadenceIntervalYears,
@@ -28,10 +25,7 @@ import {
   resolvePlannerRegion,
   type CheckupPlannerProfile,
 } from '@/mini-apps/checkup-planner/utils';
-import {
-  assessCompletionDraft,
-  assessProfileDraft,
-} from '@/mini-apps/checkup-planner/validation';
+import { assessCompletionDraft, assessProfileDraft } from '@/mini-apps/checkup-planner/validation';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
 const adultFemale: CheckupPlannerProfile = {
@@ -151,9 +145,7 @@ describe('checkup-planner/utils', () => {
     const before = buildYearSchedule(adultFemale, [], year);
     expect(before.length).toBeGreaterThanOrEqual(3);
 
-    const byCatalogOrder = [...before].sort(
-      (a, b) => a.stableIndexInYear - b.stableIndexInYear,
-    );
+    const byCatalogOrder = [...before].sort((a, b) => a.stableIndexInYear - b.stableIndexInYear);
     const first = byCatalogOrder[0]!;
     const third = byCatalogOrder[2]!;
 

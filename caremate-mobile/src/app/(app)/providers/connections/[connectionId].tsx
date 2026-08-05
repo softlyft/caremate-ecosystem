@@ -48,11 +48,7 @@ export default function ConnectedProviderDetailScreen() {
   });
 
   const consentMutation = useMutation({
-    mutationFn: (params: {
-      scope: string;
-      granted: boolean;
-      definitionId?: string;
-    }) =>
+    mutationFn: (params: { scope: string; granted: boolean; definitionId?: string }) =>
       providerConnectionService.setConsent({
         connectionId,
         scope: params.scope,
@@ -123,8 +119,7 @@ export default function ConnectedProviderDetailScreen() {
     );
   }
 
-  const orgName =
-    connection.organizationName ?? t('nearby.connectionRequests.providerFallback');
+  const orgName = connection.organizationName ?? t('nearby.connectionRequests.providerFallback');
   const definitions = definitionsQuery.data ?? [];
   const available = listAvailableConsents(connection.sharedScopes, definitions);
   const granted = listGrantedConsents(connection.sharedScopes, definitions);

@@ -36,8 +36,8 @@ export default function Index() {
 
     // Auth / onboarding exits never consume a last route — still release the gate
     // so NavigationPersistence can run once the user reaches the app shell.
+    // (Redirects above do not read restoreHref, so leave it unset.)
     if (passwordRecoveryPending || onboardingComplete === false) {
-      setRestoreHref(null);
       markNavigationRestoreComplete();
       return;
     }

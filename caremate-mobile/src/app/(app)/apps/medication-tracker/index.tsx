@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import {
   FREE_MEDICATION_LIMIT,
@@ -50,10 +51,7 @@ import {
   type DoseSlotStatus,
   type Medication,
 } from '@/mini-apps/medication-tracker/utils';
-import {
-  assessDoseLog,
-  type MedicationIssue,
-} from '@/mini-apps/medication-tracker/validation';
+import { assessDoseLog, type MedicationIssue } from '@/mini-apps/medication-tracker/validation';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, spacing } from '@/theme';
 
@@ -242,23 +240,21 @@ export default function MedicationTrackerScreen() {
       : t('apps.medication.ui.upToDate')
     : t('apps.medicationTracker.emptySubtitle');
 
-  const toggleSlot = (slot: DoseSlot) => {
+  const toggleSlot = async (slot: DoseSlot) => {
     const issueMessage = (issue: MedicationIssue): string =>
       t(`apps.medication.validation.${issue.messageKey}`, issue.params ?? {});
 
     if (slot.log) {
-      Alert.alert(
-        t('apps.medication.validation.undoTitle'),
-        t('apps.medication.validation.undoMessage'),
-        [
-          { text: t('apps.medication.validation.cancel'), style: 'cancel' },
-          {
-            text: t('apps.medication.validation.undoConfirm'),
-            style: 'destructive',
-            onPress: () => removeDoseLog(slot.log!.id),
-          },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.medication.validation.undoTitle'),
+        message: t('apps.medication.validation.undoMessage'),
+        cancelLabel: t('apps.medication.validation.cancel'),
+        confirmLabel: t('apps.medication.validation.undoConfirm'),
+        confirmVariant: 'destructive',
+      });
+      if (ok) {
+        removeDoseLog(slot.log!.id);
+      }
       return;
     }
 
@@ -271,7 +267,7 @@ export default function MedicationTrackerScreen() {
     });
 
     if (assessment.hard) {
-      Alert.alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
@@ -284,14 +280,15 @@ export default function MedicationTrackerScreen() {
     };
 
     if (assessment.soft.length > 0) {
-      Alert.alert(
-        t('apps.medication.validation.confirmTitle'),
-        assessment.soft.map(issueMessage).join('\n\n'),
-        [
-          { text: t('apps.medication.validation.cancel'), style: 'cancel' },
-          { text: t('apps.medication.validation.saveAnyway'), onPress: save },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.medication.validation.confirmTitle'),
+        message: assessment.soft.map(issueMessage).join('\n\n'),
+        cancelLabel: t('apps.medication.validation.cancel'),
+        confirmLabel: t('apps.medication.validation.saveAnyway'),
+      });
+      if (ok) {
+        save();
+      }
       return;
     }
 

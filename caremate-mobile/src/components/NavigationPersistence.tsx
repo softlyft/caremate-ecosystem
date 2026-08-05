@@ -40,8 +40,11 @@ export function NavigationPersistence() {
   const stableParams = useMemo(() => ({ category, q }), [category, q]);
   const pathnameRef = useRef(pathname);
   const paramsRef = useRef(stableParams);
-  pathnameRef.current = pathname;
-  paramsRef.current = stableParams;
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+    paramsRef.current = stableParams;
+  }, [pathname, stableParams]);
 
   useEffect(() => {
     if (!isInitialized || passwordRecoveryPending || !pathname) {

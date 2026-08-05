@@ -275,9 +275,9 @@ describe('immunization-tracker/validation', () => {
       records: [],
     });
     expect(far.hard).toBeNull();
-    expect(far.soft.some((s) => s.code === 'soft_very_early' || s.code === 'soft_far_from_recommended')).toBe(
-      true,
-    );
+    expect(
+      far.soft.some((s) => s.code === 'soft_very_early' || s.code === 'soft_far_from_recommended'),
+    ).toBe(true);
   });
 
   it('soft-warns when earlier doses in a series are missing', () => {

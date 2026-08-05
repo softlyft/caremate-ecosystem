@@ -100,10 +100,7 @@ export function assessPeriodDayToggle(draft: PeriodDayToggleDraft): PeriodDayTog
       });
     }
 
-    const cycleLength = Math.min(
-      CYCLE_LENGTH_MAX,
-      Math.max(CYCLE_LENGTH_MIN, draft.cycleLength),
-    );
+    const cycleLength = Math.min(CYCLE_LENGTH_MAX, Math.max(CYCLE_LENGTH_MIN, draft.cycleLength));
     if (streak && streak.length >= cycleLength) {
       soft.push({
         code: 'soft_period_vs_cycle',

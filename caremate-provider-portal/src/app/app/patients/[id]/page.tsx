@@ -5,6 +5,7 @@ import { canManageOrg } from '@/constants/roles';
 import { getPatientDetail } from '@/domains/patients/repository';
 import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
 import { MarkAsStaffForm } from '@/components/features/mark-as-staff-form';
+import { OpenDocumentButton } from '@/components/features/open-document-button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -139,12 +140,13 @@ export default async function PatientDetailPage({
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Uploaded</TableHead>
+                <TableHead className="w-[1%] text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {documents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted">
+                  <TableCell colSpan={4} className="text-center text-muted">
                     No documents shared yet.
                   </TableCell>
                 </TableRow>
@@ -159,6 +161,9 @@ export default async function PatientDetailPage({
                     </TableCell>
                     <TableCell>
                       {format(new Date(doc.created_at), 'MMM d, yyyy')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <OpenDocumentButton documentId={doc.id} />
                     </TableCell>
                   </TableRow>
                 ))

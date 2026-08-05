@@ -74,7 +74,7 @@
     "detailNotConnectedTitle": "Not connected",
     "detailNotConnectedMessage": "This provider connection is no longer approved.",
     "consentSectionTitle": "Consent",
-    "consentSectionSubtitle": "Choose what this provider can see. Connecting alone does not share your emergency profile.",
+    "consentSectionSubtitle": "Messaging is turned on when you connect. You can revoke it here. Emergency and other health data stay private until you share them.",
     "addConsent": "Add consent",
     "removeConsent": "Remove consent",
     "grantedLabel": "Granted",
@@ -94,6 +94,10 @@
       "emergency": {
         "title": "Emergency profile",
         "description": "Blood group, allergies, conditions, insurance, and emergency contacts."
+      },
+      "messaging": {
+        "title": "Secure messaging",
+        "description": "Two-way messages between you and this provider organization."
       }
     },
     "requestsTitle": "Provider connection requests",
