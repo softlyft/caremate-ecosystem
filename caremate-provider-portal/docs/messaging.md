@@ -14,7 +14,7 @@ Portal UI for org Messages still lives under `/app/broadcasts` (nav label: **Mes
 | Start thread | Portal staff with write access → `send_provider_org_message` (audience `all` or `selected`) |
 | Patient reply | Mobile → `post_patient_message` |
 | Org reply | Portal thread → `post_org_message` |
-| Prerequisite | Approved `patient_provider_connections` |
+| Prerequisite | Approved connection **and** active `messaging` consent (`'messaging' ∈ shared_scopes`) |
 | Push | Edge Function `notify-message` (org mode) — “New message from {Provider Name}” |
 
 Legacy `provider_broadcasts` rows may still be written as send audit; the live inbox is `message_conversations` (`kind = 'org_patient'`).
@@ -38,7 +38,7 @@ Legacy `provider_broadcasts` rows may still be written as send audit; the live i
 
 “Practitioner” for DMs means an active `provider_org_members` row for that org (Phase B mark-as-staff), not only `profiles.is_health_practitioner`.
 
-Both parties must be linked to the org (approved connection **or** active membership).
+Both parties must be linked to the org (approved connection **or** active membership). Patient ↔ practitioner DMs also require the patient’s active **messaging** consent for that org.
 
 ## Phase A / B (profile & staff)
 

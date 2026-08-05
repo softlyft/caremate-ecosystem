@@ -36,7 +36,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | SM-02 | P0 | Running app | Tap all 5 tabs: Home, Learn, Nearby, Apps, Me | Each tab opens; tab bar highlights active tab. |
 | SM-03 | P0 | Signed-in + online | Kill app → relaunch | Session restored; still signed in. |
 | SM-04 | P0 | Any | Force-close during Home load → reopen | Recovers without blank freeze. |
-| SM-05 | P0 | Android; viewing an article (or other inner screen) | Open system Settings → turn CareMate notification permission **off** → return to app | App may restart through splash; restores the same article/inner screen (not Home). Turning permission **on** also returns to the same screen. |
+| SM-05 | P0 | Android; viewing an article (or other inner screen) | Open system Settings → turn CareMate notification permission **off** → return to app | App may restart through splash; restores the same article/inner screen (not Home). Turning permission **on** also returns to the same screen. Header back still returns to the parent tab (not a dead end). |
 
 ---
 
@@ -135,6 +135,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | NB-04 | P1 | Signed-in | Toggle favorite on detail | Favorite state persists after leave/reopen. |
 | NB-05 | P2 | Guest | Toggle favorite | Still works locally (guest-scoped) or gated per product rule — confirm no crash. |
 | NB-06 | P1 | Detail with address or coordinates | Tap Open in Maps | Device default maps app opens with the provider location. |
+| NB-07 | P0 | Clinic detail; location disabled; spam Open in Maps / deny prompts; force-stop app; reopen | Header back returns to Nearby (not stuck). Open in Maps ignores taps while a handoff is already in progress. |
 | NB-07 | P2 | Legacy map route | Open `/(app)/providers/map` | Redirects to Nearby tab. |
 | NB-08 | P1 | Offline with cached provider data | Nearby tab | Cached providers still list successfully. |
 | NB-09 | P1 | Location permission denied or approximate mode chosen | Open Nearby | App uses the approximate pin for the selected country/state and still attempts to show providers; approximate-location caption may show. |

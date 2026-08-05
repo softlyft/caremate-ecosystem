@@ -4,10 +4,11 @@ import { STORAGE_KEYS } from '@/constants/config';
 import {
   LAST_ROUTE_MAX_AGE_MS,
   isRestorableAppHref,
+  resolveBackFallbackHref,
   saveLastAppHref,
   takeLastAppHref,
   toRestorableAppHref,
-} from '@/domains/navigation/persistence';
+} from '@/domains/navigation';
 import {
   isNavigationRestoreComplete,
   markNavigationRestoreComplete,
@@ -53,6 +54,18 @@ describe('navigation/persistence', () => {
       }),
     );
     await expect(takeLastAppHref()).resolves.toBeNull();
+  });
+});
+
+describe('navigation/safe-back', () => {
+  it('maps leaf surfaces to a safe tab entry', () => {
+    expect(resolveBackFallbackHref('/providers/clinic-1')).toBe('/(app)/(tabs)/providers');
+    expect(resolveBackFallbackHref('/(app)/providers/abc')).toBe('/(app)/(tabs)/providers');
+    expect(resolveBackFallbackHref('/providers/connections')).toBe('/(app)/(tabs)/profile');
+    expect(resolveBackFallbackHref('/articles/abc')).toBe('/(app)/(tabs)/articles');
+    expect(resolveBackFallbackHref('/apps/period-tracker')).toBe('/(app)/(tabs)/apps');
+    expect(resolveBackFallbackHref('/profile/settings')).toBe('/(app)/(tabs)/profile');
+    expect(resolveBackFallbackHref('/messages/1')).toBe('/(app)/(tabs)');
   });
 });
 

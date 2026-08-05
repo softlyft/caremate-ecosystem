@@ -8,7 +8,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -29,6 +28,7 @@ import { isValidPhone, sanitizePhoneInput } from '@/domains/profile/phone';
 import { profileRepository } from '@/domains/profile/repository';
 import { providerConnectionService } from '@/domains/providers/connection-service';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { useScheduleFocusedInputScroll } from '@/hooks/use-keyboard-aware-scroll';
 import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import type { Profile } from '@/types';
@@ -115,7 +115,9 @@ function EditProfileForm({
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
 
   const [fullName, setFullName] = useState(profile.fullName ?? '');
   const [phone, setPhone] = useState(() => sanitizePhoneInput(profile.phone ?? ''));
@@ -139,27 +141,12 @@ function EditProfileForm({
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
     const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
       setKeyboardHeight(event.endCoordinates.height);
-      const keyboardTop = event.endCoordinates.screenY;
-      requestAnimationFrame(() => {
-        setTimeout(
-          () => {
-            const input = TextInput.State.currentlyFocusedInput?.();
-            if (!input || !scrollRef.current) return;
-            input.measureInWindow((_x, y, _width, height) => {
-              const overlap = y + height + spacing.md - keyboardTop;
-              if (overlap <= 0) return;
-              scrollRef.current?.scrollTo({
-                y: Math.max(0, scrollYRef.current + overlap),
-                animated: true,
-              });
-            });
-          },
-          Platform.OS === 'ios' ? 80 : 120,
-        );
-      });
+      keyboardApi.scheduleScrollIntoView();
     });
     const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
       setKeyboardHeight(0);
     });
 
@@ -167,7 +154,7 @@ function EditProfileForm({
       showSub.remove();
       hideSub.remove();
     };
-  }, []);
+  }, [keyboardApi]);
 
   const connectionsQuery = useQuery({
     queryKey: [...QUERY_KEYS.providerConnections, 'mine', userId],
@@ -198,40 +185,16 @@ function EditProfileForm({
   );
   const awaitingStaff = useMemo(() => approved.some((c) => !c.isOrgStaff), [approved]);
 
+  // Extra scroll room so lower fields (address / NIN) can rise above the keyboard.
+  // Applied on both platforms: Android adjustResize alone is not enough for bottom fields.
   const bottomPad =
-    Platform.OS === 'ios' && keyboardHeight > 0
-      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
       : spacing.xl * 2;
   const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + PROFILE_HEADER_HEIGHT : 0;
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     scrollYRef.current = event.nativeEvent.contentOffset.y;
-  }
-
-  function scrollFocusedFieldIntoView() {
-    requestAnimationFrame(() => {
-      setTimeout(
-        () => {
-          const input = TextInput.State.currentlyFocusedInput?.();
-          if (!input || !scrollRef.current) return;
-          input.measureInWindow((_x, y, _width, height) => {
-            const windowHeight = Keyboard.metrics()?.screenY;
-            // If keyboard metrics unavailable, nudge toward end so lower fields (NIN) stay visible.
-            if (windowHeight == null) {
-              scrollRef.current?.scrollToEnd({ animated: true });
-              return;
-            }
-            const overlap = y + height + spacing.md - windowHeight;
-            if (overlap <= 0) return;
-            scrollRef.current?.scrollTo({
-              y: Math.max(0, scrollYRef.current + overlap),
-              animated: true,
-            });
-          });
-        },
-        Platform.OS === 'ios' ? 80 : 120,
-      );
-    });
   }
 
   async function handleSave() {
@@ -392,25 +355,25 @@ function EditProfileForm({
             placeholder={t('profile.edit.addressLine')}
             value={addressLine}
             onChangeText={setAddressLine}
-            onFocus={scrollFocusedFieldIntoView}
+            onFocus={keyboardApi.scheduleScrollIntoView}
           />
           <Input
             placeholder={t('profile.edit.city')}
             value={city}
             onChangeText={setCity}
-            onFocus={scrollFocusedFieldIntoView}
+            onFocus={keyboardApi.scheduleScrollIntoView}
           />
           <Input
             placeholder={t('profile.edit.state')}
             value={stateValue}
             onChangeText={setStateValue}
-            onFocus={scrollFocusedFieldIntoView}
+            onFocus={keyboardApi.scheduleScrollIntoView}
           />
           <Input
             placeholder={t('profile.edit.postalCode')}
             value={postalCode}
             onChangeText={setPostalCode}
-            onFocus={scrollFocusedFieldIntoView}
+            onFocus={keyboardApi.scheduleScrollIntoView}
           />
           <Input
             placeholder={nationalIdLabel}
@@ -425,7 +388,7 @@ function EditProfileForm({
                 setNationalIdError(null);
               }
             }}
-            onFocus={scrollFocusedFieldIntoView}
+            onFocus={keyboardApi.scheduleScrollIntoView}
             onBlur={() => {
               const result = parseNationalId(nationalId, countryCode, nationalIdMessages);
               setNationalIdError(result.ok ? null : result.message);

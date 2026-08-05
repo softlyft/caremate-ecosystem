@@ -15,6 +15,10 @@ import {
 } from '@/lib/health-data-gateway';
 import type { DocumentType, ProviderDocument } from '@/types/database';
 
+const DOCUMENTS_BUCKET = 'provider-documents';
+/** Match CareMate mobile signed URL lifetime. */
+const SIGNED_URL_SECONDS = 60 * 15;
+
 export async function listDocuments(
   organizationId: string,
   options?: { patientId?: string; page?: number; pageSize?: number },
@@ -161,4 +165,68 @@ export async function uploadDocument(input: {
   });
 
   return data as ProviderDocument;
+}
+
+/**
+ * Load a single document for the active org (gateway metadata or Supabase row).
+ */
+export async function getDocument(
+  organizationId: string,
+  documentId: string,
+): Promise<ProviderDocument | null> {
+  const gatewayRow = await gatewayRequest<ProviderDocument>(
+    'GET',
+    `/v1/documents/${encodeURIComponent(documentId)}`,
+  );
+
+  if (gatewayRow) {
+    if (gatewayRow.organization_id !== organizationId) {
+      return null;
+    }
+    return gatewayRow;
+  }
+
+  if (isHealthDataGatewayConfigured()) {
+    // Fallback when GET-by-id is unavailable: resolve from the org list (same source as Recent Uploads).
+    const gatewayRows = await gatewayRequest<ProviderDocument[]>(
+      'GET',
+      `/v1/documents?organizationId=${encodeURIComponent(organizationId)}`,
+    );
+    return gatewayRows?.find((row) => row.id === documentId) ?? null;
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('provider_documents')
+    .select('*')
+    .eq('id', documentId)
+    .eq('organization_id', organizationId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return (data as ProviderDocument | null) ?? null;
+}
+
+/**
+ * Create a short-lived signed URL so staff can open/preview the stored file.
+ */
+export async function createDocumentSignedUrl(
+  organizationId: string,
+  documentId: string,
+): Promise<string> {
+  const doc = await getDocument(organizationId, documentId);
+  if (!doc?.file_url) {
+    throw new Error('Document not found.');
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .createSignedUrl(doc.file_url, SIGNED_URL_SECONDS);
+
+  if (error || !data?.signedUrl) {
+    throw error ?? new Error('Could not open document.');
+  }
+
+  return data.signedUrl;
 }

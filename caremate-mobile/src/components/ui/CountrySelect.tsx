@@ -1,8 +1,11 @@
 import { Check, ChevronDown, Search, X } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  Dimensions,
   FlatList,
+  Keyboard,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   View,
@@ -50,6 +53,7 @@ export function CountrySelect({
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const selectedName =
     value == null && nullOptionLabel
@@ -71,10 +75,38 @@ export function CountrySelect({
     );
   }, [query]);
 
+  useEffect(() => {
+    if (!open) {
+      setKeyboardHeight(0);
+      return;
+    }
+
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [open]);
+
   function close() {
     setOpen(false);
     setQuery('');
+    setKeyboardHeight(0);
   }
+
+  const windowHeight = Dimensions.get('window').height;
+  const keyboardOpen = keyboardHeight > 0;
+  const sheetMaxHeight = keyboardOpen
+    ? Math.max(280, windowHeight - keyboardHeight - Math.max(insets.top, spacing.md) - spacing.md)
+    : Math.round(windowHeight * 0.78);
 
   return (
     <>
@@ -108,13 +140,29 @@ export function CountrySelect({
         transparent
         visible={open}
       >
-        <View style={styles.modalRoot}>
+        <View
+          style={[
+            styles.modalRoot,
+            // Lift the whole sheet above the soft keyboard so the search field stays visible.
+            { paddingBottom: keyboardHeight },
+          ]}
+        >
           <Pressable
             accessibilityLabel={closeAccessibilityLabel}
             onPress={close}
             style={StyleSheet.absoluteFill}
           />
-          <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+          <View
+            style={[
+              styles.sheet,
+              {
+                maxHeight: sheetMaxHeight,
+                // Fixed minHeight fights the keyboard and can shove the search field under it.
+                minHeight: keyboardOpen ? undefined : 420,
+                paddingBottom: Math.max(insets.bottom, spacing.md),
+              },
+            ]}
+          >
             <View style={styles.sheetHeader}>
               <View style={styles.sheetHeaderText}>
                 <AppText variant="cardTitle">{sheetTitle}</AppText>
@@ -148,6 +196,7 @@ export function CountrySelect({
               data={countries}
               keyExtractor={(item) => item.code}
               keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
               style={styles.list}
               contentContainerStyle={
                 countries.length === 0 && !nullOptionLabel ? styles.listEmpty : styles.listContent
@@ -250,8 +299,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.42)',
   },
   sheet: {
-    maxHeight: '78%',
-    minHeight: 420,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     gap: spacing.md,
@@ -287,6 +334,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flexGrow: 1,
+    flexShrink: 1,
   },
   listContent: {
     paddingBottom: spacing.sm,

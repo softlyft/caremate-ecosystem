@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
 import { Button, Input } from '@/components/ui/form-controls';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import {
@@ -57,7 +58,7 @@ export default function PregnancyLogScreen() {
   const issueMessage = (issue: PregnancyIssue): string =>
     t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const commitLog = () => {
+  const commitLog = async () => {
     const assessment = assessPregnancyLogDraft({
       dateKey: todayKey,
       mood,
@@ -67,12 +68,12 @@ export default function PregnancyLogScreen() {
     });
 
     if (assessment.hard) {
-      Alert.alert(t('apps.pregnancy.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.pregnancy.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
     if (!assessment.payload) {
-      Alert.alert(
+      void alert(
         t('apps.pregnancy.validation.checkTitle'),
         t('apps.pregnancy.validation.unusualCheck'),
       );
@@ -88,14 +89,15 @@ export default function PregnancyLogScreen() {
     };
 
     if (assessment.soft.length > 0) {
-      Alert.alert(
-        t('apps.pregnancy.validation.confirmTitle'),
-        assessment.soft.map(issueMessage).join('\n\n'),
-        [
-          { text: t('apps.pregnancy.validation.cancel'), style: 'cancel' },
-          { text: t('apps.pregnancy.validation.saveAnyway'), onPress: save },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.pregnancy.validation.confirmTitle'),
+        message: assessment.soft.map(issueMessage).join('\n\n'),
+        cancelLabel: t('apps.pregnancy.validation.cancel'),
+        confirmLabel: t('apps.pregnancy.validation.saveAnyway'),
+      });
+      if (ok) {
+        save();
+      }
       return;
     }
 

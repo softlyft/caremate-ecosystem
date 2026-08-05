@@ -10,7 +10,7 @@ import {
   Phone,
   Star,
 } from 'lucide-react-native';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Button } from '@/components/ui/form-controls';
@@ -61,6 +61,8 @@ export default function ProviderDetailScreen() {
   const isGuest = useIsGuest();
   const [declining, setDeclining] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [openingMaps, setOpeningMaps] = useState(false);
+  const openingMapsRef = useRef(false);
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.providers, id],
@@ -168,6 +170,7 @@ export default function ProviderDetailScreen() {
         titleColor: theme.accent,
         icon: Icon,
         backAccessibilityLabel: t('nearby.detail.backToNearby'),
+        backFallbackHref: '/(app)/(tabs)/providers',
       }),
     );
   }, [Icon, navigation, provider?.name, t, theme.accent, theme.soft, theme.softEnd]);
@@ -195,13 +198,28 @@ export default function ProviderDetailScreen() {
       ? t('nearby.detail.distanceKm', { distance: detail.distanceKm.toFixed(1) })
       : null;
 
-  function openInMaps() {
-    void openInExternalMaps({
-      address: detail.address,
-      latitude: detail.latitude,
-      longitude: detail.longitude,
-      label: detail.name,
-    });
+  async function openInMaps() {
+    if (openingMapsRef.current || !canOpenMaps) {
+      return;
+    }
+    openingMapsRef.current = true;
+    setOpeningMaps(true);
+    try {
+      await openInExternalMaps({
+        address: detail.address,
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        label: detail.name,
+      });
+    } catch {
+      // Maps handoff / permission denial must not leave the UI stuck.
+    } finally {
+      // `Linking.openURL` can resolve before the maps app / permission UI settles.
+      setTimeout(() => {
+        openingMapsRef.current = false;
+        setOpeningMaps(false);
+      }, 900);
+    }
   }
 
   function callProvider() {
@@ -295,8 +313,8 @@ export default function ProviderDetailScreen() {
             </AppText>
 
             <Button
-              disabled={!canOpenMaps}
-              onPress={openInMaps}
+              disabled={!canOpenMaps || openingMaps}
+              onPress={() => void openInMaps()}
               style={styles.infoRow}
               variant="plain"
             >
@@ -515,11 +533,11 @@ export default function ProviderDetailScreen() {
               style={[
                 styles.primaryCta,
                 { backgroundColor: theme.accent },
-                !canOpenMaps ? styles.ctaDisabled : null,
+                !canOpenMaps || openingMaps ? styles.ctaDisabled : null,
                 shadow.soft,
               ]}
-              disabled={!canOpenMaps}
-              onPress={openInMaps}
+              disabled={!canOpenMaps || openingMaps}
+              onPress={() => void openInMaps()}
               variant="plain"
             >
               <Navigation color="#FFFFFF" size={18} strokeWidth={2.25} />

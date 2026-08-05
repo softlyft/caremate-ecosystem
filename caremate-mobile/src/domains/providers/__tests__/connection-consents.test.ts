@@ -64,8 +64,21 @@ describe('connection-consents', () => {
   });
 
   it('falls back to offline CareMate mirror without definitions', () => {
-    expect(listAvailableConsents(['basic']).map((c) => c.scope)).toEqual(['emergency']);
-    expect(listGrantedConsents(['basic', 'emergency']).map((c) => c.scope)).toEqual(['emergency']);
+    expect(listAvailableConsents(['basic']).map((c) => c.scope)).toEqual([
+      'emergency',
+      'messaging',
+    ]);
+    expect(listGrantedConsents(['basic', 'emergency']).map((c) => c.scope)).toEqual([
+      'emergency',
+    ]);
+    expect(
+      listGrantedConsents(['basic', 'messaging']).map((c) => c.scope),
+    ).toEqual(['messaging']);
+  });
+
+  it('detects messaging consent', () => {
+    expect(hasConsentScope(['basic'], 'messaging')).toBe(false);
+    expect(hasConsentScope(['basic', 'messaging'], 'messaging')).toBe(true);
   });
 
   it('maps definition to UI and resolves title', () => {

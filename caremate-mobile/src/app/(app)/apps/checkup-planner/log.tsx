@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { isCheckupItemUnlocked } from '@/domains/billing/entitlements';
@@ -137,7 +138,7 @@ export default function CheckupPlannerLogScreen() {
   const issueMessage = (issue: CheckupIssue): string =>
     t(`apps.checkup.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const commitCompletion = () => {
+  const commitCompletion = async () => {
     const assessment = assessCompletionDraft({
       checkupId: checkup.id,
       year,
@@ -151,12 +152,12 @@ export default function CheckupPlannerLogScreen() {
     });
 
     if (assessment.hard) {
-      Alert.alert(t('apps.checkup.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.checkup.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
     if (!assessment.payload) {
-      Alert.alert(
+      void alert(
         t('apps.checkup.validation.checkTitle'),
         t('apps.checkup.validation.unusualCheck'),
       );
@@ -169,14 +170,15 @@ export default function CheckupPlannerLogScreen() {
     };
 
     if (assessment.soft.length > 0) {
-      Alert.alert(
-        t('apps.checkup.validation.confirmTitle'),
-        assessment.soft.map(issueMessage).join('\n\n'),
-        [
-          { text: t('apps.checkup.validation.cancel'), style: 'cancel' },
-          { text: t('apps.checkup.validation.saveAnyway'), onPress: save },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.checkup.validation.confirmTitle'),
+        message: assessment.soft.map(issueMessage).join('\n\n'),
+        cancelLabel: t('apps.checkup.validation.cancel'),
+        confirmLabel: t('apps.checkup.validation.saveAnyway'),
+      });
+      if (ok) {
+        save();
+      }
       return;
     }
 
@@ -257,22 +259,18 @@ export default function CheckupPlannerLogScreen() {
           soft={theme.backgroundColor}
           secondary
           index={5}
-          onPress={() => {
-            Alert.alert(
-              t('apps.checkup.validation.undoTitle'),
-              t('apps.checkup.validation.undoMessage'),
-              [
-                { text: t('apps.checkup.validation.cancel'), style: 'cancel' },
-                {
-                  text: t('apps.checkup.validation.undoConfirm'),
-                  style: 'destructive',
-                  onPress: () => {
-                    removeCompletion(checkup.id, year);
-                    router.back();
-                  },
-                },
-              ],
-            );
+          onPress={async () => {
+            const ok = await confirm({
+              title: t('apps.checkup.validation.undoTitle'),
+              message: t('apps.checkup.validation.undoMessage'),
+              cancelLabel: t('apps.checkup.validation.cancel'),
+              confirmLabel: t('apps.checkup.validation.undoConfirm'),
+              confirmVariant: 'destructive',
+            });
+            if (ok) {
+              removeCompletion(checkup.id, year);
+              router.back();
+            }
           }}
         />
       ) : null}

@@ -1,9 +1,10 @@
-import { router } from 'expo-router';
+import { usePathname, type Href } from 'expo-router';
 import { BookOpen, ChevronLeft, X, type LucideIcon } from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
+import { resolveBackFallbackHref, routerBackOrFallback } from '@/domains/navigation';
 import { translateText } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow } from '@/theme';
 
@@ -15,6 +16,8 @@ type GlossyHeaderConfig = {
   titleColor?: string;
   icon?: LucideIcon;
   backAccessibilityLabel?: string;
+  /** Used when cold-start restore left no history for `router.back()`. */
+  backFallbackHref?: Href;
   modal?: boolean;
 };
 
@@ -23,19 +26,23 @@ function GlossyBackButton({
   soft,
   accessibilityLabel,
   modal,
+  backFallbackHref,
 }: {
   accent: string;
   soft: string;
   accessibilityLabel: string;
   modal?: boolean;
+  backFallbackHref?: Href;
 }) {
+  const pathname = usePathname();
   const Icon = modal ? X : ChevronLeft;
+  const fallback = backFallbackHref ?? resolveBackFallbackHref(pathname);
 
   return (
     <Button
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      onPress={() => router.back()}
+      onPress={() => routerBackOrFallback(fallback)}
       style={[
         styles.backButton,
         { backgroundColor: soft, borderColor: `${accent}33` },
@@ -88,6 +95,7 @@ export function glossyStackHeaderOptions({
   titleColor = palette.primaryDark,
   icon = BookOpen,
   backAccessibilityLabel = translateText('en', 'learn.goBack'),
+  backFallbackHref,
   modal = false,
 }: GlossyHeaderConfig) {
   return {
@@ -109,6 +117,7 @@ export function glossyStackHeaderOptions({
         soft={soft}
         accessibilityLabel={backAccessibilityLabel}
         modal={modal}
+        backFallbackHref={backFallbackHref}
       />
     ),
     headerTitle: () => (
@@ -132,6 +141,7 @@ export function learnArticleHeaderOptions(title = translateText('en', 'learn.art
     titleColor: palette.primaryDark,
     icon: BookOpen,
     backAccessibilityLabel: translateText('en', 'learn.backToLearn'),
+    backFallbackHref: '/(app)/(tabs)/articles',
   });
 }
 

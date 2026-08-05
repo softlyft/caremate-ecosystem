@@ -13,6 +13,7 @@ import { EmergencyShareDeepLinkHandler } from '@/components/EmergencyShareDeepLi
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { NavigationPersistence } from '@/components/NavigationPersistence';
 import { PushPermissionReconciler } from '@/components/PushPermissionReconciler';
+import { AppDialogHost } from '@/components/ui/AppDialogHost';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { useAuthStore } from '@/features/auth/store';
 import { useAppFonts } from '@/hooks/use-app-fonts';
@@ -75,6 +76,7 @@ function RootLayout() {
             <Stack.Screen name="billing/success" options={{ headerShown: false }} />
             <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />
           </Stack>
+          <AppDialogHost />
         </AppProviders>
       </GluestackUIProvider>
     </ErrorBoundary>

@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
@@ -128,12 +129,12 @@ export default function ImmunizationLogScreen() {
   const issueMessage = (issue: ImmunizationIssue): string =>
     t(`apps.immunization.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const commitRecord = () => {
+  const commitRecord = async () => {
     if (
       !selectedVaccineDefinition ||
       !isImmunizationScheduleItemUnlocked(tier, selectedVaccineDefinition.recommendedAgeWeeks)
     ) {
-      Alert.alert(
+      void alert(
         t('profile.premium.immunizationLockedTitle'),
         t('profile.premium.immunizationLockedMessage'),
       );
@@ -151,12 +152,12 @@ export default function ImmunizationLogScreen() {
     });
 
     if (assessment.hard) {
-      Alert.alert(t('apps.immunization.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.immunization.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
     if (!assessment.payload) {
-      Alert.alert(
+      void alert(
         t('apps.immunization.validation.checkTitle'),
         t('apps.immunization.validation.unusualCheck'),
       );
@@ -169,14 +170,15 @@ export default function ImmunizationLogScreen() {
     };
 
     if (assessment.soft.length > 0) {
-      Alert.alert(
-        t('apps.immunization.validation.confirmTitle'),
-        assessment.soft.map(issueMessage).join('\n\n'),
-        [
-          { text: t('apps.immunization.validation.cancel'), style: 'cancel' },
-          { text: t('apps.immunization.validation.saveAnyway'), onPress: save },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.immunization.validation.confirmTitle'),
+        message: assessment.soft.map(issueMessage).join('\n\n'),
+        cancelLabel: t('apps.immunization.validation.cancel'),
+        confirmLabel: t('apps.immunization.validation.saveAnyway'),
+      });
+      if (ok) {
+        save();
+      }
       return;
     }
 
@@ -353,22 +355,18 @@ export default function ImmunizationLogScreen() {
           soft={theme.backgroundColor}
           secondary
           index={6}
-          onPress={() => {
-            Alert.alert(
-              t('apps.immunization.validation.undoTitle'),
-              t('apps.immunization.validation.undoMessage'),
-              [
-                { text: t('apps.immunization.validation.cancel'), style: 'cancel' },
-                {
-                  text: t('apps.immunization.validation.undoConfirm'),
-                  style: 'destructive',
-                  onPress: () => {
-                    removeRecord(profileId, selectedVaccineId);
-                    router.back();
-                  },
-                },
-              ],
-            );
+          onPress={async () => {
+            const ok = await confirm({
+              title: t('apps.immunization.validation.undoTitle'),
+              message: t('apps.immunization.validation.undoMessage'),
+              cancelLabel: t('apps.immunization.validation.cancel'),
+              confirmLabel: t('apps.immunization.validation.undoConfirm'),
+              confirmVariant: 'destructive',
+            });
+            if (ok) {
+              removeRecord(profileId, selectedVaccineId);
+              router.back();
+            }
           }}
         />
       ) : null}

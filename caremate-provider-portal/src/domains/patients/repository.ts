@@ -37,7 +37,13 @@ export type PatientDetail = {
 
 export async function listConnectedPatients(
   organizationId: string,
-  options?: { search?: string; page?: number; pageSize?: number },
+  options?: {
+    search?: string;
+    page?: number;
+    pageSize?: number;
+    /** When true, only connections with active messaging consent. */
+    messagingConsent?: boolean;
+  },
 ): Promise<PaginatedResult<ConnectedPatientRow>> {
   const supabase = await createClient();
   const page = parsePage(options?.page);
@@ -66,6 +72,10 @@ export async function listConnectedPatients(
     .eq('status', 'approved')
     .order('approved_at', { ascending: false })
     .range(from, to);
+
+  if (options?.messagingConsent) {
+    query = query.contains('shared_scopes', ['messaging']);
+  }
 
   if (matchingPatientIds) {
     query = query.in('patient_id', matchingPatientIds);

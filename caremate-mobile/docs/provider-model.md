@@ -96,11 +96,11 @@ Patient ↔ provider **connections**, documents, **messages**, and appointment r
 | Messaging (org threads + DMs) | [`docs/messaging.md`](../../caremate-provider-portal/docs/messaging.md) |
 | Claim + verification | [`docs/auth-claim.md`](../../caremate-provider-portal/docs/auth-claim.md) |
 
-**Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. **Connecting does not share clinical data** — patients grant FHIR Consent–aligned directives from **Me → Connections → Connected providers → [provider] → Add consent** (registry starts with emergency profile; `shared_scopes` is a denormalized cache). Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
+**Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. **Approving auto-grants secure messaging consent** (revocable under Connections). Clinical data (e.g. emergency profile) stays opt-in via **Me → Connections → Connected providers → [provider] → Add consent** (`shared_scopes` is a denormalized cache). Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
 
 **Documents (shipped):** patients upload under **Me → Documents** (org optional; link later after connect); providers upload to connected patients; both appear in the same list (signed URL open). Patient-sourced files are visible to a provider only after the patient links that org and the connection is approved.
 
-**Messages (shipped):** portal **Messages** compose + two-way threads; mobile Home → **Messages** inbox / reply / New message (DMs). Push via Edge Function `notify-message` when the device is registered. Staff elevation: connected patient → Mark as staff (optional company fields).
+**Messages (shipped):** portal **Messages** compose + two-way threads; mobile Home → **Messages** inbox / reply / New message (DMs). Org ↔ patient messaging requires active **messaging** consent. Push via Edge Function `notify-message` when the device is registered. Staff elevation: connected patient → Mark as staff (optional company fields).
 
 ## Flexible attributes
 

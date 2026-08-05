@@ -21,7 +21,7 @@ patient_provider_connections.shared_scopes  → denormalized permit cache for RL
 | `fhir_category` / `fhir_policy_rule` | FHIR Consent category + OPTIN policy |
 | `data_class` | Logical coverage (`emergency_profile`, …) |
 
-Seeded today: system `emergency` → emergency profile.
+Seeded today: system `emergency` → emergency profile; system `messaging` → secure messaging (auto-granted on connection approve).
 
 ### `patient_provider_consents` (FHIR Consent mapping)
 
@@ -39,11 +39,14 @@ Seeded today: system `emergency` → emergency profile.
 | Scope | Meaning |
 |-------|---------|
 | `basic` | Always present — CRM identity only (not a Consent) |
-| other codes | Mirror of **active** permit definition codes |
+| `messaging` | Auto-granted when connection becomes `approved`; patient may revoke/re-grant. Required for org ↔ patient messaging. |
+| other codes | Mirror of **active** permit definition codes (e.g. `emergency`) |
 
+- **Approve** (either party) runs a DB trigger that inserts/reactivates an active **messaging** consent (`source = system`).
+- **Reject / cancel** while pending permanently deletes any messaging consent rows for that connection.
 - Patients manage consent on **Me → Connections → Connected providers → [provider] → Add consent**.
 - Portal patient detail shows emergency data only when `'emergency' ∈ shared_scopes` (synced from an active consent).
-- Only patients write consent rows; a DB trigger refreshes `shared_scopes`. Direct scope edits by non-patients are blocked (except the sync path).
+- Only patients write consent rows via the app; system messaging grant uses a security-definer trigger. A DB trigger refreshes `shared_scopes`. Direct scope edits by non-patients are blocked (except the sync path).
 
 ## Bidirectional model
 

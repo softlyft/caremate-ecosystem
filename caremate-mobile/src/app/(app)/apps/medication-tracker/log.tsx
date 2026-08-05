@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
@@ -117,7 +118,7 @@ export default function MedicationLogScreen() {
   const issueMessage = (issue: MedicationIssue): string =>
     t(`apps.medication.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const commitDoseLog = (slot: number, confirmSoft = true) => {
+  const commitDoseLog = async (slot: number, confirmSoft = true) => {
     const assessment = assessDoseLog({
       medication: selectedMedication,
       dateKey,
@@ -129,12 +130,12 @@ export default function MedicationLogScreen() {
     });
 
     if (assessment.hard) {
-      Alert.alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.medication.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
     if (!assessment.payload) {
-      Alert.alert(
+      void alert(
         t('apps.medication.validation.checkTitle'),
         t('apps.medication.validation.unusualCheck'),
       );
@@ -152,14 +153,15 @@ export default function MedicationLogScreen() {
     };
 
     if (confirmSoft && assessment.soft.length > 0) {
-      Alert.alert(
-        t('apps.medication.validation.confirmTitle'),
-        assessment.soft.map(issueMessage).join('\n\n'),
-        [
-          { text: t('apps.medication.validation.cancel'), style: 'cancel' },
-          { text: t('apps.medication.validation.saveAnyway'), onPress: save },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.medication.validation.confirmTitle'),
+        message: assessment.soft.map(issueMessage).join('\n\n'),
+        cancelLabel: t('apps.medication.validation.cancel'),
+        confirmLabel: t('apps.medication.validation.saveAnyway'),
+      });
+      if (ok) {
+        save();
+      }
       return;
     }
 
@@ -304,22 +306,18 @@ export default function MedicationLogScreen() {
           soft={theme.backgroundColor}
           secondary
           index={6}
-          onPress={() => {
-            Alert.alert(
-              t('apps.medication.validation.undoTitle'),
-              t('apps.medication.validation.undoMessage'),
-              [
-                { text: t('apps.medication.validation.cancel'), style: 'cancel' },
-                {
-                  text: t('apps.medication.validation.undoConfirm'),
-                  style: 'destructive',
-                  onPress: () => {
-                    removeDoseLog(existingLog.id);
-                    router.back();
-                  },
-                },
-              ],
-            );
+          onPress={async () => {
+            const ok = await confirm({
+              title: t('apps.medication.validation.undoTitle'),
+              message: t('apps.medication.validation.undoMessage'),
+              cancelLabel: t('apps.medication.validation.cancel'),
+              confirmLabel: t('apps.medication.validation.undoConfirm'),
+              confirmVariant: 'destructive',
+            });
+            if (ok) {
+              removeDoseLog(existingLog.id);
+              router.back();
+            }
           }}
         />
       ) : null}

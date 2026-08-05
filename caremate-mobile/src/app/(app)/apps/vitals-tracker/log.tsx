@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
@@ -175,13 +176,13 @@ export default function VitalsLogScreen() {
     router.back();
   };
 
-  const confirmSoftThenSave = (assessment: VitalAssessment, draft: VitalDraftInput) => {
+  const confirmSoftThenSave = async (assessment: VitalAssessment, draft: VitalDraftInput) => {
     const previous = getPreviousEntry(entries, type);
     const typo = assessment.soft.find((issue) => issue.code === 'typo_suggestion');
     const softMessages = assessment.soft.map(issueMessage).filter(Boolean);
 
     if (typo && typo.suggestedDisplayValue != null && !assessment.payload) {
-      Alert.alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
+      void alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
         { text: t('apps.vitals.validation.cancel'), style: 'cancel' },
         {
           text: t('apps.vitals.validation.useSuggestion', {
@@ -193,11 +194,11 @@ export default function VitalsLogScreen() {
               previous,
             );
             if (next.hard) {
-              Alert.alert(t('apps.vitals.validation.checkTitle'), issueMessage(next.hard));
+              void alert(t('apps.vitals.validation.checkTitle'), issueMessage(next.hard));
               return;
             }
             if (next.soft.length > 0 && next.payload) {
-              confirmSoftThenSave(next, {
+              void confirmSoftThenSave(next, {
                 ...draft,
                 valueText: String(typo.suggestedDisplayValue),
               });
@@ -215,32 +216,34 @@ export default function VitalsLogScreen() {
       return;
     }
 
-    Alert.alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
-      { text: t('apps.vitals.validation.cancel'), style: 'cancel' },
-      {
-        text: t('apps.vitals.validation.saveAnyway'),
-        onPress: () => savePayload(assessment),
-      },
-    ]);
+    const ok = await confirm({
+      title: t('apps.vitals.validation.confirmTitle'),
+      message: softMessages.join('\n\n'),
+      cancelLabel: t('apps.vitals.validation.cancel'),
+      confirmLabel: t('apps.vitals.validation.saveAnyway'),
+    });
+    if (ok) {
+      savePayload(assessment);
+    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const draft = buildDraft();
     const previous = getPreviousEntry(entries, type);
     const assessment = assessVitalDraft(draft, previous);
 
     if (assessment.hard) {
-      Alert.alert(t('apps.vitals.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.vitals.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
     if (!assessment.payload && assessment.soft.some((s) => s.code === 'typo_suggestion')) {
-      confirmSoftThenSave(assessment, draft);
+      await confirmSoftThenSave(assessment, draft);
       return;
     }
 
     if (!assessment.payload) {
-      Alert.alert(
+      void alert(
         t('apps.vitals.validation.checkTitle'),
         t('apps.vitals.validation.unusualCheck'),
       );
@@ -248,7 +251,7 @@ export default function VitalsLogScreen() {
     }
 
     if (assessment.soft.length > 0) {
-      confirmSoftThenSave(assessment, draft);
+      await confirmSoftThenSave(assessment, draft);
       return;
     }
 

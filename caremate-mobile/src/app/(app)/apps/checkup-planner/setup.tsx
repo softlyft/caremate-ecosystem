@@ -1,7 +1,8 @@
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { CountrySelect } from '@/components/ui/CountrySelect';
 import { localizationService, useTranslation } from '@/domains/localization';
@@ -153,7 +154,7 @@ export default function CheckupPlannerSetupScreen() {
         accent={theme.color}
         soft={theme.backgroundColor}
         index={4}
-        onPress={() => {
+        onPress={async () => {
           const assessment = assessProfileDraft({
             dateOfBirth,
             gender,
@@ -165,12 +166,12 @@ export default function CheckupPlannerSetupScreen() {
             t(`apps.checkup.validation.${issue.messageKey}`, issue.params ?? {});
 
           if (assessment.hard) {
-            Alert.alert(t('apps.checkup.validation.checkTitle'), issueMessage(assessment.hard));
+            void alert(t('apps.checkup.validation.checkTitle'), issueMessage(assessment.hard));
             return;
           }
 
           if (!assessment.payload) {
-            Alert.alert(
+            void alert(
               t('apps.checkup.validation.checkTitle'),
               t('apps.checkup.validation.unusualCheck'),
             );
@@ -183,14 +184,15 @@ export default function CheckupPlannerSetupScreen() {
           };
 
           if (assessment.soft.length > 0) {
-            Alert.alert(
-              t('apps.checkup.validation.confirmTitle'),
-              assessment.soft.map(issueMessage).join('\n\n'),
-              [
-                { text: t('apps.checkup.validation.cancel'), style: 'cancel' },
-                { text: t('apps.checkup.validation.saveAnyway'), onPress: commit },
-              ],
-            );
+            const ok = await confirm({
+              title: t('apps.checkup.validation.confirmTitle'),
+              message: assessment.soft.map(issueMessage).join('\n\n'),
+              cancelLabel: t('apps.checkup.validation.cancel'),
+              confirmLabel: t('apps.checkup.validation.saveAnyway'),
+            });
+            if (ok) {
+              commit();
+            }
             return;
           }
 
@@ -205,22 +207,18 @@ export default function CheckupPlannerSetupScreen() {
           soft={theme.backgroundColor}
           secondary
           index={5}
-          onPress={() => {
-            Alert.alert(
-              t('apps.checkup.ui.clearConfirmTitle'),
-              t('apps.checkup.ui.clearConfirmMessage'),
-              [
-                { text: t('common.cancel'), style: 'cancel' },
-                {
-                  text: t('common.clear'),
-                  style: 'destructive',
-                  onPress: () => {
-                    clearProfile();
-                    router.back();
-                  },
-                },
-              ],
-            );
+          onPress={async () => {
+            const ok = await confirm({
+              title: t('apps.checkup.ui.clearConfirmTitle'),
+              message: t('apps.checkup.ui.clearConfirmMessage'),
+              cancelLabel: t('common.cancel'),
+              confirmLabel: t('common.clear'),
+              confirmVariant: 'destructive',
+            });
+            if (ok) {
+              clearProfile();
+              router.back();
+            }
           }}
         />
       ) : null}

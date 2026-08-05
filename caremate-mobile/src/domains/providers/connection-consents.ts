@@ -11,7 +11,7 @@
  */
 
 /** Known CareMate system consent codes (i18n + offline). Not an allowlist for auth. */
-export const CAREMATE_SYSTEM_CONSENT_CODES = ['emergency'] as const;
+export const CAREMATE_SYSTEM_CONSENT_CODES = ['emergency', 'messaging'] as const;
 
 export type CareMateSystemConsentCode = (typeof CAREMATE_SYSTEM_CONSENT_CODES)[number];
 
@@ -76,6 +76,13 @@ export const CONNECTION_CONSENTS: readonly ConnectionConsentDefinition[] = [
     fhirScope: 'patient-privacy',
     titleKey: 'nearby.connections.consents.emergency.title',
     descriptionKey: 'nearby.connections.consents.emergency.description',
+  },
+  {
+    scope: 'messaging',
+    dataClass: 'messaging',
+    fhirScope: 'patient-privacy',
+    titleKey: 'nearby.connections.consents.messaging.title',
+    descriptionKey: 'nearby.connections.consents.messaging.description',
   },
 ] as const;
 

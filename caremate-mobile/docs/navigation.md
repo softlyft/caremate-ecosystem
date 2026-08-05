@@ -25,6 +25,8 @@ After Android kills the process (e.g. when notification permission is revoked in
 
 Auth, billing, and emergency-share surfaces are not restored.
 
+Restored leaf screens (clinic detail, article, etc.) often have **no back stack** because restore uses a top-level `Redirect`. Glossy headers call `routerBackOrFallback`: if `router.canGoBack()` is false, they `replace` to the nearest safe tab (e.g. Nearby for clinic detail) instead of a no-op back.
+
 ---
 
 ## Bottom tabs

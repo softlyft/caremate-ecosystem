@@ -32,7 +32,7 @@ export default async function BroadcastsPage({
 
   const [conversations, patientsResult] = await Promise.all([
     listOrgConversations(orgId, { page }),
-    listConnectedPatients(orgId, { page: 1, pageSize: 200 }),
+    listConnectedPatients(orgId, { page: 1, pageSize: 200, messagingConsent: true }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
 
@@ -48,8 +48,8 @@ export default async function BroadcastsPage({
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Messages</h1>
         <p className="mt-1 text-sm text-muted">
-          Inbox-style messages to connected patients. Broadcasts land in each patient&apos;s CareMate
-          Messages inbox with a push notification.
+          Inbox-style messages to connected patients who have messaging consent. Broadcasts land in
+          each patient&apos;s CareMate Messages inbox with a push notification.
         </p>
       </div>
 
@@ -59,7 +59,7 @@ export default async function BroadcastsPage({
             <CardHeader>
               <CardTitle>Compose</CardTitle>
               <CardDescription>
-                Send to all connected patients or a selected group
+                Send to patients with active messaging consent (all or selected)
               </CardDescription>
             </CardHeader>
             <CardContent>

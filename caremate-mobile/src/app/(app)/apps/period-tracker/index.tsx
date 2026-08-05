@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { Minus, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
+import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
@@ -71,7 +72,7 @@ export default function PeriodTrackerScreen() {
   const issueMessage = (issue: PeriodIssue): string =>
     t(`apps.period.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const requestTogglePeriodDay = (dayKey: string) => {
+  const requestTogglePeriodDay = async (dayKey: string) => {
     const assessment = assessPeriodDayToggle({
       dayKey,
       todayKey,
@@ -81,37 +82,39 @@ export default function PeriodTrackerScreen() {
     });
 
     if (assessment.hard) {
-      Alert.alert(t('apps.period.validation.checkTitle'), issueMessage(assessment.hard));
+      void alert(t('apps.period.validation.checkTitle'), issueMessage(assessment.hard));
       return;
     }
 
     const apply = () => togglePeriodDay(dayKey);
 
     if (assessment.soft.length > 0) {
-      Alert.alert(
-        t('apps.period.validation.confirmTitle'),
-        assessment.soft.map(issueMessage).join('\n\n'),
-        [
-          { text: t('apps.period.validation.cancel'), style: 'cancel' },
-          { text: t('apps.period.validation.saveAnyway'), onPress: apply },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.period.validation.confirmTitle'),
+        message: assessment.soft.map(issueMessage).join('\n\n'),
+        cancelLabel: t('apps.period.validation.cancel'),
+        confirmLabel: t('apps.period.validation.saveAnyway'),
+      });
+      if (ok) {
+        apply();
+      }
       return;
     }
 
     apply();
   };
 
-  const requestResume = () => {
+  const requestResume = async () => {
     if (isPregnant) {
-      Alert.alert(
-        t('apps.period.validation.confirmTitle'),
-        t('apps.period.validation.resumeWhilePregnant'),
-        [
-          { text: t('apps.period.validation.cancel'), style: 'cancel' },
-          { text: t('apps.period.validation.saveAnyway'), onPress: () => resume() },
-        ],
-      );
+      const ok = await confirm({
+        title: t('apps.period.validation.confirmTitle'),
+        message: t('apps.period.validation.resumeWhilePregnant'),
+        cancelLabel: t('apps.period.validation.cancel'),
+        confirmLabel: t('apps.period.validation.saveAnyway'),
+      });
+      if (ok) {
+        resume();
+      }
       return;
     }
     resume();
