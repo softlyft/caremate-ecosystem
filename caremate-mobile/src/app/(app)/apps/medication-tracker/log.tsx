@@ -28,10 +28,7 @@ import {
   toDateKey,
 } from '@/mini-apps/medication-tracker/utils';
 import { localizeFrequencyLabel, localizeSlotLabel } from '@/mini-apps/medication-tracker/localize';
-import {
-  assessDoseLog,
-  type MedicationIssue,
-} from '@/mini-apps/medication-tracker/validation';
+import { assessDoseLog, type MedicationIssue } from '@/mini-apps/medication-tracker/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('medication-tracker');

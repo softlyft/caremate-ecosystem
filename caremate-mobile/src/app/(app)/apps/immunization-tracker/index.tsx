@@ -246,10 +246,7 @@ export default function ImmunizationTrackerScreen() {
             color={STATUS_COLORS[summary.nextDue.status]}
             background={STATUS_BACKGROUNDS[summary.nextDue.status]}
           />
-          {isImmunizationScheduleItemUnlocked(
-            tier,
-            summary.nextDue.vaccine.recommendedAgeWeeks,
-          ) ? (
+          {isImmunizationScheduleItemUnlocked(tier, summary.nextDue.vaccine.recommendedAgeWeeks) ? (
             <MiniAppCta
               label={t('apps.immunizationTracker.logVaccine')}
               accent={theme.color}

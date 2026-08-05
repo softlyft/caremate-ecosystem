@@ -3,7 +3,10 @@
  * Tone matches checkup/medication: block impossible values; confirm unusual ones.
  */
 
-import { VACCINE_SCHEDULE, type VaccineDefinition } from '@/mini-apps/immunization-tracker/constants';
+import {
+  VACCINE_SCHEDULE,
+  type VaccineDefinition,
+} from '@/mini-apps/immunization-tracker/constants';
 import {
   getRecommendedDate,
   type ImmunizationProfile,

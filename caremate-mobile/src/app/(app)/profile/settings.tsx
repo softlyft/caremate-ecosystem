@@ -1,14 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import {
-  Bell,
-  FileText,
-  MapPin,
-  Settings,
-  Shield,
-  Trash2,
-  Users,
-} from 'lucide-react-native';
+import { Bell, FileText, MapPin, Settings, Shield, Trash2, Users } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';

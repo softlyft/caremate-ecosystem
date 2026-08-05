@@ -33,11 +33,7 @@ export type ConsentDefinition = {
   active: boolean;
 };
 
-export type PatientProviderConsentStatus =
-  | 'draft'
-  | 'active'
-  | 'inactive'
-  | 'entered-in-error';
+export type PatientProviderConsentStatus = 'draft' | 'active' | 'inactive' | 'entered-in-error';
 
 export type PatientProviderConsent = {
   id: string;
@@ -122,9 +118,7 @@ export function normalizeSharedScopes(scopes: readonly string[]): string[] {
   return [...new Set(cleaned)];
 }
 
-export function definitionToConsentUi(
-  definition: ConsentDefinition,
-): ConnectionConsentDefinition {
+export function definitionToConsentUi(definition: ConsentDefinition): ConnectionConsentDefinition {
   const systemMirror = CONNECTION_CONSENTS.find((c) => c.scope === definition.code);
   return {
     definitionId: definition.id,

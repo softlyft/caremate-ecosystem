@@ -46,10 +46,7 @@ export default function ImmunizationLogScreen() {
   }>();
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
-  const maxMonth = useMemo(
-    () => new Date(today.getFullYear(), today.getMonth(), 1),
-    [today],
-  );
+  const maxMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth(), 1), [today]);
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );

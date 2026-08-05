@@ -58,14 +58,8 @@ export function AppDialogHost() {
       visible={Boolean(current)}
     >
       {current ? (
-        <View
-          accessibilityViewIsModal
-          style={styles.backdrop}
-        >
-          <View
-            accessibilityRole="alert"
-            style={[styles.card, shadow.card]}
-          >
+        <View accessibilityViewIsModal style={styles.backdrop}>
+          <View accessibilityRole="alert" style={[styles.card, shadow.card]}>
             <AppText variant="sectionTitle" style={styles.title}>
               {current.title}
             </AppText>
@@ -82,7 +76,10 @@ export function AppDialogHost() {
                   onPress={() => handleAction(index)}
                   size="sm"
                   style={styles.actionButton}
-                  variant={action.variant ?? (index === current.actions.length - 1 ? 'primary' : 'secondary')}
+                  variant={
+                    action.variant ??
+                    (index === current.actions.length - 1 ? 'primary' : 'secondary')
+                  }
                 />
               ))}
             </View>

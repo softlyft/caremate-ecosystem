@@ -22,10 +22,7 @@ import {
 } from '@/mini-apps/checkup-planner/store';
 import { formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
 import { localizeGenderOptions } from '@/mini-apps/checkup-planner/localize';
-import {
-  assessProfileDraft,
-  type CheckupIssue,
-} from '@/mini-apps/checkup-planner/validation';
+import { assessProfileDraft, type CheckupIssue } from '@/mini-apps/checkup-planner/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');

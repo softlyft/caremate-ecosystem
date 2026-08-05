@@ -74,9 +74,7 @@ export default function ConnectedProvidersScreen() {
             <Pressable
               key={item.id}
               style={({ pressed }) => [styles.card, shadow.soft, pressed && styles.pressed]}
-              onPress={() =>
-                router.push(`/(app)/providers/connections/${item.id}` as Href)
-              }
+              onPress={() => router.push(`/(app)/providers/connections/${item.id}` as Href)}
               accessibilityRole="button"
               accessibilityLabel={
                 item.organizationName ?? t('nearby.connectionRequests.providerFallback')
@@ -92,7 +90,10 @@ export default function ConnectedProvidersScreen() {
                       date: new Date(item.approvedAt ?? item.createdAt).toLocaleDateString(),
                     })}
                   </AppText>
-                  <AppText variant="caption" style={hasEmergency ? styles.consentOn : styles.consentOff}>
+                  <AppText
+                    variant="caption"
+                    style={hasEmergency ? styles.consentOn : styles.consentOff}
+                  >
                     {hasEmergency
                       ? t('nearby.connections.listEmergencyShared')
                       : t('nearby.connections.listEmergencyPending')}

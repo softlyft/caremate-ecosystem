@@ -154,10 +154,7 @@ export function MonthCalendarNavigator({
           style={[styles.arrowButton, !canGoNext && styles.arrowButtonDisabled]}
           variant="plain"
         >
-          <ChevronRight
-            color={!canGoNext ? palette.divider : palette.textSecondary}
-            size={20}
-          />
+          <ChevronRight color={!canGoNext ? palette.divider : palette.textSecondary} size={20} />
         </Button>
       </View>
 

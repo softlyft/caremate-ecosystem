@@ -51,10 +51,7 @@ import {
   type DoseSlotStatus,
   type Medication,
 } from '@/mini-apps/medication-tracker/utils';
-import {
-  assessDoseLog,
-  type MedicationIssue,
-} from '@/mini-apps/medication-tracker/validation';
+import { assessDoseLog, type MedicationIssue } from '@/mini-apps/medication-tracker/validation';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette, spacing } from '@/theme';
 

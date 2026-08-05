@@ -150,15 +150,6 @@ function entryWeightKg(entry: VitalEntry): number | null {
   return entry.value;
 }
 
-function entryHeightCm(entry: VitalEntry): number | null {
-  if (entry.type !== 'height') return null;
-  if (entry.unit === 'cm' && entry.value != null) return entry.value;
-  if (entry.unit === 'ft') {
-    return heightToCm({ unit: 'ft', feet: entry.feet, inches: entry.inches });
-  }
-  return entry.value ?? null;
-}
-
 /**
  * Likely typo: value is ~10× a plausible reading (or 10× temperature).
  */
@@ -174,7 +165,9 @@ export function detectTypoSuggestion(input: {
       const suggestedMg = round1(mg / 10);
       if (suggestedMg >= HARD.blood_sugar_mg_dl.min && suggestedMg <= HARD.blood_sugar_mg_dl.max) {
         const suggested =
-          unit === 'mmol_l' ? round1(convertBloodSugar(suggestedMg, 'mg_dl', 'mmol_l')) : suggestedMg;
+          unit === 'mmol_l'
+            ? round1(convertBloodSugar(suggestedMg, 'mg_dl', 'mmol_l'))
+            : suggestedMg;
         return { suggested, messageKey: 'typoBloodSugar' };
       }
     }
@@ -312,10 +305,7 @@ function trendIssue(
  * Assess a vital draft for hard blocks and soft confirms.
  * `previous` should be the latest entry of the same type (if any).
  */
-export function assessVitalDraft(
-  input: VitalDraftInput,
-  previous?: VitalEntry,
-): VitalAssessment {
+export function assessVitalDraft(input: VitalDraftInput, previous?: VitalEntry): VitalAssessment {
   const soft: VitalIssue[] = [];
   const notes = input.notes?.trim() || undefined;
 
@@ -658,10 +648,7 @@ export function applySuggestedValue(
   );
 }
 
-export function getPreviousEntry(
-  entries: VitalEntry[],
-  type: VitalType,
-): VitalEntry | undefined {
+export function getPreviousEntry(entries: VitalEntry[], type: VitalType): VitalEntry | undefined {
   return [...entries]
     .filter((entry) => entry.type === type)
     .sort((a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime())[0];

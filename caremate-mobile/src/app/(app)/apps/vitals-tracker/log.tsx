@@ -243,10 +243,7 @@ export default function VitalsLogScreen() {
     }
 
     if (!assessment.payload) {
-      void alert(
-        t('apps.vitals.validation.checkTitle'),
-        t('apps.vitals.validation.unusualCheck'),
-      );
+      void alert(t('apps.vitals.validation.checkTitle'), t('apps.vitals.validation.unusualCheck'));
       return;
     }
 

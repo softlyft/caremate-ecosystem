@@ -757,7 +757,7 @@ const styles = StyleSheet.create({
     height: 520,
   },
   viewerLoading: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,

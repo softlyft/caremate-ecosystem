@@ -24,10 +24,7 @@ import {
 } from '@/mini-apps/checkup-planner/store';
 import { buildYearSchedule, formatDisplayDate, toDateKey } from '@/mini-apps/checkup-planner/utils';
 import { localizeCadence, localizeCheckup } from '@/mini-apps/checkup-planner/localize';
-import {
-  assessCompletionDraft,
-  type CheckupIssue,
-} from '@/mini-apps/checkup-planner/validation';
+import { assessCompletionDraft, type CheckupIssue } from '@/mini-apps/checkup-planner/validation';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');

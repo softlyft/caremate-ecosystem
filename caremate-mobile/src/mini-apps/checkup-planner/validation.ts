@@ -116,10 +116,7 @@ export function assessProfileDraft(draft: ProfileDraft): ProfileAssessment {
   }
 
   const [ty, tm, td] = draft.todayKey.split('-').map(Number);
-  const age = getAgeOnDate(
-    draft.dateOfBirth,
-    new Date(ty ?? 2000, (tm ?? 1) - 1, td ?? 1),
-  );
+  const age = getAgeOnDate(draft.dateOfBirth, new Date(ty ?? 2000, (tm ?? 1) - 1, td ?? 1));
   if (age > AGE_SOFT_MAX) {
     soft.push({
       code: 'soft_age_high',
@@ -149,8 +146,7 @@ export function assessProfileDraft(draft: ProfileDraft): ProfileAssessment {
 
 export function assessCompletionDraft(draft: CompletionDraft): CompletionAssessment {
   const soft: CheckupIssue[] = [];
-  const checkup =
-    draft.checkup ?? CHECKUP_CATALOG.find((item) => item.id === draft.checkupId);
+  const checkup = draft.checkup ?? CHECKUP_CATALOG.find((item) => item.id === draft.checkupId);
 
   if (!checkup) {
     return {

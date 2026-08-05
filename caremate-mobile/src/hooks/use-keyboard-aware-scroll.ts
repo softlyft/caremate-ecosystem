@@ -25,7 +25,7 @@ export const MiniAppKeyboardContext = createContext<MiniAppKeyboardAwareApi | nu
 export function useMiniAppKeyboardAwareFocusHandler() {
   const api = useContext(MiniAppKeyboardContext);
   return useCallback(
-    <T,>(original?: (event: T) => void) => {
+    <T>(original?: (event: T) => void) => {
       return (event: T) => {
         original?.(event);
         api?.scheduleScrollIntoView();

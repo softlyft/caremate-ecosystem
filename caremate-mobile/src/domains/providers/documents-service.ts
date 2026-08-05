@@ -260,10 +260,9 @@ class ProviderDocumentsService {
     title: string;
   }> {
     const remoteUrl = await this.createViewUrl(doc.filePath);
-    const ext =
-      doc.fileName?.includes('.')
-        ? doc.fileName.slice(doc.fileName.lastIndexOf('.') + 1)
-        : mimeToExt(doc.mimeType);
+    const ext = doc.fileName?.includes('.')
+      ? doc.fileName.slice(doc.fileName.lastIndexOf('.') + 1)
+      : mimeToExt(doc.mimeType);
     const safeExt = (ext || 'bin').replace(/[^a-zA-Z0-9]/g, '') || 'bin';
     const cacheDir = FileSystem.cacheDirectory;
     if (!cacheDir) {

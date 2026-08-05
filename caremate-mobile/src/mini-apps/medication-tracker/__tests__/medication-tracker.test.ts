@@ -585,9 +585,9 @@ describe('medication-tracker/validation', () => {
   };
 
   it('hard-requires dosage and rejects duplicate slot times', () => {
-    expect(
-      assessMedicationWrite({ ...baseWrite, dosage: '  ' }).hard?.code,
-    ).toBe('required_dosage');
+    expect(assessMedicationWrite({ ...baseWrite, dosage: '  ' }).hard?.code).toBe(
+      'required_dosage',
+    );
 
     expect(
       assessMedicationWrite({

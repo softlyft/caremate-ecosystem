@@ -114,7 +114,10 @@ export async function resetDeviceForNewAccount(): Promise<void> {
  * Persist the signed-in account on this device.
  * If the same email returns under a new userId (rare recreate), wipe the old local rows first.
  */
-export async function bindDeviceAccount(userId: string, email: string | null | undefined): Promise<void> {
+export async function bindDeviceAccount(
+  userId: string,
+  email: string | null | undefined,
+): Promise<void> {
   if (!userId || !email?.includes('@')) {
     return;
   }

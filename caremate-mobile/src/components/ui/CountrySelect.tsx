@@ -77,7 +77,6 @@ export function CountrySelect({
 
   useEffect(() => {
     if (!open) {
-      setKeyboardHeight(0);
       return;
     }
 

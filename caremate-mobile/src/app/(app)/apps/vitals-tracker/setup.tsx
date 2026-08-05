@@ -21,10 +21,7 @@ import {
   type WeightUnit,
 } from '@/mini-apps/vitals-tracker/constants';
 import { localizeUnitChip } from '@/mini-apps/vitals-tracker/localize';
-import {
-  useVitalsTrackerHydrated,
-  useVitalsTrackerStore,
-} from '@/mini-apps/vitals-tracker/store';
+import { useVitalsTrackerHydrated, useVitalsTrackerStore } from '@/mini-apps/vitals-tracker/store';
 import { palette, spacing } from '@/theme';
 
 const APP_ID = 'vitals-tracker' as const;

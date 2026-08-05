@@ -162,7 +162,9 @@ export default function FamilyChildFormScreen() {
               </AppText>
               <Button
                 accessibilityRole="button"
-                onPress={() => setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })}
+                onPress={() =>
+                  setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })
+                }
                 hitSlop={8}
                 variant="plain"
               >

@@ -136,18 +136,17 @@ export function isValidDateKey(value: string): boolean {
   const [y, m, d] = value.split('-').map(Number);
   if (y == null || m == null || d == null) return false;
   const date = new Date(y, m - 1, d);
-  return (
-    date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
-  );
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }
 
 /**
  * Parse optional non-negative integer from user text.
  * Empty → null. Invalid / negative / non-integer → `{ error: true }`.
  */
-export function parseOptionalNonNegativeInteger(
-  raw: string,
-): { value: number | null; error: boolean } {
+export function parseOptionalNonNegativeInteger(raw: string): {
+  value: number | null;
+  error: boolean;
+} {
   const trimmed = raw.trim();
   if (!trimmed) {
     return { value: null, error: false };
@@ -195,14 +194,10 @@ export function dosageLooksLikeDigitsOnly(dosage: string): boolean {
   return DOSAGE_DIGITS_ONLY_RE.test(dosage.trim());
 }
 
-function buildInstructions(
-  kind: MedicationInstructionKind,
-  text: string,
-): MedicationInstructions {
+function buildInstructions(kind: MedicationInstructionKind, text: string): MedicationInstructions {
   return {
     kind,
-    text:
-      kind === 'other' || kind === 'none' ? text.trim() || undefined : undefined,
+    text: kind === 'other' || kind === 'none' ? text.trim() || undefined : undefined,
   };
 }
 

@@ -15,10 +15,7 @@ import {
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import { usePeriodTrackerHydrated, usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
-import {
-  assessPeriodDayToggle,
-  type PeriodIssue,
-} from '@/mini-apps/period-tracker/validation';
+import { assessPeriodDayToggle, type PeriodIssue } from '@/mini-apps/period-tracker/validation';
 import { usePregnancyTrackerStore } from '@/mini-apps/pregnancy-tracker/store';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';

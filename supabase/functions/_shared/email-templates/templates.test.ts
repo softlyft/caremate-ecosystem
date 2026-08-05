@@ -66,14 +66,15 @@ describe('email templates', () => {
     assert.match(mail.html, /482913/);
     assert.match(mail.html, /Lagos Clinic &lt;script&gt;/);
     assert.match(mail.text, /482913/);
-    assert.match(mail.html, /provider\.getcaremate\.com\/claim/);
+    // Temporary Amplify host until provider.getcaremate.com is live.
+    assert.match(mail.html, /d9xyppes84zqr\.amplifyapp\.com\/claim/);
   });
 
   it('dispatches via renderEmailTemplate', () => {
     const mail = renderEmailTemplate('family-connection-request', { fromName: 'Grace' });
     assert.equal(mail.subject.includes('Grace'), true);
-    assert.match(mail.html, /getcaremate\.com\/privacy/);
-    assert.match(mail.html, /getcaremate\.com\/terms/);
+    assert.match(mail.html, /amplifyapp\.com\/privacy/);
+    assert.match(mail.html, /amplifyapp\.com\/terms/);
 
     const otp = renderEmailTemplate('provider-org-claim-otp', {
       code: '111222',

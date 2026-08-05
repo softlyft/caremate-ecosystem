@@ -68,12 +68,8 @@ describe('connection-consents', () => {
       'emergency',
       'messaging',
     ]);
-    expect(listGrantedConsents(['basic', 'emergency']).map((c) => c.scope)).toEqual([
-      'emergency',
-    ]);
-    expect(
-      listGrantedConsents(['basic', 'messaging']).map((c) => c.scope),
-    ).toEqual(['messaging']);
+    expect(listGrantedConsents(['basic', 'emergency']).map((c) => c.scope)).toEqual(['emergency']);
+    expect(listGrantedConsents(['basic', 'messaging']).map((c) => c.scope)).toEqual(['messaging']);
   });
 
   it('detects messaging consent', () => {
