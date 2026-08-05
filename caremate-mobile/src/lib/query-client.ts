@@ -1,6 +1,5 @@
-import { focusManager } from '@tanstack/react-query';
+import { focusManager, QueryClient } from '@tanstack/react-query';
 import { AppState, type AppStateStatus, Platform } from 'react-native';
-import { QueryClient } from '@tanstack/react-query';
 
 function onAppStateChange(status: AppStateStatus) {
   if (Platform.OS !== 'web') {

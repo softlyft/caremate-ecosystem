@@ -14,10 +14,7 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
-import {
-  loadMiniAppsOrder,
-  saveMiniAppsOrder,
-} from '@/mini-apps/_kit/order-preference';
+import { loadMiniAppsOrder, saveMiniAppsOrder } from '@/mini-apps/_kit/order-preference';
 import { MINI_APPS, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';

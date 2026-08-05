@@ -231,7 +231,9 @@ export class AuthService {
       lastError = error;
     }
 
-    throw lastError ?? new Error('Could not verify email. Try the code again or request a new one.');
+    throw (
+      lastError ?? new Error('Could not verify email. Try the code again or request a new one.')
+    );
   }
 
   async resendSignupEmail(email: string) {
