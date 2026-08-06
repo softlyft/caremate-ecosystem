@@ -16,8 +16,8 @@ Install runs once per **affected** app build via [`scripts/amplify-install.sh`](
 
 **Build cost controls (required for monorepo):**
 
-1. **Build-level skip** — [`scripts/amplify-build-guard.sh`](../scripts/amplify-build-guard.sh) runs at the start of `preBuild` and exits before `npm ci` / compile when nothing changed under that app’s `appRoot` (plus shared paths: root lockfile, `amplify.yml`, `packages/db-types`). Look for `Build skipped (no relevant file changes)` in logs. Set `AMPLIFY_FORCE_BUILD=true` in Console for a one-off full rebuild (e.g. env-var-only redeploy).
-2. **Diff-based deploy** — also set `AMPLIFY_DIFF_DEPLOY` = `true` on **each** Amplify app in Console. This can skip **deploy** when output is unchanged; the build guard above avoids paying for compile when files did not change.
+1. **Build-level skip** — [`scripts/amplify-build-guard.sh`](../scripts/amplify-build-guard.sh) runs at the start of `preBuild` and wraps install/compile with `run` so skipped apps never call `npm ci` or `npm run build`. Look for `[amplify-build-guard] No changes under … — skipping` in logs. Baseline SHA is cached per app via Amplify `envCache`. Set `AMPLIFY_FORCE_BUILD=true` for a one-off full rebuild (env-var-only redeploy).
+2. **Diff-based deploy** — set `AMPLIFY_DIFF_DEPLOY` = `true` on **each** Amplify app in Console. This can skip **deploy** when output is unchanged; the build guard avoids compile when files did not change. The log line `Determining if there are deployable frontend differences` is Amplify’s check — it may still run even when the guard skips compile.
 3. **Node 22** — repo root [`.nvmrc`](../.nvmrc) pins Node 22. In each Amplify app: **Build settings → Build image settings → Node.js version → 22** (do not run `nvm install` in the spec).
 4. **Shared `@caremate/db-types`** — listed in the build guard shared paths, so portal apps rebuild when db-types changes.
 
@@ -211,6 +211,23 @@ Or the simpler catch-all used by many Vite SPAs:
 | Payment shows missing Supabase env | Set `VITE_*` in Amplify and **redeploy** (Vite inlines at build) |
 | Auth redirect errors after domain attach | Add Amplify URL to Supabase Auth redirect allow list |
 | Provider catalog upload fails in admin | Set `PROVIDER_INGEST_URL` + API key to a reachable ingest deployment |
+| **Cloudflare Pages still deploys on merge to `main`** | Not from this repo — disconnect or delete the Pages project in Cloudflare Console (see below) |
+
+---
+
+## Decommission Cloudflare Pages (AWS-only hosting)
+
+Removing [`.github/workflows/static-pages-cd.yml`](../.github/workflows/static-pages-cd.yml) stops **GitHub Actions** deploys. It does **not** stop Cloudflare if a Pages project is still connected to GitHub directly.
+
+If you still see a Cloudflare build when merging to `main`:
+
+1. **Cloudflare Dashboard** → **Workers & Pages** → open projects such as `caremate-website` and `caremate-payment`.
+2. For each project: **Settings** → **Builds & deployments** → **Disconnect** the Git repository (or **Delete project** if you no longer need it).
+3. **GitHub** → repo **Settings** → **Integrations** → **Applications** → **Cloudflare Pages** (or **Cloudflare Workers and Pages**) → **Configure** → remove access to `caremate-ecosystem` if listed.
+4. **GitHub** → **Settings** → **Environments** → **`prod`** → delete unused secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (if present).
+5. **DNS** — if `getcaremate.com` / `pay.getcaremate.com` still CNAME to Cloudflare Pages, repoint them to the Amplify app custom domain instead.
+
+After disconnecting, only Amplify (and your other GitHub workflows: CI, Mobile CD, Gateway CD) should run on push.
 
 ---
 
