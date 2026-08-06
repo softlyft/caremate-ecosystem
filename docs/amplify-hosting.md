@@ -16,9 +16,10 @@ Install runs once per **affected** app build via [`scripts/amplify-install.sh`](
 
 **Build cost controls (required for monorepo):**
 
-1. **Diff-based deploy** — `amplify.yml` sets `AMPLIFY_DIFF_DEPLOY=true`. Also add `AMPLIFY_DIFF_DEPLOY` = `true` on **each** Amplify app in the Console (Environment variables) so pushes only build apps whose `appRoot` changed. Mobile-only or Supabase-only commits should not compile all five frontends.
-2. **Node 22** — repo root [`.nvmrc`](../.nvmrc) pins Node 22. In each Amplify app: **Build settings → Build image settings → Node.js version → 22** (do not run `nvm install` in the spec).
-3. **Shared `@caremate/db-types`** — if you change `packages/db-types`, manually redeploy the portals that consume it (diff deploy only watches each app's `appRoot` by default).
+1. **Build-level skip** — [`scripts/amplify-build-guard.sh`](../scripts/amplify-build-guard.sh) runs at the start of `preBuild` and exits before `npm ci` / compile when nothing changed under that app’s `appRoot` (plus shared paths: root lockfile, `amplify.yml`, `packages/db-types`). Look for `Build skipped (no relevant file changes)` in logs. Set `AMPLIFY_FORCE_BUILD=true` in Console for a one-off full rebuild (e.g. env-var-only redeploy).
+2. **Diff-based deploy** — also set `AMPLIFY_DIFF_DEPLOY` = `true` on **each** Amplify app in Console. This can skip **deploy** when output is unchanged; the build guard above avoids paying for compile when files did not change.
+3. **Node 22** — repo root [`.nvmrc`](../.nvmrc) pins Node 22. In each Amplify app: **Build settings → Build image settings → Node.js version → 22** (do not run `nvm install` in the spec).
+4. **Shared `@caremate/db-types`** — listed in the build guard shared paths, so portal apps rebuild when db-types changes.
 
 ---
 
@@ -199,7 +200,9 @@ Or the simpler catch-all used by many Vite SPAs:
 | Symptom | Fix |
 |---------|-----|
 | `@caremate/db-types` not found | Confirm `buildPath: /` and `bash scripts/amplify-install.sh` in root `amplify.yml` |
-| All 5 apps build on every push | Set `AMPLIFY_DIFF_DEPLOY=true` on each Amplify app (also in root `amplify.yml`); verify monorepo app roots |
+| All 5 apps **build** on every push | Ensure `AMPLIFY_MONOREPO_APP_ROOT` is set per app; build guard in root `amplify.yml` should log skip — check logs for `amplify-build-guard.sh` |
+| Build runs but **deploy skipped** | Expected with `AMPLIFY_DIFF_DEPLOY`; build guard prevents compile when appRoot unchanged |
+| Force a full rebuild (env vars only) | Set `AMPLIFY_FORCE_BUILD=true` on that app, redeploy, then remove |
 | Slow / redundant `npm ci` | Amplify cache must include `node_modules/**/*`; install script skips when lockfile unchanged |
 | Build uses Node 18 | Set Node **22** in Amplify Console build image; repo `.nvmrc` is `22` (no `nvm install` in spec) |
 | Next app treated as static | Recreate / ensure framework is Next.js WEB_COMPUTE; artifacts use `.next` |
