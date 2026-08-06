@@ -30,8 +30,7 @@ Each service keeps its own README plus a local `docs/` set.
 | `caremate-website/` | Marketing + patient / CCN / provider guides + privacy/terms | `caremate-website/README.md` |
 | `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
-| Amplify hosting | Admin / provider / community portals (and legacy web on `main`) | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
-| Cloudflare Pages | Website + payment on merge to `prod` | [`docs/cloudflare-pages.md`](./docs/cloudflare-pages.md) |
+| Amplify hosting | Website, payment, admin, provider, and community portals | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
 | Security (non-mobile) | Edge, payment gateway, portals — threat models & controls | [`docs/security.md`](./docs/security.md) |
 
 ## Root Workflows

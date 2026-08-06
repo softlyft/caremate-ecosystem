@@ -43,16 +43,10 @@ npm run website:build
 
 ## Deploy
 
-### Production (Cloudflare Pages)
-
-Merge / push to branch **`prod`** → GitHub Actions **Static Pages CD** → Cloudflare Pages project `caremate-website`.
-
-Setup: [`../docs/cloudflare-pages.md`](../docs/cloudflare-pages.md).
-
-### Legacy (AWS Amplify)
-
-Monorepo Amplify app root: `caremate-website` (typically branch `main`). Spec: [`../amplify.yml`](../amplify.yml).  
+Monorepo Amplify app root: `caremate-website` (branch **`main`**). Spec: [`../amplify.yml`](../amplify.yml).  
 Guide: [`../docs/amplify-hosting.md`](../docs/amplify-hosting.md).
+
+After deploy, add SPA rewrite in Amplify Console for client routes (see amplify-hosting guide).
 
 ## Related surfaces
 
@@ -70,7 +64,7 @@ Community copy aligns with CareMate Community Handbook / Network Strategy / Grow
 
 Provider copy aligns with [`caremate-provider-portal/docs`](../caremate-provider-portal/docs/README.md).
 
-Legal pages are intended for production hosting (e.g. `https://getcaremate.com/privacy` and `/terms`). Set `VITE_SITE_URL` and `VITE_COMMUNITY_PORTAL_URL` in GitHub Environment `prod` / Cloudflare (or `.env.local` for localhost) so they match the deployed host.
+Legal pages are intended for production hosting (e.g. `https://getcaremate.com/privacy` and `/terms`). Set `VITE_SITE_URL` and `VITE_COMMUNITY_PORTAL_URL` in Amplify environment variables (or `.env.local` for localhost) so they match the deployed host.
 
 ### Universal / App Links
 

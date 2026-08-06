@@ -1,8 +1,6 @@
 # Amplify Hosting — website, payment, admin portal, provider portal, community portal
 
-Deploy Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`main`**).
-
-**Production website + payment** now prefer **Cloudflare Pages** on branch **`prod`** — see [`cloudflare-pages.md`](./cloudflare-pages.md). Amplify rows below remain useful for portals and any leftover `main` web deploys.
+Deploy all five web apps from this monorepo via **AWS Amplify Hosting** (GitHub/GitLab/Bitbucket → branch **`main`**).
 
 | Amplify app (suggested name) | App root (monorepo) | Framework | Build output |
 |------------------------------|---------------------|-----------|--------------|
@@ -14,7 +12,13 @@ Deploy Amplify apps from this monorepo (GitHub/GitLab/Bitbucket → branch **`ma
 
 The shared monorepo build spec is [`amplify.yml`](../amplify.yml) at the repository root. Amplify only reads a committed build spec from that location. It selects the matching application using `AMPLIFY_MONOREPO_APP_ROOT`.
 
-Install always runs from the **repo root** (`npm ci`) so npm workspaces and `@caremate/db-types` resolve.
+Install runs once per **affected** app build via [`scripts/amplify-install.sh`](../scripts/amplify-install.sh) (skips `npm ci` when the cached `node_modules` matches `package-lock.json`).
+
+**Build cost controls (required for monorepo):**
+
+1. **Diff-based deploy** — `amplify.yml` sets `AMPLIFY_DIFF_DEPLOY=true`. Also add `AMPLIFY_DIFF_DEPLOY` = `true` on **each** Amplify app in the Console (Environment variables) so pushes only build apps whose `appRoot` changed. Mobile-only or Supabase-only commits should not compile all five frontends.
+2. **Node 22** — repo root [`.nvmrc`](../.nvmrc) pins Node 22. In each Amplify app: **Build settings → Build image settings → Node.js version → 22** (do not run `nvm install` in the spec).
+3. **Shared `@caremate/db-types`** — if you change `packages/db-types`, manually redeploy the portals that consume it (diff deploy only watches each app's `appRoot` by default).
 
 ---
 
@@ -37,8 +41,9 @@ Repeat five times (once per row in the table).
 4. Set **Monorepo app root** to the matching folder (`caremate-website`, `caremate-payment-gateway`, `caremate-admin-portal`, `caremate-provider-portal`, or `caremate-community-portal`).
 5. Confirm Amplify detected the root `amplify.yml` (do not overwrite it with the auto “npm run build” template). Verify `AMPLIFY_MONOREPO_APP_ROOT` equals the selected folder exactly.
 6. For **Next.js** apps (admin, provider, and community portals), leave Amplify on **Next.js SSR / WEB_COMPUTE** hosting (default when Next is detected). Do **not** flip the app to “Static” only.
-7. Add environment variables (see below) **before** the first production deploy if possible.
-8. Save and deploy.
+7. Add environment variables (see below) **before** the first production deploy if possible. Also set **`AMPLIFY_DIFF_DEPLOY`** = `true` (if not already picked up from `amplify.yml`).
+8. Under **Build settings → Build image settings**, set **Node.js version** to **22** (matches repo `.nvmrc`).
+9. Save and deploy.
 
 Suggested Amplify app names:
 
@@ -193,10 +198,12 @@ Or the simpler catch-all used by many Vite SPAs:
 
 | Symptom | Fix |
 |---------|-----|
-| `@caremate/db-types` not found | Confirm `buildPath: /`, the app root, and the root `npm ci` command in `amplify.yml` |
+| `@caremate/db-types` not found | Confirm `buildPath: /` and `bash scripts/amplify-install.sh` in root `amplify.yml` |
+| All 5 apps build on every push | Set `AMPLIFY_DIFF_DEPLOY=true` on each Amplify app (also in root `amplify.yml`); verify monorepo app roots |
+| Slow / redundant `npm ci` | Amplify cache must include `node_modules/**/*`; install script skips when lockfile unchanged |
+| Build uses Node 18 | Set Node **22** in Amplify Console build image; repo `.nvmrc` is `22` (no `nvm install` in spec) |
 | Next app treated as static | Recreate / ensure framework is Next.js WEB_COMPUTE; artifacts use `.next` |
-| "Welcome / Your app will appear here once you complete your first deployment" placeholder for a Next.js portal | The app was created as **static (WEB)** hosting. Switch it to Next.js SSR: `aws amplify update-app --app-id <APP_ID> --platform WEB_COMPUTE`, then redeploy `main`. (You cannot statically export these portals — they use middleware + server actions + cookie auth.) |
-| Build uses Node 18 | `amplify.yml` installs Node 22 via `nvm` |
+| "Welcome / Your app will appear here once you complete your first deployment" placeholder for a Next.js portal | Switch to Next.js SSR: `aws amplify update-app --app-id <APP_ID> --platform WEB_COMPUTE`, then redeploy `main` |
 | Amplify `!!! Internal error` immediately | Invalid `amplify.yml` / `customRules` — use the checked-in specs without `customRules`; set SPA rewrites in the Console |
 | Payment shows missing Supabase env | Set `VITE_*` in Amplify and **redeploy** (Vite inlines at build) |
 | Auth redirect errors after domain attach | Add Amplify URL to Supabase Auth redirect allow list |
