@@ -32,8 +32,10 @@ export function PrivacyPage() {
         <h2>Storage and offline use</h2>
         <p>
           Core CareMate data is stored on your device so essential features can work without an
-          internet connection. When you are signed in and online, selected data may sync to our
-          cloud backend (Supabase) for backup and multi-device access.
+          internet connection. On iPhone and Android, your local database is encrypted at rest.
+          When you are signed in and online, selected data may sync to our cloud backend for backup
+          and multi-device access. Read more in our{' '}
+          <Link to="/security">Security overview</Link>.
         </p>
 
         <h2>Sharing</h2>
