@@ -26,6 +26,7 @@ const FOOTER_COLUMNS = [
     links: [
       { to: '/privacy', label: 'Privacy' },
       { to: '/terms', label: 'Terms' },
+      { to: '/refunds', label: 'Refunds' },
     ],
   },
 ] as const;
