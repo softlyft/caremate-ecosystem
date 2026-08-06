@@ -20,6 +20,7 @@ provider marketing + guide, privacy, and terms.
 | `/providers` | Provider marketing (portal positioning) |
 | `/privacy` | Privacy policy |
 | `/terms` | Terms of service |
+| `/refunds` | Refund policy (Premium / Family billing) |
 
 Legacy guide URLs redirect: `/guide` → `/docs/patient`, `/ccn/guide` → `/docs/community`, `/providers/guide` → `/docs/providers`.
 
@@ -64,7 +65,7 @@ Community copy aligns with CareMate Community Handbook / Network Strategy / Grow
 
 Provider copy aligns with [`caremate-provider-portal/docs`](../caremate-provider-portal/docs/README.md).
 
-Legal pages are intended for production hosting (e.g. `https://getcaremate.com/privacy` and `/terms`). Set `VITE_SITE_URL` and `VITE_COMMUNITY_PORTAL_URL` in Amplify environment variables (or `.env.local` for localhost) so they match the deployed host.
+Legal pages are intended for production hosting (e.g. `https://getcaremate.com/privacy`, `/terms`, and `/refunds`). Set `VITE_SITE_URL` and `VITE_COMMUNITY_PORTAL_URL` in Amplify environment variables (or `.env.local` for localhost) so they match the deployed host.
 
 ### Universal / App Links
 

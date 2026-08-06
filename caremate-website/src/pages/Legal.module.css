@@ -47,6 +47,18 @@
   color: var(--cm-text);
 }
 
+.list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--cm-text-secondary);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.list li {
+  line-height: 1.55;
+}
+
 .article a {
   color: var(--cm-primary-dark);
   font-weight: 600;

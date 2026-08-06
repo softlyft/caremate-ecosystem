@@ -37,7 +37,8 @@ export function TermsPage() {
         <p>
           Paid CareMate plans are offered according to current consumer pricing (see{' '}
           <Link to="/pricing">Pricing</Link>) and the in-app checkout with store or payment-provider
-          terms. Fees, renewals, and cancellations follow the flow presented at purchase.
+          terms. Fees, renewals, and cancellations follow the flow presented at purchase. Refunds
+          are described in our separate <Link to="/refunds">Refund policy</Link>.
         </p>
 
         <h2>Availability</h2>
@@ -51,7 +52,7 @@ export function TermsPage() {
           Questions about these terms: <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a>
         </p>
 
-        <p className={styles.meta}>Last updated: July 18, 2026</p>
+        <p className={styles.meta}>Last updated: August 6, 2026</p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
         </p>

@@ -11,6 +11,7 @@ import { DocsIndexPage } from '@/pages/DocsIndex';
 import { GuidePage } from '@/pages/Guide';
 import { OpenInAppPage } from '@/pages/OpenInApp';
 import { PrivacyPage } from '@/pages/Privacy';
+import { RefundsPage } from '@/pages/Refunds';
 import { PricingPage } from '@/pages/Pricing';
 import { ProviderGuidePage } from '@/pages/ProviderGuide';
 import { ProvidersPage } from '@/pages/Providers';
@@ -174,6 +175,14 @@ export default function App() {
           element={
             <MarketingChrome>
               <PricingPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/refunds"
+          element={
+            <MarketingChrome>
+              <RefundsPage />
             </MarketingChrome>
           }
         />

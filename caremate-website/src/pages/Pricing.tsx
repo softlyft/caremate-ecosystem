@@ -138,7 +138,8 @@ export function PricingPage() {
           <h2 id="value-heading">Not more screens — better decisions</h2>
           <p className={styles.sectionLead}>
             CareMate is not selling additional features for their own sake. People subscribe because
-            CareMate helps them make better healthcare decisions.
+            CareMate helps them make better healthcare decisions. See our{' '}
+            <Link to="/refunds">Refund policy</Link> for cancellations and refunds.
           </p>
         </div>
         <ul className={styles.valueList}>

@@ -188,7 +188,8 @@ export function GuidePage() {
           <li>Set a notifications preference for when push support is available.</li>
           <li>Update country and language (signed-in) so news and copy match your region.</li>
           <li>
-            Open <Link to="/privacy">Privacy</Link> and <Link to="/terms">Terms</Link>.
+            Open <Link to="/privacy">Privacy</Link>, <Link to="/terms">Terms</Link>, and{' '}
+            <Link to="/refunds">Refunds</Link>.
           </li>
           <li>
             Delete your account permanently (signed-in) — this removes cloud data and wipes local
