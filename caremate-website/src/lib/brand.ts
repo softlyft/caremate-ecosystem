@@ -26,9 +26,18 @@ export const COMMUNITY_URLS = {
   marketingHost: new URL(siteUrl).host,
 } as const;
 
+/** Personal Health Intelligence Network — CareMate product branding. */
+export const PHIN = {
+  name: 'Personal Health Intelligence Network',
+  acronym: 'PHIN',
+  /** Full branded label with acronym, e.g. in headings. */
+  label: 'Personal Health Intelligence Network (PHIN)',
+  tagline: 'Your Personal Health Intelligence Network (PHIN)',
+} as const;
+
 export const BRAND = {
   name: 'CareMate',
-  tagline: 'Your Personal Health Integration Network',
+  tagline: PHIN.tagline,
 } as const;
 
 export const COMMUNITY_GROUPS = [

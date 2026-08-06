@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { BRAND, COMMUNITY_GROUPS, COMMUNITY_URLS } from '@/lib/brand';
+import { BRAND, COMMUNITY_GROUPS, COMMUNITY_URLS, PHIN } from '@/lib/brand';
 import styles from './Guide.module.css';
 
 export function CcnGuidePage() {
@@ -10,9 +10,9 @@ export function CcnGuidePage() {
         <p className={styles.eyebrow}>Community guide</p>
         <h1>How to join the {BRAND.name} Community Network</h1>
         <p className={styles.lead}>
-          A plain-language walkthrough for CareMate users who want to help grow Africa&apos;s
-          Personal Health Integration Network — who can join, how enrollment works, what
-          contributors do, and how recognition works.
+          A plain-language walkthrough for CareMate users who want to help grow Africa&apos;s{' '}
+          {PHIN.label} — who can join, how enrollment works, what contributors do, and how
+          recognition works.
         </p>
 
         <nav className={styles.toc} aria-label="Guide contents">
@@ -29,8 +29,9 @@ export function CcnGuidePage() {
 
         <h2 id="what">What the network is</h2>
         <p>
-          The CareMate Community Network (CCN) is a contributor community — not a separate product
-          account and not paid advertising. Members help CareMate grow through trust: introducing
+          The CareMate Community Network (CCN) helps grow Africa&apos;s {PHIN.label} — a contributor
+          community, not a separate product account and not paid advertising. Members help CareMate
+          grow through trust: introducing
           families, hosting awareness events, improving health education, building features, and
           helping healthcare organizations adopt CareMate.
         </p>
