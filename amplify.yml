@@ -1,6 +1,8 @@
 version: 1
 
-# Skip frontend build/deploy when this app's appRoot is unchanged (set per Amplify app in Console too).
+# Monorepo: each Amplify app sets AMPLIFY_MONOREPO_APP_ROOT in Console.
+# scripts/amplify-build-guard.sh skips npm ci / compile when appRoot is unchanged
+# (AMPLIFY_DIFF_DEPLOY alone often skips deploy only, after a full build).
 env:
   variables:
     AMPLIFY_DIFF_DEPLOY: 'true'
@@ -12,9 +14,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - bash scripts/amplify-build-guard.sh check
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - bash scripts/amplify-install.sh
         build:
           commands:
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_APP_URL|NEXT_PUBLIC_WEBSITE_URL)=' > caremate-community-portal/.env.production
             - npm run build --workspace=caremate-community-portal
       artifacts:
@@ -32,9 +37,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - bash scripts/amplify-build-guard.sh check
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - bash scripts/amplify-install.sh
         build:
           commands:
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|PROVIDER_INGEST_URL|PROVIDER_INGEST_API_KEY|CURRENTS_API_KEY|NEXT_PUBLIC_APP_URL|NEXT_PUBLIC_WEBSITE_URL|SENTRY_DSN|SENTRY_ENVIRONMENT)=' > caremate-admin-portal/.env.production
             - npm run build --workspace=caremate-admin-portal
       artifacts:
@@ -52,9 +60,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - bash scripts/amplify-build-guard.sh check
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - bash scripts/amplify-install.sh
         build:
           commands:
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - env | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_APP_URL|NEXT_PUBLIC_WEBSITE_URL)=' > caremate-provider-portal/.env.production
             - npm run build --workspace=caremate-provider-portal
       artifacts:
@@ -72,9 +83,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - bash scripts/amplify-build-guard.sh check
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - bash scripts/amplify-install.sh
         build:
           commands:
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - npm run build --workspace=caremate-payment-gateway
       artifacts:
         baseDirectory: caremate-payment-gateway/dist
@@ -90,9 +104,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - bash scripts/amplify-build-guard.sh check
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - bash scripts/amplify-install.sh
         build:
           commands:
+            - bash scripts/amplify-build-guard.sh skip_if_marked
             - npm run build --workspace=caremate-website
       artifacts:
         baseDirectory: caremate-website/dist
