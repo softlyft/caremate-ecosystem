@@ -24,6 +24,7 @@ const FOOTER_COLUMNS = [
   {
     title: 'Legal',
     links: [
+      { to: '/security', label: 'Security' },
       { to: '/privacy', label: 'Privacy' },
       { to: '/terms', label: 'Terms' },
       { to: '/refunds', label: 'Refunds' },

@@ -12,6 +12,7 @@ import { GuidePage } from '@/pages/Guide';
 import { OpenInAppPage } from '@/pages/OpenInApp';
 import { PrivacyPage } from '@/pages/Privacy';
 import { RefundsPage } from '@/pages/Refunds';
+import { SecurityPage } from '@/pages/Security';
 import { PricingPage } from '@/pages/Pricing';
 import { ProviderGuidePage } from '@/pages/ProviderGuide';
 import { ProvidersPage } from '@/pages/Providers';
@@ -175,6 +176,14 @@ export default function App() {
           element={
             <MarketingChrome>
               <PricingPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/security"
+          element={
+            <MarketingChrome>
+              <SecurityPage />
             </MarketingChrome>
           }
         />
