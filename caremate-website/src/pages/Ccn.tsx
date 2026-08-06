@@ -6,6 +6,7 @@ import {
   COMMUNITY_GROUPS,
   COMMUNITY_JOIN_STEPS,
   COMMUNITY_URLS,
+  PHIN,
 } from '@/lib/brand';
 import styles from './Ccn.module.css';
 
@@ -15,7 +16,7 @@ export function CcnPage() {
       <section className={styles.hero} aria-labelledby="ccn-heading">
         <div className={styles.heroInner}>
           <p className={styles.eyebrow}>CareMate Community Network</p>
-          <h1 id="ccn-heading">Help build Africa&apos;s Personal Health Integration Network</h1>
+          <h1 id="ccn-heading">Help build Africa&apos;s {PHIN.label}</h1>
           <p className={styles.lead}>
             CareMate is more than an app. It is a movement of people who believe healthcare should
             be connected, accessible, and centered around individuals. The Community Network is how
@@ -54,7 +55,7 @@ export function CcnPage() {
           <p className={styles.eyebrow}>Mission</p>
           <h2 id="mission-heading">Empower every person with connected care</h2>
           <p className={styles.sectionLead}>
-            We are building Africa&apos;s trusted Personal Health Integration Network — connecting
+            We are building Africa&apos;s trusted {PHIN.label} — connecting
             people, healthcare providers, and health information into one continuous care
             experience. Community members are not a support function for marketing. The community
             is how CareMate grows.

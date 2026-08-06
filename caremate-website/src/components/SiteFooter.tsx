@@ -40,6 +40,7 @@ export function SiteFooter() {
           <img src="/caremate-splash-icon.png" alt="" width={40} height={40} className={styles.icon} />
           <div>
             <p className={styles.name}>{BRAND.name}</p>
+            <p className={styles.tagline}>{BRAND.tagline}</p>
             <p className={styles.byline}>Built by SoftLyft</p>
           </div>
         </div>
