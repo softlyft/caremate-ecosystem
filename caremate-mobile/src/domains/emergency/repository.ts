@@ -14,13 +14,47 @@ import {
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { toJson } from '@/sync/cloud-types';
-import type { EmergencyProfile } from '@/types';
+import type { EmergencyContact, EmergencyProfile } from '@/types';
 import { createId, nowIso, parseJsonArray, stringifyJson } from '@/utils/helpers';
 
 type RemoteEmergencyRow = GatewayEmergencyRow & {
   created_at?: string | null;
   updated_at?: string | null;
 };
+
+function asStringList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string');
+  }
+  if (typeof value === 'string') {
+    return parseJsonArray<string>(value);
+  }
+  return [];
+}
+
+function asEmergencyContacts(value: unknown): EmergencyContact[] {
+  if (typeof value === 'string') {
+    return parseJsonArray<EmergencyContact>(value);
+  }
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((item) => {
+      if (!item || typeof item !== 'object') {
+        return null;
+      }
+      const row = item as Record<string, unknown>;
+      const name = typeof row.name === 'string' ? row.name : '';
+      const phone = typeof row.phone === 'string' ? row.phone : '';
+      const relationship = typeof row.relationship === 'string' ? row.relationship : '';
+      if (!name.trim()) {
+        return null;
+      }
+      return { name, phone, relationship };
+    })
+    .filter((contact): contact is EmergencyContact => contact != null);
+}
 
 function scrubRemoteEmergencyRow(row: RemoteEmergencyRow): RemoteEmergencyRow {
   return {
@@ -65,16 +99,16 @@ function remoteRowToProfile(row: RemoteEmergencyRow): EmergencyProfile {
     id: row.id,
     userId: row.user_id,
     fullName: row.full_name ?? '',
-    photoUrl: row.photo_url,
-    bloodGroup: row.blood_group,
-    genotype: row.genotype,
-    allergies: row.allergies ?? [],
-    currentMedications: row.current_medications ?? [],
-    chronicConditions: row.chronic_conditions ?? [],
-    emergencyContacts: row.emergency_contacts ?? [],
-    preferredHospital: row.preferred_hospital,
-    insuranceProvider: row.insurance_provider,
-    notes: row.notes,
+    photoUrl: row.photo_url ?? null,
+    bloodGroup: row.blood_group ?? null,
+    genotype: row.genotype ?? null,
+    allergies: asStringList(row.allergies),
+    currentMedications: asStringList(row.current_medications),
+    chronicConditions: asStringList(row.chronic_conditions),
+    emergencyContacts: asEmergencyContacts(row.emergency_contacts),
+    preferredHospital: row.preferred_hospital ?? null,
+    insuranceProvider: row.insurance_provider ?? null,
+    notes: row.notes ?? null,
     syncStatus: 'synced',
     deletedAt: null,
     createdAt: row.created_at ?? timestamp,
