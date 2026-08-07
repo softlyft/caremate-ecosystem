@@ -6,7 +6,9 @@
   "description": "CareMate marketing site — welcome, privacy, and terms",
   "scripts": {
     "dev": "vite --port 5175",
+    "prebuild": "node scripts/generate-seo-assets.mjs",
     "build": "tsc -b && vite build",
+    "generate:seo": "node scripts/generate-seo-assets.mjs",
     "preview": "vite preview --port 5175",
     "typecheck": "tsc -b --pretty false",
     "lint": "tsc -b --pretty false"

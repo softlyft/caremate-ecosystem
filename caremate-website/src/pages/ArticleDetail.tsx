@@ -1,6 +1,8 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 
+import { DocumentMeta } from '@/components/DocumentMeta';
 import { contentToParagraphs, getArticleByCategoryAndSlug } from '@/lib/articles';
+import { articleSeo } from '@/lib/seo';
 import styles from './Articles.module.css';
 
 export function ArticleDetailPage() {
@@ -15,6 +17,14 @@ export function ArticleDetailPage() {
 
   return (
     <main className={styles.page}>
+      <DocumentMeta
+        seo={articleSeo({
+          title: article.title,
+          summary: article.summary,
+          path: article.href,
+          categoryName: article.categoryName,
+        })}
+      />
       <article className={styles.article}>
         <nav className={styles.crumbs} aria-label="Breadcrumb">
           <Link to="/articles">Articles</Link>

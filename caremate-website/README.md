@@ -25,6 +25,11 @@ provider marketing + guide, privacy, and terms.
 
 Legacy guide URLs redirect: `/guide` → `/docs/patient`, `/ccn/guide` → `/docs/community`, `/providers/guide` → `/docs/providers`.
 
+## SEO / AI discovery
+
+Build generates `public/robots.txt`, `public/sitemap.xml` (all marketing + Learn article URLs), and `public/llms.txt`. Per-route titles, descriptions, Open Graph, and JSON-LD update in the SPA via `DocumentMeta`.
+
+Set `VITE_SITE_URL=https://www.getcaremate.com` in Amplify for production absolute links.
 
 ## Develop
 

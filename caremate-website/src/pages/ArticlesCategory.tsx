@@ -1,11 +1,13 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 
+import { DocumentMeta } from '@/components/DocumentMeta';
 import {
   getArticleById,
   getCategoryMeta,
   listArticlesByCategory,
   normalizeCategoryId,
 } from '@/lib/articles';
+import { categorySeo } from '@/lib/seo';
 import styles from './Articles.module.css';
 
 export function ArticlesCategoryPage() {
@@ -25,6 +27,13 @@ export function ArticlesCategoryPage() {
 
   return (
     <main className={styles.page}>
+      <DocumentMeta
+        seo={categorySeo({
+          name: meta.name,
+          shortLabel: meta.shortLabel,
+          path: `/articles/${categoryId}`,
+        })}
+      />
       <article className={`${styles.article} ${styles.wide}`}>
         <nav className={styles.crumbs} aria-label="Breadcrumb">
           <Link to="/articles">Articles</Link>
