@@ -157,11 +157,11 @@ export const MINI_APPS = [
     soft: '#CCFBF1',
   },
   {
-    id: 'immunization',
-    name: 'Immunization Tracker',
-    description: 'Childhood vaccine schedules, due dates, and dose logs tied to kids in your family profile.',
-    accent: '#059669',
-    soft: '#D1FAE5',
+    id: 'period',
+    name: 'Period Tracker',
+    description: 'Mark period days, see cycle length, and get simple predictions for what comes next.',
+    accent: '#DB2777',
+    soft: '#FCE7F3',
   },
   {
     id: 'pregnancy',
@@ -171,11 +171,11 @@ export const MINI_APPS = [
     soft: '#E0F2FE',
   },
   {
-    id: 'period',
-    name: 'Period Tracker',
-    description: 'Mark period days, see cycle length, and get simple predictions for what comes next.',
-    accent: '#DB2777',
-    soft: '#FCE7F3',
+    id: 'immunization',
+    name: 'Immunization Tracker',
+    description: 'Childhood vaccine schedules, due dates, and dose logs tied to kids in your family profile.',
+    accent: '#059669',
+    soft: '#D1FAE5',
   },
 ] as const;
 
