@@ -6,6 +6,12 @@ export {
   syncEmergencyLockSurface,
   type EmergencyLockSnapshot,
 } from '@/domains/emergency/lock-surface';
+export { hydrateEmergencyProfile } from '@/domains/emergency/hydrate-emergency';
+export {
+  isEmergencyListSet,
+  isEmergencyTextSet,
+  mergeEmergencyProfiles,
+} from '@/domains/emergency/merge-emergency';
 export {
   buildEmergencyShareUrl,
   fetchEmergencyByShareToken,

@@ -1,22 +1,42 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { DOCUMENT_TYPES } from '@/constants/document-types';
 import { requireProviderSession, requireWriteAccess } from '@/lib/auth';
 import { createDocumentSignedUrl, uploadDocument } from '@/domains/documents/repository';
 
-const MAX_BYTES = 20 * 1024 * 1024;
+const MAX_BYTES = 3 * 1024 * 1024;
 const ALLOWED_MIME = new Set([
   'application/pdf',
   'image/jpeg',
+  'image/jpg',
   'image/png',
-  'image/webp',
-  'text/plain',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
+
+const EXT_MIME: Record<string, string> = {
+  pdf: 'application/pdf',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+};
+
+function extensionOf(fileName: string): string {
+  const parts = fileName.toLowerCase().split('.');
+  return parts.length > 1 ? (parts.at(-1) ?? '') : '';
+}
+
+function resolveUploadMime(file: File): string | null {
+  const normalized = (file.type || '').trim().toLowerCase();
+  if (normalized && normalized !== 'application/octet-stream' && ALLOWED_MIME.has(normalized)) {
+    return normalized === 'image/jpg' ? 'image/jpeg' : normalized;
+  }
+  return EXT_MIME[extensionOf(file.name)] ?? null;
+}
 
 const metaSchema = z.object({
   patientId: z.string().uuid(),
@@ -38,10 +58,10 @@ export async function uploadDocumentAction(formData: FormData) {
     throw new Error('Choose a file to upload.');
   }
   if (file.size > MAX_BYTES) {
-    throw new Error('File must be 20 MB or smaller.');
+    throw new Error('File must be 3 MB or smaller.');
   }
-  if (!ALLOWED_MIME.has(file.type)) {
-    throw new Error('Unsupported file type. Use PDF, JPEG, PNG, WebP, TXT, or Word.');
+  if (!resolveUploadMime(file)) {
+    throw new Error('Unsupported file type. Use PDF, JPG, PNG, DOC, or DOCX.');
   }
 
   await uploadDocument({
@@ -60,10 +80,14 @@ export async function uploadDocumentAction(formData: FormData) {
   revalidatePath('/app/analytics');
 }
 
-/** Open a document via a short-lived signed storage URL (same bucket as the CareMate app). */
-export async function openDocumentAction(formData: FormData) {
+/**
+ * Return a short-lived Storage signed URL for the document.
+ * Callers must open the URL in the browser — do not `redirect()` to an external
+ * Supabase host from a Server Action (Next 15 mishandles that and hits error.tsx).
+ */
+export async function openDocumentAction(documentId: string): Promise<{ url: string }> {
   const session = await requireProviderSession();
-  const documentId = z.string().uuid().parse(formData.get('document_id'));
-  const signedUrl = await createDocumentSignedUrl(session.activeOrganizationId, documentId);
-  redirect(signedUrl);
+  const id = z.string().uuid().parse(documentId);
+  const url = await createDocumentSignedUrl(session.activeOrganizationId, id);
+  return { url };
 }

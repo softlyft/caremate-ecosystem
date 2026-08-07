@@ -189,12 +189,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     const { clearPushRegistration } = await import('@/domains/notifications/push');
-    const { clearMiniAppMemoryState } = await import('@/domains/auth/wipe-local-account');
     await clearPushRegistration();
-    // Keep SQLite / AsyncStorage for the device-bound account so the same email
-    // can sign back in without re-entering emergency and other local essentials.
-    // A different account must confirm a full reset before auth (see confirmDeviceAccountForAuth).
-    clearMiniAppMemoryState();
+    // Do not clear mini-app stores on sign-out. Zustand persist would write empty
+    // state over AsyncStorage/SQLite while the session is still active, wiping
+    // local vitals and other trackers. Keep device-bound local data so the same
+    // email can sign back in without re-entering everything. Guests cannot open
+    // mini-apps; a different account still goes through confirmDeviceAccountForAuth wipe.
     await authService.signOut();
     trackEvent(AnalyticsEvents.signOut);
     // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.

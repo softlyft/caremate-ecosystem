@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FilePlus2, FileText, Link2 } from 'lucide-react-native';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { Button } from '@/components/ui/form-controls';
 
+import { PdfDocumentPreview } from '@/components/documents/PdfDocumentPreview';
 import { AppText } from '@/components/ui/AppText';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -71,6 +72,7 @@ export default function ProviderDocumentsScreen() {
   const [openingId, setOpeningId] = useState<string | null>(null);
   const [preview, setPreview] = useState<DocumentPreview | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [linkDoc, setLinkDoc] = useState<ProviderDocument | null>(null);
   const [title, setTitle] = useState('');
@@ -97,6 +99,7 @@ export default function ProviderDocumentsScreen() {
       setOpeningId(doc.id);
     },
     onSuccess: (local) => {
+      setPreviewError(null);
       setPreview(local);
       setPreviewLoading(canPreviewInApp(local.mimeType, local.fileName));
     },
@@ -114,7 +117,21 @@ export default function ProviderDocumentsScreen() {
   const closePreview = () => {
     setPreview(null);
     setPreviewLoading(false);
+    setPreviewError(null);
   };
+
+  const handlePreviewReady = useCallback(() => {
+    setPreviewLoading(false);
+    setPreviewError(null);
+  }, []);
+
+  const handlePreviewError = useCallback(
+    (message?: string) => {
+      setPreviewLoading(false);
+      setPreviewError(message?.trim() || t('profile.documents.viewerFailedMessage'));
+    },
+    [t],
+  );
 
   const uploadMutation = useMutation({
     mutationFn: () =>
@@ -313,7 +330,16 @@ export default function ProviderDocumentsScreen() {
 
           {preview ? (
             <View style={styles.viewerBody}>
-              {!canPreviewInApp(preview.mimeType, preview.fileName) ? (
+              {previewError ? (
+                <View style={styles.viewerFallback}>
+                  <AppText variant="sectionTitle" style={styles.viewerFallbackTitle}>
+                    {t('profile.documents.viewerFailedTitle')}
+                  </AppText>
+                  <AppText variant="body" style={styles.meta}>
+                    {previewError}
+                  </AppText>
+                </View>
+              ) : !canPreviewInApp(preview.mimeType, preview.fileName) ? (
                 <View style={styles.viewerFallback}>
                   <AppText variant="sectionTitle" style={styles.viewerFallbackTitle}>
                     {t('profile.documents.previewUnavailableTitle')}
@@ -330,32 +356,35 @@ export default function ProviderDocumentsScreen() {
                 >
                   <Image
                     accessibilityLabel={preview.title}
-                    onLoadEnd={() => setPreviewLoading(false)}
+                    onLoadEnd={handlePreviewReady}
                     resizeMode="contain"
                     source={{ uri: preview.uri }}
                     style={styles.previewImage}
                   />
                 </ScrollView>
+              ) : Platform.OS === 'android' ? (
+                <PdfDocumentPreview
+                  uri={preview.uri}
+                  title={preview.title}
+                  onLoadEnd={handlePreviewReady}
+                  onError={handlePreviewError}
+                />
               ) : (
                 <WebView
                   allowFileAccess
                   allowUniversalAccessFromFileURLs
                   originWhitelist={['*', 'file://', 'https://', 'http://']}
-                  onLoadEnd={() => setPreviewLoading(false)}
-                  onError={() => setPreviewLoading(false)}
+                  onLoadEnd={handlePreviewReady}
+                  onError={() => handlePreviewError()}
                   setSupportMultipleWindows={false}
-                  source={{
-                    // iOS WKWebView renders local/remote PDFs; Android WebView handles https PDFs better than file://.
-                    uri:
-                      Platform.OS === 'android' && isPdfPreview(preview.mimeType, preview.fileName)
-                        ? preview.remoteUrl
-                        : preview.uri,
-                  }}
+                  source={{ uri: preview.uri }}
                   style={styles.webView}
                 />
               )}
 
-              {previewLoading && canPreviewInApp(preview.mimeType, preview.fileName) ? (
+              {previewLoading &&
+              !previewError &&
+              canPreviewInApp(preview.mimeType, preview.fileName) ? (
                 <View style={styles.viewerLoading}>
                   <ActivityIndicator color={palette.primary} size="large" />
                   <AppText variant="caption" style={styles.meta}>

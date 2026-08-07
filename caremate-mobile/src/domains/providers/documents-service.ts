@@ -60,14 +60,13 @@ type RemoteDocumentRow = {
 
 const BUCKET = 'provider-documents';
 const SIGNED_URL_SECONDS = 60 * 15;
-const MAX_BYTES = 15 * 1024 * 1024;
+const MAX_BYTES = 3 * 1024 * 1024;
 
 const ALLOWED_MIME = new Set([
   'application/pdf',
   'image/jpeg',
   'image/jpg',
   'image/png',
-  'image/webp',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
@@ -77,7 +76,6 @@ const EXT_MIME: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   png: 'image/png',
-  webp: 'image/webp',
   doc: 'application/msword',
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 };
@@ -87,7 +85,6 @@ const MIME_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg',
   'image/png': 'png',
-  'image/webp': 'webp',
   'application/msword': 'doc',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
 };
@@ -160,7 +157,7 @@ function resolveMimeType(fileName: string, mimeType: string | null | undefined):
   if (fromExt) {
     return fromExt;
   }
-  throw new Error('Use a PDF, Word, JPEG, PNG, or WebP file');
+  throw new Error('Use a PDF, JPG, PNG, DOC, or DOCX file');
 }
 
 class ProviderDocumentsService {
@@ -311,7 +308,7 @@ class ProviderDocumentsService {
     const mimeType = resolveMimeType(fileName, asset.mimeType);
 
     if (asset.size != null && asset.size > MAX_BYTES) {
-      throw new Error('File must be 15 MB or smaller');
+      throw new Error('File must be 3 MB or smaller');
     }
 
     const documentId = await createId();

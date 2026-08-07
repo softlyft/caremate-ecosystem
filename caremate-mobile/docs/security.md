@@ -88,7 +88,7 @@ and the Play signing SHA-256 before store launch.
 |---------|----------|
 | Guest → account migrate | Only in `prepareLocalAccount` (explicit sign-in / sign-up), **not** on every sync cycle |
 | Device account binding | SecureStore `{ email, userId }` after auth; gates a different email behind reset confirm |
-| Sign-out | Clear push token for **this device**, clear in-memory mini-apps, then Supabase sign-out — **keep** SQLite + persisted mini-app keys for the bound email |
+| Sign-out | Clear push token for **this device**, then Supabase sign-out — **keep** SQLite + persisted mini-app keys for the bound email (do not call mini-app `clearAll()`; persist would wipe local data) |
 | Account switch (different email) | User confirms → `wipeLocalAccountData` + clear binding, then auth continues |
 | Account delete | Same wipe + clear binding + server `delete-account` (JWT-validated) |
 | Guest push | No Expo token upload |

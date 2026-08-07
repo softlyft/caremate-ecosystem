@@ -36,7 +36,7 @@ Implementation spans:
 | `resendSignupEmail(email)` | Resends signup confirmation email |
 | `verifyRecoveryEmail(email, token)` | Verifies recovery OTP (`verifyOtp` type `recovery`), then marks password recovery pending |
 | `resendRecoveryEmail(email)` | Resends the password-reset email (same as requesting reset again) |
-| `signOut()` | Clears push for this device, clears in-memory mini-app state, clears session → guest. **Does not** wipe SQLite / persisted local data (same email can return). |
+| `signOut()` | Clears push for this device and session → guest. **Does not** clear mini-app stores or wipe SQLite / AsyncStorage (same email can return with local data intact). |
 | `deleteAccount()` | Cloud delete + wipe local account data + clear device account binding |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
@@ -81,13 +81,19 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 On successful `signUpWithEmail` **with a session** (confirmations off), or after `verifySignupEmailOtp` / `signInWithEmail`, the auth service:
 
 1. **Migrates guest local data** — copies/merges guest-scoped emergency profile, bookmarks, article reads, settings, profile fields, and family ownership onto the account (`migrateGuestLocalData`)
-2. **Bootstraps local account rows** (`bootstrapLocalAccountRecords`) so the app does not wait on sync pull:
+2. **Hydrates emergency from cloud** (`hydrateEmergencyProfile`) — pulls the remote emergency row (gateway or Supabase) and **merges** into SQLite before any local shell is created:
+   - Local empty / unset + remote set → take remote
+   - Local set + remote empty → keep local
+   - Both set and differ → **local wins**
+   - Written as `synced` (no sync-queue push)
+3. **Bootstraps local account rows** (`bootstrapLocalAccountRecords`) so the app does not wait on sync pull:
    - **Profile** — created or filled from auth identity (name, email, phone)
    - **Settings / device defaults** — sign-up always applies onboarding device defaults; sign-in only fills missing country/language/settings
-   - **Emergency profile** — created (or name filled) when missing
-3. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
+   - **Emergency profile** — if still missing after hydrate, creates a **synced empty shell** via `ensureLocalShell` (does **not** queue a create that could overwrite cloud PHI)
+4. **Hydrates mini-apps from cloud** (`hydrateMiniAppsFromRemote`) — pulls `mini_app_snapshots`, then writes into user-scoped AsyncStorage **only when local state is empty** (new device / clear-data), then rehydrates Zustand stores so vitals and other trackers are available before the user opens an app
+5. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
 
-Both local stub steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs entitlement hydrate and invalidates Premium/ads queries, then triggers a full sync.
+Local stub / hydrate steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs `prepareLocalAccount` paths (including emergency + mini-app + entitlement hydrate) and triggers a full sync.
 
 After bootstrap succeeds, **`bindDeviceAccount`** stores `{ email, userId }` in SecureStore (`STORAGE_KEYS.deviceAccountBinding`) so sign-out can keep local data for that email.
 
@@ -100,7 +106,7 @@ CareMate keeps **one primary account email per device** for local PHI continuity
 | Event | Behavior |
 |-------|----------|
 | Sign-in / sign-up / session restore | Bind device to that account email + userId |
-| Sign-out | Clear session + push + in-memory mini-apps; **keep** SQLite rows and user-scoped AsyncStorage |
+| Sign-out | Clear session + push token only; **keep** SQLite rows and user-scoped AsyncStorage (including mini-apps). Do **not** call mini-app `clearAll()` on sign-out — persist would overwrite local data with empty state. |
 | Same email signs back in | No wipe — emergency profile and other local data remain |
 | Different email tries sign-in / sign-up | Alert with masked previous email; **Proceed** wipes previous local account then continues; **Cancel** aborts |
 | Account delete | Wipe local data + clear device binding |
@@ -130,8 +136,9 @@ Login and register call `confirmDeviceAccountForAuth` before talking to Supabase
 
 **Supabase email confirmation setup:**
 1. Auth → Providers → Email → enable **Confirm email**
-2. Auth → Email Templates → Confirm signup: include `{{ .Token }}` (6-digit code). Local template: `supabase/templates/confirmation.html`
-3. Hosted projects must mirror this in the Dashboard; `config.toml` only applies to local Supabase
+2. Auth → Email Templates → Confirm signup: CareMate-branded HTML with `{{ .Token }}` only (no `{{ .ConfirmationURL }}`). Source: `supabase/templates/confirmation.html`
+3. Hosted projects must mirror this — `config.toml` only applies to local Supabase. Push with:
+   `SUPABASE_ACCESS_TOKEN=… SUPABASE_PROJECT_REF=… node scripts/sync-supabase-auth-email-templates.mjs`
 
 ### Forgot password (`(auth)/forgot-password.tsx`)
 - Collects email and calls `authService.resetPassword` (`supabase.auth.resetPasswordForEmail`)
@@ -151,9 +158,12 @@ Login and register call `confirmDeviceAccountForAuth` before talking to Supabase
 - After success, user continues into the app signed in
 
 **Supabase email recovery setup:**
-1. Auth → Email Templates → Reset password: include `{{ .Token }}` (6-digit code). Local template: `supabase/templates/recovery.html`
-2. Hosted projects must mirror this in the Dashboard; `config.toml` only applies to local Supabase
+1. Auth → Email Templates → Reset password: CareMate-branded HTML with `{{ .Token }}` only (no magic-link `{{ .ConfirmationURL }}`). Source: `supabase/templates/recovery.html`
+2. Hosted projects must mirror this — `config.toml` only applies to local Supabase. Same sync script as confirmation:
+   `SUPABASE_ACCESS_TOKEN=… SUPABASE_PROJECT_REF=… node scripts/sync-supabase-auth-email-templates.mjs`
 3. Optional: keep redirect URLs allowlisted if you still support deep-link recovery as a fallback
+
+If users still receive a generic “Reset password” **link** email, the hosted template was not updated (Dashboard still has the Supabase default).
 
 ### Onboarding (`(auth)/onboarding/*`)
 

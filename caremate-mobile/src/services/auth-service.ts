@@ -10,6 +10,8 @@ import {
 import { migrateGuestLocalData } from '@/domains/auth/migrate-guest-data';
 import { wipeLocalAccountData } from '@/domains/auth/wipe-local-account';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
+import { hydrateEmergencyProfile } from '@/domains/emergency/hydrate-emergency';
+import { hydrateMiniAppsFromRemote } from '@/mini-apps/_kit/hydrate';
 import { getPasswordResetRedirectUri } from '@/lib/auth-deep-link';
 import { authStorage } from '@/lib/storage';
 import { config } from '@/constants/env';
@@ -34,8 +36,8 @@ function isInvalidCredentialError(error: { message?: string; status?: number } |
 
 export class AuthService {
   /**
-   * Guest merge + local profile/emergency/settings stubs so the app is usable
-   * before (or without) a successful sync pull.
+   * Guest merge → emergency hydrate → local stubs → mini-app hydrate → Premium hydrate
+   * so the app is usable before (or without) a full sync cycle.
    */
   async prepareLocalAccount(
     user: {
@@ -53,6 +55,13 @@ export class AuthService {
       // Guest migration is best-effort; auth must still succeed.
     }
 
+    // New device / clear-data: restore cloud emergency before bootstrap can create a shell.
+    try {
+      await hydrateEmergencyProfile(user.id);
+    } catch {
+      // Sync engine will retry; auth must still succeed.
+    }
+
     try {
       await bootstrapLocalAccountRecords(
         {
@@ -65,6 +74,13 @@ export class AuthService {
       );
     } catch {
       // Local stubs are best-effort; auth must still succeed.
+    }
+
+    // New device / clear-data: restore mini-app snapshots into local storage while empty.
+    try {
+      await hydrateMiniAppsFromRemote(user.id);
+    } catch {
+      // Sync engine will retry; auth must still succeed.
     }
 
     // New device / fresh SQLite: pull Premium entitlement before first UI paint races ads.

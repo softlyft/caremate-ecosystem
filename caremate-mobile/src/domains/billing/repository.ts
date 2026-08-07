@@ -252,7 +252,7 @@ class BillingRepository extends BaseRepository {
       billing_interval: input.billingInterval,
       currency: input.currency,
     });
-    await WebBrowser.openBrowserAsync(url);
+    await WebBrowser.openBrowserAsync(url, { showInRecents: true });
     return { url };
   }
 
@@ -316,7 +316,7 @@ class BillingRepository extends BaseRepository {
       currency: input.currency,
       flow: 'family_upgrade',
     });
-    await WebBrowser.openBrowserAsync(data.url as string);
+    await WebBrowser.openBrowserAsync(data.url as string, { showInRecents: true });
     return { activated: false, url: data.url as string, quote };
   }
 

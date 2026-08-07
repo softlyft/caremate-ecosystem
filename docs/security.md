@@ -80,7 +80,7 @@ Family checkouts and upgrade quotes resolve `household_id`, then verify the call
 | Portal | Limits |
 |--------|--------|
 | Admin learn media | ≤ 15 MB; JPEG/PNG/WebP/GIF/MP4/WebM |
-| Provider documents | ≤ 20 MB; PDF/JPEG/PNG/WebP/TXT/Word |
+| Provider documents | ≤ 3 MB; PDF / JPG / PNG / DOC / DOCX |
 
 Validation is in server actions (not only the browser).
 

@@ -7,6 +7,8 @@ export {
 export { getMiniAppTheme, type MiniAppTheme } from '@/mini-apps/_kit/theme';
 export { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 export {
+  hydrateMiniAppsFromRemote,
+  isMiniAppPayloadEmpty,
   migrateMiniAppsToSnapshots,
   rehydrateMiniAppsFromSnapshots,
 } from '@/mini-apps/_kit/hydrate';

@@ -39,6 +39,7 @@ const mockGetDeviceDefaults = jest.fn();
 const mockApplyDeviceDefaultsToProfile = jest.fn();
 const mockEmergencyFind = jest.fn();
 const mockEmergencySave = jest.fn();
+const mockEmergencyEnsureShell = jest.fn();
 const mockSetNotificationsEnabled = jest.fn();
 const mockHydrateFromSettings = jest.fn();
 
@@ -64,6 +65,7 @@ jest.mock('@/domains/emergency/repository', () => ({
   emergencyRepository: {
     findByUserId: (...args: unknown[]) => mockEmergencyFind(...args),
     save: (...args: unknown[]) => mockEmergencySave(...args),
+    ensureLocalShell: (...args: unknown[]) => mockEmergencyEnsureShell(...args),
   },
 }));
 
@@ -92,6 +94,7 @@ describe('bootstrapLocalAccountRecords', () => {
     mockSave.mockResolvedValue(undefined);
     mockSaveSettings.mockResolvedValue(undefined);
     mockEmergencySave.mockResolvedValue(undefined);
+    mockEmergencyEnsureShell.mockResolvedValue(undefined);
   });
 
   it('no-ops when the database is not ready', async () => {
@@ -134,7 +137,8 @@ describe('bootstrapLocalAccountRecords', () => {
 
     expect(mockSave).toHaveBeenCalled();
     expect(mockSaveSettings).toHaveBeenCalled();
-    expect(mockEmergencySave).toHaveBeenCalledWith('user-1', { fullName: 'Ada' });
+    expect(mockEmergencyEnsureShell).toHaveBeenCalledWith('user-1', { fullName: 'Ada' });
+    expect(mockEmergencySave).not.toHaveBeenCalled();
     expect(mockSetNotificationsEnabled).toHaveBeenCalledWith(true);
   });
 
