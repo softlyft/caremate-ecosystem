@@ -23,6 +23,7 @@
     "supabase:migration:new": "supabase migration new",
     "supabase:migration:list": "supabase migration list",
     "supabase:db:push": "supabase db push",
+    "supabase:sync-auth-emails": "node scripts/sync-supabase-auth-email-templates.mjs",
     "db:types": "node scripts/merge-db-types.mjs",
     "portal:dev": "npm run dev -w caremate-admin-portal",
     "portal:build": "npm run build -w caremate-admin-portal",

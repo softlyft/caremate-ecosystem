@@ -52,3 +52,7 @@ Portal media upload depends on shared storage bucket and policy setup defined in
 ## Important Boundary
 
 RLS and auth logic are shared infrastructure. App-level authorization must still be enforced in the mobile app, portal server actions, and ingest service where applicable.
+
+## Auth email templates
+
+Mobile signup confirmation and password reset expect a **6-digit `{{ .Token }}`** in CareMate-branded HTML (`supabase/templates/`). Hosted projects must sync those templates (Dashboard or `scripts/sync-supabase-auth-email-templates.mjs`); otherwise users get the default Supabase magic-link email.

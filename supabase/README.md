@@ -6,6 +6,28 @@ All apps in this monorepo (`caremate-mobile`, `caremate-admin-portal`, future pa
 
 **Linked remote today:** `caremate-dev` (`eybakmhqtotoywwgwgjy`) — development only. Production should use a separate Supabase project and env keys; do not treat `caremate-dev` as prod.
 
+## Auth email templates (OTP)
+
+Local `config.toml` wires CareMate-branded **6-digit** templates:
+
+- Confirm signup → `templates/confirmation.html` (`{{ .Token }}`)
+- Reset password → `templates/recovery.html` (`{{ .Token }}`)
+
+**Hosted Supabase does not read these files automatically.** Push them with:
+
+```bash
+supabase config push --project-ref eybakmhqtotoywwgwgjy --yes
+```
+
+Or via Management API (personal access token required):
+
+```bash
+SUPABASE_ACCESS_TOKEN=sbp_... SUPABASE_PROJECT_REF=eybakmhqtotoywwgwgjy \
+  npm run supabase:sync-auth-emails
+```
+
+Use the production project ref when cutting over; do not treat `caremate-dev` as prod.
+
 ## Docs
 
 For service-specific documentation, start here:

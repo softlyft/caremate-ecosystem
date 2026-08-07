@@ -2,6 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { emergencyProfiles } from '@/database/schema';
+import { mergeEmergencyProfiles } from '@/domains/emergency/merge-emergency';
 import {
   fetchEmergencyViaGateway,
   isHealthDataGatewayConfigured,
@@ -58,6 +59,29 @@ function mapEmergencyProfile(row: typeof emergencyProfiles.$inferSelect): Emerge
   };
 }
 
+function remoteRowToProfile(row: RemoteEmergencyRow): EmergencyProfile {
+  const timestamp = nowIso();
+  return {
+    id: row.id,
+    userId: row.user_id,
+    fullName: row.full_name ?? '',
+    photoUrl: row.photo_url,
+    bloodGroup: row.blood_group,
+    genotype: row.genotype,
+    allergies: row.allergies ?? [],
+    currentMedications: row.current_medications ?? [],
+    chronicConditions: row.chronic_conditions ?? [],
+    emergencyContacts: row.emergency_contacts ?? [],
+    preferredHospital: row.preferred_hospital,
+    insuranceProvider: row.insurance_provider,
+    notes: row.notes,
+    syncStatus: 'synced',
+    deletedAt: null,
+    createdAt: row.created_at ?? timestamp,
+    updatedAt: row.updated_at ?? timestamp,
+  };
+}
+
 class EmergencyRepository extends BaseRepository {
   async findByUserId(userId: string): Promise<EmergencyProfile | null> {
     const db = getDatabase();
@@ -67,6 +91,71 @@ class EmergencyRepository extends BaseRepository {
       .where(and(eq(emergencyProfiles.userId, userId), isNull(emergencyProfiles.deletedAt)))
       .limit(1);
     return row ? mapEmergencyProfile(row) : null;
+  }
+
+  /**
+   * Create a local empty emergency shell without queueing sync.
+   * Used by signup/bootstrap so we never push empty PHI over a richer cloud row.
+   */
+  async ensureLocalShell(
+    userId: string,
+    input: { fullName?: string } = {},
+  ): Promise<EmergencyProfile> {
+    const existing = await this.findByUserId(userId);
+    if (existing) {
+      return existing;
+    }
+
+    const timestamp = nowIso();
+    const id = await createId();
+    const profile: EmergencyProfile = {
+      id,
+      userId,
+      fullName: input.fullName?.trim() ?? '',
+      photoUrl: null,
+      bloodGroup: null,
+      genotype: null,
+      allergies: [],
+      currentMedications: [],
+      chronicConditions: [],
+      emergencyContacts: [],
+      preferredHospital: null,
+      insuranceProvider: null,
+      notes: null,
+      syncStatus: 'synced',
+      deletedAt: null,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+
+    await this.writeLocalSynced(profile);
+    return profile;
+  }
+
+  /**
+   * Sign-in hydrate: fetch cloud emergency, merge with local (local set wins;
+   * remote fills blanks), write as synced without queueing a push.
+   */
+  async hydrateFromRemote(userId: string): Promise<void> {
+    const remote = await this.fetchRemoteForUser(userId);
+    if (!remote) {
+      return;
+    }
+
+    const local = await this.findByUserId(userId);
+    // Real in-flight edits still win entirely — don't merge over pending local.
+    if (local?.syncStatus === 'pending') {
+      const pendingIds = await this.pendingEmergencySyncIds();
+      if (pendingIds.has(local.id) || pendingIds.size > 0) {
+        return;
+      }
+    }
+
+    const merged = mergeEmergencyProfiles(local, remote);
+    if (local && local.id !== merged.id) {
+      await this.remapLocalId(local.id, merged.id);
+    }
+    await this.writeLocalSynced(merged);
   }
 
   async save(userId: string, input: Partial<EmergencyProfile>): Promise<EmergencyProfile> {
@@ -224,74 +313,96 @@ class EmergencyRepository extends BaseRepository {
       return;
     }
 
-    const gatewayRow = await fetchEmergencyViaGateway();
-    let data: RemoteEmergencyRow[] | null = null;
-
-    if (gatewayRow) {
-      data = [gatewayRow];
-    } else if (isHealthDataGatewayConfigured()) {
-      // Gateway is the source of truth when configured; no plaintext Supabase pull.
+    const data = await this.fetchAllRemoteRows();
+    if (!data) {
       return;
-    } else {
-      const { data: remote, error } = await supabase.from('emergency_profiles').select('*');
-      if (error || !remote) {
-        return;
-      }
-      data = remote.map((row) => scrubRemoteEmergencyRow(row as RemoteEmergencyRow));
     }
 
-    const db = getDatabase();
     for (const row of data) {
       const existingLocal = await this.findByUserId(row.user_id);
       if (existingLocal?.syncStatus === 'pending') {
         continue;
       }
 
-      if (existingLocal && existingLocal.id !== row.id) {
-        await this.remapLocalId(existingLocal.id, row.id);
+      const remoteProfile = remoteRowToProfile(row);
+      // Fill blanks from remote; keep meaningfully set local fields.
+      const merged = mergeEmergencyProfiles(existingLocal, remoteProfile);
+
+      if (existingLocal && existingLocal.id !== merged.id) {
+        await this.remapLocalId(existingLocal.id, merged.id);
       }
 
-      const timestamp = nowIso();
-      await db
-        .insert(emergencyProfiles)
-        .values({
-          id: row.id,
-          userId: row.user_id,
-          fullName: row.full_name,
-          photoUrl: row.photo_url,
-          bloodGroup: row.blood_group,
-          genotype: row.genotype,
-          allergies: stringifyJson(row.allergies ?? []),
-          currentMedications: stringifyJson(row.current_medications ?? []),
-          chronicConditions: stringifyJson(row.chronic_conditions ?? []),
-          emergencyContacts: stringifyJson(row.emergency_contacts ?? []),
-          preferredHospital: row.preferred_hospital,
-          insuranceProvider: row.insurance_provider,
-          notes: row.notes,
-          syncStatus: 'synced',
-          deletedAt: null,
-          createdAt: row.created_at ?? timestamp,
-          updatedAt: row.updated_at ?? timestamp,
-        })
-        .onConflictDoUpdate({
-          target: emergencyProfiles.id,
-          set: {
-            fullName: row.full_name,
-            photoUrl: row.photo_url,
-            bloodGroup: row.blood_group,
-            genotype: row.genotype,
-            allergies: stringifyJson(row.allergies ?? []),
-            currentMedications: stringifyJson(row.current_medications ?? []),
-            chronicConditions: stringifyJson(row.chronic_conditions ?? []),
-            emergencyContacts: stringifyJson(row.emergency_contacts ?? []),
-            preferredHospital: row.preferred_hospital,
-            insuranceProvider: row.insurance_provider,
-            notes: row.notes,
-            syncStatus: 'synced',
-            updatedAt: row.updated_at ?? timestamp,
-          },
-        });
+      await this.writeLocalSynced(merged);
     }
+  }
+
+  private async fetchRemoteForUser(userId: string): Promise<EmergencyProfile | null> {
+    const rows = await this.fetchAllRemoteRows();
+    if (!rows) {
+      return null;
+    }
+    const row = rows.find((item) => item.user_id === userId) ?? rows[0] ?? null;
+    return row ? remoteRowToProfile(row) : null;
+  }
+
+  private async fetchAllRemoteRows(): Promise<RemoteEmergencyRow[] | null> {
+    const gatewayRow = await fetchEmergencyViaGateway();
+    if (gatewayRow) {
+      return [gatewayRow];
+    }
+    if (isHealthDataGatewayConfigured()) {
+      // Gateway is the source of truth when configured; no plaintext Supabase pull.
+      return null;
+    }
+
+    const { data: remote, error } = await supabase.from('emergency_profiles').select('*');
+    if (error || !remote) {
+      return null;
+    }
+    return remote.map((row) => scrubRemoteEmergencyRow(row as RemoteEmergencyRow));
+  }
+
+  private async writeLocalSynced(profile: EmergencyProfile): Promise<void> {
+    const db = getDatabase();
+    await db
+      .insert(emergencyProfiles)
+      .values({
+        id: profile.id,
+        userId: profile.userId,
+        fullName: profile.fullName,
+        photoUrl: profile.photoUrl,
+        bloodGroup: profile.bloodGroup,
+        genotype: profile.genotype,
+        allergies: stringifyJson(profile.allergies),
+        currentMedications: stringifyJson(profile.currentMedications),
+        chronicConditions: stringifyJson(profile.chronicConditions),
+        emergencyContacts: stringifyJson(profile.emergencyContacts),
+        preferredHospital: profile.preferredHospital,
+        insuranceProvider: profile.insuranceProvider,
+        notes: profile.notes,
+        syncStatus: 'synced',
+        deletedAt: null,
+        createdAt: profile.createdAt,
+        updatedAt: profile.updatedAt,
+      })
+      .onConflictDoUpdate({
+        target: emergencyProfiles.id,
+        set: {
+          fullName: profile.fullName,
+          photoUrl: profile.photoUrl,
+          bloodGroup: profile.bloodGroup,
+          genotype: profile.genotype,
+          allergies: stringifyJson(profile.allergies),
+          currentMedications: stringifyJson(profile.currentMedications),
+          chronicConditions: stringifyJson(profile.chronicConditions),
+          emergencyContacts: stringifyJson(profile.emergencyContacts),
+          preferredHospital: profile.preferredHospital,
+          insuranceProvider: profile.insuranceProvider,
+          notes: profile.notes,
+          syncStatus: 'synced',
+          updatedAt: profile.updatedAt,
+        },
+      });
   }
 
   private async pendingEmergencySyncIds(): Promise<Set<string>> {

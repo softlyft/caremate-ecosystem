@@ -23,8 +23,12 @@ log() {
   echo "${LOG_PREFIX} $*"
 }
 
+# Amplify `ecache` / `envCache` keys must be alphanumeric only (no hyphens or slashes).
 cache_key() {
-  echo "build-guard-sha-${AMPLIFY_MONOREPO_APP_ROOT:-unknown}"
+  local root="${AMPLIFY_MONOREPO_APP_ROOT:-unknown}"
+  local sanitized
+  sanitized="$(printf '%s' "$root" | tr -cd '[:alnum:]')"
+  echo "buildguardsha${sanitized}"
 }
 
 ensure_git_history() {
@@ -124,8 +128,12 @@ record_baseline() {
     return 0
   fi
 
-  envCache --set "$(cache_key)" "$current"
-  log "Recorded baseline ${current} for ${app_root}"
+  # Best-effort: never fail the deploy because envCache rejected a key/value.
+  if envCache --set "$(cache_key)" "$current" 2>/dev/null; then
+    log "Recorded baseline ${current} for ${app_root}"
+  else
+    log "Warning: could not record baseline via envCache (deploy continues)"
+  fi
 }
 
 case "${1:-check}" in

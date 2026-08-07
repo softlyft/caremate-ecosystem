@@ -477,19 +477,19 @@ Also listed under [Data Layer → Mini-apps data](./data-layer.md#mini-apps-data
 
 | Topic | Current state |
 |-------|---------------|
-| Data sync | Signed-in: JSON snapshots via sync engine → Supabase `mini_app_snapshots` |
+| Data sync | Signed-in: JSON snapshots via sync engine → gateway/Supabase `mini_app_snapshots` |
 | Multi-entity | Immunization: multiple children; Medication: multiple medicines |
 | Region | Checkup Planner uses article country list; default INT |
 | Linking | Pregnancy setup auto-pauses Period Tracker; history kept; user can resume |
 | Offline | Fully offline; sync when online / reconnect / daily safety |
-| Auth | Usable as guest; cloud backup requires sign-in |
+| Auth | Guests are sent to login from Apps; cloud backup requires sign-in |
 
 ---
 
 ## Cloud backup
 
 1. Ensure Supabase CLI is linked (`npm run supabase:link`) and migrations are applied (`npm run supabase:db:push`).
-2. Sign in on the device — existing AsyncStorage data migrates into snapshots on next sync.
+2. Sign in on the device — `prepareLocalAccount` runs `hydrateMiniAppsFromRemote` (pull snapshots into AsyncStorage **when local is empty**, then rehydrate stores) so a new device restores vitals and other trackers before the user opens an app. Ongoing edits still mirror via the sync engine.
 3. Rebuild native apps after adding `expo-background-task` (`npx expo prebuild` / `expo run:*`) so daily background sync can register.
 
 Optional later: normalize into per-entity SQLite tables for family sharing.

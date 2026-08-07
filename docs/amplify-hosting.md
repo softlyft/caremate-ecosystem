@@ -16,7 +16,7 @@ Install runs once per **affected** app build via [`scripts/amplify-install.sh`](
 
 **Build cost controls (required for monorepo):**
 
-1. **Build-level skip** — [`scripts/amplify-build-guard.sh`](../scripts/amplify-build-guard.sh) runs at the start of `preBuild` and wraps install/compile with `run` so skipped apps never call `npm ci` or `npm run build`. Look for `[amplify-build-guard] No changes under … — skipping` in logs. Baseline SHA is cached per app via Amplify `envCache`. Set `AMPLIFY_FORCE_BUILD=true` for a one-off full rebuild (env-var-only redeploy).
+1. **Build-level skip** — [`scripts/amplify-build-guard.sh`](../scripts/amplify-build-guard.sh) runs at the start of `preBuild` and wraps install/compile with `run` so skipped apps never call `npm ci` or `npm run build`. Look for `[amplify-build-guard] No changes under … — skipping` in logs. Baseline SHA is cached per app via Amplify `envCache` (keys are alphanumeric only, e.g. `buildguardshacarematewebsite`). Set `AMPLIFY_FORCE_BUILD=true` for a one-off full rebuild (env-var-only redeploy).
 2. **Diff-based deploy** — set `AMPLIFY_DIFF_DEPLOY` = `true` on **each** Amplify app in Console. This can skip **deploy** when output is unchanged; the build guard avoids compile when files did not change. The log line `Determining if there are deployable frontend differences` is Amplify’s check — it may still run even when the guard skips compile.
 3. **Node 22** — repo root [`.nvmrc`](../.nvmrc) pins Node 22. In each Amplify app: **Build settings → Build image settings → Node.js version → 22** (do not run `nvm install` in the spec).
 4. **Shared `@caremate/db-types`** — listed in the build guard shared paths, so portal apps rebuild when db-types changes.

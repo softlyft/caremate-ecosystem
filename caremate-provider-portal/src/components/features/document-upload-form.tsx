@@ -77,8 +77,9 @@ export function DocumentUploadForm({
           name="file"
           type="file"
           required
-          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
+          accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         />
+        <p className="text-xs text-muted">PDF, JPG, PNG, DOC, or DOCX — up to 3 MB.</p>
       </div>
       <Button
         type="submit"

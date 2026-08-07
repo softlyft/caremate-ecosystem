@@ -37,7 +37,11 @@ function clearMiniAppStores(): void {
   usePeriodTrackerStore.getState().clearAll();
 }
 
-/** Clear in-memory mini-app stores without touching persisted AsyncStorage / SQLite. */
+/**
+ * Clear in-memory mini-app stores. Prefer not calling this while signed in —
+ * Zustand persist would write empty state over AsyncStorage/SQLite.
+ * Sign-out does not use this; account switch / delete uses clearSessionDeviceState.
+ */
 export function clearMiniAppMemoryState(): void {
   clearMiniAppStores();
 }

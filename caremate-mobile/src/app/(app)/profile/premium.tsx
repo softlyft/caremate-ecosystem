@@ -149,11 +149,16 @@ export default function PremiumScreen() {
     setError(null);
     try {
       if (isPersonalActive) {
-        await billingRepository.startFamilyUpgrade({
+        const result = await billingRepository.startFamilyUpgrade({
           billingInterval,
           currency,
           householdId,
         });
+        // Zero-charge upgrades never open a browser — refresh entitlement now.
+        // Browser checkouts sync via billing/success deep link, not here.
+        if (result.activated) {
+          await refresh();
+        }
       } else {
         await billingRepository.startCheckout({
           planType: selectedPlanType,
@@ -163,7 +168,9 @@ export default function PremiumScreen() {
           patientId,
         });
       }
-      await refresh();
+      // Do not verify/refresh after opening the browser: on Android,
+      // openBrowserAsync resolves as soon as the chooser/Custom Tab starts,
+      // so a premature verify left `paying` stuck when the user dismissed it.
     } catch (err) {
       setError(
         err instanceof Error

@@ -12,7 +12,8 @@ export { identityFromAuthUser } from '@/domains/auth/auth-identity';
 /**
  * Ensures local profile, settings, and emergency rows exist right after auth.
  * Idempotent: fills blanks only and does not wipe richer local/synced data.
- * Sync pull can still enrich the rows afterward.
+ * Sign-in hydrate runs first (see prepareLocalAccount) so cloud emergency is
+ * restored before any empty local shell is created.
  */
 export async function bootstrapLocalAccountRecords(
   identity: LocalAccountIdentity,
@@ -102,7 +103,8 @@ export async function bootstrapLocalAccountRecords(
 
   const nameForEmergency = canonicalName || fullName || profile?.fullName?.trim() || '';
   if (!existingEmergency) {
-    await emergencyRepository.save(identity.userId, { fullName: nameForEmergency });
+    // Synced shell only — never queue an empty create that could overwrite cloud PHI.
+    await emergencyRepository.ensureLocalShell(identity.userId, { fullName: nameForEmergency });
   } else if (
     (!existingEmergency.fullName.trim() ||
       isWeakDisplayName(existingEmergency.fullName, resolvedEmail)) &&
