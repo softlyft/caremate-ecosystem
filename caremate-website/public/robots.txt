@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# App deep-link / auth landing pages — not for indexing
+Disallow: /auth/
+Disallow: /billing/
+Disallow: /emergency/share/
+
+Sitemap: https://www.getcaremate.com/sitemap.xml

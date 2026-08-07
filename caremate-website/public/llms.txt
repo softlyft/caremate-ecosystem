@@ -1,0 +1,40 @@
+# CareMate
+
+> CareMate is a Personal Health Intelligence Network (PHIN): an offline-first mobile health app with an emergency profile, nearby care discovery, Learn articles, and personal trackers (vitals, medication, checkups, period, pregnancy, immunization).
+
+CareMate helps people keep critical health details ready when care is needed, discover nearby providers, and organize everyday health tracking. Selected data can sync to the cloud for signed-in accounts. CareMate does not sell personal health information.
+
+## Product
+
+- Homepage: https://www.getcaremate.com/
+- Pricing: https://www.getcaremate.com/pricing
+- Patient guide: https://www.getcaremate.com/docs/patient
+- Security: https://www.getcaremate.com/security
+- Privacy: https://www.getcaremate.com/privacy
+- Terms: https://www.getcaremate.com/terms
+- Refunds: https://www.getcaremate.com/refunds
+
+## Solutions
+
+- Providers (healthcare organizations): https://www.getcaremate.com/providers
+- Provider guide: https://www.getcaremate.com/docs/providers
+- CareMate Community Network (CCN): https://www.getcaremate.com/ccn
+- Community guide: https://www.getcaremate.com/docs/community
+- Docs index: https://www.getcaremate.com/docs
+
+## Learn
+
+Trusted health education articles for patients and families:
+
+- Articles index: https://www.getcaremate.com/articles
+- Categories cover prevention, conditions, symptoms, family health, emergency, care navigation, medicines, mental health, tests, and nutrition.
+
+## Apps
+
+- iOS: https://apps.apple.com/app/caremate
+- Android: https://play.google.com/store/apps/details?id=com.softlyft.caremate
+
+## Contact
+
+- Support: hello@getcaremate.com
+- Website: https://www.getcaremate.com/

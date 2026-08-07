@@ -1,7 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
+import { DocumentMeta } from '@/components/DocumentMeta';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { STATIC_PAGE_SEO, seoForPath } from '@/lib/seo';
 import { ArticleDetailPage } from '@/pages/ArticleDetail';
 import { ArticlesCategoryPage } from '@/pages/ArticlesCategory';
 import { ArticlesIndexPage } from '@/pages/ArticlesIndex';
@@ -19,6 +21,13 @@ import { ProvidersPage } from '@/pages/Providers';
 import { TermsPage } from '@/pages/Terms';
 import { WelcomePage } from '@/pages/Welcome';
 
+function normalizePath(pathname: string): string {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+  return pathname || '/';
+}
+
 function EmergencyShareOpen() {
   const { token = '' } = useParams();
   return (
@@ -32,13 +41,34 @@ function EmergencyShareOpen() {
 
 function MarketingChrome({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
-  const isWelcome = pathname === '/';
+  const path = normalizePath(pathname);
+  const isWelcome = path === '/';
+  const staticSeo = STATIC_PAGE_SEO[path];
 
   return (
     <>
+      {staticSeo ? <DocumentMeta seo={{ ...staticSeo, path }} /> : null}
       <SiteHeader tone={isWelcome ? 'hero' : 'light'} />
       {children}
       <SiteFooter />
+    </>
+  );
+}
+
+function OpenInAppRoute({
+  title,
+  description,
+  appPath,
+}: {
+  title: string;
+  description: string;
+  appPath: string;
+}) {
+  const { pathname } = useLocation();
+  return (
+    <>
+      <DocumentMeta seo={seoForPath(pathname)} />
+      <OpenInAppPage title={title} description={description} appPath={appPath} />
     </>
   );
 }
@@ -50,7 +80,7 @@ export default function App() {
         <Route
           path="/auth/reset-password"
           element={
-            <OpenInAppPage
+            <OpenInAppRoute
               title="Reset your password"
               description="Continue in the CareMate app to choose a new password."
               appPath="auth/reset-password"
@@ -60,18 +90,26 @@ export default function App() {
         <Route
           path="/auth/callback"
           element={
-            <OpenInAppPage
+            <OpenInAppRoute
               title="Continue in CareMate"
               description="Finish signing in inside the CareMate app."
               appPath="auth/callback"
             />
           }
         />
-        <Route path="/emergency/share/:token" element={<EmergencyShareOpen />} />
+        <Route
+          path="/emergency/share/:token"
+          element={
+            <>
+              <DocumentMeta seo={seoForPath('/emergency/share/x')} />
+              <EmergencyShareOpen />
+            </>
+          }
+        />
         <Route
           path="/billing/success"
           element={
-            <OpenInAppPage
+            <OpenInAppRoute
               title="Payment received"
               description="Return to CareMate to refresh your Premium status."
               appPath="billing/success"
@@ -81,7 +119,7 @@ export default function App() {
         <Route
           path="/billing/cancel"
           element={
-            <OpenInAppPage
+            <OpenInAppRoute
               title="Checkout cancelled"
               description="No charge was completed. You can try again from CareMate."
               appPath="billing/cancel"
