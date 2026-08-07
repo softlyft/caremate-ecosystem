@@ -10,7 +10,10 @@ export function isEmergencyListSet(value: unknown[] | null | undefined): boolean
   return Array.isArray(value) && value.length > 0;
 }
 
-function mergeText(local: string | null | undefined, remote: string | null | undefined): string | null {
+function mergeText(
+  local: string | null | undefined,
+  remote: string | null | undefined,
+): string | null {
   if (isEmergencyTextSet(local)) {
     return local!.trim();
   }
