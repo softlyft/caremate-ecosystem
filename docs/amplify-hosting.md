@@ -59,8 +59,11 @@ Suggested Amplify app names:
 
 ### Website (`caremate-website`)
 
-None required.
+| Key | Notes |
+|-----|--------|
+| `VITE_SITE_URL` | Production: `https://www.getcaremate.com` (canonical host). Used for OG/canonical links and build-time sitemap. |
 
+Build also emits `robots.txt`, `sitemap.xml`, and `llms.txt` into the static output.
 ### Payment checkout (`caremate-payment-gateway`)
 
 Vite bakes these in at **build** time — set them in Amplify **before** deploy (or redeploy after changing).
