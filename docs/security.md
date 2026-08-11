@@ -67,7 +67,7 @@ Family checkouts and upgrade quotes resolve `household_id`, then verify the call
 
 | Flow | Production | Local / non-production |
 |------|------------|------------------------|
-| Community Patient ID verify | Hash stored server-side; code never returned to the browser | Must send OOB email (follow-up) |
+| Community Patient ID verify | Hash stored server-side; code never returned to the browser | Emails via `send-community-join-otp` + SES |
 | Provider org claim | Hash stored; code never returned | Emails via `send-provider-claim-otp` + SES |
 | Provider password reset | Hash stored; code never returned | Emails via `send-provider-password-reset-otp` + SES |
 
@@ -119,7 +119,7 @@ A stricter CSP with nonces across all portals is a follow-up (Next App Router ne
 - [x] Wire OOB email for provider claim (`send-provider-claim-otp` + SES)
 - [x] Wire OOB email for provider password reset (`send-provider-password-reset-otp` + SES)
 - [x] Apply `provider_password_resets` + auth hardening migrations
-- [ ] Wire OOB email for community join before cutting over production join UX
+- [x] Wire OOB email for community join (`send-community-join-otp` + SES)
 
 ---
 

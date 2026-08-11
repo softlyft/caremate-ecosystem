@@ -389,6 +389,9 @@ verify_jwt = false
 [functions.send-provider-password-reset-otp]
 verify_jwt = false
 
+[functions.send-community-join-otp]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

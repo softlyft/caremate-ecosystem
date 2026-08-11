@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { DocumentMeta } from '@/components/DocumentMeta';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { STATIC_PAGE_SEO, seoForPath } from '@/lib/seo';
@@ -76,6 +77,7 @@ function OpenInAppRoute({
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/auth/reset-password"

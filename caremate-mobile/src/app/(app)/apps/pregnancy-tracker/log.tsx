@@ -19,6 +19,7 @@ import {
   getTodayLog,
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
+  type PregnancyDailyLog,
 } from '@/mini-apps/pregnancy-tracker/store';
 import {
   localizeMoodOptions,
@@ -33,19 +34,26 @@ import { palette, radius, spacing } from '@/theme';
 
 const APP_ID = 'pregnancy-tracker' as const;
 
-export default function PregnancyLogScreen() {
+function PregnancyLogForm({
+  todayKey,
+  initialLog,
+}: {
+  todayKey: string;
+  initialLog: PregnancyDailyLog | undefined;
+}) {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
-  const todayKey = useMemo(() => toDateKey(new Date()), []);
-  const hydrated = usePregnancyTrackerHydrated();
-
-  const existingLog = usePregnancyTrackerStore((state) => state.dailyLogs[todayKey]);
   const upsertDailyLog = usePregnancyTrackerStore((state) => state.upsertDailyLog);
 
-  const [mood, setMood] = useState(existingLog?.mood);
-  const [symptoms, setSymptoms] = useState<string[]>(existingLog?.symptoms ?? []);
-  const [kickCount, setKickCount] = useState(existingLog?.kickCount ?? 0);
-  const [notes, setNotes] = useState(existingLog?.notes ?? '');
+  const [mood, setMood] = useState<string | undefined>(initialLog?.mood);
+  const [symptoms, setSymptoms] = useState<string[]>(initialLog?.symptoms ?? []);
+  const [kickCount, setKickCount] = useState(initialLog?.kickCount ?? 0);
+  const [notes, setNotes] = useState(initialLog?.notes ?? '');
+  const [weightText, setWeightText] = useState(
+    initialLog?.weightKg != null && Number.isFinite(initialLog.weightKg)
+      ? String(initialLog.weightKg)
+      : '',
+  );
 
   const toggleSymptom = (symptom: string) => {
     setSymptoms((current) =>
@@ -59,12 +67,17 @@ export default function PregnancyLogScreen() {
     t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
 
   const commitLog = async () => {
+    const trimmedWeight = weightText.trim();
+    const weightKg =
+      trimmedWeight.length > 0 ? Number(trimmedWeight.replace(',', '.')) : undefined;
+
     const assessment = assessPregnancyLogDraft({
       dateKey: todayKey,
       mood,
       symptoms,
       kickCount,
       notes,
+      weightKg: trimmedWeight.length > 0 ? weightKg : null,
     });
 
     if (assessment.hard) {
@@ -103,14 +116,6 @@ export default function PregnancyLogScreen() {
 
     save();
   };
-
-  if (!hydrated) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={theme.color} />
-      </View>
-    );
-  }
 
   return (
     <MiniAppScreen>
@@ -176,7 +181,19 @@ export default function PregnancyLogScreen() {
         </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={4} title={t('apps.pregnancy.ui.notes')} theme={theme}>
+      <MiniAppCard index={4} title={t('apps.pregnancy.ui.weight')} theme={theme}>
+        <Input
+          value={weightText}
+          onChangeText={setWeightText}
+          placeholder={t('apps.pregnancy.ui.weightPlaceholder')}
+          keyboardType="decimal-pad"
+        />
+        <AppText variant="caption" style={styles.muted}>
+          {t('apps.pregnancy.ui.weightHint')}
+        </AppText>
+      </MiniAppCard>
+
+      <MiniAppCard index={5} title={t('apps.pregnancy.ui.notes')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
@@ -191,11 +208,29 @@ export default function PregnancyLogScreen() {
         label={t('apps.pregnancyTracker.saveLog')}
         accent={theme.color}
         soft={theme.backgroundColor}
-        index={5}
+        index={6}
         onPress={commitLog}
       />
     </MiniAppScreen>
   );
+}
+
+export default function PregnancyLogScreen() {
+  const theme = getMiniAppTheme(APP_ID);
+  const todayKey = useMemo(() => toDateKey(new Date()), []);
+  const hydrated = usePregnancyTrackerHydrated();
+  const existingLog = usePregnancyTrackerStore((state) => state.dailyLogs[todayKey]);
+
+  if (!hydrated) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator color={theme.color} />
+      </View>
+    );
+  }
+
+  // Mount form only after hydrate so local state seeds from persisted log (no effect).
+  return <PregnancyLogForm todayKey={todayKey} initialLog={existingLog} />;
 }
 
 const styles = StyleSheet.create({

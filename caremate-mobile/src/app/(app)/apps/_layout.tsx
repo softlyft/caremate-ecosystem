@@ -68,26 +68,44 @@ export default function AppsLayout() {
         name="pregnancy-tracker/index"
         options={miniAppHeaderOptions({
           appId: 'pregnancy-tracker',
-          title: 'Pregnancy Tracker',
-          backAccessibilityLabel: 'Back to Apps',
+          title: t('apps.pregnancyTracker.screenTitle'),
+          backAccessibilityLabel: t('apps.pregnancyTracker.backToApps'),
         })}
       />
       <Stack.Screen
         name="pregnancy-tracker/setup"
         options={miniAppHeaderOptions({
           appId: 'pregnancy-tracker',
-          title: 'Set Up Pregnancy',
+          title: t('apps.pregnancyTracker.setupTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.pregnancyTracker.close'),
         })}
       />
       <Stack.Screen
         name="pregnancy-tracker/log"
         options={miniAppHeaderOptions({
           appId: 'pregnancy-tracker',
-          title: 'Daily Log',
+          title: t('apps.pregnancyTracker.logTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.pregnancyTracker.close'),
+        })}
+      />
+      <Stack.Screen
+        name="pregnancy-tracker/tt"
+        options={miniAppHeaderOptions({
+          appId: 'pregnancy-tracker',
+          title: t('apps.pregnancyTracker.ttTitle'),
+          modal: true,
+          backAccessibilityLabel: t('apps.pregnancyTracker.close'),
+        })}
+      />
+      <Stack.Screen
+        name="pregnancy-tracker/birth"
+        options={miniAppHeaderOptions({
+          appId: 'pregnancy-tracker',
+          title: t('apps.pregnancyTracker.birthTitle'),
+          modal: true,
+          backAccessibilityLabel: t('apps.pregnancyTracker.close'),
         })}
       />
 

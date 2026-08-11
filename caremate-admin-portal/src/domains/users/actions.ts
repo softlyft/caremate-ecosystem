@@ -81,6 +81,9 @@ export async function unbanUser(userId: string) {
 export async function sendPasswordReset(email: string) {
   await requireUserManager();
   const admin = createAdminClient();
+  // Auth recovery template is OTP-only ({{ .Token }}). Users enter the code in
+  // CareMate: Forgot password → Already have a code? Deep-link redirect remains
+  // allowlisted as a secondary path for older clients.
   const redirectTo = `${getWebsiteUrl()}/auth/reset-password`;
   const { error } = await admin.auth.resetPasswordForEmail(email, { redirectTo });
   if (error) throw error;
@@ -88,7 +91,7 @@ export async function sendPasswordReset(email: string) {
     action: 'password_reset',
     entityType: 'user',
     entityId: email,
-    payload: { redirectTo },
+    payload: { redirectTo, delivery: 'email_otp' },
   });
 }
 

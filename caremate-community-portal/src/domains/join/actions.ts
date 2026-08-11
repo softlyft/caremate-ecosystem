@@ -100,11 +100,86 @@ export async function startPatientVerificationAction(formData: FormData) {
   if (error) throw error;
 
   // OTP is emailed out-of-band only — never returned to the browser.
+  const mail = await sendCommunityJoinOtpEmail({
+    to: email,
+    code,
+    expiresMinutes: VERIFICATION_TTL_MINUTES,
+  });
+  if (!mail.delivered) {
+    throw new Error(
+      mail.skipped
+        ? 'Verification email is not configured yet. Try again later or contact support.'
+        : (mail.error ?? 'Could not send verification email. Try again later.'),
+    );
+  }
+
   return {
     verificationId: verification.id,
     maskedEmail: maskEmail(email),
     expiresAt,
   };
+}
+
+async function sendCommunityJoinOtpEmail(input: {
+  to: string;
+  code: string;
+  expiresMinutes: number;
+}): Promise<{ delivered: boolean; skipped: boolean; error?: string }> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    return { delivered: false, skipped: true, error: 'Supabase env missing' };
+  }
+
+  try {
+    const response = await fetch(
+      `${url.replace(/\/$/, '')}/functions/v1/send-community-join-otp`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${key}`,
+          apikey: key,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: input.to,
+          code: input.code,
+          expiresMinutes: input.expiresMinutes,
+        }),
+      },
+    );
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      skipped?: boolean;
+      error?: string;
+      reason?: string;
+    };
+
+    if (response.ok && payload.ok) {
+      return { delivered: true, skipped: false };
+    }
+
+    if (response.status === 503 || payload.skipped) {
+      return {
+        delivered: false,
+        skipped: true,
+        error: payload.reason ?? payload.error ?? 'SES not configured',
+      };
+    }
+
+    return {
+      delivered: false,
+      skipped: false,
+      error: payload.error ?? `Email send failed (${response.status})`,
+    };
+  } catch (err) {
+    return {
+      delivered: false,
+      skipped: false,
+      error: err instanceof Error ? err.message : 'Email send failed',
+    };
+  }
 }
 
 export async function verifyPatientCodeAction(formData: FormData) {
