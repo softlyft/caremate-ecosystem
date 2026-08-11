@@ -19,10 +19,7 @@ import {
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
 import { formatDueDate } from '@/mini-apps/pregnancy-tracker/utils';
-import {
-  assessBirthDraft,
-  type PregnancyIssue,
-} from '@/mini-apps/pregnancy-tracker/validation';
+import { assessBirthDraft, type PregnancyIssue } from '@/mini-apps/pregnancy-tracker/validation';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 

@@ -98,12 +98,7 @@ function archiveActive(
   state: PregnancyTrackerState,
   outcome: PregnancyEndOutcome,
 ): PregnancyArchive | null {
-  if (
-    !state.pregnancyId ||
-    !state.lastMenstrualPeriod ||
-    !state.dueDate ||
-    !state.dueDateSource
-  ) {
+  if (!state.pregnancyId || !state.lastMenstrualPeriod || !state.dueDate || !state.dueDateSource) {
     return null;
   }
   return {

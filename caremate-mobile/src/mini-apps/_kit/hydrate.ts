@@ -28,7 +28,9 @@ function stripActions(state: Record<string, unknown>): Record<string, unknown> {
  * True when local mini-app state has no user-authored content yet
  * (missing key, empty object, or defaults-only like empty arrays + setup incomplete).
  */
-export function isMiniAppPayloadEmpty(payload: Record<string, unknown> | null | undefined): boolean {
+export function isMiniAppPayloadEmpty(
+  payload: Record<string, unknown> | null | undefined,
+): boolean {
   if (!payload || typeof payload !== 'object') {
     return true;
   }

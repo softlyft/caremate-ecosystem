@@ -26,9 +26,7 @@ export function maternalTtDoseIndex(id: MaternalTtDoseId): number {
 }
 
 export function sortMaternalTtDoses(doses: MaternalTtDose[]): MaternalTtDose[] {
-  return [...doses].sort(
-    (a, b) => maternalTtDoseIndex(a.id) - maternalTtDoseIndex(b.id),
-  );
+  return [...doses].sort((a, b) => maternalTtDoseIndex(a.id) - maternalTtDoseIndex(b.id));
 }
 
 export function getMaternalTtDose(
@@ -61,8 +59,9 @@ export function maternalTtSummary(doses: MaternalTtDose[]): {
   total: number;
   next: MaternalTtDoseId | null;
 } {
-  const completed = MATERNAL_TT_DOSE_IDS.filter((id) => Boolean(getMaternalTtDose(doses, id)))
-    .length;
+  const completed = MATERNAL_TT_DOSE_IDS.filter((id) =>
+    Boolean(getMaternalTtDose(doses, id)),
+  ).length;
   return {
     completed,
     total: MATERNAL_TT_DOSE_IDS.length,
@@ -88,14 +87,13 @@ export function daysSincePreviousTtDose(
 }
 
 /** True when TT2 is due: TT1 logged, TT2 missing, ≥28 days since TT1. */
-export function isMaternalTt2Due(
-  doses: MaternalTtDose[],
-  todayKey: string,
-): boolean {
+export function isMaternalTt2Due(doses: MaternalTtDose[], todayKey: string): boolean {
   const tt1 = getMaternalTtDose(doses, 'tt1');
   const tt2 = getMaternalTtDose(doses, 'tt2');
   if (!tt1 || tt2) {
     return false;
   }
-  return daysBetween(parseDateKey(tt1.dateKey), parseDateKey(todayKey)) >= MATERNAL_TT_MIN_INTERVAL_DAYS;
+  return (
+    daysBetween(parseDateKey(tt1.dateKey), parseDateKey(todayKey)) >= MATERNAL_TT_MIN_INTERVAL_DAYS
+  );
 }

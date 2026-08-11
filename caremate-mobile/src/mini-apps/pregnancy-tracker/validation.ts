@@ -378,11 +378,7 @@ export function assessMaternalTtDraft(draft: MaternalTtDraft): MaternalTtAssessm
         params: { previous: previousId.toUpperCase(), previousDate: previous.dateKey },
       });
     }
-    const gap = daysSincePreviousTtDose(
-      draft.existingDoses,
-      draft.doseId,
-      draft.selectedDate,
-    );
+    const gap = daysSincePreviousTtDose(draft.existingDoses, draft.doseId, draft.selectedDate);
     if (gap != null && gap < MATERNAL_TT_MIN_INTERVAL_DAYS) {
       soft.push({
         code: 'soft_tt_interval',

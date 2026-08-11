@@ -226,9 +226,7 @@ export default function PregnancyTrackerScreen() {
               key={doseId}
               title={t(`apps.pregnancy.motherCare.doses.${doseId}`)}
               subtitle={
-                logged
-                  ? formatDueDate(logged.dateKey)
-                  : t('apps.pregnancy.motherCare.notLogged')
+                logged ? formatDueDate(logged.dateKey) : t('apps.pregnancy.motherCare.notLogged')
               }
               soft={logged ? theme.color : theme.backgroundColor}
             />

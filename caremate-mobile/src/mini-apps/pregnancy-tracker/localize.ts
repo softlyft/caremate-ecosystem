@@ -71,4 +71,3 @@ export function buildPregnancyAlertCopy(t: TranslateFn): PregnancyAlertCopy {
     ttDoseDueBody: () => t('apps.pregnancy.alerts.ttDoseDueBody'),
   };
 }
-

@@ -245,8 +245,12 @@ describe('pregnancy-tracker/store', () => {
   });
 
   it('lists recent daily logs newest-first', () => {
-    usePregnancyTrackerStore.getState().upsertDailyLog({ ...getTodayLog('2026-07-10'), notes: 'a' });
-    usePregnancyTrackerStore.getState().upsertDailyLog({ ...getTodayLog('2026-07-17'), notes: 'b' });
+    usePregnancyTrackerStore
+      .getState()
+      .upsertDailyLog({ ...getTodayLog('2026-07-10'), notes: 'a' });
+    usePregnancyTrackerStore
+      .getState()
+      .upsertDailyLog({ ...getTodayLog('2026-07-17'), notes: 'b' });
     const recent = listRecentDailyLogs(usePregnancyTrackerStore.getState().dailyLogs, 2);
     expect(recent.map((log) => log.dateKey)).toEqual(['2026-07-17', '2026-07-10']);
   });
