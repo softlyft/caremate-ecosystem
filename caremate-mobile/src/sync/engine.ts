@@ -143,23 +143,45 @@ class SyncEngine {
     const online = await isOnline();
     this.wasOnline = online;
 
-    // Medication Assistant in-app due/missed/refill cards (never blocks sync).
+    // Medication + Pregnancy in-app alert cards (never blocks sync).
     try {
       const auth = useAuthStore.getState();
       const userId = auth.user?.id;
       if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
-        const [{ useMedicationTrackerStore }, { useSettingsStore }, { evaluateMedicationAlerts }] =
-          await Promise.all([
-            import('@/mini-apps/medication-tracker/store'),
-            import('@/domains/profile/store'),
-            import('@/mini-apps/medication-tracker/alerts'),
-          ]);
+        const [
+          { useMedicationTrackerStore },
+          { usePregnancyTrackerStore },
+          { useSettingsStore },
+          { evaluateMedicationAlerts },
+          { evaluatePregnancyAlerts },
+          { toDateKey },
+        ] = await Promise.all([
+          import('@/mini-apps/medication-tracker/store'),
+          import('@/mini-apps/pregnancy-tracker/store'),
+          import('@/domains/profile/store'),
+          import('@/mini-apps/medication-tracker/alerts'),
+          import('@/mini-apps/pregnancy-tracker/alerts'),
+          import('@/mini-apps/_kit/date-utils'),
+        ]);
+        const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
         const medState = useMedicationTrackerStore.getState();
         await evaluateMedicationAlerts({
           userId,
           medications: medState.medications,
           logs: medState.logs,
-          notificationsEnabled: useSettingsStore.getState().notificationsEnabled,
+          notificationsEnabled,
+        });
+        const pregnancy = usePregnancyTrackerStore.getState();
+        const todayKey = toDateKey(new Date());
+        await evaluatePregnancyAlerts({
+          userId,
+          lastMenstrualPeriod: pregnancy.lastMenstrualPeriod,
+          dueDate: pregnancy.dueDate,
+          babyNickname: pregnancy.babyNickname,
+          hasTodayLog: Boolean(pregnancy.dailyLogs[todayKey]),
+          status: pregnancy.status,
+          maternalTtDoses: pregnancy.maternalTtDoses,
+          notificationsEnabled,
         });
       }
     } catch {

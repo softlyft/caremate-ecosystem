@@ -66,6 +66,17 @@ export function getDaysUntilDue(
   return daysBetween(referenceDate, parseDateKey(dueDateKey));
 }
 
+/** Days since birth date key; null if missing. */
+export function getDaysSinceBirth(
+  birthDate: string | null,
+  referenceDate = new Date(),
+): number | null {
+  if (!birthDate) {
+    return null;
+  }
+  return daysBetween(parseDateKey(birthDate), referenceDate);
+}
+
 export function formatDueDate(dueDateKey: string): string {
   return parseDateKey(dueDateKey).toLocaleDateString(undefined, {
     weekday: 'short',

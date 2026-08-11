@@ -336,11 +336,19 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
-| PG-01 | P0 | Fresh | Setup pregnancy (due date / LMP per UI) | Tracker shows week/progress; Period Tracker auto-pauses. |
-| PG-02 | P1 | Active pregnancy | Daily log | Saves notes/symptoms for day. |
+| PG-01 | P0 | Fresh | Setup pregnancy (due date / LMP per UI) | Tracker shows week/progress; Period Tracker auto-pauses; due-source copy matches LMP vs provider. |
+| PG-02 | P1 | Active pregnancy | Daily log (mood/symptoms/kicks/weight) | Saves for day; appears under Recent logs. |
 | PG-03 | P1 | Edit nickname if available | Change baby nickname | Updates on home. |
 | PG-04 | P1 | Offline | Setup + log | Persists locally. |
-| PG-05 | P2 | Clear/reset if offered | Reset pregnancy | Returns to empty/setup state safely. |
+| PG-05 | P0 | Active pregnancy | I've given birth | Birth date modal → postpartum mother care; Period Tracker stays paused; TT card remains. |
+| PG-05b | P0 | Active pregnancy | Close this pregnancy (subtle link) | Timeline cleared quietly; archive outcome closed; Period Tracker resumes; no loss-specific wording. |
+| PG-06 | P1 | Past due date | Open dashboard | Past-due hint points to I've given birth or quiet close. |
+| PG-07 | P1 | Ended pregnancy | Set up again | Soft confirm; new pregnancy id; empty daily logs. |
+| PG-08 | P2 | Active + notifications on | Focus dashboard near milestone/due | In-app pregnancy cards appear (no OS push required). |
+| PG-09 | P0 | Fresh or active | Open Pregnancy Tracker → Mother care TT card | TT1–TT5 rows visible without pregnancy setup. |
+| PG-10 | P0 | No TT logged | Log TT1 then TT2 (≥4 weeks later) | Doses save; End/close pregnancy keeps TT history. |
+| PG-11 | P1 | TT1 logged ≥28 days ago, no TT2 | Notifications on; open dashboard | In-app TT2 due nudge. |
+| PG-12 | P0 | Postpartum | Finish postpartum care | Archives as birth; clears timeline; Period Tracker resumes. |
 
 ---
 

@@ -27,7 +27,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 3. Select one of the active chapters created by an admin.
 4. Join immediately, then sign in with the existing CareMate account.
 
-During local and production flows the code is never returned to the browser — deliver it by email only.
+During local and production flows the code is never returned to the browser — it is emailed via `send-community-join-otp` (SES).
 See [`docs/security.md`](../../docs/security.md).
 Enrollment never creates an Auth user or copies data from `profiles`.
 

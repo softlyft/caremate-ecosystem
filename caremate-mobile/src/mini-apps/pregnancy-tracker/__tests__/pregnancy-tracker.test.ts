@@ -14,7 +14,17 @@ import {
   localizeSymptomOptions,
   localizeTrimester,
 } from '@/mini-apps/pregnancy-tracker/localize';
-import { getTodayLog, usePregnancyTrackerStore } from '@/mini-apps/pregnancy-tracker/store';
+import { collectPregnancyAlerts } from '@/mini-apps/pregnancy-tracker/alerts';
+import {
+  getNextMaternalTtDoseId,
+  isMaternalTt2Due,
+  maternalTtSummary,
+} from '@/mini-apps/pregnancy-tracker/maternal-tt';
+import {
+  getTodayLog,
+  listRecentDailyLogs,
+  usePregnancyTrackerStore,
+} from '@/mini-apps/pregnancy-tracker/store';
 import {
   calculateDueDateFromLmp,
   calculateLmpFromDueDate,
@@ -26,6 +36,8 @@ import {
   toDateKey,
 } from '@/mini-apps/pregnancy-tracker/utils';
 import {
+  assessBirthDraft,
+  assessMaternalTtDraft,
   assessPregnancyLogDraft,
   assessPregnancySetupDraft,
 } from '@/mini-apps/pregnancy-tracker/validation';
@@ -111,14 +123,20 @@ describe('pregnancy-tracker/store', () => {
 
   it('sets pregnancy from LMP or due date', () => {
     usePregnancyTrackerStore.getState().setFromLastPeriod('2026-01-01');
-    expect(usePregnancyTrackerStore.getState().lastMenstrualPeriod).toBe('2026-01-01');
-    expect(usePregnancyTrackerStore.getState().dueDate).toBe(calculateDueDateFromLmp('2026-01-01'));
+    const fromLmp = usePregnancyTrackerStore.getState();
+    expect(fromLmp.lastMenstrualPeriod).toBe('2026-01-01');
+    expect(fromLmp.dueDate).toBe(calculateDueDateFromLmp('2026-01-01'));
+    expect(fromLmp.dueDateSource).toBe('lmp');
+    expect(fromLmp.status).toBe('active');
+    expect(fromLmp.pregnancyId).toBeTruthy();
+    expect(fromLmp.hasCompletedSetup).toBe(true);
 
     usePregnancyTrackerStore.getState().setFromDueDate('2026-10-08');
-    expect(usePregnancyTrackerStore.getState().dueDate).toBe('2026-10-08');
-    expect(usePregnancyTrackerStore.getState().lastMenstrualPeriod).toBe(
-      calculateLmpFromDueDate('2026-10-08'),
-    );
+    const fromDue = usePregnancyTrackerStore.getState();
+    expect(fromDue.dueDate).toBe('2026-10-08');
+    expect(fromDue.lastMenstrualPeriod).toBe(calculateLmpFromDueDate('2026-10-08'));
+    expect(fromDue.dueDateSource).toBe('due-date');
+    expect(fromDue.pregnancyId).toBe(fromLmp.pregnancyId);
   });
 
   it('auto-pauses the period tracker when pregnancy is set up', () => {
@@ -131,13 +149,106 @@ describe('pregnancy-tracker/store', () => {
 
   it('stores nickname and daily logs', () => {
     usePregnancyTrackerStore.getState().setBabyNickname('Ada');
-    const log = { ...getTodayLog('2026-07-17'), mood: 'Happy', kickCount: 4, notes: 'Active' };
+    const log = {
+      ...getTodayLog('2026-07-17'),
+      mood: 'Happy',
+      kickCount: 4,
+      notes: 'Active',
+      weightKg: 68.5,
+    };
     usePregnancyTrackerStore.getState().upsertDailyLog(log);
     expect(usePregnancyTrackerStore.getState().babyNickname).toBe('Ada');
     expect(usePregnancyTrackerStore.getState().dailyLogs['2026-07-17']).toMatchObject({
       kickCount: 4,
       mood: 'Happy',
+      weightKg: 68.5,
     });
+  });
+
+  it('archives and clears on endPregnancy, resumes period tracker', () => {
+    usePeriodTrackerStore.getState().togglePeriodDay('2026-06-01');
+    usePregnancyTrackerStore.getState().setFromLastPeriod('2026-01-01');
+    usePregnancyTrackerStore.getState().setBabyNickname('Ada');
+    usePregnancyTrackerStore.getState().upsertDailyLog({
+      ...getTodayLog('2026-07-17'),
+      kickCount: 2,
+      notes: 'ok',
+    });
+    usePregnancyTrackerStore.getState().logMaternalTtDose('tt1', '2026-02-01');
+
+    usePregnancyTrackerStore.getState().endPregnancy();
+    const ended = usePregnancyTrackerStore.getState();
+    expect(ended.status).toBe('ended');
+    expect(ended.lastMenstrualPeriod).toBeNull();
+    expect(ended.dueDate).toBeNull();
+    expect(ended.dailyLogs).toEqual({});
+    expect(ended.hasCompletedSetup).toBe(false);
+    expect(ended.pastPregnancies).toHaveLength(1);
+    expect(ended.pastPregnancies[0]).toMatchObject({
+      babyNickname: 'Ada',
+      logCount: 1,
+      dueDateSource: 'lmp',
+      outcome: 'closed',
+    });
+    expect(ended.maternalTtDoses).toEqual([{ id: 'tt1', dateKey: '2026-02-01' }]);
+    expect(usePeriodTrackerStore.getState().paused).toBe(false);
+
+    usePregnancyTrackerStore.getState().setFromLastPeriod('2026-08-01');
+    const next = usePregnancyTrackerStore.getState();
+    expect(next.status).toBe('active');
+    expect(next.pregnancyId).not.toBe(ended.pastPregnancies[0].id);
+    expect(next.dailyLogs).toEqual({});
+    expect(next.maternalTtDoses).toEqual([{ id: 'tt1', dateKey: '2026-02-01' }]);
+  });
+
+  it('enters postpartum on recordBirth and archives on finishPostpartum', () => {
+    usePeriodTrackerStore.getState().togglePeriodDay('2026-06-01');
+    usePregnancyTrackerStore.getState().setFromLastPeriod('2026-01-01');
+    usePregnancyTrackerStore.getState().setBabyNickname('Ada');
+    usePregnancyTrackerStore.getState().logMaternalTtDose('tt1', '2026-02-01');
+
+    usePregnancyTrackerStore.getState().recordBirth('2026-10-01');
+    const postpartum = usePregnancyTrackerStore.getState();
+    expect(postpartum.status).toBe('postpartum');
+    expect(postpartum.birthDate).toBe('2026-10-01');
+    expect(postpartum.lastMenstrualPeriod).toBe('2026-01-01');
+    expect(usePeriodTrackerStore.getState().paused).toBe(true);
+
+    usePregnancyTrackerStore.getState().finishPostpartum();
+    const finished = usePregnancyTrackerStore.getState();
+    expect(finished.status).toBe('ended');
+    expect(finished.birthDate).toBeNull();
+    expect(finished.pastPregnancies[0]).toMatchObject({
+      outcome: 'birth',
+      birthDate: '2026-10-01',
+      babyNickname: 'Ada',
+    });
+    expect(finished.maternalTtDoses).toEqual([{ id: 'tt1', dateKey: '2026-02-01' }]);
+    expect(usePeriodTrackerStore.getState().paused).toBe(false);
+  });
+
+  it('logs maternal TT doses in order and can remove them', () => {
+    usePregnancyTrackerStore.getState().logMaternalTtDose('tt1', '2026-01-10');
+    usePregnancyTrackerStore.getState().logMaternalTtDose('tt2', '2026-02-15');
+    expect(getNextMaternalTtDoseId(usePregnancyTrackerStore.getState().maternalTtDoses)).toBe(
+      'tt3',
+    );
+    expect(maternalTtSummary(usePregnancyTrackerStore.getState().maternalTtDoses)).toMatchObject({
+      completed: 2,
+      total: 5,
+      next: 'tt3',
+    });
+    usePregnancyTrackerStore.getState().removeMaternalTtDose('tt2');
+    expect(getNextMaternalTtDoseId(usePregnancyTrackerStore.getState().maternalTtDoses)).toBe(
+      'tt2',
+    );
+  });
+
+  it('lists recent daily logs newest-first', () => {
+    usePregnancyTrackerStore.getState().upsertDailyLog({ ...getTodayLog('2026-07-10'), notes: 'a' });
+    usePregnancyTrackerStore.getState().upsertDailyLog({ ...getTodayLog('2026-07-17'), notes: 'b' });
+    const recent = listRecentDailyLogs(usePregnancyTrackerStore.getState().dailyLogs, 2);
+    expect(recent.map((log) => log.dateKey)).toEqual(['2026-07-17', '2026-07-10']);
   });
 
   it('builds an empty today log template', () => {
@@ -147,6 +258,69 @@ describe('pregnancy-tracker/store', () => {
       kickCount: 0,
       notes: '',
     });
+  });
+});
+
+describe('pregnancy-tracker/alerts', () => {
+  it('collects due, milestone, and daily nudge candidates', () => {
+    const due = calculateDueDateFromLmp('2026-01-01');
+    const candidates = collectPregnancyAlerts({
+      lastMenstrualPeriod: '2026-01-01',
+      dueDate: due,
+      babyNickname: 'Ada',
+      hasTodayLog: false,
+      status: 'active',
+      now: parseDateKey(due),
+    });
+    expect(candidates.some((c) => c.eventType === 'due_today')).toBe(true);
+    expect(candidates.some((c) => c.eventType === 'daily_log_nudge')).toBe(true);
+  });
+
+  it('skips pregnancy timeline alerts when ended or postpartum but keeps TT nudge', () => {
+    const endedOnly = collectPregnancyAlerts({
+      lastMenstrualPeriod: '2026-01-01',
+      dueDate: '2026-10-08',
+      babyNickname: 'Ada',
+      hasTodayLog: false,
+      status: 'ended',
+    });
+    expect(endedOnly).toHaveLength(0);
+
+    const postpartumOnly = collectPregnancyAlerts({
+      lastMenstrualPeriod: '2026-01-01',
+      dueDate: '2026-10-08',
+      babyNickname: 'Ada',
+      hasTodayLog: false,
+      status: 'postpartum',
+    });
+    expect(postpartumOnly).toHaveLength(0);
+
+    const withTt = collectPregnancyAlerts({
+      lastMenstrualPeriod: null,
+      dueDate: null,
+      babyNickname: 'Baby',
+      hasTodayLog: false,
+      status: 'postpartum',
+      maternalTtDoses: [{ id: 'tt1', dateKey: '2026-01-01' }],
+      now: parseDateKey('2026-02-15'),
+    });
+    expect(withTt.some((c) => c.eventType === 'tt_dose_due')).toBe(true);
+  });
+});
+
+describe('pregnancy-tracker/maternal-tt', () => {
+  it('detects TT2 due after 28 days', () => {
+    expect(isMaternalTt2Due([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-20')).toBe(false);
+    expect(isMaternalTt2Due([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-29')).toBe(true);
+    expect(
+      isMaternalTt2Due(
+        [
+          { id: 'tt1', dateKey: '2026-01-01' },
+          { id: 'tt2', dateKey: '2026-02-01' },
+        ],
+        '2026-03-01',
+      ),
+    ).toBe(false);
   });
 });
 
@@ -202,5 +376,98 @@ describe('pregnancy-tracker/validation', () => {
       notes: '  ',
     });
     expect(empty.soft.some((s) => s.code === 'soft_empty_log')).toBe(true);
+  });
+
+  it('soft-warns unusual weight and keeps valid weight in payload', () => {
+    const unusual = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: [],
+      kickCount: 0,
+      notes: '',
+      weightKg: 20,
+    });
+    expect(unusual.soft.some((s) => s.code === 'soft_weight_unusual')).toBe(true);
+
+    const ok = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: [],
+      kickCount: 1,
+      notes: '',
+      weightKg: 70.25,
+    });
+    expect(ok.hard).toBeNull();
+    expect(ok.payload?.weightKg).toBe(70.3);
+  });
+
+  it('soft-warns overwrite and start-after-ended setup', () => {
+    const overwrite = assessPregnancySetupDraft({
+      mode: 'lmp',
+      selectedDate: '2026-01-01',
+      babyNickname: 'Baby',
+      todayKey: '2026-07-16',
+      periodTrackerActive: false,
+      hasActiveTimeline: true,
+    });
+    expect(overwrite.soft.some((s) => s.code === 'soft_overwrite_timeline')).toBe(true);
+
+    const afterEnded = assessPregnancySetupDraft({
+      mode: 'due-date',
+      selectedDate: '2026-12-01',
+      babyNickname: 'Baby',
+      todayKey: '2026-07-16',
+      periodTrackerActive: false,
+      previouslyEnded: true,
+    });
+    expect(afterEnded.soft.some((s) => s.code === 'soft_start_new_after_ended')).toBe(true);
+  });
+
+  it('validates maternal TT dose order and interval', () => {
+    expect(
+      assessMaternalTtDraft({
+        doseId: 'tt2',
+        selectedDate: '2026-02-01',
+        todayKey: '2026-07-16',
+        existingDoses: [],
+      }).hard?.code,
+    ).toBe('tt_out_of_order');
+
+    expect(
+      assessMaternalTtDraft({
+        doseId: 'tt1',
+        selectedDate: '2026-08-01',
+        todayKey: '2026-07-16',
+        existingDoses: [],
+      }).hard?.code,
+    ).toBe('tt_future');
+
+    const softInterval = assessMaternalTtDraft({
+      doseId: 'tt2',
+      selectedDate: '2026-01-10',
+      todayKey: '2026-07-16',
+      existingDoses: [{ id: 'tt1', dateKey: '2026-01-01' }],
+    });
+    expect(softInterval.hard).toBeNull();
+    expect(softInterval.soft.some((s) => s.code === 'soft_tt_interval')).toBe(true);
+  });
+
+  it('validates birth date and blocks setup during postpartum', () => {
+    expect(
+      assessBirthDraft({
+        selectedDate: '2026-08-01',
+        todayKey: '2026-07-16',
+        lastMenstrualPeriod: '2026-01-01',
+      }).hard?.code,
+    ).toBe('birth_future');
+
+    expect(
+      assessPregnancySetupDraft({
+        mode: 'lmp',
+        selectedDate: '2026-01-01',
+        babyNickname: 'Baby',
+        todayKey: '2026-07-16',
+        periodTrackerActive: false,
+        isPostpartum: true,
+      }).hard?.code,
+    ).toBe('setup_blocked_postpartum');
   });
 });

@@ -173,6 +173,8 @@ Me account menu includes **Connections** → `/(app)/providers/connections`, **D
 | `/(app)/apps/pregnancy-tracker` | push | Pregnancy Tracker |
 | `/(app)/apps/pregnancy-tracker/setup` | modal | Set Up Pregnancy |
 | `/(app)/apps/pregnancy-tracker/log` | modal | Daily Log |
+| `/(app)/apps/pregnancy-tracker/tt` | modal | Log TT dose (mother care) |
+| `/(app)/apps/pregnancy-tracker/birth` | modal | I've given birth |
 
 ### Immunization Tracker
 

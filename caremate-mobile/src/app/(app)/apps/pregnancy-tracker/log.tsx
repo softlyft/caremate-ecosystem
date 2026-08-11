@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
 import { Button, Input } from '@/components/ui/form-controls';
@@ -42,10 +42,28 @@ export default function PregnancyLogScreen() {
   const existingLog = usePregnancyTrackerStore((state) => state.dailyLogs[todayKey]);
   const upsertDailyLog = usePregnancyTrackerStore((state) => state.upsertDailyLog);
 
-  const [mood, setMood] = useState(existingLog?.mood);
-  const [symptoms, setSymptoms] = useState<string[]>(existingLog?.symptoms ?? []);
-  const [kickCount, setKickCount] = useState(existingLog?.kickCount ?? 0);
-  const [notes, setNotes] = useState(existingLog?.notes ?? '');
+  const [mood, setMood] = useState<string | undefined>(undefined);
+  const [symptoms, setSymptoms] = useState<string[]>([]);
+  const [kickCount, setKickCount] = useState(0);
+  const [notes, setNotes] = useState('');
+  const [weightText, setWeightText] = useState('');
+  const [seeded, setSeeded] = useState(false);
+
+  useEffect(() => {
+    if (!hydrated || seeded) {
+      return;
+    }
+    setMood(existingLog?.mood);
+    setSymptoms(existingLog?.symptoms ?? []);
+    setKickCount(existingLog?.kickCount ?? 0);
+    setNotes(existingLog?.notes ?? '');
+    setWeightText(
+      existingLog?.weightKg != null && Number.isFinite(existingLog.weightKg)
+        ? String(existingLog.weightKg)
+        : '',
+    );
+    setSeeded(true);
+  }, [hydrated, seeded, existingLog]);
 
   const toggleSymptom = (symptom: string) => {
     setSymptoms((current) =>
@@ -59,12 +77,17 @@ export default function PregnancyLogScreen() {
     t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
 
   const commitLog = async () => {
+    const trimmedWeight = weightText.trim();
+    const weightKg =
+      trimmedWeight.length > 0 ? Number(trimmedWeight.replace(',', '.')) : undefined;
+
     const assessment = assessPregnancyLogDraft({
       dateKey: todayKey,
       mood,
       symptoms,
       kickCount,
       notes,
+      weightKg: trimmedWeight.length > 0 ? weightKg : null,
     });
 
     if (assessment.hard) {
@@ -104,7 +127,7 @@ export default function PregnancyLogScreen() {
     save();
   };
 
-  if (!hydrated) {
+  if (!hydrated || !seeded) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator color={theme.color} />
@@ -176,7 +199,19 @@ export default function PregnancyLogScreen() {
         </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={4} title={t('apps.pregnancy.ui.notes')} theme={theme}>
+      <MiniAppCard index={4} title={t('apps.pregnancy.ui.weight')} theme={theme}>
+        <Input
+          value={weightText}
+          onChangeText={setWeightText}
+          placeholder={t('apps.pregnancy.ui.weightPlaceholder')}
+          keyboardType="decimal-pad"
+        />
+        <AppText variant="caption" style={styles.muted}>
+          {t('apps.pregnancy.ui.weightHint')}
+        </AppText>
+      </MiniAppCard>
+
+      <MiniAppCard index={5} title={t('apps.pregnancy.ui.notes')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
@@ -191,7 +226,7 @@ export default function PregnancyLogScreen() {
         label={t('apps.pregnancyTracker.saveLog')}
         accent={theme.color}
         soft={theme.backgroundColor}
-        index={5}
+        index={6}
         onPress={commitLog}
       />
     </MiniAppScreen>

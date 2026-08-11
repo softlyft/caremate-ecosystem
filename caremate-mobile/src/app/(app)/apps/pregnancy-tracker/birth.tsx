@@ -4,11 +4,9 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
-import { Input } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
-  MiniAppChip,
   MiniAppCta,
   MiniAppHero,
   MiniAppScreen,
@@ -16,24 +14,21 @@ import {
   MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
-import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import {
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
 } from '@/mini-apps/pregnancy-tracker/store';
-import { calculateDueDateFromLmp, formatDueDate } from '@/mini-apps/pregnancy-tracker/utils';
+import { formatDueDate } from '@/mini-apps/pregnancy-tracker/utils';
 import {
-  assessPregnancySetupDraft,
+  assessBirthDraft,
   type PregnancyIssue,
 } from '@/mini-apps/pregnancy-tracker/validation';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 
-type SetupMode = 'lmp' | 'due-date';
-
 const APP_ID = 'pregnancy-tracker' as const;
 
-export default function PregnancySetupScreen() {
+export default function PregnancyBirthScreen() {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
@@ -41,39 +36,29 @@ export default function PregnancySetupScreen() {
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
-  const [mode, setMode] = useState<SetupMode>('lmp');
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(todayKey);
   const hydrated = usePregnancyTrackerHydrated();
 
-  const babyNickname = usePregnancyTrackerStore((state) => state.babyNickname);
   const status = usePregnancyTrackerStore((state) => state.status);
   const lastMenstrualPeriod = usePregnancyTrackerStore((state) => state.lastMenstrualPeriod);
-  const dueDate = usePregnancyTrackerStore((state) => state.dueDate);
-  const setBabyNickname = usePregnancyTrackerStore((state) => state.setBabyNickname);
-  const setFromLastPeriod = usePregnancyTrackerStore((state) => state.setFromLastPeriod);
-  const setFromDueDate = usePregnancyTrackerStore((state) => state.setFromDueDate);
-  const periodPaused = usePeriodTrackerStore((state) => state.paused);
-
-  const hasActiveTimeline = Boolean(status === 'active' && lastMenstrualPeriod && dueDate);
-  const previouslyEnded = status === 'ended';
-  const isPostpartum = status === 'postpartum';
-
-  const previewDueDate =
-    mode === 'lmp' && selectedDate ? calculateDueDateFromLmp(selectedDate) : selectedDate;
+  const recordBirth = usePregnancyTrackerStore((state) => state.recordBirth);
 
   const issueMessage = (issue: PregnancyIssue): string =>
     t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const commitSetup = async () => {
-    const assessment = assessPregnancySetupDraft({
-      mode,
+  const commitBirth = async () => {
+    if (status !== 'active') {
+      void alert(
+        t('apps.pregnancy.validation.checkTitle'),
+        t('apps.pregnancy.postnatal.notActive'),
+      );
+      return;
+    }
+
+    const assessment = assessBirthDraft({
       selectedDate,
-      babyNickname,
       todayKey,
-      periodTrackerActive: !periodPaused,
-      hasActiveTimeline,
-      previouslyEnded,
-      isPostpartum,
+      lastMenstrualPeriod,
     });
 
     if (assessment.hard) {
@@ -90,12 +75,7 @@ export default function PregnancySetupScreen() {
     }
 
     const save = () => {
-      setBabyNickname(assessment.payload!.babyNickname);
-      if (assessment.payload!.mode === 'lmp') {
-        setFromLastPeriod(assessment.payload!.selectedDate);
-      } else {
-        setFromDueDate(assessment.payload!.selectedDate);
-      }
+      recordBirth(assessment.payload!.birthDateKey);
       router.back();
     };
 
@@ -127,54 +107,20 @@ export default function PregnancySetupScreen() {
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow={t('apps.pregnancy.ui.setupEyebrow')}
-        title={t('apps.pregnancy.ui.setTimeline')}
-        subtitle={t('apps.pregnancy.ui.setTimelineSubtitle')}
+        eyebrow={t('apps.pregnancy.postnatal.eyebrow')}
+        title={t('apps.pregnancy.postnatal.birthTitle')}
+        subtitle={t('apps.pregnancy.postnatal.birthSubtitle')}
       />
 
-      <View style={styles.modeRow}>
-        <MiniAppChip
-          label={t('apps.pregnancy.ui.lastPeriod')}
-          selected={mode === 'lmp'}
-          accent={theme.color}
-          soft={theme.backgroundColor}
-          onPress={() => {
-            setMode('lmp');
-            setSelectedDate(null);
-          }}
-        />
-        <MiniAppChip
-          label={t('apps.pregnancy.ui.dueDate')}
-          selected={mode === 'due-date'}
-          accent={theme.color}
-          soft={theme.backgroundColor}
-          onPress={() => {
-            setMode('due-date');
-            setSelectedDate(null);
-          }}
-        />
-      </View>
-
-      <MiniAppCard index={1} title={t('apps.pregnancy.ui.babyNickname')} theme={theme}>
-        <Input
-          value={babyNickname}
-          onChangeText={setBabyNickname}
-          placeholder={t('apps.pregnancy.ui.babyPlaceholder')}
-          autoCapitalize="words"
-        />
-      </MiniAppCard>
-
-      <MiniAppCard index={2} eyebrow={t('apps.pregnancy.ui.pickDate')} theme={theme}>
+      <MiniAppCard index={1} eyebrow={t('apps.pregnancy.postnatal.pickBirthDate')} theme={theme}>
         <MonthCalendarNavigator
           accentColor={theme.color}
           monthRef={monthRef}
           onMonthChange={setMonthRef}
         />
-
         <AppText variant="caption" style={styles.muted}>
-          {mode === 'lmp' ? t('apps.pregnancy.ui.tapLmp') : t('apps.pregnancy.ui.tapDue')}
+          {t('apps.pregnancy.postnatal.tapBirthDate')}
         </AppText>
-
         <MonthCalendarGrid
           monthRef={monthRef}
           interactive
@@ -184,23 +130,24 @@ export default function PregnancySetupScreen() {
         />
       </MiniAppCard>
 
-      {previewDueDate ? (
+      {selectedDate ? (
         <View style={[styles.preview, { backgroundColor: theme.backgroundColor }]}>
           <AppText variant="body" style={{ color: theme.titleColor }}>
-            {mode === 'lmp'
-              ? t('apps.pregnancy.ui.estimatedDue')
-              : t('apps.pregnancy.ui.selectedDue')}
-            : {formatDueDate(previewDueDate)}
+            {t('apps.pregnancy.postnatal.selectedBirthDate')}: {formatDueDate(selectedDate)}
           </AppText>
         </View>
       ) : null}
 
+      <AppText variant="caption" style={styles.disclaimer}>
+        {t('apps.pregnancy.postnatal.birthDisclaimer')}
+      </AppText>
+
       <MiniAppCta
-        label={t('apps.pregnancyTracker.setupSave')}
+        label={t('apps.pregnancy.postnatal.startPostpartum')}
         accent={theme.color}
         soft={theme.backgroundColor}
-        index={3}
-        onPress={commitSetup}
+        index={2}
+        onPress={commitBirth}
       />
     </MiniAppScreen>
   );
@@ -213,13 +160,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: palette.surface,
   },
-  modeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
   muted: {
     color: palette.textSecondary,
+  },
+  disclaimer: {
+    color: palette.textSecondary,
+    textAlign: 'center',
   },
   preview: {
     borderRadius: radius.xl,
