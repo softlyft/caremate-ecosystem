@@ -32,6 +32,13 @@ const FOOTER_COLUMNS = [
   },
 ] as const;
 
+/** Footer destinations should always open at the top of the page. */
+function scrollPageToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
 export function SiteFooter() {
   const year = new Date().getFullYear();
 
@@ -54,7 +61,16 @@ export function SiteFooter() {
               <ul className={styles.links}>
                 {column.links.map((link) => (
                   <li key={link.to}>
-                    <Link to={link.to}>{link.label}</Link>
+                    <Link
+                      to={link.to}
+                      onClick={() => {
+                        // Covers same-route clicks (no remount) and primes cross-route navigations.
+                        // ScrollToTop also resets after pathname changes.
+                        scrollPageToTop();
+                      }}
+                    >
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
