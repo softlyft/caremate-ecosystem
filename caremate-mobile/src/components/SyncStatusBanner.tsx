@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
+import { config } from '@/constants/env';
 import { useAuthStore } from '@/features/auth/store';
 import { syncEngine } from '@/sync/engine';
 import {
@@ -48,7 +49,8 @@ export function SyncStatusBanner() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Dev-only surface — skip queue subscriptions entirely in production builds.
+    if (!config.isDev || !isAuthenticated) {
       return;
     }
 
@@ -73,7 +75,7 @@ export function SyncStatusBanner() {
 
   const hasItems = summary.pendingCount + summary.failedCount > 0;
   const key = summaryKey(summary);
-  const visible = isAuthenticated && hasItems && dismissedKey !== key;
+  const visible = config.isDev && isAuthenticated && hasItems && dismissedKey !== key;
 
   // Auto-dismiss a few seconds after becoming visible.
   useEffect(() => {

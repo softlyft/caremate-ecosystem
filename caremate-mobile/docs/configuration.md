@@ -13,7 +13,7 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL (`pay-dev` / `pay`) |
 | `EXPO_PUBLIC_WEBSITE_URL` | Legal / CCN | Marketing site origin (`dev.getcaremate.com` / `getcaremate.com`) |
 | `EXPO_PUBLIC_COMMUNITY_PORTAL_URL` | Community join | Community portal origin (`community-dev` / `community`) |
-| `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |
+| `EXPO_PUBLIC_APP_ENV` | No | Environment label (`development` / `staging` / `production` / …). Drives `config.isDev` (`true` unless value is `production`) for gating developer-only UI such as the sync status banner. |
 | `EXPO_PUBLIC_SENTRY_DSN` | Prod monitoring | Sentry DSN; omit to disable crash reporting |
 | `EXPO_PUBLIC_SENTRY_ENABLE_IN_DEV` | No | Set `1` to send Sentry events from `__DEV__` (default off) |
 | `EXPO_PUBLIC_POSTHOG_API_KEY` | Prod analytics | PostHog project API key; omit to disable analytics |

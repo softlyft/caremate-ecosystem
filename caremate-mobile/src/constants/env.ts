@@ -25,6 +25,12 @@ const appEnv =
   process.env.APP_ENV?.trim() ||
   (__DEV__ ? 'development' : 'production');
 
+/**
+ * Developer-facing feature gate (sync banner, future debug surfaces).
+ * True unless `EXPO_PUBLIC_APP_ENV` is `production` — production builds hide these entirely.
+ */
+const isDev = appEnv.toLowerCase() !== 'production';
+
 export const config = {
   supabaseUrl,
   supabaseAnonKey,
@@ -37,6 +43,7 @@ export const config = {
   communityPortalUrl,
   appVersion: Constants.expoConfig?.version ?? '1.0.0',
   appEnv,
+  isDev,
   sentryDsn,
   isSentryConfigured: Boolean(sentryDsn.trim()),
   /** When true, send Sentry events from __DEV__ builds (default off). */

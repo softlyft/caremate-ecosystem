@@ -156,7 +156,7 @@ Home header Bell
 
 | Action | In-app | Push | Email | Notes |
 |--------|:------:|:----:|:-----:|-------|
-| Pending / failed sync banner | ✅ | — | — | Existing sync status UX |
+| Pending / failed sync banner | ✅ (dev only) | — | — | `SyncStatusBanner` — gated by `config.isDev`; hidden when `EXPO_PUBLIC_APP_ENV=production` |
 | Exhausted retries on important data | ✅ | ⚪ (Self) | — | Emergency / mini-app data |
 
 ---
