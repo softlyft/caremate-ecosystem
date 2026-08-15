@@ -5,6 +5,14 @@ import appJson from './app.json';
 const GOOGLE_SAMPLE_ANDROID_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
 const GOOGLE_SAMPLE_IOS_APP_ID = 'ca-app-pub-3940256099942544~1458002511';
 
+function androidVersionCode(base: ExpoConfig): number {
+  const fromEnv = Number.parseInt(process.env.ANDROID_VERSION_CODE ?? '', 10);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) {
+    return fromEnv;
+  }
+  return base.android?.versionCode ?? 1;
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   const base = (appJson.expo ?? config) as ExpoConfig;
   const androidAppId =
@@ -61,6 +69,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...base,
+    android: {
+      ...base.android,
+      versionCode: androidVersionCode(base),
+    },
     plugins,
   };
 };

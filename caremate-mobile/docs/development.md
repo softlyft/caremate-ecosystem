@@ -16,7 +16,10 @@ npm run typecheck
 npm run test
 ```
 
-GitHub Actions workflow: `.github/workflows/ci.yml` runs **format → lint → typecheck → test** on PRs and pushes to main/staging.
+GitHub Actions:
+
+- `.github/workflows/ci.yml` — format → lint → typecheck → test on PRs and pushes to main/staging
+- `.github/workflows/android-play.yml` — signed Play AAB + upload (see [Play Android release](./play-android-release.md))
 ---
 
 ## Coding standards

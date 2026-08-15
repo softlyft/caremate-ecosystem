@@ -20,6 +20,7 @@
     },
     "android": {
       "package": "com.softlyft.caremate",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/caremate-adaptive-icon.png"
@@ -150,6 +151,7 @@
       ],
       "./plugins/withAndroidSplashScreenDependency.js",
       "./plugins/withRemoveSystemAlertWindow.js",
+      "./plugins/withAndroidReleaseSigning.js",
       [
         "expo-splash-screen",
         {
