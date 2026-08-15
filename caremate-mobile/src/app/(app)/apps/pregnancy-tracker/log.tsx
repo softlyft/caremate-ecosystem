@@ -68,8 +68,7 @@ function PregnancyLogForm({
 
   const commitLog = async () => {
     const trimmedWeight = weightText.trim();
-    const weightKg =
-      trimmedWeight.length > 0 ? Number(trimmedWeight.replace(',', '.')) : undefined;
+    const weightKg = trimmedWeight.length > 0 ? Number(trimmedWeight.replace(',', '.')) : undefined;
 
     const assessment = assessPregnancyLogDraft({
       dateKey: todayKey,
