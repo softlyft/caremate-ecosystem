@@ -32,10 +32,20 @@ supabase secrets set \
 | `notify-family-email` | Mobile after family connection request / accept / decline (user JWT). Request → SES + Expo push to receiver; accept/decline → Expo push to sender. |
 | `notify-message` | Provider portal after org message send, or mobile after direct message (user JWT). Org mode → “New message from {provider}”; `{ mode: 'direct' }` → “New message from {name}”. |
 | `send-billing-email` | Portal admin grants (service role) / internal |
-| `billing-renewal-reminders` | Daily cron / manual invoke (service role) |
+| `billing-renewal-reminders` | Daily cron / manual invoke (service role or `CRON_SECRET`) |
+| `send-provider-claim-otp` | Provider portal claim (service role) |
+| `send-provider-password-reset-otp` | Provider portal forgot-password (service role) |
+| `send-community-join-otp` | Community portal Patient ID verify (service role) |
 | `delete-account` | Mobile Settings → Delete account (user JWT → `auth.admin.deleteUser`) |
 
 Shared helpers: `_shared/ses.ts`, `_shared/email.ts`, `_shared/push.ts`, `_shared/email-templates/`.
+
+## Auth emails (signup / password reset)
+
+Mobile confirmation and recovery use **Supabase Auth** templates (`supabase/templates/*.html`) with a 6-digit `{{ .Token }}` — not SES. Hosted projects must:
+
+1. Sync templates: `supabase config push --project-ref <ref> --yes` (or `npm run supabase:sync-auth-emails`).
+2. Configure **Auth → SMTP** in the Dashboard to send as `hello@getcaremate.com` (same verified SES identity / SMTP credentials as product mail). Without custom SMTP, Auth uses Supabase’s built-in sender and deliverability/branding diverge from SES.
 
 | Function | Trigger |
 |----------|---------|

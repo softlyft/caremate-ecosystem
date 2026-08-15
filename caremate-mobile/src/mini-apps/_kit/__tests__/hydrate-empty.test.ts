@@ -44,4 +44,37 @@ describe('isMiniAppPayloadEmpty', () => {
       }),
     ).toBe(false);
   });
+
+  it('treats pregnancy LMP/due strings as meaningful even without hasCompletedSetup', () => {
+    expect(
+      isMiniAppPayloadEmpty({
+        lastMenstrualPeriod: '2026-01-01',
+        dueDate: null,
+        babyNickname: 'Baby',
+        hasCompletedSetup: false,
+        dailyLogs: {},
+      }),
+    ).toBe(false);
+
+    expect(
+      isMiniAppPayloadEmpty({
+        lastMenstrualPeriod: null,
+        dueDate: null,
+        babyNickname: 'Baby',
+        hasCompletedSetup: false,
+        dailyLogs: {},
+        status: null,
+      }),
+    ).toBe(true);
+  });
+
+  it('treats paused period tracker as meaningful', () => {
+    expect(
+      isMiniAppPayloadEmpty({
+        loggedPeriodDays: [],
+        paused: true,
+        pausedReason: 'pregnancy',
+      }),
+    ).toBe(false);
+  });
 });

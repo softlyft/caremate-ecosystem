@@ -65,6 +65,7 @@ Tap → `router.push(app.route)`.
 |-------|---------|
 | Persistence | `createJSONStorage(() => createMiniAppSyncedStorage('<appKey>'))` — AsyncStorage + SQLite snapshot when signed in |
 | Hydration | `use*Hydrated()` via `persist.hasHydrated` / `onFinishHydration`; disable writes until hydrated |
+| Cloud empty-check | `isMiniAppPayloadEmpty` — non-empty strings (LMP/due), `hasCompletedSetup`, `paused`, nested logs count as content; default nickname `"Baby"` alone does not |
 | Filtered selectors | Do **not** return a new array from a Zustand selector each call (React 19 `getSnapshot` loop). Select stable slices, derive with `useMemo`, use a module-level empty array constant |
 | UI | `StyleSheet` + `AppText` + `Button`/`Input` + `palette` / `layoutSpacing` / `shadow.soft` |
 | Validation dialogs | Branded `alert` / `confirm` from `components/ui/AppDialogHost` (not React Native `Alert`) for hard blocks, soft “save anyway”, and undo confirms |
@@ -334,15 +335,25 @@ app/(app)/apps/immunization-tracker/
 | `/(app)/apps/pregnancy-tracker` | Dashboard |
 | `/(app)/apps/pregnancy-tracker/setup` | LMP or due date (modal) |
 | `/(app)/apps/pregnancy-tracker/log` | Daily log (modal) |
+| `/(app)/apps/pregnancy-tracker/tt` | Log next TT dose (modal) |
+| `/(app)/apps/pregnancy-tracker/birth` | I've given birth → postpartum (modal) |
 
 ### Store fields
 
 | Field | Description |
 |-------|-------------|
+| `pregnancyId` | Stable id for the active pregnancy |
+| `status` | `active` \| `postpartum` \| `ended` \| `null` |
+| `endedAt` | Date key when ended (cleared on new setup) |
+| `birthDate` | Set by **I've given birth**; cleared when postpartum finishes |
 | `lastMenstrualPeriod` | ISO date key |
 | `dueDate` | Calculated or entered |
+| `dueDateSource` | `lmp` or `due-date` (drives due-date copy) |
 | `babyNickname` | Display name (default “Baby”) |
+| `hasCompletedSetup` | True after LMP/due saved (hydrate empty-check) |
 | `dailyLogs` | `Record<dateKey, PregnancyDailyLog>` |
+| `pastPregnancies` | Archives (up to 20) with `outcome: 'birth' \| 'closed'` |
+| `maternalTtDoses` | Mother-care TT1–TT5 (`{ id, dateKey }[]`) — **survives** End pregnancy / postpartum |
 
 ### Daily log shape
 
@@ -362,8 +373,13 @@ app/(app)/apps/immunization-tracker/
 - Gestational age (week + day from LMP)
 - Trimester + progress bar (0–40 weeks)
 - Due date countdown and milestones (8, 12, 20, 28, 36, 40)
-- Setup via LMP (due = LMP + 280 days) or due date
-- Daily log: mood, symptoms, kicks, notes
+- Setup via LMP (due = LMP + 280 days) or due date; soft-confirm when updating or starting after ended
+- Daily log: mood, symptoms, kicks, optional weight (kg), notes; recent history on dashboard
+- **I've given birth** → mother **postpartum** mode (birth date, recovery card); gestational UI hidden; Period Tracker stays paused until finish
+- **Close this pregnancy** — subtle quiet exit (no loss-specific wording); archives as `closed`, resumes Period Tracker
+- **Finish postpartum care** — archives as `birth`, clears timeline, resumes Period Tracker
+- **Mother care TT1–TT5** card at top of dashboard (independent of pregnancy timeline); modal `pregnancy-tracker/tt`
+- In-app alerts (`evaluatePregnancyAlerts`): milestone soon, due soon/today/past-due, daily log nudge, TT2 due nudge — domain `pregnancy`, no OS push yet
 
 ### Files
 
@@ -371,11 +387,17 @@ app/(app)/apps/immunization-tracker/
 mini-apps/pregnancy-tracker/
 ├── store.ts
 ├── utils.ts
-└── constants.ts
+├── constants.ts
+├── maternal-tt.ts
+├── validation.ts
+├── alerts.ts
+└── localize.ts
 app/(app)/apps/pregnancy-tracker/
 ├── index.tsx
 ├── setup.tsx
-└── log.tsx
+├── log.tsx
+├── tt.tsx
+└── birth.tsx
 ```
 
 ---

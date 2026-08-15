@@ -5,6 +5,7 @@ import {
   renderBillingActivated,
   renderBillingPaymentFailed,
   renderBillingRenewal,
+  renderCommunityJoinOtp,
   renderEmailTemplate,
   renderFamilyConnectionRequest,
   renderProviderOrgClaimOtp,
@@ -22,6 +23,7 @@ describe('email templates', () => {
     assert.match(mail.html, /hello@getcaremate\.com/);
     assert.match(mail.html, /Your Health\. Our Priority/);
     assert.match(mail.html, /#0d9488/);
+    assert.match(mail.html, /www\.getcaremate\.com/);
   });
 
   it('renders billing activated and renewal with tone panels', () => {
@@ -66,15 +68,22 @@ describe('email templates', () => {
     assert.match(mail.html, /482913/);
     assert.match(mail.html, /Lagos Clinic &lt;script&gt;/);
     assert.match(mail.text, /482913/);
-    // Temporary Amplify host until provider.getcaremate.com is live.
-    assert.match(mail.html, /d9xyppes84zqr\.amplifyapp\.com\/claim/);
+    assert.match(mail.html, /provider\.getcaremate\.com\/claim/);
+  });
+
+  it('renders community join OTP with code and join CTA', () => {
+    const mail = renderCommunityJoinOtp({ code: '773301', expiresMinutes: 10 });
+    assert.match(mail.subject, /community verification code/i);
+    assert.match(mail.html, /773301/);
+    assert.match(mail.text, /773301/);
+    assert.match(mail.html, /community\.getcaremate\.com\/join/);
   });
 
   it('dispatches via renderEmailTemplate', () => {
     const mail = renderEmailTemplate('family-connection-request', { fromName: 'Grace' });
     assert.equal(mail.subject.includes('Grace'), true);
-    assert.match(mail.html, /amplifyapp\.com\/privacy/);
-    assert.match(mail.html, /amplifyapp\.com\/terms/);
+    assert.match(mail.html, /www\.getcaremate\.com\/privacy/);
+    assert.match(mail.html, /www\.getcaremate\.com\/terms/);
 
     const otp = renderEmailTemplate('provider-org-claim-otp', {
       code: '111222',
@@ -87,5 +96,9 @@ describe('email templates', () => {
     });
     assert.match(reset.html, /654321/);
     assert.match(reset.subject, /password reset/i);
+    assert.match(reset.html, /provider\.getcaremate\.com\/forgot-password/);
+
+    const join = renderEmailTemplate('community-join-otp', { code: '998877' });
+    assert.match(join.html, /998877/);
   });
 });

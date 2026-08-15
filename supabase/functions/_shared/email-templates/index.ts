@@ -9,7 +9,8 @@ export type EmailTemplateId =
   | 'billing-renewal'
   | 'billing-payment-failed'
   | 'provider-org-claim-otp'
-  | 'provider-password-reset-otp';
+  | 'provider-password-reset-otp'
+  | 'community-join-otp';
 
 export type RenderedEmail = {
   subject: string;
@@ -21,12 +22,13 @@ export type RenderedEmail = {
 const BRAND = {
   name: 'CareMate',
   tagline: 'Your Health. Our Priority.',
-  // Temporary Amplify hosts until getcaremate.com custom domains are ready.
-  siteUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com',
+  siteUrl: 'https://www.getcaremate.com',
   supportEmail: 'hello@getcaremate.com',
-  logoUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com/caremate-logo.png',
-  privacyUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com/privacy',
-  termsUrl: 'https://main.dim7uuolmjgc9.amplifyapp.com/terms',
+  logoUrl: 'https://www.getcaremate.com/caremate-logo.png',
+  privacyUrl: 'https://www.getcaremate.com/privacy',
+  termsUrl: 'https://www.getcaremate.com/terms',
+  providerPortalUrl: 'https://provider.getcaremate.com',
+  communityPortalUrl: 'https://community.getcaremate.com',
   primary: '#0d9488',
   primaryDark: '#0f766e',
   text: '#111827',
@@ -327,7 +329,7 @@ export function renderProviderOrgClaimOtp(vars: {
     preheader,
     tone: 'default',
     ctaLabel: 'Open Provider Portal',
-    ctaUrl: 'https://main.d9xyppes84zqr.amplifyapp.com/claim',
+    ctaUrl: `${BRAND.providerPortalUrl}/claim`,
     bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
         Enter this code to claim <strong style="color:${BRAND.primaryDark};">${escapeHtml(orgName)}</strong> on the CareMate Provider Portal.
       </p>
@@ -362,9 +364,46 @@ export function renderProviderPasswordResetOtp(vars: {
     preheader,
     tone: 'default',
     ctaLabel: 'Open Provider Portal',
-    ctaUrl: 'https://main.d9xyppes84zqr.amplifyapp.com/forgot-password',
+    ctaUrl: `${BRAND.providerPortalUrl}/forgot-password`,
     bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
         Enter this code to reset your password on the CareMate Provider Portal.
+      </p>
+      <p style="margin:0 0 16px;font-size:28px;line-height:1.2;letter-spacing:0.28em;font-weight:700;color:${BRAND.primaryDark};text-align:center;">
+        ${escapeHtml(code)}
+      </p>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:${BRAND.textSecondary};">
+        This code expires in <strong style="color:${BRAND.text};">${expiresMinutes} minutes</strong>. If you did not request it, you can ignore this email.
+      </p>`,
+  });
+  return { subject, html, text };
+}
+
+export function renderCommunityJoinOtp(vars: {
+  code: string;
+  expiresMinutes?: number;
+}): RenderedEmail {
+  const code = vars.code.trim();
+  const expiresMinutes = vars.expiresMinutes ?? 10;
+  const subject = `Your CareMate community verification code`;
+  const preheader = `Use code ${code} to join the CareMate Community Network.`;
+  const text = [
+    `Your CareMate community verification code is ${code}.`,
+    '',
+    `This code expires in ${expiresMinutes} minutes.`,
+    '',
+    `Continue at ${BRAND.communityPortalUrl}/join`,
+    '',
+    'If you did not request this, you can ignore this email.',
+    textFooter(),
+  ].join('\n');
+  const html = layout({
+    title: 'Verify your CareMate account',
+    preheader,
+    tone: 'default',
+    ctaLabel: 'Continue community join',
+    ctaUrl: `${BRAND.communityPortalUrl}/join`,
+    bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
+        Enter this code on the CareMate Community Network join page to verify your account.
       </p>
       <p style="margin:0 0 16px;font-size:28px;line-height:1.2;letter-spacing:0.28em;font-weight:700;color:${BRAND.primaryDark};text-align:center;">
         ${escapeHtml(code)}
@@ -408,6 +447,11 @@ export function renderEmailTemplate(
       return renderProviderPasswordResetOtp({
         code: vars.code ?? '',
         expiresMinutes: vars.expiresMinutes ? Number(vars.expiresMinutes) : 15,
+      });
+    case 'community-join-otp':
+      return renderCommunityJoinOtp({
+        code: vars.code ?? '',
+        expiresMinutes: vars.expiresMinutes ? Number(vars.expiresMinutes) : 10,
       });
     default: {
       const _exhaustive: never = template;

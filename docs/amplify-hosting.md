@@ -109,8 +109,9 @@ Do **not** expose claim or password-reset OTPs in the browser. OTPs are emailed 
 
 - `send-provider-claim-otp`
 - `send-provider-password-reset-otp`
+- `send-community-join-otp` (community portal Patient ID verify)
 
-Both require SES secrets on the Supabase project. Also apply migrations for `provider_password_resets` and `provider_auth_otp_sends`.
+All require SES secrets on the Supabase project. Also apply migrations for `provider_password_resets` and `provider_auth_otp_sends`.
 
 Optional: set `SENTRY_DSN` (and optionally `SENTRY_ENVIRONMENT`) so server actions and `error.tsx` report exceptions.
 

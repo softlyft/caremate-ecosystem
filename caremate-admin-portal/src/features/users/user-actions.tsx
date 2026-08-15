@@ -90,7 +90,9 @@ export function UserActions({
                 setPendingAction('reset');
                 try {
                   await sendPasswordReset(email);
-                  toast.success('Password reset email sent');
+                  toast.success(
+                    'Reset code emailed. Ask the user to open CareMate → Forgot password → Already have a code?, then enter the 6-digit code.',
+                  );
                 } catch (e) {
                   toast.error(e instanceof Error ? e.message : 'Failed');
                 } finally {
@@ -99,7 +101,7 @@ export function UserActions({
               })
             }
           >
-            Send password reset
+            Send reset code
           </Button>
         </>
       ) : null}

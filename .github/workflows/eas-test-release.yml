@@ -1,8 +1,8 @@
-# Test release pipeline:
+# Test release pipeline (iOS via EAS). Android Play builds are GitHub-only:
+# see .github/workflows/android-play.yml
 # GitHub → GitHub Actions → Expo EAS Build
-#   ├── Internal Android  (APK / internal distribution)
 #   ├── TestFlight        (iOS store build + auto-submit)
-#   └── Staging           (Android + iOS internal / staging channel)
+#   └── Staging           (iOS staging channel)
 name: EAS Test Release
 
 on:
@@ -15,7 +15,6 @@ on:
         default: all
         options:
           - all
-          - internal-android
           - testflight
           - staging
       wait_for_build:
@@ -79,7 +78,6 @@ jobs:
     name: Resolve targets
     runs-on: ubuntu-latest
     outputs:
-      internal_android: ${{ steps.targets.outputs.internal_android }}
       testflight: ${{ steps.targets.outputs.testflight }}
       staging: ${{ steps.targets.outputs.staging }}
       wait_flag: ${{ steps.targets.outputs.wait_flag }}
@@ -92,18 +90,13 @@ jobs:
             INPUT="all"
           fi
 
-          internal_android=false
           testflight=false
           staging=false
 
           case "$INPUT" in
             all)
-              internal_android=true
               testflight=true
               staging=true
-              ;;
-            internal-android)
-              internal_android=true
               ;;
             testflight)
               testflight=true
@@ -113,9 +106,8 @@ jobs:
               ;;
           esac
 
-          # Tag / staging-branch pushes always run the full test-release set.
+          # Tag / staging-branch pushes always run the iOS test-release set.
           if [ "${{ github.event_name }}" = "push" ]; then
-            internal_android=true
             testflight=true
             staging=true
           fi
@@ -125,48 +117,9 @@ jobs:
             wait_flag=""
           fi
 
-          echo "internal_android=$internal_android" >> "$GITHUB_OUTPUT"
           echo "testflight=$testflight" >> "$GITHUB_OUTPUT"
           echo "staging=$staging" >> "$GITHUB_OUTPUT"
           echo "wait_flag=$wait_flag" >> "$GITHUB_OUTPUT"
-
-  internal-android:
-    name: Internal Android
-    needs: [gate, resolve-targets]
-    if: needs.resolve-targets.outputs.internal_android == 'true'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: caremate-mobile
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Setup Expo and EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Install dependencies
-        working-directory: .
-        run: npm ci
-
-      - name: EAS Build (internal-android)
-        run: |
-          WAIT_FLAG="${{ needs.resolve-targets.outputs.wait_flag }}"
-          eas build \
-            --platform android \
-            --profile internal-android \
-            --non-interactive \
-            $WAIT_FLAG
 
   testflight:
     name: TestFlight
@@ -253,11 +206,11 @@ jobs:
         working-directory: .
         run: npm ci
 
-      - name: EAS Build (staging · Android + iOS)
+      - name: EAS Build (staging · iOS)
         run: |
           WAIT_FLAG="${{ needs.resolve-targets.outputs.wait_flag }}"
           eas build \
-            --platform all \
+            --platform ios \
             --profile staging \
             --non-interactive \
             $WAIT_FLAG

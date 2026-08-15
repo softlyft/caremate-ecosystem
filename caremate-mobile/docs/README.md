@@ -25,6 +25,7 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Work on mini-apps (Medication, Checkup, Immunization, Pregnancy, Period) | [Mini-Apps](./mini-apps.md) · [Contract](./mini-app-contract.md) |
 | Work on Home, Emergency, Articles (Learn), Providers | [Core Features](./features.md) · [Provider model](./provider-model.md) · [Learn content model](./learn-content-model.md) · [Notifications](./notifications.md) · [Ads](./ads.md) |
 | Configure env vars, app.json, constants | [Configuration](./configuration.md) |
+| Ship Android to Play (GitHub Actions AAB) | [Play Android release](./play-android-release.md) |
 | Follow dev conventions and scripts | [Development Guide](./development.md) |
 | Run QA / manual regression | [QA Test Cases](./qa-test-cases.md) |
 | See what's planned next | [Roadmap & Gaps](./roadmap.md) |
@@ -57,6 +58,7 @@ docs/
 ├── notifications.md       In-app / push / email strategy
 ├── ads.md                 House / sponsored / AdMob (slots, sync, caps, troubleshooting)
 ├── configuration.md       app.json, env, storage keys, sync config
+├── play-android-release.md GitHub Actions AAB + Play upload (no EAS)
 ├── development.md         Scripts, TypeScript, linting, patterns
 ├── qa-test-cases.md       Manual QA suite for core + mini-apps + ads
 └── roadmap.md             Phases, known gaps, future work

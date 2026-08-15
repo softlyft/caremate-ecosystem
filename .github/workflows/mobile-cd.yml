@@ -101,8 +101,8 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          # Matches local Expo release signing (debug keystore) until a
-          # Play upload keystore is wired in.
+          # Sideload APK only. Play-signed AABs use Android Play
+          # (.github/workflows/android-play.yml), not this job.
           ./gradlew assembleRelease --no-daemon \
             -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
 

@@ -1,5 +1,7 @@
 import { MILESTONES, MOOD_OPTIONS, SYMPTOM_OPTIONS } from '@/mini-apps/pregnancy-tracker/constants';
+import type { PregnancyAlertCopy } from '@/mini-apps/pregnancy-tracker/alerts';
 import type { TranslateFn } from '@/mini-apps/_kit/i18n';
+import { pluralKey } from '@/mini-apps/_kit/i18n';
 import type { PregnancyMilestone, Trimester } from '@/mini-apps/pregnancy-tracker/utils';
 
 export function localizeMood(mood: string, t: TranslateFn): string {
@@ -43,4 +45,29 @@ export function localizePregnancyMilestone(milestone: PregnancyMilestone, t: Tra
 
 export function localizeTrimester(trimester: Trimester, t: TranslateFn): string {
   return t(`apps.pregnancy.trimester.${trimester}`);
+}
+
+export function buildPregnancyAlertCopy(t: TranslateFn): PregnancyAlertCopy {
+  return {
+    milestoneSoonTitle: (title, week) =>
+      t('apps.pregnancy.alerts.milestoneSoonTitle', { title, week }),
+    milestoneSoonBody: (title, days) =>
+      days <= 0
+        ? t('apps.pregnancy.alerts.milestoneSoonThisWeek', { title })
+        : t(pluralKey('apps.pregnancy.alerts.milestoneSoonBody', days), { title, count: days }),
+    dueSoonTitle: (name, days) =>
+      t(pluralKey('apps.pregnancy.alerts.dueSoonTitle', days), { name, count: days }),
+    dueSoonBody: (name, days) =>
+      t(pluralKey('apps.pregnancy.alerts.dueSoonBody', days), { name, count: days }),
+    dueTodayTitle: (name) => t('apps.pregnancy.alerts.dueTodayTitle', { name }),
+    dueTodayBody: (name) => t('apps.pregnancy.alerts.dueTodayBody', { name }),
+    pastDueTitle: (name, days) =>
+      t(pluralKey('apps.pregnancy.alerts.pastDueTitle', days), { name, count: days }),
+    pastDueBody: (name, days) =>
+      t(pluralKey('apps.pregnancy.alerts.pastDueBody', days), { name, count: days }),
+    dailyNudgeTitle: () => t('apps.pregnancy.alerts.dailyNudgeTitle'),
+    dailyNudgeBody: () => t('apps.pregnancy.alerts.dailyNudgeBody'),
+    ttDoseDueTitle: () => t('apps.pregnancy.alerts.ttDoseDueTitle'),
+    ttDoseDueBody: () => t('apps.pregnancy.alerts.ttDoseDueBody'),
+  };
 }

@@ -84,6 +84,18 @@ export default function ForgotPasswordScreen() {
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         />
+        <Button
+          label={t('auth.forgot.alreadyHaveCode')}
+          variant="link"
+          disabled={isSubmitting}
+          onPress={handleSubmit((values) => {
+            const email = normalizeAccountEmail(values.email);
+            router.replace({
+              pathname: '/(auth)/verify-reset',
+              params: { email },
+            });
+          })}
+        />
         <Link href="/(auth)/login">
           <AppText variant="seeAll">{t('auth.forgot.back')}</AppText>
         </Link>

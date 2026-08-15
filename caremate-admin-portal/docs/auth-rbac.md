@@ -74,7 +74,7 @@ Implemented capabilities:
 - List users
 - View user detail
 - Disable / enable users
-- Send password reset
+- Send reset code (6-digit email OTP; user enters it in CareMate → Forgot password → Already have a code?)
 - Assign staff role
 
 Support can manage users, but only admins can assign roles.
