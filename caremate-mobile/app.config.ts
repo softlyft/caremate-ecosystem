@@ -62,13 +62,19 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         url: 'https://sentry.io/',
         organization: process.env.SENTRY_ORG ?? 'softlyft',
         project: process.env.SENTRY_PROJECT ?? 'caremate',
-        // Auth token via SENTRY_AUTH_TOKEN env / EAS secret — never embed in config.
+        // Auth token via SENTRY_AUTH_TOKEN env / CI secret — never embed in config.
       },
     ]);
   }
 
+  const appleTeamId = process.env.EXPO_APPLE_TEAM_ID?.trim();
+
   return {
     ...base,
+    ios: {
+      ...base.ios,
+      ...(appleTeamId ? { appleTeamId } : {}),
+    },
     android: {
       ...base.android,
       versionCode: androidVersionCode(base),

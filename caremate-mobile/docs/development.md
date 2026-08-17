@@ -20,6 +20,8 @@ GitHub Actions:
 
 - `.github/workflows/ci.yml` — format → lint → typecheck → test on PRs and pushes to main/staging
 - `.github/workflows/android-play.yml` — signed Play AAB + upload (see [Play Android release](./play-android-release.md))
+- `.github/workflows/ios-testflight.yml` — signed iOS IPA + TestFlight upload (see [iOS TestFlight release](./ios-testflight-release.md))
+- `.github/workflows/mobile-cd.yml` — sideload Android APK artifact after CI on main
 ---
 
 ## Coding standards

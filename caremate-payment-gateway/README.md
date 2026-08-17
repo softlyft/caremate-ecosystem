@@ -58,7 +58,7 @@ Monorepo Amplify app root: `caremate-payment-gateway` (branch **`main`**). Spec:
 3. After deploy, set SPA rewrite in Amplify Console (see [`docs/amplify-hosting.md`](../docs/amplify-hosting.md)).
 4. Set mobile `EXPO_PUBLIC_PAYMENT_URL` to the Amplify origin
    (`https://pay-dev.getcaremate.com` or `https://pay.getcaremate.com`).
-   Mode defaults are set in EAS profile env (`eas.json`) or Amplify; see `caremate-mobile/.env.example`.
+   Mode defaults are set in GitHub Actions secrets or Amplify; see `caremate-mobile/.env.example`.
 
 Full guide (all web apps): [`../docs/amplify-hosting.md`](../docs/amplify-hosting.md).
 

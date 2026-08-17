@@ -4,9 +4,12 @@
   <dict>
     <key>aps-environment</key>
     <string>development</string>
-    <key>com.apple.security.application-groups</key>
+    <key>com.apple.developer.associated-domains</key>
     <array>
-      <string>group.com.softlyft.caremate</string>
+      <string>applinks:getcaremate.com</string>
+      <string>applinks:www.getcaremate.com</string>
+      <string>applinks:dev.getcaremate.com</string>
+      <string>applinks:main.dim7uuolmjgc9.amplifyapp.com</string>
     </array>
   </dict>
 </plist>
