@@ -12,8 +12,8 @@ Production App Store builds on `prod` are documented in [iOS App Store release](
 
 ## Trigger
 
-- **Automatic:** push/merge to **`main`** when `caremate-mobile/**` changes
-- **Manual:** Actions → **iOS TestFlight** → Run workflow
+- **Automatic:** after **CI succeeds** on **`main`**, via [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) (only when mobile-related paths changed)
+- **Manual (iOS only):** Actions → **iOS TestFlight** → Run workflow (bypasses CI gate — use for hotfixes)
 
 ## What you must provide
 
@@ -118,6 +118,8 @@ This is the **App Store** provisioning profile for `com.softlyft.caremate`.
 5. Name it e.g. `CareMate App Store`
 6. Download the `.mobileprovision` file
 
+The App ID must include the capabilities CareMate uses (see [App ID capabilities](#app-id-capabilities-required) below). If you already created a profile before enabling them, **delete the old profile**, regenerate, and update `IOS_PROVISIONING_PROFILE_BASE64`.
+
 #### Base64 for GitHub
 
 ```bash
@@ -130,6 +132,19 @@ Paste into GitHub secret **`IOS_PROVISIONING_PROFILE_BASE64`**.
 
 Find it at [developer.apple.com/account](https://developer.apple.com/account) → **Membership details** → **Team ID** (10 characters).
 
+### App ID capabilities (required)
+
+Before creating the provisioning profile, open [Identifiers](https://developer.apple.com/account/resources/identifiers/list) → **`com.softlyft.caremate`** → **Edit** and enable:
+
+| Capability | Why |
+|------------|-----|
+| **Associated Domains** | Universal links (`app.json` → `ios.associatedDomains`) |
+| **Push Notifications** | `expo-notifications` |
+
+Save the App ID, then **regenerate** the App Store provisioning profile and update **`IOS_PROVISIONING_PROFILE_BASE64`** in GitHub.
+
+For Push Notifications, you do **not** need to upload an APNs key to build or archive — that is only required at runtime for delivery. The capability must still be on the App ID and in the profile.
+
 ### Notes
 
 - The **`.p12` export must be done on a Mac** that has the private key in Keychain Access. The portal only provides `.cer`; GitHub CI needs the full key pair in `.p12` form.
@@ -139,9 +154,9 @@ Find it at [developer.apple.com/account](https://developer.apple.com/account) �
 
 ## How to run
 
-Runs automatically on merge to **`main`**, or manually:
+Runs automatically after **CI passes** on **`main`** (via Mobile Main CD), or manually:
 
-**GitHub Actions → iOS TestFlight → Run workflow**
+**GitHub Actions → iOS TestFlight → Run workflow** (iOS only, no CI gate)
 
 - **upload** — submit to TestFlight after build (default: on)
 - **build_number** — override iOS build number (optional)
@@ -154,6 +169,7 @@ After upload, open App Store Connect → TestFlight → wait for **Processing** 
 
 | Issue | Fix |
 |-------|-----|
+| Provisioning profile doesn't include **Associated Domains** / **Push Notifications** | Enable both on the App ID, regenerate the App Store profile, update `IOS_PROVISIONING_PROFILE_BASE64` |
 | `No signing certificate "Apple Distribution"` | Re-export `.p12`; confirm cert is not expired |
 | Provisioning profile mismatch | Regenerate App Store profile for `com.softlyft.caremate` |
 | Upload fails with 401/403 | Check API key role and secret values |

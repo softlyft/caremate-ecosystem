@@ -8,7 +8,7 @@ Workflow: [`.github/workflows/android-play.yml`](../../.github/workflows/android
 Package: `com.softlyft.caremate`  
 GitHub Environment: **`prod`**
 
-Sideload APKs on **`main`** (`mobile-cd.yml`) stay on the debug keystore — not for Play testers.
+Sideload APKs on **`main`** ([`mobile-main-cd.yml`](../../.github/workflows/mobile-main-cd.yml)) stay on the debug keystore — not for Play testers.
 
 ## Trigger
 

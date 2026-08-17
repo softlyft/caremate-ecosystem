@@ -1,10 +1,29 @@
-# Dev TestFlight on merge to main (GitHub Actions, no EAS).
+# Dev TestFlight (GitHub Actions, no EAS).
+# Automatic main deploys: .github/workflows/mobile-main-cd.yml (after CI).
 # Production App Store builds: .github/workflows/ios-app-store.yml (prod branch).
 #
 # Required secrets: caremate-mobile/docs/ios-testflight-release.md
 name: iOS TestFlight
 
 on:
+  workflow_call:
+    inputs:
+      build_sha:
+        description: Commit to build (defaults to workflow SHA)
+        required: false
+        type: string
+        default: ''
+      upload:
+        description: Upload the IPA to TestFlight after a successful build
+        required: false
+        type: boolean
+        default: true
+      build_number:
+        description: Override iOS CFBundleVersion (leave empty to use run number + offset)
+        required: false
+        type: string
+        default: ''
+
   workflow_dispatch:
     inputs:
       upload:
@@ -18,17 +37,8 @@ on:
         type: string
         default: ''
 
-  push:
-    branches:
-      - main
-    paths:
-      - 'caremate-mobile/**'
-      - 'packages/**'
-      - 'patches/**'
-      - '.github/workflows/ios-testflight.yml'
-
 concurrency:
-  group: ios-testflight-${{ github.ref }}
+  group: ios-testflight-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -41,7 +51,8 @@ jobs:
       contents: read
 
     env:
-      SHOULD_UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+      BUILD_SHA: ${{ inputs.build_sha != '' && inputs.build_sha || github.sha }}
+      SHOULD_UPLOAD: ${{ inputs.upload }}
       EXPO_NO_TELEMETRY: 1
       SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       EXPO_PUBLIC_APP_ENV: testflight
@@ -72,6 +83,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ env.BUILD_SHA }}
 
       - name: Require iOS signing secrets
         env:
@@ -234,7 +247,7 @@ jobs:
           mkdir -p "$EXPORT_DIR"
 
           PLIST="$RUNNER_TEMP/ExportOptions.plist"
-          /usr/libexec/PlistBuddy -c 'Add :method string app-store' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :method string app-store-connect' "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :teamID string ${{ secrets.APPLE_TEAM_ID }}" "$PLIST"
           /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "$PLIST"
           /usr/libexec/PlistBuddy -c 'Add :signingStyle string manual' "$PLIST"
@@ -255,9 +268,10 @@ jobs:
           fi
 
           NAME="CareMate-${IOS_BUILD_NUMBER}.ipa"
-          mkdir -p artifacts
-          cp "$IPA_PATH" "artifacts/$NAME"
-          ls -lh "artifacts/$NAME"
+          ARTIFACT_DIR="${GITHUB_WORKSPACE}/artifacts"
+          mkdir -p "$ARTIFACT_DIR"
+          cp "$IPA_PATH" "$ARTIFACT_DIR/$NAME"
+          ls -lh "$ARTIFACT_DIR/$NAME"
           echo "ipa_path=artifacts/$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Upload IPA artifact
@@ -269,7 +283,7 @@ jobs:
           retention-days: 30
 
       - name: Prepare App Store Connect API key
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+        if: ${{ inputs.upload }}
         env:
           APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
         run: |
@@ -279,10 +293,10 @@ jobs:
         shell: bash
 
       - name: Submit build to TestFlight
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+        if: ${{ inputs.upload }}
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: caremate-mobile/${{ steps.export.outputs.ipa_path }}
+          app-path: ${{ steps.export.outputs.ipa_path }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-key-base64: ${{ env.API_KEY_BASE64 }}

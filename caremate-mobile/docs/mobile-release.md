@@ -6,7 +6,7 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 
 | Branch | What ships | Workflow |
 |--------|------------|----------|
-| **`main`** | Dev **TestFlight** (iOS) + sideload **APK** artifact (Android) | [iOS TestFlight](./ios-testflight-release.md) · [Mobile CD](../../.github/workflows/mobile-cd.yml) |
+| **`main`** | Dev **TestFlight** (iOS) + sideload **APK** artifact (Android) | [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) (after **CI** passes) |
 | **`prod`** | **App Store** (iOS) + **Play production** track (Android) | [iOS App Store](./ios-app-store-release.md) · [Play Android](./play-android-release.md) |
 
 `EXPO_PUBLIC_*` values are **baked into the binary at build time**. Dev builds on `main` and production builds on `prod` are **different binaries** — you cannot promote a `main` TestFlight build to the App Store.
@@ -14,9 +14,10 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 ## Flow
 
 ```
-feature → PR → main
-                 ├── iOS TestFlight (dev backends)     → internal QA
-                 └── Android APK artifact              → sideload QA
+feature → PR → main → CI (format · lint · typecheck · test)
+                         └── Mobile Main CD (if mobile paths changed)
+                               ├── iOS TestFlight (dev backends)
+                               └── Android APK artifact (sideload QA)
 
 main → PR → prod
               ├── iOS App Store build (prod backends)  → App Store Connect
@@ -63,7 +64,9 @@ Play can **promote the same AAB** across tracks in Play Console. `prod` CI uploa
 
 ## Manual runs
 
-All store workflows also support **workflow_dispatch** for hotfixes or re-runs without a merge.
+- **Mobile Main CD** — workflow_dispatch (skips path filter; does not re-run CI)
+- **iOS TestFlight** — workflow_dispatch for iOS-only hotfix without Android APK
+- **iOS App Store / Android Play** — workflow_dispatch on `prod` for store hotfixes
 
 ## Related docs
 
