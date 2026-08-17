@@ -26,6 +26,7 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Work on Home, Emergency, Articles (Learn), Providers | [Core Features](./features.md) · [Provider model](./provider-model.md) · [Learn content model](./learn-content-model.md) · [Notifications](./notifications.md) · [Ads](./ads.md) |
 | Configure env vars, app.json, constants | [Configuration](./configuration.md) |
 | Ship Android to Play (GitHub Actions AAB) | [Play Android release](./play-android-release.md) |
+| Ship iOS dev build to TestFlight (EAS) | [iOS TestFlight release](./ios-testflight-release.md) |
 | Follow dev conventions and scripts | [Development Guide](./development.md) |
 | Run QA / manual regression | [QA Test Cases](./qa-test-cases.md) |
 | See what's planned next | [Roadmap & Gaps](./roadmap.md) |

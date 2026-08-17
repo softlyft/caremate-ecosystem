@@ -154,7 +154,7 @@ Use these Amplify default domains for env vars, EAS, emails, and cross-app links
 | Community portal | `https://main.d2tlpjx9a9kklb.amplifyapp.com` |
 | Payment | `https://main.d1wcqa3tsdavz8.amplifyapp.com` |
 
-Set matching values in each Amplify app’s **Environment variables**, mobile `eas.json` / `.env.*`, and Supabase Auth **Redirect URLs** (include `https://main.dim7uuolmjgc9.amplifyapp.com/auth/reset-password`). Redeploy after changing.
+Set matching values in each Amplify app’s **Environment variables**, mobile GitHub secrets / `.env.*`, and Supabase Auth **Redirect URLs** (include `https://main.dim7uuolmjgc9.amplifyapp.com/auth/reset-password`). Redeploy after changing.
 
 ### Official CareMate hosts (target)
 
@@ -175,7 +175,7 @@ After the website is live, finish Universal / App Links verification:
 3. Confirm `Content-Type: application/json` on both well-known paths (set in root `amplify.yml`)
 4. Rebuild the mobile app so `associatedDomains` / `intentFilters` from `app.json` ship in the binary
 
-Set public hosts in Amplify / EAS env (dev vs prod table above). For localhost, copy `.env.local.example` → `.env.local`. Documented defaults live in each package’s `.env.example`.
+Set public hosts in Amplify / GitHub secrets (dev vs prod table above). For localhost, copy `.env.local.example` → `.env.local`. Documented defaults live in each package’s `.env.example`.
 
 ---
 

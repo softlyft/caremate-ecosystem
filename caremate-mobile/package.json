@@ -105,10 +105,7 @@
     "supabase:link": "npm run supabase:link --prefix ..",
     "supabase:migration:new": "npm run supabase:migration:new --prefix .. --",
     "supabase:db:push": "npm run supabase:db:push --prefix ..",
-    "supabase:migration:list": "npm run supabase:migration:list --prefix ..",
-    "eas:internal-android": "eas build --platform android --profile internal-android",
-    "eas:testflight": "eas build --platform ios --profile testflight --auto-submit",
-    "eas:staging": "eas build --platform all --profile staging"
+    "supabase:migration:list": "npm run supabase:migration:list --prefix .."
   },
   "jest": {
     "preset": "jest-expo",
