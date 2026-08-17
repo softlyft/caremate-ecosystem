@@ -1,7 +1,7 @@
-# Build a Play-signed Android App Bundle on GitHub Actions (no EAS) and
-# optionally upload it to Google Play. Default track is Internal testing.
+# Production Play release on merge to prod (GitHub Actions, no EAS).
+# Sideload APKs on main: .github/workflows/mobile-cd.yml
 #
-# Required secrets are listed in caremate-mobile/docs/play-android-release.md
+# Required secrets: caremate-mobile/docs/play-android-release.md
 name: Android Play
 
 on:
@@ -11,7 +11,7 @@ on:
         description: Play Console track
         required: true
         type: choice
-        default: internal
+        default: production
         options:
           - internal
           - alpha
@@ -33,6 +33,15 @@ on:
         type: string
         default: ''
 
+  push:
+    branches:
+      - prod
+    paths:
+      - 'caremate-mobile/**'
+      - 'packages/**'
+      - 'patches/**'
+      - '.github/workflows/android-play.yml'
+
 concurrency:
   group: android-play-${{ github.ref }}
   cancel-in-progress: false
@@ -42,10 +51,14 @@ jobs:
     name: AAB · Sign · Play
     runs-on: ubuntu-latest
     timeout-minutes: 75
+    environment: prod
     permissions:
       contents: read
 
     env:
+      PLAY_TRACK: ${{ github.event_name != 'workflow_dispatch' && 'production' || inputs.track }}
+      PLAY_UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+      PLAY_PUBLISH_PRODUCTION: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_production || false }}
       EXPO_NO_TELEMETRY: 1
       SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       EXPO_PUBLIC_APP_ENV: production
@@ -83,7 +96,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          UPLOAD: ${{ inputs.upload }}
+          UPLOAD: ${{ env.PLAY_UPLOAD }}
         run: |
           set -euo pipefail
           missing=0
@@ -93,9 +106,11 @@ jobs:
               missing=1
             fi
           done
-          if [ "$UPLOAD" = "true" ] && [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
-            echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON (required when upload is true)"
-            missing=1
+          if [ "$UPLOAD" = "True" ] || [ "$UPLOAD" = "true" ]; then
+            if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+              echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON (required when upload is true)"
+              missing=1
+            fi
           fi
           if [ "$missing" -ne 0 ]; then
             echo "See caremate-mobile/docs/play-android-release.md"
@@ -209,13 +224,13 @@ jobs:
           retention-days: 30
 
       - name: Upload to Play Console
-        if: ${{ inputs.upload }}
+        if: ${{ env.PLAY_UPLOAD != 'false' && env.PLAY_UPLOAD != false }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.softlyft.caremate
           releaseFiles: ${{ steps.aab.outputs.aab_path }}
-          track: ${{ inputs.track }}
-          status: ${{ inputs.track == 'production' && inputs.publish_production != true && 'draft' || 'completed' }}
+          track: ${{ env.PLAY_TRACK }}
+          status: ${{ env.PLAY_TRACK == 'production' && env.PLAY_PUBLISH_PRODUCTION != 'true' && env.PLAY_PUBLISH_PRODUCTION != true && 'draft' || 'completed' }}
           releaseName: ${{ format('{0} ({1})', env.VERSION_NAME, env.ANDROID_VERSION_CODE) }}
           changesNotSentForReview: true

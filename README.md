@@ -200,9 +200,10 @@ Portal provider upload expects matching values in `caremate-admin-portal/.env.ex
 Workflows live under `.github/workflows/`:
 
 - `ci.yml` — lint, typecheck, test gates for active app surfaces
-- `android-play.yml` — signed Android AAB + Play upload
-- `ios-testflight.yml` — signed iOS IPA + TestFlight upload
-- `mobile-cd.yml` — sideload Android APK artifact after CI
+- `ios-testflight.yml` — dev TestFlight on **main**
+- `ios-app-store.yml` — App Store build on **prod**
+- `android-play.yml` — Play production AAB on **prod**
+- `mobile-cd.yml` — sideload Android APK artifact on **main**
 
 ## Adding a Future App
 
