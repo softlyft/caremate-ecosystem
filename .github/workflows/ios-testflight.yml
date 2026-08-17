@@ -222,29 +222,13 @@ jobs:
           EXPORT_DIR="$RUNNER_TEMP/export"
           mkdir -p "$EXPORT_DIR"
 
-          cat > "$RUNNER_TEMP/ExportOptions.plist" <<'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>method</key>
-  <string>app-store</string>
-  <key>teamID</key>
-  <string>TEAM_ID_PLACEHOLDER</string>
-  <key>uploadSymbols</key>
-  <true/>
-  <key>signingStyle</key>
-  <string>manual</string>
-  <key>provisioningProfiles</key>
-  <dict>
-    <key>com.softlyft.caremate</key>
-    <string>PROFILE_NAME_PLACEHOLDER</string>
-  </dict>
-</dict>
-</plist>
-EOF
-          sed -i '' "s/TEAM_ID_PLACEHOLDER/${{ secrets.APPLE_TEAM_ID }}/" "$RUNNER_TEMP/ExportOptions.plist"
-          sed -i '' "s#PROFILE_NAME_PLACEHOLDER#${PROFILE_NAME}#" "$RUNNER_TEMP/ExportOptions.plist"
+          PLIST="$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :method string app-store' "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :teamID string ${{ secrets.APPLE_TEAM_ID }}" "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :signingStyle string manual' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:com.softlyft.caremate string ${PROFILE_NAME}" "$PLIST"
 
           xcodebuild \
             -exportArchive \
