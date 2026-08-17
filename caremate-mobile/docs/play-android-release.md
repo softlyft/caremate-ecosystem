@@ -1,17 +1,25 @@
-# Android Play release (GitHub Actions, no EAS)
+# Android Play release (prod · GitHub Actions)
 
-[← Back to index](./README.md)
+[← Back to index](./README.md) · [Mobile release strategy](./mobile-release.md)
 
-Play Store Android builds are produced on GitHub Actions: prebuild → signed AAB → upload. EAS is not used for Android.
+Production Play builds run on **merge to `prod`**: prebuild → signed AAB → Play upload. EAS is not used.
 
 Workflow: [`.github/workflows/android-play.yml`](../../.github/workflows/android-play.yml)  
-Package: `com.softlyft.caremate`
+Package: `com.softlyft.caremate`  
+GitHub Environment: **`prod`**
 
-Sideload APKs (`npm run mobile:apk` / Mobile CD) stay on the debug keystore. Testers must install from Play.
+Sideload APKs on **`main`** (`mobile-cd.yml`) stay on the debug keystore — not for Play testers.
+
+## Trigger
+
+- **Automatic:** push/merge to **`prod`** when `caremate-mobile/**` changes → **production** track, **draft** release
+- **Manual:** Actions → **Android Play** → Run workflow
+
+On automatic `prod` merges, the AAB uploads to the **production** track as a **draft**. Complete the release in Play Console, or check **publish_production** on manual dispatch to auto-complete.
 
 ## What you must provide
 
-Add these as **GitHub Actions secrets** on the repo (Settings → Secrets and variables → Actions).
+Add secrets to GitHub Environment **`prod`** (or repo-level secrets).
 
 ### Signing (required to build)
 
@@ -78,10 +86,17 @@ You can also pass **version_code** when dispatching the workflow.
 
 ## How to run
 
-1. Actions → **Android Play** → Run workflow.
-2. Track: **internal** for the first testers. Closed testing is **alpha**; open testing is **beta**.
-3. Leave **upload** on once Play API secrets are in place. Turn it off to only attach the AAB artifact.
-4. **production** uploads as a **draft** unless you check **publish_production**.
+1. **Merge to `prod`** — workflow runs automatically (production track, draft).
+2. Or Actions → **Android Play** → Run workflow manually.
+
+Manual options:
+
+| Input | Default (manual) | Notes |
+|-------|------------------|-------|
+| **track** | production | internal / alpha / beta / production |
+| **upload** | on | Off = artifact only |
+| **publish_production** | off | On = complete production release (not draft) |
+| **version_code** | auto | Override if needed |
 
 If the Play API rejects the first upload (listing still incomplete), download the AAB artifact from the run and upload it once in Play Console, then retry the API on later runs.
 

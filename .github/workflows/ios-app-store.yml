@@ -1,14 +1,14 @@
-# Dev TestFlight on merge to main (GitHub Actions, no EAS).
-# Production App Store builds: .github/workflows/ios-app-store.yml (prod branch).
+# Production App Store build on merge to prod (GitHub Actions, no EAS).
+# Dev TestFlight builds: .github/workflows/ios-testflight.yml (main branch).
 #
-# Required secrets: caremate-mobile/docs/ios-testflight-release.md
-name: iOS TestFlight
+# Required secrets: caremate-mobile/docs/ios-app-store-release.md
+name: iOS App Store
 
 on:
   workflow_dispatch:
     inputs:
       upload:
-        description: Upload the IPA to TestFlight after a successful build
+        description: Upload the IPA to App Store Connect after a successful build
         required: true
         type: boolean
         default: true
@@ -20,23 +20,23 @@ on:
 
   push:
     branches:
-      - main
+      - prod
     paths:
       - 'caremate-mobile/**'
       - 'packages/**'
       - 'patches/**'
-      - '.github/workflows/ios-testflight.yml'
+      - '.github/workflows/ios-app-store.yml'
 
 concurrency:
-  group: ios-testflight-${{ github.ref }}
+  group: ios-app-store-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  testflight:
-    name: IPA · Sign · TestFlight
+  app-store:
+    name: IPA · Sign · App Store Connect
     runs-on: macos-15
     timeout-minutes: 90
-    environment: development
+    environment: prod
     permissions:
       contents: read
 
@@ -44,7 +44,7 @@ jobs:
       SHOULD_UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
       EXPO_NO_TELEMETRY: 1
       SENTRY_DISABLE_AUTO_UPLOAD: 'true'
-      EXPO_PUBLIC_APP_ENV: testflight
+      EXPO_PUBLIC_APP_ENV: production
       EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
@@ -101,7 +101,7 @@ jobs:
             done
           fi
           if [ "$missing" -ne 0 ]; then
-            echo "See caremate-mobile/docs/ios-testflight-release.md"
+            echo "See caremate-mobile/docs/ios-app-store-release.md"
             exit 1
           fi
 
@@ -254,7 +254,7 @@ jobs:
             exit 1
           fi
 
-          NAME="CareMate-${IOS_BUILD_NUMBER}.ipa"
+          NAME="CareMate-prod-${IOS_BUILD_NUMBER}.ipa"
           mkdir -p artifacts
           cp "$IPA_PATH" "artifacts/$NAME"
           ls -lh "artifacts/$NAME"
@@ -263,10 +263,10 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: caremate-ios-ipa
+          name: caremate-ios-app-store-ipa
           path: ${{ steps.export.outputs.ipa_path }}
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
 
       - name: Prepare App Store Connect API key
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
@@ -278,7 +278,7 @@ jobs:
           echo "API_KEY_BASE64=$API_KEY_BASE64" >> "$GITHUB_ENV"
         shell: bash
 
-      - name: Submit build to TestFlight
+      - name: Upload to App Store Connect
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
         uses: apple-actions/upload-testflight-build@v3
         with:

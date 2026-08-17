@@ -1,15 +1,23 @@
-# iOS TestFlight release (GitHub Actions, no EAS)
+# iOS TestFlight release (dev · GitHub Actions)
 
-[← Back to index](./README.md)
+[← Back to index](./README.md) · [Mobile release strategy](./mobile-release.md)
 
-Dev TestFlight builds are produced on GitHub Actions: prebuild → signed IPA → upload. EAS is not used for iOS.
+Dev TestFlight builds run on **merge to `main`**: prebuild → signed IPA → TestFlight upload. EAS is not used.
 
 Workflow: [`.github/workflows/ios-testflight.yml`](../../.github/workflows/ios-testflight.yml)  
-Bundle ID: `com.softlyft.caremate`
+Bundle ID: `com.softlyft.caremate`  
+GitHub Environment: **`development`**
+
+Production App Store builds on `prod` are documented in [iOS App Store release](./ios-app-store-release.md).
+
+## Trigger
+
+- **Automatic:** push/merge to **`main`** when `caremate-mobile/**` changes
+- **Manual:** Actions → **iOS TestFlight** → Run workflow
 
 ## What you must provide
 
-Add these as **GitHub Actions secrets** on the repo (Settings → Secrets and variables → Actions).
+Add secrets to GitHub Environment **`development`** (or repo-level secrets). Signing secrets can be shared with prod — see [Mobile release strategy](./mobile-release.md#github-environments).
 
 ### Signing (required to build)
 
@@ -131,6 +139,8 @@ Find it at [developer.apple.com/account](https://developer.apple.com/account) �
 
 ## How to run
 
+Runs automatically on merge to **`main`**, or manually:
+
 **GitHub Actions → iOS TestFlight → Run workflow**
 
 - **upload** — submit to TestFlight after build (default: on)
@@ -138,9 +148,7 @@ Find it at [developer.apple.com/account](https://developer.apple.com/account) �
 
 After upload, open App Store Connect → TestFlight → wait for **Processing** → add the build to an internal testing group. Export compliance is pre-declared (`ITSAppUsesNonExemptEncryption: false`).
 
-## Production later
-
-App Store production releases should use production `EXPO_PUBLIC_*` URLs and a separate workflow or manual dispatch from `prod`. Keep TestFlight internal for QA.
+**Do not submit `main` TestFlight builds to the App Store** — they contain dev/staging config. Ship from `prod` via [iOS App Store release](./ios-app-store-release.md).
 
 ## Troubleshooting
 
