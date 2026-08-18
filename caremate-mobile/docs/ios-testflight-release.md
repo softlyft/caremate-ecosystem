@@ -175,4 +175,4 @@ After upload, open App Store Connect → TestFlight → wait for **Processing** 
 | Provisioning profile mismatch | Regenerate App Store profile for `com.softlyft.caremate` |
 | Upload fails with 401/403 | Check API key role and secret values |
 | Build number already used | Increase `IOS_BUILD_NUMBER_OFFSET` or pass **build_number** |
-| Xcode / ExpoModulesJSI failure | Ensure root `postinstall` applies `patches/expo-modules-jsi+57.0.1.patch` |
+| Xcode / ExpoModulesJSI failure | Ensure root `postinstall` applies `patches/expo-modules-jsi+57.0.1.patch` (xcframework output path) and `patches/caremate-mobile++expo-modules-jsi+57.0.4.patch` (`Swift.abs` on Xcode 26.3) |
