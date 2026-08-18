@@ -6,7 +6,7 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 
 | Branch | What ships | Workflow |
 |--------|------------|----------|
-| **`main`** | Dev **TestFlight** (iOS) + sideload **APK** artifact (Android) | [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) (after **CI** passes) |
+| **`main`** | Dev **TestFlight** (iOS) + sideload **APK** artifact (Android) | [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) — **manual** after CI |
 | **`prod`** | **App Store** (iOS) + **Play production** track (Android) | [iOS App Store](./ios-app-store-release.md) · [Play Android](./play-android-release.md) |
 
 `EXPO_PUBLIC_*` values are **baked into the binary at build time**. Dev builds on `main` and production builds on `prod` are **different binaries** — you cannot promote a `main` TestFlight build to the App Store.
@@ -14,8 +14,8 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 ## Flow
 
 ```
-feature → PR → main → CI (format · lint · typecheck · test)
-                         └── Mobile Main CD (if mobile paths changed)
+feature → PR → main → CI (format · lint · typecheck · test)  ← automatic
+                         └── you run Mobile Main CD manually  ← your approval
                                ├── iOS TestFlight (dev backends)
                                └── Android APK artifact (sideload QA)
 
@@ -24,16 +24,27 @@ main → PR → prod
               └── Android Play AAB (prod backends)     → Play production track
 ```
 
+## Free plan + private repo
+
+GitHub **Required reviewers** on environments is **not available** on Free plans with private repos. Human approval is **manual workflow dispatch** instead:
+
+1. Merge to `main` → wait for **CI** to pass (automatic)
+2. **Actions → Mobile Main CD → Run workflow** (pick branch `main`) → that is your deploy approval
+
+The workflow checks that the **latest CI run on that branch succeeded** before building (unless you check **skip_ci_check** for emergencies).
+
+For **prod** store releases, the same limitation applies — merge to `prod` still auto-triggers store workflows today. Run **iOS App Store** / **Android Play** manually from the Actions tab if you want explicit control on Free.
+
 ## GitHub Environments
 
 Create two environments under **Settings → Environments**:
 
 | Environment | Used by | Secrets |
 |-------------|---------|---------|
-| **`development`** | `ios-testflight.yml` on `main` | Dev/staging `EXPO_PUBLIC_*` |
+| **`development`** | Mobile Main CD on `main` (Android APK + iOS TestFlight) | Dev/staging `EXPO_PUBLIC_*` |
 | **`prod`** | `ios-app-store.yml`, `android-play.yml` on `prod` | Production `EXPO_PUBLIC_*` |
 
-**Signing secrets** (`IOS_*`, `ANDROID_*`, `APPLE_TEAM_ID`, App Store Connect API key, Play service account) can live at **repo** level or be duplicated on both environments.
+**Signing secrets** (`IOS_*`, `ANDROID_*`, `APPLE_TEAM_ID`, App Store Connect API key, Play service account) can live at **repo** level or on each environment. On Free private repos, environments mainly **scope secrets** — they do not add approval gates.
 
 ## iOS: TestFlight vs App Store
 
@@ -62,11 +73,16 @@ Play can **promote the same AAB** across tracks in Play Console. `prod` CI uploa
 - **Android** `versionCode`: `ANDROID_VERSION_CODE_OFFSET` + `github.run_number`
 - **Marketing version** (`1.0.0`): bump `caremate-mobile/app.json` → `expo.version` before release
 
-## Manual runs
+## Deploy `main` (dev)
 
-- **Mobile Main CD** — workflow_dispatch (skips path filter; does not re-run CI)
-- **iOS TestFlight** — workflow_dispatch for iOS-only hotfix without Android APK
-- **iOS App Store / Android Play** — workflow_dispatch on `prod` for store hotfixes
+1. Merge PR → confirm **CI** is green on `main`
+2. **Actions → Mobile Main CD → Run workflow**
+   - Branch: **`main`**
+   - **ios_only** / **android_only** — optional, build one platform
+   - **skip_ci_check** — emergency only
+3. Download Android APK from artifacts; iOS appears in TestFlight after processing
+
+## Manual runs (other)
 
 ## Related docs
 
