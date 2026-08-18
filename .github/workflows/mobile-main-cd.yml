@@ -1,8 +1,9 @@
-# Continuous delivery for the CareMate mobile app.
-# After CI succeeds on main/master, build an Android APK locally (expo prebuild +
-# Gradle) — same path as a local release APK — and attach it as an artifact.
-# No EAS / EXPO_TOKEN.
-name: Mobile CD
+# Main-branch mobile CD: runs after CI passes on main/master.
+# Gate: CI green + mobile-related paths changed → Android APK artifact + iOS TestFlight.
+#
+# Manual iOS-only: .github/workflows/ios-testflight.yml
+# Prod store releases: ios-app-store.yml + android-play.yml (prod branch)
+name: Mobile Main CD
 
 on:
   workflow_run:
@@ -17,25 +18,72 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: mobile-cd-${{ github.event.workflow_run.head_branch || github.ref }}
+  group: mobile-main-cd-${{ github.event.workflow_run.head_branch || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  android-apk:
-    name: Android APK · Local Gradle · Artifact
+  gate:
+    name: Gate · CI passed · mobile paths
+    runs-on: ubuntu-latest
     if: >
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Detect mobile changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            mobile:
+              - 'caremate-mobile/**'
+              - 'packages/**'
+              - 'patches/**'
+              - '.github/workflows/mobile-main-cd.yml'
+              - '.github/workflows/ios-testflight.yml'
+
+      - name: Decide whether to deploy
+        id: decide
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch — deploying mobile."
+          elif [ "${{ steps.filter.outputs.mobile }}" = "true" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "CI passed and mobile paths changed — deploying."
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "CI passed but no mobile paths changed — skipping mobile CD."
+          fi
+
+      - name: Resolve build SHA
+        id: sha
+        run: echo "sha=${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_OUTPUT"
+
+  android-apk:
+    name: Android APK · Artifact
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: read
-      actions: read
 
     env:
-      BUILD_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      BUILD_SHA: ${{ needs.gate.outputs.sha }}
       EXPO_NO_TELEMETRY: 1
-      # Optional — app runs in guest mode if unset (same as local without .env).
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 
@@ -43,8 +91,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # Build the exact commit CI validated (workflow_run defaults to the
-          # default branch tip otherwise).
           ref: ${{ env.BUILD_SHA }}
 
       - name: Setup Node
@@ -69,26 +115,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Hollow dirs under caremate-mobile/node_modules (empty `expo/`, etc.) break Expo
-      # autolinking. Keep only packages that actually have a package.json.
       - name: Prune nested package stubs
-        run: |
-          set -euo pipefail
-          if [ -d caremate-mobile/node_modules ]; then
-            find caremate-mobile/node_modules -mindepth 1 -maxdepth 1 \( -type d -o -type l \) | while read -r entry; do
-              if [ ! -f "$entry/package.json" ]; then
-                echo "Removing stub: $entry"
-                rm -rf "$entry"
-              fi
-            done
-            # Also drop empty scoped folders left behind (e.g. @expo with no packages).
-            find caremate-mobile/node_modules -mindepth 1 -maxdepth 1 -type d -name '@*' | while read -r scope; do
-              if [ -z "$(find "$scope" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
-                echo "Removing empty scope: $scope"
-                rm -rf "$scope"
-              fi
-            done
-          fi
+        run: npm run prune:module-stubs -w caremate-mobile
 
       - name: Generate native Android project
         working-directory: caremate-mobile
@@ -101,8 +129,6 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          # Sideload APK only. Play-signed AABs use Android Play
-          # (.github/workflows/android-play.yml), not this job.
           ./gradlew assembleRelease --no-daemon \
             -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
 
@@ -130,3 +156,14 @@ jobs:
           path: artifacts/${{ steps.apk.outputs.apk_name }}
           if-no-files-found: error
           retention-days: 30
+
+  ios-testflight:
+    name: iOS TestFlight
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true'
+    uses: ./.github/workflows/ios-testflight.yml
+    with:
+      build_sha: ${{ needs.gate.outputs.sha }}
+      upload: true
+      build_number: ''
+    secrets: inherit

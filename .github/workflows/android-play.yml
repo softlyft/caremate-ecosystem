@@ -1,5 +1,5 @@
 # Production Play release on merge to prod (GitHub Actions, no EAS).
-# Sideload APKs on main: .github/workflows/mobile-cd.yml
+# Sideload APKs on main: .github/workflows/mobile-main-cd.yml
 #
 # Required secrets: caremate-mobile/docs/play-android-release.md
 name: Android Play

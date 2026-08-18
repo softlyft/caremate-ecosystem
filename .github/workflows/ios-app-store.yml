@@ -234,7 +234,7 @@ jobs:
           mkdir -p "$EXPORT_DIR"
 
           PLIST="$RUNNER_TEMP/ExportOptions.plist"
-          /usr/libexec/PlistBuddy -c 'Add :method string app-store' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :method string app-store-connect' "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :teamID string ${{ secrets.APPLE_TEAM_ID }}" "$PLIST"
           /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "$PLIST"
           /usr/libexec/PlistBuddy -c 'Add :signingStyle string manual' "$PLIST"
@@ -255,9 +255,10 @@ jobs:
           fi
 
           NAME="CareMate-prod-${IOS_BUILD_NUMBER}.ipa"
-          mkdir -p artifacts
-          cp "$IPA_PATH" "artifacts/$NAME"
-          ls -lh "artifacts/$NAME"
+          ARTIFACT_DIR="${GITHUB_WORKSPACE}/artifacts"
+          mkdir -p "$ARTIFACT_DIR"
+          cp "$IPA_PATH" "$ARTIFACT_DIR/$NAME"
+          ls -lh "$ARTIFACT_DIR/$NAME"
           echo "ipa_path=artifacts/$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Upload IPA artifact
@@ -282,7 +283,7 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: caremate-mobile/${{ steps.export.outputs.ipa_path }}
+          app-path: ${{ steps.export.outputs.ipa_path }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-key-base64: ${{ env.API_KEY_BASE64 }}
