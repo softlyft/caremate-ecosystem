@@ -269,21 +269,12 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Prepare App Store Connect API key
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
-        env:
-          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
-        run: |
-          set -euo pipefail
-          API_KEY_BASE64="$(printf '%s' "$APP_STORE_CONNECT_API_KEY_P8" | base64 | tr -d '\n')"
-          echo "API_KEY_BASE64=$API_KEY_BASE64" >> "$GITHUB_ENV"
-        shell: bash
-
       - name: Upload to App Store Connect
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
-        uses: apple-actions/upload-testflight-build@v3
+        uses: apple-actions/upload-testflight-build@v5
         with:
           app-path: ${{ steps.export.outputs.ipa_path }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          api-key-base64: ${{ env.API_KEY_BASE64 }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          uses-non-exempt-encryption: 'false'
