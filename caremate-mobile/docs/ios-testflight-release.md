@@ -12,8 +12,9 @@ Production App Store builds on `prod` are documented in [iOS App Store release](
 
 ## Trigger
 
-- **Automatic:** after **CI succeeds** on **`main`**, via [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) (only when mobile-related paths changed)
-- **Manual (iOS only):** Actions → **iOS TestFlight** → Run workflow (bypasses CI gate — use for hotfixes)
+- **Automatic:** none on Free private — you run deploy manually
+- **Manual:** **Actions → Mobile Main CD → Run workflow** on branch **`main`** (after CI is green)
+- **iOS only (no APK):** same workflow with **ios_only**, or **Actions → iOS TestFlight**
 
 ## What you must provide
 
@@ -154,9 +155,9 @@ For Push Notifications, you do **not** need to upload an APNs key to build or ar
 
 ## How to run
 
-Runs automatically after **CI passes** on **`main`** (via Mobile Main CD), or manually:
+Runs via **Mobile Main CD** (recommended) or **iOS TestFlight** manual dispatch:
 
-**GitHub Actions → iOS TestFlight → Run workflow** (iOS only, no CI gate)
+**GitHub Actions → Mobile Main CD → Run workflow** (branch `main`, after CI passes)
 
 - **upload** — submit to TestFlight after build (default: on)
 - **build_number** — override iOS build number (optional)
