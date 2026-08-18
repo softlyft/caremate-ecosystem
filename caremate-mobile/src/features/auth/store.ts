@@ -77,6 +77,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         setGuestState(set);
         set({ isInitialized: true });
       }
+    } catch {
+      // SecureStore / session restore can fail on unsigned simulator builds.
+      setGuestState(set);
+      set({ isInitialized: true });
     } finally {
       set({ isLoading: false });
     }
