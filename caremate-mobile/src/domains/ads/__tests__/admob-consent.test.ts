@@ -1,3 +1,6 @@
+import { Platform } from 'react-native';
+
+import { config } from '@/constants/env';
 import {
   canRequestAds,
   getAdMobRequestOptions,
@@ -10,6 +13,8 @@ import { getAdMobBannerUnitId, ADMOB_TEST_BANNER_UNIT } from '@/domains/ads/admo
 
 jest.mock('@/constants/env', () => ({
   config: {
+    isProductionAppEnv: false,
+    admobBannerUnitIos: 'ca-app-pub-prod/ios-banner',
     admobBannerHomeTips: '  ca-app-pub-prod/home-tips  ',
     admobBannerHomeFeed: '',
     admobBannerLearnList: 'ca-app-pub-prod/learn',
@@ -42,21 +47,52 @@ jest.mock('react-native-google-mobile-ads', () => ({
 
 describe('admob config', () => {
   const originalDev = (globalThis as { __DEV__?: boolean }).__DEV__;
+  const mockedConfig = config as { isProductionAppEnv: boolean; admobBannerUnitIos: string };
 
   afterEach(() => {
     (globalThis as { __DEV__?: boolean }).__DEV__ = originalDev;
+    mockedConfig.isProductionAppEnv = false;
+    (Platform as { OS: string }).OS = 'ios';
   });
 
-  it('uses Google test banner unit in development', () => {
+  it('uses Google test banner unit in Metro (__DEV__)', () => {
     (globalThis as { __DEV__?: boolean }).__DEV__ = true;
+    mockedConfig.isProductionAppEnv = true;
     expect(getAdMobBannerUnitId('home.tips')).toBe(ADMOB_TEST_BANNER_UNIT);
   });
 
-  it('reads production unit ids from env when not in dev', () => {
+  it('uses Google test banner units on main / TestFlight (non-production app env)', () => {
     (globalThis as { __DEV__?: boolean }).__DEV__ = false;
+    mockedConfig.isProductionAppEnv = false;
+    expect(getAdMobBannerUnitId('home.tips')).toBe(ADMOB_TEST_BANNER_UNIT);
+    expect(getAdMobBannerUnitId('home.feed')).toBe(ADMOB_TEST_BANNER_UNIT);
+  });
+
+  it('uses the iOS banner unit for every slot on prod iOS', () => {
+    (globalThis as { __DEV__?: boolean }).__DEV__ = false;
+    mockedConfig.isProductionAppEnv = true;
+    (Platform as { OS: string }).OS = 'ios';
+    expect(getAdMobBannerUnitId('home.tips')).toBe('ca-app-pub-prod/ios-banner');
+    expect(getAdMobBannerUnitId('home.feed')).toBe('ca-app-pub-prod/ios-banner');
+    expect(getAdMobBannerUnitId('learn.list')).toBe('ca-app-pub-prod/ios-banner');
+  });
+
+  it('reads Android production unit ids from per-slot env on prod Android', () => {
+    (globalThis as { __DEV__?: boolean }).__DEV__ = false;
+    mockedConfig.isProductionAppEnv = true;
+    (Platform as { OS: string }).OS = 'android';
     expect(getAdMobBannerUnitId('home.tips')).toBe('ca-app-pub-prod/home-tips');
     expect(getAdMobBannerUnitId('home.feed')).toBeNull();
     expect(getAdMobBannerUnitId('learn.list')).toBe('ca-app-pub-prod/learn');
+  });
+
+  it('returns null on prod iOS when the iOS banner unit is unset', () => {
+    (globalThis as { __DEV__?: boolean }).__DEV__ = false;
+    mockedConfig.isProductionAppEnv = true;
+    mockedConfig.admobBannerUnitIos = '  ';
+    (Platform as { OS: string }).OS = 'ios';
+    expect(getAdMobBannerUnitId('home.tips')).toBeNull();
+    mockedConfig.admobBannerUnitIos = 'ca-app-pub-prod/ios-banner';
   });
 });
 

@@ -102,6 +102,7 @@ jobs:
     env:
       BUILD_SHA: ${{ needs.gate.outputs.sha }}
       EXPO_NO_TELEMETRY: 1
+      EXPO_PUBLIC_APP_ENV: development
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 

@@ -57,7 +57,7 @@ Same `EXPO_PUBLIC_*` values you want in dev/staging. If unset, the binary still 
 | `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` | Optional gateway |
 | `EXPO_PUBLIC_SENTRY_DSN` | Optional |
 | `EXPO_PUBLIC_POSTHOG_*` | Optional |
-| `EXPO_PUBLIC_ADMOB_*` | Optional production AdMob IDs |
+| `EXPO_PUBLIC_ADMOB_*` | **Do not set.** `main` TestFlight uses Google sample IDs. Live IDs belong on **`production`** only — see [Ads → GitHub secrets](./ads.md#github-secrets) |
 
 ### Optional variable
 

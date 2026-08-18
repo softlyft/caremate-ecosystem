@@ -24,6 +24,9 @@ const appEnv =
   process.env.EXPO_PUBLIC_APP_ENV?.trim() ||
   process.env.APP_ENV?.trim() ||
   (__DEV__ ? 'development' : 'production');
+const isProductionAppEnv = appEnv === 'production';
+const admobAppIdAndroid = process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID ?? '';
+const admobAppIdIos = process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS ?? '';
 
 export const config = {
   supabaseUrl,
@@ -37,6 +40,8 @@ export const config = {
   communityPortalUrl,
   appVersion: Constants.expoConfig?.version ?? '1.0.0',
   appEnv,
+  /** True only for `prod` branch / App Store / Play binaries (`EXPO_PUBLIC_APP_ENV=production`). */
+  isProductionAppEnv,
   sentryDsn,
   isSentryConfigured: Boolean(sentryDsn.trim()),
   /** When true, send Sentry events from __DEV__ builds (default off). */
@@ -46,8 +51,10 @@ export const config = {
   isPostHogConfigured: Boolean(posthogApiKey.trim()),
   /** When true, send PostHog events from __DEV__ builds (default off). */
   posthogEnableInDev: process.env.EXPO_PUBLIC_POSTHOG_ENABLE_IN_DEV === '1',
-  admobAppIdAndroid: process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID ?? '',
-  admobAppIdIos: process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS ?? '',
+  admobAppIdAndroid,
+  admobAppIdIos,
+  /** iOS banner unit — one ID for every slot. Android uses the per-slot `EXPO_PUBLIC_ADMOB_BANNER_*` secrets. */
+  admobBannerUnitIos: process.env.EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS ?? '',
   admobBannerHomeTips: process.env.EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS ?? '',
   admobBannerHomeFeed: process.env.EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED ?? '',
   admobBannerLearnList: process.env.EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST ?? '',
@@ -59,7 +66,5 @@ export const config = {
   admobBannerPregnancyFooter: process.env.EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER ?? '',
   admobBannerPeriodWeek: process.env.EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK ?? '',
   admobBannerPeriodFooter: process.env.EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER ?? '',
-  isAdMobConfigured: Boolean(
-    process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID && process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS,
-  ),
+  isAdMobConfigured: isProductionAppEnv ? Boolean(admobAppIdAndroid && admobAppIdIos) : true,
 } as const;

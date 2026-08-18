@@ -41,10 +41,17 @@ Create two environments under **Settings → Environments**:
 
 | Environment | Used by | Secrets |
 |-------------|---------|---------|
-| **`development`** | Mobile Main CD on `main` (Android APK + iOS TestFlight) | Dev/staging `EXPO_PUBLIC_*` |
-| **`prod`** | `ios-app-store.yml`, `android-play.yml` on `prod` | Production `EXPO_PUBLIC_*` |
+| **`development`** | Mobile Main CD on `main` (Android APK + iOS TestFlight) | Dev/staging `EXPO_PUBLIC_*` (AdMob test IDs are hardcoded; live AdMob secrets are not used) |
+| **`production`** | `ios-app-store.yml`, `android-play.yml` on git branch `prod` | Production `EXPO_PUBLIC_*` including live `EXPO_PUBLIC_ADMOB_*` |
 
 **Signing secrets** (`IOS_*`, `ANDROID_*`, `APPLE_TEAM_ID`, App Store Connect API key, Play service account) can live at **repo** level or on each environment. On Free private repos, environments mainly **scope secrets** — they do not add approval gates.
+
+### AdMob GitHub secrets
+
+- **`development` / `main`:** do not set AdMob secrets. Test IDs are hardcoded.
+- **`production`:** 2 app IDs + one Android banner (all 11 `EXPO_PUBLIC_ADMOB_BANNER_*`) + one iOS banner (`EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS`).
+
+Full secret names: [Ads → GitHub secrets](./ads.md#github-secrets).
 
 ## iOS: TestFlight vs App Store
 
