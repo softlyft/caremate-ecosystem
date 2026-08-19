@@ -8,7 +8,7 @@
     "start": "next start -p 4001",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "npx tsx --test src/constants/*.test.ts",
+    "test": "npx tsx --test src/constants/*.test.ts src/lib/*.test.ts",
     "bootstrap:member": "node scripts/bootstrap-community-member.mjs"
   },
   "dependencies": {

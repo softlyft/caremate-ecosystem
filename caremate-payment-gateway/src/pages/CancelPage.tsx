@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { openAppDeepLink, sanitizeAppReturnUrl } from '@/lib/checkout';
+import { isAppDeepLinkReturn, openAppDeepLink, sanitizeAppReturnUrl } from '@/lib/checkout';
 import { supabase } from '@/lib/supabase';
 
 const DEFAULT_RETURN = 'caremate://billing/cancel';
@@ -9,16 +9,20 @@ const DEFAULT_RETURN = 'caremate://billing/cancel';
 export function CancelPage() {
   const [searchParams] = useSearchParams();
   const returnUrl = sanitizeAppReturnUrl(searchParams.get('return'), DEFAULT_RETURN);
-  const [manual, setManual] = useState(false);
+  const isAppReturn = isAppDeepLinkReturn(returnUrl);
+  const [manual, setManual] = useState(!isAppReturn);
 
   useEffect(() => {
+    void supabase.auth.signOut();
+    if (!isAppReturn) {
+      return;
+    }
     const timer = window.setTimeout(() => {
       openAppDeepLink(returnUrl);
-      void supabase.auth.signOut();
       setManual(true);
     }, 600);
     return () => window.clearTimeout(timer);
-  }, [returnUrl]);
+  }, [isAppReturn, returnUrl]);
 
   return (
     <main className="page">
@@ -31,10 +35,14 @@ export function CancelPage() {
           </div>
         </header>
         <h1>No charge made</h1>
-        <p className="lead">Returning you to CareMate so you can try again later.</p>
+        <p className="lead">
+          {isAppReturn
+            ? 'Returning you to CareMate so you can try again later.'
+            : 'You can close this page or choose a plan again when you are ready.'}
+        </p>
         {manual ? (
           <a className="primary link" href={returnUrl}>
-            Open CareMate
+            {isAppReturn ? 'Open CareMate' : 'Back to CareMate'}
           </a>
         ) : null}
       </section>

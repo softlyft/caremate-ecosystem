@@ -6,7 +6,7 @@ Production Play builds run on **merge to `prod`**: prebuild → signed AAB → P
 
 Workflow: [`.github/workflows/android-play.yml`](../../.github/workflows/android-play.yml)  
 Package: `com.softlyft.caremate`  
-GitHub Environment: **`prod`**
+GitHub Environment: **`production`** (git branch is **`prod`**)
 
 Sideload APKs on **`main`** ([`mobile-main-cd.yml`](../../.github/workflows/mobile-main-cd.yml)) stay on the debug keystore — not for Play testers.
 
@@ -19,7 +19,7 @@ On automatic `prod` merges, the AAB uploads to the **production** track as a **d
 
 ## What you must provide
 
-Add secrets to GitHub Environment **`prod`** (or repo-level secrets).
+Add secrets to GitHub Environment **`production`** (or repo-level secrets).
 
 ### Signing (required to build)
 
@@ -74,7 +74,7 @@ Same `EXPO_PUBLIC_*` values you want in production. If unset, the binary still b
 | `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` | Optional gateway |
 | `EXPO_PUBLIC_SENTRY_DSN` | Optional |
 | `EXPO_PUBLIC_POSTHOG_API_KEY` / `EXPO_PUBLIC_POSTHOG_HOST` | Optional |
-| `EXPO_PUBLIC_ADMOB_*` | Optional production AdMob IDs |
+| `EXPO_PUBLIC_ADMOB_*` | **Required** for live ads: 2 app IDs + Android banners + `EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS`. See [Ads → GitHub secrets](./ads.md#github-secrets) |
 
 ### Optional variable
 

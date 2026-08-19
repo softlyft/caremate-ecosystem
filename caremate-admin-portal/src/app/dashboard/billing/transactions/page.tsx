@@ -58,7 +58,7 @@ export default async function BillingTransactionsPage({
     <div>
       <PageHeader
         title="Billing"
-        description="Paystack and Stripe charges recorded in the payments ledger."
+        description="Paystack, Stripe, Apple, and Google charges recorded in the payments ledger."
       />
 
       <BillingNav current="transactions" />
@@ -89,6 +89,8 @@ export default async function BillingTransactionsPage({
           <option value="">All providers</option>
           <option value="paystack">Paystack</option>
           <option value="stripe">Stripe</option>
+          <option value="apple">Apple</option>
+          <option value="google">Google</option>
         </Select>
         <Select name="plan" defaultValue={plan ?? ''} className="w-44">
           <option value="">All plans</option>

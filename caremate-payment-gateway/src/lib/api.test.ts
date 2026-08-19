@@ -5,6 +5,7 @@ const eq = vi.fn(() => ({ eq, maybeSingle }));
 const select = vi.fn(() => ({ eq }));
 const from = vi.fn(() => ({ select }));
 const invoke = vi.fn();
+const signInWithPassword = vi.fn();
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
@@ -12,10 +13,13 @@ vi.mock('@/lib/supabase', () => ({
     functions: {
       invoke: (...args: unknown[]) => invoke(...(args as [])),
     },
+    auth: {
+      signInWithPassword: (...args: unknown[]) => signInWithPassword(...args),
+    },
   },
 }));
 
-import { fetchActivePrice, fetchPatientId, startProviderCheckout } from '@/lib/api';
+import { fetchActivePrice, fetchPatientId, startProviderCheckout, verifyCheckout } from '@/lib/api';
 
 describe('payment api', () => {
   beforeEach(() => {
@@ -92,7 +96,9 @@ describe('payment api', () => {
       }),
     ).resolves.toMatchObject({ url: 'https://pay.example/checkout', provider: 'stripe' });
 
-    expect(invoke).toHaveBeenCalledWith(
+    expect(
+      invoke,
+    ).toHaveBeenCalledWith(
       'create-checkout',
       expect.objectContaining({
         body: expect.objectContaining({
@@ -101,6 +107,22 @@ describe('payment api', () => {
         }),
       }),
     );
+  });
+
+  it('verifies checkout via the verify-checkout edge function', async () => {
+    invoke.mockResolvedValue({
+      data: { status: 'succeeded', subscription_id: 'sub-1', already_finalized: true },
+      error: null,
+    });
+
+    await expect(verifyCheckout({ reference: 'ref-1' })).resolves.toEqual({
+      status: 'succeeded',
+      subscriptionId: 'sub-1',
+      alreadyFinalized: true,
+    });
+    expect(invoke).toHaveBeenCalledWith('verify-checkout', {
+      body: { reference: 'ref-1' },
+    });
   });
 
   it('throws when checkout invoke fails or returns no URL', async () => {

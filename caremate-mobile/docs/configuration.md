@@ -10,7 +10,11 @@ File: `.env` (copy from `.env.example`)
 |----------|----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | No | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
-| `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL (`pay-dev` / `pay`) |
+| `EXPO_PUBLIC_PAYMENT_URL` | No | Hosted payment app (website/community checkout). Not used for in-app store purchases. |
+| `EXPO_PUBLIC_IAP_PERSONAL_MONTHLY` | Store IAP | App Store / Play product ID (default `caremate.premium.personal.monthly`) |
+| `EXPO_PUBLIC_IAP_PERSONAL_YEARLY` | Store IAP | Yearly Standard product ID |
+| `EXPO_PUBLIC_IAP_FAMILY_MONTHLY` | Store IAP | Monthly Family product ID |
+| `EXPO_PUBLIC_IAP_FAMILY_YEARLY` | Store IAP | Yearly Family product ID |
 | `EXPO_PUBLIC_WEBSITE_URL` | Legal / CCN | Marketing site origin (`dev.getcaremate.com` / `getcaremate.com`) |
 | `EXPO_PUBLIC_COMMUNITY_PORTAL_URL` | Community join | Community portal origin (`community-dev` / `community`) |
 | `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |
@@ -21,7 +25,8 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_POSTHOG_ENABLE_IN_DEV` | No | Set `1` to send PostHog events from `__DEV__` (default off) |
 | `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` | AdMob builds | Google AdMob Android app ID (`app.config.ts`) |
 | `EXPO_PUBLIC_ADMOB_APP_ID_IOS` | AdMob builds | Google AdMob iOS app ID |
-| `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Production AdMob | Banner unit for `home.tips` |
+| `EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS` | Production AdMob | iOS banner unit (used for every slot) |
+| `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Production AdMob | Android banner unit for `home.tips` |
 | `EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED` | Production AdMob | Banner unit for `home.feed` |
 | `EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST` | Production AdMob | Banner unit for `learn.list` |
 | `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER` | Production AdMob | Banner unit for `learn.article_header` |
@@ -33,7 +38,7 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK` | Production AdMob | Banner unit for `period.week` |
 | `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER` | Production AdMob | Banner unit for `period.footer` |
 
-`__DEV__` uses Google sample/test IDs regardless of env. AdMob requires a **dev client or EAS build** (not Expo Go). See [Ads](./ads.md).
+`main` / TestFlight / Metro use Google sample/test IDs — **no AdMob GitHub secrets needed** on `development`. Live IDs are only baked when `EXPO_PUBLIC_APP_ENV=production` (`prod` branch). Android: all 11 `EXPO_PUBLIC_ADMOB_BANNER_*` secrets may share **one** Android banner unit. iOS: set **`EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS`** once. See [Ads → GitHub secrets](./ads.md#github-secrets). AdMob requires a **dev client or release binary** (not Expo Go).
 
 ### Monitoring (Sentry + PostHog)
 

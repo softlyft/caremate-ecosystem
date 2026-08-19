@@ -1,13 +1,13 @@
 import { and, desc, eq, isNull, or } from 'drizzle-orm';
-import * as WebBrowser from 'expo-web-browser';
 
-import { config } from '@/constants/env';
 import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase } from '@/database/client';
 import { subscriptionEntitlements } from '@/database/schema';
 import { familyRepository } from '@/domains/family/repository';
 import { emptyPremiumState } from '@/domains/billing/format';
 import { isLocalEntitlementActive } from '@/domains/billing/period';
+import { finishStorePurchase, purchasePlatform, purchaseStoreProduct, purchaseTransactionId } from '@/domains/billing/store-iap';
+import { storeProductId } from '@/domains/billing/iap-products';
 import {
   type BillingCurrency,
   type BillingInterval,
@@ -15,7 +15,6 @@ import {
   type PremiumState,
   type SubscriptionPriceRow,
 } from '@/domains/billing/types';
-import { buildHttpsAppLink, shouldPreferHttpsAppLinks } from '@/lib/app-links';
 import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
@@ -78,6 +77,55 @@ function mapPrice(row: {
     provider: row.provider as SubscriptionPriceRow['provider'],
     isActive: row.is_active,
   };
+}
+
+async function verifyAndFinishStorePurchase(input: {
+  planType: PlanType;
+  billingInterval: BillingInterval;
+  currency: BillingCurrency;
+  householdId?: string | null;
+}): Promise<void> {
+  const purchase = await purchaseStoreProduct({
+    planType: input.planType,
+    billingInterval: input.billingInterval,
+  });
+  const platform = purchasePlatform(purchase);
+  const productId = purchase.productId || storeProductId(input.planType, input.billingInterval);
+
+  trackEvent(AnalyticsEvents.checkoutStart, {
+    plan_type: input.planType,
+    billing_interval: input.billingInterval,
+    currency: input.currency,
+    store: platform,
+  });
+
+  const { data, error } = await supabase.functions.invoke('verify-store-purchase', {
+    body: {
+      platform,
+      product_id: productId,
+      transaction_id: purchaseTransactionId(purchase),
+      purchase_token: purchase.purchaseToken,
+      signed_transaction: platform === 'ios' ? purchase.purchaseToken : null,
+      household_id: input.householdId ?? null,
+    },
+  });
+  if (error) {
+    throw error;
+  }
+  if (data?.error) {
+    throw new Error(String(data.error));
+  }
+
+  try {
+    await finishStorePurchase(purchase);
+  } catch {
+    // Entitlement is already verified; finish can retry on next launch.
+  }
+
+  trackEvent(AnalyticsEvents.checkoutSuccess, {
+    plan_type: input.planType,
+    store: platform,
+  });
 }
 
 class BillingRepository extends BaseRepository {
@@ -195,65 +243,29 @@ class BillingRepository extends BaseRepository {
     currency: BillingCurrency;
     householdId?: string | null;
     patientId?: string | null;
-  }): Promise<{ url: string }> {
-    const paymentBase = config.paymentUrl.replace(/\/$/, '');
-    if (!paymentBase) {
-      throw new Error('Payment URL is not configured (EXPO_PUBLIC_PAYMENT_URL)');
-    }
-
+  }): Promise<PremiumState> {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    if (!session?.access_token || !session.refresh_token) {
+    if (!session?.access_token) {
       throw new Error('Sign in to continue to payment');
     }
 
-    const { data: handoff, error: handoffError } = await supabase.functions.invoke(
-      'create-checkout-handoff',
-      { body: { refresh_token: session.refresh_token } },
-    );
-    if (handoffError) {
-      throw new Error(handoffError.message || 'Could not start secure checkout');
-    }
-    const handoffCode =
-      typeof handoff?.code === 'string' && handoff.code.trim() ? handoff.code.trim() : null;
-    if (!handoffCode) {
-      throw new Error('Could not start secure checkout');
-    }
-
-    const returnSuccess = shouldPreferHttpsAppLinks()
-      ? buildHttpsAppLink('billing/success')
-      : 'caremate://billing/success';
-    const returnCancel = shouldPreferHttpsAppLinks()
-      ? buildHttpsAppLink('billing/cancel')
-      : 'caremate://billing/cancel';
-
-    const query = new URLSearchParams({
-      plan_type: input.planType,
-      billing_interval: input.billingInterval,
+    await verifyAndFinishStorePurchase({
+      planType: input.planType,
+      billingInterval: input.billingInterval,
       currency: input.currency,
-      return_success: returnSuccess,
-      return_cancel: returnCancel,
-    });
-    if (input.householdId) {
-      query.set('household_id', input.householdId);
-    }
-    if (input.patientId) {
-      query.set('patient_id', input.patientId);
-    }
-
-    const hash = new URLSearchParams({
-      handoff: handoffCode,
+      householdId: input.householdId ?? null,
     });
 
-    const url = `${paymentBase}/?${query.toString()}#${hash.toString()}`;
-    trackEvent(AnalyticsEvents.checkoutStart, {
-      plan_type: input.planType,
-      billing_interval: input.billingInterval,
-      currency: input.currency,
-    });
-    await WebBrowser.openBrowserAsync(url, { showInRecents: true });
-    return { url };
+    await this.pullFromRemote();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return emptyPremiumState();
+    }
+    return this.getCachedPremiumState(user.id);
   }
 
   async quoteFamilyUpgrade(input: {
@@ -279,45 +291,35 @@ class BillingRepository extends BaseRepository {
     currency: BillingCurrency;
     householdId?: string | null;
   }): Promise<{ activated: boolean; url: string | null; quote: FamilyUpgradeQuote }> {
-    const successUrl = config.paymentUrl
-      ? `${config.paymentUrl.replace(/\/$/, '')}/success?return=${encodeURIComponent('caremate://billing/success')}`
-      : 'caremate://billing/success';
-    const cancelUrl = config.paymentUrl
-      ? `${config.paymentUrl.replace(/\/$/, '')}/cancel?return=${encodeURIComponent('caremate://billing/cancel')}`
-      : 'caremate://billing/cancel';
+    const quote = await this.quoteFamilyUpgrade(input);
 
-    const { data, error } = await supabase.functions.invoke('create-upgrade', {
-      body: {
-        billing_interval: input.billingInterval,
-        currency: input.currency,
-        household_id: input.householdId ?? null,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      },
-    });
-    if (error) throw error;
-    if (data?.error) throw new Error(String(data.error));
-
-    const quote = data?.quote ? mapUpgradeQuote(data.quote) : null;
-    if (!quote) throw new Error('Upgrade did not return a quote');
-
-    if (data.activated) {
+    if (quote.chargeMinor === 0) {
+      const { data, error } = await supabase.functions.invoke('create-upgrade', {
+        body: {
+          billing_interval: input.billingInterval,
+          currency: input.currency,
+          household_id: input.householdId ?? null,
+          success_url: 'caremate://billing/success',
+          cancel_url: 'caremate://billing/cancel',
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(String(data.error));
+      if (!data?.activated) {
+        throw new Error('Zero-charge upgrade did not activate');
+      }
       await this.pullFromRemote();
       return { activated: true, url: null, quote };
     }
 
-    if (!data?.url) {
-      throw new Error('Upgrade did not return a payment URL');
-    }
-
-    trackEvent(AnalyticsEvents.checkoutStart, {
-      plan_type: 'family',
-      billing_interval: input.billingInterval,
+    await verifyAndFinishStorePurchase({
+      planType: 'family',
+      billingInterval: input.billingInterval,
       currency: input.currency,
-      flow: 'family_upgrade',
+      householdId: input.householdId ?? quote.householdId,
     });
-    await WebBrowser.openBrowserAsync(data.url as string, { showInRecents: true });
-    return { activated: false, url: data.url as string, quote };
+    await this.pullFromRemote();
+    return { activated: true, url: null, quote };
   }
 
   async verifyCheckout(

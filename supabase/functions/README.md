@@ -23,6 +23,22 @@ supabase secrets set \
 
 `EXPO_ACCESS_TOKEN` is **optional**. When set, Edge Functions send it as `Authorization: Bearer …` to the Expo Push API. Without it, Expo still accepts push sends for most projects (rate limits may be lower).
 
+Store IAP (`verify-store-purchase`):
+
+```bash
+supabase secrets set \
+  APPLE_IAP_KEY_ID=... \
+  APPLE_IAP_ISSUER_ID=... \
+  APPLE_IAP_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
+...
+-----END PRIVATE KEY-----" \
+  APPLE_BUNDLE_ID=com.softlyft.caremate \
+  GOOGLE_PLAY_SERVICE_ACCOUNT_JSON='{"client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"}' \
+  GOOGLE_PLAY_PACKAGE_NAME=com.softlyft.caremate
+```
+
+Optional product ID overrides: `IAP_PRODUCT_PERSONAL_MONTHLY`, `IAP_PRODUCT_PERSONAL_YEARLY`, `IAP_PRODUCT_FAMILY_MONTHLY`, `IAP_PRODUCT_FAMILY_YEARLY` (defaults `caremate.premium.personal.monthly` and the matching yearly/family SKUs).
+
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically in hosted functions.
 
 ## Email / push functions
@@ -49,7 +65,7 @@ Mobile confirmation and recovery use **Supabase Auth** templates (`supabase/temp
 
 | Function | Trigger |
 |----------|---------|
-| `create-checkout-handoff` | Mobile before opening payment URL (user JWT) — stores session tokens server-side, returns single-use code |
+| `create-checkout-handoff` | Website/community before opening payment URL (user JWT) — stores session tokens server-side, returns single-use code |
 | `exchange-checkout-handoff` | Payment gateway hash handoff (anon) — returns tokens once, marks code used |
 
 ### Account deletion

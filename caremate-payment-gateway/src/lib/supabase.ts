@@ -10,13 +10,24 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder',
   {
     auth: {
-      // Short-lived checkout session — avoid lingering tokens in localStorage.
-      persistSession: false,
-      autoRefreshToken: false,
+      persistSession: true,
+      autoRefreshToken: true,
       detectSessionInUrl: false,
     },
   },
 );
+
+export async function signInWithPassword(email: string, password: string): Promise<Session> {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
+  if (error) throw error;
+  if (!data.session) {
+    throw new Error('Sign in failed');
+  }
+  return data.session;
+}
 
 /**
  * Apply mobile checkout handoff via single-use server code.
@@ -26,15 +37,16 @@ export async function hydrateSessionFromHash(): Promise<Session | null> {
   const hash = window.location.hash.startsWith('#')
     ? window.location.hash.slice(1)
     : window.location.hash;
-  if (!hash) {
-    const { data } = await supabase.auth.getSession();
-    return data.session;
+  const hashParams = new URLSearchParams(hash);
+  const queryParams = new URLSearchParams(window.location.search);
+  const handoff = hashParams.get('handoff') ?? queryParams.get('handoff');
+
+  if (hash || queryParams.has('handoff')) {
+    queryParams.delete('handoff');
+    const search = queryParams.toString();
+    const path = `${window.location.pathname}${search ? `?${search}` : ''}`;
+    window.history.replaceState(null, '', path);
   }
-
-  const params = new URLSearchParams(hash);
-  const handoff = params.get('handoff');
-
-  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
 
   if (!handoff) {
     const { data } = await supabase.auth.getSession();

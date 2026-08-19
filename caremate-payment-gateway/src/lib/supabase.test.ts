@@ -10,6 +10,7 @@ vi.mock('@supabase/supabase-js', () => ({
     auth: {
       getSession: (...args: unknown[]) => getSession(...args),
       setSession: (...args: unknown[]) => setSession(...args),
+      signInWithPassword: vi.fn(),
     },
     functions: {
       invoke: (...args: unknown[]) => invoke(...args),
@@ -68,6 +69,32 @@ describe('hydrateSessionFromHash', () => {
       refresh_token: 'rt',
     });
     expect(replaceState).toHaveBeenCalledWith(null, '', '/checkout');
+  });
+
+  it('exchanges a handoff code from the query string', async () => {
+    vi.stubGlobal('window', {
+      location: {
+        hash: '',
+        pathname: '/',
+        search: '?plan_type=personal&handoff=fromquery',
+      },
+      history: { replaceState },
+    });
+    invoke.mockResolvedValue({
+      data: { access_token: 'at', refresh_token: 'rt' },
+      error: null,
+    });
+    setSession.mockResolvedValue({
+      data: { session: { access_token: 'at' } },
+      error: null,
+    });
+
+    const { hydrateSessionFromHash } = await import('@/lib/supabase');
+    await expect(hydrateSessionFromHash()).resolves.toEqual({ access_token: 'at' });
+    expect(invoke).toHaveBeenCalledWith('exchange-checkout-handoff', {
+      body: { code: 'fromquery' },
+    });
+    expect(replaceState).toHaveBeenCalledWith(null, '', '/?plan_type=personal');
   });
 
   it('ignores legacy access_token hash and falls back to getSession', async () => {

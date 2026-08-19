@@ -1,17 +1,23 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
-import { APP_STORE_URLS, BRAND } from '@/lib/brand';
+import { APP_STORE_URLS, BRAND, PAYMENT_URL, SITE_URL } from '@/lib/brand';
 import {
   CONSUMER_PLANS,
   PRICING_PRINCIPLES,
   PRICING_REGIONS,
   PRICING_VALUE_PILLARS,
+  buildCheckoutUrl,
+  checkoutCurrency,
+  checkoutInterval,
+  checkoutPlanType,
   type PricingRegion,
 } from '@/lib/pricing';
 import styles from './Pricing.module.css';
 
 export function PricingPage() {
+  const [searchParams] = useSearchParams();
+  const paid = searchParams.get('paid') === '1';
   const [region, setRegion] = useState<PricingRegion>('ng');
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
 
@@ -24,6 +30,8 @@ export function PricingPage() {
           <p className={styles.lead}>
             Simple plans that put trust and adoption first. Start free, upgrade when deeper insights,
             documents, and family coordination will help — not because another screen is locked.
+            Pay here with Paystack (Naira) or Stripe (USD). The same account unlocks Premium in the
+            CareMate app.
           </p>
           <div className={styles.ctaRow}>
             <a className={styles.ctaPrimary} href="#plans">
@@ -35,6 +43,12 @@ export function PricingPage() {
           </div>
         </div>
       </section>
+
+      {paid ? (
+        <p className={styles.paidNotice} role="status">
+          Payment received. Open the CareMate app and sign in with the same account to use Premium.
+        </p>
+      ) : null}
 
       <section className={styles.strip} aria-label="Pricing principles">
         <div className={styles.stripInner}>
@@ -101,6 +115,17 @@ export function PricingPage() {
             const period = billing === 'monthly' ? '/ month' : '/ year';
             const note = billing === 'annual' ? price.annualNote : price.monthlyNote;
 
+            const checkoutPlan = checkoutPlanType(plan.id);
+            const checkoutHref = checkoutPlan
+              ? buildCheckoutUrl({
+                  paymentUrl: PAYMENT_URL,
+                  siteUrl: SITE_URL,
+                  planType: checkoutPlan,
+                  billingInterval: checkoutInterval(billing),
+                  currency: checkoutCurrency(region),
+                })
+              : APP_STORE_URLS.android;
+
             return (
               <article
                 key={plan.id}
@@ -122,10 +147,19 @@ export function PricingPage() {
                 </ul>
                 <a
                   className={plan.featured ? styles.planCtaPrimary : styles.planCtaSecondary}
-                  href={APP_STORE_URLS.android}
+                  href={checkoutHref}
                 >
-                  {plan.id === 'free' ? 'Start free in the app' : 'Upgrade in the app'}
+                  {plan.id === 'free'
+                    ? 'Start free in the app'
+                    : checkoutPlan === 'family'
+                      ? 'Subscribe to Family'
+                      : 'Subscribe with Paystack / Stripe'}
                 </a>
+                {checkoutPlan === 'family' ? (
+                  <p className={styles.planNote}>
+                    Family checkout needs a household already set up in the CareMate app.
+                  </p>
+                ) : null}
               </article>
             );
           })}
@@ -155,8 +189,9 @@ export function PricingPage() {
           <h2 id="closing-heading">Trust first. Adoption second. Revenue third.</h2>
           <p>
             If CareMate becomes an indispensable part of your healthcare journey, sustainable
-            support for the product follows. Subscribe and manage billing in the CareMate app under{' '}
-            <strong>Me → Premium</strong>.
+            support for the product follows. Subscribe on this page with Paystack or Stripe, or in
+            the CareMate app through Apple or Google billing. Either way, Premium unlocks on the
+            same account.
           </p>
           <div className={styles.ctaRow}>
             <a className={styles.ctaPrimaryDark} href={APP_STORE_URLS.ios}>

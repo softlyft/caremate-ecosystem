@@ -163,12 +163,40 @@ Seed campaign id: `camp_house_welcome` (creative `cre_house_welcome`). New slots
 
 ## AdMob configuration
 
-Environment variables (see [Configuration](./configuration.md) and `.env.example`):
+IDs are chosen by **app env**, not `__DEV__` alone:
 
-- `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` / `EXPO_PUBLIC_ADMOB_APP_ID_IOS` — wired via `app.config.ts` (must run `npx expo prebuild` so the native manifest gets `APPLICATION_ID`)
-- `EXPO_PUBLIC_ADMOB_BANNER_<SLOT>` — one production unit per slot (all 11 slots, including `PREGNANCY_TIMELINE`, `PREGNANCY_FOOTER`, `PERIOD_WEEK`, `PERIOD_FOOTER` — see [Configuration](./configuration.md))
+| Binary | `EXPO_PUBLIC_APP_ENV` | App ID (Info.plist / manifest) | Banner units |
+|--------|----------------------|--------------------------------|--------------|
+| Metro / local | `development` | Google sample | Google sample |
+| `main` TestFlight / sideload APK | `testflight` / `development` | Google sample | Google sample |
+| `prod` App Store / Play | `production` | `EXPO_PUBLIC_ADMOB_APP_ID_*` secrets | `EXPO_PUBLIC_ADMOB_BANNER_*` secrets |
 
-Pinned package: `react-native-google-mobile-ads@16.0.0` (compatible with Expo 57 / Kotlin 2.1). `__DEV__` builds use Google test banner IDs. Rebuild the native app after changing AdMob config.
+### GitHub secrets
+
+**`main` / TestFlight:** set **nothing** for AdMob. Google sample app + banner IDs are baked in. Do **not** put live AdMob IDs on the `development` environment.
+
+**Git branch `prod` (App Store / Play):** add live IDs on GitHub Environment **`production`**. You need **14 secret names** but only **4 unique values**:
+
+| Secret | Unique value? |
+|--------|----------------|
+| `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` | Yes — Android app ID |
+| `EXPO_PUBLIC_ADMOB_APP_ID_IOS` | Yes — iOS app ID (cannot share the Android ID) |
+| `EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS` | Yes — iOS banner unit (used for every iOS slot) |
+| `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Android banner unit (paste the same ID into the other 10) |
+| `EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_TIMELINE` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK` | Same |
+| `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER` | Same |
+
+Google prefers a distinct banner unit per placement for reporting, but **one Android banner reused on every Android slot** and **one iOS banner reused on every iOS slot** is valid and enough for v1.
+
+App IDs are wired via `app.config.ts` (run `npx expo prebuild` after changing them so the native manifest gets `APPLICATION_ID`). Pinned package: `react-native-google-mobile-ads@16.0.0` (Expo 57 / Kotlin 2.1).
 
 ---
 

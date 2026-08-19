@@ -15,9 +15,14 @@ function androidVersionCode(base: ExpoConfig): number {
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const base = (appJson.expo ?? config) as ExpoConfig;
-  const androidAppId =
-    process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID?.trim() || GOOGLE_SAMPLE_ANDROID_APP_ID;
-  const iosAppId = process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS?.trim() || GOOGLE_SAMPLE_IOS_APP_ID;
+  const isProductionAppEnv =
+    (process.env.EXPO_PUBLIC_APP_ENV ?? process.env.APP_ENV ?? '').trim() === 'production';
+  const androidAppId = isProductionAppEnv
+    ? process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID?.trim() || GOOGLE_SAMPLE_ANDROID_APP_ID
+    : GOOGLE_SAMPLE_ANDROID_APP_ID;
+  const iosAppId = isProductionAppEnv
+    ? process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS?.trim() || GOOGLE_SAMPLE_IOS_APP_ID
+    : GOOGLE_SAMPLE_IOS_APP_ID;
 
   const plugins: NonNullable<ExpoConfig['plugins']> = [...(base.plugins ?? [])];
 
@@ -48,6 +53,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-localization')) {
     plugins.push('expo-localization');
+  }
+
+  if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-iap')) {
+    plugins.push('expo-iap');
   }
 
   if (

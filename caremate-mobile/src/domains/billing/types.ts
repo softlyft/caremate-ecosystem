@@ -1,7 +1,7 @@
 export type PlanType = 'personal' | 'family';
 export type BillingInterval = 'monthly' | 'yearly';
 export type BillingCurrency = 'NGN' | 'USD';
-export type BillingProvider = 'paystack' | 'stripe' | 'admin';
+export type BillingProvider = 'paystack' | 'stripe' | 'admin' | 'apple' | 'google';
 export type PremiumTier = 'free' | 'personal' | 'family';
 
 export type SubscriptionPriceRow = {
