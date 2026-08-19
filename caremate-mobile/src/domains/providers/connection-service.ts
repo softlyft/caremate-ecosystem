@@ -1,9 +1,11 @@
 import {
   type ConsentDefinition,
   type ConnectionConsentScope,
+  type PatientProviderConsent,
   hasConsentScope,
   normalizeSharedScopes,
 } from '@/domains/providers/connection-consents';
+import { isDateKey } from '@/domains/timeline/consent-window';
 import { supabase } from '@/lib/supabase';
 import type { Provider } from '@/types';
 
@@ -407,6 +409,7 @@ class ProviderConnectionService {
   /**
    * Grant or revoke a catalog consent on an approved connection.
    * Writes `patient_provider_consents`; `shared_scopes` is synced by DB trigger.
+   * `health_timeline` grants require a frozen periodStart/periodEnd date range.
    */
   async setConsent(params: {
     connectionId: string;
@@ -414,6 +417,8 @@ class ProviderConnectionService {
     granted: boolean;
     /** Prefer definition id when known from the registry. */
     definitionId?: string;
+    periodStart?: string;
+    periodEnd?: string;
   }): Promise<PatientProviderConnection> {
     const existing = await this.getConnectionById(params.connectionId);
     if (!existing) {
@@ -455,6 +460,15 @@ class ProviderConnectionService {
     }
 
     const now = new Date().toISOString();
+    const needsPeriod = definition.code === 'health_timeline';
+    const periodStart = params.periodStart?.trim() ?? '';
+    const periodEnd = params.periodEnd?.trim() ?? '';
+
+    if (params.granted && needsPeriod) {
+      if (!isDateKey(periodStart) || !isDateKey(periodEnd) || periodEnd < periodStart) {
+        throw new Error('Choose a valid date range to share your health timeline.');
+      }
+    }
 
     if (params.granted) {
       // Prefer reactivating a prior inactive/draft row for this definition.
@@ -470,6 +484,10 @@ class ProviderConnectionService {
 
       if (priorError) throw priorError;
 
+      const periodFields = needsPeriod
+        ? { period_start: periodStart, period_end: periodEnd }
+        : {};
+
       if (prior?.id) {
         const { error } = await supabase
           .from('patient_provider_consents')
@@ -481,6 +499,7 @@ class ProviderConnectionService {
             fhir_scope: definition.fhirScope,
             purpose: 'TREAT',
             source: 'patient',
+            ...periodFields,
           })
           .eq('id', prior.id);
         if (error) throw error;
@@ -497,6 +516,7 @@ class ProviderConnectionService {
           granted_at: now,
           revoked_at: null,
           source: 'patient',
+          ...periodFields,
         });
         if (error) throw error;
       }
@@ -550,6 +570,41 @@ class ProviderConnectionService {
       throw new Error('Connection not found after consent update');
     }
     return refreshed;
+  }
+
+  async listConsents(connectionId: string): Promise<PatientProviderConsent[]> {
+    const { data, error } = await supabase
+      .from('patient_provider_consents')
+      .select(
+        'id, connection_id, patient_id, organization_id, definition_id, status, fhir_scope, provision_type, purpose, granted_at, revoked_at, period_start, period_end, consent_definitions(code)',
+      )
+      .eq('connection_id', connectionId)
+      .eq('status', 'active');
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map((row) => {
+      const joined = row.consent_definitions as { code?: string } | { code?: string }[] | null;
+      const code = Array.isArray(joined) ? joined[0]?.code : joined?.code;
+      return {
+        id: row.id,
+        connectionId: row.connection_id,
+        patientId: row.patient_id,
+        organizationId: row.organization_id,
+        definitionId: row.definition_id,
+        status: row.status as PatientProviderConsent['status'],
+        fhirScope: row.fhir_scope,
+        provisionType: row.provision_type as PatientProviderConsent['provisionType'],
+        purpose: row.purpose,
+        grantedAt: row.granted_at,
+        revokedAt: row.revoked_at,
+        periodStart: row.period_start,
+        periodEnd: row.period_end,
+        code,
+      };
+    });
   }
 }
 

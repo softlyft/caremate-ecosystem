@@ -183,6 +183,20 @@ export const miniAppSnapshots = sqliteTable('mini_app_snapshots', {
   ...syncColumns,
 });
 
+/** Projected mini-app log rows for Health Timeline (not the snapshot blob). */
+export const healthTimelineEvents = sqliteTable('health_timeline_events', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  appKey: text('app_key').notNull(),
+  kind: text('kind').notNull(),
+  occurredOn: text('occurred_on').notNull(),
+  occurredAt: text('occurred_at'),
+  title: text('title').notNull().default(''),
+  summary: text('summary').notNull().default(''),
+  payload: text('payload').notNull().default('{}'),
+  ...syncColumns,
+});
+
 /** Shared family unit. Personal profiles/settings stay per auth user. */
 export const familyHouseholds = sqliteTable('family_households', {
   id: text('id').primaryKey(),
@@ -331,6 +345,7 @@ export const schema = {
   syncQueue,
   syncMetadata,
   miniAppSnapshots,
+  healthTimelineEvents,
   familyHouseholds,
   familyMembers,
   familyConnectionRequests,

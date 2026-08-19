@@ -256,10 +256,13 @@ class MiniAppSnapshotRepository extends BaseRepository {
       };
 
       if (existing.length > 0) {
-        // Prefer remote only when it is newer or local is already synced.
+        // Never clobber an unsynced local write with a stale remote snapshot.
+        if (existing[0].syncStatus === 'pending') {
+          continue;
+        }
         const localUpdated = existing[0].updatedAt;
         const remoteUpdated = values.updatedAt;
-        if (existing[0].syncStatus === 'pending' && localUpdated > remoteUpdated) {
+        if (localUpdated > remoteUpdated) {
           continue;
         }
         await db.update(miniAppSnapshots).set(values).where(eq(miniAppSnapshots.id, id));

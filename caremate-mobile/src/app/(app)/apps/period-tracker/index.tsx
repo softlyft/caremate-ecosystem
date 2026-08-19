@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Minus, Plus } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
@@ -23,6 +23,7 @@ import {
 import {
   daysBetween,
   getCycleDay,
+  getFertilityMark,
   getWeekStrip,
   predictNextPeriodStart,
   toDateKey,
@@ -31,6 +32,7 @@ import {
   CYCLE_LENGTH_MAX,
   CYCLE_LENGTH_MIN,
   isPredictedPeriodDay,
+  predictedPeriodSpan,
   usePeriodTrackerHydrated,
   usePeriodTrackerStore,
 } from '@/mini-apps/period-tracker/store';
@@ -49,6 +51,7 @@ export default function PeriodTrackerScreen() {
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
+  const alignedPredictedMonth = useRef(false);
   const hydrated = usePeriodTrackerHydrated();
 
   const cycleLength = usePeriodTrackerStore((state) => state.cycleLength);
@@ -121,8 +124,34 @@ export default function PeriodTrackerScreen() {
   const nextPeriod = paused ? null : predictNextPeriodStart(lastPeriodStart, cycleLength);
   const daysUntil =
     nextPeriod && lastPeriodStart ? Math.max(0, daysBetween(today, nextPeriod)) : null;
+  const predictedSpan = predictedPeriodSpan(periodLength);
+  const predictedRangeLabel = nextPeriod
+    ? (() => {
+        const startLabel = nextPeriod.toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+        });
+        const end = new Date(nextPeriod);
+        end.setDate(end.getDate() + predictedSpan - 1);
+        const endLabel = end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
+      })()
+    : null;
   const weekStrip = getWeekStrip(today);
   const interactive = hydrated && !paused;
+
+  useEffect(() => {
+    if (!hydrated || paused || !nextPeriod || alignedPredictedMonth.current) {
+      return;
+    }
+    alignedPredictedMonth.current = true;
+    const sameMonth =
+      nextPeriod.getFullYear() === monthRef.getFullYear() &&
+      nextPeriod.getMonth() === monthRef.getMonth();
+    if (!sameMonth) {
+      setMonthRef(new Date(nextPeriod.getFullYear(), nextPeriod.getMonth(), 1));
+    }
+  }, [hydrated, monthRef, nextPeriod, paused]);
 
   const heroTitle = paused
     ? t('apps.period.ui.pausedTitle')
@@ -225,6 +254,12 @@ export default function PeriodTrackerScreen() {
               loggedPeriodDays,
               paused,
             );
+            const fertility =
+              isLogged || isPredicted
+                ? null
+                : getFertilityMark(key, lastPeriodStart, cycleLength, paused);
+            const isOvulation = fertility === 'ovulation';
+            const isFertile = fertility === 'fertile';
             return (
               <Button
                 key={key}
@@ -241,10 +276,15 @@ export default function PeriodTrackerScreen() {
                     styles.stripBubble,
                     isLogged && { backgroundColor: theme.color },
                     isPredicted && styles.predictedDay,
+                    isOvulation && styles.ovulationDay,
+                    isFertile && styles.fertileDay,
                     isToday && styles.todayRing,
                   ]}
                 >
-                  <AppText variant="body" style={isLogged ? styles.loggedDayText : undefined}>
+                  <AppText
+                    variant="body"
+                    style={isLogged || isOvulation ? styles.loggedDayText : undefined}
+                  >
                     {date.getDate()}
                   </AppText>
                 </View>
@@ -265,22 +305,38 @@ export default function PeriodTrackerScreen() {
           monthRef={monthRef}
           interactive={interactive}
           accentColor={theme.color}
-          predictedColor="#FBCFE8"
-          predictedBorderColor="#F472B6"
+          predictedColor="#F9A8D4"
+          predictedBorderColor="#DB2777"
           onDayPress={requestTogglePeriodDay}
-          getDayState={(dayKey) => ({
-            logged: loggedPeriodDays.includes(dayKey),
-            predicted: isPredictedPeriodDay(
+          getDayState={(dayKey) => {
+            const logged = loggedPeriodDays.includes(dayKey);
+            const predicted = isPredictedPeriodDay(
               dayKey,
               lastPeriodStart,
               cycleLength,
               periodLength,
               loggedPeriodDays,
               paused,
-            ),
-            today: dayKey === todayKey,
-          })}
+            );
+            const fertility =
+              logged || predicted
+                ? null
+                : getFertilityMark(dayKey, lastPeriodStart, cycleLength, paused);
+            return {
+              logged,
+              predicted,
+              ovulation: fertility === 'ovulation',
+              fertile: fertility === 'fertile',
+              today: dayKey === todayKey,
+            };
+          }}
         />
+
+        {predictedRangeLabel ? (
+          <AppText variant="caption" style={styles.predictedHint}>
+            {t('apps.period.ui.predictedWindow', { range: predictedRangeLabel })}
+          </AppText>
+        ) : null}
 
         <View style={styles.legend}>
           <View style={styles.legendItem}>
@@ -288,10 +344,20 @@ export default function PeriodTrackerScreen() {
             <AppText variant="caption">{t('apps.period.ui.loggedPeriod')}</AppText>
           </View>
           {!paused ? (
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, styles.predictedDay]} />
-              <AppText variant="caption">{t('apps.period.ui.predicted')}</AppText>
-            </View>
+            <>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, styles.predictedDay]} />
+                <AppText variant="caption">{t('apps.period.ui.predicted')}</AppText>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, styles.fertileDay]} />
+                <AppText variant="caption">{t('apps.period.ui.fertile')}</AppText>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, styles.ovulationDay]} />
+                <AppText variant="caption">{t('apps.period.ui.ovulation')}</AppText>
+              </View>
+            </>
           ) : null}
         </View>
       </MiniAppCard>
@@ -388,10 +454,17 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface,
   },
   predictedDay: {
-    backgroundColor: '#FBCFE8',
+    backgroundColor: '#F9A8D4',
+    borderWidth: 2,
+    borderColor: '#DB2777',
+  },
+  fertileDay: {
+    backgroundColor: '#DDD6FE',
     borderWidth: 1,
-    borderColor: '#F472B6',
-    borderStyle: 'dashed',
+    borderColor: '#8B5CF6',
+  },
+  ovulationDay: {
+    backgroundColor: '#7C3AED',
   },
   loggedDayText: {
     color: '#FFFFFF',
@@ -400,8 +473,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: palette.primary,
   },
+  predictedHint: {
+    color: palette.textSecondary,
+    marginTop: spacing.xs,
+  },
   legend: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.md,
     marginTop: spacing.xs,
   },

@@ -2,6 +2,7 @@ import {
   addDays,
   daysBetween,
   getCycleDay,
+  getFertilityMark,
   getMonthMatrix,
   getWeekStrip,
   parseDateKey,
@@ -42,6 +43,16 @@ describe('period-tracker/utils', () => {
     expect(getCycleDay(null)).toBeNull();
     expect(getCycleDay('2026-07-10', parseDateKey('2026-07-17'))).toBe(8);
     expect(getCycleDay('2026-07-20', parseDateKey('2026-07-17'))).toBeNull();
+  });
+
+  it('marks ovulation and the fertile window from last period + cycle length', () => {
+    expect(getFertilityMark('2026-07-15', '2026-07-01', 28)).toBe('ovulation');
+    expect(getFertilityMark('2026-07-10', '2026-07-01', 28)).toBe('fertile');
+    expect(getFertilityMark('2026-07-16', '2026-07-01', 28)).toBe('fertile');
+    expect(getFertilityMark('2026-07-09', '2026-07-01', 28)).toBeNull();
+    expect(getFertilityMark('2026-07-17', '2026-07-01', 28)).toBeNull();
+    expect(getFertilityMark('2026-07-15', '2026-07-01', 28, true)).toBeNull();
+    expect(getFertilityMark('2026-08-12', '2026-07-01', 28)).toBe('ovulation');
   });
 });
 
@@ -90,6 +101,8 @@ describe('period-tracker/isPredictedPeriodDay', () => {
     expect(isPredictedPeriodDay('2026-08-03', '2026-07-01', 28, 5, [])).toBe(false);
     expect(isPredictedPeriodDay('2026-07-29', '2026-07-01', 28, 5, ['2026-07-29'])).toBe(false);
     expect(isPredictedPeriodDay('2026-07-29', null, 28, 5, [])).toBe(false);
+    expect(isPredictedPeriodDay('2026-08-26', '2026-07-01', 28, 5, [])).toBe(true);
+    expect(isPredictedPeriodDay('2026-07-29', '2026-07-01', 28, 1, [])).toBe(true);
   });
 
   it('returns false when tracking is paused', () => {

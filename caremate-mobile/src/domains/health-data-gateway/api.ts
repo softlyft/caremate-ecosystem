@@ -341,3 +341,79 @@ export async function upsertDocumentViaGateway(doc: {
     source: doc.source,
   });
 }
+
+// ─── Health timeline ──────────────────────────────────────────────────────────
+
+export type GatewayHealthTimelineEventRow = {
+  id: string;
+  user_id: string;
+  app_key: string;
+  kind: string;
+  occurred_on: string;
+  occurred_at: string | null;
+  title: string;
+  summary: string;
+  payload: Record<string, unknown> | unknown;
+  created_at?: string | null;
+  updated_at?: string | null;
+  phi_encrypted_at?: string | null;
+};
+
+export function healthTimelineEventToGatewayBody(event: {
+  id: string;
+  userId: string;
+  appKey: string;
+  kind: string;
+  occurredOn: string;
+  occurredAt: string | null;
+  title: string;
+  summary: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+}): Record<string, unknown> {
+  return {
+    id: event.id,
+    user_id: event.userId,
+    app_key: event.appKey,
+    kind: event.kind,
+    occurred_on: event.occurredOn,
+    occurred_at: event.occurredAt,
+    title: event.title,
+    summary: event.summary,
+    payload: event.payload,
+    updated_at: event.updatedAt,
+  };
+}
+
+export async function upsertHealthTimelineEventViaGateway(event: {
+  id: string;
+  userId: string;
+  appKey: string;
+  kind: string;
+  occurredOn: string;
+  occurredAt: string | null;
+  title: string;
+  summary: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+}): Promise<GatewayHealthTimelineEventRow | null> {
+  return gatewayRequest<GatewayHealthTimelineEventRow>(
+    'PUT',
+    '/v1/health-timeline',
+    healthTimelineEventToGatewayBody(event),
+  );
+}
+
+export async function fetchHealthTimelineEventsViaGateway(): Promise<
+  GatewayHealthTimelineEventRow[] | null
+> {
+  return gatewayRequest<GatewayHealthTimelineEventRow[]>('GET', '/v1/health-timeline');
+}
+
+export async function deleteHealthTimelineEventViaGateway(eventId: string): Promise<boolean> {
+  if (!isHealthDataGatewayConfigured()) {
+    return false;
+  }
+  await gatewayRequest<unknown>('DELETE', `/v1/health-timeline/${encodeURIComponent(eventId)}`);
+  return true;
+}

@@ -45,5 +45,10 @@ export const DOCUMENT_PHI_FIELDS = ['title', 'file_name'] as const;
 
 export type DocumentPhiField = (typeof DOCUMENT_PHI_FIELDS)[number];
 
+/** Health timeline display fields. Query keys (occurred_on, app_key, kind) stay plaintext. */
+export const HEALTH_TIMELINE_PHI_FIELDS = ['title', 'summary', 'payload'] as const;
+
+export type HealthTimelinePhiField = (typeof HEALTH_TIMELINE_PHI_FIELDS)[number];
+
 /** Ciphertext envelope prefix used by the gateway field cipher. */
 export const FIELD_CIPHER_PREFIX = 'v1:';

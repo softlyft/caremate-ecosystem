@@ -59,6 +59,50 @@ export function predictNextPeriodStart(
   return addDays(parseDateKey(lastPeriodStart), cycleLength);
 }
 
+/** Typical luteal phase used for calendar-method ovulation (days before next period). */
+export const LUTEAL_PHASE_DAYS = 14;
+/** Inclusive days before ovulation that are treated as fertile (sperm lifespan). */
+export const FERTILE_DAYS_BEFORE_OVULATION = 5;
+/** Inclusive days after ovulation that are treated as fertile (egg lifespan). */
+export const FERTILE_DAYS_AFTER_OVULATION = 1;
+
+export type FertilityMark = 'ovulation' | 'fertile';
+
+/**
+ * Calendar-method fertility: ovulation ~14 days before the next period,
+ * fertile window from 5 days before through 1 day after ovulation.
+ */
+export function getFertilityMark(
+  dayKey: string,
+  lastPeriodStart: string | null,
+  cycleLength: number,
+  paused = false,
+): FertilityMark | null {
+  if (paused || !lastPeriodStart || cycleLength < LUTEAL_PHASE_DAYS) {
+    return null;
+  }
+
+  const start = parseDateKey(lastPeriodStart);
+  const day = parseDateKey(dayKey);
+  const delta = daysBetween(start, day);
+  const cycleIndex = Math.floor(delta / cycleLength);
+  const cycleStart = addDays(start, cycleIndex * cycleLength);
+  const nextPeriod = addDays(cycleStart, cycleLength);
+  const ovulation = addDays(nextPeriod, -LUTEAL_PHASE_DAYS);
+  const ovulationKey = toDateKey(ovulation);
+  if (dayKey === ovulationKey) {
+    return 'ovulation';
+  }
+
+  const fertileStart = toDateKey(addDays(ovulation, -FERTILE_DAYS_BEFORE_OVULATION));
+  const fertileEnd = toDateKey(addDays(ovulation, FERTILE_DAYS_AFTER_OVULATION));
+  if (dayKey >= fertileStart && dayKey <= fertileEnd) {
+    return 'fertile';
+  }
+
+  return null;
+}
+
 export function getCycleDay(lastPeriodStart: string | null, today = new Date()): number | null {
   if (!lastPeriodStart) {
     return null;

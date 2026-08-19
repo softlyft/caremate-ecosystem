@@ -1,5 +1,5 @@
 import { router, useFocusEffect, type Href } from 'expo-router';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { confirm } from '@/components/ui/AppDialogHost';
@@ -13,7 +13,6 @@ import {
   MiniAppCard,
   MiniAppCta,
   MiniAppHero,
-  MiniAppProgress,
   MiniAppRow,
   MiniAppScreen,
   StatusPill,
@@ -37,6 +36,7 @@ import {
   listRecentDailyLogs,
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
+  type PregnancyDailyLog,
 } from '@/mini-apps/pregnancy-tracker/store';
 import {
   buildPregnancyAlertCopy,
@@ -48,6 +48,7 @@ import {
 } from '@/mini-apps/pregnancy-tracker/localize';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette } from '@/theme';
+import { TrimesterProgress } from '@/mini-apps/pregnancy-tracker/TrimesterProgress';
 
 const APP_ID = 'pregnancy-tracker' as const;
 
@@ -71,6 +72,7 @@ export default function PregnancyTrackerScreen() {
   const maternalTtDoses = usePregnancyTrackerStore((state) => state.maternalTtDoses);
   const closePregnancyQuietly = usePregnancyTrackerStore((state) => state.closePregnancyQuietly);
   const finishPostpartum = usePregnancyTrackerStore((state) => state.finishPostpartum);
+  const [expandedArchiveId, setExpandedArchiveId] = useState<string | null>(null);
 
   const gestationalAge = getGestationalAge(lastMenstrualPeriod, today);
   const daysUntilDue = getDaysUntilDue(dueDate, today);
@@ -82,6 +84,28 @@ export default function PregnancyTrackerScreen() {
   const historyLogs = recentLogs.filter((log) => log.dateKey !== todayKey);
   const ttSummary = useMemo(() => maternalTtSummary(maternalTtDoses), [maternalTtDoses]);
   const nextTtId = ttSummary.next;
+  const ttCollapsedSummary = ttSummary.next
+    ? `${t('apps.pregnancy.motherCare.progress', {
+        completed: ttSummary.completed,
+        total: ttSummary.total,
+      })} · ${t('apps.pregnancy.motherCare.nextDose', {
+        dose: t(`apps.pregnancy.motherCare.doses.${ttSummary.next}`),
+      })}`
+    : t('apps.pregnancy.motherCare.complete');
+
+  const logSubtitle = (log: PregnancyDailyLog) =>
+    [
+      log.mood ? localizeMood(log.mood, t) : null,
+      log.kickCount > 0 ? t('apps.pregnancy.ui.kicksCount', { count: log.kickCount }) : null,
+      log.weightKg != null ? t('apps.pregnancy.ui.weightValue', { value: log.weightKg }) : null,
+      log.symptoms.length > 0
+        ? log.symptoms.map((symptom) => localizeSymptom(symptom, t)).join(', ')
+        : log.notes?.trim()
+          ? log.notes.trim()
+          : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
 
   const isPostpartum = status === 'postpartum';
   const hasSetup = Boolean(lastMenstrualPeriod && dueDate && status === 'active');
@@ -203,6 +227,9 @@ export default function PregnancyTrackerScreen() {
         title={t('apps.pregnancy.motherCare.title')}
         eyebrow={t('apps.pregnancy.motherCare.eyebrow')}
         theme={theme}
+        collapsible
+        defaultCollapsed={ttSummary.completed > 0}
+        collapsedSummary={ttCollapsedSummary}
       >
         <AppText variant="caption" style={styles.muted}>
           {t('apps.pregnancy.motherCare.body')}
@@ -297,21 +324,12 @@ export default function PregnancyTrackerScreen() {
           eyebrow={t('apps.pregnancy.ui.timeline')}
           theme={theme}
         >
-          <MiniAppProgress
-            progress={gestationalAge.progress}
+          <TrimesterProgress
+            age={gestationalAge}
             accent={theme.color}
-            label={t('apps.pregnancy.ui.percentComplete', {
-              percent: Math.round(gestationalAge.progress * 100),
-            })}
+            soft={theme.backgroundColor}
+            t={t}
           />
-          <View style={styles.progressLabels}>
-            <AppText variant="caption" style={styles.muted}>
-              {t('apps.pregnancy.ui.week0')}
-            </AppText>
-            <AppText variant="caption" style={styles.muted}>
-              {t('apps.pregnancy.ui.week40')}
-            </AppText>
-          </View>
         </MiniAppCard>
       ) : null}
 
@@ -379,20 +397,7 @@ export default function PregnancyTrackerScreen() {
             <MiniAppRow
               key={log.dateKey}
               title={log.dateKey}
-              subtitle={[
-                log.mood ? localizeMood(log.mood, t) : null,
-                log.kickCount > 0
-                  ? t('apps.pregnancy.ui.kicksCount', { count: log.kickCount })
-                  : null,
-                log.weightKg != null
-                  ? t('apps.pregnancy.ui.weightValue', { value: log.weightKg })
-                  : null,
-                log.symptoms.length > 0
-                  ? log.symptoms.map((symptom) => localizeSymptom(symptom, t)).join(', ')
-                  : null,
-              ]
-                .filter(Boolean)
-                .join(' · ')}
+              subtitle={logSubtitle(log) || undefined}
               soft={theme.backgroundColor}
             />
           ))}
@@ -448,27 +453,74 @@ export default function PregnancyTrackerScreen() {
           eyebrow={t('apps.pregnancy.ui.history')}
           theme={theme}
         >
-          {pastPregnancies.slice(0, 5).map((item) => (
-            <MiniAppRow
-              key={item.id}
-              title={
-                item.outcome === 'birth'
-                  ? item.babyNickname
-                  : t('apps.pregnancy.postnatal.closedPregnancyTitle')
-              }
-              subtitle={
-                item.outcome === 'birth'
-                  ? t('apps.pregnancy.postnatal.pastBirthSubtitle', {
-                      born: item.birthDate ? formatDueDate(item.birthDate) : item.endedAt,
-                      logs: item.logCount,
-                    })
-                  : t('apps.pregnancy.postnatal.pastClosedSubtitle', {
-                      ended: item.endedAt,
-                    })
-              }
-              soft={theme.backgroundColor}
-            />
-          ))}
+          {pastPregnancies.slice(0, 5).map((item) => {
+            const expanded = expandedArchiveId === item.id;
+            const archivedLogs = item.dailyLogs ?? [];
+            const archivedTt = item.maternalTtDoses ?? [];
+            return (
+              <View key={item.id}>
+                <MiniAppRow
+                  title={
+                    item.outcome === 'birth'
+                      ? item.babyNickname
+                      : t('apps.pregnancy.postnatal.closedPregnancyTitle')
+                  }
+                  subtitle={
+                    item.outcome === 'birth'
+                      ? t('apps.pregnancy.postnatal.pastBirthSubtitle', {
+                          born: item.birthDate ? formatDueDate(item.birthDate) : item.endedAt,
+                          logs: item.logCount,
+                        })
+                      : t('apps.pregnancy.postnatal.pastClosedSubtitle', {
+                          ended: item.endedAt,
+                        })
+                  }
+                  soft={theme.backgroundColor}
+                  onPress={() =>
+                    setExpandedArchiveId((current) => (current === item.id ? null : item.id))
+                  }
+                />
+                {expanded ? (
+                  <View style={styles.archiveDetail}>
+                    {archivedTt.length > 0 ? (
+                      <>
+                        <AppText variant="caption" style={styles.muted}>
+                          {t('apps.pregnancy.motherCare.archivedTitle')}
+                        </AppText>
+                        {archivedTt.map((dose) => (
+                          <MiniAppRow
+                            key={`${item.id}-${dose.id}`}
+                            title={t(`apps.pregnancy.motherCare.doses.${dose.id}`)}
+                            subtitle={formatDueDate(dose.dateKey)}
+                            soft={theme.color}
+                          />
+                        ))}
+                      </>
+                    ) : null}
+                    {archivedLogs.length > 0 ? (
+                      <>
+                        <AppText variant="caption" style={styles.muted}>
+                          {t('apps.pregnancy.ui.logHistory')}
+                        </AppText>
+                        {archivedLogs.slice(0, 14).map((log) => (
+                          <MiniAppRow
+                            key={`${item.id}-${log.dateKey}`}
+                            title={log.dateKey}
+                            subtitle={logSubtitle(log) || undefined}
+                            soft={theme.backgroundColor}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      <AppText variant="caption" style={styles.muted}>
+                        {t('apps.pregnancy.ui.archivedLogsEmpty')}
+                      </AppText>
+                    )}
+                  </View>
+                ) : null}
+              </View>
+            );
+          })}
         </MiniAppCard>
       ) : null}
 
@@ -568,10 +620,6 @@ export default function PregnancyTrackerScreen() {
 }
 
 const styles = StyleSheet.create({
-  progressLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   muted: {
     color: palette.textSecondary,
   },
@@ -579,6 +627,11 @@ const styles = StyleSheet.create({
     color: palette.textSecondary,
     marginTop: 4,
     marginBottom: 4,
+  },
+  archiveDetail: {
+    gap: 8,
+    paddingLeft: 8,
+    paddingBottom: 8,
   },
   ctaDisabled: {
     opacity: 0.5,

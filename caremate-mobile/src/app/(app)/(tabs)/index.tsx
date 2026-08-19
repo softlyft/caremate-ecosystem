@@ -14,6 +14,7 @@ import { DailyHealthTip } from '@/features/home/components/DailyHealthTip';
 import { EmergencyBanner } from '@/features/home/components/EmergencyBanner';
 import { FeaturedArticles } from '@/features/home/components/FeaturedArticles';
 import { HealthCategoriesRow } from '@/features/home/components/HealthCategoriesRow';
+import { HealthTimelineCard } from '@/features/home/components/HealthTimelineCard';
 import { HomeHeader } from '@/features/home/components/HomeHeader';
 import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { NearbyProvidersRow } from '@/features/home/components/NearbyProvidersRow';
@@ -180,8 +181,12 @@ export default function HomeScreen() {
           <DailyHealthTip userKey={userKey} />
         </AnimatedSection>
 
+        <AnimatedSection index={4}>
+          <HealthTimelineCard />
+        </AnimatedSection>
+
         <AnimatedSection
-          index={4}
+          index={5}
           style={{
             marginHorizontal: layoutSpacing.screenHorizontal,
             marginBottom: layoutSpacing.sectionTitleToContent,
@@ -190,14 +195,14 @@ export default function HomeScreen() {
           <AdSlot slotId={AD_SLOTS.HOME_TIPS} />
         </AnimatedSection>
 
-        <AnimatedSection index={5}>
+        <AnimatedSection index={6}>
           <HealthCategoriesRow />
         </AnimatedSection>
 
         <FeaturedArticles articles={articles} />
 
         <AnimatedSection
-          index={6}
+          index={7}
           style={{
             marginHorizontal: layoutSpacing.screenHorizontal,
             marginBottom: layoutSpacing.sectionTitleToContent,
@@ -206,7 +211,7 @@ export default function HomeScreen() {
           <AdSlot slotId={AD_SLOTS.HOME_FEED} />
         </AnimatedSection>
 
-        <AnimatedSection index={7}>
+        <AnimatedSection index={8}>
           <NearbyProvidersRow
             providers={providers}
             locationNeeded={nearbyLocationNeeded}
@@ -218,7 +223,7 @@ export default function HomeScreen() {
           />
         </AnimatedSection>
 
-        <AnimatedSection index={8}>
+        <AnimatedSection index={9}>
           <EmergencyBanner />
         </AnimatedSection>
       </Animated.ScrollView>

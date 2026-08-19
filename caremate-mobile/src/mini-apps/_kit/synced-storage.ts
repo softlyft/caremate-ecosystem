@@ -10,6 +10,7 @@ import {
   type MiniAppKey,
   miniAppSnapshotRepository,
 } from '@/mini-apps/_kit/snapshot-repository';
+import { projectMiniAppSnapshot } from '@/domains/timeline/backfill';
 import { parseJson } from '@/utils/helpers';
 
 function stripActions(state: Record<string, unknown>): Record<string, unknown> {
@@ -29,6 +30,18 @@ function resolveSyncUserId(): string | null {
     return null;
   }
   return user.id;
+}
+
+const snapshotWriteTails = new Map<MiniAppKey, Promise<void>>();
+
+function enqueueSnapshotWrite(appKey: MiniAppKey, task: () => Promise<void>): Promise<void> {
+  const previous = snapshotWriteTails.get(appKey) ?? Promise.resolve();
+  const next = previous.then(task, task);
+  snapshotWriteTails.set(
+    appKey,
+    next.catch(() => undefined),
+  );
+  return next;
 }
 
 /** Scope AsyncStorage so guest and each account cannot share mini-app blobs. */
@@ -100,13 +113,16 @@ export function createMiniAppSyncedStorage(appKey: MiniAppKey): StateStorage {
         return;
       }
 
-      try {
-        const wrapped = parseJson<{ state?: Record<string, unknown> }>(value, {});
-        const payload = stripActions(wrapped.state ?? wrapped);
-        await miniAppSnapshotRepository.save({ userId, appKey, payload });
-      } catch {
-        // Local UI persistence already succeeded; cloud mirror is best-effort.
-      }
+      await enqueueSnapshotWrite(appKey, async () => {
+        try {
+          const wrapped = parseJson<{ state?: Record<string, unknown> }>(value, {});
+          const payload = stripActions(wrapped.state ?? wrapped);
+          await miniAppSnapshotRepository.save({ userId, appKey, payload });
+          await projectMiniAppSnapshot({ userId, appKey, payload });
+        } catch {
+          // Local UI persistence already succeeded; cloud mirror is best-effort.
+        }
+      });
     },
     removeItem: async (name) => {
       await AsyncStorage.multiRemove([scopedMiniAppStorageKey(name), name]);
