@@ -45,6 +45,23 @@ import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
+jest.mock('@/lib/supabase', () => ({
+  supabase: {
+    from: () => ({
+      select: () => ({ data: [], error: null }),
+      upsert: () => ({ error: null }),
+      delete: () => ({ eq: () => ({ error: null }) }),
+    }),
+  },
+}));
+
+jest.mock('@/database/client', () => ({
+  getDatabase: () => {
+    throw new Error('database not available in unit tests');
+  },
+  isDatabaseInitialized: () => false,
+}));
+
 describe('pregnancy-tracker/utils', () => {
   it('converts between LMP and due date with Naegele rule length', () => {
     const due = calculateDueDateFromLmp('2026-01-01');
@@ -131,6 +148,10 @@ describe('pregnancy-tracker/store', () => {
     expect(fromLmp.pregnancyId).toBeTruthy();
     expect(fromLmp.hasCompletedSetup).toBe(true);
 
+    usePregnancyTrackerStore.getState().setFromLastPeriod('2026-02-01', 'Ada');
+    expect(usePregnancyTrackerStore.getState().babyNickname).toBe('Ada');
+    expect(usePregnancyTrackerStore.getState().lastMenstrualPeriod).toBe('2026-02-01');
+
     usePregnancyTrackerStore.getState().setFromDueDate('2026-10-08');
     const fromDue = usePregnancyTrackerStore.getState();
     expect(fromDue.dueDate).toBe('2026-10-08');
@@ -189,6 +210,8 @@ describe('pregnancy-tracker/store', () => {
       logCount: 1,
       dueDateSource: 'lmp',
       outcome: 'closed',
+      dailyLogs: [expect.objectContaining({ dateKey: '2026-07-17', kickCount: 2 })],
+      maternalTtDoses: [{ id: 'tt1', dateKey: '2026-02-01' }],
     });
     expect(ended.maternalTtDoses).toEqual([{ id: 'tt1', dateKey: '2026-02-01' }]);
     expect(usePeriodTrackerStore.getState().paused).toBe(false);

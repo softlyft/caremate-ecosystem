@@ -111,24 +111,45 @@ export function glossyStackHeaderOptions({
     headerTintColor: accent,
     headerLeftContainerStyle: styles.headerLeftContainer,
     headerTitleContainerStyle: styles.headerTitleContainer,
-    headerLeft: () => (
-      <GlossyBackButton
-        accent={accent}
-        soft={soft}
-        accessibilityLabel={backAccessibilityLabel}
-        modal={modal}
-        backFallbackHref={backFallbackHref}
-      />
-    ),
-    headerTitle: () => (
-      <GlossyHeaderTitle
-        title={title}
-        accent={accent}
-        soft={soft}
-        titleColor={titleColor}
-        icon={icon}
-      />
-    ),
+    headerLeft: () =>
+      Platform.OS === 'android' ? (
+        <View style={styles.headerLead}>
+          <GlossyBackButton
+            accent={accent}
+            soft={soft}
+            accessibilityLabel={backAccessibilityLabel}
+            modal={modal}
+            backFallbackHref={backFallbackHref}
+          />
+          <GlossyHeaderTitle
+            title={title}
+            accent={accent}
+            soft={soft}
+            titleColor={titleColor}
+            icon={icon}
+          />
+        </View>
+      ) : (
+        <GlossyBackButton
+          accent={accent}
+          soft={soft}
+          accessibilityLabel={backAccessibilityLabel}
+          modal={modal}
+          backFallbackHref={backFallbackHref}
+        />
+      ),
+    headerTitle: () =>
+      Platform.OS === 'android' ? (
+        <View />
+      ) : (
+        <GlossyHeaderTitle
+          title={title}
+          accent={accent}
+          soft={soft}
+          titleColor={titleColor}
+          icon={icon}
+        />
+      ),
   };
 }
 
@@ -154,14 +175,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     marginLeft: Platform.OS === 'ios' ? 4 : 0,
-    marginRight: 8,
   },
-  headerLeftContainer: {
-    paddingRight: 4,
+  headerLead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  headerTitleContainer: {
-    marginLeft: 4,
-  },
+  headerLeftContainer: Platform.select({
+    android: {
+      paddingRight: 0,
+      flexGrow: 1,
+      flexShrink: 0,
+      maxWidth: '100%',
+    },
+    default: {
+      paddingRight: 0,
+    },
+  }),
+  headerTitleContainer: Platform.select({
+    ios: {
+      left: 52,
+      right: 12,
+      marginLeft: 0,
+      paddingLeft: 0,
+    },
+    default: {
+      width: 0,
+      maxWidth: 0,
+      overflow: 'hidden',
+      opacity: 0,
+    },
+  }),
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',

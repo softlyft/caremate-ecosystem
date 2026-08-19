@@ -1656,6 +1656,51 @@ export type Database = {
           },
         ]
       }
+      health_timeline_events: {
+        Row: {
+          app_key: string
+          created_at: string
+          id: string
+          kind: string
+          occurred_at: string | null
+          occurred_on: string
+          payload: Json
+          phi_encrypted_at: string | null
+          summary: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_key: string
+          created_at?: string
+          id: string
+          kind: string
+          occurred_at?: string | null
+          occurred_on: string
+          payload?: Json
+          phi_encrypted_at?: string | null
+          summary?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_key?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          occurred_at?: string | null
+          occurred_on?: string
+          payload?: Json
+          phi_encrypted_at?: string | null
+          summary?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       health_tips: {
         Row: {
           body: string
@@ -2135,6 +2180,8 @@ export type Database = {
           metadata: Json
           organization_id: string
           patient_id: string
+          period_end: string | null
+          period_start: string | null
           provision_type: string
           purpose: string
           revoked_at: string | null
@@ -2152,6 +2199,8 @@ export type Database = {
           metadata?: Json
           organization_id: string
           patient_id: string
+          period_end?: string | null
+          period_start?: string | null
           provision_type?: string
           purpose?: string
           revoked_at?: string | null
@@ -2169,6 +2218,8 @@ export type Database = {
           metadata?: Json
           organization_id?: string
           patient_id?: string
+          period_end?: string | null
+          period_start?: string | null
           provision_type?: string
           purpose?: string
           revoked_at?: string | null
@@ -3649,6 +3700,7 @@ export type EmergencyProfile = Database['public']['Tables']['emergency_profiles'
 export type Bookmark = Database['public']['Tables']['bookmarks']['Row'];
 export type ArticleRead = Database['public']['Tables']['article_reads']['Row'];
 export type MiniAppSnapshot = Database['public']['Tables']['mini_app_snapshots']['Row'];
+export type HealthTimelineEvent = Database['public']['Tables']['health_timeline_events']['Row'];
 export type SubscriptionPrice = Database['public']['Tables']['subscription_prices']['Row'];
 export type Payment = Database['public']['Tables']['payments']['Row'];
 export type Subscription = Database['public']['Tables']['subscriptions']['Row'];

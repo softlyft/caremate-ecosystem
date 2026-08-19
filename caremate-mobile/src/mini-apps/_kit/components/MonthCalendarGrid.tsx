@@ -9,6 +9,8 @@ type DayState = {
   selected?: boolean;
   logged?: boolean;
   predicted?: boolean;
+  fertile?: boolean;
+  ovulation?: boolean;
   today?: boolean;
   /** Non-interactive day (e.g. future date for completed doses). */
   disabled?: boolean;
@@ -24,6 +26,9 @@ type MonthCalendarGridProps = {
   /** Soft predicted-day fill (defaults to a light tint of accent) */
   predictedColor?: string;
   predictedBorderColor?: string;
+  fertileColor?: string;
+  fertileBorderColor?: string;
+  ovulationColor?: string;
 };
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -36,6 +41,9 @@ export function MonthCalendarGrid({
   accentColor = '#DB2777',
   predictedColor = '#FBCFE8',
   predictedBorderColor = '#F472B6',
+  fertileColor = '#DDD6FE',
+  fertileBorderColor = '#8B5CF6',
+  ovulationColor = '#7C3AED',
 }: MonthCalendarGridProps) {
   const monthCells = getMonthMatrix(monthRef);
   const rows: (Date | null)[][] = [];
@@ -67,6 +75,9 @@ export function MonthCalendarGrid({
             const state = getDayState?.(dayKey) ?? {};
             const isSelected = state.selected ?? state.logged ?? false;
             const isDisabled = Boolean(state.disabled);
+            const isOvulation = Boolean(state.ovulation);
+            const isFertile = Boolean(state.fertile);
+            const strongFill = isSelected || Boolean(state.logged) || isOvulation;
 
             const bubbleStyle = [
               styles.dayBubble,
@@ -76,11 +87,26 @@ export function MonthCalendarGrid({
                   backgroundColor: accentColor,
                 },
               !isSelected &&
+                !state.logged &&
                 state.predicted && {
                   backgroundColor: predictedColor,
-                  borderWidth: 1,
+                  borderWidth: 2,
                   borderColor: predictedBorderColor,
-                  borderStyle: 'dashed' as const,
+                },
+              !isSelected &&
+                !state.logged &&
+                !state.predicted &&
+                isOvulation && {
+                  backgroundColor: ovulationColor,
+                },
+              !isSelected &&
+                !state.logged &&
+                !state.predicted &&
+                !isOvulation &&
+                isFertile && {
+                  backgroundColor: fertileColor,
+                  borderWidth: 1,
+                  borderColor: fertileBorderColor,
                 },
               state.today && !isDisabled && styles.todayRing,
               isDisabled && styles.disabledBubble,
@@ -91,7 +117,7 @@ export function MonthCalendarGrid({
                 <AppText
                   variant="caption"
                   style={[
-                    isSelected || state.logged ? styles.selectedDayText : undefined,
+                    strongFill ? styles.selectedDayText : undefined,
                     isDisabled ? styles.disabledDayText : undefined,
                   ]}
                 >

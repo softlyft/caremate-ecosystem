@@ -94,7 +94,8 @@
       "^@caremate/mini-app-snapshots(|/.*)$": "<rootDir>/libs/mini-app-snapshots/src/$1",
       "^@caremate/family(|/.*)$": "<rootDir>/libs/family/src/$1",
       "^@caremate/messages(|/.*)$": "<rootDir>/libs/messages/src/$1",
-      "^@caremate/documents(|/.*)$": "<rootDir>/libs/documents/src/$1"
+      "^@caremate/documents(|/.*)$": "<rootDir>/libs/documents/src/$1",
+      "^@caremate/health-timeline(|/.*)$": "<rootDir>/libs/health-timeline/src/$1"
     }
   }
 }

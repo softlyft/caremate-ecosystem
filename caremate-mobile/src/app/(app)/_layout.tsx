@@ -1,6 +1,7 @@
 import { Redirect, Stack, router } from 'expo-router';
 import {
   Bell,
+  CalendarClock,
   Crown,
   FileText,
   Heart,
@@ -88,6 +89,19 @@ export default function AppLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ title: 'Apps' }} />
         <Stack.Screen name="search" options={{ headerShown: false, title: 'Search' }} />
+        <Stack.Screen
+          name="timeline"
+          options={glossyStackHeaderOptions({
+            title: 'Health timeline',
+            accent: '#4338CA',
+            soft: '#EEF2FF',
+            softEnd: '#F5F3FF',
+            titleColor: '#4338CA',
+            icon: CalendarClock,
+            backAccessibilityLabel: 'Back to Home',
+            backFallbackHref: '/(app)/(tabs)',
+          })}
+        />
         <Stack.Screen
           name="notifications/index"
           options={glossyStackHeaderOptions({

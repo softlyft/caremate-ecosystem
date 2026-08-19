@@ -1,5 +1,9 @@
 import { isEncryptedEnvelope, scrubEncryptedJson, scrubEncryptedText } from '../phi';
-import { profileToGatewayBody, emergencyToGatewayBody } from '../api';
+import {
+  emergencyToGatewayBody,
+  healthTimelineEventToGatewayBody,
+  profileToGatewayBody,
+} from '../api';
 
 describe('health-data-gateway phi scrubbing', () => {
   it('detects gateway ciphertext envelopes', () => {
@@ -79,5 +83,26 @@ describe('gateway body mappers', () => {
 
     expect(body.blood_group).toBe('O+');
     expect(body.allergies).toEqual(['dust']);
+  });
+
+  it('maps health timeline events to snake_case', () => {
+    const body = healthTimelineEventToGatewayBody({
+      id: 'u:vitals:vital:1',
+      userId: 'u1',
+      appKey: 'vitals',
+      kind: 'vital',
+      occurredOn: '2026-03-02',
+      occurredAt: '2026-03-02T15:00:00.000Z',
+      title: 'Heart Rate',
+      summary: '72 bpm',
+      payload: { type: 'heart_rate' },
+      updatedAt: 't1',
+    });
+    expect(body).toMatchObject({
+      id: 'u:vitals:vital:1',
+      user_id: 'u1',
+      occurred_on: '2026-03-02',
+      title: 'Heart Rate',
+    });
   });
 });

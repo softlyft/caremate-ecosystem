@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
 import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { UpsertEmergencyDto } from './dto/upsert-emergency.dto';
 import { EmergencyService } from './emergency.service';
@@ -11,6 +11,19 @@ export class EmergencyController {
   @Get()
   get(@CurrentUser() user: AuthUser) {
     return this.emergencyService.getOwn(user.userId);
+  }
+
+  @Get('patients/:patientId')
+  getForPatient(
+    @CurrentUser() user: AuthUser,
+    @Param('patientId') patientId: string,
+    @Query('organizationId') organizationId?: string,
+  ) {
+    return this.emergencyService.getForConnectedPatient(
+      user.userId,
+      patientId,
+      organizationId ?? '',
+    );
   }
 
   @Put()

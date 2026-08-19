@@ -42,6 +42,8 @@ export interface PregnancyArchive {
   logCount: number;
   outcome: PregnancyEndOutcome;
   birthDate?: string;
+  dailyLogs: PregnancyDailyLog[];
+  maternalTtDoses: MaternalTtDose[];
 }
 
 interface PregnancyTrackerState {
@@ -59,8 +61,8 @@ interface PregnancyTrackerState {
   pastPregnancies: PregnancyArchive[];
   /** Mother-care TT1–TT5; survives end of pregnancy / postpartum. */
   maternalTtDoses: MaternalTtDose[];
-  setFromLastPeriod: (lmpKey: string) => void;
-  setFromDueDate: (dueDateKey: string) => void;
+  setFromLastPeriod: (lmpKey: string, babyNickname?: string) => void;
+  setFromDueDate: (dueDateKey: string, babyNickname?: string) => void;
   setBabyNickname: (name: string) => void;
   upsertDailyLog: (log: PregnancyDailyLog) => void;
   logMaternalTtDose: (id: MaternalTtDoseId, dateKey: string) => void;
@@ -94,6 +96,10 @@ function newPregnancyId(): string {
   return `preg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function archiveDailyLogs(dailyLogs: Record<string, PregnancyDailyLog>): PregnancyDailyLog[] {
+  return Object.values(dailyLogs).sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+}
+
 function archiveActive(
   state: PregnancyTrackerState,
   outcome: PregnancyEndOutcome,
@@ -101,6 +107,7 @@ function archiveActive(
   if (!state.pregnancyId || !state.lastMenstrualPeriod || !state.dueDate || !state.dueDateSource) {
     return null;
   }
+  const dailyLogs = archiveDailyLogs(state.dailyLogs);
   return {
     id: state.pregnancyId,
     lastMenstrualPeriod: state.lastMenstrualPeriod,
@@ -108,8 +115,10 @@ function archiveActive(
     babyNickname: state.babyNickname,
     dueDateSource: state.dueDateSource,
     endedAt: state.endedAt ?? state.birthDate ?? toDateKey(new Date()),
-    logCount: Object.keys(state.dailyLogs).length,
+    logCount: dailyLogs.length,
     outcome,
+    dailyLogs,
+    maternalTtDoses: sortMaternalTtDoses(state.maternalTtDoses),
     ...(outcome === 'birth' && state.birthDate ? { birthDate: state.birthDate } : {}),
   };
 }
@@ -145,7 +154,7 @@ export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
       dailyLogs: {},
       pastPregnancies: [],
       maternalTtDoses: [],
-      setFromLastPeriod: (lmpKey) => {
+      setFromLastPeriod: (lmpKey, babyNickname) => {
         const state = get();
         if (state.status === 'postpartum') {
           return;
@@ -161,10 +170,11 @@ export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
           dueDateSource: 'lmp',
           hasCompletedSetup: true,
           dailyLogs: startingFresh ? {} : state.dailyLogs,
+          ...(babyNickname != null ? { babyNickname } : {}),
         });
         pausePeriodTrackerForPregnancy();
       },
-      setFromDueDate: (dueDateKey) => {
+      setFromDueDate: (dueDateKey, babyNickname) => {
         const state = get();
         if (state.status === 'postpartum') {
           return;
@@ -180,6 +190,7 @@ export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
           dueDateSource: 'due-date',
           hasCompletedSetup: true,
           dailyLogs: startingFresh ? {} : state.dailyLogs,
+          ...(babyNickname != null ? { babyNickname } : {}),
         });
         pausePeriodTrackerForPregnancy();
       },
@@ -279,6 +290,8 @@ export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
         const pastPregnancies = (state.pastPregnancies ?? []).map((item) => ({
           ...item,
           outcome: item.outcome ?? ('closed' as PregnancyEndOutcome),
+          dailyLogs: Array.isArray(item.dailyLogs) ? item.dailyLogs : [],
+          maternalTtDoses: Array.isArray(item.maternalTtDoses) ? item.maternalTtDoses : [],
         }));
         return {
           ...state,
@@ -293,7 +306,7 @@ export const usePregnancyTrackerStore = create<PregnancyTrackerState>()(
           maternalTtDoses: Array.isArray(state.maternalTtDoses) ? state.maternalTtDoses : [],
         };
       },
-      version: 3,
+      version: 4,
     },
   ),
 );

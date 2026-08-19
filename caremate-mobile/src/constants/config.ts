@@ -74,4 +74,5 @@ export const QUERY_KEYS = {
   notificationsUnread: ['notifications', 'unread'] as const,
   messages: ['messages'] as const,
   ads: ['ads'] as const,
+  healthTimeline: ['health-timeline'] as const,
 } as const;
