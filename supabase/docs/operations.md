@@ -44,6 +44,7 @@ supabase functions deploy create-checkout
 supabase functions deploy quote-upgrade
 supabase functions deploy create-upgrade
 supabase functions deploy verify-checkout
+supabase functions deploy verify-store-purchase
 supabase functions deploy billing-webhook-stripe
 supabase functions deploy billing-webhook-paystack
 ```
@@ -54,7 +55,13 @@ Set secrets with:
 supabase secrets set \
   STRIPE_SECRET_KEY=... \
   STRIPE_WEBHOOK_SECRET=... \
-  PAYSTACK_SECRET_KEY=...
+  PAYSTACK_SECRET_KEY=... \
+  APPLE_IAP_KEY_ID=... \
+  APPLE_IAP_ISSUER_ID=... \
+  APPLE_IAP_PRIVATE_KEY=... \
+  APPLE_BUNDLE_ID=com.softlyft.caremate \
+  GOOGLE_PLAY_SERVICE_ACCOUNT_JSON=... \
+  GOOGLE_PLAY_PACKAGE_NAME=com.softlyft.caremate
 ```
 
 ## Change Management

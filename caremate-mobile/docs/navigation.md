@@ -87,7 +87,7 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 
 | Route | Notes |
 |-------|-------|
-| `billing/success` | After Paystack/Stripe (`caremate://billing/success`) |
+| `billing/success` | After website/community Paystack/Stripe (`caremate://billing/success`) |
 | `billing/cancel` | Cancelled checkout (`caremate://billing/cancel`) |
 
 ### Emergency

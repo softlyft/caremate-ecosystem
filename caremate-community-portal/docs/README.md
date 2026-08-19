@@ -24,6 +24,7 @@ CareMate mobile app. Enrollment is limited to existing patients with a CareMate 
 - Badges and certificates (admin-awarded)
 - In-app notifications
 - SoftLyft admin oversight under `caremate-admin-portal` `/dashboard/community/*`
+- CareMate Premium subscribe (Paystack/Stripe via the payment app)
 
 ## Out of scope
 

@@ -10,7 +10,11 @@ File: `.env` (copy from `.env.example`)
 |----------|----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | No | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
-| `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL (`pay-dev` / `pay`) |
+| `EXPO_PUBLIC_PAYMENT_URL` | No | Hosted payment app (website/community checkout). Not used for in-app store purchases. |
+| `EXPO_PUBLIC_IAP_PERSONAL_MONTHLY` | Store IAP | App Store / Play product ID (default `caremate.premium.personal.monthly`) |
+| `EXPO_PUBLIC_IAP_PERSONAL_YEARLY` | Store IAP | Yearly Standard product ID |
+| `EXPO_PUBLIC_IAP_FAMILY_MONTHLY` | Store IAP | Monthly Family product ID |
+| `EXPO_PUBLIC_IAP_FAMILY_YEARLY` | Store IAP | Yearly Family product ID |
 | `EXPO_PUBLIC_WEBSITE_URL` | Legal / CCN | Marketing site origin (`dev.getcaremate.com` / `getcaremate.com`) |
 | `EXPO_PUBLIC_COMMUNITY_PORTAL_URL` | Community join | Community portal origin (`community-dev` / `community`) |
 | `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |

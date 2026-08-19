@@ -20,8 +20,9 @@ export const BILLING_CURRENCY_BY_COUNTRY: Readonly<Record<string, BillingCurrenc
   NG: 'NGN',
 };
 
-/** Currency → gateway. Catalog rows must match (NGN+paystack, USD+stripe). */
-const PROVIDER_BY_CURRENCY: Readonly<Record<BillingCurrency, Exclude<BillingProvider, 'admin'>>> = {
+/** Currency → web gateway. Catalog rows must match (NGN+paystack, USD+stripe). Store IAP uses apple/google. */
+type WebBillingProvider = Exclude<BillingProvider, 'admin' | 'apple' | 'google'>;
+const PROVIDER_BY_CURRENCY: Readonly<Record<BillingCurrency, WebBillingProvider>> = {
   NGN: 'paystack',
   USD: 'stripe',
 };
@@ -38,8 +39,6 @@ export function billingCurrencyForCountry(countryCode: string | null | undefined
   return BILLING_CURRENCY_BY_COUNTRY[code] ?? DEFAULT_BILLING_CURRENCY;
 }
 
-export function billingProviderForCurrency(
-  currency: BillingCurrency,
-): Exclude<BillingProvider, 'admin'> {
+export function billingProviderForCurrency(currency: BillingCurrency): WebBillingProvider {
   return PROVIDER_BY_CURRENCY[currency] ?? PROVIDER_BY_CURRENCY[DEFAULT_BILLING_CURRENCY];
 }

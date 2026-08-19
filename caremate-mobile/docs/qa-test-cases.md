@@ -234,14 +234,14 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | PM-01 | P1 | Signed-in | Open Premium | Current tier badge/state and pricing options load. |
 | PM-02 | P1 | Signed-in, no household | Choose Family plan | App prompts user to set up family before family checkout. |
 | PM-03 | P1 | Signed-in, household exists | Choose Family plan | Family plan selection is allowed and checkout path can start. |
-| PM-04 | P1 | Signed-in, country ≠ NG | Choose Personal plan and tap checkout | Opens hosted payment in **USD** (Stripe); failures are shown as user-facing errors, not crashes. |
-| PM-04a | P1 | Signed-in, country = NG | Choose Personal plan and tap checkout | Opens hosted payment in **NGN** (Paystack). |
-| PM-04b | P1 | Signed-in, payment web open | Confirm Pay on payment site | Redirects to Paystack (NGN) or Stripe (USD); success returns via `caremate://billing/success`. |
+| PM-04 | P1 | Signed-in, iOS or Android | Choose Personal plan and tap subscribe | Opens StoreKit / Play Billing for that product; failures are shown as user-facing errors, not crashes. |
+| PM-04a | P1 | Signed-in | Premium pay buttons | Shows App Store or Google Play price only — no Paystack/Stripe or website CTA. |
+| PM-04b | P1 | Website or community checkout | Pay on pay.getcaremate.com | Paystack (NGN) or Stripe (USD); success tells the user to open the app. Deep link `caremate://billing/success` still verifies legacy/web returns. |
 | PM-05 | P1 | Signed-in, active Premium | Airplane mode for remainder of paid period | Profile still shows Premium; AdMob stays suppressed until `current_period_end`. |
 | PM-06 | P1 | Signed-in, Premium period ended offline | Open app offline after period end | Tier falls back to Free locally without needing network. |
 | PM-06b | P2 | Guest | Open Premium and try upgrade CTA | Guest is routed to login/sign-in path. |
 | PM-07 | P0 | Active Standard + household | Premium → Upgrade to Family | Quote shows Family list price, Standard credit (days left), amount due; new Family end date is a full period from today. |
-| PM-08 | P0 | Active Standard + household, charge > 0 | Confirm upgrade payment | Standard canceled; Family active from today; Premium shows Family. |
+| PM-08 | P0 | Active Standard + household, charge > 0 | Confirm Family store purchase | Standard canceled; Family active from today; Premium shows Family. |
 | PM-09 | P1 | Active Standard, credit covers Family | Upgrade with amount due 0 | Activates Family without gateway; Standard canceled. |
 | PM-10 | P1 | Active Standard, no household | Choose Family upgrade | Prompts to set up family before upgrade. |
 | PM-11 | P1 | Active Standard | Try normal Family checkout | Blocked; must use upgrade path (credit). |

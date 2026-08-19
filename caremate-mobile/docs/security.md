@@ -60,11 +60,14 @@ Lock/home widgets are retired (always cleared). Emergency share is via opaque Pa
 
 ### Checkout
 
-Mobile does **not** put `access_token` / `refresh_token` in the payment URL.
+**Store apps** buy Premium with StoreKit / Play Billing only. The binary does not open Paystack or Stripe.
 
-1. Authenticated invoke `create-checkout-handoff` (stores tokens server-side, TTL ~5 minutes)
-2. Opens payment app with `#handoff={code}`
+**Website and community** still use the hosted payment app:
+
+1. Authenticated invoke `create-checkout-handoff` (stores tokens server-side, TTL ~5 minutes) when a refresh token is available
+2. Opens payment app with `#handoff=` or `?handoff=`
 3. Gateway calls `exchange-checkout-handoff` once and receives tokens over HTTPS body
+4. Website visitors without a handoff sign in with an existing CareMate email/password (no register on pay)
 
 See `supabase/functions/create-checkout-handoff`, `exchange-checkout-handoff`, and `caremate-payment-gateway` `hydrateSessionFromHash`.
 

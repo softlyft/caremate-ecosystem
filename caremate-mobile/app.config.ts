@@ -55,6 +55,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins.push('expo-localization');
   }
 
+  if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-iap')) {
+    plugins.push('expo-iap');
+  }
+
   if (
     !plugins.some((p) => {
       const name = Array.isArray(p) ? p[0] : p;

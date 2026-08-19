@@ -69,3 +69,24 @@ export async function startProviderCheckout(input: {
 
   return data as { url: string; provider: string; payment_id: string; reference: string };
 }
+
+export async function verifyCheckout(input: {
+  reference?: string | null;
+  paymentId?: string | null;
+} = {}): Promise<{ status: string; subscriptionId?: string; alreadyFinalized?: boolean }> {
+  const body: Record<string, string> = {};
+  if (input.paymentId) body.payment_id = input.paymentId;
+  if (input.reference) body.reference = input.reference;
+
+  const { data, error } = await supabase.functions.invoke('verify-checkout', { body });
+  if (error) throw error;
+  if (data?.error) {
+    throw new Error(String(data.error));
+  }
+
+  return {
+    status: String(data?.status ?? 'unknown'),
+    subscriptionId: data?.subscription_id ? String(data.subscription_id) : undefined,
+    alreadyFinalized: Boolean(data?.already_finalized),
+  };
+}

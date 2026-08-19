@@ -10,8 +10,14 @@ const communityPortalUrl = trimTrailingSlash(
   (import.meta.env.VITE_COMMUNITY_PORTAL_URL as string | undefined)?.trim() ||
     'https://main.d2tlpjx9a9kklb.amplifyapp.com',
 );
+const paymentUrl = trimTrailingSlash(
+  (import.meta.env.VITE_PAYMENT_URL as string | undefined)?.trim() ||
+    'https://main.d1wcqa3tsdavz8.amplifyapp.com',
+);
 
 export const SITE_URL = siteUrl;
+
+export const PAYMENT_URL = paymentUrl;
 
 export const APP_STORE_URLS = {
   ios: 'https://apps.apple.com/app/caremate',
