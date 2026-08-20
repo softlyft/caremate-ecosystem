@@ -51,7 +51,7 @@ File: `.env` (copy from `.env.example`)
 
 CI secrets (not `EXPO_PUBLIC_*`): `SENTRY_AUTH_TOKEN`, optionally `SENTRY_ORG` / `SENTRY_PROJECT` for native source-map upload during builds. Set `EXPO_PUBLIC_SENTRY_DSN` and `EXPO_PUBLIC_POSTHOG_API_KEY` as GitHub secrets for release workflows.
 
-Supabase Edge Function secrets (set with `supabase secrets set`, not in the mobile `.env`): SES (`AWS_*`, `SES_FROM_EMAIL=hello@getcaremate.com`, `SES_FROM_NAME=CareMate`) and optional `EXPO_ACCESS_TOKEN` for Expo Push API auth. See [`supabase/functions/README.md`](../../supabase/functions/README.md).
+Supabase Edge Function secrets (set with `supabase secrets set`, not in the mobile `.env`): email via `EMAIL_PROVIDER=smtp|ses|resend` plus provider credentials — full list in [`supabase/docs/email.md`](../../supabase/docs/email.md). Optional `EXPO_ACCESS_TOKEN` for Expo Push API auth. See also [`supabase/functions/README.md`](../../supabase/functions/README.md).
 
 Read in `src/constants/env.ts` (excerpt):
 
@@ -256,18 +256,16 @@ Gluestack UI project configuration for component generation CLI.
 
 ## Supabase setup (linked project)
 
-**Current linked project:** `caremate-dev` (`eybakmhqtotoywwgwgjy`) — this is the **development** backend, not a separate production project.
+**Default CLI link:** `caremate-dev` (`eybakmhqtotoywwgwgjy`) via `npm run supabase:link` / `supabase:link:dev`.
 
-There is no `caremate-prod` (or similarly named) Supabase project linked yet. Until one exists:
+**Production project ref** (store / `.env.production`): `aokorersszvediuatagp` — link with `npm run supabase:link:prod` before pushing migrations meant for prod. Confirm GitHub Environment **`production`** `EXPO_PUBLIC_SUPABASE_*` secrets match this project (not `caremate-dev`).
 
-- Local apps, Amplify DEV hosts, and GitHub dev release workflows should use `caremate-dev`
-- Do **not** point production / store builds at `caremate-dev` once a real prod project is created
-- Create a production project, put its URL + keys only in production Amplify / GitHub secrets, and keep `npm run supabase:link` pointed at whichever environment you are migrating
+**CI:** [`.github/workflows/supabase-migrate.yml`](../../.github/workflows/supabase-migrate.yml) (**Supabase Deploy**) applies migrations and deploys Edge Functions to **dev on `main`** and **prod on `prod`**. Each GitHub Environment needs `SUPABASE_ACCESS_TOKEN` + that project’s `SUPABASE_DB_PASSWORD` — see [`supabase/docs/operations.md`](../../supabase/docs/operations.md).
 
 1. Create / use the intended Supabase project and put URL + anon key in `.env` / Amplify / GitHub secrets for that environment
-2. Link CLI (once per machine, from ecosystem root): `npm run supabase:link` (currently hard-coded to `caremate-dev`)
+2. Link CLI (once per machine, from ecosystem root): `npm run supabase:link:dev` or `npm run supabase:link:prod`
 3. Add SQL under ecosystem `supabase/migrations/` (`npm run supabase:migration:new <name>`)
-4. Apply to remote: `npm run supabase:db:push`
+4. Apply to remote: `npm run supabase:db:push` (or merge so CI applies)
 5. Enable **Row Level Security** on all user tables (included in migrations)
 6. Configure Auth providers (email minimum)
 7. Auth → URL Configuration → Redirect URLs: allowlist both

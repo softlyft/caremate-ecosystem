@@ -1,0 +1,238 @@
+# Deploy supabase migrations + Edge Functions to the matching hosted project.
+# - push to main  → GitHub Environment development → caremate-dev
+# - push to prod  → GitHub Environment production  → caremate prod
+# - pull_request   → migration dry-run only (no function deploy)
+# - workflow_dispatch → choose development or production
+#
+# Required per environment: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD
+# See supabase/docs/operations.md
+name: Supabase Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - prod
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'supabase/config.toml'
+      - '.github/workflows/supabase-migrate.yml'
+
+  pull_request:
+    branches:
+      - main
+      - prod
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'supabase/config.toml'
+      - '.github/workflows/supabase-migrate.yml'
+
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Supabase environment to deploy
+        required: true
+        type: choice
+        default: development
+        options:
+          - development
+          - production
+      dry_run:
+        description: Migration dry-run only (skips function deploy)
+        required: false
+        type: boolean
+        default: false
+      skip_migrations:
+        description: Skip db push (functions only)
+        required: false
+        type: boolean
+        default: false
+      skip_functions:
+        description: Skip Edge Function deploy (migrations only)
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: supabase-deploy-${{ github.event_name == 'workflow_dispatch' && inputs.target || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: Resolve target
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.out.outputs.environment }}
+      project_ref: ${{ steps.out.outputs.project_ref }}
+      mode: ${{ steps.out.outputs.mode }}
+      run_migrations: ${{ steps.out.outputs.run_migrations }}
+      run_functions: ${{ steps.out.outputs.run_functions }}
+    steps:
+      - name: Checkout (for path detection)
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Pick environment + project
+        id: out
+        run: |
+          set -euo pipefail
+          DEV_REF='eybakmhqtotoywwgwgjy'
+          PROD_REF='aokorersszvediuatagp'
+
+          RUN_MIGRATIONS=true
+          RUN_FUNCTIONS=true
+
+          if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+            ENV='${{ inputs.target }}'
+            if [ '${{ inputs.dry_run }}' = 'true' ]; then
+              MODE='dry-run'
+              RUN_FUNCTIONS=false
+            else
+              MODE='push'
+            fi
+            if [ '${{ inputs.skip_migrations }}' = 'true' ]; then
+              RUN_MIGRATIONS=false
+            fi
+            if [ '${{ inputs.skip_functions }}' = 'true' ]; then
+              RUN_FUNCTIONS=false
+            fi
+          elif [ "${{ github.event_name }}" = 'pull_request' ]; then
+            BASE='${{ github.base_ref }}'
+            if [ "$BASE" = 'prod' ]; then
+              ENV='production'
+            else
+              ENV='development'
+            fi
+            MODE='dry-run'
+            # PRs never deploy functions.
+            RUN_FUNCTIONS=false
+            if ! git diff --name-only "origin/${BASE}...HEAD" | grep -qE '^supabase/migrations/|^supabase/config.toml'; then
+              RUN_MIGRATIONS=false
+            fi
+          else
+            # push
+            if [ '${{ github.ref }}' = 'refs/heads/prod' ]; then
+              ENV='production'
+            else
+              ENV='development'
+            fi
+            MODE='push'
+            BEFORE='${{ github.event.before }}'
+            if [ -n "$BEFORE" ] && [ "$BEFORE" != '0000000000000000000000000000000000000000' ]; then
+              CHANGED="$(git diff --name-only "$BEFORE" "$GITHUB_SHA" || true)"
+              if ! echo "$CHANGED" | grep -qE '^supabase/migrations/|^supabase/config.toml|^\.github/workflows/supabase-migrate\.yml'; then
+                RUN_MIGRATIONS=false
+              fi
+              if ! echo "$CHANGED" | grep -qE '^supabase/functions/|^\.github/workflows/supabase-migrate\.yml'; then
+                RUN_FUNCTIONS=false
+              fi
+              # Workflow file change → do both.
+              if echo "$CHANGED" | grep -qE '^\.github/workflows/supabase-migrate\.yml'; then
+                RUN_MIGRATIONS=true
+                RUN_FUNCTIONS=true
+              fi
+            fi
+          fi
+
+          if [ "$ENV" = 'production' ]; then
+            REF="$PROD_REF"
+          else
+            REF="$DEV_REF"
+          fi
+
+          if [ "$RUN_MIGRATIONS" != 'true' ] && [ "$RUN_FUNCTIONS" != 'true' ]; then
+            echo "Nothing to deploy for this change set."
+            # Keep job green but skip work via flags.
+          fi
+
+          echo "environment=$ENV" >> "$GITHUB_OUTPUT"
+          echo "project_ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "run_migrations=$RUN_MIGRATIONS" >> "$GITHUB_OUTPUT"
+          echo "run_functions=$RUN_FUNCTIONS" >> "$GITHUB_OUTPUT"
+          echo "Resolved env=$ENV project_ref=$REF mode=$MODE migrations=$RUN_MIGRATIONS functions=$RUN_FUNCTIONS"
+
+  deploy:
+    name: Deploy · ${{ needs.resolve.outputs.environment }}
+    needs: resolve
+    if: needs.resolve.outputs.run_migrations == 'true' || needs.resolve.outputs.run_functions == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ needs.resolve.outputs.environment }}
+    permissions:
+      contents: read
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ needs.resolve.outputs.project_ref }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Require deploy secrets
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "Missing secret on GitHub Environment '${{ needs.resolve.outputs.environment }}': $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Create a Supabase access token (Account → Access Tokens)."
+            echo "Use the database password for project ${{ needs.resolve.outputs.project_ref }}."
+            echo "See supabase/docs/operations.md"
+            exit 1
+          fi
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Dry-run migrations
+        if: needs.resolve.outputs.mode == 'dry-run' && needs.resolve.outputs.run_migrations == 'true'
+        run: supabase db push --dry-run
+
+      - name: Push migrations
+        if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_migrations == 'true'
+        run: supabase db push --yes
+
+      - name: Deploy Edge Functions
+        if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_functions == 'true'
+        run: |
+          set -euo pipefail
+          # --use-api avoids Docker on the runner; skip _shared helper package.
+          failed=0
+          for dir in supabase/functions/*/; do
+            name="$(basename "$dir")"
+            case "$name" in
+              _*|README*) continue ;;
+            esac
+            if [ ! -f "${dir}index.ts" ]; then
+              continue
+            fi
+            echo "::group::Deploy $name"
+            if ! supabase functions deploy "$name" \
+              --project-ref "$SUPABASE_PROJECT_REF" \
+              --use-api \
+              --yes; then
+              echo "::error::Failed to deploy $name"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
+          echo "All Edge Functions deployed to $SUPABASE_PROJECT_REF"

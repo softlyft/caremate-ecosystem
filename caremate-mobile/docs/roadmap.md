@@ -173,9 +173,9 @@ All five Phase 1 mini-apps ship on AsyncStorage today. Depth / parity work below
 | Feature | Status |
 |---------|--------|
 | Log period days | ✅ |
-| Cycle predictions (fixed 28-day) | ✅ Partial |
-| Learned cycle length | ❌ |
-| Ovulation / fertile window | ❌ |
+| Cycle predictions | ✅ Partial — user-set cycle length (default **28**, clamped); repeats that length from last period start. Does **not** learn from history. |
+| Learned cycle length | ❌ — no average / adaptive length from logged cycles |
+| Ovulation / fertile window | ✅ Partial — **calendar method**: ovulation ~14 days before next predicted period; fertile = 5 days before through 1 day after ovulation. Not symptom- or LH-based. |
 | Mood & symptom logging | ❌ |
 | Insights dashboard | ❌ |
 | Onboarding | ❌ |
@@ -253,9 +253,9 @@ Later (optional): normalize into per-entity tables for family sharing / clinicia
 
 1. **Migrate mini-apps to SQLite** for consistency + backup
 2. **Extend push delivery** — quiet hours, meds / checkup / pregnancy OS pushes (family request/accept/decline already wired)
-3. **Period tracker depth** — cycle history engine + ovulation
-4. **CI pipeline** — format + lint + typecheck + test (`.github/workflows/ci.yml`)
-5. **EAS Build** configuration for TestFlight / Play Internal
+3. **Period tracker depth** — learned cycle length from history; richer fertility than calendar-method only
+4. **CI pipeline** — format + lint + typecheck + test (`.github/workflows/ci.yml`) — shipped
+5. **Store builds** — GitHub Actions (TestFlight / Play / App Store); EAS not used
 
 ---
 

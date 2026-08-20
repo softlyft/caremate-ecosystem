@@ -206,7 +206,7 @@ Kid doses notify the signed-in user only in MVP (both-parents fan-out waits for 
 | Action | In-app | Push | Email | Notes |
 |--------|:------:|:----:|:-----:|-------|
 | Predicted period start | ✅ | ✅ (Self) | — | |
-| Fertile window / ovulation (future) | ✅ | ⚪ (Self) | — | Opt-in sensitive |
+| Fertile window / ovulation | ✅ (calendar-method in Period Tracker) | ⚪ (Self) | — | Opt-in sensitive |
 | Period logged | ✅ | — | — | |
 | Partner share (future) | ✅ | ✅ (Partner) | — | Explicit consent |
 
@@ -406,7 +406,7 @@ Re-firing the same reminder updates/skips instead of spamming the inbox.
 | Billing receipts / failed payment / renewal reminders | Email confirmation (if enabled) |
 | Optional welcome / security alert templates | |
 
-Templates are code-owned HTML in `supabase/functions/_shared/email-templates/`, sent from Edge Functions with AWS SES credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `SES_FROM_EMAIL=hello@getcaremate.com`, `SES_FROM_NAME=CareMate`) — **never** from the mobile client.
+Templates are code-owned HTML in `supabase/functions/_shared/email-templates/`, sent from Edge Functions via `_shared/mailer.ts` (`EMAIL_PROVIDER=smtp|ses|resend`) — **never** from the mobile client.
 
 ---
 

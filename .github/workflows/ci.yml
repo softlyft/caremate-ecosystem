@@ -8,6 +8,7 @@ on:
       - main
       - master
       - staging
+      - prod
       - deployment-check
 
 concurrency:

@@ -55,10 +55,12 @@ Useful root scripts:
 | `npm run community-portal:dev` | Starts the contributor community portal on `:4001` |
 | `npm run payment:dev` | Starts the hosted checkout app on `:5174` |
 | `npm run ingest:dev` | Starts the caremate-provider-ingestion FastAPI service on `:8090` |
-| `npm run supabase:link` | Links the local repo to the hosted Supabase project |
+| `npm run supabase:link` | Links CLI to **caremate-dev** (alias of `supabase:link:dev`) |
+| `npm run supabase:link:dev` | Links CLI to caremate-dev |
+| `npm run supabase:link:prod` | Links CLI to caremate prod |
 | `npm run supabase:migration:new -- name_here` | Creates a new SQL migration |
 | `npm run supabase:migration:list` | Lists local/remote migration state |
-| `npm run supabase:db:push` | Pushes local migrations to the linked project |
+| `npm run supabase:db:push` | Pushes local migrations to the **currently linked** project |
 | `npm run db:types` | Regenerates `packages/db-types/src/database.ts` |
 
 ## Responsibilities
@@ -80,20 +82,27 @@ Useful root scripts:
 - Node 20+
 - Python 3.11+ for `caremate-provider-ingestion`
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
-- Linked Supabase project (development): `caremate-dev` / `eybakmhqtotoywwgwgjy`
-  - CLI: `npm run supabase:link` targets this ref
-  - **Not production** — create and wire a separate prod project before store / prod Amplify hosts go live against real users
+- Linked Supabase projects:
+  - **Development:** `caremate-dev` / `eybakmhqtotoywwgwgjy` — `npm run supabase:link:dev` (local default)
+  - **Production:** `aokorersszvediuatagp` — `npm run supabase:link:prod`
+  - CI applies migrations per branch via [`.github/workflows/supabase-migrate.yml`](.github/workflows/supabase-migrate.yml) — see [`supabase/docs/operations.md`](supabase/docs/operations.md)
 
 ## Shared Database Workflow
 
 Run from the repo root:
 
 ```bash
-npm run supabase:link
+npm run supabase:link:dev   # or supabase:link:prod when migrating production
 npm run supabase:migration:new -- add_something
 npm run supabase:db:push
 npm run db:types
 ```
+
+CI:
+
+- Push to **`main`** with `supabase/` changes → migrations + Edge Functions on **caremate-dev**
+- Push to **`prod`** with `supabase/` changes → migrations + Edge Functions on **caremate prod**
+- PRs dry-run migrations only (no function deploy)
 
 Rules:
 

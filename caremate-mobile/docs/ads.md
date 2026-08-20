@@ -169,13 +169,13 @@ IDs are chosen by **app env**, not `__DEV__` alone:
 |--------|----------------------|--------------------------------|--------------|
 | Metro / local | `development` | Google sample | Google sample |
 | `main` TestFlight / sideload APK | `testflight` / `development` | Google sample | Google sample |
-| `prod` App Store / Play | `production` | `EXPO_PUBLIC_ADMOB_APP_ID_*` secrets | `EXPO_PUBLIC_ADMOB_BANNER_*` secrets |
+| `prod` App Store / Play | `production` | Live `EXPO_PUBLIC_ADMOB_APP_ID_*` (required — **no sample fallback**) | `EXPO_PUBLIC_ADMOB_BANNER_*` secrets |
 
 ### GitHub secrets
 
 **`main` / TestFlight:** set **nothing** for AdMob. Google sample app + banner IDs are baked in. Do **not** put live AdMob IDs on the `development` environment.
 
-**Git branch `prod` (App Store / Play):** add live IDs on GitHub Environment **`production`**. You need **14 secret names** but only **4 unique values**:
+**Git branch `prod` (App Store / Play):** add live IDs on GitHub Environment **`production`**. `app.config.ts` and `assert-production-mobile-env.sh` **fail the build** if app IDs are missing or still Google sample IDs. You need **14 secret names** but only **4 unique values**:
 
 | Secret | Unique value? |
 |--------|----------------|

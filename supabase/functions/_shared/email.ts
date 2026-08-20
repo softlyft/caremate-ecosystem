@@ -4,7 +4,7 @@ import {
   renderEmailTemplate,
   type EmailTemplateId,
 } from './email-templates/index.ts';
-import { sendViaSes } from './ses.ts';
+import { sendEmail } from './mailer.ts';
 
 export type SendTransactionalEmailInput = {
   service: SupabaseClient;
@@ -31,7 +31,8 @@ export type SendTransactionalEmailResult = {
 };
 
 /**
- * Upsert cloud notification + email delivery row, then send via Amazon SES.
+ * Upsert cloud notification + email delivery row, then send via the configured
+ * mailer (`EMAIL_PROVIDER=smtp|ses|resend`).
  * Idempotent on (user_id, dedupe_key) and skips if email delivery already sent.
  */
 export async function sendTransactionalEmail(
@@ -118,7 +119,7 @@ export async function sendTransactionalEmail(
         notification_id: notificationId,
         channel: 'email',
         status: 'pending',
-        provider: 'ses',
+        provider: 'email',
         attempt_count: 0,
       })
       .select('id')
@@ -130,7 +131,7 @@ export async function sendTransactionalEmail(
   }
 
   const rendered = renderEmailTemplate(input.template, input.templateVars ?? {});
-  const sesResult = await sendViaSes({
+  const mailResult = await sendEmail({
     to,
     subject: rendered.subject,
     html: rendered.html,
@@ -139,14 +140,15 @@ export async function sendTransactionalEmail(
 
   const now = new Date().toISOString();
   const attemptCount = (existingDelivery as { attempt_count?: number } | null)?.attempt_count ?? 0;
+  const provider = mailResult.provider === 'none' ? 'email' : mailResult.provider;
 
-  if (sesResult.ok) {
+  if (mailResult.ok) {
     await service
       .from('notification_deliveries')
       .update({
         status: 'sent',
-        provider: 'ses',
-        provider_message_id: sesResult.messageId,
+        provider,
+        provider_message_id: mailResult.messageId,
         error: null,
         attempt_count: attemptCount + 1,
         sent_at: now,
@@ -156,17 +158,17 @@ export async function sendTransactionalEmail(
     return {
       notificationId,
       deliveryStatus: 'sent',
-      messageId: sesResult.messageId,
+      messageId: mailResult.messageId,
     };
   }
 
-  if (sesResult.skipped) {
+  if (mailResult.skipped) {
     await service
       .from('notification_deliveries')
       .update({
         status: 'skipped',
-        provider: 'ses',
-        error: sesResult.reason,
+        provider,
+        error: mailResult.reason,
         attempt_count: attemptCount + 1,
       })
       .eq('id', deliveryId);
@@ -174,7 +176,7 @@ export async function sendTransactionalEmail(
     return {
       notificationId,
       deliveryStatus: 'skipped',
-      error: sesResult.reason,
+      error: mailResult.reason,
     };
   }
 
@@ -182,8 +184,8 @@ export async function sendTransactionalEmail(
     .from('notification_deliveries')
     .update({
       status: 'failed',
-      provider: 'ses',
-      error: sesResult.error,
+      provider,
+      error: mailResult.error,
       attempt_count: attemptCount + 1,
     })
     .eq('id', deliveryId);
@@ -191,7 +193,7 @@ export async function sendTransactionalEmail(
   return {
     notificationId,
     deliveryStatus: 'failed',
-    error: sesResult.error,
+    error: mailResult.error,
   };
 }
 

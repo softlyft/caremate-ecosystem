@@ -4,7 +4,14 @@ Single source of truth for the CareMate cloud database (Postgres, RLS, RPCs, Sto
 
 All apps in this monorepo (`caremate-mobile`, `caremate-admin-portal`, future packages) share these migrations.
 
-**Linked remote today:** `caremate-dev` (`eybakmhqtotoywwgwgjy`) — development only. Production should use a separate Supabase project and env keys; do not treat `caremate-dev` as prod.
+**Hosted projects**
+
+| Env | Project ref | Local link | CI |
+|-----|-------------|------------|-----|
+| Development | `eybakmhqtotoywwgwgjy` (`caremate-dev`) | `npm run supabase:link:dev` | Push to `main` → migrations + functions |
+| Production | `aokorersszvediuatagp` | `npm run supabase:link:prod` | Push to `prod` → migrations + functions |
+
+Each project keeps its own migration history. Details: [Operations](./docs/operations.md).
 
 ## Auth email templates (OTP)
 
@@ -37,6 +44,7 @@ For service-specific documentation, start here:
 - [Auth and RLS](./docs/auth-and-rls.md)
 - [RPCs and functions](./docs/rpcs-and-functions.md)
 - [Operations](./docs/operations.md)
+- [Email (`EMAIL_PROVIDER`)](./docs/email.md)
 
 ## Commands (from repo root)
 
