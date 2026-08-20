@@ -1,0 +1,280 @@
+# Production App Store build on merge to prod (GitHub Actions, no EAS).
+# Dev TestFlight builds: .github/workflows/ios-testflight.yml (main branch).
+#
+# Required secrets: caremate-mobile/docs/ios-app-store-release.md
+name: iOS App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: Upload the IPA to App Store Connect after a successful build
+        required: true
+        type: boolean
+        default: true
+      build_number:
+        description: Override iOS CFBundleVersion (leave empty to use run number + offset)
+        required: false
+        type: string
+        default: ''
+
+  push:
+    branches:
+      - prod
+    paths:
+      - 'caremate-mobile/**'
+      - 'packages/**'
+      - 'patches/**'
+      - '.github/workflows/ios-app-store.yml'
+
+concurrency:
+  group: ios-app-store-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  app-store:
+    name: IPA · Sign · App Store Connect
+    runs-on: macos-15
+    timeout-minutes: 90
+    environment: production
+    permissions:
+      contents: read
+
+    env:
+      SHOULD_UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+      EXPO_NO_TELEMETRY: 1
+      SENTRY_DISABLE_AUTO_UPLOAD: 'true'
+      EXPO_PUBLIC_APP_ENV: production
+      EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+      EXPO_PUBLIC_WEBSITE_URL: ${{ secrets.EXPO_PUBLIC_WEBSITE_URL }}
+      EXPO_PUBLIC_COMMUNITY_PORTAL_URL: ${{ secrets.EXPO_PUBLIC_COMMUNITY_PORTAL_URL }}
+      EXPO_PUBLIC_PAYMENT_URL: ${{ secrets.EXPO_PUBLIC_PAYMENT_URL }}
+      EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL: ${{ secrets.EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL }}
+      EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+      EXPO_PUBLIC_POSTHOG_API_KEY: ${{ secrets.EXPO_PUBLIC_POSTHOG_API_KEY }}
+      EXPO_PUBLIC_POSTHOG_HOST: ${{ secrets.EXPO_PUBLIC_POSTHOG_HOST }}
+      EXPO_PUBLIC_ADMOB_APP_ID_ANDROID: ${{ secrets.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID }}
+      EXPO_PUBLIC_ADMOB_APP_ID_IOS: ${{ secrets.EXPO_PUBLIC_ADMOB_APP_ID_IOS }}
+      EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS }}
+      EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS }}
+      EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED }}
+      EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST }}
+      EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER }}
+      EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER }}
+      EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST }}
+      EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER }}
+      EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_TIMELINE: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_TIMELINE }}
+      EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER }}
+      EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK }}
+      EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Require iOS signing secrets
+        env:
+          IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          UPLOAD: ${{ env.SHOULD_UPLOAD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in IOS_DISTRIBUTION_CERTIFICATE_BASE64 IOS_DISTRIBUTION_CERTIFICATE_PASSWORD IOS_PROVISIONING_PROFILE_BASE64 APPLE_TEAM_ID; do
+            if [ -z "${!name}" ]; then
+              echo "Missing secret: $name"
+              missing=1
+            fi
+          done
+          if [ "$UPLOAD" = "True" ] || [ "$UPLOAD" = "true" ]; then
+            for name in APP_STORE_CONNECT_API_KEY_P8 APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID; do
+              if [ -z "${!name}" ]; then
+                echo "Missing secret: $name (required when upload is true)"
+                missing=1
+              fi
+            done
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo "See caremate-mobile/docs/ios-app-store-release.md"
+            exit 1
+          fi
+
+      - name: Resolve build number
+        env:
+          INPUT_BUILD_NUMBER: ${{ inputs.build_number }}
+          OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_BUILD_NUMBER}" ]; then
+            BUILD_NUMBER="${INPUT_BUILD_NUMBER}"
+          else
+            BASE="${OFFSET:-0}"
+            BUILD_NUMBER=$((BASE + GITHUB_RUN_NUMBER))
+          fi
+          if ! [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid IOS_BUILD_NUMBER: $BUILD_NUMBER"
+            exit 1
+          fi
+          echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+          VERSION_NAME="$(node -p "require('./caremate-mobile/app.json').expo.version")"
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "Using CFBundleShortVersionString=$VERSION_NAME CFBundleVersion=$BUILD_NUMBER"
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prune nested package stubs
+        run: npm run prune:module-stubs -w caremate-mobile
+
+      - name: Generate native iOS project
+        working-directory: caremate-mobile
+        env:
+          CI: 1
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Set iOS build number
+        working-directory: caremate-mobile
+        run: |
+          set -euo pipefail
+          INFO_PLIST="$(find ios -path '*/Info.plist' -not -path '*/Pods/*' -not -path '*/Tests/*' | head -1)"
+          if [ -z "$INFO_PLIST" ]; then
+            echo "Info.plist not found under ios/"
+            find ios -name 'Info.plist' || true
+            exit 1
+          fi
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${IOS_BUILD_NUMBER}" "$INFO_PLIST"
+          echo "Updated CFBundleVersion in $INFO_PLIST"
+
+      - name: Install CocoaPods
+        working-directory: caremate-mobile/ios
+        run: pod install --repo-update
+
+      - name: Import distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          p12-password: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+
+      - name: Install App Store provisioning profile
+        env:
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          PROFILE_PATH="$RUNNER_TEMP/CareMate.mobileprovision"
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+          test -s "$PROFILE_PATH"
+
+          PROFILE_PLIST="$(security cms -D -i "$PROFILE_PATH")"
+          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin <<< "$PROFILE_PLIST")"
+          PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print Name' /dev/stdin <<< "$PROFILE_PLIST")"
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+
+          echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+          echo "Installed provisioning profile: $PROFILE_NAME ($PROFILE_UUID)"
+
+      - name: Resolve Xcode workspace
+        working-directory: caremate-mobile
+        run: |
+          set -euo pipefail
+          WORKSPACE="$(find ios -maxdepth 1 -name '*.xcworkspace' | head -1)"
+          if [ -z "$WORKSPACE" ]; then
+            echo "No .xcworkspace found under ios/"
+            ls -la ios || true
+            exit 1
+          fi
+          SCHEME="$(basename "$WORKSPACE" .xcworkspace)"
+          echo "XCODE_WORKSPACE=$WORKSPACE" >> "$GITHUB_ENV"
+          echo "XCODE_SCHEME=$SCHEME" >> "$GITHUB_ENV"
+          echo "Using workspace=$WORKSPACE scheme=$SCHEME"
+
+      - name: Archive iOS app
+        working-directory: caremate-mobile
+        run: |
+          set -euo pipefail
+          ARCHIVE_PATH="$RUNNER_TEMP/CareMate.xcarchive"
+          xcodebuild \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$ARCHIVE_PATH" \
+            archive \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
+          echo "ARCHIVE_PATH=$ARCHIVE_PATH" >> "$GITHUB_ENV"
+
+      - name: Export App Store IPA
+        id: export
+        working-directory: caremate-mobile
+        run: |
+          set -euo pipefail
+          EXPORT_DIR="$RUNNER_TEMP/export"
+          mkdir -p "$EXPORT_DIR"
+
+          PLIST="$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :method string app-store-connect' "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :teamID string ${{ secrets.APPLE_TEAM_ID }}" "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :signingStyle string manual' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:com.softlyft.caremate string ${PROFILE_NAME}" "$PLIST"
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_DIR" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist"
+
+          IPA_PATH="$(find "$EXPORT_DIR" -maxdepth 1 -name '*.ipa' | head -1)"
+          if [ -z "$IPA_PATH" ]; then
+            echo "IPA not found in $EXPORT_DIR"
+            ls -la "$EXPORT_DIR" || true
+            exit 1
+          fi
+
+          NAME="CareMate-prod-${IOS_BUILD_NUMBER}.ipa"
+          ARTIFACT_DIR="${GITHUB_WORKSPACE}/artifacts"
+          mkdir -p "$ARTIFACT_DIR"
+          cp "$IPA_PATH" "$ARTIFACT_DIR/$NAME"
+          ls -lh "$ARTIFACT_DIR/$NAME"
+          echo "ipa_path=artifacts/$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: caremate-ios-app-store-ipa
+          path: ${{ steps.export.outputs.ipa_path }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload to App Store Connect
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+        uses: apple-actions/upload-testflight-build@v5
+        with:
+          app-path: ${{ steps.export.outputs.ipa_path }}
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}

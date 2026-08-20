@@ -99,6 +99,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/documents/tsconfig.lib.json"
       }
+    },
+    "health-timeline": {
+      "type": "library",
+      "root": "libs/health-timeline",
+      "entryFile": "index",
+      "sourceRoot": "libs/health-timeline/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/health-timeline/tsconfig.lib.json"
+      }
     }
   }
 }

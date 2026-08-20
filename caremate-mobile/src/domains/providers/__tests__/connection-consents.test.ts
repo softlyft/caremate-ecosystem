@@ -67,6 +67,7 @@ describe('connection-consents', () => {
     expect(listAvailableConsents(['basic']).map((c) => c.scope)).toEqual([
       'emergency',
       'messaging',
+      'health_timeline',
     ]);
     expect(listGrantedConsents(['basic', 'emergency']).map((c) => c.scope)).toEqual(['emergency']);
     expect(listGrantedConsents(['basic', 'messaging']).map((c) => c.scope)).toEqual(['messaging']);

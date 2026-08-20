@@ -11,7 +11,7 @@ import { palette, spacing } from '@/theme';
 
 /**
  * Deep-link target: caremate://billing/success?reference=…
- * Verifies the charge with Paystack/Stripe, then activates Premium.
+ * Verifies a website/community Paystack/Stripe charge, then activates Premium.
  */
 export default function BillingSuccessScreen() {
   const queryClient = useQueryClient();

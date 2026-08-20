@@ -29,7 +29,7 @@ Legacy guide URLs redirect: `/guide` → `/docs/patient`, `/ccn/guide` → `/doc
 
 Build generates `public/robots.txt`, `public/sitemap.xml` (all marketing + Learn article URLs), and `public/llms.txt`. Per-route titles, descriptions, Open Graph, and JSON-LD update in the SPA via `DocumentMeta`.
 
-Set `VITE_SITE_URL=https://www.getcaremate.com` in Amplify for production absolute links.
+Set `VITE_SITE_URL=https://www.getcaremate.com` and `VITE_PAYMENT_URL=https://pay.getcaremate.com` in Amplify for production absolute links and checkout. Development Amplify / `.env.development` should use the payment Amplify origin or `https://pay-dev.getcaremate.com`.
 
 ## Develop
 
@@ -71,7 +71,7 @@ Community copy aligns with CareMate Community Handbook / Network Strategy / Grow
 
 Provider copy aligns with [`caremate-provider-portal/docs`](../caremate-provider-portal/docs/README.md).
 
-Legal pages are intended for production hosting (e.g. `https://getcaremate.com/security`, `/privacy`, `/terms`, and `/refunds`). Set `VITE_SITE_URL` and `VITE_COMMUNITY_PORTAL_URL` in Amplify environment variables (or `.env.local` for localhost) so they match the deployed host.
+Legal pages are intended for production hosting (e.g. `https://getcaremate.com/security`, `/privacy`, `/terms`, and `/refunds`). Set `VITE_SITE_URL`, `VITE_COMMUNITY_PORTAL_URL`, and `VITE_PAYMENT_URL` in Amplify environment variables (or `.env.development` / `.env.local`) so they match the deployed hosts. Production checkout is `https://pay.getcaremate.com`; development uses the payment Amplify origin or `https://pay-dev.getcaremate.com`.
 
 ### Universal / App Links
 

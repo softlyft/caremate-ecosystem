@@ -58,10 +58,11 @@ Edge Functions live under `supabase/functions/`.
 
 | Function | Purpose | JWT |
 |----------|---------|-----|
-| `create-checkout` | Create pending `payments` row + hosted Paystack/Stripe checkout | required |
+| `create-checkout` | Create pending `payments` row + hosted Paystack/Stripe checkout (website / community) | required |
 | `quote-upgrade` | Quote Standard → Family credit and amount due | required |
 | `create-upgrade` | Pending upgrade payment (or zero-charge activate) | required |
-| `verify-checkout` | Confirm charge with provider and activate subscription (app return) | required |
+| `verify-checkout` | Confirm charge with provider and activate subscription (web return) | required |
+| `verify-store-purchase` | Verify Apple / Google IAP and write the same `subscriptions` row | required |
 | `billing-webhook-stripe` | Stripe payment + subscription lifecycle updates | disabled |
 | `billing-webhook-paystack` | Paystack charge success / failure | disabled |
 | `notify-family-email` | Mobile after family connection request / accept / decline | required |
@@ -94,12 +95,14 @@ Family plans can derive or require a household ID.
 - Quote unused Standard credit against full Family list price; new Family period starts today
 - `create-upgrade` charges the difference (or activates at zero) and cancels Standard on success
 
-## `verify-checkout` / webhooks
+## `verify-checkout` / webhooks / `verify-store-purchase`
 
 On successful charge:
 
 1. Mark `payments` as `succeeded`
 2. Create or renew an **active** `subscriptions` entitlement (or finalize Family upgrade when `metadata.intent === 'upgrade'`)
 3. Link `payments.subscription_id` ↔ `subscriptions.payment_id`
+
+`verify-store-purchase` (user JWT) verifies an Apple JWS / Google Play purchase token, then uses the same finalize path (`provider` `apple` or `google`). Family purchases while Standard is active set `metadata.intent = upgrade` so Standard is canceled.
 
 Webhook functions are configured without JWT enforcement so external payment providers can reach them.

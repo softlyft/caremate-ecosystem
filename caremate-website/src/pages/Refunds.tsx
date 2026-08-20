@@ -11,8 +11,9 @@ export function RefundsPage() {
         <p className={styles.lead}>
           This policy explains how refunds, cancellations, and billing disputes work for paid CareMate
           plans (CareMate Premium and CareMate Family). It applies to purchases made through
-          CareMate&apos;s hosted checkout (Paystack for Naira, Stripe for international USD) unless
-          a different flow is shown at purchase.
+          CareMate&apos;s hosted checkout (Paystack for Naira, Stripe for international USD) and
+          through Apple or Google billing in the CareMate app unless a different flow is shown at
+          purchase.
         </p>
 
         <h2>Free plan</h2>
@@ -32,10 +33,11 @@ export function RefundsPage() {
         <h2>Cancelling</h2>
         <p>
           You can cancel auto-renewal at any time from the CareMate app under{' '}
-          <strong>Me → Premium</strong> (or by contacting us — see below). Cancellation stops
-          future charges. You keep Premium or Family access until the end of the current paid
-          period; we do not usually refund unused time after cancellation unless this policy or
-          applicable law requires it.
+          <strong>Me → Premium</strong>, from the website checkout account, or by contacting us —
+          see below. Apple and Google subscriptions are cancelled in the App Store or Play Store.
+          Cancellation stops future charges. You keep Premium or Family access until the end of the
+          current paid period; we do not usually refund unused time after cancellation unless this
+          policy or applicable law requires it.
         </p>
 
         <h2>Refunds</h2>

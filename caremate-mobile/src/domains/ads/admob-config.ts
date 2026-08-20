@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import type { AdSlotId } from '@/domains/ads/types';
 import { config } from '@/constants/env';
 
@@ -18,10 +20,19 @@ const SLOT_ENV_KEYS: Record<AdSlotId, keyof typeof config> = {
   'period.footer': 'admobBannerPeriodFooter',
 };
 
-/** Banner unit ID for a slot. Dev builds always use Google test IDs. */
+/**
+ * Banner unit ID for a slot.
+ * Metro (`__DEV__`) and non-production binaries (`main` TestFlight / sideload APK)
+ * always use Google sample IDs. Live units are only used when `EXPO_PUBLIC_APP_ENV=production`.
+ */
 export function getAdMobBannerUnitId(slotId: AdSlotId): string | null {
-  if (__DEV__) {
+  if (__DEV__ || !config.isProductionAppEnv) {
     return ADMOB_TEST_BANNER_UNIT;
+  }
+
+  if (Platform.OS === 'ios') {
+    const iosUnit = config.admobBannerUnitIos.trim();
+    return iosUnit || null;
   }
 
   const key = SLOT_ENV_KEYS[slotId];

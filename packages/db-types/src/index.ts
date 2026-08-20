@@ -30,6 +30,7 @@ export type {
   Bookmark,
   ArticleRead,
   MiniAppSnapshot,
+  HealthTimelineEvent,
   SubscriptionPrice,
   Payment,
   Subscription,

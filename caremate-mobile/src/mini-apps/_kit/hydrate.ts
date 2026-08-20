@@ -10,6 +10,7 @@ import {
 } from '@/mini-apps/_kit/snapshot-repository';
 import { scopedMiniAppStorageKey } from '@/mini-apps/_kit/synced-storage';
 import { rehydrateAllMiniAppStores } from '@/mini-apps/_kit/rehydrate-registry';
+import { backfillHealthTimelineFromSnapshots } from '@/domains/timeline/backfill';
 import { isOnline } from '@/sync/network';
 import { parseJson } from '@/utils/helpers';
 
@@ -145,6 +146,7 @@ export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<vo
   }
 
   await rehydrateAllMiniAppStores();
+  await backfillHealthTimelineFromSnapshots(userId);
 }
 
 /**
@@ -189,6 +191,7 @@ export async function hydrateMiniAppsFromRemote(userId: string): Promise<void> {
   }
 
   await rehydrateAllMiniAppStores();
+  await backfillHealthTimelineFromSnapshots(userId);
 }
 
 /**
@@ -229,4 +232,6 @@ export async function migrateMiniAppsToSnapshots(userId: string): Promise<void> 
 
     await miniAppSnapshotRepository.save({ userId, appKey, payload });
   }
+
+  await backfillHealthTimelineFromSnapshots(userId);
 }

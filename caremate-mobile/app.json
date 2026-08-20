@@ -11,6 +11,9 @@
     "ios": {
       "icon": "./assets/images/caremate-splash-icon.png",
       "bundleIdentifier": "com.softlyft.caremate",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
       "associatedDomains": [
         "applinks:getcaremate.com",
         "applinks:www.getcaremate.com",
@@ -141,6 +144,7 @@
         }
       ],
       "expo-secure-store",
+      "expo-iap",
       "expo-background-task",
       "expo-notifications",
       [

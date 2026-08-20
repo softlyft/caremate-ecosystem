@@ -27,9 +27,9 @@ export function DailyHealthTip({ userKey = 'guest' }: DailyHealthTipProps) {
     <View style={[styles.wrapper, shadow.soft]}>
       <LinearGradientFill
         colors={[
-          { offset: '0%', color: '#F0FDFA' },
-          { offset: '55%', color: '#CCFBF1' },
-          { offset: '100%', color: '#FFFFFF' },
+          { offset: '0%', color: palette.blueLight },
+          { offset: '55%', color: palette.brandBlueLight },
+          { offset: '100%', color: palette.background },
         ]}
         style={styles.container}
       >
@@ -38,7 +38,7 @@ export function DailyHealthTip({ userKey = 'guest' }: DailyHealthTipProps) {
           <Lightbulb color="#CA8A04" fill="#FDE047" size={20} />
         </View>
         <View style={styles.content}>
-          <AppText variant="caption" color="brand" style={styles.label}>
+          <AppText variant="caption" style={styles.label}>
             {tip.emoji} {tip.categoryName} · {t('home.dailyTip.label')}
           </AppText>
           <AppText variant="body" style={styles.tip}>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 14,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.14)',
+    borderColor: 'rgba(37, 99, 235, 0.16)',
   },
   accentBar: {
     position: 'absolute',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     width: 4,
     borderTopRightRadius: 4,
     borderBottomRightRadius: 4,
-    backgroundColor: palette.primary,
+    backgroundColor: palette.brandBlue,
   },
   iconWrap: {
     width: 42,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 6,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.1)',
+    borderColor: 'rgba(37, 99, 235, 0.12)',
   },
   content: {
     flex: 1,
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   },
   label: {
     letterSpacing: 0.2,
+    color: palette.brandBlue,
   },
   tip: {
     lineHeight: 23,

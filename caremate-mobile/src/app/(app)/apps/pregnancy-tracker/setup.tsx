@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Keyboard, StyleSheet, View } from 'react-native';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
@@ -16,6 +16,7 @@ import {
   MonthCalendarNavigator,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
+import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import {
   usePregnancyTrackerHydrated,
@@ -26,7 +27,6 @@ import {
   assessPregnancySetupDraft,
   type PregnancyIssue,
 } from '@/mini-apps/pregnancy-tracker/validation';
-import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 
 type SetupMode = 'lmp' | 'due-date';
@@ -49,6 +49,7 @@ export default function PregnancySetupScreen() {
   const status = usePregnancyTrackerStore((state) => state.status);
   const lastMenstrualPeriod = usePregnancyTrackerStore((state) => state.lastMenstrualPeriod);
   const dueDate = usePregnancyTrackerStore((state) => state.dueDate);
+  const dueDateSource = usePregnancyTrackerStore((state) => state.dueDateSource);
   const setBabyNickname = usePregnancyTrackerStore((state) => state.setBabyNickname);
   const setFromLastPeriod = usePregnancyTrackerStore((state) => state.setFromLastPeriod);
   const setFromDueDate = usePregnancyTrackerStore((state) => state.setFromDueDate);
@@ -58,6 +59,20 @@ export default function PregnancySetupScreen() {
   const previouslyEnded = status === 'ended';
   const isPostpartum = status === 'postpartum';
 
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    const seeded = dueDateSource === 'due-date' ? dueDate : lastMenstrualPeriod;
+    if (!seeded) {
+      return;
+    }
+    setMode(dueDateSource === 'due-date' ? 'due-date' : 'lmp');
+    setSelectedDate((current) => current ?? seeded);
+    const parsed = parseDateKey(seeded);
+    setMonthRef(new Date(parsed.getFullYear(), parsed.getMonth(), 1));
+  }, [dueDate, dueDateSource, hydrated, lastMenstrualPeriod]);
+
   const previewDueDate =
     mode === 'lmp' && selectedDate ? calculateDueDateFromLmp(selectedDate) : selectedDate;
 
@@ -65,54 +80,63 @@ export default function PregnancySetupScreen() {
     t(`apps.pregnancy.validation.${issue.messageKey}`, issue.params ?? {});
 
   const commitSetup = async () => {
-    const assessment = assessPregnancySetupDraft({
-      mode,
-      selectedDate,
-      babyNickname,
-      todayKey,
-      periodTrackerActive: !periodPaused,
-      hasActiveTimeline,
-      previouslyEnded,
-      isPostpartum,
-    });
+    Keyboard.dismiss();
+    try {
+      const assessment = assessPregnancySetupDraft({
+        mode,
+        selectedDate,
+        babyNickname,
+        todayKey,
+        periodTrackerActive: !periodPaused,
+        hasActiveTimeline,
+        previouslyEnded,
+        isPostpartum,
+      });
 
-    if (assessment.hard) {
-      void alert(t('apps.pregnancy.validation.checkTitle'), issueMessage(assessment.hard));
-      return;
-    }
+      if (assessment.hard) {
+        await alert(t('apps.pregnancy.validation.checkTitle'), issueMessage(assessment.hard));
+        return;
+      }
 
-    if (!assessment.payload) {
-      void alert(
+      if (!assessment.payload) {
+        await alert(
+          t('apps.pregnancy.validation.checkTitle'),
+          t('apps.pregnancy.validation.unusualCheck'),
+        );
+        return;
+      }
+
+      const save = () => {
+        if (assessment.payload!.mode === 'lmp') {
+          setFromLastPeriod(assessment.payload!.selectedDate, assessment.payload!.babyNickname);
+        } else {
+          setFromDueDate(assessment.payload!.selectedDate, assessment.payload!.babyNickname);
+        }
+        router.back();
+      };
+
+      // Pausing Period Tracker is expected — don't block first-time save on a confirm.
+      const blockingSoft = assessment.soft.filter((issue) => issue.code !== 'soft_will_pause_period');
+      if (blockingSoft.length > 0) {
+        const ok = await confirm({
+          title: t('apps.pregnancy.validation.confirmTitle'),
+          message: blockingSoft.map(issueMessage).join('\n\n'),
+          cancelLabel: t('apps.pregnancy.validation.cancel'),
+          confirmLabel: t('apps.pregnancy.validation.saveAnyway'),
+        });
+        if (ok) {
+          save();
+        }
+        return;
+      }
+
+      save();
+    } catch {
+      await alert(
         t('apps.pregnancy.validation.checkTitle'),
         t('apps.pregnancy.validation.unusualCheck'),
       );
-      return;
     }
-
-    const save = () => {
-      setBabyNickname(assessment.payload!.babyNickname);
-      if (assessment.payload!.mode === 'lmp') {
-        setFromLastPeriod(assessment.payload!.selectedDate);
-      } else {
-        setFromDueDate(assessment.payload!.selectedDate);
-      }
-      router.back();
-    };
-
-    if (assessment.soft.length > 0) {
-      const ok = await confirm({
-        title: t('apps.pregnancy.validation.confirmTitle'),
-        message: assessment.soft.map(issueMessage).join('\n\n'),
-        cancelLabel: t('apps.pregnancy.validation.cancel'),
-        confirmLabel: t('apps.pregnancy.validation.saveAnyway'),
-      });
-      if (ok) {
-        save();
-      }
-      return;
-    }
-
-    save();
   };
 
   if (!hydrated) {
@@ -174,6 +198,11 @@ export default function PregnancySetupScreen() {
         <AppText variant="caption" style={styles.muted}>
           {mode === 'lmp' ? t('apps.pregnancy.ui.tapLmp') : t('apps.pregnancy.ui.tapDue')}
         </AppText>
+        {!periodPaused ? (
+          <AppText variant="caption" style={styles.muted}>
+            {t('apps.pregnancy.validation.willPausePeriod')}
+          </AppText>
+        ) : null}
 
         <MonthCalendarGrid
           monthRef={monthRef}

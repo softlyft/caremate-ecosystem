@@ -103,22 +103,41 @@ export function miniAppHeaderOptions({
     headerTintColor: theme.color,
     headerLeftContainerStyle: styles.headerLeftContainer,
     headerTitleContainerStyle: styles.headerTitleContainer,
-    headerLeft: () => (
-      <MiniAppBackButton
-        accent={theme.color}
-        soft={theme.backgroundColor}
-        modal={modal}
-        accessibilityLabel={backAccessibilityLabel}
-      />
-    ),
-    headerTitle: () => (
-      <MiniAppHeaderTitle
-        appId={appId}
-        title={title}
-        accent={theme.color}
-        soft={theme.backgroundColor}
-      />
-    ),
+    headerLeft: () =>
+      Platform.OS === 'android' ? (
+        <View style={styles.headerLead}>
+          <MiniAppBackButton
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            modal={modal}
+            accessibilityLabel={backAccessibilityLabel}
+          />
+          <MiniAppHeaderTitle
+            appId={appId}
+            title={title}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+          />
+        </View>
+      ) : (
+        <MiniAppBackButton
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          modal={modal}
+          accessibilityLabel={backAccessibilityLabel}
+        />
+      ),
+    headerTitle: () =>
+      Platform.OS === 'android' ? (
+        <View />
+      ) : (
+        <MiniAppHeaderTitle
+          appId={appId}
+          title={title}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+        />
+      ),
   };
 }
 
@@ -131,14 +150,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     marginLeft: Platform.OS === 'ios' ? 4 : 0,
-    marginRight: 8,
   },
-  headerLeftContainer: {
-    paddingRight: 4,
+  headerLead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  headerTitleContainer: {
-    marginLeft: 4,
-  },
+  headerLeftContainer: Platform.select({
+    android: {
+      paddingRight: 0,
+      flexGrow: 1,
+      flexShrink: 0,
+      maxWidth: '100%',
+    },
+    default: {
+      paddingRight: 0,
+    },
+  }),
+  headerTitleContainer: Platform.select({
+    ios: {
+      left: 52,
+      right: 12,
+      marginLeft: 0,
+      paddingLeft: 0,
+    },
+    default: {
+      width: 0,
+      maxWidth: 0,
+      overflow: 'hidden',
+      opacity: 0,
+    },
+  }),
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',

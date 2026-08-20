@@ -163,6 +163,13 @@
     "grantConfirmTitle": "Share with provider?",
     "grantConfirmMessage": "Allow this provider to use {{consent}}?",
     "grantConfirmAction": "Share",
+    "timelineRangeLabel": "Date range",
+    "timelineRangeHint": "This provider can view logs that occurred in this range only. They cannot download or export your records.",
+    "timelinePreset": "Last {{days}} days",
+    "timelineCustom": "Custom",
+    "timelineFrom": "From (YYYY-MM-DD)",
+    "timelineTo": "To (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} to {{to}}",
     "revokeConfirmTitle": "Remove consent?",
     "revokeConfirmMessage": "This provider will no longer be able to use {{consent}}.",
     "revokeConfirmAction": "Remove",
@@ -176,6 +183,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Health timeline",
+        "description": "View-only logs from your health apps for a date range you choose. Not a file export. You can revoke anytime."
       }
     },
     "requestsTitle": "Provider connection requests",

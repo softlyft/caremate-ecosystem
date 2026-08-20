@@ -2,6 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import { listPatientActivities } from '@/domains/activity/repository';
 import { getOrgMembershipForUser, listActiveMembershipsForUsers } from '@/domains/members/repository';
 import {
+  gatewayRequest,
+  isHealthDataGatewayConfigured,
+} from '@/lib/health-data-gateway';
+import {
   DEFAULT_PAGE_SIZE,
   emptyPage,
   pageRange,
@@ -17,6 +21,7 @@ import type {
   ProviderDocument,
   ProviderOrgMember,
 } from '@/types/database';
+import type { HealthTimelineEvent } from '@caremate/db-types';
 
 export type ConnectedPatientRow = {
   connection: PatientProviderConnection;
@@ -25,11 +30,18 @@ export type ConnectedPatientRow = {
   membership: ProviderOrgMember | null;
 };
 
+export type PatientHealthTimelineConsent = {
+  periodStart: string;
+  periodEnd: string;
+};
+
 export type PatientDetail = {
   connection: PatientProviderConnection;
   profile: Profile | null;
   gender: string;
   emergency: EmergencyProfile | null;
+  healthTimelineConsent: PatientHealthTimelineConsent | null;
+  healthTimelineEvents: HealthTimelineEvent[];
   documents: ProviderDocument[];
   activities: PatientProviderActivity[];
   membership: ProviderOrgMember | null;
@@ -156,12 +168,69 @@ export async function getPatientDetail(
   const scopes = connection.shared_scopes ?? [];
   let emergency: EmergencyProfile | null = null;
   if (scopes.includes('emergency')) {
-    const { data: ep } = await supabase
-      .from('emergency_profiles')
-      .select('*')
-      .eq('user_id', patientUserId)
+    const orgQuery = `organizationId=${encodeURIComponent(organizationId)}`;
+    const gatewayEmergency = await gatewayRequest<EmergencyProfile>(
+      'GET',
+      `/v1/emergency/patients/${encodeURIComponent(patientUserId)}?${orgQuery}`,
+    );
+    if (gatewayEmergency) {
+      emergency = gatewayEmergency;
+    } else if (!isHealthDataGatewayConfigured()) {
+      const { data: ep } = await supabase
+        .from('emergency_profiles')
+        .select('*')
+        .eq('user_id', patientUserId)
+        .maybeSingle();
+      emergency = (ep as EmergencyProfile | null) ?? null;
+    }
+  }
+
+  let healthTimelineConsent: PatientHealthTimelineConsent | null = null;
+  let healthTimelineEvents: HealthTimelineEvent[] = [];
+  if (scopes.includes('health_timeline')) {
+    const { data: definition } = await supabase
+      .from('consent_definitions')
+      .select('id')
+      .eq('code', 'health_timeline')
+      .is('organization_id', null)
       .maybeSingle();
-    emergency = (ep as EmergencyProfile | null) ?? null;
+
+    if (definition?.id) {
+      const { data: consent } = await supabase
+        .from('patient_provider_consents')
+        .select('period_start, period_end')
+        .eq('connection_id', connection.id)
+        .eq('definition_id', definition.id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (consent?.period_start && consent.period_end) {
+        healthTimelineConsent = {
+          periodStart: consent.period_start,
+          periodEnd: consent.period_end,
+        };
+        const orgQuery = `organizationId=${encodeURIComponent(organizationId)}`;
+        const gatewayEvents = await gatewayRequest<HealthTimelineEvent[]>(
+          'GET',
+          `/v1/health-timeline/patients/${encodeURIComponent(patientUserId)}?${orgQuery}`,
+        );
+        if (gatewayEvents) {
+          healthTimelineEvents = gatewayEvents;
+        } else if (!isHealthDataGatewayConfigured()) {
+          const { data: events } = await supabase
+            .from('health_timeline_events')
+            .select(
+              'id, user_id, app_key, kind, occurred_on, occurred_at, title, summary, payload, created_at, updated_at',
+            )
+            .eq('user_id', patientUserId)
+            .gte('occurred_on', consent.period_start)
+            .lte('occurred_on', consent.period_end)
+            .order('occurred_on', { ascending: false })
+            .limit(200);
+          healthTimelineEvents = (events ?? []) as HealthTimelineEvent[];
+        }
+      }
+    }
   }
 
   const { data: documents } = await supabase
@@ -182,6 +251,8 @@ export async function getPatientDetail(
     profile: (profile as Profile | null) ?? null,
     gender,
     emergency,
+    healthTimelineConsent,
+    healthTimelineEvents,
     documents: (documents ?? []) as ProviderDocument[],
     activities,
     membership,

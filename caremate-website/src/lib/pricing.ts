@@ -151,3 +151,41 @@ export const PRICING_VALUE_PILLARS = [
   'Trusted health records',
   'Personalized health intelligence',
 ] as const;
+
+export type CheckoutPlanType = 'personal' | 'family';
+export type CheckoutInterval = 'monthly' | 'yearly';
+export type CheckoutCurrency = 'NGN' | 'USD';
+
+export function checkoutPlanType(planId: PlanId): CheckoutPlanType | null {
+  if (planId === 'premium') return 'personal';
+  if (planId === 'family') return 'family';
+  return null;
+}
+
+export function checkoutCurrency(region: PricingRegion): CheckoutCurrency {
+  return region === 'ng' ? 'NGN' : 'USD';
+}
+
+export function checkoutInterval(billing: 'monthly' | 'annual'): CheckoutInterval {
+  return billing === 'annual' ? 'yearly' : 'monthly';
+}
+
+export function buildCheckoutUrl(input: {
+  paymentUrl: string;
+  siteUrl: string;
+  planType: CheckoutPlanType;
+  billingInterval: CheckoutInterval;
+  currency: CheckoutCurrency;
+}): string {
+  const payment = input.paymentUrl.replace(/\/$/, '');
+  const site = input.siteUrl.replace(/\/$/, '');
+  const query = new URLSearchParams({
+    plan_type: input.planType,
+    billing_interval: input.billingInterval,
+    currency: input.currency,
+    source: 'website',
+    return_success: `${site}/pricing?paid=1`,
+    return_cancel: `${site}/pricing`,
+  });
+  return `${payment}/?${query.toString()}`;
+}

@@ -383,6 +383,9 @@ verify_jwt = true
 [functions.create-upgrade]
 verify_jwt = true
 
+[functions.verify-store-purchase]
+verify_jwt = true
+
 [functions.send-provider-claim-otp]
 verify_jwt = false
 

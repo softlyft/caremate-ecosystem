@@ -15,9 +15,14 @@ function androidVersionCode(base: ExpoConfig): number {
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const base = (appJson.expo ?? config) as ExpoConfig;
-  const androidAppId =
-    process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID?.trim() || GOOGLE_SAMPLE_ANDROID_APP_ID;
-  const iosAppId = process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS?.trim() || GOOGLE_SAMPLE_IOS_APP_ID;
+  const isProductionAppEnv =
+    (process.env.EXPO_PUBLIC_APP_ENV ?? process.env.APP_ENV ?? '').trim() === 'production';
+  const androidAppId = isProductionAppEnv
+    ? process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID?.trim() || GOOGLE_SAMPLE_ANDROID_APP_ID
+    : GOOGLE_SAMPLE_ANDROID_APP_ID;
+  const iosAppId = isProductionAppEnv
+    ? process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS?.trim() || GOOGLE_SAMPLE_IOS_APP_ID
+    : GOOGLE_SAMPLE_IOS_APP_ID;
 
   const plugins: NonNullable<ExpoConfig['plugins']> = [...(base.plugins ?? [])];
 
@@ -50,6 +55,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins.push('expo-localization');
   }
 
+  if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-iap')) {
+    plugins.push('expo-iap');
+  }
+
   if (
     !plugins.some((p) => {
       const name = Array.isArray(p) ? p[0] : p;
@@ -62,13 +71,19 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         url: 'https://sentry.io/',
         organization: process.env.SENTRY_ORG ?? 'softlyft',
         project: process.env.SENTRY_PROJECT ?? 'caremate',
-        // Auth token via SENTRY_AUTH_TOKEN env / EAS secret — never embed in config.
+        // Auth token via SENTRY_AUTH_TOKEN env / CI secret — never embed in config.
       },
     ]);
   }
 
+  const appleTeamId = process.env.EXPO_APPLE_TEAM_ID?.trim();
+
   return {
     ...base,
+    ios: {
+      ...base.ios,
+      ...(appleTeamId ? { appleTeamId } : {}),
+    },
     android: {
       ...base.android,
       versionCode: androidVersionCode(base),

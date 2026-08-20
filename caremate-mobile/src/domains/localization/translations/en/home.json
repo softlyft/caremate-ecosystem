@@ -38,6 +38,33 @@
   "dailyTip": {
     "label": "Daily insight"
   },
+  "timeline": {
+    "label": "Your records",
+    "title": "Health timeline",
+    "cta": "View timeline",
+    "guestBody": "Sign in to see logs from your health apps in one timeline.",
+    "emptyBody": "Logs from vitals, medication, pregnancy, period, immunization, and checkups will show up here.",
+    "loading": "Loading timeline...",
+    "loadFailedTitle": "Couldn't load timeline",
+    "loadFailedMessage": "Check your connection and try again.",
+    "screenSubtitle": "Logs from your CareMate health apps.",
+    "rangeFrom": "From",
+    "rangeTo": "To",
+    "rangeEmpty": "No logs in this date range. Try a different start or end date.",
+    "lastThreeMonths": "Last 3 months",
+    "jumpToMonth": "Jump to {{month}}",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "kinds": {
+      "vital": "Vital",
+      "med_dose": "Dose",
+      "pregnancy_log": "Pregnancy",
+      "tt_dose": "TT dose",
+      "period_day": "Cycle",
+      "vaccine": "Vaccine",
+      "checkup": "Checkup"
+    }
+  },
   "searchA11y": "Search CareMate",
   "quickActions": {
     "sectionTitle": "Quick Actions",

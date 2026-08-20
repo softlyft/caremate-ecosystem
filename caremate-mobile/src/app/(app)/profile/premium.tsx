@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Crown, RefreshCw, Sparkles, Users } from 'lucide-react-native';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
@@ -13,7 +13,9 @@ import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import { formatPriceAmount, premiumLabel } from '@/domains/billing/entitlement';
 import { billingCurrencyForCountry } from '@/domains/billing/currency-by-country';
+import { storeProductId } from '@/domains/billing/iap-products';
 import { billingRepository } from '@/domains/billing/repository';
+import { listStoreProducts } from '@/domains/billing/store-iap';
 import type { BillingCurrency, BillingInterval, PlanType } from '@/domains/billing/types';
 import { familyRepository } from '@/domains/family/repository';
 import { useTranslation } from '@/domains/localization';
@@ -56,32 +58,27 @@ export default function PremiumScreen() {
     queryFn: () => profileRepository.findByUserId(userId),
   });
 
-  const pricesQuery = useQuery({
-    queryKey: ['billing', 'prices'],
-    queryFn: () => billingRepository.listPrices(),
+  const storeProductsQuery = useQuery({
+    queryKey: ['billing', 'store-products'],
+    queryFn: listStoreProducts,
   });
 
   const loading =
     (!isGuest && premiumQuery.isPending) ||
-    pricesQuery.isLoading ||
+    storeProductsQuery.isLoading ||
     (!isGuest && householdQuery.isPending) ||
     (!isGuest && profileQuery.isPending);
   const premium = isGuest ? null : (premiumQuery.data ?? premiumQuery.state);
   const householdId = householdQuery.data?.id ?? null;
   const patientId = profileQuery.data?.patientId ?? null;
-  const prices = pricesQuery.data ?? [];
   const isPersonalActive = premium?.tier === 'personal';
   const isFamilyActive = premium?.tier === 'family';
   // Active Standard can only upgrade to Family — derive selection (no effect sync).
   const selectedPlanType: PlanType = isPersonalActive ? 'family' : planType;
   const showUpgrade = isPersonalActive;
-
-  const selectedPrices = prices.filter(
-    (p) =>
-      p.planType === selectedPlanType &&
-      p.billingInterval === billingInterval &&
-      p.currency === billingCurrency,
-  );
+  const selectedSku = storeProductId(selectedPlanType, billingInterval);
+  const selectedStoreProduct = (storeProductsQuery.data ?? []).find((product) => product.id === selectedSku);
+  const storeName = Platform.OS === 'ios' ? t('profile.premium.storeApple') : t('profile.premium.storeGoogle');
 
   const upgradeCurrency = billingCurrency;
 
@@ -119,7 +116,7 @@ export default function PremiumScreen() {
     }
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] }),
-      queryClient.invalidateQueries({ queryKey: ['billing', 'prices'] }),
+      queryClient.invalidateQueries({ queryKey: ['billing', 'store-products'] }),
       queryClient.invalidateQueries({ queryKey: ['billing', 'upgrade-quote'] }),
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold }),
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile }),
@@ -149,16 +146,11 @@ export default function PremiumScreen() {
     setError(null);
     try {
       if (isPersonalActive) {
-        const result = await billingRepository.startFamilyUpgrade({
+        await billingRepository.startFamilyUpgrade({
           billingInterval,
           currency,
           householdId,
         });
-        // Zero-charge upgrades never open a browser — refresh entitlement now.
-        // Browser checkouts sync via billing/success deep link, not here.
-        if (result.activated) {
-          await refresh();
-        }
       } else {
         await billingRepository.startCheckout({
           planType: selectedPlanType,
@@ -168,9 +160,7 @@ export default function PremiumScreen() {
           patientId,
         });
       }
-      // Do not verify/refresh after opening the browser: on Android,
-      // openBrowserAsync resolves as soon as the chooser/Custom Tab starts,
-      // so a premature verify left `paying` stuck when the user dismissed it.
+      await refresh();
     } catch (err) {
       setError(
         err instanceof Error
@@ -337,10 +327,14 @@ export default function PremiumScreen() {
                     {showUpgrade ? t('profile.premium.upgradeTitle') : t('profile.premium.pay')}
                   </AppText>
                   <AppText variant="caption" style={styles.muted}>
-                    {t('profile.premium.payInCurrency', { currency: billingCurrency })}
+                    {t('profile.premium.payInCurrency', { store: storeName })}
                   </AppText>
 
-                  {showUpgrade ? (
+                  {showUpgrade && upgradeQuoteQuery.isLoading ? (
+                    <AppText variant="caption" style={styles.muted}>
+                      {t('profile.premium.loading')}
+                    </AppText>
+                  ) : showUpgrade && (upgradeQuoteQuery.data?.chargeMinor ?? 1) === 0 ? (
                     <UpgradeQuoteBlock
                       quote={upgradeQuoteQuery.data ?? null}
                       loading={upgradeQuoteQuery.isLoading}
@@ -355,29 +349,30 @@ export default function PremiumScreen() {
                       paying={paying}
                       onPay={(currency) => void pay(currency)}
                     />
-                  ) : selectedPrices.length === 0 ? (
+                  ) : !selectedStoreProduct ? (
                     <AppText variant="caption" style={styles.muted}>
-                      {t('profile.premium.noPrices')}
+                      {t('profile.premium.storeUnavailable')}
                     </AppText>
                   ) : (
                     <View style={styles.payStack}>
-                      {selectedPrices.map((price) => {
-                        const disabled = paying || (selectedPlanType === 'family' && !householdId);
-                        return (
-                          <Button
-                            key={price.id}
-                            disabled={disabled}
-                            style={styles.secondaryCta}
-                            onPress={() => void pay(price.currency)}
-                            variant="plain"
-                          >
-                            <AppText variant="button" style={styles.secondaryCtaLabel}>
-                              {price.provider === 'paystack' ? 'Paystack' : 'Stripe'} ·{' '}
-                              {formatPriceAmount(price.amountMinor, price.currency)}
-                            </AppText>
-                          </Button>
-                        );
-                      })}
+                      {showUpgrade ? (
+                        <AppText variant="caption" style={styles.muted}>
+                          {t('profile.premium.upgradeStoreNote')}
+                        </AppText>
+                      ) : null}
+                      <Button
+                        disabled={paying || (selectedPlanType === 'family' && !householdId)}
+                        style={styles.secondaryCta}
+                        onPress={() => void pay(billingCurrency)}
+                        variant="plain"
+                      >
+                        <AppText variant="button" style={styles.secondaryCtaLabel}>
+                          {t('profile.premium.storeSubscribe', {
+                            store: storeName,
+                            price: selectedStoreProduct.displayPrice,
+                          })}
+                        </AppText>
+                      </Button>
                     </View>
                   )}
                 </View>
@@ -386,14 +381,14 @@ export default function PremiumScreen() {
           </>
         )}
 
-        {error || premiumQuery.error || pricesQuery.error ? (
+        {error || premiumQuery.error || storeProductsQuery.error ? (
           <AnimatedSection index={4}>
             <AppText variant="caption" style={styles.error}>
               {error ??
                 (premiumQuery.error instanceof Error
                   ? premiumQuery.error.message
-                  : pricesQuery.error instanceof Error
-                    ? pricesQuery.error.message
+                  : storeProductsQuery.error instanceof Error
+                    ? storeProductsQuery.error.message
                     : t('profile.premium.loadFailed'))}
             </AppText>
           </AnimatedSection>
@@ -487,9 +482,7 @@ function UpgradeQuoteBlock({
         variant="plain"
       >
         <AppText variant="button" style={styles.secondaryCtaLabel}>
-          {quote.chargeMinor === 0
-            ? t('profile.premium.upgradeZeroCharge')
-            : `${quote.provider === 'paystack' ? 'Paystack' : 'Stripe'} · ${formatPriceAmount(quote.chargeMinor, quote.currency)}`}
+          {t('profile.premium.upgradeZeroCharge')}
         </AppText>
       </Button>
     </View>

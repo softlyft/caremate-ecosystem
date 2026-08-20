@@ -62,6 +62,8 @@ Suggested Amplify app names:
 | Key | Notes |
 |-----|--------|
 | `VITE_SITE_URL` | Production: `https://www.getcaremate.com` (canonical host). Used for OG/canonical links and build-time sitemap. |
+| `VITE_PAYMENT_URL` | Checkout host baked in at **build** time. DEV: `https://pay-dev.getcaremate.com` (or the payment Amplify origin). Production: `https://pay.getcaremate.com`. Pricing CTAs open this app. Do not rely on a code default. |
+| `VITE_COMMUNITY_PORTAL_URL` | Community join links. |
 
 Build also emits `robots.txt`, `sitemap.xml`, and `llms.txt` into the static output.
 ### Payment checkout (`caremate-payment-gateway`)
@@ -72,6 +74,8 @@ Vite bakes these in at **build** time — set them in Amplify **before** deploy 
 |-----|--------|
 | `VITE_SUPABASE_URL` | Same Supabase project as mobile |
 | `VITE_SUPABASE_ANON_KEY` | Anon / publishable key (not service role) |
+| `VITE_WEBSITE_URL` | Marketing site origin (default returns for `source=website`) |
+| `VITE_COMMUNITY_PORTAL_URL` | Community origin (default returns for `source=community`) |
 
 Paystack / Stripe **secrets** stay on Supabase Edge Functions (`create-checkout`, webhooks) — not in this Amplify app.
 
@@ -115,6 +119,17 @@ All require SES secrets on the Supabase project. Also apply migrations for `prov
 
 Optional: set `SENTRY_DSN` (and optionally `SENTRY_ENVIRONMENT`) so server actions and `error.tsx` report exceptions.
 
+### Community portal (`caremate-community-portal`)
+
+| Key | Notes |
+|-----|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Same Supabase project as mobile |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret |
+| `NEXT_PUBLIC_APP_URL` | This portal origin |
+| `NEXT_PUBLIC_WEBSITE_URL` | Marketing site |
+| `NEXT_PUBLIC_PAYMENT_URL` | Checkout host for Premium subscribe |
+
 After changing env vars, **Redeploy** the branch.
 
 ---
@@ -154,7 +169,7 @@ Use these Amplify default domains for env vars, EAS, emails, and cross-app links
 | Community portal | `https://main.d2tlpjx9a9kklb.amplifyapp.com` |
 | Payment | `https://main.d1wcqa3tsdavz8.amplifyapp.com` |
 
-Set matching values in each Amplify app’s **Environment variables**, mobile `eas.json` / `.env.*`, and Supabase Auth **Redirect URLs** (include `https://main.dim7uuolmjgc9.amplifyapp.com/auth/reset-password`). Redeploy after changing.
+Set matching values in each Amplify app’s **Environment variables**, mobile GitHub secrets / `.env.*`, and Supabase Auth **Redirect URLs** (include `https://main.dim7uuolmjgc9.amplifyapp.com/auth/reset-password`). Redeploy after changing.
 
 ### Official CareMate hosts (target)
 
@@ -175,7 +190,7 @@ After the website is live, finish Universal / App Links verification:
 3. Confirm `Content-Type: application/json` on both well-known paths (set in root `amplify.yml`)
 4. Rebuild the mobile app so `associatedDomains` / `intentFilters` from `app.json` ship in the binary
 
-Set public hosts in Amplify / EAS env (dev vs prod table above). For localhost, copy `.env.local.example` → `.env.local`. Documented defaults live in each package’s `.env.example`.
+Set public hosts in Amplify / GitHub secrets (dev vs prod table above). For localhost, copy `.env.local.example` → `.env.local`. Documented defaults live in each package’s `.env.example`.
 
 ---
 

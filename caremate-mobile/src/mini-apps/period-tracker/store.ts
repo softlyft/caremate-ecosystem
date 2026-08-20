@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { parseDateKey, toDateKey } from '@/mini-apps/period-tracker/utils';
+import { daysBetween, parseDateKey } from '@/mini-apps/period-tracker/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
@@ -130,6 +130,13 @@ export function usePeriodTrackerHydrated(): boolean {
   return usePersistHydrated(usePeriodTrackerStore.persist);
 }
 
+/** Predicted bleeding window is at least this many days so it stays visible on the calendar. */
+export const PREDICTED_PERIOD_MIN_DAYS = 4;
+
+export function predictedPeriodSpan(periodLength: number): number {
+  return Math.max(periodLength, PREDICTED_PERIOD_MIN_DAYS);
+}
+
 export function isPredictedPeriodDay(
   dayKey: string,
   lastPeriodStart: string | null,
@@ -138,19 +145,13 @@ export function isPredictedPeriodDay(
   loggedDays: string[],
   paused = false,
 ): boolean {
-  if (paused || loggedDays.includes(dayKey) || !lastPeriodStart) {
+  if (paused || loggedDays.includes(dayKey) || !lastPeriodStart || cycleLength < 1) {
     return false;
   }
-  const predictedStart = parseDateKey(lastPeriodStart);
-  predictedStart.setDate(predictedStart.getDate() + cycleLength);
-  const predictedKeys = Array.from({ length: periodLength }, (_, index) =>
-    toDateKey(
-      new Date(
-        predictedStart.getFullYear(),
-        predictedStart.getMonth(),
-        predictedStart.getDate() + index,
-      ),
-    ),
-  );
-  return predictedKeys.includes(dayKey);
+  const delta = daysBetween(parseDateKey(lastPeriodStart), parseDateKey(dayKey));
+  if (delta < cycleLength) {
+    return false;
+  }
+  const offsetInCycle = delta % cycleLength;
+  return offsetInCycle < predictedPeriodSpan(periodLength);
 }

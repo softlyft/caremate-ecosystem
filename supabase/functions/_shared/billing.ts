@@ -6,7 +6,7 @@ import { finalizeFamilyUpgrade } from './upgrade.ts';
 export type PlanType = 'personal' | 'family';
 export type BillingInterval = 'monthly' | 'yearly';
 export type BillingCurrency = 'NGN' | 'USD';
-export type BillingProvider = 'paystack' | 'stripe';
+export type BillingProvider = 'paystack' | 'stripe' | 'apple' | 'google';
 
 export type PaymentRow = {
   id: string;

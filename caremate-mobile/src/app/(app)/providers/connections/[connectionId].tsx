@@ -6,10 +6,11 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, InputControl } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
+import { addCalendarDays, isDateKey, todayDateKey } from '@/domains/timeline/consent-window';
 import {
   listAvailableConsents,
   listGrantedConsents,
@@ -29,11 +30,21 @@ export default function ConnectedProviderDetailScreen() {
   const { connectionId: rawId } = useLocalSearchParams<{ connectionId?: string }>();
   const connectionId = typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : '';
   const [pickingConsent, setPickingConsent] = useState(false);
+  const [rangeConsent, setRangeConsent] = useState<ConnectionConsentDefinition | null>(null);
+  const [periodStart, setPeriodStart] = useState('');
+  const [periodEnd, setPeriodEnd] = useState('');
+  const [rangePreset, setRangePreset] = useState<30 | 90 | 180 | 'custom' | null>(null);
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.providerConnections, 'detail', connectionId],
     queryFn: () => providerConnectionService.getConnectionById(connectionId),
     enabled: !isGuest && Boolean(connectionId),
+  });
+
+  const consentsQuery = useQuery({
+    queryKey: [...QUERY_KEYS.providerConnections, 'consents', connectionId],
+    queryFn: () => providerConnectionService.listConsents(connectionId),
+    enabled: !isGuest && Boolean(connectionId) && Boolean(query.data),
   });
 
   const definitionsQuery = useQuery({
@@ -48,16 +59,25 @@ export default function ConnectedProviderDetailScreen() {
   });
 
   const consentMutation = useMutation({
-    mutationFn: (params: { scope: string; granted: boolean; definitionId?: string }) =>
+    mutationFn: (params: {
+      scope: string;
+      granted: boolean;
+      definitionId?: string;
+      periodStart?: string;
+      periodEnd?: string;
+    }) =>
       providerConnectionService.setConsent({
         connectionId,
         scope: params.scope,
         granted: params.granted,
         definitionId: params.definitionId,
+        periodStart: params.periodStart,
+        periodEnd: params.periodEnd,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setPickingConsent(false);
+      setRangeConsent(null);
     },
     onError: (error) => {
       Alert.alert(
@@ -126,6 +146,15 @@ export default function ConnectedProviderDetailScreen() {
   const busy = consentMutation.isPending;
 
   const confirmGrant = (consent: ConnectionConsentDefinition) => {
+    if (consent.scope === 'health_timeline') {
+      const end = todayDateKey();
+      setRangeConsent(consent);
+      setRangePreset(90);
+      setPeriodEnd(end);
+      setPeriodStart(addCalendarDays(end, -89));
+      setPickingConsent(false);
+      return;
+    }
     const title = resolveConsentTitle(consent, t);
     Alert.alert(
       t('nearby.connections.grantConfirmTitle'),
@@ -216,6 +245,26 @@ export default function ConnectedProviderDetailScreen() {
                     <AppText variant="caption" style={styles.grantedBadge}>
                       {t('nearby.connections.grantedBadge')}
                     </AppText>
+                    {consent.scope === 'health_timeline'
+                      ? (() => {
+                          const grant = (consentsQuery.data ?? []).find(
+                            (row) =>
+                              row.definitionId === consent.definitionId ||
+                              row.code === 'health_timeline',
+                          );
+                          if (!grant?.periodStart || !grant.periodEnd) {
+                            return null;
+                          }
+                          return (
+                            <AppText variant="caption" style={styles.meta}>
+                              {t('nearby.connections.timelineWindow', {
+                                from: grant.periodStart,
+                                to: grant.periodEnd,
+                              })}
+                            </AppText>
+                          );
+                        })()
+                      : null}
                   </View>
                   <Button
                     label={t('nearby.connections.removeConsent')}
@@ -270,6 +319,81 @@ export default function ConnectedProviderDetailScreen() {
               label={t('common.cancel')}
               variant="secondary"
               onPress={() => setPickingConsent(false)}
+              disabled={busy}
+            />
+          </View>
+        ) : rangeConsent ? (
+          <View style={styles.list}>
+            <AppText variant="caption" style={styles.listLabel}>
+              {t('nearby.connections.timelineRangeLabel')}
+            </AppText>
+            <AppText variant="caption" style={styles.meta}>
+              {t('nearby.connections.timelineRangeHint')}
+            </AppText>
+            <View style={styles.chipRow}>
+              {([30, 90, 180] as const).map((days) => (
+                <ChoiceChip
+                  key={days}
+                  label={t('nearby.connections.timelinePreset', { days })}
+                  selected={rangePreset === days}
+                  onPress={() => {
+                    const end = todayDateKey();
+                    setRangePreset(days);
+                    setPeriodEnd(end);
+                    setPeriodStart(addCalendarDays(end, -(days - 1)));
+                  }}
+                  disabled={busy}
+                />
+              ))}
+              <ChoiceChip
+                label={t('nearby.connections.timelineCustom')}
+                selected={rangePreset === 'custom'}
+                onPress={() => setRangePreset('custom')}
+                disabled={busy}
+              />
+            </View>
+            {rangePreset === 'custom' ? (
+              <View style={styles.dateFields}>
+                <InputControl
+                  placeholder={t('nearby.connections.timelineFrom')}
+                  value={periodStart}
+                  onChangeText={setPeriodStart}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                <InputControl
+                  placeholder={t('nearby.connections.timelineTo')}
+                  value={periodEnd}
+                  onChangeText={setPeriodEnd}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+            ) : (
+              <AppText variant="caption" style={styles.meta}>
+                {periodStart && periodEnd
+                  ? t('nearby.connections.timelineWindow', { from: periodStart, to: periodEnd })
+                  : null}
+              </AppText>
+            )}
+            <Button
+              label={t('nearby.connections.grantConfirmAction')}
+              onPress={() =>
+                consentMutation.mutate({
+                  scope: rangeConsent.scope,
+                  granted: true,
+                  definitionId: rangeConsent.definitionId,
+                  periodStart,
+                  periodEnd,
+                })
+              }
+              disabled={busy || !isDateKey(periodStart) || !isDateKey(periodEnd) || periodEnd < periodStart}
+              loading={busy}
+            />
+            <Button
+              label={t('common.cancel')}
+              variant="secondary"
+              onPress={() => setRangeConsent(null)}
               disabled={busy}
             />
           </View>
@@ -362,6 +486,14 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface,
     borderWidth: 1,
     borderColor: palette.divider,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  dateFields: {
+    gap: spacing.sm,
   },
   pressed: {
     opacity: 0.85,

@@ -36,9 +36,10 @@ export function TermsPage() {
         <h2>Subscriptions</h2>
         <p>
           Paid CareMate plans are offered according to current consumer pricing (see{' '}
-          <Link to="/pricing">Pricing</Link>) and the in-app checkout with store or payment-provider
-          terms. Fees, renewals, and cancellations follow the flow presented at purchase. Refunds
-          are described in our separate <Link to="/refunds">Refund policy</Link>.
+          <Link to="/pricing">Pricing</Link>). You can subscribe on the website or community portal
+          with Paystack (Naira) or Stripe (USD), or in the CareMate iOS and Android apps through
+          Apple or Google billing. Fees, renewals, and cancellations follow the flow presented at
+          purchase. Refunds are described in our separate <Link to="/refunds">Refund policy</Link>.
         </p>
 
         <h2>Availability</h2>

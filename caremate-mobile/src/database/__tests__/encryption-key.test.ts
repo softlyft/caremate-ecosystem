@@ -49,22 +49,18 @@ describe('sqlite encryption key', () => {
     expect(() => buildSqlCipherKeyPragma('short')).toThrow(/32-byte hex/i);
   });
 
-  it('reuses an existing SecureStore key', async () => {
+  it('reuses an existing stored key', async () => {
     const hex = 'ab'.repeat(32);
-    mockSecureGet.mockResolvedValue(hex);
+    mockGetItem.mockResolvedValue(hex);
     await expect(getOrCreateSqliteEncryptionKey()).resolves.toBe(hex);
     expect(mockGetRandomBytesAsync).not.toHaveBeenCalled();
-    expect(mockSecureSet).not.toHaveBeenCalled();
+    expect(mockSetItem).not.toHaveBeenCalled();
   });
 
   it('creates and stores a new key when missing', async () => {
     const key = await getOrCreateSqliteEncryptionKey();
     expect(key).toHaveLength(64);
-    expect(mockSecureSet).toHaveBeenCalledWith(
-      SQLITE_ENCRYPTION_KEY_STORAGE,
-      key,
-      expect.objectContaining({ keychainAccessible: 2 }),
-    );
+    expect(mockSetItem).toHaveBeenCalledWith(SQLITE_ENCRYPTION_KEY_STORAGE, key);
   });
 
   it('encrypts on native platforms', () => {

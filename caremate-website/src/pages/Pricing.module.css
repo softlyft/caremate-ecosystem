@@ -13,6 +13,17 @@
   gap: 1rem;
 }
 
+.paidNotice {
+  max-width: var(--max-width, 72rem);
+  margin: 0 auto 0.5rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: 14px;
+  background: #ccfbf1;
+  color: #0f766e;
+  font-weight: 600;
+  text-align: center;
+}
+
 .eyebrow,
 .eyebrowLight {
   margin: 0;

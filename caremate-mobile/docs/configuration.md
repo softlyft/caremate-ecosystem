@@ -10,7 +10,11 @@ File: `.env` (copy from `.env.example`)
 |----------|----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | No | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
-| `EXPO_PUBLIC_PAYMENT_URL` | Checkout | Hosted payment app base URL (`pay-dev` / `pay`) |
+| `EXPO_PUBLIC_PAYMENT_URL` | No | Hosted payment app (website/community checkout). Not used for in-app store purchases. |
+| `EXPO_PUBLIC_IAP_PERSONAL_MONTHLY` | Store IAP | App Store / Play product ID (default `caremate.premium.personal.monthly`) |
+| `EXPO_PUBLIC_IAP_PERSONAL_YEARLY` | Store IAP | Yearly Standard product ID |
+| `EXPO_PUBLIC_IAP_FAMILY_MONTHLY` | Store IAP | Monthly Family product ID |
+| `EXPO_PUBLIC_IAP_FAMILY_YEARLY` | Store IAP | Yearly Family product ID |
 | `EXPO_PUBLIC_WEBSITE_URL` | Legal / CCN | Marketing site origin (`dev.getcaremate.com` / `getcaremate.com`) |
 | `EXPO_PUBLIC_COMMUNITY_PORTAL_URL` | Community join | Community portal origin (`community-dev` / `community`) |
 | `EXPO_PUBLIC_APP_ENV` | No | Environment label for Sentry (`development` / `staging` / `production` / …) |
@@ -21,7 +25,8 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_POSTHOG_ENABLE_IN_DEV` | No | Set `1` to send PostHog events from `__DEV__` (default off) |
 | `EXPO_PUBLIC_ADMOB_APP_ID_ANDROID` | AdMob builds | Google AdMob Android app ID (`app.config.ts`) |
 | `EXPO_PUBLIC_ADMOB_APP_ID_IOS` | AdMob builds | Google AdMob iOS app ID |
-| `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Production AdMob | Banner unit for `home.tips` |
+| `EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS` | Production AdMob | iOS banner unit (used for every slot) |
+| `EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS` | Production AdMob | Android banner unit for `home.tips` |
 | `EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED` | Production AdMob | Banner unit for `home.feed` |
 | `EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST` | Production AdMob | Banner unit for `learn.list` |
 | `EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER` | Production AdMob | Banner unit for `learn.article_header` |
@@ -33,7 +38,7 @@ File: `.env` (copy from `.env.example`)
 | `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK` | Production AdMob | Banner unit for `period.week` |
 | `EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER` | Production AdMob | Banner unit for `period.footer` |
 
-`__DEV__` uses Google sample/test IDs regardless of env. AdMob requires a **dev client or EAS build** (not Expo Go). See [Ads](./ads.md).
+`main` / TestFlight / Metro use Google sample/test IDs — **no AdMob GitHub secrets needed** on `development`. Live IDs are only baked when `EXPO_PUBLIC_APP_ENV=production` (`prod` branch). Android: all 11 `EXPO_PUBLIC_ADMOB_BANNER_*` secrets may share **one** Android banner unit. iOS: set **`EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS`** once. See [Ads → GitHub secrets](./ads.md#github-secrets). AdMob requires a **dev client or release binary** (not Expo Go).
 
 ### Monitoring (Sentry + PostHog)
 
@@ -44,7 +49,7 @@ File: `.env` (copy from `.env.example`)
 | Offline analytics outbox | `src/lib/monitoring/analytics-queue.ts` | SQLite `analytics_queue`; flush on online / reconnect / PostHog bind |
 | Identity | Both | Signed-in users identified; guests reset |
 
-EAS secrets (not `EXPO_PUBLIC_*`): `SENTRY_AUTH_TOKEN`, optionally `SENTRY_ORG` / `SENTRY_PROJECT` for native source-map upload during builds. Set `EXPO_PUBLIC_SENTRY_DSN` and `EXPO_PUBLIC_POSTHOG_API_KEY` as EAS env for release profiles.
+CI secrets (not `EXPO_PUBLIC_*`): `SENTRY_AUTH_TOKEN`, optionally `SENTRY_ORG` / `SENTRY_PROJECT` for native source-map upload during builds. Set `EXPO_PUBLIC_SENTRY_DSN` and `EXPO_PUBLIC_POSTHOG_API_KEY` as GitHub secrets for release workflows.
 
 Supabase Edge Function secrets (set with `supabase secrets set`, not in the mobile `.env`): SES (`AWS_*`, `SES_FROM_EMAIL=hello@getcaremate.com`, `SES_FROM_NAME=CareMate`) and optional `EXPO_ACCESS_TOKEN` for Expo Push API auth. See [`supabase/functions/README.md`](../../supabase/functions/README.md).
 
@@ -95,7 +100,7 @@ Public CareMate website surfaces opened from the app (outside Settings legal):
 
 Enrollment continues on the Community Portal (`https://community.getcaremate.com/join` in production, `https://community-dev.getcaremate.com/join` in development). See [`caremate-website/README.md`](../../caremate-website/README.md) and [`caremate-community-portal/docs`](../../caremate-community-portal/docs/README.md).
 
-Mode hosts: set in Amplify / EAS env (see [amplify-hosting](../../docs/amplify-hosting.md)). Localhost: copy `.env.local.example` → `.env.local`. Documented defaults live in `.env.example`.
+Mode hosts: set in Amplify / GitHub secrets (see [amplify-hosting](../../docs/amplify-hosting.md)). Localhost: copy `.env.local.example` → `.env.local`. Documented defaults live in `.env.example`.
 
 ### `STORAGE_KEYS`
 
@@ -238,7 +243,8 @@ Preset `jest-expo`. Path alias `@/` mapped. Run via `npm run test`.
 ## GitHub Actions
 
 - `.github/workflows/ci.yml` — format, lint, typecheck, test on PRs
-- `.github/workflows/eas-test-release.yml` — same gate, then EAS builds
+- `.github/workflows/android-play.yml` — signed Play AAB + upload (see [Play Android release](./play-android-release.md))
+- `.github/workflows/ios-testflight.yml` — signed iOS IPA + TestFlight upload (see [iOS TestFlight release](./ios-testflight-release.md))
 
 ---
 
@@ -254,11 +260,11 @@ Gluestack UI project configuration for component generation CLI.
 
 There is no `caremate-prod` (or similarly named) Supabase project linked yet. Until one exists:
 
-- Local apps, Amplify DEV hosts, and EAS non-prod profiles should use `caremate-dev`
+- Local apps, Amplify DEV hosts, and GitHub dev release workflows should use `caremate-dev`
 - Do **not** point production / store builds at `caremate-dev` once a real prod project is created
-- Create a production project, put its URL + keys only in production Amplify / EAS secrets, and keep `npm run supabase:link` pointed at whichever environment you are migrating
+- Create a production project, put its URL + keys only in production Amplify / GitHub secrets, and keep `npm run supabase:link` pointed at whichever environment you are migrating
 
-1. Create / use the intended Supabase project and put URL + anon key in `.env` / Amplify / EAS for that environment
+1. Create / use the intended Supabase project and put URL + anon key in `.env` / Amplify / GitHub secrets for that environment
 2. Link CLI (once per machine, from ecosystem root): `npm run supabase:link` (currently hard-coded to `caremate-dev`)
 3. Add SQL under ecosystem `supabase/migrations/` (`npm run supabase:migration:new <name>`)
 4. Apply to remote: `npm run supabase:db:push`

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { CalendarDays, Award, Users, FolderOpen, Megaphone } from 'lucide-react';
 import { requireCommunitySession } from '@/lib/auth';
+import { SubscribeCard } from '@/features/billing/subscribe-card';
+import { getProfile } from '@/domains/profile/repository';
 import { listEvents } from '@/domains/events/repository';
 import { listAnnouncements } from '@/domains/announcements/repository';
 import { getSummary } from '@/domains/contributions/repository';
@@ -14,11 +16,12 @@ export default async function DashboardPage() {
   const session = await requireCommunitySession();
   const chapterId = session.activeChapterId;
 
-  const [events, announcements, summary, leaderboard] = await Promise.all([
+  const [events, announcements, summary, leaderboard, profile] = await Promise.all([
     listEvents(chapterId),
     listAnnouncements(chapterId),
     getSummary(session.user.id),
     getChapterLeaderboard(chapterId, 5),
+    getProfile(session.user.id),
   ]);
 
   const upcoming = events.filter((e) => isUpcomingEvent(e.starts_at)).slice(0, 5);
@@ -57,6 +60,10 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      <SubscribeCard
+        defaultCurrency={profile?.country_code?.trim().toUpperCase() === 'NG' ? 'NGN' : 'USD'}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

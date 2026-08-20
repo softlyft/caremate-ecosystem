@@ -1,8 +1,10 @@
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -170,26 +172,71 @@ type CardProps = {
   title?: string;
   eyebrow?: string;
   theme?: MiniAppTheme;
+  /** When set, the header toggles the body. */
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+  /** Shown under the title while collapsed. */
+  collapsedSummary?: string;
 };
 
-export function MiniAppCard({ children, index = 1, style, title, eyebrow, theme }: CardProps) {
+export function MiniAppCard({
+  children,
+  index = 1,
+  style,
+  title,
+  eyebrow,
+  theme,
+  collapsible = false,
+  defaultCollapsed = false,
+  collapsedSummary,
+}: CardProps) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const hideBody = collapsible && collapsed;
+  const header =
+    title || eyebrow ? (
+      <View style={styles.cardHeader}>
+        <View style={styles.cardHeaderCopy}>
+          {eyebrow ? (
+            <AppText
+              variant="caption"
+              style={[styles.cardEyebrow, theme ? { color: theme.color } : null]}
+            >
+              {eyebrow}
+            </AppText>
+          ) : null}
+          {title ? <AppText variant="cardTitle">{title}</AppText> : null}
+          {hideBody && collapsedSummary ? (
+            <AppText variant="caption" style={styles.cardCollapsedSummary}>
+              {collapsedSummary}
+            </AppText>
+          ) : null}
+        </View>
+        {collapsible ? (
+          hideBody ? (
+            <ChevronDown color={palette.textSecondary} size={20} strokeWidth={2.2} />
+          ) : (
+            <ChevronUp color={palette.textSecondary} size={20} strokeWidth={2.2} />
+          )
+        ) : null}
+      </View>
+    ) : null;
+
   return (
     <AnimatedSection index={index}>
       <Card style={[styles.card, style]} padded={false}>
-        {title || eyebrow ? (
-          <View style={styles.cardHeader}>
-            {eyebrow ? (
-              <AppText
-                variant="caption"
-                style={[styles.cardEyebrow, theme ? { color: theme.color } : null]}
-              >
-                {eyebrow}
-              </AppText>
-            ) : null}
-            {title ? <AppText variant="cardTitle">{title}</AppText> : null}
-          </View>
-        ) : null}
-        {children}
+        {header && collapsible ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: !collapsed }}
+            onPress={() => setCollapsed((value) => !value)}
+            style={styles.cardHeaderPressable}
+          >
+            {header}
+          </Pressable>
+        ) : (
+          header
+        )}
+        {hideBody ? null : children}
       </Card>
     </AnimatedSection>
   );
@@ -439,8 +486,23 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   cardHeader: {
-    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     marginBottom: 2,
+  },
+  cardHeaderPressable: {
+    marginHorizontal: -4,
+    paddingHorizontal: 4,
+    borderRadius: radius.md,
+  },
+  cardHeaderCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  cardCollapsedSummary: {
+    color: palette.textSecondary,
+    marginTop: 2,
   },
   cardEyebrow: {
     textTransform: 'uppercase',

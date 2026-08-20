@@ -1,0 +1,190 @@
+# Main-branch mobile CD — manual dispatch only (Free private repos cannot use
+# environment approval gates). Run after CI is green on main.
+#
+# Builds: Android APK artifact + iOS TestFlight (dev env).
+# Prod store releases: ios-app-store.yml + android-play.yml (prod branch).
+name: Mobile Main CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_ci_check:
+        description: Deploy even if latest CI on this branch did not pass (emergency only)
+        required: false
+        type: boolean
+        default: false
+      ios_only:
+        description: Skip Android APK (iOS TestFlight only)
+        required: false
+        type: boolean
+        default: false
+      android_only:
+        description: Skip iOS TestFlight (Android APK only)
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: mobile-main-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Gate · CI passed
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+      sha: ${{ steps.sha.outputs.sha }}
+      ios: ${{ steps.targets.outputs.ios }}
+      android: ${{ steps.targets.outputs.android }}
+    steps:
+      - name: Verify latest CI passed
+        if: inputs.skip_ci_check != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          CONCLUSION="$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=ci.yml \
+            --branch="$BRANCH" \
+            --limit=1 \
+            --json conclusion \
+            -q '.[0].conclusion' || true)"
+          if [ "$CONCLUSION" != "success" ]; then
+            echo "Latest CI on $BRANCH is '${CONCLUSION:-missing}', not success."
+            echo "Fix CI or re-run with skip_ci_check for emergencies."
+            exit 1
+          fi
+          echo "Latest CI on $BRANCH passed."
+
+      - name: Decide deploy targets
+        id: targets
+        run: |
+          set -euo pipefail
+          ios=true
+          android=true
+          if [ "${{ inputs.ios_only }}" = "true" ]; then
+            android=false
+          fi
+          if [ "${{ inputs.android_only }}" = "true" ]; then
+            ios=false
+          fi
+          if [ "$ios" = "false" ] && [ "$android" = "false" ]; then
+            echo "Choose at most one of ios_only or android_only."
+            exit 1
+          fi
+          echo "ios=$ios" >> "$GITHUB_OUTPUT"
+          echo "android=$android" >> "$GITHUB_OUTPUT"
+
+      - name: Approve deploy
+        id: decide
+        run: echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve build SHA
+        id: sha
+        run: echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+  android-apk:
+    name: Android APK · Artifact
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true' && needs.gate.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: development
+    permissions:
+      contents: read
+
+    env:
+      BUILD_SHA: ${{ needs.gate.outputs.sha }}
+      EXPO_NO_TELEMETRY: 1
+      # Match local android:apk / android-play — no SENTRY_AUTH_TOKEN on this job.
+      SENTRY_DISABLE_AUTO_UPLOAD: 'true'
+      EXPO_PUBLIC_APP_ENV: development
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.BUILD_SHA }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prune nested package stubs
+        run: npm run prune:module-stubs -w caremate-mobile
+
+      - name: Generate native Android project
+        working-directory: caremate-mobile
+        env:
+          CI: 1
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build release APK
+        working-directory: caremate-mobile/android
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon \
+            -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
+
+      - name: Stage APK
+        id: apk
+        run: |
+          set -euo pipefail
+          SRC="caremate-mobile/android/app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$SRC" ]; then
+            echo "APK not found at $SRC"
+            find caremate-mobile/android/app/build/outputs -type f -name '*.apk' || true
+            exit 1
+          fi
+          SHA7="$(echo "$BUILD_SHA" | cut -c1-7)"
+          NAME="CareMate-${SHA7}.apk"
+          mkdir -p artifacts
+          cp "$SRC" "artifacts/$NAME"
+          ls -lh "artifacts/$NAME"
+          echo "apk_name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: caremate-android-apk
+          path: artifacts/${{ steps.apk.outputs.apk_name }}
+          if-no-files-found: error
+          retention-days: 30
+
+  ios-testflight:
+    name: iOS TestFlight
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true' && needs.gate.outputs.ios == 'true'
+    uses: ./.github/workflows/ios-testflight.yml
+    with:
+      build_sha: ${{ needs.gate.outputs.sha }}
+      upload: true
+      build_number: ''
+    secrets: inherit

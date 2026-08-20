@@ -4,9 +4,19 @@ import { getSummary, listForUser } from '@/domains/contributions/repository';
 import { ROLE_LABELS } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { SubscribeCard } from '@/features/billing/subscribe-card';
 
-export default async function ProfilePage() {
+function currencyForCountry(countryCode: string | null | undefined): 'NGN' | 'USD' {
+  return countryCode?.trim().toUpperCase() === 'NG' ? 'NGN' : 'USD';
+}
+
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ paid?: string }>;
+}) {
   const session = await requireCommunitySession();
+  const { paid } = await searchParams;
   const [profile, summary, contributions] = await Promise.all([
     getProfile(session.user.id),
     getSummary(session.user.id),
@@ -22,6 +32,12 @@ export default async function ProfilePage() {
         </p>
       </div>
 
+      {paid === '1' ? (
+        <p className="rounded-lg bg-primary-light px-4 py-3 text-sm font-medium text-primary">
+          Payment received. Open the CareMate app with this account to use Premium.
+        </p>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardContent className="p-5">
@@ -36,6 +52,8 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+      <SubscribeCard defaultCurrency={currencyForCountry(profile?.country_code)} />
 
       <Card>
         <CardHeader>

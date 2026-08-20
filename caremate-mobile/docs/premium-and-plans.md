@@ -154,18 +154,29 @@ First launch → Guest
                  → Upgrade → Standard or Family Premium
 ```
 
-Premium checkout: `/(app)/profile/premium` → hosted **payment** web app → `create-checkout` (pending `payments` row) → Paystack/Stripe → webhook or `verify-checkout` marks payment succeeded and creates/renews an active `subscriptions` row. Portal admins manage prices at `/dashboard/billing` ([Portal billing](../../caremate-admin-portal/docs/billing.md)).
+Premium in the app: `/(app)/profile/premium` → **StoreKit / Play Billing** only (`expo-iap`). Receipts are verified by `verify-store-purchase`, which writes the same `subscriptions` row shape as Paystack/Stripe webhooks. Website and community checkout still use Paystack (NGN) / Stripe (USD) on the hosted payment app; those entitlements also unlock the app. Portal admins manage catalog prices at `/dashboard/billing` ([Portal billing](../../caremate-admin-portal/docs/billing.md)).
 
 ### Checkout currency by country
 
-Currency is chosen from the signed-in member’s **profile country** (device default while browsing as a guest — guests cannot check out), not a manual NGN/USD picker:
+**In the store apps**, Apple and Google set the billed currency from the storefront. Localized prices come from the store product catalog.
+
+**On the website and community portal**, currency is chosen from the member’s **profile country** (not a picker in the mobile binary):
 
 | Country | Currency | Gateway |
 |---------|----------|---------|
 | Nigeria (`NG`) | NGN | Paystack |
 | All others (incl. Global / unset) | USD | Stripe |
 
-Overrides live in `caremate-mobile/src/domains/billing/currency-by-country.ts` (`BILLING_CURRENCY_BY_COUNTRY` + `DEFAULT_BILLING_CURRENCY`). Add or change a country code there to retarget payments; catalog must still have an active `subscription_prices` row for that currency.
+Overrides live in `caremate-mobile/src/domains/billing/currency-by-country.ts` (`BILLING_CURRENCY_BY_COUNTRY` + `DEFAULT_BILLING_CURRENCY`) for web/community routing. Catalog must still have an active `subscription_prices` row for that currency.
+
+Store product IDs (override with `EXPO_PUBLIC_IAP_*`):
+
+| Plan | Interval | Default product ID |
+|------|----------|--------------------|
+| Standard | monthly | `caremate.premium.personal.monthly` |
+| Standard | yearly | `caremate.premium.personal.yearly` |
+| Family | monthly | `caremate.premium.family.monthly` |
+| Family | yearly | `caremate.premium.family.yearly` |
 
 ### Standard → Family upgrade
 
@@ -174,10 +185,10 @@ Members with **active Standard** (`personal`) who have a household can upgrade o
 1. App calls `quote-upgrade`. Period day counts use rounded day lengths; credit = `floor(personalPaid × daysRemaining / daysTotal)`.
 2. `personalPaid` comes from the linked succeeded payment when present; otherwise the Standard catalog price for that interval/currency.
 3. Charge = `max(0, full Family list price − credit)` (not a prorated Family period).
-4. `create-upgrade` creates a pending payment and opens Paystack/Stripe directly (not the Vite checkout confirm page). Amount due `0` activates immediately.
-5. On success, Standard is canceled and a **new Family period starts today** for the selected monthly/yearly interval. Success/cancel deep links still use the hosted `caremate-payment-gateway/` return pages.
+4. Amount due `0` still activates via `create-upgrade` (no store sheet). Amount due `> 0` buys the Family **store** product; Apple/Google charge the store price (unused Standard time is not credited through the stores). `verify-store-purchase` cancels Standard when activating Family.
+5. On success, Standard is canceled and a **new Family period starts today** for the selected monthly/yearly interval.
 
-Active Standard members cannot buy Family via normal `create-checkout`; they must use this upgrade path.
+Active Standard members cannot buy Family as a first-time checkout; they must use this upgrade path.
 
 ### Offline entitlement
 

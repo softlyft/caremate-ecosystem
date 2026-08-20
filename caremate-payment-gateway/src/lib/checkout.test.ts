@@ -4,8 +4,10 @@ import {
   formatAmount,
   intervalLabel,
   isAllowedAppReturnUrl,
+  isAppDeepLinkReturn,
   openAppDeepLink,
   parseCheckoutParams,
+  parseCheckoutSource,
   planLabel,
   providerForCurrency,
   sanitizeAppReturnUrl,
@@ -31,6 +33,7 @@ describe('parseCheckoutParams', () => {
       patientId: '123456789012',
       returnSuccess: 'caremate://billing/success',
       returnCancel: 'caremate://billing/cancel',
+      source: 'app',
     });
   });
 
@@ -48,6 +51,7 @@ describe('parseCheckoutParams', () => {
       patientId: null,
       returnSuccess: 'caremate://billing/success',
       returnCancel: 'caremate://billing/cancel',
+      source: 'app',
     });
   });
 
@@ -67,6 +71,7 @@ describe('parseCheckoutParams', () => {
       patientId: null,
       returnSuccess: 'caremate://billing/success',
       returnCancel: 'caremate://billing/cancel',
+      source: 'app',
     });
   });
 
@@ -100,11 +105,49 @@ describe('return URL allowlist', () => {
     expect(isAllowedAppReturnUrl('https://pay.getcaremate.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('https://pay-dev.getcaremate.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('https://main.d1wcqa3tsdavz8.amplifyapp.com/success')).toBe(true);
+    expect(isAppDeepLinkReturn('caremate://billing/success')).toBe(true);
+    expect(isAppDeepLinkReturn('https://www.getcaremate.com/pricing')).toBe(false);
+    expect(parseCheckoutSource('website')).toBe('website');
+    expect(parseCheckoutSource('community')).toBe('community');
+    expect(parseCheckoutSource(null)).toBe('app');
     expect(isAllowedAppReturnUrl('javascript:alert(1)')).toBe(false);
     expect(isAllowedAppReturnUrl('caremate://evil')).toBe(false);
     expect(sanitizeAppReturnUrl('javascript:x', 'caremate://billing/success')).toBe(
       'caremate://billing/success',
     );
+  });
+
+  it('defaults website and community returns to https hosts, not app deep links', () => {
+    const website = parseCheckoutParams(
+      new URLSearchParams({
+        plan_type: 'personal',
+        billing_interval: 'monthly',
+        currency: 'NGN',
+        source: 'website',
+      }),
+    );
+    expect(website).toMatchObject({
+      source: 'website',
+      currency: 'NGN',
+    });
+    if ('error' in website) {
+      throw new Error(website.error);
+    }
+    expect(website.returnSuccess).toMatch(/^https?:\/\//);
+    expect(isAppDeepLinkReturn(website.returnSuccess)).toBe(false);
+
+    const community = parseCheckoutParams(
+      new URLSearchParams({
+        plan: 'family',
+        interval: 'yearly',
+        source: 'community',
+      }),
+    );
+    expect(community).toMatchObject({ source: 'community', planType: 'family' });
+    if ('error' in community) {
+      throw new Error(community.error);
+    }
+    expect(isAppDeepLinkReturn(community.returnCancel)).toBe(false);
   });
 });
 

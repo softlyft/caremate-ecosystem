@@ -5,6 +5,7 @@ import { DocumentsModule } from '@caremate/documents';
 import { EncryptionModule } from '@caremate/encryption';
 import { EmergencyModule } from '@caremate/emergency';
 import { FamilyModule } from '@caremate/family';
+import { HealthTimelineModule } from '@caremate/health-timeline';
 import { MessagesModule } from '@caremate/messages';
 import { MiniAppSnapshotsModule } from '@caremate/mini-app-snapshots';
 import { ProfileModule } from '@caremate/profile';
@@ -27,6 +28,7 @@ import { HealthController } from './health.controller';
     FamilyModule,
     MessagesModule,
     DocumentsModule,
+    HealthTimelineModule,
   ],
   controllers: [HealthController, CryptoController],
 })

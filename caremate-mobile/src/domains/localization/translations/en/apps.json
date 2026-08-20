@@ -707,6 +707,13 @@
       "percentComplete": "{{percent}}% complete",
       "week0": "Week 0",
       "week40": "Week 40",
+      "trimesterBar": {
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3",
+        "weekRange": "Wk {{from}}–{{to}}",
+        "now": "Week {{weeks}}"
+      },
       "estimatedFromLmp": "Estimated from your last menstrual period",
       "estimatedFromProvider": "Based on the due date from your provider",
       "todaysLog": "Today's log",
@@ -738,7 +745,8 @@
       "postpartumBody": "Your estimated due date has passed. End pregnancy when you're ready, or update your due date if your provider adjusted it.",
       "pastPregnancies": "Past pregnancies",
       "history": "History",
-      "pastPregnancySubtitle": "Due {{due}} · Ended {{ended}} · {{logs}} logs"
+      "pastPregnancySubtitle": "Due {{due}} · Ended {{ended}} · {{logs}} logs",
+      "archivedLogsEmpty": "No daily logs were saved for this pregnancy."
     },
     "alerts": {
       "milestoneSoonTitle": "Coming up: Week {{week}}",
@@ -767,6 +775,7 @@
       "progress": "{{completed}} of {{total}} doses logged",
       "nextDose": "Next: {{dose}}",
       "complete": "TT1–TT5 logged",
+      "archivedTitle": "TT doses from this pregnancy",
       "notLogged": "Not logged",
       "logNext": "Log next TT",
       "logTt1": "Log TT1",
@@ -877,7 +886,10 @@
       "daysUntilPeriod_other": "About {{count}} days until your next period",
       "calendar": "Calendar",
       "loggedPeriod": "Logged period",
-      "predicted": "Predicted",
+      "predicted": "Predicted period",
+      "predictedWindow": "Next predicted period: {{range}}",
+      "fertile": "Fertile",
+      "ovulation": "Ovulation",
       "daysCount": "{{count}} days",
       "daysSelected": "{{count}} day selected",
       "daysSelected_other": "{{count}} days selected",

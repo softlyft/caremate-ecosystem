@@ -86,3 +86,12 @@ jest.mock('posthog-react-native', () => ({
   PostHogProvider: ({ children }: { children: unknown }) => children,
   usePostHog: () => null,
 }));
+
+jest.mock('expo-iap', () => ({
+  initConnection: jest.fn(async () => true),
+  fetchProducts: jest.fn(async () => []),
+  requestPurchase: jest.fn(async () => undefined),
+  finishTransaction: jest.fn(async () => undefined),
+  purchaseUpdatedListener: jest.fn(() => ({ remove: jest.fn() })),
+  purchaseErrorListener: jest.fn(() => ({ remove: jest.fn() })),
+}));

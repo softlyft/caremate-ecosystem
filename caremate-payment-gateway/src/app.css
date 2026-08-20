@@ -143,3 +143,31 @@ h1 {
   color: var(--foreground);
   border-color: #cbd5e1;
 }
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brand-navy);
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 500;
+  color: var(--foreground);
+  background: #fff;
+}
+
+.field input:focus {
+  outline: 2px solid var(--primary-light);
+  border-color: var(--primary);
+}

@@ -9,6 +9,7 @@ import { profileRepository } from '@/domains/profile/repository';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
 import { useAuthStore } from '@/features/auth/store';
+import { healthTimelineRepository } from '@/domains/timeline/repository';
 import { miniAppSnapshotRepository } from '@/mini-apps/_kit/snapshot-repository';
 import { registerSyncHandler } from '@/sync/registry';
 
@@ -89,6 +90,12 @@ export function registerDefaultSyncHandlers(): void {
     push: (entityId, operation, payload) =>
       miniAppSnapshotRepository.syncToRemote(entityId, operation, payload),
     pull: () => miniAppSnapshotRepository.pullFromRemote(),
+  });
+
+  registerSyncHandler('health_timeline_events', {
+    push: (entityId, operation, payload) =>
+      healthTimelineRepository.syncToRemote(entityId, operation, payload),
+    pull: () => healthTimelineRepository.pullFromRemote(),
   });
 
   registerSyncHandler('family_households', {

@@ -35,7 +35,8 @@ export default async function PatientDetailPage({
   const detail = await getPatientDetail(session.activeOrganizationId, id);
   if (!detail) notFound();
 
-  const { profile, connection, emergency, documents, activities, gender, membership } = detail;
+  const { profile, connection, emergency, documents, activities, gender, membership, healthTimelineConsent, healthTimelineEvents } =
+    detail;
   const contacts = emergency?.emergency_contacts;
   const canManage = canManageOrg(session.activeRole);
 
@@ -128,6 +129,50 @@ export default async function PatientDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Health timeline</CardTitle>
+          <CardDescription>
+            View-only logs the patient shared for a date range. This is not a download or export.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          {!(connection.shared_scopes ?? []).includes('health_timeline') || !healthTimelineConsent ? (
+            <p className="text-muted">Patient has not shared their health timeline.</p>
+          ) : (
+            <>
+              <p className="text-muted">
+                Consented window: {healthTimelineConsent.periodStart} to{' '}
+                {healthTimelineConsent.periodEnd}
+              </p>
+              {healthTimelineEvents.length === 0 ? (
+                <p className="text-muted">No logs in the consented date range.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {healthTimelineEvents.map((event) => (
+                    <li
+                      key={event.id}
+                      className="flex items-start justify-between gap-4 border-b border-border pb-3 last:border-0"
+                    >
+                      <div>
+                        <p className="font-medium text-foreground">{event.title}</p>
+                        {event.summary ? (
+                          <p className="mt-0.5 text-muted">{event.summary}</p>
+                        ) : null}
+                        <p className="mt-1 text-xs uppercase tracking-wide text-muted">
+                          {event.app_key}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-xs text-muted">{event.occurred_on}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
