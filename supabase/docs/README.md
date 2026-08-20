@@ -10,6 +10,7 @@ This docs set covers the shared cloud backend used by CareMate services.
 | Auth, roles, and RLS model | [Auth and RLS](./auth-and-rls.md) |
 | RPCs and Edge Functions | [RPCs and Functions](./rpcs-and-functions.md) |
 | Migrations, seeds, local CLI workflow | [Operations](./operations.md) |
+| Transactional email (`EMAIL_PROVIDER`) | [Email](./email.md) |
 | Cross-service security (Edge, handoff, webhooks) | [`docs/security.md`](../../docs/security.md) |
 | Provider Portal | [docs/README.md](../../caremate-provider-portal/docs/README.md) · connections, messaging, claim, schema, QA | Migrations `20260719140000_*` … `20260719200000_*`, `20260724100000_*` … `20260724170000_*` |
 

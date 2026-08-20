@@ -7,7 +7,7 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 | Branch | What ships | Workflow |
 |--------|------------|----------|
 | **`main`** | Dev **TestFlight** (iOS) + sideload **APK** artifact (Android) | [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) — **manual** after CI |
-| **`prod`** | **App Store** (iOS) + **Play production** track (Android) | [iOS App Store](./ios-app-store-release.md) · [Play Android](./play-android-release.md) |
+| **`prod`** | **App Store** (iOS) + **Play** (Android) — **manual** dispatch only | [iOS App Store](./ios-app-store-release.md) · [Play Android](./play-android-release.md) |
 
 `EXPO_PUBLIC_*` values are **baked into the binary at build time**. Dev builds on `main` and production builds on `prod` are **different binaries** — you cannot promote a `main` TestFlight build to the App Store.
 
@@ -19,9 +19,10 @@ feature → PR → main → CI (format · lint · typecheck · test)  ← automa
                                ├── iOS TestFlight (dev backends)
                                └── Android APK artifact (sideload QA)
 
-main → PR → prod
-              ├── iOS App Store build (prod backends)  → App Store Connect
-              └── Android Play AAB (prod backends)     → Play production track
+main → PR → prod → CI only (no store upload)
+              └── you run store workflows manually
+                    ├── iOS App Store  → App Store Connect
+                    └── Android Play   → Play production track
 ```
 
 ## Free plan + private repo
@@ -33,7 +34,7 @@ GitHub **Required reviewers** on environments is **not available** on Free plans
 
 The workflow checks that the **latest CI run on that branch succeeded** before building (unless you check **skip_ci_check** for emergencies).
 
-For **prod** store releases, the same limitation applies — merge to `prod` still auto-triggers store workflows today. Run **iOS App Store** / **Android Play** manually from the Actions tab if you want explicit control on Free.
+For **prod** store releases: merge to `prod` runs **CI only**. Deploy with **Actions → iOS App Store** / **Android Play** (pick branch `prod`) when you are ready.
 
 ## GitHub Environments
 
@@ -76,7 +77,7 @@ Play can **promote the same AAB** across tracks in Play Console. `prod` CI uploa
 
 ## Version numbers
 
-- **iOS** `CFBundleVersion`: `IOS_BUILD_NUMBER_OFFSET` + `github.run_number` (shared sequence — must always increase in App Store Connect)
+- **iOS** `CFBundleVersion`: `IOS_BUILD_NUMBER_OFFSET` + `github.run_id` (repo-wide unique — TestFlight and App Store cannot collide)
 - **Android** `versionCode`: `ANDROID_VERSION_CODE_OFFSET` + `github.run_number`
 - **Marketing version** (`1.0.0`): bump `caremate-mobile/app.json` → `expo.version` before release
 

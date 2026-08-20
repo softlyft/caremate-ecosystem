@@ -2,7 +2,7 @@
 
 [← Back to index](./README.md) · [Mobile release strategy](./mobile-release.md)
 
-Production Play builds run on **merge to `prod`**: prebuild → signed AAB → Play upload. EAS is not used.
+Production Play builds are **manual** on branch **`prod`**: prebuild → signed AAB → Play upload. EAS is not used.
 
 Workflow: [`.github/workflows/android-play.yml`](../../.github/workflows/android-play.yml)  
 Package: `com.softlyft.caremate`  
@@ -12,10 +12,10 @@ Sideload APKs on **`main`** ([`mobile-main-cd.yml`](../../.github/workflows/mobi
 
 ## Trigger
 
-- **Automatic:** push/merge to **`prod`** when `caremate-mobile/**` changes → **production** track, **draft** release
-- **Manual:** Actions → **Android Play** → Run workflow
+- **Manual only:** Actions → **Android Play** → Run workflow (pick branch **`prod`**)
+- Merge / push to **`prod`** runs **CI** only — it does **not** upload to Play
 
-On automatic `prod` merges, the AAB uploads to the **production** track as a **draft**. Complete the release in Play Console, or check **publish_production** on manual dispatch to auto-complete.
+Default manual dispatch uploads to the **production** track as a **draft**. Complete the release in Play Console, or check **publish_production** to auto-complete.
 
 ## What you must provide
 
@@ -58,7 +58,9 @@ In Play Console, enroll **Play App Signing** and upload this key as the **upload
 
 | Secret | Value |
 |--------|--------|
-| `PLAY_SERVICE_ACCOUNT_JSON` | Full service-account JSON (raw text) |
+| `PLAY_SERVICE_ACCOUNT_JSON` | Full service-account JSON (raw text) — **must** be on GitHub Environment **`production`** (it currently may exist only under `development`) |
+
+Store workflows **fail closed** if AdMob app IDs are missing/sample, Supabase/host URLs are missing, or the Supabase URL still points at `caremate-dev`.
 
 ### App env (recommended for a real Play build)
 
@@ -86,8 +88,8 @@ You can also pass **version_code** when dispatching the workflow.
 
 ## How to run
 
-1. **Merge to `prod`** — workflow runs automatically (production track, draft).
-2. Or Actions → **Android Play** → Run workflow manually.
+1. Merge to **`prod`** (CI runs; no store upload).
+2. Actions → **Android Play** → Run workflow (pick branch **`prod`**).
 
 Manual options:
 

@@ -1,6 +1,6 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { renderProviderOrgClaimOtp } from '../_shared/email-templates/index.ts';
-import { isSesConfigured, sendViaSes } from '../_shared/ses.ts';
+import { isEmailConfigured, sendEmail } from '../_shared/mailer.ts';
 
 /**
  * Service-role: send provider org-claim OTP (no auth user yet).
@@ -36,8 +36,8 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'to and 6-digit code are required' }, 400);
     }
 
-    if (!isSesConfigured()) {
-      return jsonResponse({ ok: false, skipped: true, reason: 'SES not configured' }, 503);
+    if (!isEmailConfigured()) {
+      return jsonResponse({ ok: false, skipped: true, reason: 'Email provider not configured' }, 503);
     }
 
     const mail = renderProviderOrgClaimOtp({
@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
       expiresMinutes: body.expiresMinutes ?? 15,
     });
 
-    const result = await sendViaSes({
+    const result = await sendEmail({
       to,
       subject: mail.subject,
       html: mail.html,
