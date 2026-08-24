@@ -4,7 +4,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { isCheckupItemUnlocked, isCheckupYearUnlocked } from '@/domains/billing/entitlements';
-import { localizationService, useTranslation } from '@/domains/localization';
+import { localizationService } from '@/domains/localization/service';
+import { useTranslation } from '@/domains/localization';
 import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
 import {
   MiniAppCard,
@@ -25,6 +26,7 @@ import {
   buildYearSchedule,
   getAgeInYear,
   getYearSummary,
+  isValidCheckupProfile,
   resolvePlannerRegion,
   type CheckupItemStatus,
 } from '@/mini-apps/checkup-planner/utils';
@@ -59,7 +61,8 @@ export default function CheckupPlannerScreen() {
   const currentYear = useMemo(() => new Date().getFullYear(), []);
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
-  const profile = useCheckupPlannerStore((state) => state.profile);
+  const rawProfile = useCheckupPlannerStore((state) => state.profile);
+  const profile = isValidCheckupProfile(rawProfile) ? rawProfile : null;
   const completions = useCheckupPlannerStore((state) => state.completions);
   const tier = usePremiumTier();
 

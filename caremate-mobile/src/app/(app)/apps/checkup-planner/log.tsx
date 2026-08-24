@@ -42,7 +42,7 @@ export default function CheckupPlannerLogScreen() {
   const hydrated = useCheckupPlannerHydrated();
 
   const profile = useCheckupPlannerStore((state) => state.profile);
-  const completions = useCheckupPlannerStore((state) => state.completions);
+  const completions = useCheckupPlannerStore((state) => state.completions) ?? [];
   const markComplete = useCheckupPlannerStore((state) => state.markComplete);
   const removeCompletion = useCheckupPlannerStore((state) => state.removeCompletion);
 

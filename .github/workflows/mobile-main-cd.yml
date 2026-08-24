@@ -1,8 +1,12 @@
 # Main-branch mobile CD — manual dispatch only (Free private repos cannot use
 # environment approval gates). Run after CI is green on main.
 #
-# Builds: Android APK artifact + iOS TestFlight (dev env).
+# Builds: Android APK (GitHub artifact + Slack channel) + iOS TestFlight (dev env).
 # Prod store releases: ios-app-store.yml + android-play.yml (prod branch).
+#
+# Android Slack upload (development environment secrets):
+#   SLACK_BOT_TOKEN              — bot token with chat:write + files:write
+#   SLACK_ANDROID_DEV_CHANNEL_ID — channel ID (e.g. C0123456789); invite the bot
 name: Mobile Main CD
 
 on:
@@ -90,7 +94,7 @@ jobs:
         run: echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   android-apk:
-    name: Android APK · Artifact
+    name: Android APK · Artifact + Slack
     needs: gate
     if: needs.gate.outputs.deploy == 'true' && needs.gate.outputs.android == 'true'
     runs-on: ubuntu-latest
@@ -115,6 +119,8 @@ jobs:
       EXPO_PUBLIC_POSTHOG_API_KEY: ${{ secrets.EXPO_PUBLIC_POSTHOG_API_KEY }}
       EXPO_PUBLIC_POSTHOG_HOST: ${{ secrets.EXPO_PUBLIC_POSTHOG_HOST }}
       # AdMob: leave unset on development — app.config uses Google sample IDs when APP_ENV ≠ production.
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_ANDROID_DEV_CHANNEL_ID: ${{ secrets.SLACK_ANDROID_DEV_CHANNEL_ID }}
 
     steps:
       - name: Checkout
@@ -172,19 +178,38 @@ jobs:
             exit 1
           fi
           SHA7="$(echo "$BUILD_SHA" | cut -c1-7)"
-          NAME="CareMate-${SHA7}.apk"
+          NAME="CareMate-dev-${SHA7}.apk"
           mkdir -p artifacts
           cp "$SRC" "artifacts/$NAME"
+          SIZE="$(du -h "artifacts/$NAME" | cut -f1)"
           ls -lh "artifacts/$NAME"
           echo "apk_name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_path=artifacts/$NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_size=$SIZE" >> "$GITHUB_OUTPUT"
+          echo "sha7=$SHA7" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: caremate-android-apk
-          path: artifacts/${{ steps.apk.outputs.apk_name }}
+          path: ${{ steps.apk.outputs.apk_path }}
           if-no-files-found: error
           retention-days: 30
+
+      - name: Post APK to Slack
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          method: files.uploadV2
+          token: ${{ env.SLACK_BOT_TOKEN }}
+          payload: |
+            channel_id: ${{ env.SLACK_ANDROID_DEV_CHANNEL_ID }}
+            initial_comment: |
+              *CareMate Android (dev)* `${{ steps.apk.outputs.sha7 }}`
+              Sideload APK · ${{ steps.apk.outputs.apk_size }} · run <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_number }}>
+              Branch `${{ github.ref_name }}` · by ${{ github.actor }}
+            file: ${{ steps.apk.outputs.apk_path }}
+            filename: ${{ steps.apk.outputs.apk_name }}
+            title: ${{ steps.apk.outputs.apk_name }}
 
   ios-testflight:
     name: iOS TestFlight

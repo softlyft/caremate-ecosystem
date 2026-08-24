@@ -7,6 +7,7 @@ import {
   trackEvent,
   trackScreen,
 } from '@/lib/monitoring/analytics';
+import { InteractionManager } from 'react-native';
 
 jest.mock('@/constants/env', () => ({
   config: {
@@ -42,6 +43,16 @@ describe('analytics', () => {
     mockEnqueue.mockClear();
     mockFlush.mockClear();
     mockBindSender.mockClear();
+    jest.spyOn(InteractionManager, 'runAfterInteractions').mockImplementation((task) => {
+      if (typeof task === 'function') {
+        task();
+      }
+      return {
+        cancel: jest.fn(),
+        done: jest.fn(),
+        then: (onfulfilled?: () => unknown) => Promise.resolve().then(onfulfilled),
+      };
+    });
     bindPostHogClient({
       capture,
       screen,
@@ -51,6 +62,7 @@ describe('analytics', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     bindPostHogClient(null);
   });
 

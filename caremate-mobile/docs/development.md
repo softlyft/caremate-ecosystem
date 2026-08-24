@@ -19,7 +19,7 @@ npm run test
 GitHub Actions:
 
 - `.github/workflows/ci.yml` — format → lint → typecheck → test on PRs and pushes to main/staging/prod
-- `.github/workflows/mobile-main-cd.yml` — **manual** dev deploy on **`main`**: Android APK + iOS TestFlight (after CI check)
+- `.github/workflows/mobile-main-cd.yml` — **manual** dev deploy on **`main`**: Android APK (artifact + Slack) + iOS TestFlight (after CI check)
 - `.github/workflows/ios-testflight.yml` — reusable iOS TestFlight build (also manual dispatch)
 - `.github/workflows/ios-app-store.yml` — **manual** App Store build on **`prod`**
 - `.github/workflows/android-play.yml` — **manual** Play production AAB on **`prod`**

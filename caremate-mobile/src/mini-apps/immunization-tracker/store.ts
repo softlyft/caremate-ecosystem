@@ -2,7 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { ImmunizationProfile, ImmunizationRecord } from '@/mini-apps/immunization-tracker/utils';
+import {
+  ImmunizationProfile,
+  ImmunizationRecord,
+  isValidImmunizationProfile,
+  normalizeImmunizationProfiles,
+  normalizeImmunizationRecords,
+} from '@/mini-apps/immunization-tracker/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
@@ -26,27 +32,37 @@ type LegacyPersistedState = {
   records?: (ImmunizationRecord & { profileId?: string })[];
 };
 
+function resolveActiveProfileId(
+  profiles: ImmunizationProfile[],
+  activeProfileId: string | null | undefined,
+): string | null {
+  if (activeProfileId && profiles.some((profile) => profile.id === activeProfileId)) {
+    return activeProfileId;
+  }
+  return profiles[0]?.id ?? null;
+}
+
 export function migratePersistedState(persisted: unknown): Partial<ImmunizationTrackerState> {
   const state = (persisted ?? {}) as LegacyPersistedState;
 
   if (Array.isArray(state.profiles)) {
-    const profiles = state.profiles;
-    const activeProfileId =
-      state.activeProfileId && profiles.some((profile) => profile.id === state.activeProfileId)
-        ? state.activeProfileId
-        : (profiles[0]?.id ?? null);
+    const profiles = normalizeImmunizationProfiles(state.profiles);
+    const profileIds = new Set(profiles.map((profile) => profile.id));
+    const activeProfileId = resolveActiveProfileId(profiles, state.activeProfileId);
 
-    const records = (state.records ?? [])
-      .map((record) => {
-        if (record.profileId) {
-          return record as ImmunizationRecord;
-        }
-        if (!activeProfileId) {
-          return null;
-        }
-        return { ...record, profileId: activeProfileId };
-      })
-      .filter((record): record is ImmunizationRecord => Boolean(record));
+    const records = normalizeImmunizationRecords(
+      (state.records ?? [])
+        .map((record) => {
+          if (record?.profileId) {
+            return record as ImmunizationRecord;
+          }
+          if (!activeProfileId || !record) {
+            return null;
+          }
+          return { ...record, profileId: activeProfileId };
+        })
+        .filter((record): record is ImmunizationRecord => Boolean(record)),
+    ).filter((record) => profileIds.has(record.profileId));
 
     return { profiles, activeProfileId, records };
   }
@@ -57,10 +73,19 @@ export function migratePersistedState(persisted: unknown): Partial<ImmunizationT
       name: state.profile.name,
       dateOfBirth: state.profile.dateOfBirth,
     };
-    const records = (state.records ?? []).map((record) => ({
-      ...record,
-      profileId: migratedProfile.id,
-    }));
+    if (!isValidImmunizationProfile(migratedProfile)) {
+      return {
+        profiles: [],
+        activeProfileId: null,
+        records: [],
+      };
+    }
+    const records = normalizeImmunizationRecords(
+      (state.records ?? []).map((record) => ({
+        ...record,
+        profileId: migratedProfile.id,
+      })),
+    );
     return {
       profiles: [migratedProfile],
       activeProfileId: migratedProfile.id,
@@ -75,6 +100,26 @@ export function migratePersistedState(persisted: unknown): Partial<ImmunizationT
   };
 }
 
+function sanitizePersistedState(
+  persisted: unknown,
+  current: ImmunizationTrackerState,
+): ImmunizationTrackerState {
+  const migrated = migratePersistedState(persisted);
+  const profiles = normalizeImmunizationProfiles(migrated.profiles ?? current.profiles);
+  const profileIds = new Set(profiles.map((profile) => profile.id));
+  return {
+    ...current,
+    profiles,
+    activeProfileId: resolveActiveProfileId(
+      profiles,
+      migrated.activeProfileId ?? current.activeProfileId,
+    ),
+    records: normalizeImmunizationRecords(migrated.records ?? current.records).filter((record) =>
+      profileIds.has(record.profileId),
+    ),
+  };
+}
+
 export const useImmunizationTrackerStore = create<ImmunizationTrackerState>()(
   persist(
     (set, get) => ({
@@ -82,12 +127,10 @@ export const useImmunizationTrackerStore = create<ImmunizationTrackerState>()(
       activeProfileId: null,
       records: [],
       syncProfilesFromFamily: (children) => {
-        const profiles = children.filter((child) => Boolean(child.dateOfBirth?.trim()));
-        const activeStillValid =
-          get().activeProfileId && profiles.some((profile) => profile.id === get().activeProfileId);
+        const profiles = normalizeImmunizationProfiles(children);
         set({
           profiles,
-          activeProfileId: activeStillValid ? get().activeProfileId : (profiles[0]?.id ?? null),
+          activeProfileId: resolveActiveProfileId(profiles, get().activeProfileId),
         });
       },
       setActiveProfileId: (profileId) => {
@@ -96,11 +139,15 @@ export const useImmunizationTrackerStore = create<ImmunizationTrackerState>()(
         }
       },
       upsertRecord: (record) => {
+        const next = normalizeImmunizationRecords([record])[0];
+        if (!next) {
+          return;
+        }
         const records = [
           ...get().records.filter(
-            (item) => !(item.profileId === record.profileId && item.vaccineId === record.vaccineId),
+            (item) => !(item.profileId === next.profileId && item.vaccineId === next.vaccineId),
           ),
-          record,
+          next,
         ];
         set({ records });
       },
@@ -118,6 +165,7 @@ export const useImmunizationTrackerStore = create<ImmunizationTrackerState>()(
       version: 1,
       storage: createJSONStorage(() => createMiniAppSyncedStorage('immunization')),
       migrate: (persistedState) => migratePersistedState(persistedState),
+      merge: (persisted, current) => sanitizePersistedState(persisted, current),
     },
   ),
 );

@@ -64,10 +64,12 @@
     "node": ">=20"
   },
   "devDependencies": {
+    "expo-sqlite": "57.0.1",
     "patch-package": "^8.0.1",
     "tr46": "6.0.0"
   },
   "overrides": {
-    "tr46": "6.0.0"
+    "tr46": "6.0.0",
+    "expo-sqlite": "57.0.1"
   }
 }

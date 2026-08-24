@@ -66,7 +66,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const session = await authService.getSession();
       const user = authService.mapUser(session?.user ?? null);
       if (user && session?.user) {
-        await authService.prepareLocalAccount(session.user);
+        await authService.prepareLocalAccount(session.user, undefined, {
+          deferRemoteHydration: true,
+        });
         set({
           user,
           isAuthenticated: true,

@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+
+import { applyAppStateChange, createAppBackgroundGate } from '@/sync/app-state';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -98,9 +100,10 @@ export default function HomeScreen() {
     }
   };
 
+  const appBackgroundGateRef = useRef(createAppBackgroundGate(AppState.currentState));
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
+      if (applyAppStateChange(appBackgroundGateRef.current, state).shouldForegroundSync) {
         void coordsQuery.refetch();
       }
     });

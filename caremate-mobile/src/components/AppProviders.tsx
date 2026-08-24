@@ -23,12 +23,14 @@ import { initializeAdsConsentAndSdk } from '@/domains/ads/consent';
 import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
+import { hydrateEmergencyProfile } from '@/domains/emergency/hydrate-emergency';
 import { syncPushRegistration } from '@/domains/notifications/push';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
 import { queryClient } from '@/lib/query-client';
 import { MonitoringProvider } from '@/lib/monitoring/MonitoringProvider';
 import { authService } from '@/services/auth-service';
+import { hydrateMiniAppsFromRemote } from '@/mini-apps/_kit/hydrate';
 import { registerDailyBackgroundSync } from '@/sync/background-daily-sync';
 import { syncEngine } from '@/sync/engine';
 
@@ -73,6 +75,19 @@ async function runBackgroundStartupTasks() {
     // Widget sync is best-effort and must not block the UI.
   }
 
+  // Fire catalog refresh without blocking sync engine start (large article pulls can be slow).
+  void Promise.all([
+    articleRepository.pullFromRemote(),
+    healthTipRepository.pullFromRemote(),
+    adsRepository.pullFromRemote(),
+  ])
+    .then(() => {
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
+    })
+    .catch(() => {
+      // Local SQLite catalogs remain available offline.
+    });
+
   try {
     await syncEngine.start();
     await registerDailyBackgroundSync();
@@ -99,17 +114,10 @@ function BootstrapGate({ children }: PropsWithChildren) {
 
     async function bootstrap() {
       try {
-        // Critical path: local SQLite + session only. Network sync stays in the background.
+        // Critical path: local SQLite + session only. Network stays in the background.
         await initializeDatabase();
         await providerRepository.purgeBundledProviders();
         await migrateOnboardingFlagIfUpgrading();
-        // Catalogs: portal → Supabase (guests included via anon RLS).
-        await Promise.all([
-          articleRepository.pullFromRemote(),
-          healthTipRepository.pullFromRemote(),
-          adsRepository.pullFromRemote(),
-        ]);
-        void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
         await initializeAuth();
 
         try {
@@ -145,14 +153,14 @@ function BootstrapGate({ children }: PropsWithChildren) {
     if (!dbReady || !isAuthenticated || !userId) {
       return;
     }
-    // Fresh sign-in / session restore / new device: hydrate Premium before ads race free cache.
+    // After first paint: restore cloud account data deferred from cold-start auth.
     let cancelled = false;
     void (async () => {
-      try {
-        await hydrateAccountEntitlements(userId);
-      } catch {
-        // Background sync still runs.
-      }
+      await Promise.all([
+        hydrateAccountEntitlements(userId).catch(() => undefined),
+        hydrateEmergencyProfile(userId).catch(() => undefined),
+        hydrateMiniAppsFromRemote(userId).catch(() => undefined),
+      ]);
       if (cancelled) return;
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] }),
@@ -189,12 +197,6 @@ function BootstrapGate({ children }: PropsWithChildren) {
             initializeDatabase()
               .then(async () => {
                 await providerRepository.purgeBundledProviders();
-                await Promise.all([
-                  articleRepository.pullFromRemote(),
-                  healthTipRepository.pullFromRemote(),
-                  adsRepository.pullFromRemote(),
-                ]);
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
                 await initializeAuth();
                 setDbReady(true);
                 void runBackgroundStartupTasks();

@@ -5,7 +5,7 @@ import {
   type CheckupDefinition,
   type CheckupGenderFilter,
 } from '@/mini-apps/checkup-planner/constants';
-import { localizationService } from '@/domains/localization';
+import { localizationService } from '@/domains/localization/service';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 
 export type PlannerGender = 'female' | 'male' | 'other';
@@ -15,6 +15,47 @@ export interface CheckupPlannerProfile {
   gender: PlannerGender;
   /** ISO country code, or null to use INT */
   regionCode: string | null;
+}
+
+const PLANNER_GENDERS = new Set<PlannerGender>(['female', 'male', 'other']);
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** True when persisted profile is safe to build a schedule from. */
+export function isValidCheckupProfile(
+  profile: CheckupPlannerProfile | null | undefined,
+): profile is CheckupPlannerProfile {
+  if (!profile || typeof profile !== 'object') {
+    return false;
+  }
+  if (typeof profile.dateOfBirth !== 'string' || !DATE_KEY_RE.test(profile.dateOfBirth)) {
+    return false;
+  }
+  if (!PLANNER_GENDERS.has(profile.gender)) {
+    return false;
+  }
+  if (profile.regionCode != null && typeof profile.regionCode !== 'string') {
+    return false;
+  }
+  const dob = parseDateKey(profile.dateOfBirth);
+  return Number.isFinite(dob.getTime());
+}
+
+export function normalizeCompletions(
+  completions: CheckupCompletion[] | null | undefined,
+): CheckupCompletion[] {
+  if (!Array.isArray(completions)) {
+    return [];
+  }
+  return completions.filter(
+    (item) =>
+      item &&
+      typeof item === 'object' &&
+      typeof item.checkupId === 'string' &&
+      typeof item.year === 'number' &&
+      Number.isFinite(item.year) &&
+      typeof item.completedDate === 'string' &&
+      DATE_KEY_RE.test(item.completedDate),
+  );
 }
 
 export interface CheckupCompletion {
@@ -50,7 +91,13 @@ export function formatDisplayDate(dateKey: string): string {
 }
 
 export function getAgeOnDate(dateOfBirth: string, reference: Date): number {
+  if (typeof dateOfBirth !== 'string' || !DATE_KEY_RE.test(dateOfBirth)) {
+    return 0;
+  }
   const dob = parseDateKey(dateOfBirth);
+  if (!Number.isFinite(dob.getTime())) {
+    return 0;
+  }
   let age = reference.getFullYear() - dob.getFullYear();
   const monthDiff = reference.getMonth() - dob.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && reference.getDate() < dob.getDate())) {
@@ -153,6 +200,11 @@ export function buildYearSchedule(
   completions: CheckupCompletion[],
   year: number,
 ): CheckupYearItem[] {
+  if (!isValidCheckupProfile(profile)) {
+    return [];
+  }
+
+  const safeCompletions = normalizeCompletions(completions);
   const region = resolvePlannerRegion(profile.regionCode);
   const age = getAgeInYear(profile.dateOfBirth, year);
   const currentYear = new Date().getFullYear();
@@ -167,7 +219,7 @@ export function buildYearSchedule(
       continue;
     }
 
-    const completion = completions.find(
+    const completion = safeCompletions.find(
       (item) => item.checkupId === checkup.id && item.year === year,
     );
 
@@ -198,7 +250,7 @@ export function buildYearSchedule(
       continue;
     }
 
-    if (!isDueInYear(checkup, year, age, completions)) {
+    if (!isDueInYear(checkup, year, age, safeCompletions)) {
       continue;
     }
 

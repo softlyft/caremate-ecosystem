@@ -62,11 +62,21 @@ export function TimelineDatePicker({ label, value, onChange }: TimelineDatePicke
       </Button>
 
       {open && useDialog ? (
-        <DateTimePicker value={pickerDate} mode="date" display="default" onChange={onPickerChange} />
+        <DateTimePicker
+          value={pickerDate}
+          mode="date"
+          display="default"
+          onChange={onPickerChange}
+        />
       ) : null}
 
       {!useDialog ? (
-        <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Modal
+          visible={open}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setOpen(false)}
+        >
           <View style={styles.backdrop}>
             <Pressable
               accessibilityLabel={t('common.cancel')}

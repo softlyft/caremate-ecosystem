@@ -6,7 +6,7 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 
 | Branch | What ships | Workflow |
 |--------|------------|----------|
-| **`main`** | Dev **TestFlight** (iOS) + sideload **APK** artifact (Android) | [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) — **manual** after CI |
+| **`main`** | Dev **TestFlight** (iOS) + sideload **APK** (GitHub artifact + Slack) | [Mobile Main CD](../../.github/workflows/mobile-main-cd.yml) — **manual** after CI |
 | **`prod`** | **App Store** (iOS) + **Play** (Android) — **manual** dispatch only | [iOS App Store](./ios-app-store-release.md) · [Play Android](./play-android-release.md) |
 
 `EXPO_PUBLIC_*` values are **baked into the binary at build time**. Dev builds on `main` and production builds on `prod` are **different binaries** — you cannot promote a `main` TestFlight build to the App Store.
@@ -17,7 +17,7 @@ CareMate mobile releases are **branch-driven** and built entirely on **GitHub Ac
 feature → PR → main → CI (format · lint · typecheck · test)  ← automatic
                          └── you run Mobile Main CD manually  ← your approval
                                ├── iOS TestFlight (dev backends)
-                               └── Android APK artifact (sideload QA)
+                               └── Android APK → GitHub artifact + Slack channel
 
 main → PR → prod → CI only (no store upload)
               └── you run store workflows manually
@@ -42,7 +42,7 @@ Create two environments under **Settings → Environments**:
 
 | Environment | Used by | Secrets |
 |-------------|---------|---------|
-| **`development`** | Mobile Main CD on `main` (Android APK + iOS TestFlight) | Dev/staging `EXPO_PUBLIC_*` (AdMob test IDs are hardcoded; live AdMob secrets are not used) |
+| **`development`** | Mobile Main CD on `main` (Android APK + iOS TestFlight) | Dev/staging `EXPO_PUBLIC_*` (AdMob test IDs are hardcoded; live AdMob secrets are not used); Slack: `SLACK_BOT_TOKEN`, `SLACK_ANDROID_DEV_CHANNEL_ID` |
 | **`production`** | `ios-app-store.yml`, `android-play.yml` on git branch `prod` | Production `EXPO_PUBLIC_*` including live `EXPO_PUBLIC_ADMOB_*` |
 
 **Signing secrets** (`IOS_*`, `ANDROID_*`, `APPLE_TEAM_ID`, App Store Connect API key, Play service account) can live at **repo** level or on each environment. On Free private repos, environments mainly **scope secrets** — they do not add approval gates.
@@ -69,8 +69,8 @@ On `prod`, you may optionally use the **same uploaded build** for final TestFlig
 
 | | `main` | `prod` |
 |--|--------|--------|
-| Output | Unsigned/debug-style **APK** artifact | Signed **AAB** |
-| Distribution | Download from GitHub Actions artifact | Play **production** track (draft by default) |
+| Output | Unsigned/debug-style **APK** | Signed **AAB** |
+| Distribution | GitHub Actions artifact **and** Slack channel | Play **production** track (draft by default) |
 | Play Console | Not used | Upload via API |
 
 Play can **promote the same AAB** across tracks in Play Console. `prod` CI uploads directly to the **production** track as a **draft** unless you check **publish_production** on manual dispatch.
@@ -88,12 +88,24 @@ Play can **promote the same AAB** across tracks in Play Console. `prod` CI uploa
    - Branch: **`main`**
    - **ios_only** / **android_only** — optional, build one platform
    - **skip_ci_check** — emergency only
-3. Download Android APK from artifacts; iOS appears in TestFlight after processing
+3. Android APK lands in the Actions artifact **and** the configured Slack channel; iOS appears in TestFlight after processing
+
+### Slack (Android APK on `main`)
+
+Add these secrets on the **`development`** GitHub Environment (or repo secrets):
+
+| Secret | Purpose |
+|--------|---------|
+| `SLACK_BOT_TOKEN` | Slack bot token (`xoxb-…`) with **`chat:write`** and **`files:write`** |
+| `SLACK_ANDROID_DEV_CHANNEL_ID` | Target channel ID (e.g. `C0123456789`) |
+
+Invite the bot to that channel before the first upload. Incoming webhooks cannot attach APKs — a bot token is required.
 
 ## Manual runs (other)
 
 ## Related docs
 
+- [Production readiness checklist](./production-readiness.md) — what’s done vs what’s left before submit
 - [iOS TestFlight (dev)](./ios-testflight-release.md)
 - [iOS App Store (prod)](./ios-app-store-release.md)
 - [Play Android (prod)](./play-android-release.md)

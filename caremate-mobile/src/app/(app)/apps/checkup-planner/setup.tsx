@@ -5,7 +5,8 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { CountrySelect } from '@/components/ui/CountrySelect';
-import { localizationService, useTranslation } from '@/domains/localization';
+import { localizationService } from '@/domains/localization/service';
+import { useTranslation } from '@/domains/localization';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -51,9 +52,11 @@ export default function CheckupPlannerSetupScreen() {
       setDateOfBirth(profile.dateOfBirth);
       setGender(profile.gender);
       setRegionCode(profile.regionCode);
-      const [year, month] = profile.dateOfBirth.split('-').map(Number);
-      if (year && month) {
-        setMonthRef(new Date(year, month - 1, 1));
+      if (typeof profile.dateOfBirth === 'string') {
+        const [year, month] = profile.dateOfBirth.split('-').map(Number);
+        if (year && month) {
+          setMonthRef(new Date(year, month - 1, 1));
+        }
       }
     }
   }

@@ -32,6 +32,7 @@ function resolveSyncUserId(): string | null {
   return user.id;
 }
 
+const lastPersistedValue = new Map<MiniAppKey, string>();
 const snapshotWriteTails = new Map<MiniAppKey, Promise<void>>();
 
 function enqueueSnapshotWrite(appKey: MiniAppKey, task: () => Promise<void>): Promise<void> {
@@ -90,6 +91,7 @@ export function createMiniAppSyncedStorage(appKey: MiniAppKey): StateStorage {
       const scoped = scopedMiniAppStorageKey(name);
       const scopedValue = await AsyncStorage.getItem(scoped);
       if (scopedValue != null) {
+        lastPersistedValue.set(appKey, scopedValue);
         return scopedValue;
       }
 
@@ -100,13 +102,19 @@ export function createMiniAppSyncedStorage(appKey: MiniAppKey): StateStorage {
       }
       await AsyncStorage.setItem(scoped, legacy);
       await AsyncStorage.removeItem(name);
+      lastPersistedValue.set(appKey, legacy);
       return legacy;
     },
     setItem: async (name, value) => {
+      if (lastPersistedValue.get(appKey) === value) {
+        return;
+      }
+
       const scoped = scopedMiniAppStorageKey(name);
       await AsyncStorage.setItem(scoped, value);
       // Drop legacy key so it cannot be adopted by a later account.
       await AsyncStorage.removeItem(name);
+      lastPersistedValue.set(appKey, value);
 
       const userId = resolveSyncUserId();
       if (!userId || !isDatabaseInitialized()) {
@@ -117,8 +125,10 @@ export function createMiniAppSyncedStorage(appKey: MiniAppKey): StateStorage {
         try {
           const wrapped = parseJson<{ state?: Record<string, unknown> }>(value, {});
           const payload = stripActions(wrapped.state ?? wrapped);
-          await miniAppSnapshotRepository.save({ userId, appKey, payload });
-          await projectMiniAppSnapshot({ userId, appKey, payload });
+          const changed = await miniAppSnapshotRepository.save({ userId, appKey, payload });
+          if (changed) {
+            await projectMiniAppSnapshot({ userId, appKey, payload });
+          }
         } catch {
           // Local UI persistence already succeeded; cloud mirror is best-effort.
         }

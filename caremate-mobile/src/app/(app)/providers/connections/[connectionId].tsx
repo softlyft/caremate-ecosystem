@@ -387,7 +387,9 @@ export default function ConnectedProviderDetailScreen() {
                   periodEnd,
                 })
               }
-              disabled={busy || !isDateKey(periodStart) || !isDateKey(periodEnd) || periodEnd < periodStart}
+              disabled={
+                busy || !isDateKey(periodStart) || !isDateKey(periodEnd) || periodEnd < periodStart
+              }
               loading={busy}
             />
             <Button
