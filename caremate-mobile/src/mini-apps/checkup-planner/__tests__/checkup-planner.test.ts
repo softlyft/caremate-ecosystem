@@ -65,9 +65,13 @@ describe('checkup-planner/utils', () => {
 
   it('does not throw on corrupt profile or completions when opening planner', () => {
     expect(isValidCheckupProfile(null)).toBe(false);
-    expect(isValidCheckupProfile({ dateOfBirth: undefined as never, gender: 'female', regionCode: null })).toBe(
-      false,
-    );
+    expect(
+      isValidCheckupProfile({
+        dateOfBirth: undefined as never,
+        gender: 'female',
+        regionCode: null,
+      }),
+    ).toBe(false);
     expect(normalizeCompletions(null)).toEqual([]);
     expect(normalizeCompletions(undefined)).toEqual([]);
     expect(() =>

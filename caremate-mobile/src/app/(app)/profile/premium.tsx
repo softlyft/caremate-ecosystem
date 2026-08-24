@@ -77,8 +77,11 @@ export default function PremiumScreen() {
   const selectedPlanType: PlanType = isPersonalActive ? 'family' : planType;
   const showUpgrade = isPersonalActive;
   const selectedSku = storeProductId(selectedPlanType, billingInterval);
-  const selectedStoreProduct = (storeProductsQuery.data ?? []).find((product) => product.id === selectedSku);
-  const storeName = Platform.OS === 'ios' ? t('profile.premium.storeApple') : t('profile.premium.storeGoogle');
+  const selectedStoreProduct = (storeProductsQuery.data ?? []).find(
+    (product) => product.id === selectedSku,
+  );
+  const storeName =
+    Platform.OS === 'ios' ? t('profile.premium.storeApple') : t('profile.premium.storeGoogle');
 
   const upgradeCurrency = billingCurrency;
 

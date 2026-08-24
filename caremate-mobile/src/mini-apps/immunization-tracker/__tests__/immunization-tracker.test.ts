@@ -36,9 +36,9 @@ describe('immunization-tracker/utils', () => {
 
   it('rejects invalid profiles and sanitizes lists', () => {
     expect(isValidImmunizationProfile(null)).toBe(false);
-    expect(
-      isValidImmunizationProfile({ id: 'x', name: 'Ada', dateOfBirth: null as never }),
-    ).toBe(false);
+    expect(isValidImmunizationProfile({ id: 'x', name: 'Ada', dateOfBirth: null as never })).toBe(
+      false,
+    );
     expect(normalizeImmunizationProfiles(null)).toEqual([]);
     expect(
       normalizeImmunizationProfiles([
@@ -47,9 +47,9 @@ describe('immunization-tracker/utils', () => {
       ]),
     ).toEqual([profile]);
     expect(normalizeImmunizationRecords(undefined)).toEqual([]);
-    expect(
-      buildSchedule({ id: 'x', name: 'Ada', dateOfBirth: null as never }, [], today),
-    ).toEqual([]);
+    expect(buildSchedule({ id: 'x', name: 'Ada', dateOfBirth: null as never }, [], today)).toEqual(
+      [],
+    );
   });
 
   it('computes recommended dates and age labels', () => {

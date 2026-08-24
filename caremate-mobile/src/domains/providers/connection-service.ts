@@ -484,9 +484,7 @@ class ProviderConnectionService {
 
       if (priorError) throw priorError;
 
-      const periodFields = needsPeriod
-        ? { period_start: periodStart, period_end: periodEnd }
-        : {};
+      const periodFields = needsPeriod ? { period_start: periodStart, period_end: periodEnd } : {};
 
       if (prior?.id) {
         const { error } = await supabase

@@ -32,8 +32,7 @@ function requireLiveAdMobAppId(platform: 'android' | 'ios', value: string | unde
 function productionAssociatedDomains(domains: string[] | undefined): string[] | undefined {
   if (!domains?.length) return domains;
   return domains.filter(
-    (domain) =>
-      domain === 'applinks:getcaremate.com' || domain === 'applinks:www.getcaremate.com',
+    (domain) => domain === 'applinks:getcaremate.com' || domain === 'applinks:www.getcaremate.com',
   );
 }
 

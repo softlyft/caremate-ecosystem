@@ -59,11 +59,7 @@ export function isMiniAppPayloadEmpty(
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       for (const nested of Object.values(value as Record<string, unknown>)) {
         // Nested profile / setup objects (e.g. checkup.profile.dateOfBirth).
-        if (
-          !preferenceMapKeys.has(key) &&
-          typeof nested === 'string' &&
-          nested.trim().length > 0
-        ) {
+        if (!preferenceMapKeys.has(key) && typeof nested === 'string' && nested.trim().length > 0) {
           return false;
         }
         if (Array.isArray(nested) && nested.length > 0) {

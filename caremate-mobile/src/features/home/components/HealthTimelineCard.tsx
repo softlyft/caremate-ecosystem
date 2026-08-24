@@ -36,9 +36,7 @@ export function HealthTimelineCard() {
             {isGuest ? t('home.timeline.guestBody') : t('home.timeline.screenSubtitle')}
           </AppText>
           <Button
-            onPress={() =>
-              router.push(isGuest ? '/(auth)/login' : '/(app)/timeline')
-            }
+            onPress={() => router.push(isGuest ? '/(auth)/login' : '/(app)/timeline')}
             style={styles.cta}
             variant="plain"
             accessibilityRole="button"

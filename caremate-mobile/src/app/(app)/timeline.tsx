@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,19 +28,21 @@ export default function HealthTimelineScreen() {
   const defaults = useMemo(() => defaultTimelineRange(), []);
   const [fromDate, setFromDate] = useState(defaults.fromDate);
   const [toDate, setToDate] = useState(defaults.toDate);
+  const [rangeSnapshot, setRangeSnapshot] = useState({
+    fromDate: defaults.fromDate,
+    toDate: defaults.toDate,
+  });
   const [activeMonth, setActiveMonth] = useState(() => toDate.slice(0, 7));
   const listRef = useRef<ScrollView>(null);
   const monthOffsets = useRef<Record<string, number>>({});
 
   const months = useMemo(() => monthsInRange(fromDate, toDate), [fromDate, toDate]);
+  const latestMonth = months[months.length - 1]?.key ?? toDate.slice(0, 7);
 
-  useEffect(() => {
-    monthOffsets.current = {};
-    const latest = months[months.length - 1]?.key;
-    if (latest) {
-      setActiveMonth(latest);
-    }
-  }, [fromDate, toDate, months]);
+  if (fromDate !== rangeSnapshot.fromDate || toDate !== rangeSnapshot.toDate) {
+    setRangeSnapshot({ fromDate, toDate });
+    setActiveMonth(latestMonth);
+  }
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.healthTimeline, 'list', userId, fromDate, toDate],
@@ -54,6 +56,7 @@ export default function HealthTimelineScreen() {
   });
 
   function applyFromDate(next: string) {
+    monthOffsets.current = {};
     setFromDate(next);
     if (next > toDate) {
       setToDate(next);
@@ -61,6 +64,7 @@ export default function HealthTimelineScreen() {
   }
 
   function applyToDate(next: string) {
+    monthOffsets.current = {};
     setToDate(next);
     if (next < fromDate) {
       setFromDate(next);
@@ -68,6 +72,7 @@ export default function HealthTimelineScreen() {
   }
 
   function resetThreeMonths() {
+    monthOffsets.current = {};
     const range = defaultTimelineRange();
     setFromDate(range.fromDate);
     setToDate(range.toDate);
@@ -155,7 +160,9 @@ export default function HealthTimelineScreen() {
         <ErrorState
           title={t('home.timeline.loadFailedTitle')}
           message={
-            query.error instanceof Error ? query.error.message : t('home.timeline.loadFailedMessage')
+            query.error instanceof Error
+              ? query.error.message
+              : t('home.timeline.loadFailedMessage')
           }
           actionLabel={t('common.retry')}
           onAction={() => {

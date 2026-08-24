@@ -10,9 +10,7 @@ export type AppBackgroundGate = {
   wasBackgrounded: boolean;
 };
 
-export function createAppBackgroundGate(
-  current: AppStateStatus = 'active',
-): AppBackgroundGate {
+export function createAppBackgroundGate(current: AppStateStatus = 'active'): AppBackgroundGate {
   return { wasBackgrounded: current === 'background' };
 }
 

@@ -35,6 +35,8 @@ jest.mock('@/lib/storage', () => ({
 describe('sqlite encryption key', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetItem.mockResolvedValue(null);
+    mockSetItem.mockResolvedValue(undefined);
     mockSecureGet.mockResolvedValue(null);
     mockSecureSet.mockResolvedValue(undefined);
     mockGetRandomBytesAsync.mockResolvedValue(Uint8Array.from({ length: 32 }, (_, i) => i));

@@ -108,8 +108,7 @@ export function AppDialogHost() {
                 size="sm"
                 style={styles.actionButton}
                 variant={
-                  action.variant ??
-                  (index === current.actions.length - 1 ? 'primary' : 'secondary')
+                  action.variant ?? (index === current.actions.length - 1 ? 'primary' : 'secondary')
                 }
               />
             ))}

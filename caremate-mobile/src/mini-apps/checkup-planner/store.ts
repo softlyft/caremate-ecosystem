@@ -6,10 +6,7 @@ import type {
   CheckupPlannerProfile,
   PlannerGender,
 } from '@/mini-apps/checkup-planner/utils';
-import {
-  isValidCheckupProfile,
-  normalizeCompletions,
-} from '@/mini-apps/checkup-planner/utils';
+import { isValidCheckupProfile, normalizeCompletions } from '@/mini-apps/checkup-planner/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';

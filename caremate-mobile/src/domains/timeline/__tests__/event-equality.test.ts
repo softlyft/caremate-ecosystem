@@ -12,17 +12,13 @@ describe('isUnchangedTimelineEvent', () => {
   };
 
   it('skips identical rows so rehydrate does not re-enqueue timeline sync', () => {
-    expect(
-      isUnchangedTimelineEvent(base, base, '{"value":72}'),
-    ).toBe(true);
+    expect(isUnchangedTimelineEvent(base, base, '{"value":72}')).toBe(true);
   });
 
   it('detects payload or field changes', () => {
-    expect(
-      isUnchangedTimelineEvent(base, { ...base, summary: '73 bpm' }, '{"value":72}'),
-    ).toBe(false);
-    expect(
-      isUnchangedTimelineEvent(base, base, '{"value":73}'),
-    ).toBe(false);
+    expect(isUnchangedTimelineEvent(base, { ...base, summary: '73 bpm' }, '{"value":72}')).toBe(
+      false,
+    );
+    expect(isUnchangedTimelineEvent(base, base, '{"value":73}')).toBe(false);
   });
 });

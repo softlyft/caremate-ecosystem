@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Minus, Plus } from 'lucide-react-native';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
@@ -51,7 +51,7 @@ export default function PeriodTrackerScreen() {
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
-  const alignedPredictedMonth = useRef(false);
+  const [alignedPredictedMonth, setAlignedPredictedMonth] = useState(false);
   const hydrated = usePeriodTrackerHydrated();
 
   const cycleLength = usePeriodTrackerStore((state) => state.cycleLength);
@@ -140,18 +140,15 @@ export default function PeriodTrackerScreen() {
   const weekStrip = getWeekStrip(today);
   const interactive = hydrated && !paused;
 
-  useEffect(() => {
-    if (!hydrated || paused || !nextPeriod || alignedPredictedMonth.current) {
-      return;
-    }
-    alignedPredictedMonth.current = true;
+  if (hydrated && !paused && nextPeriod && !alignedPredictedMonth) {
+    setAlignedPredictedMonth(true);
     const sameMonth =
       nextPeriod.getFullYear() === monthRef.getFullYear() &&
       nextPeriod.getMonth() === monthRef.getMonth();
     if (!sameMonth) {
       setMonthRef(new Date(nextPeriod.getFullYear(), nextPeriod.getMonth(), 1));
     }
-  }, [hydrated, monthRef, nextPeriod, paused]);
+  }
 
   const heroTitle = paused
     ? t('apps.period.ui.pausedTitle')

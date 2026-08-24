@@ -63,7 +63,10 @@ class HealthTimelineRepository extends BaseRepository {
     options?: { fromDate?: string; toDate?: string; limit?: number },
   ): Promise<HealthTimelineEvent[]> {
     const db = getDatabase();
-    const filters = [eq(healthTimelineEvents.userId, userId), isNull(healthTimelineEvents.deletedAt)];
+    const filters = [
+      eq(healthTimelineEvents.userId, userId),
+      isNull(healthTimelineEvents.deletedAt),
+    ];
     if (options?.fromDate) {
       filters.push(gte(healthTimelineEvents.occurredOn, options.fromDate));
     }
@@ -134,7 +137,10 @@ class HealthTimelineRepository extends BaseRepository {
       };
 
       if (previous) {
-        await db.update(healthTimelineEvents).set(values).where(eq(healthTimelineEvents.id, event.id));
+        await db
+          .update(healthTimelineEvents)
+          .set(values)
+          .where(eq(healthTimelineEvents.id, event.id));
       } else {
         await db.insert(healthTimelineEvents).values({
           id: event.id,
@@ -237,7 +243,9 @@ class HealthTimelineRepository extends BaseRepository {
       updated_at: item.updatedAt,
     };
 
-    const { error } = await supabase.from('health_timeline_events').upsert(row, { onConflict: 'id' });
+    const { error } = await supabase
+      .from('health_timeline_events')
+      .upsert(row, { onConflict: 'id' });
     if (error) {
       throw new Error(error.message);
     }
@@ -246,19 +254,21 @@ class HealthTimelineRepository extends BaseRepository {
 
   async pullFromRemote(): Promise<void> {
     const gatewayRows = await fetchHealthTimelineEventsViaGateway();
-    let rows: {
-      id: string;
-      user_id: string;
-      app_key: string;
-      kind: string;
-      occurred_on: string;
-      occurred_at: string | null;
-      title: string;
-      summary: string;
-      payload: unknown;
-      created_at?: string | null;
-      updated_at?: string | null;
-    }[] | null = null;
+    let rows:
+      | {
+          id: string;
+          user_id: string;
+          app_key: string;
+          kind: string;
+          occurred_on: string;
+          occurred_at: string | null;
+          title: string;
+          summary: string;
+          payload: unknown;
+          created_at?: string | null;
+          updated_at?: string | null;
+        }[]
+      | null = null;
 
     if (gatewayRows) {
       rows = gatewayRows.map((row) => ({
