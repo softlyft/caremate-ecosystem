@@ -5,6 +5,7 @@ import {
   type ImmunizationProfile,
   type ImmunizationRecord,
 } from '@/mini-apps/immunization-tracker/store';
+import { isValidImmunizationProfile } from '@/mini-apps/immunization-tracker/utils';
 
 const EMPTY_RECORDS: ImmunizationRecord[] = [];
 
@@ -12,10 +13,10 @@ export function useActiveImmunizationProfile(): ImmunizationProfile | null {
   const activeProfileId = useImmunizationTrackerStore((state) => state.activeProfileId);
   const profiles = useImmunizationTrackerStore((state) => state.profiles);
 
-  return useMemo(
-    () => profiles.find((profile) => profile.id === activeProfileId) ?? null,
-    [activeProfileId, profiles],
-  );
+  return useMemo(() => {
+    const profile = profiles.find((item) => item.id === activeProfileId) ?? null;
+    return isValidImmunizationProfile(profile) ? profile : null;
+  }, [activeProfileId, profiles]);
 }
 
 export function useActiveImmunizationRecords(): ImmunizationRecord[] {

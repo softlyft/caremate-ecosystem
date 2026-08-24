@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Heart, MapPinned, Search } from 'lucide-react-native';
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { applyAppStateChange, createAppBackgroundGate } from '@/sync/app-state';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
@@ -79,9 +80,10 @@ export default function ProvidersTabScreen() {
     }
   };
 
+  const appBackgroundGateRef = useRef(createAppBackgroundGate(AppState.currentState));
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
+      if (applyAppStateChange(appBackgroundGateRef.current, state).shouldForegroundSync) {
         void coordsQuery.refetch();
       }
     });

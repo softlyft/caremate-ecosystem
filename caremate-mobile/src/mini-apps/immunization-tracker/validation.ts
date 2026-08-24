@@ -64,8 +64,8 @@ export const NOTES_SOFT_MAX = 500;
 
 const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-export function isValidDateKey(value: string): boolean {
-  if (!DATE_KEY_RE.test(value)) return false;
+export function isValidDateKey(value: string | null | undefined): boolean {
+  if (typeof value !== 'string' || !DATE_KEY_RE.test(value)) return false;
   const [y, m, d] = value.split('-').map(Number);
   if (y == null || m == null || d == null) return false;
   const date = new Date(y, m - 1, d);

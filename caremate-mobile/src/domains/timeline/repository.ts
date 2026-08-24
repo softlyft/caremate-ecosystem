@@ -18,6 +18,7 @@ import {
 } from '@/domains/health-data-gateway';
 
 import { projectMiniAppEvents } from '@/domains/timeline/projector';
+import { isUnchangedTimelineEvent } from '@/domains/timeline/event-equality';
 import type { HealthTimelineEvent } from '@/domains/timeline/types';
 
 type EventRow = typeof healthTimelineEvents.$inferSelect;
@@ -115,6 +116,9 @@ class HealthTimelineRepository extends BaseRepository {
     for (const event of projected) {
       const payloadJson = stringifyJson(event.payload);
       const previous = existingById.get(event.id);
+      if (previous && isUnchangedTimelineEvent(previous, event, payloadJson)) {
+        continue;
+      }
       const values = {
         userId: event.userId,
         appKey: event.appKey,
@@ -297,7 +301,7 @@ class HealthTimelineRepository extends BaseRepository {
     }
 
     const db = getDatabase();
-    for (const remote of data) {
+    for (const remote of rows) {
       const id = String(remote.id);
       const timestamp = nowIso();
       const [existing] = await db

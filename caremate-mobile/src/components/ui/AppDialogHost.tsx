@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     paddingHorizontal: layoutSpacing.screenHorizontal,
     backgroundColor: 'rgba(15, 23, 42, 0.45)',

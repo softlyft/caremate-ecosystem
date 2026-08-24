@@ -1,4 +1,4 @@
-import { isMiniAppPayloadEmpty } from '@/mini-apps/_kit/hydrate';
+import { isMiniAppPayloadEmpty } from '@/mini-apps/_kit/payload-empty';
 
 describe('isMiniAppPayloadEmpty', () => {
   it('treats missing and empty objects as empty', () => {
@@ -74,6 +74,15 @@ describe('isMiniAppPayloadEmpty', () => {
         loggedPeriodDays: [],
         paused: true,
         pausedReason: 'pregnancy',
+      }),
+    ).toBe(false);
+  });
+
+  it('treats checkup profile nested strings as meaningful', () => {
+    expect(
+      isMiniAppPayloadEmpty({
+        profile: { dateOfBirth: '1990-01-01', gender: 'female', regionCode: null },
+        completions: [],
       }),
     ).toBe(false);
   });

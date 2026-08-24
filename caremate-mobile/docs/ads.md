@@ -114,7 +114,7 @@ Slot requested
 
 ## Sync & bootstrap
 
-1. **Cold start:** `AppProviders` pulls `adsRepository.pullFromRemote()` alongside articles and health tips, then invalidates `QUERY_KEYS.ads`.
+1. **Cold start (background):** after first paint, `AppProviders` pulls `adsRepository.pullFromRemote()` alongside articles and health tips, then invalidates `QUERY_KEYS.ads`.
 2. **Background:** sync handler `ad_catalog` pulls config, advertisers, campaigns, creatives, placements.
 3. **Events:** impressions/clicks write local `ad_events` and enqueue `ad_events` for push.
 

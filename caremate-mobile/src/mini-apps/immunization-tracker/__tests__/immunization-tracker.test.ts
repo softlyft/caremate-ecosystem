@@ -12,6 +12,9 @@ import {
   getRecommendedDate,
   getScheduleSummary,
   getStatusLabel,
+  isValidImmunizationProfile,
+  normalizeImmunizationProfiles,
+  normalizeImmunizationRecords,
   type ImmunizationProfile,
   type ImmunizationRecord,
 } from '@/mini-apps/immunization-tracker/utils';
@@ -30,6 +33,24 @@ const profile: ImmunizationProfile = {
 
 describe('immunization-tracker/utils', () => {
   const today = parseDateKey('2026-03-01');
+
+  it('rejects invalid profiles and sanitizes lists', () => {
+    expect(isValidImmunizationProfile(null)).toBe(false);
+    expect(
+      isValidImmunizationProfile({ id: 'x', name: 'Ada', dateOfBirth: null as never }),
+    ).toBe(false);
+    expect(normalizeImmunizationProfiles(null)).toEqual([]);
+    expect(
+      normalizeImmunizationProfiles([
+        { id: 'bad', name: 'X', dateOfBirth: null as never },
+        profile,
+      ]),
+    ).toEqual([profile]);
+    expect(normalizeImmunizationRecords(undefined)).toEqual([]);
+    expect(
+      buildSchedule({ id: 'x', name: 'Ada', dateOfBirth: null as never }, [], today),
+    ).toEqual([]);
+  });
 
   it('computes recommended dates and age labels', () => {
     expect(getRecommendedDate('2026-01-01', 0)).toBe('2026-01-01');
@@ -171,6 +192,40 @@ describe('immunization-tracker/migratePersistedState', () => {
 
   it('returns empty state for blank payloads', () => {
     expect(migratePersistedState(null)).toEqual({
+      profiles: [],
+      activeProfileId: null,
+      records: [],
+    });
+  });
+
+  it('drops profiles with null or invalid dateOfBirth', () => {
+    const migrated = migratePersistedState({
+      profiles: [
+        { id: 'bad', name: 'Broken', dateOfBirth: null as never },
+        { id: 'empty', name: 'Empty', dateOfBirth: '' },
+        profile,
+      ],
+      activeProfileId: 'bad',
+      records: [
+        { profileId: 'bad', vaccineId: 'bcg', administeredDate: '2026-01-02' },
+        { profileId: profile.id, vaccineId: 'bcg', administeredDate: '2026-01-02' },
+        { profileId: profile.id, vaccineId: 'bad', administeredDate: null as never },
+      ],
+    });
+    expect(migrated.profiles).toEqual([profile]);
+    expect(migrated.activeProfileId).toBe(profile.id);
+    expect(migrated.records).toEqual([
+      { profileId: profile.id, vaccineId: 'bcg', administeredDate: '2026-01-02' },
+    ]);
+  });
+
+  it('drops legacy single profile when DOB is null', () => {
+    expect(
+      migratePersistedState({
+        profile: { name: 'Ada', dateOfBirth: null as never },
+        records: [{ vaccineId: 'bcg', administeredDate: '2026-01-02' }],
+      }),
+    ).toEqual({
       profiles: [],
       activeProfileId: null,
       records: [],

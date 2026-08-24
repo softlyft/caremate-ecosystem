@@ -36,8 +36,9 @@ function isInvalidCredentialError(error: { message?: string; status?: number } |
 
 export class AuthService {
   /**
-   * Guest merge → emergency hydrate → local stubs → mini-app hydrate → Premium hydrate
-   * so the app is usable before (or without) a full sync cycle.
+   * Guest merge → (optional remote hydrates) → local stubs → device bind.
+   * Pass `deferRemoteHydration: true` on cold start so first paint is not blocked by
+   * network (emergency / mini-apps / entitlements). Sync + post-auth effects cover those.
    */
   async prepareLocalAccount(
     user: {
@@ -47,7 +48,7 @@ export class AuthService {
       user_metadata?: Record<string, unknown>;
     },
     overrides?: { fullName?: string; phone?: string; email?: string },
-    options?: { forceDeviceDefaults?: boolean },
+    options?: { forceDeviceDefaults?: boolean; deferRemoteHydration?: boolean },
   ) {
     try {
       await migrateGuestLocalData(user.id);
@@ -55,11 +56,13 @@ export class AuthService {
       // Guest migration is best-effort; auth must still succeed.
     }
 
-    // New device / clear-data: restore cloud emergency before bootstrap can create a shell.
-    try {
-      await hydrateEmergencyProfile(user.id);
-    } catch {
-      // Sync engine will retry; auth must still succeed.
+    if (!options?.deferRemoteHydration) {
+      // New device / clear-data: restore cloud emergency before bootstrap can create a shell.
+      try {
+        await hydrateEmergencyProfile(user.id);
+      } catch {
+        // Sync engine will retry; auth must still succeed.
+      }
     }
 
     try {
@@ -76,18 +79,20 @@ export class AuthService {
       // Local stubs are best-effort; auth must still succeed.
     }
 
-    // New device / clear-data: restore mini-app snapshots into local storage while empty.
-    try {
-      await hydrateMiniAppsFromRemote(user.id);
-    } catch {
-      // Sync engine will retry; auth must still succeed.
-    }
+    if (!options?.deferRemoteHydration) {
+      // New device / clear-data: restore mini-app snapshots into local storage while empty.
+      try {
+        await hydrateMiniAppsFromRemote(user.id);
+      } catch {
+        // Sync engine will retry; auth must still succeed.
+      }
 
-    // New device / fresh SQLite: pull Premium entitlement before first UI paint races ads.
-    try {
-      await hydrateAccountEntitlements(user.id);
-    } catch {
-      // Sync engine will retry; auth must still succeed.
+      // New device / fresh SQLite: pull Premium entitlement before first UI paint races ads.
+      try {
+        await hydrateAccountEntitlements(user.id);
+      } catch {
+        // Sync engine will retry; auth must still succeed.
+      }
     }
 
     try {

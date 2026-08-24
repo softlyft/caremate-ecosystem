@@ -28,6 +28,7 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Ship Android to Play (GitHub Actions AAB) | [Play Android release](./play-android-release.md) |
 | Ship iOS dev build to TestFlight (GitHub Actions) | [iOS TestFlight release](./ios-testflight-release.md) |
 | Ship iOS/Android store releases (`prod` branch) | [Mobile release strategy](./mobile-release.md) |
+| See what’s left before App Store / Play submit | [Production readiness](./production-readiness.md) |
 | Follow dev conventions and scripts | [Development Guide](./development.md) |
 | Run QA / manual regression | [QA Test Cases](./qa-test-cases.md) |
 | See what's planned next | [Roadmap & Gaps](./roadmap.md) |
@@ -61,6 +62,8 @@ docs/
 ├── ads.md                 House / sponsored / AdMob (slots, sync, caps, troubleshooting)
 ├── configuration.md       app.json, env, storage keys, sync config
 ├── play-android-release.md GitHub Actions AAB + Play upload (no EAS)
+├── mobile-release.md      main vs prod CD strategy
+├── production-readiness.md Store launch checklist (done vs left)
 ├── development.md         Scripts, TypeScript, linting, patterns
 ├── qa-test-cases.md       Manual QA suite for core + mini-apps + ads
 └── roadmap.md             Phases, known gaps, future work

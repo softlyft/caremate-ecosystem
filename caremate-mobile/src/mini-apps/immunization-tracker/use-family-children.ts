@@ -12,7 +12,10 @@ import {
   useImmunizationTrackerHydrated,
   useImmunizationTrackerStore,
 } from '@/mini-apps/immunization-tracker/store';
-import type { ImmunizationProfile } from '@/mini-apps/immunization-tracker/utils';
+import {
+  isValidImmunizationProfile,
+  type ImmunizationProfile,
+} from '@/mini-apps/immunization-tracker/utils';
 
 export type { FamilyImmunizationSource };
 
@@ -42,12 +45,12 @@ export function useFamilyImmunizationChildren(): FamilyImmunizationSource {
 
   const children = useMemo<ImmunizationProfile[]>(() => {
     return (childrenQuery.data ?? [])
-      .filter((child) => Boolean(child.dateOfBirth?.trim()))
       .map((child) => ({
         id: child.id,
         name: child.fullName,
-        dateOfBirth: child.dateOfBirth!,
-      }));
+        dateOfBirth: child.dateOfBirth ?? '',
+      }))
+      .filter(isValidImmunizationProfile);
   }, [childrenQuery.data]);
 
   useEffect(() => {

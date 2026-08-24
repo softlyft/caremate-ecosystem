@@ -120,15 +120,22 @@ Default query `staleTime` is 30 seconds (`AppProviders.tsx`).
 
 Defined in `src/components/AppProviders.tsx` → `BootstrapGate`:
 
-1. **`initializeDatabase()`** — create/open `caremate.db`, apply Drizzle migrations
-2. **`providerRepository.purgeBundledProviders()`** — soft-delete legacy bundled/demo provider rows (no local seed hydration)
-3. **Catalog pulls (guests included):** `articleRepository.pullFromRemote()`, `healthTipRepository.pullFromRemote()`, and **`adsRepository.pullFromRemote()`**, then invalidate TanStack Query `ads` keys
-4. **`useAuthStore.initialize()`** — restore Supabase session or default to guest
-5. **`syncEngine.start()`** (background) — begin sync loop after the UI is ready; AdMob consent may init when configured
+**Critical path (blocks first paint — local only):**
+
+1. **`initializeDatabase()`** — create/open encrypted SQLite, apply Drizzle migrations
+2. **`providerRepository.purgeBundledProviders()`** — soft-delete legacy bundled/demo provider rows
+3. **`useAuthStore.initialize()`** — restore SecureStore session; local account stubs only (`deferRemoteHydration`)
+4. Hydrate notification preference from SQLite / device defaults
+
+**Background (after UI is ready):**
+
+5. Catalog pulls: articles, health tips, ads (do not block splash)
+6. **`syncEngine.start()`** — sync loop; AdMob consent may init when configured
+7. For signed-in users: entitlements, emergency profile, mini-app snapshots, then `requestSync({ reason: 'auth' })`
 
 Nearby providers are **not** seeded at bootstrap. Screens call `providerRepository.findNearby()` → Supabase `nearby_providers` RPC; an empty result shows the Nearby empty state.
 
-Until steps 1–4 complete, a full-screen spinner is shown. Root layout also waits for fonts (`useAppFonts`) and `isInitialized` before hiding splash.
+Until steps 1–4 complete, a short BrandLoader may flash. Root layout also waits for fonts (`useAppFonts`) and `isInitialized` before hiding splash.
 
 On unmount, `syncEngine.stop()` is called.
 
