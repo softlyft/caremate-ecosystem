@@ -107,7 +107,7 @@ export function ForgotPasswordForm() {
         <div>
           <CardTitle className="text-xl text-brand-navy">Forgot password</CardTitle>
           <CardDescription className="mt-1">
-            We&apos;ll email a verification code so you can set a new password for your provider
+            We&apos;ll email a verification code so you can set a new password for your Care Portal
             account.
           </CardDescription>
         </div>

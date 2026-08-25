@@ -15,7 +15,8 @@
     "family": "Abusua",
     "settings": "Nhyehyɛe",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "Apɔwmu Akwankyerɛ Directory"
   },
   "premium": {
     "title": "Premium",
@@ -35,5 +36,9 @@
     "copy": "Kyerɛw",
     "fallbackName": "Membere"
   },
-  "signOut": "Fi mu"
+  "signOut": "Fi mu",
+  "insuranceDirectory": {
+    "menuSubtitle": "Hwehwɛ insurance ne HMO wɔ CareMate",
+    "guestSubtitle": "Hwehwɛ insurance ne HMO wɔ CareMate"
+  }
 }

@@ -12,6 +12,7 @@ import {
   LogOut,
   Pencil,
   Settings,
+  Shield,
   ShieldPlus,
   Users,
   UserRound,
@@ -290,6 +291,19 @@ export default function ProfileTabScreen() {
                   ? router.push('/(auth)/login')
                   : router.push('/(app)/profile/documents' as Href)
               }
+            />
+            <View style={styles.divider} />
+            <ProfileMenuRow
+              icon={Shield}
+              iconColor="#4F46E5"
+              iconBackground="#E0E7FF"
+              title={t('profile.menu.insuranceDirectory')}
+              subtitle={
+                isGuest
+                  ? t('profile.insuranceDirectory.guestSubtitle')
+                  : t('profile.insuranceDirectory.menuSubtitle')
+              }
+              onPress={() => router.push('/(app)/profile/insurance' as Href)}
             />
             <View style={styles.divider} />
             <ProfileMenuRow

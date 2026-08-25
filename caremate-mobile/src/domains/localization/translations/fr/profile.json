@@ -15,7 +15,8 @@
     "family": "Famille",
     "settings": "Paramètres",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "Annuaire d'assurance santé"
   },
   "premium": {
     "title": "Premium",
@@ -35,5 +36,9 @@
     "copy": "Copier",
     "fallbackName": "Membre"
   },
-  "signOut": "Se déconnecter"
+  "signOut": "Se déconnecter",
+  "insuranceDirectory": {
+    "menuSubtitle": "Parcourir assureurs et HMOs sur CareMate",
+    "guestSubtitle": "Parcourir assureurs et HMOs sur CareMate"
+  }
 }

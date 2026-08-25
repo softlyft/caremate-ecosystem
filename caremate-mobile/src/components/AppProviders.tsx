@@ -167,7 +167,16 @@ function BootstrapGate({ children }: PropsWithChildren) {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads }),
       ]);
       syncEngine.requestSync({ reason: 'auth', immediate: true });
-      void syncPushRegistration();
+      // Prefer signed-in settings (guest prefs may have been loaded on cold start).
+      try {
+        await hydrateNotificationsPreference();
+      } catch {
+        // Optional.
+      }
+      if (cancelled) return;
+      // Prompt when in-app notifications are on — login alone previously skipped OS permission.
+      const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
+      void syncPushRegistration({ requestPermission: notificationsEnabled });
     })();
     return () => {
       cancelled = true;

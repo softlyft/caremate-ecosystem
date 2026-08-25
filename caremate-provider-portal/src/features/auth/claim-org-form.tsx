@@ -11,6 +11,7 @@ import {
   startOrgClaimAction,
   verifyOrgClaimAction,
 } from '@/domains/claim/actions';
+import type { CareOrgKind } from '@/types/database';
 import { PASSWORD_MIN_LENGTH, PASSWORD_REQUIREMENTS_MESSAGE, meetsPasswordRequirements } from '@/lib/password';
 import { createClient } from '@/lib/supabase/browser';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ export function ClaimOrgForm() {
   const [step, setStep] = useState<Step>('email');
   const [loading, setLoading] = useState(false);
 
+  const [orgKind, setOrgKind] = useState<CareOrgKind>('provider');
   const [email, setEmail] = useState('');
   const [organizations, setOrganizations] = useState<OrgOption[]>([]);
   const [organizationId, setOrganizationId] = useState('');
@@ -44,6 +46,7 @@ export function ClaimOrgForm() {
       const result = await startOrgClaimAction({
         email,
         organizationId: organizationId || undefined,
+        orgKind,
       });
       if (!result.ok) {
         toast.error(result.error);
@@ -73,7 +76,7 @@ export function ClaimOrgForm() {
     }
     setLoading(true);
     try {
-      const result = await startOrgClaimAction({ email, organizationId });
+      const result = await startOrgClaimAction({ email, organizationId, orgKind });
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -94,7 +97,7 @@ export function ClaimOrgForm() {
     event.preventDefault();
     setLoading(true);
     try {
-      const result = await verifyOrgClaimAction({ claimId, code });
+      const result = await verifyOrgClaimAction({ claimId, code, orgKind });
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -122,6 +125,7 @@ export function ClaimOrgForm() {
         claimId,
         password,
         displayName: displayName.trim() || undefined,
+        orgKind,
       });
       if (!result.ok) {
         toast.error(result.error);
@@ -140,7 +144,7 @@ export function ClaimOrgForm() {
       }
 
       toast.success('Organization claimed — welcome');
-      router.replace('/app/dashboard');
+      router.replace(result.data.orgKind === 'payer' ? '/payer/dashboard' : '/app/dashboard');
       router.refresh();
     } finally {
       setLoading(false);
@@ -185,6 +189,22 @@ export function ClaimOrgForm() {
         {step === 'email' ? (
           <form onSubmit={onSubmitEmail} className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="claim-org-kind">Care Org type</Label>
+              <Select
+                id="claim-org-kind"
+                value={orgKind}
+                onChange={(e) => {
+                  setOrgKind(e.target.value === 'payer' ? 'payer' : 'provider');
+                  setOrganizations([]);
+                  setOrganizationId('');
+                }}
+              >
+                <option value="provider">Provider</option>
+                <option value="payer">Payer</option>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="claim-email">Organization contact email</Label>
               <Input
                 id="claim-email"
@@ -195,8 +215,9 @@ export function ClaimOrgForm() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <p className="text-xs text-muted">
-                Must match an email already stored for your organization in CareMate (location or
-                organization contact).
+                {orgKind === 'payer'
+                  ? 'Must match the contact email SoftLyft stored on your payer catalog listing.'
+                  : 'Must match an email already stored for your organization in CareMate (location or organization contact).'}
               </p>
             </div>
 

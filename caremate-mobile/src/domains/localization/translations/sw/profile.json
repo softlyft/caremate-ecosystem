@@ -15,7 +15,8 @@
     "family": "Familia",
     "settings": "Mipangilio",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "Orodha ya Bima ya Afya"
   },
   "premium": {
     "title": "Premium",
@@ -35,5 +36,9 @@
     "copy": "Nakili",
     "fallbackName": "Mwanachama"
   },
-  "signOut": "Toka"
+  "signOut": "Toka",
+  "insuranceDirectory": {
+    "menuSubtitle": "Vinjari bima na HMO kwenye CareMate",
+    "guestSubtitle": "Vinjari bima na HMO kwenye CareMate"
+  }
 }

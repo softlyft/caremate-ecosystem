@@ -24,6 +24,11 @@ Shared Supabase project. Provider portal tables are cloud-authoritative; the mob
 | `provider_org_modules` | Per-org module enable overrides (missing row = catalog default) |
 | `lab_test_definitions` | Org lab test catalog |
 | `lab_orders` / `lab_order_items` | Lab order workflow + results |
+| `payer_organizations` | Care network payer catalog (SoftLyft-seeded); claim contact `email` |
+| `payer_profiles` | Portal overlay for payers (`verification_status`, description, logo, …) |
+| `payer_org_members` | Payer staff membership (same roles as providers) |
+| `payer_org_claims` | Payer claim OTP challenges (service role only) |
+| `provider_payer_connections` | Provider ↔ payer B2B CRM link (one row per pair) |
 
 ### Profiles (patient identity)
 
@@ -45,6 +50,19 @@ Unique: `(patient_id, organization_id)`.
 
 **Display CareMate ID:** `profiles.patient_id` (12-digit text). Lookup for provider-initiated requests uses that field.
 
+### `provider_payer_connections` (key columns)
+
+| Column | Notes |
+|--------|------|
+| `provider_organization_id` | → `provider_organizations` |
+| `payer_organization_id` | → `payer_organizations` |
+| `status` | `pending` \| `approved` \| `rejected` |
+| `initiated_by` | `provider` \| `payer` |
+| `provider_note` / `payer_note` | Optional request notes |
+| `rejection_reason` | Required when rejected |
+
+Unique: `(provider_organization_id, payer_organization_id)`.
+
 ## Migrations
 
 | File | Purpose |
@@ -63,6 +81,15 @@ Unique: `(patient_id, organization_id)`.
 | `20260802120000_connection_consent_scopes.sql` | Opt-in emergency: default `basic` only; strip auto emergency |
 | `20260802130000_patient_provider_consents.sql` | Consent registry + FHIR Consent rows; scopes cache sync |
 | `20260803120000_provider_modules_appointments_lab.sql` | Module overrides, availability, appointment status/source, lab tables |
+| `20260825120000_payer_organizations.sql` | Payer catalog, profiles, members, claims, RLS helpers, `payer_claim` OTP kind |
+| `20260825160000_provider_payer_connections.sql` | Provider ↔ payer connections + claim-email RPCs |
+| `20260825161000_payer_read_connected_provider_profiles.sql` | Payer members may SELECT connected provider profiles |
+| `20260825162000_provider_payer_connections_public_approved_read.sql` | Public/anon read of approved connections (supported payers) |
+| `20260825170000_protect_payer_manager_catalog_columns.sql` | Managers limited to phone/website/address on catalog |
+| `20260825171000_enforce_provider_payer_connection_update.sql` | initiated_by approve rules + rejection_reason check |
+| `20260825172000_narrow_provider_payer_public_surface.sql` | RPC for supported payers; approved-only profile peek |
+| `20260825173000_payer_directory_hide_claim_email.sql` | Public `payer_directory` view without claim email |
+| `20260825174000_payer_email_unique_and_updated_at.sql` | Unique claim email + updated_at triggers |
 
 Also depends on catalog / identity migrations: FHIR orgs (`provider_organizations`…), `profiles.patient_id`, Nearby RPC.
 
@@ -71,9 +98,13 @@ Also depends on catalog / identity migrations: FHIR orgs (`provider_organization
 | Name | Role |
 |------|------|
 | `is_provider_org_member` / `provider_org_role` / `can_write_provider_org` / `can_manage_provider_org` | RLS + app auth |
+| `is_payer_org_member` / `payer_org_role` / `can_write_payer_org` / `can_manage_payer_org` / `is_payer_org_verified` | Payer RLS + app auth |
 | `is_provider_org_verified` | Patient Connect gate |
 | `request_patient_provider_connection` | Patient → org |
 | `request_provider_connection_by_caremate_id` | Org → patient by CareMate ID |
+| `find_verified_provider_org_id_by_claim_email` / `find_verified_payer_org_id_by_claim_email` | Claim-email org resolution |
+| `request_provider_payer_connection_by_email` | Provider → payer by claim email |
+| `request_payer_provider_connection_by_email` | Payer → provider by claim email |
 | `send_provider_org_message` | Org compose → patient threads |
 | `post_patient_message` | Patient (or DM participant) reply |
 | `post_org_message` | Org staff reply in `org_patient` thread |

@@ -5,6 +5,8 @@ export type {
   Article,
   Provider,
   ProviderOrganization,
+  PayerOrganization,
+  PayerProfile,
   ProviderLocation,
   ProviderHealthcareService,
   ProviderProfile,

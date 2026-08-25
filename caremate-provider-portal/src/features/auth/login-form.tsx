@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/browser';
-import { sanitizePostLoginPath } from '@/lib/safe-redirect';
+import { resolveCareHomePath, sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,21 +48,46 @@ export function LoginForm() {
       if (error) throw error;
       if (!data.user) throw new Error('Login failed');
 
-      const { count, error: memberError } = await supabase
-        .from('provider_org_members')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', data.user.id)
-        .is('deleted_at', null);
+      const [{ count: providerCount, error: providerError }, { count: payerCount, error: payerError }] =
+        await Promise.all([
+          supabase
+            .from('provider_org_members')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', data.user.id)
+            .is('deleted_at', null),
+          supabase
+            .from('payer_org_members')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', data.user.id)
+            .is('deleted_at', null),
+        ]);
 
-      if (memberError) throw memberError;
+      if (providerError) throw providerError;
+      if (payerError) throw payerError;
 
-      if (!count) {
+      const hasProvider = (providerCount ?? 0) > 0;
+      const hasPayer = (payerCount ?? 0) > 0;
+
+      if (!hasProvider && !hasPayer) {
         await supabase.auth.signOut();
-        toast.error('This account is not a member of any provider organization.');
+        toast.error('This account is not a member of any care organization.');
         return;
       }
 
-      const next = sanitizePostLoginPath(searchParams.get('next'));
+      const preferredKind =
+        typeof document !== 'undefined'
+          ? document.cookie
+              .split('; ')
+              .find((row) => row.startsWith('care_active_kind='))
+              ?.split('=')[1]
+          : null;
+
+      const home = resolveCareHomePath({
+        hasProvider,
+        hasPayer,
+        preferredKind,
+      });
+      const next = sanitizePostLoginPath(searchParams.get('next'), home);
       router.replace(next);
       router.refresh();
     } catch (err) {
@@ -84,9 +109,9 @@ export function LoginForm() {
           priority
         />
         <div>
-          <CardTitle className="text-xl text-brand-navy">Provider Portal</CardTitle>
+          <CardTitle className="text-xl text-brand-navy">Care Portal</CardTitle>
           <CardDescription className="mt-1">
-            Sign in with your organization account to engage patients.
+            Sign in with your organization account — providers and payers.
           </CardDescription>
         </div>
       </CardHeader>

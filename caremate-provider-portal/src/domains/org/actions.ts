@@ -2,9 +2,19 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { requireManageAccess, requireProviderSession } from '@/lib/auth';
-import { ACTIVE_ORG_COOKIE } from '@/constants/cookies';
+import {
+  getCareSession,
+  requireManageAccess,
+  requirePayerSession,
+  requireProviderSession,
+} from '@/lib/auth';
+import {
+  ACTIVE_ORG_COOKIE,
+  CARE_ACTIVE_KIND_COOKIE,
+  PAYER_ACTIVE_ORG_COOKIE,
+} from '@/constants/cookies';
 import { ORG_TYPES } from '@/constants/org-types';
 import { updateOrganizationProfile } from '@/domains/org/repository';
 import type { Json } from '@/types/database';
@@ -67,4 +77,43 @@ export async function switchActiveOrganizationAction(organizationId: string) {
   });
 
   revalidatePath('/app');
+}
+
+export async function switchActivePayerOrganizationAction(organizationId: string) {
+  const session = await requirePayerSession();
+  const allowed = session.memberships.some((m) => m.organizationId === organizationId);
+  if (!allowed) throw new Error('Not a member of that organization');
+
+  const cookieStore = await cookies();
+  cookieStore.set(PAYER_ACTIVE_ORG_COOKIE, organizationId, {
+    path: '/',
+    sameSite: 'lax',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 365,
+  });
+
+  revalidatePath('/payer');
+}
+
+export async function switchCareWorkspaceKindAction(kind: 'provider' | 'payer') {
+  const summary = await getCareSession();
+  if (!summary) throw new Error('Unauthorized');
+  if (kind === 'provider' && !summary.hasProvider) {
+    throw new Error('No provider organization membership');
+  }
+  if (kind === 'payer' && !summary.hasPayer) {
+    throw new Error('No payer organization membership');
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set(CARE_ACTIVE_KIND_COOKIE, kind, {
+    path: '/',
+    sameSite: 'lax',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 365,
+  });
+
+  redirect(kind === 'payer' ? '/payer/dashboard' : '/app/dashboard');
 }

@@ -127,6 +127,7 @@ export default function RegisterScreen() {
         values.password,
         joinFullName(values.firstName, values.lastName),
         values.phone.trim(),
+        { legalAcceptedAt: new Date().toISOString() },
       );
       if (result.needsEmailVerification) {
         router.push({
@@ -247,7 +248,7 @@ export default function RegisterScreen() {
               <Button
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: value }}
-                accessibilityLabel={t('auth.register.acceptRequired')}
+                accessibilityLabel={t('auth.register.acceptA11y')}
                 onPress={() => onChange(!value)}
                 hitSlop={8}
                 style={[

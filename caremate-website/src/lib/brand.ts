@@ -185,7 +185,7 @@ export const MINI_APPS = [
   },
 ] as const;
 
-/** CareMate Provider Portal — engagement channel for healthcare organizations. */
+/** CareMate Care Portal — engagement channel for providers and payers. */
 export const PROVIDER_CAPABILITIES = [
   {
     id: 'connections',

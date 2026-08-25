@@ -1,6 +1,7 @@
 /**
- * Local types for Provider Portal tables until `@caremate/db-types` is regenerated
- * after migration `20260719140000_provider_portal.sql`.
+ * Local types for Care Portal tables until `@caremate/db-types` is fully regenerated
+ * for remaining portal-only tables (provider_profiles overlay, claims, messaging, …).
+ * Payer catalog tables live in `@caremate/db-types`.
  */
 import type {
   Database as BaseDatabase,
@@ -10,6 +11,11 @@ import type {
   ProviderOrganization,
   ProviderLocation,
   ProviderHealthcareService,
+  PayerOrganization,
+  PayerProfile,
+  PayerOrgMember,
+  PayerOrgClaim,
+  ProviderPayerConnection as BaseProviderPayerConnection,
 } from '@caremate/db-types';
 
 export type {
@@ -19,6 +25,10 @@ export type {
   ProviderOrganization,
   ProviderLocation,
   ProviderHealthcareService,
+  PayerOrganization,
+  PayerProfile,
+  PayerOrgMember,
+  PayerOrgClaim,
 };
 
 export type ProviderOrgType =
@@ -83,9 +93,11 @@ export type ProviderPasswordReset = {
   created_at: string;
 };
 
+export type CareOrgKind = 'provider' | 'payer';
+
 export type ProviderAuthOtpSend = {
   id: string;
-  kind: 'claim' | 'password_reset';
+  kind: 'claim' | 'password_reset' | 'payer_claim';
   email: string;
   ip_hash: string | null;
   created_at: string;
@@ -126,6 +138,8 @@ export type ProviderOrgMember = {
 
 export type ConnectionInitiatedBy = 'patient' | 'provider';
 
+export type ProviderPayerInitiatedBy = 'provider' | 'payer';
+
 export type PatientProviderConnection = {
   id: string;
   patient_id: string;
@@ -140,6 +154,14 @@ export type PatientProviderConnection = {
   approved_at: string | null;
   rejected_at: string | null;
 } & Timestamps;
+
+export type ProviderPayerConnection = Omit<
+  BaseProviderPayerConnection,
+  'status' | 'initiated_by'
+> & {
+  status: ConnectionStatus;
+  initiated_by: ProviderPayerInitiatedBy;
+};
 
 export type PatientProviderActivity = {
   id: string;
@@ -321,6 +343,25 @@ type PortalTables = {
       updated_at?: string;
     };
     Update: Partial<PortalTables['patient_provider_connections']['Insert']>;
+    Relationships: [];
+  };
+  provider_payer_connections: {
+    Row: ProviderPayerConnection;
+    Insert: {
+      id?: string;
+      provider_organization_id: string;
+      payer_organization_id: string;
+      status?: ConnectionStatus;
+      initiated_by: ProviderPayerInitiatedBy;
+      provider_note?: string | null;
+      payer_note?: string | null;
+      rejection_reason?: string | null;
+      approved_at?: string | null;
+      rejected_at?: string | null;
+      created_at?: string;
+      updated_at?: string;
+    };
+    Update: Partial<PortalTables['provider_payer_connections']['Insert']>;
     Relationships: [];
   };
   patient_provider_activities: {
@@ -545,7 +586,7 @@ type PortalTables = {
     Row: ProviderAuthOtpSend;
     Insert: {
       id?: string;
-      kind: 'claim' | 'password_reset';
+      kind: 'claim' | 'password_reset' | 'payer_claim';
       email: string;
       ip_hash?: string | null;
       created_at?: string;
@@ -582,6 +623,22 @@ type PortalFunctions = {
       p_patient_note?: string | null;
     };
     Returns: PatientProviderConnection;
+  };
+  request_provider_payer_connection_by_email: {
+    Args: {
+      p_provider_organization_id: string;
+      p_payer_claim_email: string;
+      p_provider_note?: string | null;
+    };
+    Returns: ProviderPayerConnection;
+  };
+  request_payer_provider_connection_by_email: {
+    Args: {
+      p_payer_organization_id: string;
+      p_provider_claim_email: string;
+      p_payer_note?: string | null;
+    };
+    Returns: ProviderPayerConnection;
   };
   mark_connected_patient_as_staff: {
     Args: {

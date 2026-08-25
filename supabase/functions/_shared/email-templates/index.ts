@@ -309,14 +309,16 @@ export function renderProviderOrgClaimOtp(vars: {
   code: string;
   orgName?: string | null;
   expiresMinutes?: number;
+  orgKind?: 'provider' | 'payer' | null;
 }): RenderedEmail {
   const code = vars.code.trim();
   const orgName = vars.orgName?.trim() || 'your organization';
   const expiresMinutes = vars.expiresMinutes ?? 15;
-  const subject = `Your CareMate provider verification code`;
-  const preheader = `Use code ${code} to claim ${orgName} on the CareMate Provider Portal.`;
+  const orgKindLabel = vars.orgKind === 'payer' ? 'payer' : 'provider';
+  const subject = `Your CareMate ${orgKindLabel} verification code`;
+  const preheader = `Use code ${code} to claim ${orgName} on the CareMate Care Portal.`;
   const text = [
-    `Your CareMate provider verification code is ${code}.`,
+    `Your CareMate ${orgKindLabel} verification code is ${code}.`,
     '',
     `Organization: ${orgName}`,
     `This code expires in ${expiresMinutes} minutes.`,
@@ -328,10 +330,10 @@ export function renderProviderOrgClaimOtp(vars: {
     title: 'Verify your organization claim',
     preheader,
     tone: 'default',
-    ctaLabel: 'Open Provider Portal',
+    ctaLabel: 'Open Care Portal',
     ctaUrl: `${BRAND.providerPortalUrl}/claim`,
     bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
-        Enter this code to claim <strong style="color:${BRAND.primaryDark};">${escapeHtml(orgName)}</strong> on the CareMate Provider Portal.
+        Enter this code to claim <strong style="color:${BRAND.primaryDark};">${escapeHtml(orgName)}</strong> on the CareMate Care Portal.
       </p>
       <p style="margin:0 0 16px;font-size:28px;line-height:1.2;letter-spacing:0.28em;font-weight:700;color:${BRAND.primaryDark};text-align:center;">
         ${escapeHtml(code)}
@@ -350,7 +352,7 @@ export function renderProviderPasswordResetOtp(vars: {
   const code = vars.code.trim();
   const expiresMinutes = vars.expiresMinutes ?? 15;
   const subject = `Your CareMate password reset code`;
-  const preheader = `Use code ${code} to reset your Provider Portal password.`;
+  const preheader = `Use code ${code} to reset your Care Portal password.`;
   const text = [
     `Your CareMate password reset code is ${code}.`,
     '',
@@ -363,10 +365,10 @@ export function renderProviderPasswordResetOtp(vars: {
     title: 'Reset your password',
     preheader,
     tone: 'default',
-    ctaLabel: 'Open Provider Portal',
+    ctaLabel: 'Open Care Portal',
     ctaUrl: `${BRAND.providerPortalUrl}/forgot-password`,
     bodyHtml: `<p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:${BRAND.text};">
-        Enter this code to reset your password on the CareMate Provider Portal.
+        Enter this code to reset your password on the CareMate Care Portal.
       </p>
       <p style="margin:0 0 16px;font-size:28px;line-height:1.2;letter-spacing:0.28em;font-weight:700;color:${BRAND.primaryDark};text-align:center;">
         ${escapeHtml(code)}
@@ -441,6 +443,7 @@ export function renderEmailTemplate(
       return renderProviderOrgClaimOtp({
         code: vars.code ?? '',
         orgName: vars.orgName,
+        orgKind: vars.orgKind === 'payer' ? 'payer' : 'provider',
         expiresMinutes: vars.expiresMinutes ? Number(vars.expiresMinutes) : 15,
       });
     case 'provider-password-reset-otp':

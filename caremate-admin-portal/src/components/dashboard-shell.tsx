@@ -21,6 +21,7 @@ import {
   Award,
   BarChart3,
   UsersRound,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
@@ -55,6 +56,7 @@ const NAV_GROUPS: {
       { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
       { href: '/dashboard/news', label: 'External News', icon: Newspaper },
       { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
+      { href: '/dashboard/payers', label: 'Health Insurance', icon: Shield },
       { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
     ],
   },

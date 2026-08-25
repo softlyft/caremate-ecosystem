@@ -1,0 +1,32 @@
+{
+  "title": "Health Insurance Directory",
+  "subtitle": "Browse insurers and HMOs in the CareMate catalog.",
+  "loading": "Loading insurance directory…",
+  "count": "{{count}} listed",
+  "searchPlaceholder": "Search by name or address",
+  "orgType": "Health insurance",
+  "offline": "You're offline. Connect to refresh the directory.",
+  "loadFailed": {
+    "title": "Couldn't load directory",
+    "message": "Check your connection and try again."
+  },
+  "empty": {
+    "title": "No insurers listed yet",
+    "message": "SoftLyft is adding health insurance organizations to CareMate.",
+    "searchTitle": "No matches",
+    "searchMessage": "Try a different name or clear your search."
+  },
+  "detail": {
+    "title": "Insurance organization",
+    "loading": "Loading organization…",
+    "backA11y": "Back to Health Insurance Directory",
+    "contact": "Contact",
+    "noContact": "No contact details published yet.",
+    "notFoundTitle": "Organization not found",
+    "notFoundMessage": "This insurer may have been removed from the directory.",
+    "callA11y": "Call {{phone}}",
+    "emailA11y": "Email {{email}}",
+    "websiteA11y": "Open website",
+    "footnote": "Listing details are provided for discovery. Coverage and claims are handled by the insurer."
+  }
+}

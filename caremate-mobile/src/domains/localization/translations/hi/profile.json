@@ -15,7 +15,8 @@
     "family": "परिवार",
     "settings": "सेटिंग्स",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "स्वास्थ्य बीमा निर्देशिका"
   },
   "premium": {
     "title": "प्रीमियम",
@@ -35,5 +36,9 @@
     "copy": "कॉपी",
     "fallbackName": "सदस्य"
   },
-  "signOut": "साइन आउट"
+  "signOut": "साइन आउट",
+  "insuranceDirectory": {
+    "menuSubtitle": "CareMate में बीमाकर्ता और HMO देखें",
+    "guestSubtitle": "CareMate में बीमाकर्ता और HMO देखें"
+  }
 }

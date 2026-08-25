@@ -79,6 +79,10 @@ Column `initiated_by` (`patient` \| `provider`) records who opened the request. 
 
 Approved patients appear under `/app/patients`.
 
+## Mobile UI — supported payers on provider detail
+
+Nearby (and other) provider detail screens list **approved** `provider_payer_connections` as supported insurers. Tap through to the Health Insurance Directory detail. Pending/rejected links stay private to Care Portal org members.
+
 ## Mobile UI
 
 | Surface | Behavior |
@@ -107,3 +111,53 @@ Verification check: RPC `is_provider_org_verified(org_id)` (patients cannot read
 - Messaging (requires approved connection): [Messaging](./messaging.md)
 - Claim sets verified: [Auth & claim](./auth-claim.md)
 - Mobile notes: [`../../caremate-mobile/docs/provider-model.md`](../../caremate-mobile/docs/provider-model.md)
+
+---
+
+# Provider ↔ payer connections
+
+Verified provider and payer organizations can link in Care Portal as a **B2B CRM contact** (no clinical data or claims payload in this pass). Notifications are **portal requests pages only** in this pass (no email/push, and no shared activity feed like patient↔provider). Staff discover inbound requests by opening `/app/payers/requests` or `/payer/providers/requests`.
+
+## Bidirectional model
+
+| Direction | How started | Who approves |
+|-----------|-------------|--------------|
+| Provider → payer | `/app/payers/requests` → payer claim email | Payer staff on `/payer/providers/requests` |
+| Payer → provider | `/payer/providers/requests` → provider claim email | Provider staff on `/app/payers/requests` |
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | Awaiting the other org |
+| `approved` | Connected |
+| `rejected` | Declined; **`rejection_reason` required** |
+
+Column `initiated_by` (`provider` \| `payer`) records who opened the request. The **other** party approves. Outbound pending may be cancelled with a reason.
+
+### Rules
+
+- **One row per** `(provider_organization_id, payer_organization_id)` forever.
+- Re-request after **reject** is **blocked**.
+- Both orgs must be **verified** (`is_provider_org_verified` / `is_payer_org_verified`).
+- Write roles (`can_write_*`) may request / approve / reject.
+- Lookup uses **claim/verification contact email**:
+  - Payer → `payer_organizations.email`
+  - Provider → `provider_profiles.email` or a location email (same resolution as SoftLyft claim)
+
+## Portal UI
+
+| Surface | Purpose |
+|---------|---------|
+| `/app/payers/requests` | Request by payer email + inbound/outbound pending |
+| `/app/payers` | Approved payer connections |
+| `/payer/providers/requests` | Request by provider email + pending queues |
+| `/payer/providers` | Approved provider connections |
+
+## RPCs
+
+| RPC | Caller | Purpose |
+|-----|--------|---------|
+| `request_provider_payer_connection_by_email` | Provider writers | Match verified payer by claim email |
+| `request_payer_provider_connection_by_email` | Payer writers | Match verified provider by claim email |
+| `find_verified_*_org_id_by_claim_email` | Helpers | Resolution used by the request RPCs |
+
+Approve / reject use direct `UPDATE` under RLS (same as patient connections).

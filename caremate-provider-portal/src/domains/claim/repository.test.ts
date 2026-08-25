@@ -5,8 +5,9 @@ import {
   generateClaimCode,
   hashClaimCode,
   normalizeEmail,
-} from '@/domains/claim/crypto';
-import { sanitizePostLoginPath } from '@/lib/safe-redirect';
+  selectClaimableOrgs,
+} from '@/domains/claim/repository';
+import { resolveCareHomePath, sanitizePostLoginPath } from '@/lib/safe-redirect';
 
 describe('claim helpers', () => {
   it('normalizes email', () => {
@@ -26,14 +27,68 @@ describe('claim helpers', () => {
   });
 });
 
+describe('selectClaimableOrgs', () => {
+  it('keeps only orgs with zero active members (provider + payer path)', () => {
+    const orgs = [
+      { id: 'a', name: 'Unclaimed Payer' },
+      { id: 'b', name: 'Claimed Payer' },
+      { id: 'c', name: 'Also Unclaimed' },
+    ];
+    const counts = new Map<string, number>([
+      ['a', 0],
+      ['b', 2],
+      ['c', 0],
+    ]);
+    assert.deepEqual(selectClaimableOrgs(orgs, counts), [
+      { id: 'a', name: 'Unclaimed Payer' },
+      { id: 'c', name: 'Also Unclaimed' },
+    ]);
+  });
+
+  it('treats missing counts as zero (claimable)', () => {
+    assert.deepEqual(
+      selectClaimableOrgs([{ id: 'x', name: 'Solo' }], new Map()),
+      [{ id: 'x', name: 'Solo' }],
+    );
+  });
+});
+
 describe('sanitizePostLoginPath', () => {
-  it('allows only relative /app paths', () => {
+  it('allows relative /app and /payer paths', () => {
     assert.equal(sanitizePostLoginPath(null), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('/app/messages'), '/app/messages');
+    assert.equal(sanitizePostLoginPath('/payer/dashboard'), '/payer/dashboard');
+    assert.equal(sanitizePostLoginPath('/payer/organization'), '/payer/organization');
+    assert.equal(sanitizePostLoginPath(null, '/payer/dashboard'), '/payer/dashboard');
     assert.equal(sanitizePostLoginPath('https://evil.example'), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('//evil.example'), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('/login'), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('/app/../login'), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('/claim'), '/app/dashboard');
+  });
+});
+
+describe('resolveCareHomePath', () => {
+  it('routes by membership and preferred kind', () => {
+    assert.equal(
+      resolveCareHomePath({ hasProvider: true, hasPayer: false }),
+      '/app/dashboard',
+    );
+    assert.equal(
+      resolveCareHomePath({ hasProvider: false, hasPayer: true }),
+      '/payer/dashboard',
+    );
+    assert.equal(
+      resolveCareHomePath({ hasProvider: true, hasPayer: true }),
+      '/app/dashboard',
+    );
+    assert.equal(
+      resolveCareHomePath({
+        hasProvider: true,
+        hasPayer: true,
+        preferredKind: 'payer',
+      }),
+      '/payer/dashboard',
+    );
   });
 });

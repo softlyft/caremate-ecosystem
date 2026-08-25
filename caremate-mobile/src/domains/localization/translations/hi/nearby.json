@@ -24,7 +24,10 @@
     "favorite": "पसंदीदा सहेजें",
     "unfavorite": "पसंदीदा हटाएँ",
     "call": "कॉल करें",
-    "directions": "दिशा-निर्देश"
+    "directions": "दिशा-निर्देश",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "मानचित्र लोड हो रहा है...",

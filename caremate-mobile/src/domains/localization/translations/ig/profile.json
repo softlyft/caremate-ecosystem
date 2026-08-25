@@ -15,7 +15,8 @@
     "family": "Ezinụlọ",
     "settings": "Ntọala",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "Ndekọ Mkpesa Ahụike"
   },
   "premium": {
     "title": "Premium",
@@ -35,5 +36,9 @@
     "copy": "Detuo",
     "fallbackName": "Onye otu"
   },
-  "signOut": "Pụọ"
+  "signOut": "Pụọ",
+  "insuranceDirectory": {
+    "menuSubtitle": "Chọọ ndị ịnshọransị na HMO na CareMate",
+    "guestSubtitle": "Chọọ ndị ịnshọransị na HMO na CareMate"
+  }
 }

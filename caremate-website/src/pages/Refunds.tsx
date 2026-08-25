@@ -10,10 +10,12 @@ export function RefundsPage() {
         <h1>Refund policy</h1>
         <p className={styles.lead}>
           This policy explains how refunds, cancellations, and billing disputes work for paid CareMate
-          plans (CareMate Premium and CareMate Family). It applies to purchases made through
-          CareMate&apos;s hosted checkout (Paystack for Naira, Stripe for international USD) and
-          through Apple or Google billing in the CareMate app unless a different flow is shown at
-          purchase.
+          plans (CareMate Premium and CareMate Family). SoftLyft builds CareMate for Africa and is
+          launching first in Nigeria; paid plans may be purchased by users elsewhere where checkout
+          or app-store billing is available. This policy applies to purchases made through
+          CareMate&apos;s hosted checkout (Paystack for Naira, Stripe for international USD where
+          offered) and through Apple or Google billing in the CareMate app unless a different flow
+          is shown at purchase.
         </p>
 
         <h2>Free plan</h2>
@@ -114,7 +116,9 @@ export function RefundsPage() {
           <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a>
         </p>
 
-        <p className={styles.meta}>Last updated: August 6, 2026</p>
+        <p className={styles.meta}>
+          Last updated: August 25, 2026 · Draft for counsel review alongside Terms and Privacy.
+        </p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
           {' · '}
