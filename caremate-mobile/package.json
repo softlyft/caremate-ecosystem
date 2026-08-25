@@ -91,7 +91,7 @@
     "prune:module-stubs": "node ./scripts/prune-nested-module-stubs.mjs",
     "start": "npm run prune:module-stubs && expo start",
     "android": "npm run prune:module-stubs && expo run:android",
-    "android:apk": "npm run prune:module-stubs && cd android && SENTRY_DISABLE_AUTO_UPLOAD=true ./gradlew assembleRelease",
+    "android:apk": "npm run prune:module-stubs && cd android && EXPO_PUBLIC_APP_ENV=development SENTRY_DISABLE_AUTO_UPLOAD=true ./gradlew assembleRelease",
     "ios": "npm run prune:module-stubs && expo run:ios",
     "web": "expo start --web",
     "format": "prettier --check .",
