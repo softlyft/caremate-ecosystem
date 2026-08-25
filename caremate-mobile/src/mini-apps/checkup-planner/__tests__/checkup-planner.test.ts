@@ -22,6 +22,8 @@ import {
   getAgeOnDate,
   getStatusLabel,
   getYearSummary,
+  isValidCheckupProfile,
+  normalizeCompletions,
   resolvePlannerRegion,
   type CheckupPlannerProfile,
 } from '@/mini-apps/checkup-planner/utils';
@@ -59,6 +61,33 @@ describe('checkup-planner/utils', () => {
     expect(resolvePlannerRegion(null)).toBe('INT');
     expect(resolvePlannerRegion(' ng ')).toBe('NG');
     expect(formatDisplayDate('2026-07-17')).toContain('2026');
+  });
+
+  it('does not throw on corrupt profile or completions when opening planner', () => {
+    expect(isValidCheckupProfile(null)).toBe(false);
+    expect(
+      isValidCheckupProfile({
+        dateOfBirth: undefined as never,
+        gender: 'female',
+        regionCode: null,
+      }),
+    ).toBe(false);
+    expect(normalizeCompletions(null)).toEqual([]);
+    expect(normalizeCompletions(undefined)).toEqual([]);
+    expect(() =>
+      buildYearSchedule(
+        { dateOfBirth: undefined as never, gender: 'female', regionCode: null },
+        null as never,
+        new Date().getFullYear(),
+      ),
+    ).not.toThrow();
+    expect(
+      buildYearSchedule(
+        { dateOfBirth: undefined as never, gender: 'female', regionCode: null },
+        null as never,
+        new Date().getFullYear(),
+      ),
+    ).toEqual([]);
   });
 
   it('builds a gendered regional schedule for the current year', () => {

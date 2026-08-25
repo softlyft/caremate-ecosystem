@@ -1,7 +1,7 @@
 /** CareMate hosted checkout origin (no trailing slash). */
 export function getPaymentUrl(): string {
   return (
-    process.env.NEXT_PUBLIC_PAYMENT_URL ?? 'https://pay.getcaremate.com'
+    process.env.NEXT_PUBLIC_PAYMENT_URL ?? 'https://payment.getcaremate.com'
   ).replace(/\/$/, '');
 }
 

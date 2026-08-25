@@ -1,6 +1,7 @@
 import { RefreshCw, X } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native';
+import { applyAppStateChange, createAppBackgroundGate } from '@/sync/app-state';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
@@ -58,8 +59,9 @@ export function SyncStatusBanner() {
     const unsubscribeQueue = subscribeToSyncQueue(() => {
       void refreshSummary();
     });
+    const appBackgroundGate = createAppBackgroundGate(AppState.currentState);
     const appStateSubscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
+      if (applyAppStateChange(appBackgroundGate, state).shouldForegroundSync) {
         void refreshSummary();
       }
     });

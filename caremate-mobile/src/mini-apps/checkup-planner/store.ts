@@ -6,6 +6,7 @@ import type {
   CheckupPlannerProfile,
   PlannerGender,
 } from '@/mini-apps/checkup-planner/utils';
+import { isValidCheckupProfile, normalizeCompletions } from '@/mini-apps/checkup-planner/utils';
 import { createMiniAppSyncedStorage } from '@/mini-apps/_kit/synced-storage';
 import { registerMiniAppRehydrate } from '@/mini-apps/_kit/rehydrate-registry';
 import { usePersistHydrated } from '@/mini-apps/_kit/use-persist-hydrated';
@@ -27,6 +28,24 @@ interface CheckupPlannerState {
   }) => void;
   removeCompletion: (checkupId: string, year: number) => void;
   clearAll: () => void;
+}
+
+type PersistedCheckupSlice = {
+  profile?: CheckupPlannerProfile | null;
+  completions?: CheckupCompletion[] | null;
+};
+
+function sanitizePersistedState(
+  persisted: unknown,
+  current: CheckupPlannerState,
+): CheckupPlannerState {
+  const slice =
+    persisted && typeof persisted === 'object' ? (persisted as PersistedCheckupSlice) : {};
+  return {
+    ...current,
+    profile: isValidCheckupProfile(slice.profile) ? slice.profile : null,
+    completions: normalizeCompletions(slice.completions),
+  };
 }
 
 export const useCheckupPlannerStore = create<CheckupPlannerState>()(
@@ -72,6 +91,7 @@ export const useCheckupPlannerStore = create<CheckupPlannerState>()(
     {
       name: 'caremate-checkup-planner',
       storage: createJSONStorage(() => createMiniAppSyncedStorage('checkup')),
+      merge: (persisted, current) => sanitizePersistedState(persisted, current),
     },
   ),
 );

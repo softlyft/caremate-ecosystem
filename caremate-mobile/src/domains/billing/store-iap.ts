@@ -51,7 +51,8 @@ export async function purchaseStoreProduct(input: {
   await ensureConnection();
   const sku = storeProductId(input.planType, input.billingInterval);
   const products = await fetchProducts({ skus: [sku], type: 'subs' });
-  const product = (products ?? []).find((item) => item.id === sku) as ProductSubscription | undefined;
+  const product = (products ?? []).find((item) => item.id === sku) as
+    ProductSubscription | undefined;
   const offerToken = androidOfferToken(product, sku);
 
   return new Promise<Purchase>((resolve, reject) => {

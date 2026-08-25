@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type DimensionValue } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { PREGNANCY_WEEKS } from '@/mini-apps/pregnancy-tracker/constants';
@@ -33,9 +33,15 @@ type TrimesterProgressProps = {
   t: Translate;
 };
 
+function percent(value: number): DimensionValue {
+  return `${Math.max(0, Math.min(100, value))}%` as DimensionValue;
+}
+
 export function TrimesterProgress({ age, accent, soft, t }: TrimesterProgressProps) {
   const clamped = Math.max(0, Math.min(1, age.progress));
-  const nowLeft = `${clamped * 100}%`;
+  const nowLeft = percent(clamped * 100);
+  const t2TickLeft = percent((T2_START_WEEK / PREGNANCY_WEEKS) * 100);
+  const t3TickLeft = percent((T3_START_WEEK / PREGNANCY_WEEKS) * 100);
 
   return (
     <View style={styles.wrap}>
@@ -48,12 +54,15 @@ export function TrimesterProgress({ age, accent, soft, t }: TrimesterProgressPro
       <View style={styles.barBlock}>
         <View style={[styles.track, { backgroundColor: soft }]}>
           <View style={[styles.fill, { width: nowLeft, backgroundColor: accent }]} />
-          <View style={[styles.tick, { left: `${(T2_START_WEEK / PREGNANCY_WEEKS) * 100}%` }]} />
-          <View style={[styles.tick, { left: `${(T3_START_WEEK / PREGNANCY_WEEKS) * 100}%` }]} />
+          <View style={[styles.tick, { left: t2TickLeft }]} />
+          <View style={[styles.tick, { left: t3TickLeft }]} />
         </View>
         <View
           accessibilityLabel={t('apps.pregnancy.ui.trimesterBar.now', { weeks: age.weeks })}
-          style={[styles.nowDot, { left: nowLeft, backgroundColor: accent, borderColor: '#FFFFFF' }]}
+          style={[
+            styles.nowDot,
+            { left: nowLeft, backgroundColor: accent, borderColor: '#FFFFFF' },
+          ]}
         />
       </View>
 

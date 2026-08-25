@@ -9,6 +9,7 @@ import {
   scrubEncryptedLeaves,
   upsertMiniAppSnapshotViaGateway,
 } from '@/domains/health-data-gateway';
+import { isMiniAppPayloadEmpty } from '@/mini-apps/_kit/payload-empty';
 import { BaseRepository } from '@/repositories/base-repository';
 import { supabase } from '@/lib/supabase';
 import { toJson } from '@/sync/cloud-types';
@@ -110,14 +111,15 @@ class MiniAppSnapshotRepository extends BaseRepository {
 
   /**
    * Persist a mini-app Zustand state blob locally and enqueue cloud sync for signed-in users.
+   * Returns true when SQLite / the outbox actually changed.
    */
   async save(params: {
     userId: string;
     appKey: MiniAppKey;
     payload: Record<string, unknown>;
-  }): Promise<void> {
+  }): Promise<boolean> {
     if (!canSyncForUser(params.userId)) {
-      return;
+      return false;
     }
 
     const db = getDatabase();
@@ -127,6 +129,9 @@ class MiniAppSnapshotRepository extends BaseRepository {
     const payloadJson = stringifyJson(params.payload);
 
     if (existing) {
+      if (stringifyJson(existing.payload) === payloadJson) {
+        return false;
+      }
       await db
         .update(miniAppSnapshots)
         .set({
@@ -137,6 +142,9 @@ class MiniAppSnapshotRepository extends BaseRepository {
         })
         .where(eq(miniAppSnapshots.id, id));
     } else {
+      if (isMiniAppPayloadEmpty(params.payload)) {
+        return false;
+      }
       await db.insert(miniAppSnapshots).values({
         id,
         userId: params.userId,
@@ -161,6 +169,7 @@ class MiniAppSnapshotRepository extends BaseRepository {
         updatedAt: timestamp,
       },
     });
+    return true;
   }
 
   async syncToRemote(entityId: string, operation: string, payload: unknown): Promise<void> {

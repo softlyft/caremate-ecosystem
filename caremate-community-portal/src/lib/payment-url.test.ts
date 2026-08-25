@@ -6,7 +6,7 @@ import { buildCommunityCheckoutUrl } from './payment-url';
 describe('buildCommunityCheckoutUrl', () => {
   it('sends plan params and profile return URLs', () => {
     const url = buildCommunityCheckoutUrl({
-      paymentUrl: 'https://pay.getcaremate.com',
+      paymentUrl: 'https://payment.getcaremate.com',
       appUrl: 'https://community.getcaremate.com',
       planType: 'personal',
       billingInterval: 'yearly',
@@ -14,7 +14,7 @@ describe('buildCommunityCheckoutUrl', () => {
       handoffCode: 'abc',
     });
     const parsed = new URL(url);
-    assert.equal(parsed.origin, 'https://pay.getcaremate.com');
+    assert.equal(parsed.origin, 'https://payment.getcaremate.com');
     assert.equal(parsed.searchParams.get('plan_type'), 'personal');
     assert.equal(parsed.searchParams.get('source'), 'community');
     assert.equal(parsed.searchParams.get('handoff'), 'abc');

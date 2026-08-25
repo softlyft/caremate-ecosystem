@@ -1,4 +1,4 @@
-# Production Play release on merge to prod (GitHub Actions, no EAS).
+# Production Play release — manual dispatch only (GitHub Actions, no EAS).
 # Sideload APKs on main: .github/workflows/mobile-main-cd.yml
 #
 # Required secrets: caremate-mobile/docs/play-android-release.md
@@ -33,15 +33,6 @@ on:
         type: string
         default: ''
 
-  push:
-    branches:
-      - prod
-    paths:
-      - 'caremate-mobile/**'
-      - 'packages/**'
-      - 'patches/**'
-      - '.github/workflows/android-play.yml'
-
 concurrency:
   group: android-play-${{ github.ref }}
   cancel-in-progress: false
@@ -60,8 +51,8 @@ jobs:
       PLAY_UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
       PLAY_PUBLISH_PRODUCTION: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_production || false }}
       EXPO_NO_TELEMETRY: 1
-      SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       EXPO_PUBLIC_APP_ENV: production
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
       EXPO_PUBLIC_WEBSITE_URL: ${{ secrets.EXPO_PUBLIC_WEBSITE_URL }}
@@ -90,6 +81,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Configure Sentry upload
+        run: |
+          set -euo pipefail
+          if [ -n "${SENTRY_AUTH_TOKEN:-}" ]; then
+            echo "SENTRY_DISABLE_AUTO_UPLOAD=false" >> "$GITHUB_ENV"
+            echo "Sentry source-map upload enabled."
+          else
+            echo "SENTRY_DISABLE_AUTO_UPLOAD=true" >> "$GITHUB_ENV"
+            echo "SENTRY_AUTH_TOKEN unset — skipping Sentry upload."
+          fi
+
+      - name: Assert production mobile env
+        run: |
+          set -euo pipefail
+          chmod +x caremate-mobile/scripts/assert-production-mobile-env.sh
+          caremate-mobile/scripts/assert-production-mobile-env.sh
+
       - name: Require Play signing secrets
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -109,7 +117,8 @@ jobs:
           done
           if [ "$UPLOAD" = "True" ] || [ "$UPLOAD" = "true" ]; then
             if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
-              echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON (required when upload is true)"
+              echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON on GitHub Environment production"
+              echo "Copy it from the development environment (or Play Console service account JSON)."
               missing=1
             fi
           fi

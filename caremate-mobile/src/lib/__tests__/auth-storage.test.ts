@@ -161,7 +161,7 @@ describe('auth storage', () => {
     await expect(authStorage.getItem('k')).resolves.toBe('secret');
     await authStorage.setItem('k', 'v');
     await authStorage.removeItem('k');
-    expect(mockSecureSet).toHaveBeenCalledWith('k', 'v');
+    expect(mockSecureSet).toHaveBeenCalledWith('k', 'v', undefined);
     expect(mockSecureDelete).toHaveBeenCalledWith('k');
   });
 

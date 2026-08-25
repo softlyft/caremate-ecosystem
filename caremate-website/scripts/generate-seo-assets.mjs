@@ -13,7 +13,7 @@ const publicDir = join(root, 'public');
 const siteUrl = (
   process.env.VITE_SITE_URL?.trim() ||
   process.env.SITE_URL?.trim() ||
-  'https://www.getcaremate.com'
+  'https://getcaremate.com'
 ).replace(/\/$/, '');
 
 const LEGACY_CATEGORY_ID_MAP = {

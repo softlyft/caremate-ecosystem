@@ -108,8 +108,7 @@ export function AppDialogHost() {
                 size="sm"
                 style={styles.actionButton}
                 variant={
-                  action.variant ??
-                  (index === current.actions.length - 1 ? 'primary' : 'secondary')
+                  action.variant ?? (index === current.actions.length - 1 ? 'primary' : 'secondary')
                 }
               />
             ))}
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     paddingHorizontal: layoutSpacing.screenHorizontal,
     backgroundColor: 'rgba(15, 23, 42, 0.45)',

@@ -1,3 +1,22 @@
+jest.mock('expo-sqlite', () => ({
+  openDatabaseSync: jest.fn(() => ({
+    execSync: jest.fn(),
+    runSync: jest.fn(),
+    getFirstSync: jest.fn(),
+    getAllSync: jest.fn(),
+    prepareSync: jest.fn(),
+    closeSync: jest.fn(),
+  })),
+  openDatabaseAsync: jest.fn(async () => ({
+    execAsync: jest.fn(),
+    runAsync: jest.fn(),
+    getFirstAsync: jest.fn(),
+    getAllAsync: jest.fn(),
+    prepareAsync: jest.fn(),
+    closeAsync: jest.fn(),
+  })),
+}));
+
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );

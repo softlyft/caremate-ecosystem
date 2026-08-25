@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Keyboard, StyleSheet, View } from 'react-native';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
@@ -59,19 +59,27 @@ export default function PregnancySetupScreen() {
   const previouslyEnded = status === 'ended';
   const isPostpartum = status === 'postpartum';
 
-  useEffect(() => {
-    if (!hydrated) {
-      return;
+  const seedSource = dueDateSource === 'due-date' ? dueDate : lastMenstrualPeriod;
+  const [seedSnapshot, setSeedSnapshot] = useState<{
+    hydrated: boolean;
+    dueDateSource: typeof dueDateSource;
+    seedSource: string | null;
+  }>({ hydrated: false, dueDateSource: null, seedSource: null });
+
+  if (
+    hydrated &&
+    (seedSnapshot.hydrated !== hydrated ||
+      seedSnapshot.dueDateSource !== dueDateSource ||
+      seedSnapshot.seedSource !== seedSource)
+  ) {
+    setSeedSnapshot({ hydrated, dueDateSource, seedSource });
+    if (seedSource) {
+      setMode(dueDateSource === 'due-date' ? 'due-date' : 'lmp');
+      setSelectedDate((current) => current ?? seedSource);
+      const parsed = parseDateKey(seedSource);
+      setMonthRef(new Date(parsed.getFullYear(), parsed.getMonth(), 1));
     }
-    const seeded = dueDateSource === 'due-date' ? dueDate : lastMenstrualPeriod;
-    if (!seeded) {
-      return;
-    }
-    setMode(dueDateSource === 'due-date' ? 'due-date' : 'lmp');
-    setSelectedDate((current) => current ?? seeded);
-    const parsed = parseDateKey(seeded);
-    setMonthRef(new Date(parsed.getFullYear(), parsed.getMonth(), 1));
-  }, [dueDate, dueDateSource, hydrated, lastMenstrualPeriod]);
+  }
 
   const previewDueDate =
     mode === 'lmp' && selectedDate ? calculateDueDateFromLmp(selectedDate) : selectedDate;
@@ -116,7 +124,9 @@ export default function PregnancySetupScreen() {
       };
 
       // Pausing Period Tracker is expected — don't block first-time save on a confirm.
-      const blockingSoft = assessment.soft.filter((issue) => issue.code !== 'soft_will_pause_period');
+      const blockingSoft = assessment.soft.filter(
+        (issue) => issue.code !== 'soft_will_pause_period',
+      );
       if (blockingSoft.length > 0) {
         const ok = await confirm({
           title: t('apps.pregnancy.validation.confirmTitle'),

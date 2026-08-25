@@ -97,7 +97,7 @@ function trimOrigin(value: string | undefined, fallback: string): string {
 }
 
 function websiteFallbackUrl(kind: 'success' | 'cancel'): string {
-  const origin = trimOrigin(import.meta.env.VITE_WEBSITE_URL, 'https://www.getcaremate.com');
+  const origin = trimOrigin(import.meta.env.VITE_WEBSITE_URL, 'https://getcaremate.com');
   return kind === 'success' ? `${origin}/pricing?paid=1` : `${origin}/pricing`;
 }
 

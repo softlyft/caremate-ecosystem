@@ -61,8 +61,8 @@ Suggested Amplify app names:
 
 | Key | Notes |
 |-----|--------|
-| `VITE_SITE_URL` | Production: `https://www.getcaremate.com` (canonical host). Used for OG/canonical links and build-time sitemap. |
-| `VITE_PAYMENT_URL` | Checkout host baked in at **build** time. DEV: `https://pay-dev.getcaremate.com` (or the payment Amplify origin). Production: `https://pay.getcaremate.com`. Pricing CTAs open this app. Do not rely on a code default. |
+| `VITE_SITE_URL` | Production: `https://getcaremate.com`. Used for OG/canonical links and build-time sitemap. |
+| `VITE_PAYMENT_URL` | Checkout host baked in at **build** time. DEV: Amplify payment origin. Production: `https://payment.getcaremate.com`. |
 | `VITE_COMMUNITY_PORTAL_URL` | Community join links. |
 
 Build also emits `robots.txt`, `sitemap.xml`, and `llms.txt` into the static output.
@@ -106,7 +106,7 @@ Amplify Console → App → **Hosting** → **Environment variables** → apply 
 | `NEXT_PUBLIC_SUPABASE_URL` | Same Supabase project as mobile / admin |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — mark as secret |
-| `NEXT_PUBLIC_APP_URL` | Temporary: `https://main.d9xyppes84zqr.amplifyapp.com` (later `https://provider.getcaremate.com`) |
+| `NEXT_PUBLIC_APP_URL` | Temporary: `https://main.d9xyppes84zqr.amplifyapp.com` (later `https://app.getcaremate.com`) |
 | `NEXT_PUBLIC_WEBSITE_URL` | Temporary: `https://main.dim7uuolmjgc9.amplifyapp.com` |
 
 Do **not** expose claim or password-reset OTPs in the browser. OTPs are emailed via Edge Functions:
@@ -157,29 +157,31 @@ Expect:
 
 ## Custom domains (after first green deploy)
 
-### Temporary Amplify hosts (until custom domains are ready)
+### Development hosts (Amplify / API Gateway)
 
-Use these Amplify default domains for env vars, EAS, emails, and cross-app links while `*.getcaremate.com` DNS is unfinished:
+Use these origins for DEV env vars, GitHub `development` secrets, and cross-app links:
 
-| App | Temporary host |
-|-----|----------------|
+| App | Host |
+|-----|------|
 | Main website | `https://main.dim7uuolmjgc9.amplifyapp.com` |
 | Admin portal | `https://main.d3gvtqx2uzn788.amplifyapp.com` |
-| Provider portal | `https://main.d9xyppes84zqr.amplifyapp.com` |
+| Provider (Care) portal | `https://main.d9xyppes84zqr.amplifyapp.com` |
 | Community portal | `https://main.d2tlpjx9a9kklb.amplifyapp.com` |
 | Payment | `https://main.d1wcqa3tsdavz8.amplifyapp.com` |
+| Health Data Gateway | `https://2pssx73li6.execute-api.us-east-1.amazonaws.com` |
 
 Set matching values in each Amplify app’s **Environment variables**, mobile GitHub secrets / `.env.*`, and Supabase Auth **Redirect URLs** (include `https://main.dim7uuolmjgc9.amplifyapp.com/auth/reset-password`). Redeploy after changing.
 
-### Official CareMate hosts (target)
+### Production hosts
 
 | App | Development | Production |
 |-----|-------------|------------|
-| Main website | `https://dev.getcaremate.com` | `https://getcaremate.com` |
-| Admin portal | `https://admin-dev.getcaremate.com` | `https://admin.getcaremate.com` |
-| Provider portal | `https://provider-dev.getcaremate.com` | `https://provider.getcaremate.com` |
-| Community portal | `https://community-dev.getcaremate.com` | `https://community.getcaremate.com` |
-| Payment | `https://pay-dev.getcaremate.com` | `https://pay.getcaremate.com` |
+| Main website | `https://main.dim7uuolmjgc9.amplifyapp.com` | `https://getcaremate.com` |
+| Admin portal | `https://main.d3gvtqx2uzn788.amplifyapp.com` | `https://admin.getcaremate.com` |
+| Provider (Care) portal | `https://main.d9xyppes84zqr.amplifyapp.com` | `https://app.getcaremate.com` |
+| Community portal | `https://main.d2tlpjx9a9kklb.amplifyapp.com` | `https://community.getcaremate.com` |
+| Payment | `https://main.d1wcqa3tsdavz8.amplifyapp.com` | `https://payment.getcaremate.com` |
+| Health Data Gateway | `https://2pssx73li6.execute-api.us-east-1.amazonaws.com` | `https://api.getcaremate.com` |
 
 In each Amplify app → **Hosting** → **Custom domains**, attach the matching host. Point DNS (CNAME / ANAME) as Amplify instructs. Update Supabase Auth → **URL configuration** with the new portal / payment origins **and** https app-link redirects (`https://getcaremate.com/auth/reset-password`, plus `dev.` for DEV).
 

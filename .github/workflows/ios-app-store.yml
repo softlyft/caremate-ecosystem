@@ -1,4 +1,4 @@
-# Production App Store build on merge to prod (GitHub Actions, no EAS).
+# Production App Store build — manual dispatch only (GitHub Actions, no EAS).
 # Dev TestFlight builds: .github/workflows/ios-testflight.yml (main branch).
 #
 # Required secrets: caremate-mobile/docs/ios-app-store-release.md
@@ -13,19 +13,10 @@ on:
         type: boolean
         default: true
       build_number:
-        description: Override iOS CFBundleVersion (leave empty to use run number + offset)
+        description: Override iOS CFBundleVersion (leave empty to use run id + offset)
         required: false
         type: string
         default: ''
-
-  push:
-    branches:
-      - prod
-    paths:
-      - 'caremate-mobile/**'
-      - 'packages/**'
-      - 'patches/**'
-      - '.github/workflows/ios-app-store.yml'
 
 concurrency:
   group: ios-app-store-${{ github.ref }}
@@ -43,8 +34,8 @@ jobs:
     env:
       SHOULD_UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
       EXPO_NO_TELEMETRY: 1
-      SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       EXPO_PUBLIC_APP_ENV: production
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
@@ -73,6 +64,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Configure Sentry upload
+        run: |
+          set -euo pipefail
+          if [ -n "${SENTRY_AUTH_TOKEN:-}" ]; then
+            echo "SENTRY_DISABLE_AUTO_UPLOAD=false" >> "$GITHUB_ENV"
+            echo "Sentry source-map upload enabled."
+          else
+            echo "SENTRY_DISABLE_AUTO_UPLOAD=true" >> "$GITHUB_ENV"
+            echo "SENTRY_AUTH_TOKEN unset — skipping Sentry upload."
+          fi
+
+      - name: Assert production mobile env
+        run: |
+          set -euo pipefail
+          chmod +x caremate-mobile/scripts/assert-production-mobile-env.sh
+          caremate-mobile/scripts/assert-production-mobile-env.sh
 
       - name: Require iOS signing secrets
         env:
@@ -112,20 +120,12 @@ jobs:
           OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_BUILD_NUMBER}" ]; then
-            BUILD_NUMBER="${INPUT_BUILD_NUMBER}"
-          else
-            BASE="${OFFSET:-0}"
-            BUILD_NUMBER=$((BASE + GITHUB_RUN_NUMBER))
-          fi
-          if ! [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
-            echo "Invalid IOS_BUILD_NUMBER: $BUILD_NUMBER"
-            exit 1
-          fi
+          chmod +x caremate-mobile/scripts/resolve-ios-build-number.sh
+          BUILD_NUMBER="$(caremate-mobile/scripts/resolve-ios-build-number.sh)"
           echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
           VERSION_NAME="$(node -p "require('./caremate-mobile/app.json').expo.version")"
           echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
-          echo "Using CFBundleShortVersionString=$VERSION_NAME CFBundleVersion=$BUILD_NUMBER"
+          echo "Using CFBundleShortVersionString=$VERSION_NAME CFBundleVersion=$BUILD_NUMBER (run_id=$GITHUB_RUN_ID)"
 
       - name: Setup Node
         uses: actions/setup-node@v6

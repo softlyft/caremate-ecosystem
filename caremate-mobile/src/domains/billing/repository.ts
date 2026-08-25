@@ -6,7 +6,12 @@ import { subscriptionEntitlements } from '@/database/schema';
 import { familyRepository } from '@/domains/family/repository';
 import { emptyPremiumState } from '@/domains/billing/format';
 import { isLocalEntitlementActive } from '@/domains/billing/period';
-import { finishStorePurchase, purchasePlatform, purchaseStoreProduct, purchaseTransactionId } from '@/domains/billing/store-iap';
+import {
+  finishStorePurchase,
+  purchasePlatform,
+  purchaseStoreProduct,
+  purchaseTransactionId,
+} from '@/domains/billing/store-iap';
 import { storeProductId } from '@/domains/billing/iap-products';
 import {
   type BillingCurrency,

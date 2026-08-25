@@ -1,5 +1,10 @@
 import { eq } from 'drizzle-orm';
-import { AppState, type AppStateStatus, type NativeEventSubscription } from 'react-native';
+import {
+  AppState,
+  InteractionManager,
+  type AppStateStatus,
+  type NativeEventSubscription,
+} from 'react-native';
 
 import { config } from '@/constants/env';
 import { SYNC_CONFIG } from '@/constants/config';
@@ -13,6 +18,12 @@ import {
 } from '@/mini-apps/_kit/hydrate';
 import '@/mini-apps/_kit/bootstrap';
 import {
+  applyAppStateChange,
+  createAppBackgroundGate,
+  type AppBackgroundGate,
+} from '@/sync/app-state';
+import { planSyncCycle, preferRicherSyncReason } from '@/sync/cycle-policy';
+import {
   getPendingSyncOperations,
   markSyncOperationComplete,
   markSyncOperationFailed,
@@ -21,6 +32,9 @@ import { isOnline, watchNetworkStatus } from '@/sync/network';
 import { registerDefaultSyncHandlers } from '@/sync/register-default-handlers';
 import { getRegisteredSyncHandlers, getSyncHandler } from '@/sync/registry';
 import { nowIso } from '@/utils/helpers';
+
+/** Yield to navigation / scroll; don't stall forever if InteractionManager never settles. */
+const UI_IDLE_TIMEOUT_MS = 500;
 
 function localDateKey(date = new Date()): string {
   const year = date.getFullYear();
@@ -38,12 +52,16 @@ function msUntilNextLocalMidnight(from = new Date()): number {
 class SyncEngine {
   private running = false;
   private cycleInFlight: Promise<void> | null = null;
+  private queuedReason: string | null = null;
   private requestTimer: ReturnType<typeof setTimeout> | null = null;
   private dailyTimer: ReturnType<typeof setTimeout> | null = null;
   private intervalTimer: ReturnType<typeof setInterval> | null = null;
+  private idleSafetyTimer: ReturnType<typeof setTimeout> | null = null;
+  private interactionHandle: { cancel: () => void } | null = null;
   private unsubscribeNetwork: (() => void) | null = null;
   private appStateSub: NativeEventSubscription | null = null;
   private wasOnline: boolean | null = null;
+  private appBackgroundGate: AppBackgroundGate = createAppBackgroundGate();
 
   async start(): Promise<void> {
     if (this.running) {
@@ -63,8 +81,10 @@ class SyncEngine {
       }
     });
 
+    this.appBackgroundGate = createAppBackgroundGate(AppState.currentState);
     this.appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
-      if (state === 'active') {
+      const { shouldForegroundSync } = applyAppStateChange(this.appBackgroundGate, state);
+      if (shouldForegroundSync) {
         this.requestSync({ reason: 'foreground', immediate: true });
       }
     });
@@ -101,45 +121,102 @@ class SyncEngine {
     this.unsubscribeNetwork = null;
     this.appStateSub?.remove();
     this.appStateSub = null;
+    this.cancelScheduledCycle();
+    this.queuedReason = null;
   }
 
   /**
    * Ask for a sync cycle. Debounced by default so bursts of writes coalesce.
    * Use `immediate` for reconnect / foreground / daily safety.
+   * Cycles wait until the UI is idle so navigation and scrolling stay smooth.
    */
   requestSync(options: { reason?: string; immediate?: boolean } = {}): void {
     if (!this.running) {
       return;
     }
 
-    if (this.requestTimer) {
-      clearTimeout(this.requestTimer);
-      this.requestTimer = null;
+    const reason = options.reason ?? 'request';
+    if (this.cycleInFlight) {
+      this.queuedReason = preferRicherSyncReason(this.queuedReason, reason);
+      return;
     }
+
+    this.cancelScheduledCycle();
 
     const delay = options.immediate ? 0 : SYNC_CONFIG.writeDebounceMs;
     this.requestTimer = setTimeout(() => {
       this.requestTimer = null;
-      void this.runSyncCycle({ reason: options.reason ?? 'request' });
+      this.runAfterUiIdle(() => {
+        void this.runSyncCycle({ reason });
+      });
     }, delay);
   }
 
+  private cancelScheduledCycle(): void {
+    if (this.requestTimer) {
+      clearTimeout(this.requestTimer);
+      this.requestTimer = null;
+    }
+    this.interactionHandle?.cancel();
+    this.interactionHandle = null;
+    if (this.idleSafetyTimer) {
+      clearTimeout(this.idleSafetyTimer);
+      this.idleSafetyTimer = null;
+    }
+  }
+
+  private runAfterUiIdle(fn: () => void): void {
+    this.interactionHandle?.cancel();
+    if (this.idleSafetyTimer) {
+      clearTimeout(this.idleSafetyTimer);
+      this.idleSafetyTimer = null;
+    }
+
+    let ran = false;
+    const runOnce = () => {
+      if (ran) {
+        return;
+      }
+      ran = true;
+      this.interactionHandle = null;
+      if (this.idleSafetyTimer) {
+        clearTimeout(this.idleSafetyTimer);
+        this.idleSafetyTimer = null;
+      }
+      fn();
+    };
+
+    this.interactionHandle = InteractionManager.runAfterInteractions(runOnce);
+    this.idleSafetyTimer = setTimeout(runOnce, UI_IDLE_TIMEOUT_MS);
+  }
+
   /** Runs even when the engine is not "started" (e.g. headless background task). */
-  async runSyncCycle(_options: { reason?: string } = {}): Promise<void> {
+  async runSyncCycle(options: { reason?: string } = {}): Promise<void> {
     registerDefaultSyncHandlers();
 
+    const reason = options.reason ?? 'request';
     if (this.cycleInFlight) {
+      this.queuedReason = preferRicherSyncReason(this.queuedReason, reason);
       return this.cycleInFlight;
     }
 
-    this.cycleInFlight = this.executeSyncCycle().finally(() => {
-      this.cycleInFlight = null;
-    });
+    this.cycleInFlight = this.executeSyncCycle(reason)
+      .catch(() => undefined)
+      .finally(() => {
+        this.cycleInFlight = null;
+        const queued = this.queuedReason;
+        this.queuedReason = null;
+        if (queued && this.running) {
+          const plan = planSyncCycle(queued);
+          this.requestSync({ reason: queued, immediate: plan.pullRemote });
+        }
+      });
 
     return this.cycleInFlight;
   }
 
-  private async executeSyncCycle(): Promise<void> {
+  private async executeSyncCycle(reason: string): Promise<void> {
+    const plan = planSyncCycle(reason);
     const online = await isOnline();
     this.wasOnline = online;
 
@@ -147,7 +224,7 @@ class SyncEngine {
     try {
       const auth = useAuthStore.getState();
       const userId = auth.user?.id;
-      if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
+      if (plan.evaluateAlerts && userId && userId !== GUEST_USER_ID && !auth.isGuest) {
         const [
           { useMedicationTrackerStore },
           { usePregnancyTrackerStore },
@@ -204,15 +281,19 @@ class SyncEngine {
 
     const auth = useAuthStore.getState();
     const userId = auth.user?.id;
-    if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
+    if (plan.migrateMiniApps && userId && userId !== GUEST_USER_ID && !auth.isGuest) {
       // Guest→account migration is not repeated here — only on explicit sign-in/up.
       await migrateMiniAppsToSnapshots(userId);
     }
 
-    await this.pushPendingChanges();
-    await this.pullRemoteChanges();
+    if (plan.pushPending) {
+      await this.pushPendingChanges();
+    }
+    if (plan.pullRemote) {
+      await this.pullRemoteChanges();
+    }
 
-    if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
+    if (plan.rehydrateMiniApps && userId && userId !== GUEST_USER_ID && !auth.isGuest) {
       const pending = await getPendingSyncOperations();
       const hasPendingMiniApps = pending.some((item) => item.entityType === 'mini_app_snapshots');
       if (!hasPendingMiniApps) {

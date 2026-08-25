@@ -4,6 +4,7 @@ import appJson from './app.json';
 
 const GOOGLE_SAMPLE_ANDROID_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
 const GOOGLE_SAMPLE_IOS_APP_ID = 'ca-app-pub-3940256099942544~1458002511';
+const GOOGLE_SAMPLE_ADMOB_PREFIX = 'ca-app-pub-3940256099942544';
 
 function androidVersionCode(base: ExpoConfig): number {
   const fromEnv = Number.parseInt(process.env.ANDROID_VERSION_CODE ?? '', 10);
@@ -13,15 +14,60 @@ function androidVersionCode(base: ExpoConfig): number {
   return base.android?.versionCode ?? 1;
 }
 
+function requireLiveAdMobAppId(platform: 'android' | 'ios', value: string | undefined): string {
+  const trimmed = value?.trim() ?? '';
+  if (!trimmed) {
+    throw new Error(
+      `EXPO_PUBLIC_ADMOB_APP_ID_${platform.toUpperCase()} is required when EXPO_PUBLIC_APP_ENV=production`,
+    );
+  }
+  if (trimmed.startsWith(GOOGLE_SAMPLE_ADMOB_PREFIX)) {
+    throw new Error(
+      `EXPO_PUBLIC_ADMOB_APP_ID_${platform.toUpperCase()} must not use Google sample IDs in production`,
+    );
+  }
+  return trimmed;
+}
+
+function productionAssociatedDomains(domains: string[] | undefined): string[] | undefined {
+  if (!domains?.length) return domains;
+  return domains.filter(
+    (domain) => domain === 'applinks:getcaremate.com' || domain === 'applinks:www.getcaremate.com',
+  );
+}
+
+function asDataList(
+  data: NonNullable<NonNullable<ExpoConfig['android']>['intentFilters']>[number]['data'],
+): Array<Record<string, unknown>> {
+  if (!data) return [];
+  return (Array.isArray(data) ? data : [data]) as Array<Record<string, unknown>>;
+}
+
+function productionIntentFilters(
+  filters: NonNullable<ExpoConfig['android']>['intentFilters'],
+): NonNullable<ExpoConfig['android']>['intentFilters'] {
+  if (!filters?.length) return filters;
+  return filters.map((filter) => {
+    const data = asDataList(filter.data).filter((entry) => {
+      const host = typeof entry.host === 'string' ? entry.host : undefined;
+      return host === 'getcaremate.com' || host === 'www.getcaremate.com';
+    });
+    return {
+      ...filter,
+      data,
+    };
+  });
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   const base = (appJson.expo ?? config) as ExpoConfig;
   const isProductionAppEnv =
     (process.env.EXPO_PUBLIC_APP_ENV ?? process.env.APP_ENV ?? '').trim() === 'production';
   const androidAppId = isProductionAppEnv
-    ? process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID?.trim() || GOOGLE_SAMPLE_ANDROID_APP_ID
+    ? requireLiveAdMobAppId('android', process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID)
     : GOOGLE_SAMPLE_ANDROID_APP_ID;
   const iosAppId = isProductionAppEnv
-    ? process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS?.trim() || GOOGLE_SAMPLE_IOS_APP_ID
+    ? requireLiveAdMobAppId('ios', process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS)
     : GOOGLE_SAMPLE_IOS_APP_ID;
 
   const plugins: NonNullable<ExpoConfig['plugins']> = [...(base.plugins ?? [])];
@@ -33,8 +79,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         androidAppId,
         iosAppId,
         delayAppMeasurementInit: true,
+        // Runtime requests non-personalized ads only (see domains/ads/consent.ts).
         userTrackingUsageDescription:
-          'This identifier will be used to deliver personalized ads to you.',
+          'This identifier may be used to measure ad performance and keep ads relevant. CareMate requests non-personalized ads.',
       },
     ]);
   }
@@ -83,10 +130,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       ...base.ios,
       ...(appleTeamId ? { appleTeamId } : {}),
+      ...(isProductionAppEnv
+        ? { associatedDomains: productionAssociatedDomains(base.ios?.associatedDomains) }
+        : {}),
     },
     android: {
       ...base.android,
       versionCode: androidVersionCode(base),
+      ...(isProductionAppEnv
+        ? { intentFilters: productionIntentFilters(base.android?.intentFilters) }
+        : {}),
     },
     plugins,
   };

@@ -104,7 +104,9 @@ export function HealthTimelineRail({
               { borderColor: `${theme.color}22` },
             ]}
           >
-            {!compact ? <View style={[styles.accentBar, { backgroundColor: theme.color }]} /> : null}
+            {!compact ? (
+              <View style={[styles.accentBar, { backgroundColor: theme.color }]} />
+            ) : null}
             <View style={[styles.eventCopy, compact ? styles.previewCopy : null]}>
               <View style={styles.metaRow}>
                 <AppText variant="caption" style={[styles.kind, { color: theme.color }]}>
@@ -127,7 +129,11 @@ export function HealthTimelineRail({
                 {row.event.title}
               </AppText>
               {row.event.summary ? (
-                <AppText variant="caption" style={styles.eventSummary} numberOfLines={compact ? 1 : 3}>
+                <AppText
+                  variant="caption"
+                  style={styles.eventSummary}
+                  numberOfLines={compact ? 1 : 3}
+                >
                   {row.event.summary}
                 </AppText>
               ) : null}
@@ -180,9 +186,17 @@ export function HealthTimelineEmptyRail({ message }: { message: string }) {
       {[0, 1, 2].map((index) => (
         <View key={index} style={styles.row}>
           <View style={[styles.track, { width: 30 }]}>
-            {index > 0 ? <View style={[styles.line, styles.ghostLine]} /> : <View style={styles.lineSpacer} />}
+            {index > 0 ? (
+              <View style={[styles.line, styles.ghostLine]} />
+            ) : (
+              <View style={styles.lineSpacer} />
+            )}
             <View style={styles.ghostDot} />
-            {index < 2 ? <View style={[styles.line, styles.ghostLine]} /> : <View style={styles.lineSpacer} />}
+            {index < 2 ? (
+              <View style={[styles.line, styles.ghostLine]} />
+            ) : (
+              <View style={styles.lineSpacer} />
+            )}
           </View>
           {index === 1 ? (
             <View style={styles.emptyCopy}>

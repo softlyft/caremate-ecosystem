@@ -296,7 +296,10 @@ function projectImmunization(
   return events;
 }
 
-function projectCheckup(userId: string, payload: Record<string, unknown>): ProjectedTimelineEvent[] {
+function projectCheckup(
+  userId: string,
+  payload: Record<string, unknown>,
+): ProjectedTimelineEvent[] {
   const events: ProjectedTimelineEvent[] = [];
   for (const item of asArray(payload.completions)) {
     const completion = asRecord(item);

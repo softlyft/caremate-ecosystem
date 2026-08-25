@@ -19,7 +19,7 @@ on:
         type: boolean
         default: true
       build_number:
-        description: Override iOS CFBundleVersion (leave empty to use run number + offset)
+        description: Override iOS CFBundleVersion (leave empty to use run id + offset)
         required: false
         type: string
         default: ''
@@ -32,7 +32,7 @@ on:
         type: boolean
         default: true
       build_number:
-        description: Override iOS CFBundleVersion (leave empty to use run number + offset)
+        description: Override iOS CFBundleVersion (leave empty to use run id + offset)
         required: false
         type: string
         default: ''
@@ -125,20 +125,12 @@ jobs:
           OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_BUILD_NUMBER}" ]; then
-            BUILD_NUMBER="${INPUT_BUILD_NUMBER}"
-          else
-            BASE="${OFFSET:-0}"
-            BUILD_NUMBER=$((BASE + GITHUB_RUN_NUMBER))
-          fi
-          if ! [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
-            echo "Invalid IOS_BUILD_NUMBER: $BUILD_NUMBER"
-            exit 1
-          fi
+          chmod +x caremate-mobile/scripts/resolve-ios-build-number.sh
+          BUILD_NUMBER="$(caremate-mobile/scripts/resolve-ios-build-number.sh)"
           echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
           VERSION_NAME="$(node -p "require('./caremate-mobile/app.json').expo.version")"
           echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
-          echo "Using CFBundleShortVersionString=$VERSION_NAME CFBundleVersion=$BUILD_NUMBER"
+          echo "Using CFBundleShortVersionString=$VERSION_NAME CFBundleVersion=$BUILD_NUMBER (run_id=$GITHUB_RUN_ID)"
 
       - name: Setup Node
         uses: actions/setup-node@v6

@@ -11,8 +11,11 @@ import {
 import { scopedMiniAppStorageKey } from '@/mini-apps/_kit/synced-storage';
 import { rehydrateAllMiniAppStores } from '@/mini-apps/_kit/rehydrate-registry';
 import { backfillHealthTimelineFromSnapshots } from '@/domains/timeline/backfill';
+import { isMiniAppPayloadEmpty } from '@/mini-apps/_kit/payload-empty';
 import { isOnline } from '@/sync/network';
-import { parseJson } from '@/utils/helpers';
+import { parseJson, stringifyJson } from '@/utils/helpers';
+
+export { isMiniAppPayloadEmpty } from '@/mini-apps/_kit/payload-empty';
 
 function stripActions(state: Record<string, unknown>): Record<string, unknown> {
   const next: Record<string, unknown> = {};
@@ -23,83 +26,6 @@ function stripActions(state: Record<string, unknown>): Record<string, unknown> {
     next[key] = value;
   }
   return next;
-}
-
-/**
- * True when local mini-app state has no user-authored content yet
- * (missing key, empty object, or defaults-only like empty arrays + setup incomplete).
- */
-export function isMiniAppPayloadEmpty(
-  payload: Record<string, unknown> | null | undefined,
-): boolean {
-  if (!payload || typeof payload !== 'object') {
-    return true;
-  }
-
-  const state = stripActions(payload);
-  if (Object.keys(state).length === 0) {
-    return true;
-  }
-
-  if (state.hasCompletedSetup === true) {
-    return false;
-  }
-
-  // Booleans that represent user intent (e.g. period tracker paused for pregnancy).
-  if (state.paused === true) {
-    return false;
-  }
-
-  for (const [key, value] of Object.entries(state)) {
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (!trimmed) {
-        continue;
-      }
-      // Default pregnancy nickname is not meaningful alone.
-      if (key === 'babyNickname' && (trimmed === 'Baby' || trimmed === 'baby')) {
-        continue;
-      }
-      // Non-empty strings (LMP/due dates, nicknames, notes fields at root) count as content.
-      return false;
-    }
-    if (typeof value === 'number' && Number.isFinite(value) && value !== 0) {
-      return false;
-    }
-    if (Array.isArray(value) && value.length > 0) {
-      return false;
-    }
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      for (const nested of Object.values(value as Record<string, unknown>)) {
-        if (Array.isArray(nested) && nested.length > 0) {
-          return false;
-        }
-        if (typeof nested === 'number' && Number.isFinite(nested) && nested !== 0) {
-          return false;
-        }
-        // Nested maps (dailyLogs, plansByYear entries) — ignore flat preference strings
-        // like unitPrefs.weight = "kg" so defaults-only state stays empty.
-        if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
-          for (const deep of Object.values(nested as Record<string, unknown>)) {
-            if (Array.isArray(deep) && deep.length > 0) {
-              return false;
-            }
-            if (typeof deep === 'string' && deep.trim().length > 0) {
-              return false;
-            }
-            if (typeof deep === 'number' && Number.isFinite(deep) && deep !== 0) {
-              return false;
-            }
-            if (deep && typeof deep === 'object' && Object.keys(deep as object).length > 0) {
-              return false;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return true;
 }
 
 async function readLocalMiniAppState(
@@ -125,6 +51,7 @@ export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<vo
   }
 
   const snapshots = await miniAppSnapshotRepository.findByUserId(userId);
+  let anyChanged = false;
 
   for (const snapshot of snapshots) {
     const base = MINI_APP_STORAGE_KEYS[snapshot.appKey];
@@ -134,6 +61,10 @@ export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<vo
       existingRaw,
       {},
     );
+    const existingState = stripActions(existing.state ?? {});
+    if (existingRaw && stringifyJson(existingState) === stringifyJson(snapshot.payload)) {
+      continue;
+    }
 
     await AsyncStorage.setItem(
       storageKey,
@@ -143,6 +74,11 @@ export async function rehydrateMiniAppsFromSnapshots(userId: string): Promise<vo
       }),
     );
     await AsyncStorage.removeItem(base);
+    anyChanged = true;
+  }
+
+  if (!anyChanged) {
+    return;
   }
 
   await rehydrateAllMiniAppStores();

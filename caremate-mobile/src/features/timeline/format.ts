@@ -43,10 +43,7 @@ export function defaultTimelineRange(now = new Date()): { fromDate: string; toDa
   return { fromDate: addCalendarDays(toDate, -89), toDate };
 }
 
-export function monthsInRange(
-  fromDate: string,
-  toDate: string,
-): { key: string; label: string }[] {
+export function monthsInRange(fromDate: string, toDate: string): { key: string; label: string }[] {
   const start = parseTimelineDateKey(fromDate);
   const end = parseTimelineDateKey(toDate);
   const cursor = new Date(start.getFullYear(), start.getMonth(), 1);

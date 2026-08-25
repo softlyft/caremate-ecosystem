@@ -1,29 +1,56 @@
 # Supabase Edge Functions
 
-Billing checkout, payment webhooks, transactional email (Amazon SES), and Expo push.
+Billing checkout, payment webhooks, transactional email (`EMAIL_PROVIDER`), and Expo push.
 
 ## Secrets
 
-Set in the linked project (never commit):
+Set in the linked project (never commit).
+
+### Email — single switch
+
+```bash
+# EMAIL_PROVIDER=smtp | ses | resend
+supabase secrets set \
+  EMAIL_PROVIDER=smtp \
+  EMAIL_FROM=hello@getcaremate.com \
+  EMAIL_FROM_NAME=CareMate
+
+# SMTP (cPanel / any SMTP) when EMAIL_PROVIDER=smtp
+supabase secrets set \
+  SMTP_HOST=mail.getcaremate.com \
+  SMTP_PORT=465 \
+  SMTP_USER=hello@getcaremate.com \
+  SMTP_PASS='...' \
+  SMTP_SECURE=true
+
+# Amazon SES when EMAIL_PROVIDER=ses
+supabase secrets set \
+  AWS_ACCESS_KEY_ID=AKIA... \
+  AWS_SECRET_ACCESS_KEY=... \
+  AWS_REGION=us-east-1
+
+# Resend when EMAIL_PROVIDER=resend
+supabase secrets set \
+  RESEND_API_KEY=re_...
+```
+
+Only the active `EMAIL_PROVIDER` is used; you can keep other credentials set for later. If `EMAIL_PROVIDER` is unset, the mailer auto-detects (resend → ses → smtp). Prefer an explicit switch in production. Legacy `SES_FROM_EMAIL` / `SES_FROM_NAME` still map to From. When nothing is configured, product email is marked `skipped`.
+
+**Full reference (all secrets + accepted values):** [docs/email.md](../docs/email.md)
+
+### Billing + push
 
 ```bash
 supabase secrets set \
   STRIPE_SECRET_KEY=sk_test_... \
   STRIPE_WEBHOOK_SECRET=whsec_... \
   PAYSTACK_SECRET_KEY=sk_test_... \
-  AWS_ACCESS_KEY_ID=AKIA... \
-  AWS_SECRET_ACCESS_KEY=... \
-  AWS_REGION=us-east-1 \
-  SES_FROM_EMAIL=hello@getcaremate.com \
-  SES_FROM_NAME=CareMate \
   EXPO_ACCESS_TOKEN=...
 ```
 
-`SES_FROM_EMAIL` must be a verified SES identity (domain or address). CareMate transactional mail sends as **`hello@getcaremate.com`**. When SES env vars are missing, product email deliveries are marked `skipped` so local/dev webhooks still succeed.
+`EXPO_ACCESS_TOKEN` is **optional**. When set, Edge Functions send it as `Authorization: Bearer …` to the Expo Push API.
 
-`EXPO_ACCESS_TOKEN` is **optional**. When set, Edge Functions send it as `Authorization: Bearer …` to the Expo Push API. Without it, Expo still accepts push sends for most projects (rate limits may be lower).
-
-Store IAP (`verify-store-purchase`):
+### Store IAP (`verify-store-purchase`)
 
 ```bash
 supabase secrets set \
@@ -45,7 +72,7 @@ Optional product ID overrides: `IAP_PRODUCT_PERSONAL_MONTHLY`, `IAP_PRODUCT_PERS
 
 | Function | Trigger |
 |----------|---------|
-| `notify-family-email` | Mobile after family connection request / accept / decline (user JWT). Request → SES + Expo push to receiver; accept/decline → Expo push to sender. |
+| `notify-family-email` | Mobile after family connection request / accept / decline (user JWT). Request → email + Expo push to receiver; accept/decline → Expo push to sender. |
 | `notify-message` | Provider portal after org message send, or mobile after direct message (user JWT). Org mode → “New message from {provider}”; `{ mode: 'direct' }` → “New message from {name}”. |
 | `send-billing-email` | Portal admin grants (service role) / internal |
 | `billing-renewal-reminders` | Daily cron / manual invoke (service role or `CRON_SECRET`) |
@@ -54,14 +81,14 @@ Optional product ID overrides: `IAP_PRODUCT_PERSONAL_MONTHLY`, `IAP_PRODUCT_PERS
 | `send-community-join-otp` | Community portal Patient ID verify (service role) |
 | `delete-account` | Mobile Settings → Delete account (user JWT → `auth.admin.deleteUser`) |
 
-Shared helpers: `_shared/ses.ts`, `_shared/email.ts`, `_shared/push.ts`, `_shared/email-templates/`.
+Shared helpers: `_shared/mailer.ts`, `_shared/email.ts`, `_shared/push.ts`, `_shared/email-templates/`. Legacy `_shared/ses.ts` re-exports the mailer.
 
 ## Auth emails (signup / password reset)
 
-Mobile confirmation and recovery use **Supabase Auth** templates (`supabase/templates/*.html`) with a 6-digit `{{ .Token }}` — not SES. Hosted projects must:
+Mobile confirmation and recovery use **Supabase Auth** templates (`supabase/templates/*.html`) with a 6-digit `{{ .Token }}` — not the Edge mailer. Hosted projects must:
 
 1. Sync templates: `supabase config push --project-ref <ref> --yes` (or `npm run supabase:sync-auth-emails`).
-2. Configure **Auth → SMTP** in the Dashboard to send as `hello@getcaremate.com` (same verified SES identity / SMTP credentials as product mail). Without custom SMTP, Auth uses Supabase’s built-in sender and deliverability/branding diverge from SES.
+2. Configure **Auth → SMTP** in the Dashboard with the **same** mailbox/SMTP you use for product mail (e.g. cPanel `hello@getcaremate.com`). Without custom SMTP, Auth uses Supabase’s built-in sender.
 
 | Function | Trigger |
 |----------|---------|

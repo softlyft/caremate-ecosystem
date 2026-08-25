@@ -25,6 +25,60 @@ export interface VaccineScheduleItem {
   daysUntilDue: number;
 }
 
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** True when a profile is safe to build a schedule from (avoids null `.split` on DOB). */
+export function isValidImmunizationProfile(
+  profile: ImmunizationProfile | null | undefined,
+): profile is ImmunizationProfile {
+  if (!profile || typeof profile !== 'object') {
+    return false;
+  }
+  if (typeof profile.id !== 'string' || !profile.id.trim()) {
+    return false;
+  }
+  if (typeof profile.name !== 'string' || !profile.name.trim()) {
+    return false;
+  }
+  if (typeof profile.dateOfBirth !== 'string' || !DATE_KEY_RE.test(profile.dateOfBirth)) {
+    return false;
+  }
+  const dob = parseDateKey(profile.dateOfBirth);
+  return Number.isFinite(dob.getTime());
+}
+
+export function normalizeImmunizationProfiles(
+  profiles: ImmunizationProfile[] | null | undefined,
+): ImmunizationProfile[] {
+  if (!Array.isArray(profiles)) {
+    return [];
+  }
+  return profiles.filter(isValidImmunizationProfile).map((profile) => ({
+    id: profile.id.trim(),
+    name: profile.name.trim(),
+    dateOfBirth: profile.dateOfBirth,
+  }));
+}
+
+export function normalizeImmunizationRecords(
+  records: ImmunizationRecord[] | null | undefined,
+): ImmunizationRecord[] {
+  if (!Array.isArray(records)) {
+    return [];
+  }
+  return records.filter(
+    (record) =>
+      record &&
+      typeof record === 'object' &&
+      typeof record.profileId === 'string' &&
+      record.profileId.trim() &&
+      typeof record.vaccineId === 'string' &&
+      record.vaccineId.trim() &&
+      typeof record.administeredDate === 'string' &&
+      DATE_KEY_RE.test(record.administeredDate),
+  );
+}
+
 export function getRecommendedDate(dateOfBirth: string, recommendedAgeWeeks: number): string {
   return toDateKey(addDays(parseDateKey(dateOfBirth), recommendedAgeWeeks * 7));
 }
@@ -77,7 +131,12 @@ export function buildSchedule(
   records: ImmunizationRecord[],
   referenceDate = new Date(),
 ): VaccineScheduleItem[] {
-  const recordMap = new Map(records.map((record) => [record.vaccineId, record]));
+  if (!isValidImmunizationProfile(profile)) {
+    return [];
+  }
+
+  const safeRecords = normalizeImmunizationRecords(records);
+  const recordMap = new Map(safeRecords.map((record) => [record.vaccineId, record]));
 
   return VACCINE_SCHEDULE.map((vaccine) => {
     const recommendedDate = getRecommendedDate(profile.dateOfBirth, vaccine.recommendedAgeWeeks);
