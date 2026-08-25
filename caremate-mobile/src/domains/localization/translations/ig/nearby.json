@@ -24,7 +24,10 @@
     "favorite": "Chekwaa ọkacha mmasị",
     "unfavorite": "Wepụ ọkacha mmasị",
     "call": "Kpọọ",
-    "directions": "Ụzọ"
+    "directions": "Ụzọ",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Na-ebu maapụ...",

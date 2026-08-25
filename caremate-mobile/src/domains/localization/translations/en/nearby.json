@@ -84,7 +84,10 @@
     "approveSuccessTitle": "Connected",
     "approveSuccessMessage": "You're connected. Secure messaging is on — manage it under Connections anytime.",
     "respondFailedTitle": "Couldn't update connection",
-    "connectRejectedFinal": "Connection was declined"
+    "connectRejectedFinal": "Connection was declined",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Loading...",

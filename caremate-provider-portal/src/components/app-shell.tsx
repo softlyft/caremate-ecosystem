@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   FlaskConical,
+  Landmark,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
@@ -45,6 +46,18 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
         label: 'Connection Requests',
         icon: UserPlus,
         module: 'patients',
+      },
+    ],
+  },
+  {
+    label: 'Payers',
+    items: [
+      { href: '/app/payers', label: 'Connected Payers', icon: Landmark, module: 'payers' },
+      {
+        href: '/app/payers/requests',
+        label: 'Connection Requests',
+        icon: UserPlus,
+        module: 'payers',
       },
     ],
   },
@@ -124,7 +137,7 @@ export function AppShell({
           </div>
           <div className="min-w-0 leading-tight">
             <p className="text-sm font-semibold tracking-tight text-brand-navy">CareMate</p>
-            <p className="truncate text-xs text-muted">Provider Portal</p>
+            <p className="truncate text-xs text-muted">Care Portal</p>
           </div>
         </div>
 
@@ -143,10 +156,14 @@ export function AppShell({
                   pathname === href ||
                   (href !== '/app/dashboard' &&
                     href !== '/app/patients' &&
+                    href !== '/app/payers' &&
                     pathname.startsWith(href)) ||
                   (href === '/app/patients' &&
                     pathname.startsWith('/app/patients') &&
-                    !pathname.startsWith('/app/patients/requests'));
+                    !pathname.startsWith('/app/patients/requests')) ||
+                  (href === '/app/payers' &&
+                    pathname.startsWith('/app/payers') &&
+                    !pathname.startsWith('/app/payers/requests'));
                 return (
                   <Link
                     key={href}

@@ -24,7 +24,10 @@
     "favorite": "收藏",
     "unfavorite": "取消收藏",
     "call": "拨打",
-    "directions": "导航"
+    "directions": "导航",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "正在加载地图...",

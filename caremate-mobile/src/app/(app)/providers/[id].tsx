@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter, type Href } from 'expo-router';
 import {
   BadgeCheck,
+  ChevronRight,
   Heart,
   Link2,
   Mail,
   MapPin,
   Navigation,
   Phone,
+  Shield,
   Star,
 } from 'lucide-react-native';
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -23,6 +25,7 @@ import { ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
+import { payerRepository } from '@/domains/payers/repository';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { getProviderTypeTheme } from '@/domains/providers/components/NearbyProviderCard';
 import {
@@ -57,6 +60,7 @@ export default function ProviderDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const isGuest = useIsGuest();
   const [declining, setDeclining] = useState(false);
@@ -82,6 +86,12 @@ export default function ProviderDetailScreen() {
     queryKey: [...QUERY_KEYS.providerConnections, organizationId],
     queryFn: () => providerConnectionService.getConnectionForOrganization(organizationId!),
     enabled: Boolean(organizationId) && !isGuest,
+  });
+
+  const supportedPayersQuery = useQuery({
+    queryKey: [...QUERY_KEYS.payers, 'for-provider', organizationId],
+    queryFn: () => payerRepository.listApprovedForProviderOrganization(organizationId!),
+    enabled: Boolean(organizationId),
   });
 
   const favoriteMutation = useMutation({
@@ -389,8 +399,65 @@ export default function ProviderDetailScreen() {
           </View>
         </AnimatedSection>
 
-        {showConnectCard ? (
+        {organizationId ? (
           <AnimatedSection index={3}>
+            <View style={[styles.card, shadow.soft]}>
+              <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                {t('nearby.detail.supportedPayers')}
+              </AppText>
+              <AppText variant="caption" style={styles.supportedPayersHint}>
+                {t('nearby.detail.supportedPayersHint')}
+              </AppText>
+              {supportedPayersQuery.isLoading ? (
+                <AppText variant="body" style={styles.connectStatus}>
+                  {t('nearby.detail.loading')}
+                </AppText>
+              ) : (supportedPayersQuery.data?.length ?? 0) === 0 ? (
+                <AppText variant="body" style={styles.connectStatus}>
+                  {t('nearby.detail.supportedPayersEmpty')}
+                </AppText>
+              ) : (
+                <View style={styles.supportedPayersList}>
+                  {supportedPayersQuery.data!.map((payer, index) => (
+                    <View key={payer.id}>
+                      {index > 0 ? <View style={styles.divider} /> : null}
+                      <Button
+                        style={styles.infoRow}
+                        variant="plain"
+                        onPress={() =>
+                          router.push(`/(app)/profile/insurance/${payer.id}` as Href)
+                        }
+                        accessibilityLabel={payer.name}
+                      >
+                        <View style={[styles.infoIcon, { backgroundColor: '#E0E7FF' }]}>
+                          <Shield color="#4F46E5" size={18} />
+                        </View>
+                        <View style={styles.infoCopy}>
+                          <AppText variant="body" style={styles.infoValue}>
+                            {payer.name}
+                          </AppText>
+                          {payer.phone ? (
+                            <AppText variant="caption" style={styles.supportedPayerMeta}>
+                              {payer.phone}
+                            </AppText>
+                          ) : null}
+                        </View>
+                        <View
+                          style={[styles.supportedPayerChevron, { backgroundColor: theme.soft }]}
+                        >
+                          <ChevronRight color={theme.accent} size={16} strokeWidth={2.5} />
+                        </View>
+                      </Button>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </AnimatedSection>
+        ) : null}
+
+        {showConnectCard ? (
+          <AnimatedSection index={4}>
             <View style={[styles.card, shadow.soft]}>
               <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
                 {t('nearby.detail.connect')}
@@ -527,7 +594,7 @@ export default function ProviderDetailScreen() {
           </AnimatedSection>
         ) : null}
 
-        <AnimatedSection index={4}>
+        <AnimatedSection index={5}>
           <View style={styles.actions}>
             <Button
               style={[
@@ -712,6 +779,23 @@ const styles = StyleSheet.create({
   connectHint: {
     color: palette.textSecondary,
     marginBottom: 4,
+  },
+  supportedPayersHint: {
+    color: palette.textSecondary,
+    marginBottom: 8,
+  },
+  supportedPayersList: {
+    gap: 0,
+  },
+  supportedPayerMeta: {
+    color: palette.textSecondary,
+  },
+  supportedPayerChevron: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   connectRow: {
     flexDirection: 'row',

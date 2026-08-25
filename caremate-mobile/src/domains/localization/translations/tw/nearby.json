@@ -24,7 +24,10 @@
     "favorite": "Sie ɔpɛ",
     "unfavorite": "Yi ɔpɛ",
     "call": "Frɛ",
-    "directions": "Kwan"
+    "directions": "Kwan",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Ɛreloa map...",

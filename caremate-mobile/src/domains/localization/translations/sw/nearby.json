@@ -24,7 +24,10 @@
     "favorite": "Hifadhi kipendwa",
     "unfavorite": "Ondoa kipendwa",
     "call": "Piga simu",
-    "directions": "Maelekezo"
+    "directions": "Maelekezo",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Inapakia ramani...",

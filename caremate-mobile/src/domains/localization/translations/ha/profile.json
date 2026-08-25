@@ -15,7 +15,8 @@
     "family": "Iyali",
     "settings": "Saituna",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "Jerin Inshorar Lafiya"
   },
   "premium": {
     "title": "Premium",
@@ -35,5 +36,9 @@
     "copy": "Kwafi",
     "fallbackName": "Memba"
   },
-  "signOut": "Fita"
+  "signOut": "Fita",
+  "insuranceDirectory": {
+    "menuSubtitle": "Duba masu inshora da HMO a CareMate",
+    "guestSubtitle": "Duba masu inshora da HMO a CareMate"
+  }
 }

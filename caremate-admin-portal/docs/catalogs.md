@@ -2,11 +2,12 @@
 
 ## Managed Catalog Areas
 
-The portal currently manages four main catalog/admin surfaces:
+The portal currently manages five main catalog/admin surfaces:
 
 - Articles (`articles`)
 - Health tips (`health_tips`)
 - Providers (`providers` plus ingest flow)
+- Health insurance / payers (`payer_organizations`)
 - Learn media uploads
 
 ## Articles
@@ -72,6 +73,20 @@ Implemented behaviors:
 - **Healthcare service:** name, active, service_type, location_id
 
 Editors (`admin` / `editor`) mutate; other staff stay read-only.
+
+## Health Insurance (payers)
+
+Catalog for Care Portal payer claim (insurers / HMOs / payers). SoftLyft seeds rows; orgs claim via Care Portal with org type **Payer**.
+
+Routes:
+
+- `/dashboard/payers` — list + search (name / claim email)
+- `/dashboard/payers/new` — create
+- `/dashboard/payers/[id]` — edit / soft-archive
+
+Fields: name, claim contact email, phone, website, address, active.
+
+Editors (`admin` / `editor`) mutate via `can_edit_catalog()` RLS. Soft-archive sets `deleted_at` and `active: false`.
 
 ### Claim contact email
 

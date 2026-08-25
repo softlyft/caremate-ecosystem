@@ -1,5 +1,6 @@
-import { requireProviderSession } from '@/lib/auth';
+import { requireProviderSession, getCareSession } from '@/lib/auth';
 import { OrgSwitcher } from '@/components/features/org-switcher';
+import { WorkspaceKindSwitcher } from '@/components/features/payer-org-switcher';
 import { PROVIDER_ROLE_LABELS } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import Link from 'next/link';
 
 export default async function SettingsPage() {
   const session = await requireProviderSession();
+  const care = await getCareSession();
 
   return (
     <div className="space-y-6">
@@ -46,6 +48,20 @@ export default async function SettingsPage() {
           />
         </CardContent>
       </Card>
+
+      {care?.hasProvider && care.hasPayer ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Workspace</CardTitle>
+            <CardDescription>
+              You also have a payer organization. Switch Care Portal workspace.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WorkspaceKindSwitcher hasProvider hasPayer currentKind="provider" />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

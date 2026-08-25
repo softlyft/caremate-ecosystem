@@ -10,6 +10,7 @@ import {
   MessageCircle,
   QrCode,
   Settings,
+  Shield,
   ShieldPlus,
   UserRoundPen,
   Users,
@@ -315,6 +316,30 @@ export default function AppLayout() {
             titleColor: palette.primaryDark,
             icon: FileText,
             backAccessibilityLabel: 'Back to Me',
+          })}
+        />
+        <Stack.Screen
+          name="profile/insurance/index"
+          options={glossyStackHeaderOptions({
+            title: 'Health Insurance',
+            accent: '#4F46E5',
+            soft: '#E0E7FF',
+            softEnd: '#EEF2FF',
+            titleColor: '#4F46E5',
+            icon: Shield,
+            backAccessibilityLabel: 'Back to Me',
+          })}
+        />
+        <Stack.Screen
+          name="profile/insurance/[id]"
+          options={glossyStackHeaderOptions({
+            title: 'Insurance',
+            accent: '#4F46E5',
+            soft: '#E0E7FF',
+            softEnd: '#EEF2FF',
+            titleColor: '#4F46E5',
+            icon: Shield,
+            backAccessibilityLabel: 'Back to directory',
           })}
         />
         <Stack.Screen

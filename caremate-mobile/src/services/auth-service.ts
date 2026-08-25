@@ -159,13 +159,20 @@ export class AuthService {
     throw lastError ?? new Error('Sign in failed');
   }
 
-  async signUpWithEmail(email: string, password: string, fullName: string, phone: string) {
+  async signUpWithEmail(
+    email: string,
+    password: string,
+    fullName: string,
+    phone: string,
+    options?: { legalAcceptedAt?: string },
+  ) {
     if (!config.isSupabaseConfigured) {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
     const normalizedEmail = normalizeAccountEmail(email);
     const normalizedPhone = phone.trim();
+    const legalAcceptedAt = options?.legalAcceptedAt?.trim() || undefined;
     const { data, error } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
@@ -173,6 +180,13 @@ export class AuthService {
         data: {
           full_name: fullName,
           phone: normalizedPhone,
+          ...(legalAcceptedAt
+            ? {
+                legal_accepted_at: legalAcceptedAt,
+                accepted_terms_at: legalAcceptedAt,
+                accepted_privacy_at: legalAcceptedAt,
+              }
+            : {}),
         },
       },
     });

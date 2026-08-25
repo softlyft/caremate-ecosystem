@@ -9,6 +9,7 @@ import enFamily from '../translations/en/family.json';
 import enHome from '../translations/en/home.json';
 import enLearn from '../translations/en/learn.json';
 import enNearby from '../translations/en/nearby.json';
+import enInsurance from '../translations/en/insurance.json';
 import enOnboarding from '../translations/en/onboarding.json';
 import enProfile from '../translations/en/profile.json';
 import enSearch from '../translations/en/search.json';
@@ -172,6 +173,7 @@ const ENGLISH_CATALOG = buildCatalog({
   home: enHome,
   learn: enLearn,
   nearby: enNearby,
+  insurance: enInsurance,
   profile: enProfile,
   auth: enAuth,
   emergency: enEmergency,

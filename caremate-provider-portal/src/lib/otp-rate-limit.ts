@@ -4,7 +4,7 @@ import { normalizeEmail } from '@/domains/claim/crypto';
 import { logWarn } from '@/lib/observability';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export type OtpSendKind = 'claim' | 'password_reset';
+export type OtpSendKind = 'claim' | 'password_reset' | 'payer_claim';
 
 const MIN_INTERVAL_MS = 60_000;
 const MAX_PER_EMAIL_PER_DAY = 10;

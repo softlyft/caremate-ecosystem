@@ -52,11 +52,20 @@ async function getCurrentExpoPushToken(options?: {
   requestPermission?: boolean;
 }): Promise<string | null> {
   const platform = resolvePlatform();
-  if (!platform) return null;
-  if (!Device.isDevice && !__DEV__) return null;
+  if (!platform) {
+    if (__DEV__) console.warn('syncPushRegistration: unsupported platform');
+    return null;
+  }
+  if (!Device.isDevice && !__DEV__) {
+    if (__DEV__) console.warn('syncPushRegistration: not a physical device');
+    return null;
+  }
 
   const projectId = resolveProjectId();
-  if (!projectId) return null;
+  if (!projectId) {
+    if (__DEV__) console.warn('syncPushRegistration: missing EAS projectId');
+    return null;
+  }
 
   await ensureAndroidChannel();
 
@@ -67,12 +76,31 @@ async function getCurrentExpoPushToken(options?: {
     finalStatus = status;
   }
   if (finalStatus !== 'granted') {
+    if (__DEV__) {
+      console.warn(
+        'syncPushRegistration: notification permission not granted',
+        finalStatus,
+        options?.requestPermission ? '(after prompt)' : '(no prompt on this call)',
+      );
+    }
     return null;
   }
 
-  const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
-  const token = tokenResult.data?.trim();
-  return token || null;
+  try {
+    const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
+    const token = tokenResult.data?.trim();
+    if (!token && __DEV__) {
+      console.warn('syncPushRegistration: getExpoPushTokenAsync returned empty token');
+    }
+    return token || null;
+  } catch (err) {
+    console.warn(
+      'syncPushRegistration: getExpoPushTokenAsync failed',
+      err instanceof Error ? err.message : err,
+      '(Need a native build with FCM/APNs — Expo Go may fail on some platforms.)',
+    );
+    return null;
+  }
 }
 
 /**
@@ -89,6 +117,14 @@ export async function syncPushRegistration(options?: {
     const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
 
     if (!isAuthenticated || isGuest || !user?.id || !notificationsEnabled) {
+      if (__DEV__) {
+        console.warn('syncPushRegistration: skipped', {
+          isAuthenticated,
+          isGuest,
+          userId: user?.id ?? null,
+          notificationsEnabled,
+        });
+      }
       return;
     }
 
@@ -112,10 +148,13 @@ export async function syncPushRegistration(options?: {
     );
 
     if (error) {
-      console.warn('syncPushRegistration', error.message);
+      console.warn('syncPushRegistration upsert failed', error.message);
       return;
     }
 
+    if (__DEV__) {
+      console.warn('syncPushRegistration: registered', platform, token.slice(0, 24) + '…');
+    }
     await AsyncStorage.setItem(REGISTERED_TOKEN_KEY, token);
   } catch (err) {
     console.warn('syncPushRegistration', err instanceof Error ? err.message : err);

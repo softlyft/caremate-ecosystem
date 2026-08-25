@@ -10,6 +10,7 @@ export type TranslationNamespace =
   | 'home'
   | 'learn'
   | 'nearby'
+  | 'insurance'
   | 'profile'
   | 'auth'
   | 'emergency'

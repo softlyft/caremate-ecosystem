@@ -2,22 +2,25 @@
 
 ## Positioning
 
-CareMate Provider Portal is a **patient engagement** channel for organizations already (or soon) listed in the CareMate provider catalog.
+CareMate **Care Portal** is the engagement surface for care-network organizations. The **provider** workspace is a patient engagement channel for orgs listed in the CareMate provider catalog. The **payer** workspace is a parallel stub for insurers / HMOs / payers listed in `payer_organizations`.
 
 Providers keep their clinical / ops systems. CareMate gives them a trusted way to connect with CareMate patients: connections, documents, messages, and appointment requests — on the shared Supabase backend.
 
-Every feature should answer: *How does this help providers build and maintain a trusted relationship with their patients?*
+Every provider feature should answer: *How does this help providers build and maintain a trusted relationship with their patients?*
 
 ## Package
 
 | | |
 |--|--|
-| Package | `caremate-provider-portal/` |
+| Package | `caremate-provider-portal/` (folder name unchanged) |
+| Product name | Care Portal |
+| Host | `app.getcaremate.com` |
 | Framework | Next.js App Router |
 | Dev | `npm run provider-portal:dev` → http://localhost:4000 |
-| Auth | Supabase Auth + `provider_org_members` |
+| Auth | Supabase Auth + `provider_org_members` / `payer_org_members` |
 | Data | Same Supabase project as mobile / admin portal |
-| Org identity | Reuses `provider_organizations` (FHIR catalog); portal fields in `provider_profiles` |
+| Provider identity | Reuses `provider_organizations`; portal fields in `provider_profiles` |
+| Payer identity | `payer_organizations` + `payer_profiles` |
 
 ## MVP organization types
 
@@ -34,7 +37,7 @@ caremate-provider-portal/
 ├── docs/                 ← this docs set
 ├── scripts/              bootstrap membership (ops)
 ├── src/
-│   ├── app/              routes (claim, login, /app/*)
+│   ├── app/              routes (claim, login, /app/*, /payer/*)
 │   ├── components/       UI + feature forms
 │   ├── constants/        roles helpers
 │   ├── domains/          repositories + server actions

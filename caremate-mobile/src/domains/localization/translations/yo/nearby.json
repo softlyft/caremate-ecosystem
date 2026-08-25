@@ -24,7 +24,10 @@
     "favorite": "Fi ààyànfẹ́ pamọ́",
     "unfavorite": "Yọ ààyànfẹ́",
     "call": "Pè",
-    "directions": "Ìtọ́sọ́nà"
+    "directions": "Ìtọ́sọ́nà",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Ń ṣàkójọpọ̀ máàpù...",

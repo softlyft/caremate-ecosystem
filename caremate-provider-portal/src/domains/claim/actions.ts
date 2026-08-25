@@ -3,8 +3,9 @@
 import {
   completeOrgClaim,
   createClaimChallenge,
-  findClaimableOrgsByEmail,
+  findClaimableOrgsForKind,
   verifyClaimChallenge,
+  type CareOrgKind,
 } from '@/domains/claim/repository';
 import { logError } from '@/lib/observability';
 import { getRequestIpHash } from '@/lib/request-ip';
@@ -14,19 +15,26 @@ export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string
 const CLAIM_NO_MATCH_MESSAGE =
   'We could not start a claim for this email. Confirm it matches your CareMate catalog contact, or contact SoftLyft support.';
 
+function parseOrgKind(value: unknown): CareOrgKind {
+  return value === 'payer' ? 'payer' : 'provider';
+}
+
 export async function startOrgClaimAction(input: {
   email: string;
   organizationId?: string;
+  orgKind?: CareOrgKind;
 }): Promise<
   ActionResult<{
     claimId: string;
     organizations: { id: string; name: string }[];
     expiresAt: string;
     selectedOrganizationId: string;
+    orgKind: CareOrgKind;
   }>
 > {
+  const orgKind = parseOrgKind(input.orgKind);
   try {
-    const organizations = await findClaimableOrgsByEmail(input.email);
+    const organizations = await findClaimableOrgsForKind(orgKind, input.email);
     if (organizations.length === 0) {
       return {
         ok: false,
@@ -46,6 +54,7 @@ export async function startOrgClaimAction(input: {
           organizations,
           expiresAt: '',
           selectedOrganizationId: '',
+          orgKind,
         },
       };
     }
@@ -54,6 +63,7 @@ export async function startOrgClaimAction(input: {
     const challenge = await createClaimChallenge({
       organizationId: selected.id,
       email: input.email,
+      orgKind,
       ipHash,
     });
 
@@ -64,10 +74,14 @@ export async function startOrgClaimAction(input: {
         organizations,
         expiresAt: challenge.expiresAt,
         selectedOrganizationId: selected.id,
+        orgKind,
       },
     };
   } catch (err) {
-    logError('claim-start', err, { emailDomain: input.email.split('@')[1] ?? null });
+    logError('claim-start', err, {
+      emailDomain: input.email.split('@')[1] ?? null,
+      orgKind,
+    });
     return { ok: false, error: err instanceof Error ? err.message : 'Claim failed' };
   }
 }
@@ -75,12 +89,14 @@ export async function startOrgClaimAction(input: {
 export async function verifyOrgClaimAction(input: {
   claimId: string;
   code: string;
+  orgKind?: CareOrgKind;
 }): Promise<ActionResult<{ organizationId: string; email: string }>> {
+  const orgKind = parseOrgKind(input.orgKind);
   try {
-    const data = await verifyClaimChallenge(input);
+    const data = await verifyClaimChallenge({ ...input, orgKind });
     return { ok: true, data };
   } catch (err) {
-    logError('claim-verify', err, { claimId: input.claimId });
+    logError('claim-verify', err, { claimId: input.claimId, orgKind });
     return { ok: false, error: err instanceof Error ? err.message : 'Verification failed' };
   }
 }
@@ -89,15 +105,21 @@ export async function completeOrgClaimAction(input: {
   claimId: string;
   password: string;
   displayName?: string;
-}): Promise<ActionResult<{ email: string; organizationId: string }>> {
+  orgKind?: CareOrgKind;
+}): Promise<ActionResult<{ email: string; organizationId: string; orgKind: CareOrgKind }>> {
+  const orgKind = parseOrgKind(input.orgKind);
   try {
-    const data = await completeOrgClaim(input);
+    const data = await completeOrgClaim({ ...input, orgKind });
     return {
       ok: true,
-      data: { email: data.email, organizationId: data.organizationId },
+      data: {
+        email: data.email,
+        organizationId: data.organizationId,
+        orgKind: data.orgKind,
+      },
     };
   } catch (err) {
-    logError('claim-complete', err, { claimId: input.claimId });
+    logError('claim-complete', err, { claimId: input.claimId, orgKind });
     return { ok: false, error: err instanceof Error ? err.message : 'Could not finish claim' };
   }
 }

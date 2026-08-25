@@ -24,7 +24,10 @@
     "favorite": "Guardar favorito",
     "unfavorite": "Quitar favorito",
     "call": "Llamar",
-    "directions": "Indicaciones"
+    "directions": "Indicaciones",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Cargando mapa...",

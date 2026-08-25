@@ -17,7 +17,7 @@ export default function GlobalError({
         <div className="mx-auto max-w-md space-y-4 text-center">
           <h1 className="text-xl font-semibold text-brand-navy">Something went wrong</h1>
           <p className="text-sm text-muted">
-            The provider portal hit an unexpected error
+            The Care Portal hit an unexpected error
             {error.digest ? ` (${error.digest})` : ''}. You can try again or return home.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">

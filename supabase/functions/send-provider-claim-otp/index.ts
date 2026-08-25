@@ -3,8 +3,8 @@ import { renderProviderOrgClaimOtp } from '../_shared/email-templates/index.ts';
 import { isEmailConfigured, sendEmail } from '../_shared/mailer.ts';
 
 /**
- * Service-role: send provider org-claim OTP (no auth user yet).
- * Body: { to, code, orgName?, expiresMinutes? }
+ * Service-role: send Care Portal org-claim OTP (no auth user yet).
+ * Body: { to, code, orgName?, orgKind?, expiresMinutes? }
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
       to?: string;
       code?: string;
       orgName?: string | null;
+      orgKind?: 'provider' | 'payer' | null;
       expiresMinutes?: number;
     };
 
@@ -43,6 +44,7 @@ Deno.serve(async (req) => {
     const mail = renderProviderOrgClaimOtp({
       code,
       orgName: body.orgName,
+      orgKind: body.orgKind === 'payer' ? 'payer' : 'provider',
       expiresMinutes: body.expiresMinutes ?? 15,
     });
 

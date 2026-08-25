@@ -15,7 +15,8 @@
     "family": "家庭",
     "settings": "设置",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "健康保险目录"
   },
   "premium": {
     "title": "高级版",
@@ -35,5 +36,9 @@
     "copy": "复制",
     "fallbackName": "成员"
   },
-  "signOut": "退出登录"
+  "signOut": "退出登录",
+  "insuranceDirectory": {
+    "menuSubtitle": "在 CareMate 浏览保险公司与 HMO",
+    "guestSubtitle": "在 CareMate 浏览保险公司与 HMO"
+  }
 }

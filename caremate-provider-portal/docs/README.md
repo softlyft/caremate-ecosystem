@@ -1,8 +1,8 @@
-# CareMate Provider Portal Docs
+# CareMate Care Portal Docs
 
-Patient **engagement** portal for healthcare organizations. Not an HMS, LIMS, pharmacy system, or EHR.
+**Care Portal** for providers and payers. Provider workspace is a patient **engagement** channel — not an HMS, LIMS, pharmacy system, or EHR. Payer workspace lives under `/payer/*` (org profile + provider connections).
 
-Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org catalog identity reuses `provider_organizations`; portal-facing fields live in `provider_profiles`.
+Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Provider catalog identity reuses `provider_organizations`; portal-facing fields live in `provider_profiles`. Payers use parallel `payer_*` tables.
 
 ## Quick links
 
@@ -23,6 +23,7 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Org 
 ## In scope (MVP)
 
 - Patient ↔ provider **connections** (CRM contact — no clinical data sharing yet)
+- Provider ↔ payer **connections** (claim-email request; both orgs must be verified; portal inbox only)
 - Request connection by CareMate Patient ID; approve / reject with reason
 - **Messages** to connected patients (compose + two-way threads; push via `notify-message`)
 - Mark connected CareMate users as organization **staff** (optional company contact fields)

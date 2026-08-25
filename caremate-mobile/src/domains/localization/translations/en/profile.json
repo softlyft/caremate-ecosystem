@@ -16,6 +16,7 @@
     "settings": "Settings",
     "connections": "Connections",
     "documents": "Documents",
+    "insuranceDirectory": "Health Insurance Directory",
     "community": "Join our movement",
     "communitySubtitle": "Help CareMate grow in your community"
   },
@@ -206,5 +207,9 @@
       "discharge_summary": "Discharge summary",
       "invoice": "Invoice"
     }
+  },
+  "insuranceDirectory": {
+    "menuSubtitle": "Browse insurers and HMOs in CareMate",
+    "guestSubtitle": "Browse insurers and HMOs in CareMate"
   }
 }

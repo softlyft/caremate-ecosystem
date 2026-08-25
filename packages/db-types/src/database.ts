@@ -2812,6 +2812,243 @@ export type Database = {
         }
         Relationships: []
       }
+      payer_organizations: {
+        Row: {
+          active: boolean
+          address: string | null
+          created_at: string
+          deleted_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          resource: Json
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          resource?: Json
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          resource?: Json
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      payer_profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          logo_url: string | null
+          organization_id: string
+          phone: string | null
+          updated_at: string
+          verification_status: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+          verification_status?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+          verification_status?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payer_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "payer_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payer_org_members: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          display_name: string | null
+          id: string
+          organization_id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          display_name?: string | null
+          id?: string
+          organization_id: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          display_name?: string | null
+          id?: string
+          organization_id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payer_org_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "payer_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payer_org_claims: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          code_hash: string
+          email: string
+          expires_at: string
+          id: string
+          organization_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          code_hash: string
+          email: string
+          expires_at: string
+          id?: string
+          organization_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          code_hash?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payer_org_claims_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "payer_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_payer_connections: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          id: string
+          initiated_by: string
+          payer_note: string | null
+          payer_organization_id: string
+          provider_note: string | null
+          provider_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          initiated_by: string
+          payer_note?: string | null
+          payer_organization_id: string
+          provider_note?: string | null
+          provider_organization_id: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          initiated_by?: string
+          payer_note?: string | null
+          payer_organization_id?: string
+          provider_note?: string | null
+          provider_organization_id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_payer_connections_payer_organization_id_fkey"
+            columns: ["payer_organization_id"]
+            isOneToOne: false
+            referencedRelation: "payer_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_payer_connections_provider_organization_id_fkey"
+            columns: ["provider_organization_id"]
+            isOneToOne: false
+            referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_profiles: {
         Row: {
           address: string | null
@@ -3164,6 +3401,17 @@ export type Database = {
           },
         ]
       }
+      payer_directory: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          id: string | null
+          name: string | null
+          phone: string | null
+          website: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_direct_message: {
@@ -3175,6 +3423,8 @@ export type Database = {
         Args: { p_chapter_id: string }
         Returns: boolean
       }
+      can_manage_payer_org: { Args: { p_org_id: string }; Returns: boolean }
+      can_write_payer_org: { Args: { p_org_id: string }; Returns: boolean }
       can_manage_provider_org: { Args: { p_org_id: string }; Returns: boolean }
       can_read_message_conversation: {
         Args: { p_conversation_id: string }
@@ -3275,6 +3525,16 @@ export type Database = {
       }
       is_provider_org_member: { Args: { p_org_id: string }; Returns: boolean }
       is_provider_org_verified: { Args: { p_org_id: string }; Returns: boolean }
+      is_payer_org_member: { Args: { p_org_id: string }; Returns: boolean }
+      is_payer_org_verified: { Args: { p_org_id: string }; Returns: boolean }
+      list_approved_payer_org_ids_for_provider: {
+        Args: { p_provider_organization_id: string }
+        Returns: {
+          approved_at: string
+          payer_organization_id: string
+        }[]
+      }
+      payer_org_role: { Args: { p_org_id: string }; Returns: string }
       is_staff: { Args: never; Returns: boolean }
       jwt_role: { Args: never; Returns: string }
       lookup_user_for_family_connect: {
@@ -3408,6 +3668,14 @@ export type Database = {
         Args: { p_location_id: string }
         Returns: undefined
       }
+      find_verified_payer_org_id_by_claim_email: {
+        Args: { p_email: string }
+        Returns: string
+      }
+      find_verified_provider_org_id_by_claim_email: {
+        Args: { p_email: string }
+        Returns: string
+      }
       request_patient_provider_connection: {
         Args: { p_organization_id: string; p_patient_note?: string }
         Returns: {
@@ -3428,6 +3696,33 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "patient_provider_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_payer_provider_connection_by_email: {
+        Args: {
+          p_payer_organization_id: string
+          p_provider_claim_email: string
+          p_payer_note?: string
+        }
+        Returns: {
+          approved_at: string | null
+          created_at: string
+          id: string
+          initiated_by: string
+          payer_note: string | null
+          payer_organization_id: string
+          provider_note: string | null
+          provider_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_payer_connections"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -3456,6 +3751,33 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "patient_provider_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_provider_payer_connection_by_email: {
+        Args: {
+          p_provider_organization_id: string
+          p_payer_claim_email: string
+          p_provider_note?: string
+        }
+        Returns: {
+          approved_at: string | null
+          created_at: string
+          id: string
+          initiated_by: string
+          payer_note: string | null
+          payer_organization_id: string
+          provider_note: string | null
+          provider_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_payer_connections"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -3681,6 +4003,12 @@ export const Constants = {
 export type Article = Database['public']['Tables']['articles']['Row'];
 export type Provider = Database['public']['Tables']['providers']['Row'];
 export type ProviderOrganization = Database['public']['Tables']['provider_organizations']['Row'];
+export type PayerOrganization = Database['public']['Tables']['payer_organizations']['Row'];
+export type PayerProfile = Database['public']['Tables']['payer_profiles']['Row'];
+export type PayerOrgMember = Database['public']['Tables']['payer_org_members']['Row'];
+export type PayerOrgClaim = Database['public']['Tables']['payer_org_claims']['Row'];
+export type ProviderPayerConnection =
+  Database['public']['Tables']['provider_payer_connections']['Row'];
 export type ProviderLocation = Database['public']['Tables']['provider_locations']['Row'];
 export type ProviderHealthcareService =
   Database['public']['Tables']['provider_healthcare_services']['Row'];

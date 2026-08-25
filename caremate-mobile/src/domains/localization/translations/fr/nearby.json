@@ -24,7 +24,10 @@
     "favorite": "Ajouter aux favoris",
     "unfavorite": "Retirer des favoris",
     "call": "Appeler",
-    "directions": "Itinéraire"
+    "directions": "Itinéraire",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Chargement de la carte...",

@@ -20,14 +20,23 @@ const GENERIC_SENT_MESSAGE =
 
 async function hasActiveMembership(userId: string): Promise<boolean> {
   const admin = createAdminClient();
-  const { count, error } = await admin
-    .from('provider_org_members')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .is('deleted_at', null);
+  const [{ count: providerCount, error: providerError }, { count: payerCount, error: payerError }] =
+    await Promise.all([
+      admin
+        .from('provider_org_members')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .is('deleted_at', null),
+      admin
+        .from('payer_org_members')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .is('deleted_at', null),
+    ]);
 
-  if (error) throw error;
-  return (count ?? 0) > 0;
+  if (providerError) throw providerError;
+  if (payerError) throw payerError;
+  return (providerCount ?? 0) > 0 || (payerCount ?? 0) > 0;
 }
 
 /** Best-effort SES OTP via Edge Function (service role). */

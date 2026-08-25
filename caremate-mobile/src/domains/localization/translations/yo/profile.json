@@ -15,7 +15,8 @@
     "family": "Ẹbí",
     "settings": "Àwọn ètò",
     "community": "Join our movement",
-    "communitySubtitle": "Help CareMate grow in your community"
+    "communitySubtitle": "Help CareMate grow in your community",
+    "insuranceDirectory": "Àkójọ Àṣírí Ìlera"
   },
   "premium": {
     "title": "Premium",
@@ -35,5 +36,9 @@
     "copy": "Dàákọ",
     "fallbackName": "Ọmọ ẹgbẹ́"
   },
-  "signOut": "Jáde"
+  "signOut": "Jáde",
+  "insuranceDirectory": {
+    "menuSubtitle": "Ṣàwárí awọn olùdáàbòbò àti HMO ní CareMate",
+    "guestSubtitle": "Ṣàwárí awọn olùdáàbòbò àti HMO ní CareMate"
+  }
 }

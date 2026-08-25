@@ -24,7 +24,10 @@
     "favorite": "Ajiye a matsayin abin ƙauna",
     "unfavorite": "Cire abin ƙauna",
     "call": "Kira",
-    "directions": "Hanyoyi"
+    "directions": "Hanyoyi",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet."
   },
   "map": {
     "loading": "Ana lodawa taswira...",

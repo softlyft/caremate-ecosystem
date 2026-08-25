@@ -21,6 +21,7 @@ interface AuthState {
     password: string,
     fullName: string,
     phone: string,
+    options?: { legalAcceptedAt?: string },
   ) => Promise<{ needsEmailVerification: boolean; email: string }>;
   verifySignupEmail: (
     email: string,
@@ -119,10 +120,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signUp: async (email, password, fullName, phone) => {
+  signUp: async (email, password, fullName, phone, options) => {
     set({ isLoading: true });
     try {
-      const result = await authService.signUpWithEmail(email, password, fullName, phone);
+      const result = await authService.signUpWithEmail(email, password, fullName, phone, options);
       if (result.needsEmailVerification) {
         // Stay guest until the email OTP is verified.
         return {
