@@ -1,5 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { STORAGE_KEYS } from '@/constants/config';
-import { mergeMiniAppsOrder } from '@/mini-apps/_kit/order-preference';
+import {
+  loadMiniAppsOrder,
+  mergeMiniAppsOrder,
+  saveMiniAppsOrder,
+} from '@/mini-apps/_kit/order-preference';
 import { MINI_APPS } from '@/mini-apps/_kit/registry';
 
 describe('mergeMiniAppsOrder', () => {
@@ -27,5 +33,35 @@ describe('mergeMiniAppsOrder', () => {
 
   it('uses the device-only storage key name', () => {
     expect(STORAGE_KEYS.miniAppsOrder).toBe('caremate_mini_apps_order');
+  });
+});
+
+describe('loadMiniAppsOrder / saveMiniAppsOrder', () => {
+  beforeEach(async () => {
+    await AsyncStorage.clear();
+  });
+
+  it('loads registry order when storage is empty', async () => {
+    const ordered = await loadMiniAppsOrder();
+    expect(ordered.map((app) => app.id)).toEqual(MINI_APPS.map((app) => app.id));
+  });
+
+  it('persists and reloads a custom order', async () => {
+    await saveMiniAppsOrder(['vitals-tracker', 'period-tracker']);
+    const ordered = await loadMiniAppsOrder();
+    expect(ordered.map((app) => app.id)[0]).toBe('vitals-tracker');
+    expect(ordered.map((app) => app.id)[1]).toBe('period-tracker');
+  });
+
+  it('falls back when stored JSON is invalid', async () => {
+    await AsyncStorage.setItem(STORAGE_KEYS.miniAppsOrder, '{not-json');
+    expect((await loadMiniAppsOrder()).map((app) => app.id)).toEqual(
+      MINI_APPS.map((app) => app.id),
+    );
+
+    await AsyncStorage.setItem(STORAGE_KEYS.miniAppsOrder, JSON.stringify([1, 2]));
+    expect((await loadMiniAppsOrder()).map((app) => app.id)).toEqual(
+      MINI_APPS.map((app) => app.id),
+    );
   });
 });

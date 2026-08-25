@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "848303349799",
+    "project_id": "caremate-e9aa4",
+    "storage_bucket": "caremate-e9aa4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848303349799:android:d35b3dbbfd36d569836e02",
+        "android_client_info": {
+          "package_name": "com.softlyft.caremate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbKePyN28B8rW_vlsYhT5YgcyqEGdDcbU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

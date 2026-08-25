@@ -131,7 +131,22 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -153,6 +168,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,14 +199,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,25 +240,31 @@ export const PROVIDER_TYPES = [
   'clinic',
   'pharmacy',
   'laboratory',
-  'telemedicine',
+  'imaging_centre',
   'blood_bank',
   'ambulance',
-  // Secondary / specialty labels (kept for seeds &amp; future filters)
-  'dentist',
+  'telemedicine',
+  'insurance',
   'mental_health',
+  'dentist',
+  'eye_care',
+  'home_care',
+  'medical_equipment',
+  'government_health',
+  'ngo',
 ] as const;
 &nbsp;
 export type ProviderType = (typeof PROVIDER_TYPES)[number];
 &nbsp;
-/** Primary catalog filters shown in Nearby (order = UI). */
+/** Nearby filter chips (order = product category list). */
 export const PRIMARY_PROVIDER_TYPES = [
   'hospital',
   'clinic',
   'pharmacy',
   'laboratory',
-  'telemedicine',
-  'blood_bank',
-  'ambulance',
+  'imaging_centre',
+  'dentist',
+  'eye_care',
 ] as const satisfies readonly ProviderType[];
 &nbsp;
 export type PrimaryProviderType = (typeof PRIMARY_PROVIDER_TYPES)[number];
@@ -238,11 +274,18 @@ export const PROVIDER_TYPE_LABELS: Record&lt;ProviderType, string&gt; = {
   clinic: 'Clinic',
   pharmacy: 'Pharmacy',
   laboratory: 'Laboratory',
-  telemedicine: 'Telemedicine',
+  imaging_centre: 'Imaging Centre',
   blood_bank: 'Blood Bank',
-  ambulance: 'Ambulance',
-  dentist: 'Dentist',
+  ambulance: 'Ambulance Service',
+  telemedicine: 'Telemedicine',
+  insurance: 'Insurance',
   mental_health: 'Mental Health',
+  dentist: 'Dental Clinic',
+  eye_care: 'Eye Clinic',
+  home_care: 'Home Care',
+  medical_equipment: 'Medical Equipment &amp; Supplies',
+  government_health: 'Government Health Services',
+  ngo: 'NGO',
 };
 &nbsp;
 export function isProviderType(value: string): value is ProviderType {
@@ -265,6 +308,8 @@ export function formatProviderType(type: string): string {
  * - telemedicine: { platforms?: string[]; languages?: string[] }
  * - ambulance: { coverageArea?: string; advancedLifeSupport?: boolean }
  * - blood_bank: { components?: string[]; appointmentRequired?: boolean }
+ * - insurance: { plans?: string[]; networks?: string[] }
+ * - imaging_centre: { modalities?: string[] }
  */
 export type ProviderAttributes = Record&lt;string, unknown&gt;;
 &nbsp;</pre></td></tr></table></pre>
@@ -274,7 +319,7 @@ export type ProviderAttributes = Record&lt;string, unknown&gt;;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-18T16:19:06.223Z
+                at 2026-08-25T10:39:30.944Z
             </div>
         <script src="../prettify.js"></script>
         <script>
