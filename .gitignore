@@ -32,7 +32,8 @@ supabase/.temp
 *.pem
 *.jks
 *.keystore
-google-services.json
+# google-services.json is committed (client FCM config). Keep the EAS service-account
+# private key and *.p8 APNs keys out of git.
 GoogleService-Info.plist
 
 # IDE

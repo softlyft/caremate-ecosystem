@@ -1,4 +1,9 @@
-import { isEncryptedEnvelope, scrubEncryptedJson, scrubEncryptedText } from '../phi';
+import {
+  isEncryptedEnvelope,
+  scrubEncryptedJson,
+  scrubEncryptedLeaves,
+  scrubEncryptedText,
+} from '../phi';
 import {
   emergencyToGatewayBody,
   healthTimelineEventToGatewayBody,
@@ -15,11 +20,32 @@ describe('health-data-gateway phi scrubbing', () => {
   it('scrubs encrypted text to null', () => {
     expect(scrubEncryptedText('v1:x:y:z')).toBeNull();
     expect(scrubEncryptedText('plain')).toBe('plain');
+    expect(scrubEncryptedText(null)).toBeNull();
+    expect(scrubEncryptedText(42)).toBe('42');
   });
 
   it('scrubs encrypted json to empty array', () => {
     expect(scrubEncryptedJson('v1:x:y:z')).toEqual([]);
     expect(scrubEncryptedJson(['penicillin'])).toEqual(['penicillin']);
+    expect(scrubEncryptedJson(null)).toEqual([]);
+  });
+
+  it('recursively scrubs encrypted leaves while keeping structure', () => {
+    expect(scrubEncryptedLeaves('v1:cipher')).toBeNull();
+    expect(scrubEncryptedLeaves(['plain', 'v1:cipher'])).toEqual(['plain', null]);
+    expect(
+      scrubEncryptedLeaves({
+        name: 'Ada',
+        note: 'v1:x:y:z',
+        nested: { allergy: 'v1:a:b:c', id: 'keep' },
+        count: 2,
+      }),
+    ).toEqual({
+      name: 'Ada',
+      note: null,
+      nested: { allergy: null, id: 'keep' },
+      count: 2,
+    });
   });
 });
 
