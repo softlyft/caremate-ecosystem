@@ -4,7 +4,7 @@ function trimTrailingSlash(value: string): string {
 
 const siteUrl = trimTrailingSlash(
   (import.meta.env.VITE_SITE_URL as string | undefined)?.trim() ||
-    'https://www.getcaremate.com',
+    'https://getcaremate.com',
 );
 const communityPortalUrl = trimTrailingSlash(
   (import.meta.env.VITE_COMMUNITY_PORTAL_URL as string | undefined)?.trim() ||
