@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
-import { canManageOrg } from '@/constants/roles';
+import { canManageOrg, canWriteOrg } from '@/constants/roles';
 import { getPatientDetail } from '@/domains/patients/repository';
 import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
 import { MarkAsStaffForm } from '@/components/features/mark-as-staff-form';
+import { ConnectionActions } from '@/components/features/connection-actions';
 import { OpenDocumentButton } from '@/components/features/open-document-button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ export default async function PatientDetailPage({
     detail;
   const contacts = emergency?.emergency_contacts;
   const canManage = canManageOrg(session.activeRole);
+  const canWrite = canWriteOrg(session.activeRole);
 
   return (
     <div className="space-y-6">
@@ -57,6 +59,7 @@ export default async function PatientDetailPage({
               : '—'}
           </p>
         </div>
+        {canWrite ? <ConnectionActions connectionId={connection.id} mode="approved" /> : null}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

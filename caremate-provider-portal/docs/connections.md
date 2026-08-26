@@ -59,25 +59,44 @@ Seeded today: system `emergency` → emergency profile; system `messaging` → s
 |--------|---------|
 | `pending` | Awaiting the other party |
 | `approved` | Connected |
-| `rejected` | Declined; **`rejection_reason` required** |
+| `rejected` | Declined by the non-initiator; **`rejection_reason` required** |
+| `cancelled` | Pending request withdrawn by the initiator; reason required |
+| `disconnected` | Approved link ended by either party; reason optional |
 
-Column `initiated_by` (`patient` \| `provider`) records who opened the request. The **other** party approves.
+Column `initiated_by` (`patient` \| `provider`) records who opened the request. The **other** party approves or rejects. The **initiator** cancels outbound pending requests (not reject).
+
+## Discovery keys
+
+Each connection type resolves the target org or person differently. Do not mix identifiers across flows.
+
+| Connection | Discovery key | Resolves to |
+|------------|---------------|-------------|
+| Patient ↔ provider (portal → patient) | **CareMate ID** (`profiles.patient_id`, 12 digits) | Patient user |
+| Patient ↔ provider (mobile → org) | Nearby catalog **`organization_id`** on the provider pin | Verified `provider_organizations` row |
+| Provider ↔ payer (B2B) | **Claim / verification email** | Verified payer or provider org |
+| Patient ↔ payer (mobile → payer) | **`payer_directory.id`** (Health Insurance Directory) | Verified `payer_organizations` row |
+| Patient ↔ payer (payer portal → patient) | **CareMate ID** | Patient user |
+
+**Nearby “insurance” org type ≠ `payer_organizations`.** The Nearby catalog may list facilities tagged as insurance for map discovery; those are still `provider_organizations` / catalog pins. Supported insurers on a provider detail come from approved **`provider_payer_connections`**, not from Nearby type alone.
+
+Push notifications for patient ↔ provider lifecycle events use Edge Function `notify-provider-connection` (Expo push to patient devices when applicable; portal activity covers provider-side inbound).
 
 ### Rules
 
 - **One row per** `(patient_id, organization_id)` forever (unique constraint).
 - Re-request after **reject** is **blocked** (RPCs raise; UI does not show Connect again).
-- Reject / decline / cancel-outbound requires a non-empty **`rejection_reason`**.
+- **Cancelled** or **disconnected** rows may be reopened via a new request RPC.
+- Reject / cancel-outbound requires a non-empty reason; disconnect allows an optional reason.
 - Patients may only **request** a connection when the org is verified (`provider_profiles.verification_status = verified`). Unverified listings do not show the Connect button.
-- Provider-initiated requests appear in portal as “Awaiting patient”; staff may cancel with a reason (reject without approve).
+- Provider-initiated requests appear in portal as “Awaiting patient”; staff may **cancel** with a reason (not reject).
 
 ## Portal UI (`/app/patients/requests`)
 
 1. **Request a connection** — CareMate Patient ID (`profiles.patient_id`, 12 digits) + optional note → RPC `request_provider_connection_by_caremate_id`.
-2. **Awaiting your review** — `pending` + `initiated_by = patient` → Approve / Reject (+ reason).
-3. **Awaiting patient** — `pending` + `initiated_by = provider` → Cancel (+ reason) only.
+2. **Awaiting your review** — `pending` + `initiated_by = patient` → Approve / Reject (+ reason) via `respond_patient_provider_connection`.
+3. **Awaiting patient** — `pending` + `initiated_by = provider` → Cancel (+ reason) via `cancel_pending_patient_provider_connection`.
 
-Approved patients appear under `/app/patients`.
+Approved patients appear under `/app/patients`. Staff may **disconnect** from the patient detail page via `disconnect_patient_provider_connection`.
 
 ## Mobile UI — supported payers on provider detail
 
@@ -103,6 +122,9 @@ Verification check: RPC `is_provider_org_verified(org_id)` (patients cannot read
 |-----|--------|---------|
 | `request_patient_provider_connection` | Patient (mobile) | Open pending row; requires verified org |
 | `request_provider_connection_by_caremate_id` | Org staff (portal) | Lookup `profiles.patient_id` → open pending row |
+| `respond_patient_provider_connection` | Non-initiator | Approve or reject pending |
+| `cancel_pending_patient_provider_connection` | Initiator | Withdraw pending outbound/inbound (by initiator) |
+| `disconnect_patient_provider_connection` | Either party | End approved link |
 | `is_provider_org_verified` | Authenticated | Boolean for Connect gating |
 
 ## Related
@@ -129,14 +151,17 @@ Verified provider and payer organizations can link in Care Portal as a **B2B CRM
 |--------|---------|
 | `pending` | Awaiting the other org |
 | `approved` | Connected |
-| `rejected` | Declined; **`rejection_reason` required** |
+| `rejected` | Declined by the non-initiator; **`rejection_reason` required** |
+| `cancelled` | Pending request withdrawn by the initiator |
+| `disconnected` | Approved link ended by either org |
 
-Column `initiated_by` (`provider` \| `payer`) records who opened the request. The **other** party approves. Outbound pending may be cancelled with a reason.
+Column `initiated_by` (`provider` \| `payer`) records who opened the request. The **other** party approves or rejects. The **initiator** cancels outbound pending requests.
 
 ### Rules
 
 - **One row per** `(provider_organization_id, payer_organization_id)` forever.
 - Re-request after **reject** is **blocked**.
+- **Cancelled** or **disconnected** rows may be reopened via request RPCs.
 - Both orgs must be **verified** (`is_provider_org_verified` / `is_payer_org_verified`).
 - Write roles (`can_write_*`) may request / approve / reject.
 - Lookup uses **claim/verification contact email**:
@@ -148,9 +173,11 @@ Column `initiated_by` (`provider` \| `payer`) records who opened the request. Th
 | Surface | Purpose |
 |---------|---------|
 | `/app/payers/requests` | Request by payer email + inbound/outbound pending |
-| `/app/payers` | Approved payer connections |
+| `/app/payers` | Approved payer connections (disconnect) |
 | `/payer/providers/requests` | Request by provider email + pending queues |
-| `/payer/providers` | Approved provider connections |
+| `/payer/providers` | Approved provider connections (disconnect) |
+| `/payer/patients/requests` | Request by CareMate ID + inbound/outbound pending |
+| `/payer/patients` | Approved patient connections (disconnect) |
 
 ## RPCs
 
@@ -158,6 +185,12 @@ Column `initiated_by` (`provider` \| `payer`) records who opened the request. Th
 |-----|--------|---------|
 | `request_provider_payer_connection_by_email` | Provider writers | Match verified payer by claim email |
 | `request_payer_provider_connection_by_email` | Payer writers | Match verified provider by claim email |
+| `cancel_pending_provider_payer_connection` | Initiator | Withdraw pending request |
+| `disconnect_provider_payer_connection` | Either org | End approved link |
+| `request_payer_patient_connection_by_caremate_id` | Payer writers | Open patient↔payer pending row |
+| `respond_patient_payer_connection` | Non-initiator | Approve or reject pending patient↔payer |
+| `cancel_pending_patient_payer_connection` | Initiator | Withdraw pending patient↔payer |
+| `disconnect_patient_payer_connection` | Either party | End approved patient↔payer |
 | `find_verified_*_org_id_by_claim_email` | Helpers | Resolution used by the request RPCs |
 
-Approve / reject use direct `UPDATE` under RLS (same as patient connections).
+Approve / reject for provider↔payer still use direct `UPDATE` under RLS (trigger-enforced). Patient↔provider and patient↔payer lifecycle actions use security-definer RPCs.

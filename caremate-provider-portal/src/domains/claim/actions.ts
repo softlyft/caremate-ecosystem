@@ -1,5 +1,7 @@
 'use server';
 
+import { cookies } from 'next/headers';
+
 import {
   completeOrgClaim,
   createClaimChallenge,
@@ -7,6 +9,7 @@ import {
   verifyClaimChallenge,
   type CareOrgKind,
 } from '@/domains/claim/repository';
+import { CARE_ACTIVE_KIND_COOKIE } from '@/constants/cookies';
 import { logError } from '@/lib/observability';
 import { getRequestIpHash } from '@/lib/request-ip';
 
@@ -110,6 +113,14 @@ export async function completeOrgClaimAction(input: {
   const orgKind = parseOrgKind(input.orgKind);
   try {
     const data = await completeOrgClaim({ ...input, orgKind });
+    const cookieStore = await cookies();
+    cookieStore.set(CARE_ACTIVE_KIND_COOKIE, data.orgKind, {
+      path: '/',
+      sameSite: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 365,
+    });
     return {
       ok: true,
       data: {

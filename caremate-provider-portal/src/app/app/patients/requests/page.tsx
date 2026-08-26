@@ -124,7 +124,7 @@ export default async function ConnectionRequestsPage({
                       <Badge variant="warning">{r.status}</Badge>
                     </TableCell>
                     <TableCell>
-                      {canWrite ? <ConnectionActions connectionId={r.id} /> : null}
+                      {canWrite ? <ConnectionActions connectionId={r.id} mode="inbound-pending" /> : null}
                     </TableCell>
                   </TableRow>
                 ))
@@ -178,7 +178,7 @@ export default async function ConnectionRequestsPage({
                     </TableCell>
                     <TableCell>
                       {canWrite ? (
-                        <ConnectionActions connectionId={r.id} showApprove={false} />
+                        <ConnectionActions connectionId={r.id} mode="outbound-pending" />
                       ) : null}
                     </TableCell>
                   </TableRow>

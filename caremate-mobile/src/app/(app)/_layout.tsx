@@ -282,6 +282,19 @@ export default function AppLayout() {
           })}
         />
         <Stack.Screen
+          name="providers/connections/outbound"
+          options={glossyStackHeaderOptions({
+            title: 'Sent requests',
+            accent: palette.brandBlue,
+            soft: palette.brandBlueLight,
+            softEnd: '#EFF6FF',
+            titleColor: palette.brandBlue,
+            icon: Link2,
+            backAccessibilityLabel: 'Back to Connections',
+            backFallbackHref: '/(app)/providers/connections',
+          })}
+        />
+        <Stack.Screen
           name="profile/edit"
           options={glossyStackHeaderOptions({
             title: 'Edit profile',

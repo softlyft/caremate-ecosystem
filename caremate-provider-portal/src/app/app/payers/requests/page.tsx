@@ -120,7 +120,7 @@ export default async function PayerConnectionRequestsPage({
                     </TableCell>
                     <TableCell>
                       {canWrite ? (
-                        <PayerConnectionActions connectionId={r.id} side="provider" />
+                        <PayerConnectionActions connectionId={r.id} side="provider" mode="inbound-pending" />
                       ) : null}
                     </TableCell>
                   </TableRow>
@@ -172,7 +172,7 @@ export default async function PayerConnectionRequestsPage({
                         <PayerConnectionActions
                           connectionId={r.id}
                           side="provider"
-                          showApprove={false}
+                          mode="outbound-pending"
                         />
                       ) : null}
                     </TableCell>

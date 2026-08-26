@@ -162,7 +162,8 @@ This is separate from **device account binding** (one email per physical device 
 ### Forgot password (`(auth)/forgot-password.tsx`)
 - Collects email and calls `authService.resetPassword` (`supabase.auth.resetPasswordForEmail`)
 - Navigates to verify-reset so the user can enter the 6-digit code from email (same pattern as signup OTP)
-- Deep-link `redirectTo` remains as a fallback for older email templates / Universal Links
+- `redirectTo` uses the public website `/auth/reset-password` (must be allowlisted in Supabase Auth). Recovery is OTP-in-app; Expo `exp://` deep links are not used for the send-code request
+- Deep-link handling remains as a fallback for older email templates / Universal Links
 
 ### Verify reset code (`(auth)/verify-reset.tsx`)
 - User enters the 6-digit OTP from the recovery email (`{{ .Token }}` in the template)

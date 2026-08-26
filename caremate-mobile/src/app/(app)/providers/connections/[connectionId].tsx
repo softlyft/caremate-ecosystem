@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ShieldPlus } from 'lucide-react-native';
+import { ShieldPlus, Unlink } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
@@ -34,6 +34,8 @@ export default function ConnectedProviderDetailScreen() {
   const [periodStart, setPeriodStart] = useState('');
   const [periodEnd, setPeriodEnd] = useState('');
   const [rangePreset, setRangePreset] = useState<30 | 90 | 180 | 'custom' | null>(null);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [disconnectReason, setDisconnectReason] = useState('');
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.providerConnections, 'detail', connectionId],
@@ -83,6 +85,26 @@ export default function ConnectedProviderDetailScreen() {
       Alert.alert(
         t('nearby.connections.consentFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connections.consentFailedMessage'),
+      );
+    },
+  });
+
+  const disconnectMutation = useMutation({
+    mutationFn: () => providerConnectionService.disconnectConnection(connectionId, disconnectReason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
+      setDisconnecting(false);
+      setDisconnectReason('');
+      Alert.alert(
+        t('nearby.connections.disconnectSuccessTitle'),
+        t('nearby.connections.disconnectSuccessMessage'),
+        [{ text: t('common.ok'), onPress: () => router.back() }],
+      );
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('nearby.connections.disconnectFailedTitle'),
+        error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );
     },
   });
@@ -143,7 +165,7 @@ export default function ConnectedProviderDetailScreen() {
   const definitions = definitionsQuery.data ?? [];
   const available = listAvailableConsents(connection.sharedScopes, definitions);
   const granted = listGrantedConsents(connection.sharedScopes, definitions);
-  const busy = consentMutation.isPending;
+  const busy = consentMutation.isPending || disconnectMutation.isPending;
 
   const confirmGrant = (consent: ConnectionConsentDefinition) => {
     if (consent.scope === 'health_timeline') {
@@ -407,6 +429,55 @@ export default function ConnectedProviderDetailScreen() {
           />
         ) : null}
       </View>
+
+      <View style={[styles.card, shadow.soft]}>
+        <View style={styles.sectionHeader}>
+          <Unlink size={20} color={palette.danger} />
+          <AppText variant="body" style={styles.sectionTitle}>
+            {t('nearby.connections.disconnect')}
+          </AppText>
+        </View>
+        <AppText variant="subtitle">{t('nearby.connections.disconnectHint')}</AppText>
+        {disconnecting ? (
+          <View style={styles.list}>
+            <AppText variant="caption" style={styles.listLabel}>
+              {t('nearby.connections.disconnectReasonLabel')}
+            </AppText>
+            <TextInput
+              style={styles.reasonInput}
+              value={disconnectReason}
+              onChangeText={setDisconnectReason}
+              placeholder={t('nearby.connections.disconnectReasonPlaceholder')}
+              placeholderTextColor={textColors.placeholder}
+              multiline
+              editable={!busy}
+            />
+            <Button
+              label={t('nearby.connections.disconnectConfirmAction')}
+              variant="secondary"
+              onPress={() => disconnectMutation.mutate()}
+              disabled={busy}
+              loading={disconnectMutation.isPending}
+            />
+            <Button
+              label={t('common.cancel')}
+              variant="secondary"
+              onPress={() => {
+                setDisconnecting(false);
+                setDisconnectReason('');
+              }}
+              disabled={busy}
+            />
+          </View>
+        ) : (
+          <Button
+            label={t('nearby.connections.disconnect')}
+            variant="secondary"
+            onPress={() => setDisconnecting(true)}
+            disabled={busy}
+          />
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -499,5 +570,14 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
+  },
+  reasonInput: {
+    minHeight: 80,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    borderRadius: radius.lg,
+    padding: 12,
+    color: palette.text,
+    textAlignVertical: 'top',
   },
 });

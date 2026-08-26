@@ -2194,7 +2194,10 @@ export type Database = {
       patient_provider_connections: {
         Row: {
           approved_at: string | null
+          cancelled_at: string | null
           created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
           id: string
           initiated_by: string
           organization_id: string
@@ -2209,7 +2212,10 @@ export type Database = {
         }
         Insert: {
           approved_at?: string | null
+          cancelled_at?: string | null
           created_at?: string
+          disconnected_at?: string | null
+          disconnected_by?: string | null
           id?: string
           initiated_by?: string
           organization_id: string
@@ -2224,7 +2230,10 @@ export type Database = {
         }
         Update: {
           approved_at?: string | null
+          cancelled_at?: string | null
           created_at?: string
+          disconnected_at?: string | null
+          disconnected_by?: string | null
           id?: string
           initiated_by?: string
           organization_id?: string
@@ -2243,6 +2252,68 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "provider_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_payer_connections: {
+        Row: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          patient_id: string
+          patient_note: string | null
+          payer_note: string | null
+          payer_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          disconnected_at?: string | null
+          disconnected_by?: string | null
+          id?: string
+          initiated_by: string
+          patient_id: string
+          patient_note?: string | null
+          payer_note?: string | null
+          payer_organization_id: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          disconnected_at?: string | null
+          disconnected_by?: string | null
+          id?: string
+          initiated_by?: string
+          patient_id?: string
+          patient_note?: string | null
+          payer_note?: string | null
+          payer_organization_id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_payer_connections_payer_organization_id_fkey"
+            columns: ["payer_organization_id"]
+            isOneToOne: false
+            referencedRelation: "payer_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3758,7 +3829,10 @@ export type Database = {
         Args: { p_organization_id: string; p_patient_note?: string }
         Returns: {
           approved_at: string | null
+          cancelled_at: string | null
           created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
           id: string
           initiated_by: string
           organization_id: string
@@ -3774,6 +3848,201 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "patient_provider_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_patient_payer_connection: {
+        Args: { p_payer_organization_id: string; p_patient_note?: string }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          patient_id: string
+          patient_note: string | null
+          payer_note: string | null
+          payer_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_payer_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      respond_patient_provider_connection: {
+        Args: {
+          p_connection_id: string
+          p_accept: boolean
+          p_rejection_reason?: string
+          p_note?: string
+        }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          organization_id: string
+          patient_id: string
+          patient_note: string | null
+          provider_note: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          shared_scopes: string[]
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_provider_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      respond_patient_payer_connection: {
+        Args: {
+          p_connection_id: string
+          p_accept: boolean
+          p_rejection_reason?: string
+          p_note?: string
+        }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          patient_id: string
+          patient_note: string | null
+          payer_note: string | null
+          payer_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_payer_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_pending_patient_provider_connection: {
+        Args: { p_connection_id: string; p_reason: string }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          organization_id: string
+          patient_id: string
+          patient_note: string | null
+          provider_note: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          shared_scopes: string[]
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_provider_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_pending_patient_payer_connection: {
+        Args: { p_connection_id: string; p_reason: string }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          patient_id: string
+          patient_note: string | null
+          payer_note: string | null
+          payer_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_payer_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      disconnect_patient_provider_connection: {
+        Args: { p_connection_id: string; p_reason?: string }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          organization_id: string
+          patient_id: string
+          patient_note: string | null
+          provider_note: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          shared_scopes: string[]
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_provider_connections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      disconnect_patient_payer_connection: {
+        Args: { p_connection_id: string; p_reason?: string }
+        Returns: {
+          approved_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          disconnected_by: string | null
+          id: string
+          initiated_by: string
+          patient_id: string
+          patient_note: string | null
+          payer_note: string | null
+          payer_organization_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_payer_connections"
           isOneToOne: true
           isSetofReturn: false
         }

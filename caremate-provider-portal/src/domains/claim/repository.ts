@@ -137,8 +137,8 @@ async function sendClaimOtpEmail(input: {
   orgName: string;
   orgKind: CareOrgKind;
 }): Promise<{ delivered: boolean; skipped: boolean; error?: string }> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !key) {
     return { delivered: false, skipped: true, error: 'Supabase env missing' };
   }
@@ -165,6 +165,7 @@ async function sendClaimOtpEmail(input: {
       skipped?: boolean;
       error?: string;
       reason?: string;
+      message?: string;
     };
 
     if (response.ok && payload.ok) {
@@ -179,10 +180,20 @@ async function sendClaimOtpEmail(input: {
       };
     }
 
+    const remoteError = payload.error ?? payload.message ?? '';
+    if (response.status === 401 || /unauthorized/i.test(remoteError)) {
+      return {
+        delivered: false,
+        skipped: false,
+        error:
+          'Could not authorize the verification email service. Confirm SUPABASE_SERVICE_ROLE_KEY on Care Portal matches this Supabase project, then redeploy send-provider-claim-otp.',
+      };
+    }
+
     return {
       delivered: false,
       skipped: false,
-      error: payload.error ?? `Email send failed (${response.status})`,
+      error: remoteError || `Email send failed (${response.status})`,
     };
   } catch (err) {
     return {
@@ -237,8 +248,6 @@ export async function createClaimChallenge(input: {
     orgKind,
   });
 
-  await recordOtpSend({ kind: otpKind, email, ipHash: input.ipHash });
-
   if (!mail.delivered) {
     logWarn('claim-otp', 'Claim OTP email failed', {
       claimId: data.id,
@@ -252,6 +261,8 @@ export async function createClaimChallenge(input: {
         : (mail.error ?? 'Could not send verification email. Try again later.'),
     );
   }
+
+  await recordOtpSend({ kind: otpKind, email, ipHash: input.ipHash });
 
   return {
     claimId: data.id,

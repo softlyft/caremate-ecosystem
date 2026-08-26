@@ -1,18 +1,29 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
-import { Search, Shield } from 'lucide-react-native';
+import { ChevronRight, Search, Shield } from 'lucide-react-native';
 import { useDeferredValue, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/form-controls';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { PayerDirectoryCard } from '@/domains/payers/components/PayerDirectoryCard';
+import { payerConnectionService } from '@/domains/payers/connection-service';
 import { PAYER_DIRECTORY_PAGE_SIZE, payerRepository } from '@/domains/payers/repository';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 
@@ -20,9 +31,47 @@ export default function InsuranceDirectoryScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { online } = useNetworkStatus();
+  const isGuest = useIsGuest();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const trimmedSearch = deferredSearch.trim();
+  const [busyRequestId, setBusyRequestId] = useState<string | null>(null);
+
+  const approvedQuery = useQuery({
+    queryKey: [...QUERY_KEYS.payerConnections, 'approved'],
+    queryFn: () => payerConnectionService.listApproved(),
+    enabled: !isGuest,
+  });
+
+  const inboundQuery = useQuery({
+    queryKey: [...QUERY_KEYS.payerConnections, 'inbound'],
+    queryFn: () => payerConnectionService.listInboundPending(),
+    enabled: !isGuest,
+  });
+
+  const respondMutation = useMutation({
+    mutationFn: (params: { connectionId: string; accept: boolean }) =>
+      payerConnectionService.respondToRequest(params),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
+      Alert.alert(
+        variables.accept
+          ? t('insurance.connections.approvedTitle')
+          : t('insurance.connections.declinedTitle'),
+        variables.accept
+          ? t('insurance.connections.approvedMessage')
+          : t('insurance.connections.declinedMessage'),
+      );
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('insurance.connections.respondFailedTitle'),
+        error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
+      );
+    },
+    onSettled: () => setBusyRequestId(null),
+  });
 
   const query = useInfiniteQuery({
     queryKey: [...QUERY_KEYS.payers, trimmedSearch],
@@ -38,6 +87,8 @@ export default function InsuranceDirectoryScreen() {
   });
 
   const payers = useMemo(() => query.data?.pages.flatMap((page) => page.rows) ?? [], [query.data]);
+  const connected = approvedQuery.data ?? [];
+  const inbound = inboundQuery.data ?? [];
 
   if (query.isLoading && query.data === undefined) {
     return (
@@ -104,6 +155,88 @@ export default function InsuranceDirectoryScreen() {
             </AnimatedSection>
 
             <OfflineBanner flush />
+
+            {!isGuest && inbound.length > 0 ? (
+              <AnimatedSection index={1}>
+                <View style={[styles.connectionCard, shadow.soft]}>
+                  <AppText variant="sectionTitle">{t('insurance.connections.inboundTitle')}</AppText>
+                  <AppText variant="subtitle" style={styles.connectionSubtitle}>
+                    {t('insurance.connections.inboundSubtitle')}
+                  </AppText>
+                  {inbound.map((request) => (
+                    <View key={request.id} style={styles.inboundRow}>
+                      <Pressable
+                        style={styles.inboundCopy}
+                        onPress={() =>
+                          router.push(`/(app)/profile/insurance/${request.payerOrganizationId}` as Href)
+                        }
+                      >
+                        <AppText variant="body" style={styles.inboundName}>
+                          {request.payerName ?? t('insurance.connections.payerFallback')}
+                        </AppText>
+                        {request.payerNote ? (
+                          <AppText variant="caption" style={styles.inboundNote}>
+                            {request.payerNote}
+                          </AppText>
+                        ) : null}
+                      </Pressable>
+                      <View style={styles.inboundActions}>
+                        <Button
+                          label={t('insurance.connections.approveInbound')}
+                          onPress={() => {
+                            setBusyRequestId(request.id);
+                            respondMutation.mutate({ connectionId: request.id, accept: true });
+                          }}
+                          disabled={respondMutation.isPending}
+                          loading={busyRequestId === request.id && respondMutation.isPending}
+                        />
+                        <Button
+                          label={t('insurance.connections.declineInbound')}
+                          variant="secondary"
+                          onPress={() =>
+                            router.push(`/(app)/profile/insurance/${request.payerOrganizationId}` as Href)
+                          }
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </AnimatedSection>
+            ) : null}
+
+            {!isGuest && connected.length > 0 ? (
+              <AnimatedSection index={2}>
+                <View style={[styles.connectionCard, shadow.soft]}>
+                  <AppText variant="sectionTitle">
+                    {t('insurance.connections.connectedSectionTitle')}
+                  </AppText>
+                  <AppText variant="subtitle" style={styles.connectionSubtitle}>
+                    {t('insurance.connections.connectedSectionSubtitle')}
+                  </AppText>
+                  {connected.map((item) => (
+                    <Pressable
+                      key={item.id}
+                      style={({ pressed }) => [styles.connectedRow, pressed && styles.pressed]}
+                      onPress={() =>
+                        router.push(`/(app)/profile/insurance/${item.payerOrganizationId}` as Href)
+                      }
+                    >
+                      <View style={styles.connectedCopy}>
+                        <AppText variant="body" style={styles.inboundName}>
+                          {item.payerName ?? t('insurance.connections.payerFallback')}
+                        </AppText>
+                        <AppText variant="caption" style={styles.inboundNote}>
+                          {t('insurance.connections.connectedSince', {
+                            date: new Date(item.approvedAt ?? item.createdAt).toLocaleDateString(),
+                          })}
+                        </AppText>
+                      </View>
+                      <ChevronRight size={18} color={palette.textSecondary} />
+                    </Pressable>
+                  ))}
+                </View>
+              </AnimatedSection>
+            ) : null}
 
             {!online ? (
               <AppText variant="caption" style={styles.statusNote}>
@@ -245,5 +378,50 @@ const styles = StyleSheet.create({
   footerLoading: {
     paddingVertical: spacing.lg,
     alignItems: 'center',
+  },
+  connectionCard: {
+    backgroundColor: palette.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: palette.divider,
+    gap: spacing.sm,
+  },
+  connectionSubtitle: {
+    color: textColors.secondary,
+    marginBottom: spacing.xs,
+  },
+  inboundRow: {
+    gap: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: palette.divider,
+  },
+  inboundCopy: {
+    gap: 4,
+  },
+  inboundName: {
+    fontWeight: '600',
+  },
+  inboundNote: {
+    color: textColors.secondary,
+  },
+  inboundActions: {
+    gap: spacing.sm,
+  },
+  connectedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: palette.divider,
+  },
+  connectedCopy: {
+    flex: 1,
+    gap: 4,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

@@ -46,6 +46,8 @@ Cloud-only (not mirrored to mobile SQLite). See [Provider Portal data model](../
 - `provider_org_members`
 - `provider_org_claims`
 - `patient_provider_connections`
+- `provider_payer_connections`
+- `patient_payer_connections`
 - `consent_definitions`
 - `patient_provider_consents`
 - `patient_provider_activities`
