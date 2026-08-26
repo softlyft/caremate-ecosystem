@@ -38,6 +38,7 @@ import {
 } from '@/domains/emergency/validation';
 import type { EmergencyContact } from '@/types';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { syncEngine } from '@/sync/engine';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { useTranslation } from '@/domains/localization';
@@ -368,6 +369,8 @@ export default function EmergencyEditScreen() {
       await syncEmergencyLockSurface(null);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
+      // Push local emergency changes so shared QR viewers see the latest details.
+      syncEngine.requestSync({ reason: 'write', immediate: true });
       router.back();
     } catch (error) {
       const message =

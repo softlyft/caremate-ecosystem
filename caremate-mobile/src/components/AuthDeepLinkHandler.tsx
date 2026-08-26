@@ -41,6 +41,11 @@ export function AuthDeepLinkHandler() {
       if (event === 'PASSWORD_RECOVERY') {
         void useAuthStore.getState().markPasswordRecovery();
         router.replace('/auth/reset-password');
+        return;
+      }
+      if (event === 'SIGNED_OUT') {
+        // Another device signed in (single-session) or local sign-out completed.
+        void useAuthStore.getState().handleRemoteSessionEnd();
       }
     });
 

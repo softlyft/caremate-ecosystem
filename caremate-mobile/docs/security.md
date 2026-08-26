@@ -52,7 +52,7 @@ Persisted under **user-scoped** AsyncStorage keys (`caremate-…:{userId}` / `:g
 
 ### Emergency lock surface
 
-Lock/home widgets are retired (always cleared). Emergency share is via opaque Patient ID QR + authenticated RPC (`get_emergency_by_share_token`). Snapshot cleared on account switch / delete (`syncEmergencyLockSurface(null)`).
+Lock/home widgets are retired (always cleared). Emergency share is via opaque Patient ID QR + authenticated practitioner RPC (`get_emergency_by_share_token`). Each successful view writes SoftLyft-only `emergency_share_access_logs` (viewer, patient, timestamp, disclosed snapshot). Snapshot cleared on account switch / delete (`syncEmergencyLockSurface(null)`).
 
 ---
 
@@ -91,7 +91,8 @@ and the Play signing SHA-256 before store launch.
 |---------|----------|
 | Guest → account migrate | Only in `prepareLocalAccount` (explicit sign-in / sign-up), **not** on every sync cycle |
 | Device account binding | SecureStore `{ email, userId }` after auth; gates a different email behind reset confirm |
-| Sign-out | Clear push token for **this device**, then Supabase sign-out — **keep** SQLite + persisted mini-app keys for the bound email (do not call mini-app `clearAll()`; persist would wipe local data) |
+| One active session | After interactive login, `signOut({ scope: 'others' })` revokes other devices; `SIGNED_OUT` → guest on the kicked device |
+| Sign-out | Clear push token for **this device**, then Supabase `signOut({ scope: 'local' })` — **keep** SQLite + persisted mini-app keys for the bound email (do not call mini-app `clearAll()`; persist would wipe local data) |
 | Account switch (different email) | User confirms → `wipeLocalAccountData` + clear binding, then auth continues |
 | Account delete | Same wipe + clear binding + server `delete-account` (JWT-validated) |
 | Guest push | No Expo token upload |

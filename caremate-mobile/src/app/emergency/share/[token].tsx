@@ -11,6 +11,7 @@ import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import {
   fetchEmergencyByShareToken,
+  isEmergencyShareAccessError,
   isValidEmergencyShareToken,
   stashPendingEmergencyShareToken,
 } from '@/domains/emergency/share';
@@ -26,7 +27,8 @@ function resolveTokenParam(value: string | string[] | undefined): string | null 
 
 /**
  * Deep-link target: caremate://emergency/share/<token>
- * Requires a signed-in (non-guest) CareMate account to view another user's emergency card.
+ * Requires a signed-in (non-guest) health practitioner to view another user's
+ * emergency card. Care Portal provider staff and SoftLyft staff also qualify.
  */
 export default function EmergencyShareScreen() {
   const { t } = useTranslation();
@@ -80,15 +82,50 @@ export default function EmergencyShareScreen() {
   }
 
   if (query.isError) {
+    const practitionerBlocked = isEmergencyShareAccessError(query.error)
+      ? query.error.code === 'practitioner_required'
+      : /health practitioner/i.test(
+          query.error instanceof Error ? query.error.message : '',
+        );
+
     return (
       <View style={[styles.screen, styles.centered]}>
-        <AppText variant="cardTitle">{t('emergency.share.errorTitle')}</AppText>
-        <AppText variant="subtitle" style={styles.muted}>
-          {query.error instanceof Error ? query.error.message : t('emergency.share.errorMessage')}
+        <AppText variant="cardTitle">
+          {practitionerBlocked
+            ? t('emergency.share.practitionerRequiredTitle')
+            : t('emergency.share.errorTitle')}
         </AppText>
-        <Button style={styles.cta} onPress={() => void query.refetch()} variant="plain">
-          <AppText variant="button" style={styles.ctaLabel}>
-            {t('common.retry')}
+        <AppText variant="subtitle" style={styles.muted}>
+          {practitionerBlocked
+            ? t('emergency.share.practitionerRequiredMessage')
+            : query.error instanceof Error
+              ? query.error.message
+              : t('emergency.share.errorMessage')}
+        </AppText>
+        {practitionerBlocked ? (
+          <Button
+            style={styles.cta}
+            onPress={() => router.replace('/(app)/profile/edit')}
+            variant="plain"
+          >
+            <AppText variant="button" style={styles.ctaLabel}>
+              {t('emergency.share.openPractitionerSetting')}
+            </AppText>
+          </Button>
+        ) : (
+          <Button style={styles.cta} onPress={() => void query.refetch()} variant="plain">
+            <AppText variant="button" style={styles.ctaLabel}>
+              {t('common.retry')}
+            </AppText>
+          </Button>
+        )}
+        <Button
+          style={styles.secondaryCta}
+          onPress={() => router.replace('/(app)/(tabs)')}
+          variant="plain"
+        >
+          <AppText variant="button" style={styles.secondaryCtaLabel}>
+            {t('common.goBack')}
           </AppText>
         </Button>
       </View>
@@ -112,7 +149,7 @@ export default function EmergencyShareScreen() {
     );
   }
 
-  const contact = payload.emergencyContacts[0];
+  const contacts = payload.emergencyContacts;
   const list = (items: string[]) =>
     items.length ? items.join(', ') : t('emergency.share.noneListed');
 
@@ -187,29 +224,36 @@ export default function EmergencyShareScreen() {
           </View>
         </View>
 
-        {payload.hasProfile && contact ? (
-          <View style={[styles.contactCard, shadow.soft]}>
+        {payload.hasProfile && contacts.length > 0 ? (
+          <View style={styles.contactsBlock}>
             <AppText variant="caption" color="brand" style={styles.eyebrow}>
               {t('emergency.fields.contacts')}
             </AppText>
-            <AppText variant="cardTitle">{contact.name}</AppText>
-            {contact.relationship ? (
-              <AppText variant="caption" style={styles.muted}>
-                {contact.relationship}
-              </AppText>
-            ) : null}
-            {contact.phone ? (
-              <Button
-                style={styles.phoneRow}
-                onPress={() => void Linking.openURL(`tel:${contact.phone}`)}
-                variant="plain"
+            {contacts.map((contact, index) => (
+              <View
+                key={`${contact.phone}-${contact.name}-${index}`}
+                style={[styles.contactCard, shadow.soft]}
               >
-                <Phone color={palette.primary} size={16} strokeWidth={2.25} />
-                <AppText variant="button" style={styles.phoneLabel}>
-                  {contact.phone}
-                </AppText>
-              </Button>
-            ) : null}
+                <AppText variant="cardTitle">{contact.name}</AppText>
+                {contact.relationship ? (
+                  <AppText variant="caption" style={styles.contactMeta}>
+                    {contact.relationship}
+                  </AppText>
+                ) : null}
+                {contact.phone ? (
+                  <Button
+                    style={styles.phoneRow}
+                    onPress={() => void Linking.openURL(`tel:${contact.phone}`)}
+                    variant="plain"
+                  >
+                    <Phone color={palette.primary} size={16} strokeWidth={2.25} />
+                    <AppText variant="button" style={styles.phoneLabel}>
+                      {contact.phone}
+                    </AppText>
+                  </Button>
+                ) : null}
+              </View>
+            ))}
           </View>
         ) : null}
 
@@ -301,11 +345,17 @@ const styles = StyleSheet.create({
     color: '#99F6E4',
     marginTop: spacing.sm,
   },
+  contactsBlock: {
+    gap: spacing.sm,
+  },
   contactCard: {
     borderRadius: radius.lg,
     backgroundColor: palette.background,
     padding: spacing.md,
     gap: spacing.xs,
+  },
+  contactMeta: {
+    color: palette.textSecondary,
   },
   phoneRow: {
     marginTop: spacing.sm,

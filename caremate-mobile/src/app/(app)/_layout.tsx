@@ -388,6 +388,15 @@ export default function AppLayout() {
           })}
         />
         <Stack.Screen
+          name="family/child/edit/[id]"
+          options={glossyStackHeaderOptions({
+            title: 'Edit child',
+            ...familyHeader,
+            icon: Users,
+            backAccessibilityLabel: 'Back to Family',
+          })}
+        />
+        <Stack.Screen
           name="family/review"
           options={glossyStackHeaderOptions({
             title: 'Review family',

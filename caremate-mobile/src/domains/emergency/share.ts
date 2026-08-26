@@ -38,13 +38,20 @@ export async function generateEmergencyShareToken(): Promise<string> {
 /**
  * QR / deep-link URL. Prefers https Universal/App Links when the website host
  * is configured; otherwise falls back to `caremate://`.
+ * Optional `version` (e.g. emergency profile `updatedAt`) refreshes the QR
+ * bitmap when details change without rotating the opaque share token.
  */
-export function buildEmergencyShareUrl(token: string): string {
+export function buildEmergencyShareUrl(
+  token: string,
+  options?: { version?: string | null },
+): string {
   const path = `emergency/share/${token}`;
+  const version = options?.version?.trim();
+  const query = version ? `?v=${encodeURIComponent(version)}` : '';
   if (shouldPreferHttpsAppLinks()) {
-    return buildHttpsAppLink(path);
+    return `${buildHttpsAppLink(path)}${query}`;
   }
-  return `caremate://${path}`;
+  return `caremate://${path}${query}`;
 }
 
 /**
@@ -94,6 +101,20 @@ export async function peekPendingEmergencyShareToken(): Promise<string | null> {
   return isValidEmergencyShareToken(value) ? value!.toLowerCase() : null;
 }
 
+export class EmergencyShareAccessError extends Error {
+  readonly code: 'auth_required' | 'practitioner_required';
+
+  constructor(code: 'auth_required' | 'practitioner_required', message: string) {
+    super(message);
+    this.name = 'EmergencyShareAccessError';
+    this.code = code;
+  }
+}
+
+export function isEmergencyShareAccessError(err: unknown): err is EmergencyShareAccessError {
+  return err instanceof EmergencyShareAccessError;
+}
+
 export async function fetchEmergencyByShareToken(
   token: string,
 ): Promise<SharedEmergencyPayload | null> {
@@ -106,7 +127,18 @@ export async function fetchEmergencyByShareToken(
   });
 
   if (error) {
-    throw new Error(error.message);
+    const message = error.message ?? '';
+    const lower = message.toLowerCase();
+    if (lower.includes('authentication required')) {
+      throw new EmergencyShareAccessError('auth_required', message);
+    }
+    if (
+      lower.includes('health practitioner') ||
+      lower.includes('only signed-in health practitioners')
+    ) {
+      throw new EmergencyShareAccessError('practitioner_required', message);
+    }
+    throw new Error(message || 'Failed to load emergency share');
   }
 
   if (!data || typeof data !== 'object') {
