@@ -1520,6 +1520,84 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_share_access_logs: {
+        Row: {
+          allergies: Json
+          blood_group: string | null
+          chronic_conditions: Json
+          current_medications: Json
+          emergency_contacts: Json
+          genotype: string | null
+          has_emergency_profile: boolean
+          id: string
+          insurance_provider: string | null
+          notes: string | null
+          patient_caremate_id: string | null
+          patient_email: string | null
+          patient_full_name: string | null
+          patient_user_id: string
+          preferred_hospital: string | null
+          share_token_sha256: string
+          viewed_at: string
+          viewer_access_basis: string
+          viewer_caremate_id: string | null
+          viewer_email: string | null
+          viewer_full_name: string | null
+          viewer_is_health_practitioner: boolean
+          viewer_user_id: string
+        }
+        Insert: {
+          allergies?: Json
+          blood_group?: string | null
+          chronic_conditions?: Json
+          current_medications?: Json
+          emergency_contacts?: Json
+          genotype?: string | null
+          has_emergency_profile?: boolean
+          id?: string
+          insurance_provider?: string | null
+          notes?: string | null
+          patient_caremate_id?: string | null
+          patient_email?: string | null
+          patient_full_name?: string | null
+          patient_user_id: string
+          preferred_hospital?: string | null
+          share_token_sha256: string
+          viewed_at?: string
+          viewer_access_basis: string
+          viewer_caremate_id?: string | null
+          viewer_email?: string | null
+          viewer_full_name?: string | null
+          viewer_is_health_practitioner?: boolean
+          viewer_user_id: string
+        }
+        Update: {
+          allergies?: Json
+          blood_group?: string | null
+          chronic_conditions?: Json
+          current_medications?: Json
+          emergency_contacts?: Json
+          genotype?: string | null
+          has_emergency_profile?: boolean
+          id?: string
+          insurance_provider?: string | null
+          notes?: string | null
+          patient_caremate_id?: string | null
+          patient_email?: string | null
+          patient_full_name?: string | null
+          patient_user_id?: string
+          preferred_hospital?: string | null
+          share_token_sha256?: string
+          viewed_at?: string
+          viewer_access_basis?: string
+          viewer_caremate_id?: string | null
+          viewer_email?: string | null
+          viewer_full_name?: string | null
+          viewer_is_health_practitioner?: boolean
+          viewer_user_id?: string
+        }
+        Relationships: []
+      }
       family_connect_lookup_attempts: {
         Row: {
           attempted_at: string
@@ -4025,6 +4103,8 @@ export type NotificationDevice = Database['public']['Tables']['notification_devi
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Settings = Database['public']['Tables']['settings']['Row'];
 export type EmergencyProfile = Database['public']['Tables']['emergency_profiles']['Row'];
+export type EmergencyShareAccessLog =
+  Database['public']['Tables']['emergency_share_access_logs']['Row'];
 export type Bookmark = Database['public']['Tables']['bookmarks']['Row'];
 export type ArticleRead = Database['public']['Tables']['article_reads']['Row'];
 export type MiniAppSnapshot = Database['public']['Tables']['mini_app_snapshots']['Row'];

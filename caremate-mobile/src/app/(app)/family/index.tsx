@@ -507,7 +507,13 @@ export default function FamilyHubScreen() {
             {children.map((child, index) => (
               <View key={child.id}>
                 {index > 0 ? <View style={styles.divider} /> : null}
-                <View style={styles.memberRow}>
+                <Button
+                  style={styles.memberRow}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('family.editChildA11y', { name: child.fullName })}
+                  onPress={() => router.push(`/(app)/family/child/edit/${child.id}`)}
+                  variant="plain"
+                >
                   <View style={styles.avatar}>
                     <Baby color={ACCENT} size={16} />
                   </View>
@@ -522,7 +528,10 @@ export default function FamilyHubScreen() {
                       })}
                     </AppText>
                   </View>
-                </View>
+                  <AppText variant="caption" color="brand">
+                    {t('family.editChild')}
+                  </AppText>
+                </Button>
               </View>
             ))}
             {children.length === 0 ? (

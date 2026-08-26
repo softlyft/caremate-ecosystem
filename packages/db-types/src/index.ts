@@ -32,6 +32,7 @@ export type {
   Profile,
   Settings,
   EmergencyProfile,
+  EmergencyShareAccessLog,
   Bookmark,
   ArticleRead,
   MiniAppSnapshot,

@@ -13,8 +13,10 @@ import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { buildEmergencyShareUrl, isValidEmergencyShareToken } from '@/domains/emergency/share';
+import { emergencyRepository } from '@/domains/emergency/repository';
 import { formatPatientId, isValidPatientId } from '@/domains/profile/patient-id';
 import { profileRepository } from '@/domains/profile/repository';
 import { syncEngine } from '@/sync/engine';
@@ -26,8 +28,12 @@ type PatientIdCardProps = {
 };
 
 /** Opaque CareMate deep link for emergency share (no PHI in the QR). */
-export function buildPatientIdQrPayload(params: { shareToken: string }): string {
-  return buildEmergencyShareUrl(params.shareToken);
+export function buildPatientIdQrPayload(params: {
+  shareToken: string;
+  /** Bumps QR content when emergency profile changes. */
+  emergencyUpdatedAt?: string | null;
+}): string {
+  return buildEmergencyShareUrl(params.shareToken, { version: params.emergencyUpdatedAt });
 }
 
 export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
@@ -38,6 +44,11 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
   const profileQuery = useQuery({
     queryKey: ['profile', userId],
     queryFn: () => profileRepository.findByUserId(userId),
+  });
+
+  const emergencyQuery = useQuery({
+    queryKey: [...QUERY_KEYS.emergencyProfile, userId],
+    queryFn: () => emergencyRepository.findByUserId(userId),
   });
 
   const generateMutation = useMutation({
@@ -61,6 +72,8 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
   const shareToken = profile?.emergencyShareToken ?? null;
   const hasId = isValidPatientId(patientId);
   const hasShareToken = isValidEmergencyShareToken(shareToken);
+  const emergencyUpdatedAt = emergencyQuery.data?.updatedAt ?? null;
+  const iceContacts = emergencyQuery.data?.emergencyContacts ?? [];
   const name =
     profile?.fullName?.trim() || displayName?.trim() || t('profile.patientId.fallbackName');
 
@@ -188,7 +201,10 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                       <View style={styles.qrFrame}>
                         {hasShareToken && shareToken ? (
                           <QRCode
-                            value={buildPatientIdQrPayload({ shareToken })}
+                            value={buildPatientIdQrPayload({
+                              shareToken,
+                              emergencyUpdatedAt,
+                            })}
                             size={148}
                             backgroundColor="#FFFFFF"
                             color="#115E59"
@@ -201,6 +217,14 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
                       <AppText variant="caption" style={styles.backId} numberOfLines={1}>
                         {formatPatientId(patientId)}
                       </AppText>
+                      {iceContacts[0] ? (
+                        <AppText variant="caption" style={styles.backIce} numberOfLines={2}>
+                          {t('profile.patientId.icePreview', {
+                            name: iceContacts[0].name,
+                            phone: iceContacts[0].phone,
+                          })}
+                        </AppText>
+                      ) : null}
                       <AppText variant="caption" style={styles.backHint}>
                         {t('profile.patientId.tapForFront')}
                       </AppText>
@@ -408,6 +432,12 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     fontWeight: '700',
     fontSize: 12,
+  },
+  backIce: {
+    color: 'rgba(255,255,255,0.92)',
+    fontSize: 11,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   backHint: {
     color: 'rgba(255,255,255,0.8)',

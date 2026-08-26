@@ -14,8 +14,10 @@ export {
 } from '@/domains/emergency/merge-emergency';
 export {
   buildEmergencyShareUrl,
+  EmergencyShareAccessError,
   fetchEmergencyByShareToken,
   generateEmergencyShareToken,
+  isEmergencyShareAccessError,
   isValidEmergencyShareToken,
   parseEmergencyShareToken,
   type SharedEmergencyPayload,

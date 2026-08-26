@@ -20,6 +20,7 @@ export type {
   Profile,
   Settings,
   EmergencyProfile,
+  EmergencyShareAccessLog,
   Bookmark,
   MiniAppSnapshot,
   SubscriptionPrice,

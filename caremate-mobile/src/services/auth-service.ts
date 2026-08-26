@@ -34,6 +34,23 @@ function isInvalidCredentialError(error: { message?: string; status?: number } |
   return message.includes('invalid login credentials') || message.includes('invalid credentials');
 }
 
+/**
+ * Keep only this device's session. Call after a successful interactive login
+ * (password / OTP). Skips cold-start restore and checkout/auth token handoffs.
+ * Refresh tokens on other devices are revoked immediately; their access JWTs
+ * remain valid until expiry (`jwt_expiry`).
+ */
+async function enforceSingleActiveSession(): Promise<void> {
+  if (!config.isSupabaseConfigured) {
+    return;
+  }
+  try {
+    await supabase.auth.signOut({ scope: 'others' });
+  } catch {
+    // Best-effort: login must still succeed if revoke fails (offline, older Auth).
+  }
+}
+
 export class AuthService {
   /**
    * Guest merge → (optional remote hydrates) → local stubs → device bind.
@@ -146,6 +163,7 @@ export class AuthService {
       });
       if (!error) {
         if (data.user) {
+          await enforceSingleActiveSession();
           await this.prepareLocalAccount(data.user);
         }
         return data;
@@ -209,6 +227,7 @@ export class AuthService {
     }
 
     if (data.user) {
+      await enforceSingleActiveSession();
       await this.prepareLocalAccount(
         data.user,
         { fullName, phone: normalizedPhone, email: normalizedEmail },
@@ -251,6 +270,7 @@ export class AuthService {
           throw new Error('Could not verify email. Try the code again or request a new one.');
         }
 
+        await enforceSingleActiveSession();
         await this.prepareLocalAccount(
           data.user,
           {
@@ -296,7 +316,9 @@ export class AuthService {
       return;
     }
 
-    const { error } = await supabase.auth.signOut();
+    // Only end this device's session. Other devices were already revoked at login
+    // (`enforceSingleActiveSession`); avoid default `global` which is broader than needed.
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) {
       throw error;
     }
@@ -387,6 +409,7 @@ export class AuthService {
         if (!data.user || !data.session) {
           throw new Error('Could not verify reset code. Try again or request a new one.');
         }
+        await enforceSingleActiveSession();
         await this.prepareLocalAccount(data.user, { email: candidate });
         return data;
       }

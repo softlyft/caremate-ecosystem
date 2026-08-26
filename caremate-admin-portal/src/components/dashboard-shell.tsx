@@ -22,6 +22,7 @@ import {
   BarChart3,
   UsersRound,
   Shield,
+  ShieldAlert,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
@@ -97,6 +98,11 @@ function growthItemsForRole(role: StaffRole): NavItem[] {
   }
   if (canViewAuditLogs(role)) {
     items.push({ href: '/dashboard/audit', label: 'Audit logs', icon: ScrollText });
+    items.push({
+      href: '/dashboard/emergency-access',
+      label: 'Emergency QR access',
+      icon: ShieldAlert,
+    });
   }
   return items;
 }

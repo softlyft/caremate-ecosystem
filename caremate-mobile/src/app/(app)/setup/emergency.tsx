@@ -32,6 +32,7 @@ import {
 import { useTranslation } from '@/domains/localization';
 import { markEmergencyEssentialsDone } from '@/domains/onboarding';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { syncEngine } from '@/sync/engine';
 import { fontFamily, palette, radius, spacing } from '@/theme';
 
 const CHIP_ACCENT = palette.brandPurple;
@@ -150,6 +151,7 @@ export default function SetupEmergencyEssentialsScreen() {
       });
       await syncEmergencyLockSurface(null);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
+      syncEngine.requestSync({ reason: 'write', immediate: true });
       await goNext();
     } catch (error) {
       Alert.alert(

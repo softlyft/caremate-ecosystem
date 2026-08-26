@@ -217,7 +217,7 @@ Emergency profile data is intended to be available offline in the app. Lock Scre
 | `/(app)/emergency` | View emergency profile |
 | `/(app)/emergency/edit` | Create / edit |
 | `/(app)/emergency/qr` | Redirects to Me → Patient ID card (QR on card back) |
-| `/emergency/share/[token]` | Auth-gated view of another user’s emergency (from QR) |
+| `/emergency/share/[token]` | Practitioner + sign-in gated view of another user’s emergency (from QR) |
 
 ### Lock and widget surface
 
@@ -230,7 +230,7 @@ Emergency profile data is intended to be available offline in the app. Lock Scre
 - Account required to generate Patient ID + opaque `emergency_share_token`
 - QR encodes `caremate://emergency/share/<token>` only (no PHI in the barcode)
 - Scanner / OS camera opens CareMate; viewer must be signed in (not guest)
-- Server RPC `get_emergency_by_share_token` returns a narrow emergency card for authenticated callers
+- Server RPC `get_emergency_by_share_token` returns a narrow emergency card for signed-in health practitioners (or Care Portal provider staff / SoftLyft staff)
 
 ### Editable data
 
