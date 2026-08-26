@@ -33,6 +33,24 @@ describe('user-facing-error', () => {
     ).toBe('Invalid login credentials');
   });
 
+  it('does not treat redirect allowlist errors as offline', () => {
+    const message =
+      'Redirect URL "exp://192.168.1.12:8081/--/auth/reset-password" is not allowed for this request';
+    expect(isNetworkErrorMessage(message)).toBe(false);
+    expect(toUserFacingErrorMessage(new Error(message), 'fallback', networkFallback)).toBe(
+      'fallback',
+    );
+  });
+
+  it('still maps ConnectException host leakage to the network message', () => {
+    const message =
+      'java.net.ConnectException: Failed to connect to abcdefgh.supabase.co/1.2.3.4:443';
+    expect(isNetworkErrorMessage(message)).toBe(true);
+    expect(toUserFacingErrorMessage(new Error(message), 'fallback', networkFallback)).toBe(
+      networkFallback,
+    );
+  });
+
   it('reads nested cause messages', () => {
     const error = new Error('fetch failed');
     (error as Error & { cause: Error }).cause = new Error(

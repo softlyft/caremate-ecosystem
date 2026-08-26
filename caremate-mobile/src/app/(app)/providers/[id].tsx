@@ -65,6 +65,8 @@ export default function ProviderDetailScreen() {
   const isGuest = useIsGuest();
   const [declining, setDeclining] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   const [openingMaps, setOpeningMaps] = useState(false);
   const openingMapsRef = useRef(false);
 
@@ -155,6 +157,23 @@ export default function ProviderDetailScreen() {
     onError: (error) => {
       Alert.alert(
         t('nearby.detail.respondFailedTitle'),
+        error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
+      );
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: () =>
+      providerConnectionService.cancelPendingRequest(connectionQuery.data!.id, cancelReason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
+      setCancelling(false);
+      setCancelReason('');
+      Alert.alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('nearby.detail.cancelFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );
     },
@@ -566,6 +585,74 @@ export default function ProviderDetailScreen() {
                         </AppText>
                       </Button>
                     </View>
+                  )}
+                </View>
+              ) : connection?.status === 'pending' && connection.initiatedBy === 'patient' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('nearby.detail.connectPendingOutbound')}
+                  </AppText>
+                  {cancelling ? (
+                    <>
+                      <AppText variant="caption" style={styles.connectHint}>
+                        {t('nearby.detail.cancelRequestHint')}
+                      </AppText>
+                      <TextInput
+                        style={styles.reasonInput}
+                        value={cancelReason}
+                        onChangeText={setCancelReason}
+                        placeholder={t('nearby.detail.cancelReasonPlaceholder')}
+                        placeholderTextColor={textColors.placeholder}
+                        multiline
+                        editable={!cancelMutation.isPending}
+                      />
+                      <View style={styles.connectRow}>
+                        <Button
+                          style={[
+                            styles.secondaryCta,
+                            { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
+                          ]}
+                          disabled={cancelMutation.isPending}
+                          onPress={() => {
+                            setCancelling(false);
+                            setCancelReason('');
+                          }}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={{ color: theme.accent }}>
+                            {t('common.cancel')}
+                          </AppText>
+                        </Button>
+                        <Button
+                          style={[
+                            styles.primaryCta,
+                            { backgroundColor: theme.accent, flex: 1 },
+                            shadow.soft,
+                          ]}
+                          disabled={cancelMutation.isPending}
+                          onPress={() => cancelMutation.mutate()}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('nearby.detail.confirmCancelRequest')}
+                          </AppText>
+                        </Button>
+                      </View>
+                    </>
+                  ) : (
+                    <Button
+                      style={[
+                        styles.secondaryCta,
+                        { backgroundColor: theme.soft, borderColor: theme.accent },
+                      ]}
+                      disabled={cancelMutation.isPending}
+                      onPress={() => setCancelling(true)}
+                      variant="plain"
+                    >
+                      <AppText variant="button" style={{ color: theme.accent }}>
+                        {t('nearby.detail.cancelRequest')}
+                      </AppText>
+                    </Button>
                   )}
                 </View>
               ) : connection?.status === 'pending' ? (

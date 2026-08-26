@@ -6,33 +6,27 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  approvePayerConnectionAsProviderAction,
-  approveProviderConnectionAsPayerAction,
-  cancelPayerConnectionAsProviderAction,
-  cancelProviderConnectionAsPayerAction,
-  disconnectPayerConnectionAsProviderAction,
-  disconnectProviderConnectionAsPayerAction,
-  rejectPayerConnectionAsProviderAction,
-  rejectProviderConnectionAsPayerAction,
-} from '@/domains/payer-connections/actions';
-import { mapPayerConnectionError } from '@/domains/payer-connections/errors';
+  approvePatientConnectionAsPayerAction,
+  cancelPatientConnectionAsPayerAction,
+  disconnectPatientConnectionAsPayerAction,
+  rejectPatientConnectionAsPayerAction,
+} from '@/domains/patient-payer-connections/actions';
+import { mapPatientPayerConnectionError } from '@/domains/patient-payer-connections/errors';
 
-type PayerConnectionActionMode = 'inbound-pending' | 'outbound-pending' | 'approved';
+type PatientPayerConnectionActionMode = 'inbound-pending' | 'outbound-pending' | 'approved';
 
-export function PayerConnectionActions({
+export function PatientPayerConnectionActions({
   connectionId,
-  side,
   mode,
   /** @deprecated Use `mode` instead. */
   showApprove = true,
 }: {
   connectionId: string;
-  side: 'provider' | 'payer';
-  mode?: PayerConnectionActionMode;
-  /** Hide for outbound rows awaiting the other org. */
+  mode?: PatientPayerConnectionActionMode;
+  /** Hide for outbound rows awaiting the patient. */
   showApprove?: boolean;
 }) {
-  const resolvedMode: PayerConnectionActionMode =
+  const resolvedMode: PatientPayerConnectionActionMode =
     mode ?? (showApprove ? 'inbound-pending' : 'outbound-pending');
 
   const [pending, startTransition] = useTransition();
@@ -67,31 +61,19 @@ export function PayerConnectionActions({
       setPendingAction(action);
       try {
         if (resolvedMode === 'inbound-pending') {
-          if (side === 'provider') {
-            await rejectPayerConnectionAsProviderAction(connectionId, trimmed);
-          } else {
-            await rejectProviderConnectionAsPayerAction(connectionId, trimmed);
-          }
+          await rejectPatientConnectionAsPayerAction(connectionId, trimmed);
           toast.success('Connection rejected');
         } else if (resolvedMode === 'outbound-pending') {
-          if (side === 'provider') {
-            await cancelPayerConnectionAsProviderAction(connectionId, trimmed);
-          } else {
-            await cancelProviderConnectionAsPayerAction(connectionId, trimmed);
-          }
+          await cancelPatientConnectionAsPayerAction(connectionId, trimmed);
           toast.success('Request cancelled');
         } else {
-          if (side === 'provider') {
-            await disconnectPayerConnectionAsProviderAction(connectionId, trimmed || undefined);
-          } else {
-            await disconnectProviderConnectionAsPayerAction(connectionId, trimmed || undefined);
-          }
+          await disconnectPatientConnectionAsPayerAction(connectionId, trimmed || undefined);
           toast.success('Connection ended');
         }
         setReasonOpen(false);
         setReason('');
       } catch (err) {
-        toast.error(mapPayerConnectionError(err, `Failed to ${primaryLabel.toLowerCase()}`));
+        toast.error(mapPatientPayerConnectionError(err, `Failed to ${primaryLabel.toLowerCase()}`));
       } finally {
         setPendingAction(null);
       }
@@ -111,14 +93,10 @@ export function PayerConnectionActions({
               startTransition(async () => {
                 setPendingAction('approve');
                 try {
-                  if (side === 'provider') {
-                    await approvePayerConnectionAsProviderAction(connectionId);
-                  } else {
-                    await approveProviderConnectionAsPayerAction(connectionId);
-                  }
+                  await approvePatientConnectionAsPayerAction(connectionId);
                   toast.success('Connection approved');
                 } catch (err) {
-                  toast.error(mapPayerConnectionError(err, 'Failed to approve'));
+                  toast.error(mapPatientPayerConnectionError(err, 'Failed to approve'));
                 } finally {
                   setPendingAction(null);
                 }
@@ -139,11 +117,11 @@ export function PayerConnectionActions({
       </div>
       {reasonOpen ? (
         <div className="w-64 space-y-2 rounded-md border border-border bg-white p-3 shadow-sm">
-          <Label htmlFor={`ppc-reason-${connectionId}`}>
+          <Label htmlFor={`ppc-patient-reason-${connectionId}`}>
             {reasonRequired ? 'Reason (required)' : 'Reason (optional)'}
           </Label>
           <Textarea
-            id={`ppc-reason-${connectionId}`}
+            id={`ppc-patient-reason-${connectionId}`}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}

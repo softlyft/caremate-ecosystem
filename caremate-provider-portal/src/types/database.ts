@@ -43,7 +43,12 @@ export type ProviderOrgType =
 
 export type ProviderMemberRole = 'owner' | 'administrator' | 'staff' | 'viewer';
 
-export type ConnectionStatus = 'pending' | 'approved' | 'rejected';
+export type ConnectionStatus =
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'cancelled'
+  | 'disconnected';
 
 export type BroadcastAudience = 'all' | 'selected';
 export type BroadcastStatus = 'draft' | 'sent' | 'expired';
@@ -153,6 +158,9 @@ export type PatientProviderConnection = {
   rejection_reason: string | null;
   approved_at: string | null;
   rejected_at: string | null;
+  cancelled_at: string | null;
+  disconnected_at: string | null;
+  disconnected_by: ConnectionInitiatedBy | null;
 } & Timestamps;
 
 export type ProviderPayerConnection = Omit<
@@ -161,6 +169,35 @@ export type ProviderPayerConnection = Omit<
 > & {
   status: ConnectionStatus;
   initiated_by: ProviderPayerInitiatedBy;
+};
+
+export type PatientPayerInitiatedBy = 'patient' | 'payer';
+
+export type PatientPayerConnection = {
+  id: string;
+  patient_id: string;
+  payer_organization_id: string;
+  status: ConnectionStatus;
+  initiated_by: PatientPayerInitiatedBy;
+  patient_note: string | null;
+  payer_note: string | null;
+  rejection_reason: string | null;
+  approved_at: string | null;
+  rejected_at: string | null;
+  cancelled_at: string | null;
+  disconnected_at: string | null;
+  disconnected_by: PatientPayerInitiatedBy | null;
+} & Timestamps;
+
+export type PatientPayerActivity = {
+  id: string;
+  payer_organization_id: string;
+  patient_id: string;
+  connection_id: string | null;
+  event_type: string;
+  summary: string;
+  metadata: Json;
+  created_at: string;
 };
 
 export type PatientProviderActivity = {
@@ -339,10 +376,35 @@ type PortalTables = {
       rejection_reason?: string | null;
       approved_at?: string | null;
       rejected_at?: string | null;
+      cancelled_at?: string | null;
+      disconnected_at?: string | null;
+      disconnected_by?: ConnectionInitiatedBy | null;
       created_at?: string;
       updated_at?: string;
     };
     Update: Partial<PortalTables['patient_provider_connections']['Insert']>;
+    Relationships: [];
+  };
+  patient_payer_connections: {
+    Row: PatientPayerConnection;
+    Insert: {
+      id?: string;
+      patient_id: string;
+      payer_organization_id: string;
+      status?: ConnectionStatus;
+      initiated_by: PatientPayerInitiatedBy;
+      patient_note?: string | null;
+      payer_note?: string | null;
+      rejection_reason?: string | null;
+      approved_at?: string | null;
+      rejected_at?: string | null;
+      cancelled_at?: string | null;
+      disconnected_at?: string | null;
+      disconnected_by?: PatientPayerInitiatedBy | null;
+      created_at?: string;
+      updated_at?: string;
+    };
+    Update: Partial<PortalTables['patient_payer_connections']['Insert']>;
     Relationships: [];
   };
   provider_payer_connections: {
@@ -377,6 +439,21 @@ type PortalTables = {
       created_at?: string;
     };
     Update: Partial<PortalTables['patient_provider_activities']['Insert']>;
+    Relationships: [];
+  };
+  patient_payer_activities: {
+    Row: PatientPayerActivity;
+    Insert: {
+      id?: string;
+      payer_organization_id: string;
+      patient_id: string;
+      connection_id?: string | null;
+      event_type: string;
+      summary: string;
+      metadata?: Json;
+      created_at?: string;
+    };
+    Update: Partial<PortalTables['patient_payer_activities']['Insert']>;
     Relationships: [];
   };
   provider_broadcasts: {
@@ -639,6 +716,74 @@ type PortalFunctions = {
       p_payer_note?: string | null;
     };
     Returns: ProviderPayerConnection;
+  };
+  respond_patient_provider_connection: {
+    Args: {
+      p_connection_id: string;
+      p_accept: boolean;
+      p_rejection_reason?: string | null;
+      p_note?: string | null;
+    };
+    Returns: PatientProviderConnection;
+  };
+  cancel_pending_patient_provider_connection: {
+    Args: {
+      p_connection_id: string;
+      p_reason: string;
+    };
+    Returns: PatientProviderConnection;
+  };
+  disconnect_patient_provider_connection: {
+    Args: {
+      p_connection_id: string;
+      p_reason?: string | null;
+    };
+    Returns: PatientProviderConnection;
+  };
+  cancel_pending_provider_payer_connection: {
+    Args: {
+      p_connection_id: string;
+      p_reason: string;
+    };
+    Returns: ProviderPayerConnection;
+  };
+  disconnect_provider_payer_connection: {
+    Args: {
+      p_connection_id: string;
+      p_reason?: string | null;
+    };
+    Returns: ProviderPayerConnection;
+  };
+  request_payer_patient_connection_by_caremate_id: {
+    Args: {
+      p_payer_organization_id: string;
+      p_caremate_id: string;
+      p_payer_note?: string | null;
+    };
+    Returns: PatientPayerConnection;
+  };
+  respond_patient_payer_connection: {
+    Args: {
+      p_connection_id: string;
+      p_accept: boolean;
+      p_rejection_reason?: string | null;
+      p_note?: string | null;
+    };
+    Returns: PatientPayerConnection;
+  };
+  cancel_pending_patient_payer_connection: {
+    Args: {
+      p_connection_id: string;
+      p_reason: string;
+    };
+    Returns: PatientPayerConnection;
+  };
+  disconnect_patient_payer_connection: {
+    Args: {
+      p_connection_id: string;
+      p_reason?: string | null;
+    };
+    Returns: PatientPayerConnection;
   };
   mark_connected_patient_as_staff: {
     Args: {

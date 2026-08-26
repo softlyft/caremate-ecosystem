@@ -3,6 +3,8 @@ import { requirePayerSession } from '@/lib/auth';
 import { listPayerProviderConnectionsByStatus } from '@/domains/payer-connections/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
+import { PayerConnectionActions } from '@/components/features/payer-connection-actions';
+import { canWriteOrg } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +25,7 @@ export default async function ConnectedProvidersPage({
   const session = await requirePayerSession();
   const { q, page: pageParam } = await searchParams;
   const page = parsePage(pageParam);
+  const canWrite = canWriteOrg(session.activeRole);
   const result = await listPayerProviderConnectionsByStatus(
     session.activeOrganizationId,
     'approved',
@@ -77,12 +80,13 @@ export default async function ConnectedProvidersPage({
                 <TableHead>Claim email</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Connected since</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted">
+                  <TableCell colSpan={5} className="text-center text-muted">
                     No connected providers yet.
                   </TableCell>
                 </TableRow>
@@ -98,6 +102,15 @@ export default async function ConnectedProvidersPage({
                     </TableCell>
                     <TableCell>
                       {r.approved_at ? format(new Date(r.approved_at), 'MMM d, yyyy') : '—'}
+                    </TableCell>
+                    <TableCell>
+                      {canWrite ? (
+                        <PayerConnectionActions
+                          connectionId={r.id}
+                          side="payer"
+                          mode="approved"
+                        />
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))

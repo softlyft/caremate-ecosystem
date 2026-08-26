@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { insertActivity } from '@/domains/activity/repository';
 import {
   DEFAULT_PAGE_SIZE,
   emptyPage,
@@ -13,6 +12,25 @@ import type { PatientProviderConnection, Profile } from '@/types/database';
 export type ConnectionWithProfile = PatientProviderConnection & {
   profile: Pick<Profile, 'full_name' | 'patient_id' | 'phone' | 'avatar_url'> | null;
 };
+
+type NotifyKind = 'request' | 'accepted' | 'declined' | 'cancelled' | 'disconnected';
+
+async function notifyProviderConnection(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  connectionId: string,
+  kind: NotifyKind,
+) {
+  try {
+    void supabase.functions
+      .invoke('notify-provider-connection', { body: { connectionId, kind } })
+      .catch(() => {
+        // Push is best-effort.
+      });
+  } catch {
+    // Push is best-effort.
+  }
+}
 
 export async function listConnectionsByStatus(
   organizationId: string,
@@ -84,41 +102,22 @@ export async function countConnections(
 }
 
 export async function approveConnection(
-  organizationId: string,
+  _organizationId: string,
   connectionId: string,
   providerNote?: string | null,
 ): Promise<void> {
   const supabase = await createClient();
-  const now = new Date().toISOString();
-
-  const { data, error } = await supabase
-    .from('patient_provider_connections')
-    .update({
-      status: 'approved',
-      approved_at: now,
-      rejected_at: null,
-      provider_note: providerNote ?? null,
-    })
-    .eq('id', connectionId)
-    .eq('organization_id', organizationId)
-    .eq('initiated_by', 'patient')
-    .eq('status', 'pending')
-    .select('*')
-    .single();
-
-  if (error) throw error;
-
-  await insertActivity({
-    organizationId,
-    patientId: data.patient_id,
-    connectionId: data.id,
-    eventType: 'connection_approved',
-    summary: 'Connection approved',
+  const { error } = await supabase.rpc('respond_patient_provider_connection', {
+    p_connection_id: connectionId,
+    p_accept: true,
+    p_note: providerNote ?? undefined,
   });
+  if (error) throw error;
+  await notifyProviderConnection(supabase, connectionId, 'accepted');
 }
 
 export async function rejectConnection(
-  organizationId: string,
+  _organizationId: string,
   connectionId: string,
   rejectionReason: string,
 ): Promise<void> {
@@ -128,31 +127,46 @@ export async function rejectConnection(
   }
 
   const supabase = await createClient();
-  const now = new Date().toISOString();
-
-  const { data, error } = await supabase
-    .from('patient_provider_connections')
-    .update({
-      status: 'rejected',
-      rejected_at: now,
-      rejection_reason: reason,
-    })
-    .eq('id', connectionId)
-    .eq('organization_id', organizationId)
-    .eq('status', 'pending')
-    .select('*')
-    .single();
-
-  if (error) throw error;
-
-  await insertActivity({
-    organizationId,
-    patientId: data.patient_id,
-    connectionId: data.id,
-    eventType: 'connection_rejected',
-    summary: 'Connection rejected',
-    metadata: { rejection_reason: reason },
+  const { error } = await supabase.rpc('respond_patient_provider_connection', {
+    p_connection_id: connectionId,
+    p_accept: false,
+    p_rejection_reason: reason,
   });
+  if (error) throw error;
+  await notifyProviderConnection(supabase, connectionId, 'declined');
+}
+
+export async function cancelPendingConnection(
+  _organizationId: string,
+  connectionId: string,
+  reason: string,
+): Promise<void> {
+  const trimmed = reason.trim();
+  if (!trimmed) {
+    throw new Error('A cancellation reason is required');
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('cancel_pending_patient_provider_connection', {
+    p_connection_id: connectionId,
+    p_reason: trimmed,
+  });
+  if (error) throw error;
+  await notifyProviderConnection(supabase, connectionId, 'cancelled');
+}
+
+export async function disconnectConnection(
+  _organizationId: string,
+  connectionId: string,
+  reason?: string | null,
+): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('disconnect_patient_provider_connection', {
+    p_connection_id: connectionId,
+    p_reason: reason?.trim() || undefined,
+  });
+  if (error) throw error;
+  await notifyProviderConnection(supabase, connectionId, 'disconnected');
 }
 
 export async function requestConnectionByCaremateId(
@@ -168,5 +182,7 @@ export async function requestConnectionByCaremateId(
   });
 
   if (error) throw error;
-  return data as PatientProviderConnection;
+  const connection = data as PatientProviderConnection;
+  await notifyProviderConnection(supabase, connection.id, 'request');
+  return connection;
 }

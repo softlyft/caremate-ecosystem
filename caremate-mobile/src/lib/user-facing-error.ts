@@ -38,16 +38,22 @@ export function isNetworkErrorMessage(message: string): boolean {
   if (!trimmed) {
     return false;
   }
-  return NETWORK_ERROR_PATTERN.test(trimmed) || INTERNAL_ENDPOINT_PATTERN.test(trimmed);
+  // Do not treat "contains host/IP/port" alone as offline — Auth redirect errors
+  // often include `exp://192.168.x.x:8081/...` and would be mislabeled.
+  return NETWORK_ERROR_PATTERN.test(trimmed);
 }
 
 export function isNetworkError(error: unknown): boolean {
   return isNetworkErrorMessage(extractErrorMessage(error));
 }
 
+function containsInternalEndpoint(message: string): boolean {
+  return INTERNAL_ENDPOINT_PATTERN.test(message);
+}
+
 /**
  * Returns a friendly network message when the failure looks like connectivity,
- * otherwise the original message (or `fallback` when empty).
+ * otherwise the original message (or `fallback` when empty / unsafe to show).
  */
 export function toUserFacingErrorMessage(
   error: unknown,
@@ -60,6 +66,9 @@ export function toUserFacingErrorMessage(
   }
   if (isNetworkErrorMessage(raw)) {
     return networkMessage;
+  }
+  if (containsInternalEndpoint(raw)) {
+    return fallback;
   }
   return raw;
 }

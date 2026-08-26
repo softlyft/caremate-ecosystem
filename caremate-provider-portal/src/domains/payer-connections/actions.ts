@@ -5,6 +5,8 @@ import { requirePayerWriteAccess, requireWriteAccess } from '@/lib/auth';
 import {
   approveProviderPayerConnectionAsPayer,
   approveProviderPayerConnectionAsProvider,
+  cancelPendingProviderPayerConnection,
+  disconnectProviderPayerConnection,
   rejectProviderPayerConnectionAsPayer,
   rejectProviderPayerConnectionAsProvider,
   requestPayerProviderConnectionByEmail,
@@ -12,13 +14,13 @@ import {
 } from '@/domains/payer-connections/repository';
 
 function revalidateProviderPaths() {
-  revalidatePath('/app/payers');
+  revalidatePath('/app/payers', 'layout');
   revalidatePath('/app/payers/requests');
   revalidatePath('/app/dashboard');
 }
 
 function revalidatePayerPaths() {
-  revalidatePath('/payer/providers');
+  revalidatePath('/payer/providers', 'layout');
   revalidatePath('/payer/providers/requests');
   revalidatePath('/payer/dashboard');
 }
@@ -105,6 +107,52 @@ export async function requestProviderConnectionByEmailAction(formData: FormData)
     session.activeOrganizationId,
     claimEmail,
     payerNote,
+  );
+  revalidatePayerPaths();
+}
+
+export async function cancelPayerConnectionAsProviderAction(connectionId: string, reason: string) {
+  const session = await requireWriteAccess();
+  await cancelPendingProviderPayerConnection(
+    session.activeOrganizationId,
+    connectionId,
+    reason,
+  );
+  revalidateProviderPaths();
+}
+
+export async function cancelProviderConnectionAsPayerAction(connectionId: string, reason: string) {
+  const session = await requirePayerWriteAccess();
+  await cancelPendingProviderPayerConnection(
+    session.activeOrganizationId,
+    connectionId,
+    reason,
+  );
+  revalidatePayerPaths();
+}
+
+export async function disconnectPayerConnectionAsProviderAction(
+  connectionId: string,
+  reason?: string,
+) {
+  const session = await requireWriteAccess();
+  await disconnectProviderPayerConnection(
+    session.activeOrganizationId,
+    connectionId,
+    reason,
+  );
+  revalidateProviderPaths();
+}
+
+export async function disconnectProviderConnectionAsPayerAction(
+  connectionId: string,
+  reason?: string,
+) {
+  const session = await requirePayerWriteAccess();
+  await disconnectProviderPayerConnection(
+    session.activeOrganizationId,
+    connectionId,
+    reason,
   );
   revalidatePayerPaths();
 }

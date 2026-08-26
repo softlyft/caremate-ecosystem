@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTransition } from 'react';
-import { LayoutDashboard, Building2, Settings, LogOut, Hospital, UserPlus } from 'lucide-react';
+import { LayoutDashboard, Building2, Settings, LogOut, Hospital, UserPlus, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
 import { PROVIDER_ROLE_LABELS } from '@/constants/roles';
@@ -29,6 +29,17 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { href: '/payer/providers', label: 'Connected Providers', icon: Hospital },
       {
         href: '/payer/providers/requests',
+        label: 'Connection Requests',
+        icon: UserPlus,
+      },
+    ],
+  },
+  {
+    label: 'Patients',
+    items: [
+      { href: '/payer/patients', label: 'Connected Patients', icon: Users },
+      {
+        href: '/payer/patients/requests',
         label: 'Connection Requests',
         icon: UserPlus,
       },
@@ -102,10 +113,14 @@ export function PayerAppShell({
                   pathname === href ||
                   (href !== '/payer/dashboard' &&
                     href !== '/payer/providers' &&
+                    href !== '/payer/patients' &&
                     pathname.startsWith(href)) ||
                   (href === '/payer/providers' &&
                     pathname.startsWith('/payer/providers') &&
-                    !pathname.startsWith('/payer/providers/requests'));
+                    !pathname.startsWith('/payer/providers/requests')) ||
+                  (href === '/payer/patients' &&
+                    pathname.startsWith('/payer/patients') &&
+                    !pathname.startsWith('/payer/patients/requests'));
                 return (
                   <Link
                     key={href}

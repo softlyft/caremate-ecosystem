@@ -10,6 +10,7 @@ There is **no open registration**. Staff reach Care Portal by claiming a catalog
    - Provider → `provider_organizations` (location email, else organization FHIR contact)
    - Payer → `payer_organizations.email` with zero active `payer_org_members`
 4. Generate a verification code and email it via SES (`send-provider-claim-otp`). Kind `claim` vs `payer_claim` for rate-limit buckets. The code is never returned to the browser.
+   - Care Portal must call the function with `SUPABASE_SERVICE_ROLE_KEY` (trimmed; same project as `NEXT_PUBLIC_SUPABASE_URL`). A mismatch surfaces as **Unauthorized** on claim.
 5. After verify, set password → creates:
    - Supabase Auth user (`care_portal: true`, `care_org_kind`)
    - Owner membership (`provider_org_members` or `payer_org_members`)

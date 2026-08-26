@@ -269,6 +269,37 @@ export async function requestProviderPayerConnectionByEmail(
   return data as ProviderPayerConnection;
 }
 
+export async function cancelPendingProviderPayerConnection(
+  _organizationId: string,
+  connectionId: string,
+  reason: string,
+): Promise<void> {
+  const trimmed = reason.trim();
+  if (!trimmed) {
+    throw new Error('A cancellation reason is required');
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('cancel_pending_provider_payer_connection', {
+    p_connection_id: connectionId,
+    p_reason: trimmed,
+  });
+  if (error) throw error;
+}
+
+export async function disconnectProviderPayerConnection(
+  _organizationId: string,
+  connectionId: string,
+  reason?: string | null,
+): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('disconnect_provider_payer_connection', {
+    p_connection_id: connectionId,
+    p_reason: reason?.trim() || undefined,
+  });
+  if (error) throw error;
+}
+
 export async function requestPayerProviderConnectionByEmail(
   payerOrganizationId: string,
   providerClaimEmail: string,

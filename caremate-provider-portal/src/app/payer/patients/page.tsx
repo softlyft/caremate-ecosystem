@@ -1,10 +1,9 @@
 import { format } from 'date-fns';
-import { requireProviderSession } from '@/lib/auth';
-import { requireModule } from '@/domains/modules/guard';
-import { listProviderPayerConnectionsByStatus } from '@/domains/payer-connections/repository';
+import { requirePayerSession } from '@/lib/auth';
+import { listPatientPayerConnectionsByStatus } from '@/domains/patient-payer-connections/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
-import { PayerConnectionActions } from '@/components/features/payer-connection-actions';
+import { PatientPayerConnectionActions } from '@/components/features/patient-payer-connection-actions';
 import { canWriteOrg } from '@/constants/roles';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -18,46 +17,46 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default async function ConnectedPayersPage({
+export default async function ConnectedPatientsPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  await requireModule('payers');
-  const session = await requireProviderSession();
+  const session = await requirePayerSession();
   const { q, page: pageParam } = await searchParams;
   const page = parsePage(pageParam);
-  const canWrite = canWriteOrg(session.activeRole);
-  const result = await listProviderPayerConnectionsByStatus(
+  const result = await listPatientPayerConnectionsByStatus(
     session.activeOrganizationId,
     'approved',
     { page },
   );
+  const canWrite = canWriteOrg(session.activeRole);
 
   const query = (q ?? '').trim().toLowerCase();
   const rows = query
     ? result.rows.filter((r) => {
-        const name = r.payer?.name?.toLowerCase() ?? '';
-        const email = r.payer?.email?.toLowerCase() ?? '';
-        return name.includes(query) || email.includes(query);
+        const name = r.profile?.full_name?.toLowerCase() ?? '';
+        const caremateId = r.profile?.patient_id?.toLowerCase() ?? '';
+        const phone = r.profile?.phone?.toLowerCase() ?? '';
+        return name.includes(query) || caremateId.includes(query) || phone.includes(query);
       })
     : result.rows;
 
-  const hrefForPage = (p: number) => hrefWithPage('/app/payers', p, { q });
+  const hrefForPage = (p: number) => hrefWithPage('/payer/patients', p, { q });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">
-            Connected payers
+            Connected patients
           </h1>
           <p className="mt-1 text-sm text-muted">{result.total} approved connections</p>
         </div>
         <form className="flex gap-2">
           <Input
             name="q"
-            placeholder="Search name or claim email"
+            placeholder="Search name, CareMate ID, phone"
             defaultValue={q ?? ''}
             className="w-72"
           />
@@ -72,14 +71,14 @@ export default async function ConnectedPayersPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Payers</CardTitle>
+          <CardTitle>Patients</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Payer name</TableHead>
-                <TableHead>Claim email</TableHead>
+                <TableHead>Patient name</TableHead>
+                <TableHead>CareMate ID</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Connected since</TableHead>
@@ -90,15 +89,17 @@ export default async function ConnectedPayersPage({
               {rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted">
-                    No connected payers yet.
+                    No connected patients yet.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((r) => (
                   <TableRow key={r.id}>
-                    <TableCell className="font-medium">{r.payer?.name ?? 'Unknown'}</TableCell>
-                    <TableCell>{r.payer?.email ?? '—'}</TableCell>
-                    <TableCell>{r.payer?.phone ?? '—'}</TableCell>
+                    <TableCell className="font-medium">
+                      {r.profile?.full_name ?? 'Unknown'}
+                    </TableCell>
+                    <TableCell>{r.profile?.patient_id ?? '—'}</TableCell>
+                    <TableCell>{r.profile?.phone ?? '—'}</TableCell>
                     <TableCell>
                       <Badge variant="success">{r.status}</Badge>
                     </TableCell>
@@ -107,11 +108,7 @@ export default async function ConnectedPayersPage({
                     </TableCell>
                     <TableCell>
                       {canWrite ? (
-                        <PayerConnectionActions
-                          connectionId={r.id}
-                          side="provider"
-                          mode="approved"
-                        />
+                        <PatientPayerConnectionActions connectionId={r.id} mode="approved" />
                       ) : null}
                     </TableCell>
                   </TableRow>

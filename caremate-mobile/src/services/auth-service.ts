@@ -21,6 +21,23 @@ import type { AuthUser } from '@/types';
 /** Legacy SecureStore key from the removed biometric unlock feature. */
 const LEGACY_BIOMETRIC_ENABLED_KEY = 'caremate_biometric_enabled';
 
+/**
+ * Redirect for `resetPasswordForEmail`. Prefer the public website URL (allowlisted
+ * in Supabase Auth). Expo `exp://…` / `caremate://…` deep links are often missing
+ * from Redirect URLs and cause the request to fail — recovery is OTP-in-app anyway.
+ */
+function getRecoveryEmailRedirectTo(): string {
+  try {
+    const website = config.websiteUrl.replace(/\/$/, '');
+    if (website.startsWith('https://') || (__DEV__ && website.startsWith('http://'))) {
+      return `${website}/auth/reset-password`;
+    }
+  } catch {
+    // fall through
+  }
+  return getPasswordResetRedirectUri();
+}
+
 /** Prefer canonical email; include pre-canonicalization form for existing accounts. */
 function authEmailsToTry(email: string): string[] {
   const canonical = normalizeAccountEmail(email);
@@ -370,13 +387,15 @@ export class AuthService {
     }
 
     // Email template shows a 6-digit {{ .Token }} (see supabase/templates/recovery.html).
-    // Users enter the code in-app via verifyOtp(type: 'recovery') — no browser redirect required.
+    // Users enter the code in-app via verifyOtp(type: 'recovery') — no app deep link required.
+    // Use the website redirect (allowlisted) so Expo Go `exp://IP:port` is not rejected.
     // Try canonical then legacy so pre-normalization Gmail accounts still receive the code.
     const emails = authEmailsToTry(email);
+    const redirectTo = getRecoveryEmailRedirectTo();
     let lastError: { message?: string } | null = null;
     for (const candidate of emails) {
       const { error } = await supabase.auth.resetPasswordForEmail(candidate, {
-        redirectTo: getPasswordResetRedirectUri(),
+        redirectTo,
       });
       if (!error) {
         return;

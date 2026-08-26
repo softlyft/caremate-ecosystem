@@ -1,6 +1,6 @@
 import { router, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Building2, Inbox } from 'lucide-react-native';
+import { Building2, Inbox, Send } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -29,6 +29,12 @@ export default function ProviderConnectionsHubScreen() {
     enabled: !isGuest,
   });
 
+  const outboundCountQuery = useQuery({
+    queryKey: [...QUERY_KEYS.providerConnections, 'outbound-count'],
+    queryFn: async () => (await providerConnectionService.listOutboundPending()).length,
+    enabled: !isGuest,
+  });
+
   if (isGuest) {
     return (
       <View style={styles.padded}>
@@ -39,6 +45,7 @@ export default function ProviderConnectionsHubScreen() {
 
   const inboundCount = inboundCountQuery.data ?? 0;
   const connectedCount = connectedCountQuery.data ?? 0;
+  const outboundCount = outboundCountQuery.data ?? 0;
 
   return (
     <ScrollView
@@ -69,6 +76,19 @@ export default function ProviderConnectionsHubScreen() {
               : t('nearby.connections.requestsEmptySubtitle')
           }
           onPress={() => router.push('/providers/connections/requests' as Href)}
+        />
+        <View style={styles.divider} />
+        <ProfileMenuRow
+          icon={Send}
+          iconColor={palette.warning}
+          iconBackground="#FEF3C7"
+          title={t('nearby.connections.outboundTitle')}
+          subtitle={
+            outboundCount > 0
+              ? t('nearby.connections.outboundCount', { count: outboundCount })
+              : t('nearby.connections.outboundEmptySubtitle')
+          }
+          onPress={() => router.push('/providers/connections/outbound' as Href)}
         />
       </ProfileCard>
     </ScrollView>

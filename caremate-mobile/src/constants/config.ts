@@ -64,6 +64,7 @@ export const QUERY_KEYS = {
   providers: ['providers'] as const,
   providerFavorites: ['providers', 'favorites'] as const,
   providerConnections: ['provider-connections'] as const,
+  payerConnections: ['payer-connections'] as const,
   providerDocuments: ['provider-documents'] as const,
   payers: ['payers'] as const,
   settings: ['settings'] as const,

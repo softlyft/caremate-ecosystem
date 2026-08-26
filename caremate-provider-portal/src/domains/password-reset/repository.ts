@@ -44,8 +44,8 @@ async function sendPasswordResetOtpEmail(input: {
   to: string;
   code: string;
 }): Promise<{ delivered: boolean; skipped: boolean; error?: string }> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !key) {
     return { delivered: false, skipped: true, error: 'Supabase env missing' };
   }
@@ -73,6 +73,7 @@ async function sendPasswordResetOtpEmail(input: {
       skipped?: boolean;
       error?: string;
       reason?: string;
+      message?: string;
     };
 
     if (response.ok && payload.ok) {
@@ -87,10 +88,20 @@ async function sendPasswordResetOtpEmail(input: {
       };
     }
 
+    const remoteError = payload.error ?? payload.message ?? '';
+    if (response.status === 401 || /unauthorized/i.test(remoteError)) {
+      return {
+        delivered: false,
+        skipped: false,
+        error:
+          'Could not authorize the verification email service. Confirm SUPABASE_SERVICE_ROLE_KEY on Care Portal matches this Supabase project.',
+      };
+    }
+
     return {
       delivered: false,
       skipped: false,
-      error: payload.error ?? `Email send failed (${response.status})`,
+      error: remoteError || `Email send failed (${response.status})`,
     };
   } catch (err) {
     return {
