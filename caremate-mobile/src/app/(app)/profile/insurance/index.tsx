@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
-import { ChevronRight, Search, Shield } from 'lucide-react-native';
+import { Search, Shield } from 'lucide-react-native';
 import { useDeferredValue, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -72,6 +72,43 @@ export default function InsuranceDirectoryScreen() {
     },
     onSettled: () => setBusyRequestId(null),
   });
+
+  const disconnectMutation = useMutation({
+    mutationFn: (connectionId: string) => payerConnectionService.disconnectConnection(connectionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
+      Alert.alert(
+        t('insurance.connections.disconnectSuccessTitle'),
+        t('insurance.connections.disconnectSuccessMessage'),
+      );
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('insurance.connections.disconnectFailedTitle'),
+        error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
+      );
+    },
+    onSettled: () => setBusyRequestId(null),
+  });
+
+  const confirmDisconnect = (connectionId: string) => {
+    Alert.alert(
+      t('insurance.connections.disconnectConfirmTitle'),
+      t('insurance.connections.disconnectConfirmMessage'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('insurance.connections.disconnectConfirmAction'),
+          style: 'destructive',
+          onPress: () => {
+            setBusyRequestId(connectionId);
+            disconnectMutation.mutate(connectionId);
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   const query = useInfiniteQuery({
     queryKey: [...QUERY_KEYS.payers, trimmedSearch],
@@ -214,14 +251,19 @@ export default function InsuranceDirectoryScreen() {
                     {t('insurance.connections.connectedSectionSubtitle')}
                   </AppText>
                   {connected.map((item) => (
-                    <Pressable
-                      key={item.id}
-                      style={({ pressed }) => [styles.connectedRow, pressed && styles.pressed]}
-                      onPress={() =>
-                        router.push(`/(app)/profile/insurance/${item.payerOrganizationId}` as Href)
-                      }
-                    >
-                      <View style={styles.connectedCopy}>
+                    <View key={item.id} style={styles.connectedBlock}>
+                      <Pressable
+                        style={({ pressed }) => [styles.connectedCopy, pressed && styles.pressed]}
+                        onPress={() =>
+                          router.push(
+                            `/(app)/profile/insurance/${item.payerOrganizationId}` as Href,
+                          )
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel={
+                          item.payerName ?? t('insurance.connections.payerFallback')
+                        }
+                      >
                         <AppText variant="body" style={styles.inboundName}>
                           {item.payerName ?? t('insurance.connections.payerFallback')}
                         </AppText>
@@ -230,9 +272,15 @@ export default function InsuranceDirectoryScreen() {
                             date: new Date(item.approvedAt ?? item.createdAt).toLocaleDateString(),
                           })}
                         </AppText>
-                      </View>
-                      <ChevronRight size={18} color={palette.textSecondary} />
-                    </Pressable>
+                      </Pressable>
+                      <Button
+                        label={t('insurance.connections.disconnect')}
+                        variant="secondary"
+                        onPress={() => confirmDisconnect(item.id)}
+                        disabled={disconnectMutation.isPending || respondMutation.isPending}
+                        loading={busyRequestId === item.id && disconnectMutation.isPending}
+                      />
+                    </View>
                   ))}
                 </View>
               </AnimatedSection>
@@ -302,7 +350,7 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     gap: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   hero: {
     borderRadius: radius.xl,
@@ -409,16 +457,13 @@ const styles = StyleSheet.create({
   inboundActions: {
     gap: spacing.sm,
   },
-  connectedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  connectedBlock: {
     gap: spacing.sm,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: palette.divider,
   },
   connectedCopy: {
-    flex: 1,
     gap: 4,
   },
   pressed: {

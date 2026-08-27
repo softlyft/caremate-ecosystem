@@ -91,6 +91,17 @@ async function mapRows(rows: RemotePayerConnectionRow[]): Promise<PatientPayerCo
 }
 
 class PayerConnectionService {
+  /** True when the payer has claimed Care Portal and `payer_profiles.verification_status = verified`. */
+  async isOrganizationVerified(payerOrganizationId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('is_payer_org_verified', {
+      p_org_id: payerOrganizationId,
+    });
+    if (error) {
+      throw error;
+    }
+    return Boolean(data);
+  }
+
   async getConnectionForPayerOrganization(
     payerOrganizationId: string,
   ): Promise<PatientPayerConnection | null> {

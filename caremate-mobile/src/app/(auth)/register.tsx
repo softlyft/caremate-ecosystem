@@ -145,7 +145,12 @@ export default function RegisterScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.register.error'),
-        toUserFacingErrorMessage(error, t('auth.register.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.register.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     }
   }

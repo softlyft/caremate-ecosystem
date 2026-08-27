@@ -73,7 +73,7 @@
     "declinedMessage": "You declined this connection request.",
     "failedMessage": "Please try again.",
     "connectedSectionTitle": "Your connected insurers",
-    "connectedSectionSubtitle": "Insurers linked to your CareMate account.",
+    "connectedSectionSubtitle": "Insurers linked to your CareMate account. Disconnect anytime.",
     "connectedEmpty": "You are not connected to any insurers yet.",
     "connectedSince": "Connected {{date}}"
   }

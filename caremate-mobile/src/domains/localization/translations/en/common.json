@@ -20,6 +20,7 @@
   "ok": "OK",
   "error": "Something went wrong",
   "networkError": "No internet connection. Check your connection and try again.",
+  "emailDeliveryError": "We couldn't send the email right now. Please try again in a few minutes.",
   "loadFailed": "Couldn't load this screen",
   "loadFailedMessage": "Check your connection and try again.",
   "offline": "You're offline",

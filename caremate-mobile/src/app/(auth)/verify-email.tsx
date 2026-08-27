@@ -90,7 +90,12 @@ export default function VerifyEmailScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verify.error'),
-        toUserFacingErrorMessage(error, t('auth.verify.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verify.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     }
   }
@@ -107,7 +112,12 @@ export default function VerifyEmailScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verify.error'),
-        toUserFacingErrorMessage(error, t('auth.verify.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verify.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     } finally {
       setIsResending(false);

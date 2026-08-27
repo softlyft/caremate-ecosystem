@@ -42,6 +42,12 @@ export default function InsuranceOrgDetailScreen() {
     enabled: Boolean(id),
   });
 
+  const payerVerifiedQuery = useQuery({
+    queryKey: [...QUERY_KEYS.payerConnections, 'verified', id],
+    queryFn: () => payerConnectionService.isOrganizationVerified(id),
+    enabled: Boolean(id) && !isGuest,
+  });
+
   const connectionQuery = useQuery({
     queryKey: [...QUERY_KEYS.payerConnections, id],
     queryFn: () => payerConnectionService.getConnectionForPayerOrganization(id),
@@ -176,6 +182,9 @@ export default function InsuranceOrgDetailScreen() {
 
   const payer = query.data;
   const connection = connectionQuery.data;
+  const payerVerified = payerVerifiedQuery.data === true;
+  // Mirror providers: Connect only for verified (claimed) payers; keep card if a connection already exists.
+  const showConnectCard = !isGuest && (Boolean(connection) || payerVerified);
   const websiteUrl = payer.website?.trim()
     ? payer.website.startsWith('http')
       ? payer.website
@@ -212,7 +221,7 @@ export default function InsuranceOrgDetailScreen() {
         </View>
       </AnimatedSection>
 
-      {!isGuest ? (
+      {showConnectCard ? (
         <AnimatedSection index={1}>
           <View style={styles.card}>
             <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
