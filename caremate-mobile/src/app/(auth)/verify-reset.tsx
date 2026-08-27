@@ -90,7 +90,12 @@ export default function VerifyResetScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verifyReset.error'),
-        toUserFacingErrorMessage(error, t('auth.verifyReset.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verifyReset.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     }
   }
@@ -107,7 +112,12 @@ export default function VerifyResetScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verifyReset.error'),
-        toUserFacingErrorMessage(error, t('auth.verifyReset.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verifyReset.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     } finally {
       setIsResending(false);

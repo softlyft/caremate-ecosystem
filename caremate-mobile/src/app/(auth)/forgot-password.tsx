@@ -47,7 +47,12 @@ export default function ForgotPasswordScreen() {
     } catch (error) {
       Alert.alert(
         t('common.error'),
-        toUserFacingErrorMessage(error, t('auth.forgot.sendFailed'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.forgot.sendFailed'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     } finally {
       setIsSubmitting(false);

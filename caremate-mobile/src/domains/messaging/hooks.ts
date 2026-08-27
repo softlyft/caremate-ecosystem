@@ -3,11 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/constants/config';
 import { config } from '@/constants/env';
 import { listMessages, listPatientConversations } from '@/domains/messaging/repository';
+import { useMessagingRealtime } from '@/domains/messaging/realtime';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 
 /** Shared inbox cache — Home badge and Messages list must stay in sync. */
-const INBOX_STALE_MS = 15_000;
-const INBOX_REFETCH_MS = 30_000;
+const INBOX_STALE_MS = 10_000;
+/** Slow safety net; Realtime invalidation is the primary refresh path. */
+const INBOX_REFETCH_MS = 60_000;
+const THREAD_STALE_MS = 5_000;
+const THREAD_REFETCH_MS = 60_000;
 
 function inboxQueryOptions(userId: string, isGuest: boolean) {
   return {
@@ -16,18 +20,27 @@ function inboxQueryOptions(userId: string, isGuest: boolean) {
     enabled: Boolean(userId) && !isGuest && config.isSupabaseConfigured,
     staleTime: INBOX_STALE_MS,
     refetchInterval: INBOX_REFETCH_MS,
+    refetchOnReconnect: true,
   };
 }
 
 export function useMessageInbox() {
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  useMessagingRealtime({
+    userId,
+    enabled: Boolean(userId) && !isGuest && config.isSupabaseConfigured,
+  });
   return useQuery(inboxQueryOptions(userId, isGuest));
 }
 
 export function useUnreadMessageCount() {
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  useMessagingRealtime({
+    userId,
+    enabled: Boolean(userId) && !isGuest && config.isSupabaseConfigured,
+  });
   return useQuery({
     ...inboxQueryOptions(userId, isGuest),
     select: (conversations) => conversations.filter((conversation) => conversation.unread).length,
@@ -35,12 +48,19 @@ export function useUnreadMessageCount() {
 }
 
 export function useConversationMessages(conversationId: string) {
+  const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  useMessagingRealtime({
+    userId,
+    conversationId,
+    enabled: Boolean(userId) && Boolean(conversationId) && !isGuest && config.isSupabaseConfigured,
+  });
   return useQuery({
     queryKey: [...QUERY_KEYS.messages, 'thread', conversationId],
     queryFn: () => listMessages(conversationId),
     enabled: Boolean(conversationId) && !isGuest && config.isSupabaseConfigured,
-    staleTime: 10_000,
-    refetchInterval: 15_000,
+    staleTime: THREAD_STALE_MS,
+    refetchInterval: THREAD_REFETCH_MS,
+    refetchOnReconnect: true,
   });
 }

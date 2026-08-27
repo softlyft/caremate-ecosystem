@@ -51,7 +51,7 @@ Cloud-only (not mirrored to mobile SQLite). See [Provider Portal data model](../
 - `consent_definitions`
 - `patient_provider_consents`
 - `patient_provider_activities`
-- `message_conversations` / `message_participants` / `message_messages` / `message_direct_pairs`
+- `message_conversations` / `message_participants` / `message_messages` / `message_direct_pairs` (Realtime publication: `20260827140000_messaging_realtime.sql`)
 - `provider_broadcasts` / `provider_broadcast_recipients` (legacy send audit)
 - `provider_documents`
 - `appointment_requests`

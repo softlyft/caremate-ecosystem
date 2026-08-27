@@ -51,6 +51,18 @@ Both parties must be linked to the org (approved connection **or** active member
 
 `syncPushRegistration()` upserts `notification_devices` when the user is signed in (not guest), notifications are enabled, and OS permission + Expo token succeed. Runs after auth bootstrap and when the Me notifications toggle is turned on.
 
+## Realtime
+
+Mobile inbox + thread subscribe to Supabase Realtime `postgres_changes` on:
+
+- `message_messages`
+- `message_conversations`
+- `message_participants`
+
+Publication + `REPLICA IDENTITY FULL`: migration `20260827140000_messaging_realtime.sql`.
+
+Delivery is RLS-scoped (same SELECT policies as REST). React Query caches invalidate on events; a slow poll (~60s) remains as a reconnect safety net. Push via `notify-message` still notifies when the app is backgrounded.
+
 ## Related
 
 - [Data model](./data-model.md)
