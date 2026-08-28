@@ -7,8 +7,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
-import { Box } from '@/components/ui/box';
-import { ErrorState } from '@/components/ui/screen-states';
+import { Screen, ErrorState } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import { AdSlot } from '@/features/ads/AdSlot';
@@ -28,7 +27,7 @@ import { articleRepository } from '@/domains/articles/repository';
 import { HOME_TRENDING_MAX_ITEMS } from '@/domains/articles/utils/evergreen-articles';
 import { enableNearbyLocationAccess, resolveNearbyCoords } from '@/domains/providers/location';
 import { providerRepository } from '@/domains/providers/repository';
-import { layoutSpacing, palette } from '@/theme';
+import { layoutSpacing } from '@/theme';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -143,7 +142,7 @@ export default function HomeScreen() {
 
   if (feedFailed) {
     return (
-      <Box className="flex-1" style={{ backgroundColor: palette.surface }}>
+      <Screen padded={false}>
         <ErrorState
           title={t('home.loadFailed.title')}
           message={
@@ -157,12 +156,12 @@ export default function HomeScreen() {
             void providersQuery.refetch();
           }}
         />
-      </Box>
+      </Screen>
     );
   }
 
   return (
-    <Box className="flex-1" style={{ backgroundColor: palette.surface }}>
+    <Screen padded={false}>
       <Animated.ScrollView
         entering={FadeIn.duration(300)}
         showsVerticalScrollIndicator={false}
@@ -230,6 +229,6 @@ export default function HomeScreen() {
           <EmergencyBanner />
         </AnimatedSection>
       </Animated.ScrollView>
-    </Box>
+    </Screen>
   );
 }

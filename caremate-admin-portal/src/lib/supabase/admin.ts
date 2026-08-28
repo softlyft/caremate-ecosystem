@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@caremate/db-types';
+import type { Database } from '@/types/database';
 
 /** Service-role client — server-only. Never import from client components. */
 export function createAdminClient() {

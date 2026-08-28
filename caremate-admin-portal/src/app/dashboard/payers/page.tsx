@@ -1,13 +1,14 @@
-import Link from 'next/link';
 import { listPayerOrganizations } from '@/domains/payers/repository';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
+import { SearchForm } from '@/components/search-form';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardContent } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import {
   Table,
   TableBody,
@@ -52,31 +53,19 @@ export default async function PayersPage({
         description="Payer catalog for Care Portal claim (insurers, HMOs, and other payers)."
       >
         {canEdit ? (
-          <Link
-            href="/dashboard/payers/new"
-            className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-white hover:bg-primary-dark"
-          >
+          <ButtonLink href="/dashboard/payers/new" size="sm">
             Create organization
-          </Link>
+          </ButtonLink>
         ) : null}
       </PageHeader>
 
       <Card>
         <CardContent className="space-y-4 pt-6">
-          <form className="flex flex-wrap gap-2" method="get">
-            <Input
-              name="q"
-              defaultValue={q ?? ''}
-              placeholder="Search by name or email…"
-              className="max-w-sm"
-            />
-            <button
-              type="submit"
-              className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
-            >
-              Search
-            </button>
-          </form>
+          <SearchForm
+            placeholder="Search by name or email…"
+            defaultValue={q ?? ''}
+            submitLabel="Search"
+          />
 
           <Table>
             <TableHeader>
@@ -98,12 +87,7 @@ export default async function PayersPage({
                 result.rows.map((org) => (
                   <TableRow key={org.id}>
                     <TableCell>
-                      <Link
-                        href={`/dashboard/payers/${org.id}`}
-                        className="font-medium text-primary hover:underline"
-                      >
-                        {org.name}
-                      </Link>
+                      <TextLink href={`/dashboard/payers/${org.id}`}>{org.name}</TextLink>
                     </TableCell>
                     <TableCell className="text-sm text-muted">{org.email ?? '—'}</TableCell>
                     <TableCell className="text-sm text-muted">{org.phone ?? '—'}</TableCell>

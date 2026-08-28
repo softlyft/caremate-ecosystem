@@ -1,13 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  Input,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
@@ -62,28 +68,25 @@ export default function ForgotPasswordScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <SectionTitle title={t('auth.forgot.title')} subtitle={t('auth.forgot.subtitle')} />
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              keyboardType="email-address"
-              placeholder={t('auth.forgot.email')}
-              autoComplete="email"
-              textContentType="emailAddress"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {formState.errors.email ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.email.message}
-          </AppText>
-        ) : null}
+      <FormStack style={styles.form}>
+        <FormField error={formState.errors.email?.message}>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholder={t('auth.forgot.email')}
+                autoComplete="email"
+                textContentType="emailAddress"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+        </FormField>
         <Button
           label={isSubmitting ? t('common.loading') : t('auth.forgot.submit')}
           disabled={isSubmitting}
@@ -101,10 +104,8 @@ export default function ForgotPasswordScreen() {
             });
           })}
         />
-        <Link href="/(auth)/login">
-          <AppText variant="seeAll">{t('auth.forgot.back')}</AppText>
-        </Link>
-      </View>
+        <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+      </FormStack>
     </SafeAreaView>
   );
 }
@@ -116,6 +117,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

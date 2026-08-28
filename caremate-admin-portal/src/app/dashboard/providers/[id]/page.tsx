@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProvider, getProviderFhirBundle } from '@/domains/providers/repository';
 import { emptyFhirBundle } from '@/domains/providers/fhir-bundle';
@@ -8,17 +7,10 @@ import { PROVIDER_TYPE_LABELS } from '@/constants/content';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { DescriptionRow } from '@/components/ui/detail-row';
+import { TextLink } from '@/components/ui/text-link';
 import { ArchiveProviderButton } from '@/features/providers/archive-provider-button';
 import { ProviderFhirViewButton } from '@/features/providers/provider-fhir-view-button';
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm text-foreground">{children}</dd>
-    </div>
-  );
-}
 
 export default async function ProviderDetailPage({
   params,
@@ -67,21 +59,21 @@ export default async function ProviderDetailPage({
           resourceCount={fhirBundle.total}
           initialOpen={openFhir}
         />
-        <Link href="/dashboard/providers" className="text-sm text-muted hover:text-foreground">
+        <TextLink href="/dashboard/providers" className="text-muted hover:text-foreground">
           Back to list
-        </Link>
+        </TextLink>
       </PageHeader>
 
       <Card>
         <CardContent className="p-6">
           <dl>
-            <Row label="Location ID (PK)">
+            <DescriptionRow label="Location ID (PK)">
               <code className="break-all text-xs">{provider.location_id ?? provider.id}</code>
-            </Row>
-            <Row label="Organization ID">
+            </DescriptionRow>
+            <DescriptionRow label="Organization ID">
               <code className="break-all text-xs">{provider.organization_id ?? '—'}</code>
-            </Row>
-            <Row label="Healthcare service IDs">
+            </DescriptionRow>
+            <DescriptionRow label="Healthcare service IDs">
               {Array.isArray(provider.healthcare_service_ids) &&
               provider.healthcare_service_ids.length > 0 ? (
                 <ul className="space-y-1">
@@ -94,28 +86,28 @@ export default async function ProviderDetailPage({
               ) : (
                 '—'
               )}
-            </Row>
-            <Row label="Type">
+            </DescriptionRow>
+            <DescriptionRow label="Type">
               <Badge variant="secondary">{typeLabel}</Badge>
-            </Row>
-            <Row label="External ID">{provider.external_id ?? '—'}</Row>
-            <Row label="Source">{provider.source ?? '—'}</Row>
-            <Row label="Active">{provider.active ? 'Yes' : 'No'}</Row>
-            <Row label="Address">{provider.address ?? '—'}</Row>
-            <Row label="Phone">{provider.phone ?? '—'}</Row>
-            <Row label="Email">{provider.email ?? '—'}</Row>
-            <Row label="Coordinates">
+            </DescriptionRow>
+            <DescriptionRow label="External ID">{provider.external_id ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Source">{provider.source ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Active">{provider.active ? 'Yes' : 'No'}</DescriptionRow>
+            <DescriptionRow label="Address">{provider.address ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Phone">{provider.phone ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Email">{provider.email ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Coordinates">
               {provider.latitude != null && provider.longitude != null
                 ? `${provider.latitude}, ${provider.longitude}`
                 : '—'}
-            </Row>
-            <Row label="Last ingested">{provider.last_ingested_at ?? '—'}</Row>
-            <Row label="Attributes">
+            </DescriptionRow>
+            <DescriptionRow label="Last ingested">{provider.last_ingested_at ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Attributes">
               <pre className="overflow-x-auto rounded-md bg-muted/40 p-2 text-xs">
                 {JSON.stringify(provider.attributes ?? {}, null, 2)}
               </pre>
-            </Row>
-            <Row label="FHIR resources">
+            </DescriptionRow>
+            <DescriptionRow label="FHIR resources">
               {fhirBundle.total > 0 ? (
                 <span className="text-muted">
                   {fhirBundle.entry.map((item) => item.resource.resourceType).join(', ')} — use{' '}
@@ -127,7 +119,7 @@ export default async function ProviderDetailPage({
                   Location / HealthcareService workbooks.
                 </span>
               )}
-            </Row>
+            </DescriptionRow>
           </dl>
 
           {canEdit ? (

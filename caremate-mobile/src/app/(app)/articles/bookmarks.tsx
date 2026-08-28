@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
-import { Box } from '@/components/ui/box';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { CompactArticleCard } from '@/domains/articles/components/ArticleCards';
@@ -38,7 +37,7 @@ export default function BookmarksScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => <CompactArticleCard article={item} />}
-          ItemSeparatorComponent={() => <Box className="h-3" />}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
     </Screen>
@@ -48,5 +47,8 @@ export default function BookmarksScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingBottom: spacing.xl,
+  },
+  separator: {
+    height: 12,
   },
 });

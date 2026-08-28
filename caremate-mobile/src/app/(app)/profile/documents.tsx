@@ -9,16 +9,23 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
-import { Button } from '@/components/ui/form-controls';
+import {
+  Button,
+  ChoiceChip,
+  FormActions,
+  FormField,
+  FormNotice,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
 
 import { PdfDocumentPreview } from '@/components/documents/PdfDocumentPreview';
 import { AppText } from '@/components/ui/AppText';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import {
@@ -28,7 +35,7 @@ import {
   type ProviderDocumentType,
 } from '@/domains/providers/documents-service';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 type DocumentPreview = {
   uri: string;
@@ -183,9 +190,9 @@ export default function ProviderDocumentsScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen>
         <AppText variant="body">{t('profile.documents.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -213,7 +220,7 @@ export default function ProviderDocumentsScreen() {
   const documents = query.data ?? [];
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
@@ -406,105 +413,90 @@ export default function ProviderDocumentsScreen() {
         <View style={styles.modalBackdrop}>
           <View style={[styles.modalCard, { paddingBottom: insets.bottom + spacing.md }]}>
             <AppText variant="sectionTitle">{t('profile.documents.uploadTitle')}</AppText>
-            <AppText variant="caption" style={styles.meta}>
-              {t('profile.documents.uploadHint')}
-            </AppText>
+            <FormStack>
+              <FormNotice>{t('profile.documents.uploadHint')}</FormNotice>
 
-            <AppText variant="caption" style={styles.fieldLabel}>
-              {t('profile.documents.titleField')}
-            </AppText>
-            <TextInput
-              style={styles.input}
-              value={title}
-              onChangeText={setTitle}
-              placeholder={t('profile.documents.titlePlaceholder')}
-              placeholderTextColor={textColors.placeholder}
-            />
+              <FormField label={t('profile.documents.titleField')}>
+                <Input
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder={t('profile.documents.titlePlaceholder')}
+                />
+              </FormField>
 
-            <AppText variant="caption" style={styles.fieldLabel}>
-              {t('profile.documents.typeField')}
-            </AppText>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.chipRow}
-            >
-              {PROVIDER_DOCUMENT_TYPES.map((type) => {
-                const active = type === documentType;
-                return (
+              <FormField label={t('profile.documents.typeField')}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.chipRow}
+                >
+                  {PROVIDER_DOCUMENT_TYPES.map((type) => (
+                    <ChoiceChip
+                      key={type}
+                      label={typeLabel(t, type)}
+                      selected={type === documentType}
+                      onPress={() => setDocumentType(type)}
+                    />
+                  ))}
+                </ScrollView>
+              </FormField>
+
+              <FormField
+                label={t('profile.documents.providerField')}
+                hint={t('profile.documents.providerOptionalHint')}
+              >
+                <ScrollView style={styles.orgList} nestedScrollEnabled>
                   <Button
-                    key={type}
-                    style={[styles.chip, active ? styles.chipActive : null]}
-                    onPress={() => setDocumentType(type)}
+                    style={[styles.orgRow, uploadOrgId === null ? styles.orgRowActive : null]}
+                    onPress={() => setUploadOrgId(null)}
                     variant="plain"
                   >
-                    <AppText
-                      variant="caption"
-                      style={[styles.chipLabel, active ? styles.chipLabelActive : null]}
-                    >
-                      {typeLabel(t, type)}
-                    </AppText>
+                    <AppText variant="body">{t('profile.documents.assignLater')}</AppText>
                   </Button>
-                );
-              })}
-            </ScrollView>
+                  {orgs.map((org) => (
+                    <Button
+                      key={org.organizationId}
+                      style={[
+                        styles.orgRow,
+                        uploadOrgId === org.organizationId ? styles.orgRowActive : null,
+                      ]}
+                      onPress={() => setUploadOrgId(org.organizationId)}
+                      variant="plain"
+                    >
+                      <AppText variant="body">{org.name}</AppText>
+                    </Button>
+                  ))}
+                  {orgs.length === 0 ? (
+                    <AppText variant="caption" style={styles.meta}>
+                      {t('profile.documents.noConnectionsHint')}
+                    </AppText>
+                  ) : null}
+                </ScrollView>
+              </FormField>
 
-            <AppText variant="caption" style={styles.fieldLabel}>
-              {t('profile.documents.providerField')}
-            </AppText>
-            <AppText variant="caption" style={styles.meta}>
-              {t('profile.documents.providerOptionalHint')}
-            </AppText>
-            <ScrollView style={styles.orgList} nestedScrollEnabled>
-              <Button
-                style={[styles.orgRow, uploadOrgId === null ? styles.orgRowActive : null]}
-                onPress={() => setUploadOrgId(null)}
-                variant="plain"
-              >
-                <AppText variant="body">{t('profile.documents.assignLater')}</AppText>
-              </Button>
-              {orgs.map((org) => (
+              <FormActions>
                 <Button
-                  key={org.organizationId}
-                  style={[
-                    styles.orgRow,
-                    uploadOrgId === org.organizationId ? styles.orgRowActive : null,
-                  ]}
-                  onPress={() => setUploadOrgId(org.organizationId)}
+                  style={styles.secondaryBtn}
+                  onPress={() => setUploadOpen(false)}
+                  disabled={uploadMutation.isPending}
                   variant="plain"
                 >
-                  <AppText variant="body">{org.name}</AppText>
+                  <AppText variant="button">{t('common.cancel')}</AppText>
                 </Button>
-              ))}
-              {orgs.length === 0 ? (
-                <AppText variant="caption" style={styles.meta}>
-                  {t('profile.documents.noConnectionsHint')}
-                </AppText>
-              ) : null}
-            </ScrollView>
-
-            <View style={styles.modalActions}>
-              <Button
-                style={styles.secondaryBtn}
-                onPress={() => setUploadOpen(false)}
-                disabled={uploadMutation.isPending}
-                variant="plain"
-              >
-                <AppText variant="button">{t('common.cancel')}</AppText>
-              </Button>
-              <Button
-                style={styles.primaryBtn}
-                loading={uploadMutation.isPending}
-                onPress={() => uploadMutation.mutate()}
-                variant="plain"
-              >
-                <AppText variant="button" style={styles.primaryBtnLabel}>
-                  {uploadMutation.isPending
-                    ? t('profile.documents.uploading')
-                    : t('profile.documents.chooseFile')}
-                </AppText>
-              </Button>
-            </View>
+                <Button
+                  style={styles.primaryBtn}
+                  loading={uploadMutation.isPending}
+                  onPress={() => uploadMutation.mutate()}
+                  variant="plain"
+                >
+                  <AppText variant="button" style={styles.primaryBtnLabel}>
+                    {uploadMutation.isPending
+                      ? t('profile.documents.uploading')
+                      : t('profile.documents.chooseFile')}
+                  </AppText>
+                </Button>
+              </FormActions>
+            </FormStack>
           </View>
         </View>
       </Modal>
@@ -561,24 +553,15 @@ export default function ProviderDocumentsScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
   uploadCta: {
     minHeight: 52,
@@ -659,45 +642,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     maxHeight: '88%',
   },
-  fieldLabel: {
-    marginTop: spacing.sm,
-    fontWeight: '600',
-    color: palette.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    fontSize: 11,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: palette.divider,
-    borderRadius: radius.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    color: palette.text,
-    fontSize: 15,
-  },
   chipRow: {
     gap: 8,
     paddingVertical: 4,
-  },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    backgroundColor: palette.surface,
-  },
-  chipActive: {
-    borderColor: palette.primary,
-    backgroundColor: palette.primaryLight,
-  },
-  chipLabel: {
-    color: palette.textSecondary,
-    fontWeight: '600',
-  },
-  chipLabelActive: {
-    color: palette.primary,
   },
   orgList: {
     maxHeight: 180,
@@ -713,11 +660,6 @@ const styles = StyleSheet.create({
   orgRowActive: {
     borderColor: palette.primary,
     backgroundColor: palette.primaryLight,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: spacing.sm,
   },
   primaryBtn: {
     flex: 1,

@@ -13,7 +13,9 @@ const MAIN_LINKS = [
   { to: '/articles', label: 'Articles' },
   { to: '/ccn', label: 'Community' },
   { to: '/providers', label: 'Providers' },
-  { to: '/pricing', label: 'Pricing' },
+  { to: '/providers/pricing', label: 'Provider plans' },
+  { to: '/payers/pricing', label: 'Payer plans' },
+  { to: '/pricing', label: 'App pricing' },
 ] as const;
 
 export function SiteHeader({ tone = 'hero' }: Props) {

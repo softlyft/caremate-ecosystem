@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Bell, FileText, MapPin, Settings, Shield, Trash2, Users } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,8 +10,8 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { CountrySelect } from '@/components/ui/CountrySelect';
-import { Button } from '@/components/ui/form-controls';
-import { LoadingState } from '@/components/ui/screen-states';
+import { Button, FormField, TextLink } from '@/components/ui/form-controls';
+import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
 import { localizationService, useTranslation } from '@/domains/localization';
@@ -95,19 +95,6 @@ export default function SettingsScreen() {
     }
   }
 
-  async function openLegalUrl(url: string) {
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (!supported) {
-        Alert.alert(t('settings.legal.openFailed'));
-        return;
-      }
-      await Linking.openURL(url);
-    } catch {
-      Alert.alert(t('settings.legal.openFailed'));
-    }
-  }
-
   function confirmDeleteAccount() {
     if (isGuest || deletingAccount) {
       return;
@@ -149,7 +136,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
@@ -239,34 +226,30 @@ export default function SettingsScreen() {
                   {t('settings.location.hint')}
                 </AppText>
 
-                <AppText variant="caption" style={styles.fieldLabel}>
-                  {t('settings.location.country')}
-                </AppText>
-                <CountrySelect
-                  value={countryCode}
-                  accent={ACCENT}
-                  soft={SOFT}
-                  placeholder={t('settings.location.selectPlaceholder')}
-                  searchPlaceholder={t('settings.location.searchPlaceholder')}
-                  searchEmptyLabel={t('settings.location.searchEmpty')}
-                  sheetTitle={t('settings.location.country')}
-                  closeAccessibilityLabel={t('common.close')}
-                  onChange={(code) => {
-                    if (!code) {
-                      return;
-                    }
-                    setCountryDraft(code);
-                    setLanguageDraft(localizationService.getDefaultLanguage(code));
-                    // State stays in schema but is not edited in UI yet.
-                    setStateDraft('');
-                  }}
-                />
+                <FormField label={t('settings.location.country')}>
+                  <CountrySelect
+                    value={countryCode}
+                    accent={ACCENT}
+                    soft={SOFT}
+                    placeholder={t('settings.location.selectPlaceholder')}
+                    searchPlaceholder={t('settings.location.searchPlaceholder')}
+                    searchEmptyLabel={t('settings.location.searchEmpty')}
+                    sheetTitle={t('settings.location.country')}
+                    closeAccessibilityLabel={t('common.close')}
+                    onChange={(code) => {
+                      if (!code) {
+                        return;
+                      }
+                      setCountryDraft(code);
+                      setLanguageDraft(localizationService.getDefaultLanguage(code));
+                      // State stays in schema but is not edited in UI yet.
+                      setStateDraft('');
+                    }}
+                  />
+                </FormField>
 
                 {countryCode ? (
-                  <>
-                    <AppText variant="caption" style={styles.fieldLabel}>
-                      {t('settings.location.language')}
-                    </AppText>
+                  <FormField label={t('settings.location.language')}>
                     <View style={styles.chipRow}>
                       {languages.map((item) => {
                         const selected = resolvedLanguage === item;
@@ -288,7 +271,7 @@ export default function SettingsScreen() {
                         );
                       })}
                     </View>
-                  </>
+                  </FormField>
                 ) : null}
 
                 {countryCode ? (
@@ -323,35 +306,27 @@ export default function SettingsScreen() {
         <AnimatedSection index={5}>
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={Shield} title={t('settings.legal.title')} />
-            <Button
-              style={styles.linkRow}
-              onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
-              variant="plain"
-            >
+            <View style={styles.legalRow}>
               <View style={styles.rowLeading}>
                 <View style={styles.rowIcon}>
                   <Shield color={ACCENT} size={16} strokeWidth={2.2} />
                 </View>
-                <AppText variant="body" style={styles.rowLabel}>
+                <TextLink external href={LEGAL_URLS.privacy}>
                   {t('settings.legal.privacy')}
-                </AppText>
+                </TextLink>
               </View>
-            </Button>
+            </View>
             <View style={styles.divider} />
-            <Button
-              style={styles.linkRow}
-              onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
-              variant="plain"
-            >
+            <View style={styles.legalRow}>
               <View style={styles.rowLeading}>
                 <View style={styles.rowIcon}>
                   <FileText color={ACCENT} size={16} strokeWidth={2.2} />
                 </View>
-                <AppText variant="body" style={styles.rowLabel}>
+                <TextLink external href={LEGAL_URLS.terms}>
                   {t('settings.legal.terms')}
-                </AppText>
+                </TextLink>
               </View>
-            </Button>
+            </View>
           </View>
         </AnimatedSection>
 
@@ -377,7 +352,7 @@ export default function SettingsScreen() {
           </AnimatedSection>
         ) : null}
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -419,10 +394,6 @@ function SettingRow({
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -551,10 +522,8 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     backgroundColor: palette.divider,
   },
-  fieldLabel: {
-    color: ACCENT,
-    fontFamily: fontFamily.semiBold,
-    marginTop: spacing.xs,
+  legalRow: {
+    paddingVertical: 4,
   },
   chipRow: {
     flexDirection: 'row',
@@ -582,9 +551,6 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: palette.textSecondary,
-  },
-  linkRow: {
-    paddingVertical: 4,
   },
   primaryCta: {
     flexDirection: 'row',

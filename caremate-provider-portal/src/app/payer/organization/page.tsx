@@ -5,6 +5,7 @@ import {
 } from '@/domains/payer/repository';
 import { canManageOrg } from '@/constants/roles';
 import { PayerOrgProfileForm } from '@/components/features/payer-org-profile-form';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -25,25 +26,27 @@ export default async function PayerOrganizationPage() {
       };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Organization</h1>
-          <p className="mt-1 text-sm text-muted">{data?.organization.name}</p>
-        </div>
-        <Badge
-          variant={
-            verification === 'verified'
-              ? 'success'
-              : verification === 'suspended'
-                ? 'danger'
-                : 'warning'
-          }
-        >
-          {verification}
-        </Badge>
-        <Badge variant="secondary">Payer</Badge>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Organization"
+        description={data?.organization.name}
+        actions={
+          <>
+            <Badge
+              variant={
+                verification === 'verified'
+                  ? 'success'
+                  : verification === 'suspended'
+                    ? 'danger'
+                    : 'warning'
+              }
+            >
+              {verification}
+            </Badge>
+            <Badge variant="secondary">Payer</Badge>
+          </>
+        }
+      />
 
       <Card>
         <CardHeader>
@@ -62,6 +65,6 @@ export default async function PayerOrganizationPage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

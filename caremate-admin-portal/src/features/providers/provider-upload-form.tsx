@@ -5,8 +5,8 @@ import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { getIngestJob, uploadProvidersFile } from '@/domains/providers/actions';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -104,40 +104,39 @@ export function ProviderUploadForm() {
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="resource">Resource</Label>
-            <Select id="resource" name="resource" defaultValue="organization" disabled={pending}>
-              {RESOURCES.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </Select>
-            <p className="text-xs text-muted">
-              {RESOURCES.map((r) => (
-                <span key={r.value} className="mr-3 inline-block">
-                  {r.hint}
-                </span>
-              ))}
-            </p>
-          </div>
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <FormField
+              label="Resource"
+              htmlFor="resource"
+              hint={RESOURCES.map((r) => r.hint).join(' ')}
+            >
+              <Select id="resource" name="resource" defaultValue="organization" disabled={pending}>
+                {RESOURCES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="file">File</Label>
-            <Input
-              id="file"
-              name="file"
-              type="file"
-              accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              required
-              disabled={pending}
-            />
-          </div>
+            <FormField label="File" htmlFor="file">
+              <Input
+                id="file"
+                name="file"
+                type="file"
+                accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                required
+                disabled={pending}
+              />
+            </FormField>
 
-          <Button type="submit" loading={pending} loadingLabel="Uploading…">
-            Upload and ingest
-          </Button>
+            <FormActions className="justify-start">
+              <Button type="submit" loading={pending} loadingLabel="Uploading…">
+                Upload and ingest
+              </Button>
+            </FormActions>
+          </FormStack>
         </form>
 
         {jobId ? (

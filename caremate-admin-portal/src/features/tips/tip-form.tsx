@@ -10,8 +10,8 @@ import { saveTip, deleteTip } from '@/domains/tips/actions';
 import { HEALTH_CATEGORIES } from '@/constants/categories';
 import type { HealthTip } from '@/types/database';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
@@ -91,64 +91,69 @@ export function TipForm({ tip, onDone }: { tip?: HealthTip; onDone?: () => void 
   return (
     <Card>
       <CardContent className="p-6">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="category_id">Category</Label>
-              <Select id="category_id" {...register('category_id')}>
-                {HEALTH_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sort_order">Sort order</Label>
-              <Input
-                id="sort_order"
-                type="number"
-                value={sortOrder}
-                onChange={(e) => setValue('sort_order', Number(e.target.value) || 0)}
-              />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="body">Tip body</Label>
-              <Textarea id="body" rows={3} {...register('body')} />
-              {errors.body && <p className="text-xs text-danger">{errors.body.message}</p>}
-            </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="h-4 w-4"
-                checked={isActive}
-                onChange={(e) => setValue('is_active', e.target.checked)}
-              />
-              Active
-            </label>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              type="submit"
-              disabled={pending}
-              loading={pendingAction === 'save'}
-              loadingLabel="Saving…"
-            >
-              Save
-            </Button>
-            {tip ? (
-              <Button
-                type="button"
-                variant="danger"
-                disabled={pending}
-                loading={pendingAction === 'delete'}
-                loadingLabel="Deleting…"
-                onClick={onDelete}
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="Category" htmlFor="category_id">
+                <Select id="category_id" {...register('category_id')}>
+                  {HEALTH_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Sort order" htmlFor="sort_order">
+                <Input
+                  id="sort_order"
+                  type="number"
+                  value={sortOrder}
+                  onChange={(e) => setValue('sort_order', Number(e.target.value) || 0)}
+                />
+              </FormField>
+              <FormField
+                label="Tip body"
+                htmlFor="body"
+                className="md:col-span-2"
+                error={errors.body?.message}
               >
-                Delete
+                <Textarea id="body" rows={3} {...register('body')} />
+              </FormField>
+              <FormField label="Active">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={isActive}
+                    onChange={(e) => setValue('is_active', e.target.checked)}
+                  />
+                  Show in app
+                </label>
+              </FormField>
+            </div>
+            <FormActions className="justify-start">
+              <Button
+                type="submit"
+                disabled={pending}
+                loading={pendingAction === 'save'}
+                loadingLabel="Saving…"
+              >
+                Save
               </Button>
-            ) : null}
-          </div>
+              {tip ? (
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={pending}
+                  loading={pendingAction === 'delete'}
+                  loadingLabel="Deleting…"
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+              ) : null}
+            </FormActions>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

@@ -16,7 +16,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, ChoiceChip, Input } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
@@ -209,68 +209,79 @@ export default function SetupEmergencyEssentialsScreen() {
             {t('setup.emergency.subtitle')}
           </AppText>
 
-          <AppText variant="caption" style={styles.fieldLabel}>
-            {t('emergency.fields.bloodGroup')}
-          </AppText>
-          <View style={styles.chipRow}>
-            {BLOOD_GROUPS.map((group) => (
-              <ChoiceChip
-                key={group}
-                label={group}
-                selected={bloodGroup === group}
-                onPress={() => setBloodGroup(group)}
-                accent={CHIP_ACCENT}
-                soft={CHIP_SOFT}
-                disabled={busy}
-              />
-            ))}
-          </View>
+          <FormStack>
+            <FormField label={t('emergency.fields.bloodGroup')}>
+              <View style={styles.chipRow}>
+                {BLOOD_GROUPS.map((group) => (
+                  <ChoiceChip
+                    key={group}
+                    label={group}
+                    selected={bloodGroup === group}
+                    onPress={() => setBloodGroup(group)}
+                    accent={CHIP_ACCENT}
+                    soft={CHIP_SOFT}
+                    disabled={busy}
+                  />
+                ))}
+              </View>
+            </FormField>
 
-          <AppText variant="caption" style={styles.fieldLabel}>
-            {t('emergency.fields.genotype')}
-          </AppText>
-          <View style={styles.chipRow}>
-            {GENOTYPES.map((item) => (
-              <ChoiceChip
-                key={item}
-                label={item}
-                selected={genotype === item}
-                onPress={() => setGenotype(item)}
-                accent={CHIP_ACCENT}
-                soft={CHIP_SOFT}
-                disabled={busy}
-              />
-            ))}
-          </View>
+            <FormField label={t('emergency.fields.genotype')}>
+              <View style={styles.chipRow}>
+                {GENOTYPES.map((item) => (
+                  <ChoiceChip
+                    key={item}
+                    label={item}
+                    selected={genotype === item}
+                    onPress={() => setGenotype(item)}
+                    accent={CHIP_ACCENT}
+                    soft={CHIP_SOFT}
+                    disabled={busy}
+                  />
+                ))}
+              </View>
+            </FormField>
 
-          <Input
-            placeholder={t('emergency.fields.allergies')}
-            value={allergies}
-            onChangeText={setAllergies}
-          />
-          <Input
-            placeholder={t('emergency.edit.contactName')}
-            value={iceName}
-            onChangeText={(value) => setIceName(sanitizePersonNameInput(value))}
-            autoCapitalize="words"
-            autoCorrect={false}
-            maxLength={PERSON_NAME_MAX_CHARS}
-          />
-          <Input
-            placeholder={t('emergency.edit.relationship')}
-            value={iceRelationship}
-            onChangeText={setIceRelationship}
-            autoCapitalize="words"
-          />
-          <Input
-            placeholder={t('emergency.edit.contactPhone')}
-            value={icePhone}
-            onChangeText={(value) => setIcePhone(sanitizePhoneInput(value))}
-            keyboardType="phone-pad"
-            textContentType="telephoneNumber"
-            autoComplete="tel"
-            maxLength={ICE_PHONE_MAX_CHARS}
-          />
+            <FormField label={t('emergency.fields.allergies')}>
+              <Input
+                placeholder={t('emergency.fields.allergies')}
+                value={allergies}
+                onChangeText={setAllergies}
+              />
+            </FormField>
+
+            <FormField label={t('emergency.edit.contactName')}>
+              <Input
+                placeholder={t('emergency.edit.contactName')}
+                value={iceName}
+                onChangeText={(value) => setIceName(sanitizePersonNameInput(value))}
+                autoCapitalize="words"
+                autoCorrect={false}
+                maxLength={PERSON_NAME_MAX_CHARS}
+              />
+            </FormField>
+
+            <FormField label={t('emergency.edit.relationship')}>
+              <Input
+                placeholder={t('emergency.edit.relationship')}
+                value={iceRelationship}
+                onChangeText={setIceRelationship}
+                autoCapitalize="words"
+              />
+            </FormField>
+
+            <FormField label={t('emergency.edit.contactPhone')}>
+              <Input
+                placeholder={t('emergency.edit.contactPhone')}
+                value={icePhone}
+                onChangeText={(value) => setIcePhone(sanitizePhoneInput(value))}
+                keyboardType="phone-pad"
+                textContentType="telephoneNumber"
+                autoComplete="tel"
+                maxLength={ICE_PHONE_MAX_CHARS}
+              />
+            </FormField>
+          </FormStack>
         </ScrollView>
 
         <View style={styles.footer}>
@@ -321,11 +332,6 @@ const styles = StyleSheet.create({
   subtitle: {
     color: palette.textSecondary,
     marginBottom: spacing.sm,
-  },
-  fieldLabel: {
-    color: palette.brandPurple,
-    fontFamily: fontFamily.semiBold,
-    marginTop: spacing.xs,
   },
   chipRow: {
     flexDirection: 'row',

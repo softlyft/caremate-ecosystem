@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
-import { LoadingState } from '@/components/ui/screen-states';
+import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';
 import { useTranslation } from '@/domains/localization';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -32,7 +32,7 @@ export default function EmergencyLockScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -68,15 +68,11 @@ export default function EmergencyLockScreen() {
           onPress={() => router.replace('/(app)/(tabs)/profile')}
         />
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     gap: spacing.md,

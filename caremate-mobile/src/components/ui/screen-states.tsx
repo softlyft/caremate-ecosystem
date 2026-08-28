@@ -1,13 +1,10 @@
-import { PropsWithChildren } from 'react';
-import { StyleSheet, View } from 'react-native';
+import type { PropsWithChildren, ReactNode } from 'react';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { BrandLoader } from '@/components/ui/BrandLoader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
-import { Card } from '@/components/ui/card';
-import { Center } from '@/components/ui/center';
-import { Box } from '@/components/ui/box';
-import { palette } from '@/theme';
+import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 interface ScreenStateProps {
   title: string;
@@ -31,58 +28,122 @@ export function LoadingState({ title }: { title?: string }) {
 
 export function EmptyState({ title, message, actionLabel, onAction }: ScreenStateProps) {
   return (
-    <Center className="flex-1 p-6 gap-3">
-      <AppText variant="cardTitle" style={{ textAlign: 'center' }}>
+    <View style={styles.state}>
+      <AppText variant="cardTitle" style={styles.stateTitle}>
         {title}
       </AppText>
       {message ? (
-        <AppText variant="quickActionSubtitle" style={{ textAlign: 'center' }}>
+        <AppText variant="quickActionSubtitle" style={styles.stateMessage}>
           {message}
         </AppText>
       ) : null}
       {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} /> : null}
-    </Center>
+    </View>
   );
 }
 
 export function ErrorState({ title, message, actionLabel, onAction }: ScreenStateProps) {
   return (
-    <Center className="flex-1 p-6 gap-3">
-      <AppText variant="cardTitle" color="brand" style={{ textAlign: 'center', color: '#EF4444' }}>
+    <View style={styles.state}>
+      <AppText variant="cardTitle" style={styles.errorTitle}>
         {title}
       </AppText>
       {message ? (
-        <AppText variant="quickActionSubtitle" style={{ textAlign: 'center' }}>
+        <AppText variant="quickActionSubtitle" style={styles.stateMessage}>
           {message}
         </AppText>
       ) : null}
       {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} /> : null}
-    </Center>
+    </View>
   );
 }
 
-export function Screen({ children }: PropsWithChildren) {
-  return <Box className="flex-1 bg-background p-4 gap-4">{children}</Box>;
+export function Screen({
+  children,
+  padded = true,
+  tone = 'surface',
+  style,
+}: PropsWithChildren<{
+  padded?: boolean;
+  tone?: 'background' | 'surface';
+  style?: StyleProp<ViewStyle>;
+}>) {
+  return (
+    <View
+      style={[
+        styles.screen,
+        tone === 'background' ? styles.toneBackground : styles.toneSurface,
+        padded && styles.padded,
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
 }
 
-export function StateCard({ children }: PropsWithChildren) {
-  return <Card className="rounded-2xl border-border bg-card p-4 gap-2">{children}</Card>;
+export function StateCard({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return <View style={[styles.stateCard, style]}>{children}</View>;
 }
-
-export { StateCard as Card };
 
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
-    padding: 24,
+    gap: spacing.md,
+    padding: spacing.lg,
     backgroundColor: palette.surface,
   },
   loadingTitle: {
     textAlign: 'center',
     color: palette.textSecondary,
     maxWidth: 260,
+  },
+  state: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  stateTitle: {
+    textAlign: 'center',
+  },
+  stateMessage: {
+    textAlign: 'center',
+    color: palette.textSecondary,
+  },
+  errorTitle: {
+    textAlign: 'center',
+    color: palette.danger,
+  },
+  screen: {
+    flex: 1,
+  },
+  toneBackground: {
+    backgroundColor: palette.background,
+  },
+  toneSurface: {
+    backgroundColor: palette.surface,
+  },
+  padded: {
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingVertical: spacing.md,
+    gap: spacing.md,
+  },
+  stateCard: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    padding: spacing.md,
+    gap: spacing.sm,
   },
 });

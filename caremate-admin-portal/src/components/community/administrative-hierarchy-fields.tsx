@@ -7,8 +7,8 @@ import {
   optionsForAdministrativeLevel,
   sortedAdministrativeLevels,
 } from '@/lib/community-geography';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 
 type Props = {
@@ -42,7 +42,6 @@ export function AdministrativeHierarchyFields({
   const [customByKey, setCustomByKey] = useState<Record<string, string>>({});
   const [prevCountryCode, setPrevCountryCode] = useState(country?.code);
 
-  // Reset draft custom values when the country changes (parent also clears hierarchy).
   if (country?.code !== prevCountryCode) {
     setPrevCountryCode(country?.code);
     setCustomByKey({});
@@ -64,10 +63,17 @@ export function AdministrativeHierarchyFields({
               : '';
 
         return (
-          <div key={level.key} className="space-y-2 sm:col-span-2">
-            <Label htmlFor={`${idPrefix}_${level.key}`}>
-              {level.label} <span className="font-normal text-muted">(optional)</span>
-            </Label>
+          <FormField
+            key={level.key}
+            label={`${level.label} (optional)`}
+            htmlFor={`${idPrefix}_${level.key}`}
+            className="sm:col-span-2"
+            hint={
+              !parentMissing && options.length === 0
+                ? 'No fixed options yet for this level — choose Other to type a value.'
+                : undefined
+            }
+          >
             <Select
               id={`${idPrefix}_${level.key}`}
               disabled={parentMissing}
@@ -146,12 +152,7 @@ export function AdministrativeHierarchyFields({
                 }}
               />
             ) : null}
-            {!parentMissing && options.length === 0 ? (
-              <p className="text-xs text-muted">
-                No fixed options yet for this level — choose Other to type a value.
-              </p>
-            ) : null}
-          </div>
+          </FormField>
         );
       })}
     </>

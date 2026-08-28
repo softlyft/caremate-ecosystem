@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { requireModule } from '@/domains/modules/guard';
@@ -9,8 +8,10 @@ import {
   SaveLabResultForm,
 } from '@/components/features/lab-order-actions';
 import { canWriteOrg } from '@/constants/roles';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 
 const STATUS_VARIANT: Record<string, 'default' | 'warning' | 'success' | 'danger' | 'secondary'> = {
   ordered: 'warning',
@@ -40,25 +41,22 @@ export default async function LabOrderDetailPage({
       order.status === 'awaiting_validation' ||
       order.status === 'sample_collected');
 
+  const orderedLabel = `Ordered ${format(new Date(order.ordered_at), 'dd MMM yyyy HH:mm')}${
+    order.profile?.patient_id ? ` · ${order.profile.patient_id}` : ''
+  }`;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href="/app/lab" className="text-sm text-primary hover:underline">
-          ← Laboratory
-        </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">
-            {order.profile?.full_name ?? 'Patient'} — order
-          </h1>
+    <PageShell>
+      <TextLink href="/app/lab">← Laboratory</TextLink>
+      <PageHeader
+        title={`${order.profile?.full_name ?? 'Patient'} — order`}
+        description={orderedLabel}
+        actions={
           <Badge variant={STATUS_VARIANT[order.status] ?? 'secondary'}>
             {order.status.replace(/_/g, ' ')}
           </Badge>
-        </div>
-        <p className="mt-1 text-sm text-muted">
-          Ordered {format(new Date(order.ordered_at), 'dd MMM yyyy HH:mm')}
-          {order.profile?.patient_id ? ` · ${order.profile.patient_id}` : ''}
-        </p>
-      </div>
+        }
+      />
 
       {order.clinical_notes ? (
         <Card>
@@ -160,6 +158,6 @@ export default async function LabOrderDetailPage({
           ))}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

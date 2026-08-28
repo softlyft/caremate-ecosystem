@@ -6,7 +6,15 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import {
+  Button,
+  ChoiceChip,
+  FormActions,
+  FormField,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { createChildProfileSchema, FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
@@ -105,128 +113,129 @@ export default function FamilyChildFormScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="sectionTitle">
-        {t('family.child.titleOf', { current: index + 1, total: childCount })}
-      </AppText>
-      <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
+    <Screen padded={false} tone="background">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <AppText variant="sectionTitle">
+          {t('family.child.titleOf', { current: index + 1, total: childCount })}
+        </AppText>
+        <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
 
-      <View style={styles.card}>
-        <Controller
-          control={control}
-          name="fullName"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder={t('family.child.name')}
-              autoCapitalize="words"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
+        <View style={styles.card}>
+          <FormStack>
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormField
+                  label={t('family.child.name')}
+                  error={formState.errors.fullName?.message}
+                >
+                  <Input
+                    placeholder={t('family.child.name')}
+                    autoCapitalize="words"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                </FormField>
+              )}
             />
-          )}
-        />
 
-        <View style={styles.dobField}>
-          <AppText variant="body">{t('family.child.dob')}</AppText>
-          <AppText variant="caption" style={styles.muted}>
-            {t('family.child.dobHint')}
-          </AppText>
-          <MonthCalendarNavigator
-            accentColor={palette.primary}
-            monthRef={dobMonthRef}
-            onMonthChange={setDobMonthRef}
-            maximumYear={currentYear}
-          />
-          <MonthCalendarGrid
-            monthRef={dobMonthRef}
-            interactive
-            accentColor={palette.primary}
-            onDayPress={(dayKey) => {
-              if (dayKey > todayKey) return;
-              setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
-            }}
-            getDayState={(dayKey) => ({
-              selected: dayKey === dateOfBirth,
-              today: dayKey === todayKey,
-              disabled: dayKey > todayKey,
-            })}
-          />
-          {dateOfBirth ? (
-            <View style={styles.dobSelectedRow}>
-              <AppText variant="body">
-                {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
-              </AppText>
+            <FormField
+              label={t('family.child.dob')}
+              hint={t('family.child.dobHint')}
+              error={formState.errors.dateOfBirth?.message}
+            >
+              <MonthCalendarNavigator
+                accentColor={palette.primary}
+                monthRef={dobMonthRef}
+                onMonthChange={setDobMonthRef}
+                maximumYear={currentYear}
+              />
+              <MonthCalendarGrid
+                monthRef={dobMonthRef}
+                interactive
+                accentColor={palette.primary}
+                onDayPress={(dayKey) => {
+                  if (dayKey > todayKey) return;
+                  setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
+                }}
+                getDayState={(dayKey) => ({
+                  selected: dayKey === dateOfBirth,
+                  today: dayKey === todayKey,
+                  disabled: dayKey > todayKey,
+                })}
+              />
+              {dateOfBirth ? (
+                <View style={styles.dobSelectedRow}>
+                  <AppText variant="body">
+                    {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
+                  </AppText>
+                  <Button
+                    accessibilityRole="button"
+                    onPress={() =>
+                      setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })
+                    }
+                    hitSlop={8}
+                    variant="plain"
+                  >
+                    <AppText variant="caption" color="brand">
+                      {t('common.clear')}
+                    </AppText>
+                  </Button>
+                </View>
+              ) : null}
+            </FormField>
+
+            <FormField label={t('family.child.gender')} error={formState.errors.gender?.message}>
+              <View style={styles.chipRow}>
+                {FAMILY_GENDERS.map((g) => (
+                  <ChoiceChip
+                    key={g.value}
+                    label={g.label}
+                    selected={gender === g.value}
+                    onPress={() => setValue('gender', g.value, { shouldValidate: true })}
+                  />
+                ))}
+              </View>
+            </FormField>
+
+            <Controller
+              control={control}
+              name="notes"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormField>
+                  <Input
+                    placeholder={t('family.child.notesPlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                </FormField>
+              )}
+            />
+
+            <FormActions>
               <Button
-                accessibilityRole="button"
-                onPress={() =>
-                  setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })
+                label={
+                  index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')
                 }
-                hitSlop={8}
-                variant="plain"
-              >
-                <AppText variant="caption" color="brand">
-                  {t('common.clear')}
-                </AppText>
-              </Button>
-            </View>
-          ) : null}
+                onPress={handleSubmit(onSubmit)}
+              />
+            </FormActions>
+          </FormStack>
         </View>
-
-        <AppText variant="body">{t('family.child.gender')}</AppText>
-        <View style={styles.chipRow}>
-          {FAMILY_GENDERS.map((g) => {
-            const selected = gender === g.value;
-            return (
-              <Button
-                key={g.value}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setValue('gender', g.value, { shouldValidate: true })}
-                variant="plain"
-              >
-                <AppText variant="caption" style={selected ? styles.chipTextSelected : undefined}>
-                  {g.label}
-                </AppText>
-              </Button>
-            );
-          })}
-        </View>
-
-        <Controller
-          control={control}
-          name="notes"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder={t('family.child.notesPlaceholder')}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-
-        {formState.errors.fullName || formState.errors.dateOfBirth || formState.errors.gender ? (
-          <AppText variant="formError" color={palette.danger}>
-            {formState.errors.fullName?.message ??
-              formState.errors.dateOfBirth?.message ??
-              formState.errors.gender?.message}
-          </AppText>
-        ) : null}
-
-        <Button
-          label={index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.background },
+  flex: { flex: 1 },
   content: {
     padding: layoutSpacing.screenHorizontal,
     gap: spacing.md,
@@ -237,13 +246,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.divider,
     padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
-  },
-  dobField: {
-    gap: spacing.sm,
-  },
-  muted: {
-    color: palette.textSecondary,
   },
   dobSelectedRow: {
     flexDirection: 'row',
@@ -255,20 +257,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.background,
-  },
-  chipSelected: {
-    backgroundColor: palette.primaryLight,
-    borderColor: palette.primary,
-  },
-  chipTextSelected: {
-    color: palette.primaryDark,
   },
 });

@@ -12,7 +12,7 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { learnArticleHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import { ARTICLE_THUMBNAILS, getHealthCategory } from '@/domains/articles/categories';
@@ -24,7 +24,7 @@ import { articleRepository } from '@/domains/articles/repository';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { useTranslation } from '@/domains/localization';
 import { AdSlot } from '@/features/ads/AdSlot';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 
 function getCategoryMeta(categoryId: string) {
   const match = getHealthCategory(categoryId);
@@ -92,7 +92,7 @@ export default function ArticleDetailScreen() {
   const fallbackColor = ARTICLE_THUMBNAILS[article.id] ?? category.color;
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
@@ -225,15 +225,11 @@ export default function ArticleDetailScreen() {
           </AnimatedSection>
         ) : null}
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -244,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xxl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.12)',
+    borderColor: primaryAlpha(0.12),
     height: 220,
   },
   heroImage: {

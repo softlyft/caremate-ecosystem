@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireProviderSession } from '@/lib/auth';
 import { canManageOrg } from '@/constants/roles';
@@ -9,7 +8,9 @@ import {
 } from '@/domains/catalog/repository';
 import { HealthcareServiceForm } from '@/components/features/healthcare-service-form';
 import { SoftDeleteServiceButton } from '@/components/features/catalog-delete-buttons';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import type { ProviderOrgType } from '@/types/database';
 
 export default async function EditServicePage({
@@ -27,19 +28,10 @@ export default async function EditServicePage({
   if (!service || service.location_id !== locationId) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <Link
-          href={`/app/organization/locations/${locationId}`}
-          className="text-sm text-primary hover:underline"
-        >
-          ← {location.name}
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-brand-navy">
-          {service.name}
-        </h1>
-        <p className="mt-1 font-mono text-xs text-muted">{service.id}</p>
-      </div>
+    <PageShell className="mx-auto max-w-2xl">
+      <TextLink href={`/app/organization/locations/${locationId}`}>← {location.name}</TextLink>
+      <PageHeader title={service.name} />
+      <p className="-mt-4 font-mono text-xs text-muted">{service.id}</p>
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
@@ -73,6 +65,6 @@ export default async function EditServicePage({
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

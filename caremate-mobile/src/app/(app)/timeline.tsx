@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { healthTimelineRepository } from '@/domains/timeline/repository';
@@ -89,9 +89,9 @@ export default function HealthTimelineScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen>
         <HealthTimelineEmptyRail message={t('home.timeline.guestBody')} />
-      </View>
+      </Screen>
     );
   }
 
@@ -102,7 +102,7 @@ export default function HealthTimelineScreen() {
   const events = query.data ?? [];
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <View style={styles.filters}>
         <View style={styles.dateRow}>
           <TimelineDatePicker
@@ -191,15 +191,11 @@ export default function HealthTimelineScreen() {
           )}
         </ScrollView>
       )}
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   filters: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -246,10 +242,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
 });

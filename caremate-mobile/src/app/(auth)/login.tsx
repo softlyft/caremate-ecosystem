@@ -1,13 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  Input,
+  PasswordInput,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
@@ -88,56 +95,46 @@ export default function LoginScreen() {
       <AuthBrandHeader>
         <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
       </AuthBrandHeader>
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              keyboardType="email-address"
-              placeholder={t('auth.login.emailPlaceholder')}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {formState.errors.email ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.email.message}
-          </AppText>
-        ) : null}
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <PasswordInput
-              placeholder={t('auth.login.passwordPlaceholder')}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {formState.errors.password ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.password.message}
-          </AppText>
-        ) : null}
-        <Link href="/(auth)/forgot-password">
-          <AppText variant="seeAll">{t('auth.login.forgot')}</AppText>
-        </Link>
+      <FormStack style={styles.form}>
+        <FormField error={formState.errors.email?.message}>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholder={t('auth.login.emailPlaceholder')}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+        </FormField>
+        <FormField error={formState.errors.password?.message}>
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <PasswordInput
+                placeholder={t('auth.login.passwordPlaceholder')}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+        </FormField>
+        <TextLink href="/(auth)/forgot-password">{t('auth.login.forgot')}</TextLink>
         <Button
           label={isLoading ? t('common.loading') : t('auth.login.submit')}
           disabled={isLoading}
           onPress={handleSubmit(onSubmit)}
         />
-        <Link href="/(auth)/register">
-          <AppText variant="seeAll">
-            {t('auth.login.noAccount')} {t('auth.login.register')}
-          </AppText>
-        </Link>
+        <TextLink href="/(auth)/register">
+          {t('auth.login.noAccount')} {t('auth.login.register')}
+        </TextLink>
         <Button
           label={t('auth.login.continueGuest')}
           variant="ghost"
@@ -147,7 +144,7 @@ export default function LoginScreen() {
             });
           }}
         />
-      </View>
+      </FormStack>
     </SafeAreaView>
   );
 }
@@ -159,6 +156,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

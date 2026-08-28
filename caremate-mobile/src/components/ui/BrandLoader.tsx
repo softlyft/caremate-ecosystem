@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { images } from '@/constants/assets';
-import { palette, radius } from '@/theme';
+import { palette, primaryAlpha, radius } from '@/theme';
 
 type BrandLoaderSize = 'sm' | 'md' | 'lg';
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderWidth: 2.5,
     borderColor: palette.primary,
     borderTopColor: 'transparent',
-    borderLeftColor: primarySoftBorder(),
+    borderLeftColor: primaryAlpha(0.25),
     borderRightColor: 'transparent',
   },
   iconWrap: {
@@ -111,7 +111,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-function primarySoftBorder() {
-  return 'rgba(13, 148, 136, 0.25)';
-}

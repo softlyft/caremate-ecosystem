@@ -1,6 +1,6 @@
 # CareMate Care Portal Docs
 
-**Care Portal** for providers and payers. Provider workspace is a patient **engagement** channel — not an HMS, LIMS, pharmacy system, or EHR. Payer workspace lives under `/payer/*` (org profile + provider connections).
+**Care Portal** for providers and payers. Provider workspace is a patient **engagement** channel — not an HMS, LIMS, pharmacy system, or EHR. Payer workspace lives under `/payer/*` (org profile, provider/patient connections, documents, messages).
 
 Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Provider catalog identity reuses `provider_organizations`; portal-facing fields live in `provider_profiles`. Payers use parallel `payer_*` tables.
 
@@ -12,6 +12,7 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Prov
 | Claim, login, RBAC | [Auth & claim](./auth-claim.md) |
 | Bidirectional connections, verification gate | [Connections](./connections.md) |
 | Org ↔ patient Messages + DMs | [Messaging](./messaging.md) |
+| Private Care Team plans (Paystack) | [Provider plans](./provider-plans.md) |
 | Tables, migrations, RPCs | [Data model](./data-model.md) |
 | Capability modules, Lab, appointments | [Modules](./modules.md) |
 | Strategy vs shipped gaps | [Provider strategy gaps](./provider-strategy-gaps.md) |
@@ -24,16 +25,18 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Prov
 
 - Patient ↔ provider **connections** (CRM contact — no clinical data sharing yet)
 - Provider ↔ payer **connections** (claim-email request; both orgs must be verified; portal inbox only)
+- Patient ↔ payer **connections** (mobile Health Insurance Directory + CareMate ID from payer portal; verified payers only for patient Connect; disconnect either side)
 - Request connection by CareMate Patient ID; approve / reject with reason
 - **Messages** to connected patients (compose + two-way threads; push via `notify-message`)
 - Mark connected CareMate users as organization **staff** (optional company contact fields)
-- Secure document upload to a patient (patients view under Me → Documents in the app)
+- **Private Care Team** seats (plan-gated) so designated staff can DM patients; org Messages stay free
+- Secure document upload to a patient (patients view under Me → Documents; **in-app + push** via `notify-provider-document`)
 - Patients can also upload their own files and link an org later when connected
 - Appointment **scheduling** in portal (availability, staff schedule, request queue, check-in)
 - Optional **Laboratory** module (activate in Settings)
 - Org profile + claim-time verification badge
 
-Direct (person-to-person) chat is available in the **CareMate mobile app** for users linked to the same org when at least one is staff — see [Messaging](./messaging.md).
+Direct (person-to-person) chat in the **CareMate mobile app** requires the staff peer to be on the org **Private Care Team** (not merely marked as staff). See [Messaging](./messaging.md) and [Provider plans](./provider-plans.md).
 
 ## Out of scope
 

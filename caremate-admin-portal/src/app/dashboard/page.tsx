@@ -1,9 +1,10 @@
-import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { BookOpen, Lightbulb, MapPin, Users } from 'lucide-react';
 import { getOverviewMetrics } from '@/domains/dashboard/repository';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { NavCard } from '@/components/ui/nav-card';
+import { TextLink } from '@/components/ui/text-link';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -68,19 +69,17 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map(({ label, value, icon: Icon, href, tint }) => (
-          <Link key={label} href={href} className="group">
-            <Card className="transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted">{label}</CardTitle>
-                <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tint}`}>
-                  <Icon className="h-4 w-4" />
-                </span>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-semibold tracking-tight text-brand-navy">{value}</p>
-              </CardContent>
-            </Card>
-          </Link>
+          <NavCard key={label} href={href}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted">{label}</CardTitle>
+              <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tint}`}>
+                <Icon className="h-4 w-4" />
+              </span>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-semibold tracking-tight text-brand-navy">{value}</p>
+            </CardContent>
+          </NavCard>
         ))}
       </div>
 
@@ -104,12 +103,9 @@ export default async function DashboardPage() {
                 {metrics.recentUsers.map((u) => (
                   <TableRow key={u.id}>
                     <TableCell>
-                      <Link
-                        href={`/dashboard/users/${u.id}`}
-                        className="font-medium text-primary-dark hover:underline"
-                      >
+                      <TextLink href={`/dashboard/users/${u.id}`} className="font-medium text-primary-dark">
                         {u.email}
-                      </Link>
+                      </TextLink>
                     </TableCell>
                     <TableCell>
                       {u.role ? <Badge>{u.role}</Badge> : <span className="text-muted">—</span>}

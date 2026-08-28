@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
-import { LoadingState } from '@/components/ui/screen-states';
+import { LoadingState, Screen } from '@/components/ui/screen-states';
 import {
   fetchEmergencyByShareToken,
   isEmergencyShareAccessError,
@@ -59,7 +59,7 @@ export default function EmergencyShareScreen() {
 
   if (!token) {
     return (
-      <View style={[styles.screen, styles.centered]}>
+      <Screen style={styles.centered}>
         <AppText variant="cardTitle">{t('emergency.share.invalidTitle')}</AppText>
         <AppText variant="subtitle" style={styles.muted}>
           {t('emergency.share.invalidMessage')}
@@ -69,7 +69,7 @@ export default function EmergencyShareScreen() {
             {t('common.goBack')}
           </AppText>
         </Button>
-      </View>
+      </Screen>
     );
   }
 
@@ -84,12 +84,10 @@ export default function EmergencyShareScreen() {
   if (query.isError) {
     const practitionerBlocked = isEmergencyShareAccessError(query.error)
       ? query.error.code === 'practitioner_required'
-      : /health practitioner/i.test(
-          query.error instanceof Error ? query.error.message : '',
-        );
+      : /health practitioner/i.test(query.error instanceof Error ? query.error.message : '');
 
     return (
-      <View style={[styles.screen, styles.centered]}>
+      <Screen style={styles.centered}>
         <AppText variant="cardTitle">
           {practitionerBlocked
             ? t('emergency.share.practitionerRequiredTitle')
@@ -128,14 +126,14 @@ export default function EmergencyShareScreen() {
             {t('common.goBack')}
           </AppText>
         </Button>
-      </View>
+      </Screen>
     );
   }
 
   const payload = query.data;
   if (!payload) {
     return (
-      <View style={[styles.screen, styles.centered]}>
+      <Screen style={styles.centered}>
         <AppText variant="cardTitle">{t('emergency.share.notFoundTitle')}</AppText>
         <AppText variant="subtitle" style={styles.muted}>
           {t('emergency.share.notFoundMessage')}
@@ -145,7 +143,7 @@ export default function EmergencyShareScreen() {
             {t('common.goBack')}
           </AppText>
         </Button>
-      </View>
+      </Screen>
     );
   }
 
@@ -154,7 +152,7 @@ export default function EmergencyShareScreen() {
     items.length ? items.join(', ') : t('emergency.share.noneListed');
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -267,15 +265,11 @@ export default function EmergencyShareScreen() {
           </AppText>
         </Button>
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   centered: {
     alignItems: 'center',
     justifyContent: 'center',

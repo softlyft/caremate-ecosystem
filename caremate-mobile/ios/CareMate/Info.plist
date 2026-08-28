@@ -70,9 +70,7 @@
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
 	</array>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>This identifier will be used to deliver personalized ads to you.</string>
-	<key>RCTMetroPort</key>
-	<string>$(RCT_METRO_PORT)</string>
+	<string>This identifier may be used to measure ad performance and keep ads relevant. CareMate requests non-personalized ads.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>

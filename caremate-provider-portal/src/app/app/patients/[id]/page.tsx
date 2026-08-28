@@ -4,8 +4,10 @@ import { requireProviderSession } from '@/lib/auth';
 import { canManageOrg, canWriteOrg } from '@/constants/roles';
 import { getPatientDetail } from '@/domains/patients/repository';
 import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
-import { MarkAsStaffForm } from '@/components/features/mark-as-staff-form';
-import { ConnectionActions } from '@/components/features/connection-actions';
+import { PatientDetailHeader } from '@/components/features/patient-detail-header';
+import { PatientStaffAndSeatSection } from '@/components/features/patient-staff-and-seat-section';
+import { DetailRow } from '@/components/ui/detail-row';
+import { getProviderOrgPlanUsage } from '@/domains/billing/repository';
 import { OpenDocumentButton } from '@/components/features/open-document-button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +38,8 @@ export default async function PatientDetailPage({
   const detail = await getPatientDetail(session.activeOrganizationId, id);
   if (!detail) notFound();
 
+  const usage = await getProviderOrgPlanUsage(session.activeOrganizationId);
+
   const { profile, connection, emergency, documents, activities, gender, membership, healthTimelineConsent, healthTimelineEvents } =
     detail;
   const contacts = emergency?.emergency_contacts;
@@ -44,23 +48,14 @@ export default async function PatientDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">
-              {profile?.full_name ?? 'Patient'}
-            </h1>
-            {membership ? <Badge variant="default">Staff</Badge> : null}
-          </div>
-          <p className="mt-1 text-sm text-muted">
-            CareMate ID: {profile?.patient_id ?? '—'} · Connected{' '}
-            {connection.approved_at
-              ? format(new Date(connection.approved_at), 'MMM d, yyyy')
-              : '—'}
-          </p>
-        </div>
-        {canWrite ? <ConnectionActions connectionId={connection.id} mode="approved" /> : null}
-      </div>
+      <PatientDetailHeader
+        fullName={profile?.full_name ?? 'Patient'}
+        staffBadge={Boolean(membership)}
+        patientId={profile?.patient_id ?? null}
+        connectedAt={connection.approved_at}
+        connectionId={connection.id}
+        canWrite={canWrite}
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -69,10 +64,10 @@ export default async function PatientDetailPage({
             <CardDescription>Shared profile fields</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Row label="Name" value={profile?.full_name ?? '—'} />
-            <Row label="Photo" value={profile?.avatar_url ? 'Available' : '—'} />
-            <Row label="Gender" value={gender} />
-            <Row
+            <DetailRow label="Name" value={profile?.full_name ?? '—'} />
+            <DetailRow label="Photo" value={profile?.avatar_url ? 'Available' : '—'} />
+            <DetailRow label="Gender" value={gender} />
+            <DetailRow
               label="DOB"
               value={
                 profile?.date_of_birth
@@ -80,26 +75,22 @@ export default async function PatientDetailPage({
                   : '—'
               }
             />
-            <Row label="Phone" value={profile?.phone ?? '—'} />
+            <DetailRow label="Phone" value={profile?.phone ?? '—'} />
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Organization staff</CardTitle>
-            <CardDescription>
-              Elevate a connected CareMate user to staff for this organization
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <MarkAsStaffForm
-              patientUserId={connection.patient_id}
-              defaultDisplayName={profile?.full_name ?? ''}
-              membership={membership}
-              canManage={canManage}
-            />
-          </CardContent>
-        </Card>
+        <PatientStaffAndSeatSection
+          patientUserId={connection.patient_id}
+          defaultDisplayName={profile?.full_name ?? ''}
+          membership={membership}
+          canManage={canManage}
+          staffDescription="Elevate a connected CareMate user to staff for this organization"
+          teamName="Private Care Team"
+          teamDescription="Designated members patients can message 1:1 (plan seats required)"
+          onTeam={Boolean(membership?.private_care_team)}
+          seatsUsed={usage.pctMemberCount}
+          seatLimit={usage.entitlements.pct_seat_limit}
+        />
 
         <Card>
           <CardHeader>
@@ -115,14 +106,14 @@ export default async function PatientDetailPage({
               </p>
             ) : emergency ? (
               <>
-                <Row label="Blood group" value={emergency.blood_group ?? '—'} />
-                <Row label="Allergies" value={jsonList(emergency.allergies)} />
-                <Row
+                <DetailRow label="Blood group" value={emergency.blood_group ?? '—'} />
+                <DetailRow label="Allergies" value={jsonList(emergency.allergies)} />
+                <DetailRow
                   label="Medical conditions"
                   value={jsonList(emergency.chronic_conditions)}
                 />
-                <Row label="Insurance" value={emergency.insurance_provider ?? '—'} />
-                <Row label="Emergency contacts" value={jsonList(contacts)} />
+                <DetailRow label="Insurance" value={emergency.insurance_provider ?? '—'} />
+                <DetailRow label="Emergency contacts" value={jsonList(contacts)} />
               </>
             ) : (
               <p className="text-muted">
@@ -247,15 +238,6 @@ export default async function PatientDetailPage({
           )}
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-4">
-      <span className="text-muted">{label}</span>
-      <span className="text-right font-medium text-foreground">{value}</span>
     </div>
   );
 }

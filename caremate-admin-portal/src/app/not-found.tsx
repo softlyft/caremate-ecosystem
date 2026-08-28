@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { ButtonLink } from '@/components/ui/button-link';
 
 export default function NotFound() {
   return (
@@ -6,12 +6,7 @@ export default function NotFound() {
       <div className="mx-auto max-w-md space-y-4 text-center">
         <h1 className="text-xl font-semibold text-brand-navy">Page not found</h1>
         <p className="text-sm text-muted">That route does not exist in the CareMate Admin Portal.</p>
-        <Link
-          href="/dashboard"
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary-dark"
-        >
-          Go to dashboard
-        </Link>
+        <ButtonLink href="/dashboard">Go to dashboard</ButtonLink>
       </div>
     </main>
   );

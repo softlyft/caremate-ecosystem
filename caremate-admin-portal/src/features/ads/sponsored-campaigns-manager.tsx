@@ -8,10 +8,11 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { CampaignSlotPicker } from '@/features/ads/campaign-slot-picker';
 import {
   Table,
   TableBody,
@@ -23,20 +24,6 @@ import {
 import { deleteCampaign, saveCampaign } from '@/domains/ads/actions';
 import type { CampaignWithCreative } from '@/domains/ads/repository';
 import type { AdAdvertiser } from '@/types/database';
-
-const SLOTS = [
-  { id: 'home.tips', label: 'Home tips' },
-  { id: 'home.feed', label: 'Home feed' },
-  { id: 'learn.list', label: 'Learn list' },
-  { id: 'learn.article_header', label: 'Article header' },
-  { id: 'learn.article_footer', label: 'Article footer' },
-  { id: 'nearby.list', label: 'Nearby list' },
-  { id: 'nearby.provider', label: 'Provider detail' },
-  { id: 'pregnancy.timeline', label: 'Pregnancy timeline' },
-  { id: 'pregnancy.footer', label: 'Pregnancy footer' },
-  { id: 'period.week', label: 'Period tracker week' },
-  { id: 'period.footer', label: 'Period tracker footer' },
-] as const;
 
 type FormValues = {
   advertiserId: string;
@@ -150,118 +137,99 @@ function CampaignForm({
   return (
     <Card>
       <CardContent className="p-6">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="advertiserId">Verified advertiser</Label>
-              <Select
-                id="advertiserId"
-                value={advertiserId}
-                onChange={(e) => setValue('advertiserId', e.target.value)}
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="Verified advertiser" htmlFor="advertiserId" className="md:col-span-2">
+                <Select
+                  id="advertiserId"
+                  value={advertiserId}
+                  onChange={(e) => setValue('advertiserId', e.target.value)}
+                >
+                  <option value="">Select advertiser…</option>
+                  {verifiedAdvertisers.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Campaign name" htmlFor="name">
+                <Input id="name" {...register('name', { required: true })} />
+              </FormField>
+              <FormField label="Status" htmlFor="status">
+                <Select
+                  id="status"
+                  value={status}
+                  onChange={(e) => setValue('status', e.target.value as FormValues['status'])}
+                >
+                  <option value="draft">Draft</option>
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="archived">Archived</option>
+                </Select>
+              </FormField>
+              <FormField label="Priority" htmlFor="priority">
+                <Input
+                  id="priority"
+                  type="number"
+                  {...register('priority', { valueAsNumber: true })}
+                />
+              </FormField>
+              <FormField label="Daily frequency cap" htmlFor="frequencyCapPerDay">
+                <Input
+                  id="frequencyCapPerDay"
+                  type="number"
+                  {...register('frequencyCapPerDay', { valueAsNumber: true })}
+                />
+              </FormField>
+              <FormField label="Title" htmlFor="title" className="md:col-span-2">
+                <Input id="title" {...register('title', { required: true })} />
+              </FormField>
+              <FormField label="Body" htmlFor="body" className="md:col-span-2">
+                <Textarea id="body" rows={3} {...register('body', { required: true })} />
+              </FormField>
+              <FormField label="CTA label" htmlFor="ctaLabel">
+                <Input id="ctaLabel" {...register('ctaLabel')} />
+              </FormField>
+              <FormField label="CTA href (in-app)" htmlFor="ctaHref">
+                <Input id="ctaHref" {...register('ctaHref')} placeholder="/(app)/(tabs)/apps" />
+              </FormField>
+              <FormField
+                label="Image URL"
+                htmlFor="imageUrl"
+                className="md:col-span-2"
+                hint='Badge is always "Sponsored" for this source.'
               >
-                <option value="">Select advertiser…</option>
-                {verifiedAdvertisers.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name}
-                  </option>
-                ))}
-              </Select>
+                <Input id="imageUrl" {...register('imageUrl')} />
+              </FormField>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Campaign name</Label>
-              <Input id="name" {...register('name', { required: true })} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                id="status"
-                value={status}
-                onChange={(e) => setValue('status', e.target.value as FormValues['status'])}
-              >
-                <option value="draft">Draft</option>
-                <option value="active">Active</option>
-                <option value="paused">Paused</option>
-                <option value="archived">Archived</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Input
-                id="priority"
-                type="number"
-                {...register('priority', { valueAsNumber: true })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="frequencyCapPerDay">Daily frequency cap</Label>
-              <Input
-                id="frequencyCapPerDay"
-                type="number"
-                {...register('frequencyCapPerDay', { valueAsNumber: true })}
-              />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register('title', { required: true })} />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="body">Body</Label>
-              <Textarea id="body" rows={3} {...register('body', { required: true })} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ctaLabel">CTA label</Label>
-              <Input id="ctaLabel" {...register('ctaLabel')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ctaHref">CTA href (in-app)</Label>
-              <Input id="ctaHref" {...register('ctaHref')} placeholder="/(app)/(tabs)/apps" />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input id="imageUrl" {...register('imageUrl')} />
-              <p className="text-xs text-muted">Badge is always &quot;Sponsored&quot; for this source.</p>
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Slots</p>
-            <div className="flex flex-wrap gap-3">
-              {SLOTS.map((slot) => (
-                <label key={slot.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4"
-                    checked={slotIds.includes(slot.id)}
-                    onChange={() => toggleSlot(slot.id)}
-                  />
-                  {slot.label}
-                </label>
-              ))}
-            </div>
-          </div>
+            <CampaignSlotPicker slotIds={slotIds} onToggle={toggleSlot} />
 
-          <div className="flex gap-2">
-            <Button
-              type="submit"
-              disabled={pending || !advertiserId}
-              loading={pendingAction === 'save'}
-              loadingLabel="Saving…"
-            >
-              Save
-            </Button>
-            {campaign ? (
+            <FormActions className="justify-start">
               <Button
-                type="button"
-                variant="danger"
-                disabled={pending}
-                loading={pendingAction === 'archive'}
-                loadingLabel="Archiving…"
-                onClick={onDelete}
+                type="submit"
+                disabled={pending || !advertiserId}
+                loading={pendingAction === 'save'}
+                loadingLabel="Saving…"
               >
-                Archive
+                Save
               </Button>
-            ) : null}
-          </div>
+              {campaign ? (
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={pending}
+                  loading={pendingAction === 'archive'}
+                  loadingLabel="Archiving…"
+                  onClick={onDelete}
+                >
+                  Archive
+                </Button>
+              ) : null}
+            </FormActions>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

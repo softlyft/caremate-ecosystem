@@ -76,10 +76,7 @@ function releaseInboxChannel(userId: string) {
   void supabase.removeChannel(shared.channel);
 }
 
-function acquireThreadChannel(
-  conversationId: string,
-  queryClient: QueryClient,
-): SharedChannel {
+function acquireThreadChannel(conversationId: string, queryClient: QueryClient): SharedChannel {
   const existing = threadChannels.get(conversationId);
   if (existing) {
     existing.refCount += 1;

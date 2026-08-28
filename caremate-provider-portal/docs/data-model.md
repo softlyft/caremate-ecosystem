@@ -29,6 +29,10 @@ Shared Supabase project. Provider portal tables are cloud-authoritative; the mob
 | `payer_org_members` | Payer staff membership (same roles as providers) |
 | `payer_org_claims` | Payer claim OTP challenges (service role only) |
 | `provider_payer_connections` | Provider ↔ payer B2B CRM link (one row per pair) |
+| `provider_org_plan_prices` / `provider_org_subscriptions` / `provider_org_payments` | Private Care Team org billing (Paystack; separate from patient Premium) |
+| `patient_payer_connections` | Patient ↔ payer CRM link (one row per pair) |
+| `patient_payer_activities` | Payer-side timeline / audit events for patient↔payer lifecycle |
+| `payer_directory` | Public view of active payers **without** claim email (mobile Health Insurance Directory) |
 
 ### Profiles (patient identity)
 
@@ -56,12 +60,28 @@ Unique: `(patient_id, organization_id)`.
 |--------|------|
 | `provider_organization_id` | → `provider_organizations` |
 | `payer_organization_id` | → `payer_organizations` |
-| `status` | `pending` \| `approved` \| `rejected` |
+| `status` | `pending` \| `approved` \| `rejected` \| `cancelled` \| `disconnected` |
 | `initiated_by` | `provider` \| `payer` |
 | `provider_note` / `payer_note` | Optional request notes |
 | `rejection_reason` | Required when rejected |
 
 Unique: `(provider_organization_id, payer_organization_id)`.
+
+### `patient_payer_connections` (key columns)
+
+| Column | Notes |
+|--------|------|
+| `patient_id` | Auth user UUID (`profiles.user_id`) — not the CareMate display ID |
+| `payer_organization_id` | → `payer_organizations` |
+| `status` | `pending` \| `approved` \| `rejected` \| `cancelled` \| `disconnected` |
+| `initiated_by` | `patient` \| `payer` |
+| `patient_note` / `payer_note` | Optional request notes |
+| `rejection_reason` | Required when rejected / cancelled |
+| `disconnected_at` / `disconnected_by` | Set when an approved link ends (`patient` \| `payer`) |
+
+Unique: `(patient_id, payer_organization_id)`.
+
+Patient Connect gating uses `is_payer_org_verified` (`payer_profiles.verification_status = verified` after Care Portal claim). Details: [Connections](./connections.md#patient--payer-connections).
 
 ## Migrations
 
@@ -84,12 +104,14 @@ Unique: `(provider_organization_id, payer_organization_id)`.
 | `20260825120000_payer_organizations.sql` | Payer catalog, profiles, members, claims, RLS helpers, `payer_claim` OTP kind |
 | `20260825160000_provider_payer_connections.sql` | Provider ↔ payer connections + claim-email RPCs |
 | `20260825161000_payer_read_connected_provider_profiles.sql` | Payer members may SELECT connected provider profiles |
+| `20260827190000_payer_read_connected_patient_profiles.sql` | Payer members may SELECT patient `profiles` for rows in `patient_payer_connections` (pending + approved; fixes portal “Unknown”) |
 | `20260825162000_provider_payer_connections_public_approved_read.sql` | Public/anon read of approved connections (supported payers) |
 | `20260825170000_protect_payer_manager_catalog_columns.sql` | Managers limited to phone/website/address on catalog |
 | `20260825171000_enforce_provider_payer_connection_update.sql` | initiated_by approve rules + rejection_reason check |
 | `20260825172000_narrow_provider_payer_public_surface.sql` | RPC for supported payers; approved-only profile peek |
 | `20260825173000_payer_directory_hide_claim_email.sql` | Public `payer_directory` view without claim email |
 | `20260825174000_payer_email_unique_and_updated_at.sql` | Unique claim email + updated_at triggers |
+| `20260826180000_connection_graph_hardening.sql` | Patient ↔ payer connections + activities; disconnect/cancel RPCs; verified gates on request RPCs |
 
 Also depends on catalog / identity migrations: FHIR orgs (`provider_organizations`…), `profiles.patient_id`, Nearby RPC.
 
@@ -98,13 +120,18 @@ Also depends on catalog / identity migrations: FHIR orgs (`provider_organization
 | Name | Role |
 |------|------|
 | `is_provider_org_member` / `provider_org_role` / `can_write_provider_org` / `can_manage_provider_org` | RLS + app auth |
-| `is_payer_org_member` / `payer_org_role` / `can_write_payer_org` / `can_manage_payer_org` / `is_payer_org_verified` | Payer RLS + app auth |
-| `is_provider_org_verified` | Patient Connect gate |
+| `is_payer_org_member` / `payer_org_role` / `can_write_payer_org` / `can_manage_payer_org` / `is_payer_org_verified` | Payer RLS + app auth + patient Connect gate |
+| `is_provider_org_verified` | Patient Connect gate (providers) |
 | `request_patient_provider_connection` | Patient → org |
 | `request_provider_connection_by_caremate_id` | Org → patient by CareMate ID |
 | `find_verified_provider_org_id_by_claim_email` / `find_verified_payer_org_id_by_claim_email` | Claim-email org resolution |
 | `request_provider_payer_connection_by_email` | Provider → payer by claim email |
 | `request_payer_provider_connection_by_email` | Payer → provider by claim email |
+| `request_patient_payer_connection` | Patient → payer (verified only) |
+| `request_payer_patient_connection_by_caremate_id` | Payer → patient by CareMate ID |
+| `respond_patient_payer_connection` | Approve / reject pending patient↔payer |
+| `cancel_pending_patient_payer_connection` | Initiator withdraws pending patient↔payer |
+| `disconnect_patient_payer_connection` | Either party ends approved patient↔payer |
 | `send_provider_org_message` | Org compose → patient threads |
 | `post_patient_message` | Patient (or DM participant) reply |
 | `post_org_message` | Org staff reply in `org_patient` thread |

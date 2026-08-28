@@ -17,6 +17,8 @@ const FOOTER_COLUMNS = [
     links: [
       { to: '/ccn', label: 'Community' },
       { to: '/providers', label: 'For providers' },
+      { to: '/providers/pricing', label: 'Provider plans' },
+      { to: '/payers/pricing', label: 'Payer plans' },
       { to: '/docs/patient', label: 'Patient guide' },
       { to: '/docs/providers', label: 'Provider guide' },
     ],

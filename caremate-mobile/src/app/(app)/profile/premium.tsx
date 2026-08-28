@@ -5,12 +5,12 @@ import { useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '@/components/ui/form-controls';
+import { Button, DetailRow, FormNotice, TextLink } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
-import { LoadingState } from '@/components/ui/screen-states';
+import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { formatPriceAmount, premiumLabel } from '@/domains/billing/entitlement';
 import { billingCurrencyForCountry } from '@/domains/billing/currency-by-country';
 import { storeProductId } from '@/domains/billing/iap-products';
@@ -186,7 +186,7 @@ export default function PremiumScreen() {
     : premiumLabel(premium?.tier ?? 'free');
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
@@ -298,11 +298,7 @@ export default function PremiumScreen() {
                             ? t('profile.premium.upgradeNeedsHousehold')
                             : t('profile.premium.noHousehold')}
                         </AppText>
-                        <Button onPress={() => router.push('/(app)/family')} variant="plain">
-                          <AppText variant="body" style={styles.link}>
-                            {t('profile.premium.setUpFamily')}
-                          </AppText>
-                        </Button>
+                        <TextLink href="/(app)/family">{t('profile.premium.setUpFamily')}</TextLink>
                       </View>
                     ) : null}
 
@@ -386,14 +382,16 @@ export default function PremiumScreen() {
 
         {error || premiumQuery.error || storeProductsQuery.error ? (
           <AnimatedSection index={4}>
-            <AppText variant="caption" style={styles.error}>
-              {error ??
-                (premiumQuery.error instanceof Error
-                  ? premiumQuery.error.message
-                  : storeProductsQuery.error instanceof Error
-                    ? storeProductsQuery.error.message
-                    : t('profile.premium.loadFailed'))}
-            </AppText>
+            <FormNotice>
+              <AppText variant="caption" style={styles.error}>
+                {error ??
+                  (premiumQuery.error instanceof Error
+                    ? premiumQuery.error.message
+                    : storeProductsQuery.error instanceof Error
+                      ? storeProductsQuery.error.message
+                      : t('profile.premium.loadFailed'))}
+              </AppText>
+            </FormNotice>
           </AnimatedSection>
         ) : null}
 
@@ -406,7 +404,7 @@ export default function PremiumScreen() {
           </Button>
         </AnimatedSection>
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -445,9 +443,11 @@ function UpgradeQuoteBlock({
 
   if (error || !quote) {
     return (
-      <AppText variant="caption" style={styles.error}>
-        {error ?? t('profile.premium.upgradeQuoteFailed')}
-      </AppText>
+      <FormNotice>
+        <AppText variant="caption" style={styles.error}>
+          {error ?? t('profile.premium.upgradeQuoteFailed')}
+        </AppText>
+      </FormNotice>
     );
   }
 
@@ -460,19 +460,19 @@ function UpgradeQuoteBlock({
       <AppText variant="caption" style={styles.muted}>
         {t('profile.premium.upgradeSubtitle')}
       </AppText>
-      <QuoteRow
+      <DetailRow
         label={t('profile.premium.upgradeFamilyPrice', { interval: intervalLabel })}
         value={formatPriceAmount(quote.familyListPriceMinor, quote.currency)}
       />
-      <QuoteRow
+      <DetailRow
         label={t('profile.premium.upgradeCredit', { days: quote.daysRemaining })}
         value={`− ${formatPriceAmount(quote.creditMinor, quote.currency)}`}
       />
-      <QuoteRow
-        label={t('profile.premium.upgradeDue')}
-        value={formatPriceAmount(quote.chargeMinor, quote.currency)}
-        emphasize
-      />
+      <DetailRow label={t('profile.premium.upgradeDue')}>
+        <AppText variant="cardTitle" style={styles.quoteValueEmphasize}>
+          {formatPriceAmount(quote.chargeMinor, quote.currency)}
+        </AppText>
+      </DetailRow>
       <AppText variant="caption" style={styles.muted}>
         {t('profile.premium.upgradeNewEnd', {
           date: new Date(quote.newPeriodEnd).toLocaleDateString(),
@@ -488,30 +488,6 @@ function UpgradeQuoteBlock({
           {t('profile.premium.upgradeZeroCharge')}
         </AppText>
       </Button>
-    </View>
-  );
-}
-
-function QuoteRow({
-  label,
-  value,
-  emphasize,
-}: {
-  label: string;
-  value: string;
-  emphasize?: boolean;
-}) {
-  return (
-    <View style={styles.quoteRow}>
-      <AppText variant="caption" style={emphasize ? styles.quoteLabelEmphasize : styles.muted}>
-        {label}
-      </AppText>
-      <AppText
-        variant={emphasize ? 'cardTitle' : 'body'}
-        style={emphasize ? styles.quoteValueEmphasize : styles.quoteValue}
-      >
-        {value}
-      </AppText>
     </View>
   );
 }
@@ -546,10 +522,6 @@ function Chip({
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -685,30 +657,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  link: {
-    color: ACCENT,
-    textDecorationLine: 'underline',
-    fontFamily: fontFamily.semiBold,
-  },
   payStack: {
     gap: spacing.sm,
   },
-  quoteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-  },
-  quoteValue: {
-    color: palette.text,
-    fontFamily: fontFamily.semiBold,
-  },
-  quoteLabelEmphasize: {
-    color: TITLE,
-    fontFamily: fontFamily.semiBold,
-  },
   quoteValueEmphasize: {
     color: ACCENT,
+    textAlign: 'right',
   },
   primaryCta: {
     backgroundColor: ACCENT,

@@ -31,6 +31,14 @@ export type {
   PayerOrgClaim,
 };
 
+/** Extended payer member row including Support Team billing columns (until db-types regen). */
+export type PayerOrgMemberRow = PayerOrgMember & {
+  company_email: string | null;
+  company_phone: string | null;
+  position: string | null;
+  support_team: boolean;
+};
+
 export type ProviderOrgType =
   | 'hospital'
   | 'clinic'
@@ -138,6 +146,7 @@ export type ProviderOrgMember = {
   company_email: string | null;
   company_phone: string | null;
   position: string | null;
+  private_care_team: boolean;
   deleted_at: string | null;
 } & Timestamps;
 
@@ -242,6 +251,19 @@ export type ProviderDocument = {
   mime_type: string | null;
   uploaded_by: string | null;
   source: 'provider' | 'patient';
+} & Timestamps;
+
+export type PayerDocument = {
+  id: string;
+  payer_organization_id: string;
+  patient_id: string;
+  document_type: DocumentType;
+  title: string;
+  file_url: string;
+  file_name: string | null;
+  mime_type: string | null;
+  uploaded_by: string | null;
+  source: 'payer';
 } & Timestamps;
 
 export type AppointmentRequest = {
@@ -503,6 +525,25 @@ type PortalTables = {
       updated_at?: string;
     };
     Update: Partial<PortalTables['provider_documents']['Insert']>;
+    Relationships: [];
+  };
+  payer_documents: {
+    Row: PayerDocument;
+    Insert: {
+      id?: string;
+      payer_organization_id: string;
+      patient_id: string;
+      document_type: DocumentType;
+      title: string;
+      file_url: string;
+      file_name?: string | null;
+      mime_type?: string | null;
+      uploaded_by?: string | null;
+      source?: 'payer';
+      created_at?: string;
+      updated_at?: string;
+    };
+    Update: Partial<PortalTables['payer_documents']['Insert']>;
     Relationships: [];
   };
   appointment_requests: {
@@ -785,6 +826,24 @@ type PortalFunctions = {
     };
     Returns: PatientPayerConnection;
   };
+  send_payer_org_message: {
+    Args: {
+      p_payer_organization_id: string;
+      p_body: string;
+      p_subject?: string | null;
+      p_audience?: string;
+      p_patient_ids?: string[];
+      p_expires_at?: string | null;
+    };
+    Returns: Json;
+  };
+  post_payer_org_message: {
+    Args: {
+      p_conversation_id: string;
+      p_body: string;
+    };
+    Returns: Json;
+  };
   mark_connected_patient_as_staff: {
     Args: {
       p_organization_id: string;
@@ -795,6 +854,70 @@ type PortalFunctions = {
       p_display_name?: string;
     };
     Returns: ProviderOrgMember;
+  };
+  provider_org_entitlements: {
+    Args: { p_org_id: string };
+    Returns: Json;
+  };
+  provider_org_pct_member_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  provider_org_approved_patient_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  set_private_care_team_member: {
+    Args: {
+      p_organization_id: string;
+      p_user_id: string;
+      p_enabled: boolean;
+    };
+    Returns: ProviderOrgMember;
+  };
+  mark_connected_patient_as_payer_staff: {
+    Args: {
+      p_organization_id: string;
+      p_patient_user_id: string;
+      p_company_email?: string;
+      p_company_phone?: string;
+      p_position?: string;
+      p_display_name?: string;
+    };
+    Returns: PayerOrgMemberRow;
+  };
+  payer_org_entitlements: {
+    Args: { p_org_id: string };
+    Returns: Json;
+  };
+  payer_org_support_team_member_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  payer_org_approved_patient_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  set_support_team_member: {
+    Args: {
+      p_organization_id: string;
+      p_user_id: string;
+      p_enabled: boolean;
+    };
+    Returns: PayerOrgMemberRow;
+  };
+  admin_grant_payer_org_subscription: {
+    Args: {
+      p_organization_id: string;
+      p_plan_tier: string;
+      p_billing_interval?: string;
+      p_support_team_seat_limit?: number;
+      p_patient_connection_cap?: number;
+      p_voice_minutes_included?: number;
+      p_group_chat_enabled?: boolean;
+      p_period_months?: number;
+    };
+    Returns: Json;
   };
   rebuild_provider_projection_for_location: {
     Args: {

@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { providerConnectionService } from '@/domains/providers/connection-service';
@@ -37,9 +38,9 @@ export default function ProviderConnectionsHubScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen>
         <AppText variant="body">{t('nearby.connections.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -48,67 +49,63 @@ export default function ProviderConnectionsHubScreen() {
   const outboundCount = outboundCountQuery.data ?? 0;
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
-      <AppText variant="sectionTitle">{t('nearby.connections.title')}</AppText>
-      <AppText variant="subtitle">{t('nearby.connections.subtitle')}</AppText>
+    <Screen padded={false}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
+        <AppText variant="sectionTitle">{t('nearby.connections.title')}</AppText>
+        <AppText variant="subtitle">{t('nearby.connections.subtitle')}</AppText>
 
-      <ProfileCard>
-        <ProfileMenuRow
-          icon={Building2}
-          iconColor={palette.primary}
-          iconBackground={palette.primaryLight}
-          title={t('nearby.connections.connectedTitle')}
-          subtitle={t('nearby.connections.connectedCount', { count: connectedCount })}
-          onPress={() => router.push('/providers/connections/connected' as Href)}
-        />
-        <View style={styles.divider} />
-        <ProfileMenuRow
-          icon={Inbox}
-          iconColor={palette.brandBlue}
-          iconBackground={palette.brandBlueLight}
-          title={t('nearby.connections.requestsTitle')}
-          subtitle={
-            inboundCount > 0
-              ? t('nearby.connections.requestsCount', { count: inboundCount })
-              : t('nearby.connections.requestsEmptySubtitle')
-          }
-          onPress={() => router.push('/providers/connections/requests' as Href)}
-        />
-        <View style={styles.divider} />
-        <ProfileMenuRow
-          icon={Send}
-          iconColor={palette.warning}
-          iconBackground="#FEF3C7"
-          title={t('nearby.connections.outboundTitle')}
-          subtitle={
-            outboundCount > 0
-              ? t('nearby.connections.outboundCount', { count: outboundCount })
-              : t('nearby.connections.outboundEmptySubtitle')
-          }
-          onPress={() => router.push('/providers/connections/outbound' as Href)}
-        />
-      </ProfileCard>
-    </ScrollView>
+        <ProfileCard>
+          <ProfileMenuRow
+            icon={Building2}
+            iconColor={palette.primary}
+            iconBackground={palette.primaryLight}
+            title={t('nearby.connections.connectedTitle')}
+            subtitle={t('nearby.connections.connectedCount', { count: connectedCount })}
+            onPress={() => router.push('/providers/connections/connected' as Href)}
+          />
+          <View style={styles.divider} />
+          <ProfileMenuRow
+            icon={Inbox}
+            iconColor={palette.brandBlue}
+            iconBackground={palette.brandBlueLight}
+            title={t('nearby.connections.requestsTitle')}
+            subtitle={
+              inboundCount > 0
+                ? t('nearby.connections.requestsCount', { count: inboundCount })
+                : t('nearby.connections.requestsEmptySubtitle')
+            }
+            onPress={() => router.push('/providers/connections/requests' as Href)}
+          />
+          <View style={styles.divider} />
+          <ProfileMenuRow
+            icon={Send}
+            iconColor={palette.warning}
+            iconBackground="#FEF3C7"
+            title={t('nearby.connections.outboundTitle')}
+            subtitle={
+              outboundCount > 0
+                ? t('nearby.connections.outboundCount', { count: outboundCount })
+                : t('nearby.connections.outboundEmptySubtitle')
+            }
+            onPress={() => router.push('/providers/connections/outbound' as Href)}
+          />
+        </ProfileCard>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
   divider: {
     height: StyleSheet.hairlineWidth,

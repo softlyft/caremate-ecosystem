@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ButtonLink } from '@/components/ui/button-link';
 
 export function PageHeader({
   title,
@@ -27,9 +26,7 @@ export function PageHeader({
         <div className="flex shrink-0 items-center gap-2">
           {children}
           {actionHref && actionLabel ? (
-            <Link href={actionHref}>
-              <Button type="button">{actionLabel}</Button>
-            </Link>
+            <ButtonLink href={actionHref}>{actionLabel}</ButtonLink>
           ) : null}
         </div>
       </div>

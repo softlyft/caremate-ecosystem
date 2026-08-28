@@ -102,7 +102,7 @@ Approved patients appear under `/app/patients`. Staff may **disconnect** from th
 
 Nearby (and other) provider detail screens list **approved** `provider_payer_connections` as supported insurers. Tap through to the Health Insurance Directory detail. Pending/rejected links stay private to Care Portal org members.
 
-## Mobile UI
+## Mobile UI (patient ↔ provider)
 
 | Surface | Behavior |
 |---------|----------|
@@ -133,6 +133,70 @@ Verification check: RPC `is_provider_org_verified(org_id)` (patients cannot read
 - Messaging (requires approved connection): [Messaging](./messaging.md)
 - Claim sets verified: [Auth & claim](./auth-claim.md)
 - Mobile notes: [`../../caremate-mobile/docs/provider-model.md`](../../caremate-mobile/docs/provider-model.md)
+
+---
+
+# Patient ↔ payer connections
+
+Patient ↔ payer links are a **CRM contact record** (no claims / coverage payload in this pass). Lifecycle mirrors patient ↔ provider: one row per pair, verified-org gate for patient-initiated Connect, optional disconnect reason.
+
+## Bidirectional model
+
+| Direction | How started | Who approves |
+|-----------|-------------|--------------|
+| Patient → payer | Mobile **Me → Health Insurance Directory** → insurer detail → **Connect with insurer** | Payer staff on `/payer/patients/requests` (inbound) |
+| Payer → patient | Portal `/payer/patients/requests` → CareMate Patient ID | Patient on Health Insurance Directory (inbound section) or insurer detail |
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | Awaiting the other party |
+| `approved` | Connected |
+| `rejected` | Declined by the non-initiator; **`rejection_reason` required** |
+| `cancelled` | Pending request withdrawn by the initiator; reason required |
+| `disconnected` | Approved link ended by either party; reason optional |
+
+Column `initiated_by` (`patient` \| `payer`) records who opened the request. The **other** party approves or rejects. The **initiator** cancels outbound pending requests.
+
+### Rules
+
+- **One row per** `(patient_id, payer_organization_id)` forever.
+- Re-request after **reject** is **blocked**.
+- **Cancelled** or **disconnected** rows may be reopened via request RPCs.
+- Patients may only **request** a connection when the payer is verified (`payer_profiles.verification_status = verified`). Unverified listings do **not** show Connect (same pattern as providers).
+- Backend gate: `request_patient_payer_connection` / `request_payer_patient_connection_by_caremate_id` require `is_payer_org_verified`.
+- Mobile Connect card appears when signed-in and (`connection` exists **or** `is_payer_org_verified` is true) — so existing pending/approved/rejected rows stay manageable even if verification later changes.
+- Reject / cancel-outbound requires a non-empty reason; disconnect allows an optional reason.
+- No consent scopes / messaging auto-grant on patient↔payer in this pass (unlike patient↔provider).
+
+## Portal UI
+
+| Surface | Purpose |
+|---------|---------|
+| `/payer/patients/requests` | Request by CareMate ID + inbound/outbound pending |
+| `/payer/patients` | Approved patient connections (disconnect) |
+
+## Mobile UI
+
+| Surface | Behavior |
+|---------|----------|
+| Me → Health Insurance Directory | Searchable `payer_directory`; inbound requests (Approve / Decline); **Your connected insurers** with **Disconnect** |
+| Me → Health Insurance Directory → [payer] | Connect only when verified (or a connection row already exists); Disconnect when `approved`; cancel outbound pending; respond to inbound |
+| Nearby → provider detail → supported insurer | Deep-link into the same insurance detail (directory id) |
+
+Domain code: `caremate-mobile/src/domains/payers/` (`connection-service.ts`, `repository.ts`). Routes: `/(app)/profile/insurance`, `/(app)/profile/insurance/[id]`.
+
+Verification check: RPC `is_payer_org_verified(org_id)` (patients cannot read full `payer_profiles` under RLS).
+
+## RPCs
+
+| RPC | Caller | Purpose |
+|-----|--------|---------|
+| `request_patient_payer_connection` | Patient (mobile) | Open pending row; requires verified payer |
+| `request_payer_patient_connection_by_caremate_id` | Payer writers | Lookup `profiles.patient_id` → open pending row |
+| `respond_patient_payer_connection` | Non-initiator | Approve or reject pending |
+| `cancel_pending_patient_payer_connection` | Initiator | Withdraw pending request |
+| `disconnect_patient_payer_connection` | Either party | End approved link |
+| `is_payer_org_verified` | Authenticated | Boolean for Connect gating |
 
 ---
 
@@ -176,8 +240,6 @@ Column `initiated_by` (`provider` \| `payer`) records who opened the request. Th
 | `/app/payers` | Approved payer connections (disconnect) |
 | `/payer/providers/requests` | Request by provider email + pending queues |
 | `/payer/providers` | Approved provider connections (disconnect) |
-| `/payer/patients/requests` | Request by CareMate ID + inbound/outbound pending |
-| `/payer/patients` | Approved patient connections (disconnect) |
 
 ## RPCs
 
@@ -187,10 +249,6 @@ Column `initiated_by` (`provider` \| `payer`) records who opened the request. Th
 | `request_payer_provider_connection_by_email` | Payer writers | Match verified provider by claim email |
 | `cancel_pending_provider_payer_connection` | Initiator | Withdraw pending request |
 | `disconnect_provider_payer_connection` | Either org | End approved link |
-| `request_payer_patient_connection_by_caremate_id` | Payer writers | Open patient↔payer pending row |
-| `respond_patient_payer_connection` | Non-initiator | Approve or reject pending patient↔payer |
-| `cancel_pending_patient_payer_connection` | Initiator | Withdraw pending patient↔payer |
-| `disconnect_patient_payer_connection` | Either party | End approved patient↔payer |
 | `find_verified_*_org_id_by_claim_email` | Helpers | Resolution used by the request RPCs |
 
-Approve / reject for provider↔payer still use direct `UPDATE` under RLS (trigger-enforced). Patient↔provider and patient↔payer lifecycle actions use security-definer RPCs.
+Approve / reject for provider↔payer still use direct `UPDATE` under RLS (trigger-enforced). Patient↔provider and patient↔payer lifecycle actions use security-definer RPCs (see sections above).

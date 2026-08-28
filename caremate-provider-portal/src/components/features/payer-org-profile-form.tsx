@@ -3,8 +3,9 @@
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
+import { FormNotice } from '@/components/ui/form-notice';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { updatePayerOrgProfileAction } from '@/domains/payer/actions';
 import type { PayerEditableDetails } from '@/domains/payer/repository';
@@ -49,7 +50,6 @@ export function PayerOrgProfileForm({
 
   return (
     <form
-      className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -63,61 +63,59 @@ export function PayerOrgProfileForm({
         });
       }}
     >
-      <div className="rounded-lg bg-surface-muted px-3 py-2 text-sm">
-        <span className="text-muted">Organization name: </span>
-        <span className="font-medium">{organizationName}</span>
-        <p className="mt-1 text-xs text-muted">
-          Name and claim contact email are set by SoftLyft. You can update phone, website, address,
-          and description — changes appear in the CareMate Health Insurance Directory.
-        </p>
-      </div>
+      <FormStack>
+        <FormNotice>
+          <span className="text-muted">Organization name: </span>
+          <span className="font-medium">{organizationName}</span>
+          <p className="mt-1 text-xs text-muted">
+            Name and claim contact email are set by SoftLyft. You can update phone, website, address,
+            and description — changes appear in the CareMate Health Insurance Directory.
+          </p>
+        </FormNotice>
 
-      <div className="space-y-2">
-        <Label htmlFor="contact_email">Claim contact email</Label>
-        <Input
-          id="contact_email"
-          type="email"
-          readOnly
-          disabled
-          value={details.email ?? ''}
-          placeholder="Set by SoftLyft"
-        />
-      </div>
+        <FormField label="Claim contact email" htmlFor="contact_email">
+          <Input
+            id="contact_email"
+            type="email"
+            readOnly
+            disabled
+            value={details.email ?? ''}
+            placeholder="Set by SoftLyft"
+          />
+        </FormField>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="website">Website</Label>
-          <Input id="website" name="website" defaultValue={details.website ?? ''} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Website" htmlFor="website">
+            <Input id="website" name="website" defaultValue={details.website ?? ''} />
+          </FormField>
+          <FormField label="Phone" htmlFor="phone">
+            <Input id="phone" name="phone" defaultValue={details.phone ?? ''} />
+          </FormField>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" defaultValue={details.phone ?? ''} />
-        </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
-        <Input id="address" name="address" defaultValue={details.address ?? ''} />
-      </div>
+        <FormField label="Address" htmlFor="address">
+          <Input id="address" name="address" defaultValue={details.address ?? ''} />
+        </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="logo_url">Logo URL</Label>
-        <Input id="logo_url" name="logo_url" defaultValue={details.logo_url ?? ''} />
-      </div>
+        <FormField label="Logo URL" htmlFor="logo_url">
+          <Input id="logo_url" name="logo_url" defaultValue={details.logo_url ?? ''} />
+        </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          rows={4}
-          defaultValue={details.description ?? ''}
-        />
-      </div>
+        <FormField label="Description" htmlFor="description">
+          <Textarea
+            id="description"
+            name="description"
+            rows={4}
+            defaultValue={details.description ?? ''}
+          />
+        </FormField>
 
-      <Button type="submit" loading={pending} loadingLabel="Saving…">
-        Save details
-      </Button>
+        <FormActions className="justify-start">
+          <Button type="submit" loading={pending} loadingLabel="Saving…">
+            Save details
+          </Button>
+        </FormActions>
+      </FormStack>
     </form>
   );
 }

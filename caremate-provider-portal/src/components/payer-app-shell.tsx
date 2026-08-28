@@ -1,58 +1,8 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useTransition } from 'react';
-import { LayoutDashboard, Building2, Settings, LogOut, Hospital, UserPlus, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/browser';
-import { PROVIDER_ROLE_LABELS } from '@/constants/roles';
+import { CarePortalShell } from '@/components/care-portal-shell';
+import { PAYER_NAV_GROUPS } from '@/lib/payer-nav';
 import type { ProviderMemberRole } from '@/types/database';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: typeof LayoutDashboard;
-};
-
-const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
-  {
-    label: 'General',
-    items: [{ href: '/payer/dashboard', label: 'Dashboard', icon: LayoutDashboard }],
-  },
-  {
-    label: 'Providers',
-    items: [
-      { href: '/payer/providers', label: 'Connected Providers', icon: Hospital },
-      {
-        href: '/payer/providers/requests',
-        label: 'Connection Requests',
-        icon: UserPlus,
-      },
-    ],
-  },
-  {
-    label: 'Patients',
-    items: [
-      { href: '/payer/patients', label: 'Connected Patients', icon: Users },
-      {
-        href: '/payer/patients/requests',
-        label: 'Connection Requests',
-        icon: UserPlus,
-      },
-    ],
-  },
-  {
-    label: 'Organization',
-    items: [
-      { href: '/payer/organization', label: 'Organization', icon: Building2 },
-      { href: '/payer/settings', label: 'Settings', icon: Settings },
-    ],
-  },
-];
 
 export function PayerAppShell({
   children,
@@ -65,122 +15,15 @@ export function PayerAppShell({
   role: ProviderMemberRole;
   organizationName: string;
 }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [signingOut, startSignOut] = useTransition();
-
-  const signOut = () => {
-    startSignOut(async () => {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-      router.replace('/login');
-      router.refresh();
-    });
-  };
-
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-border bg-surface">
-        <div className="flex items-center gap-3 px-5 py-5">
-          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm">
-            <Image
-              src="/brand/caremate-icon.png"
-              alt="CareMate"
-              width={40}
-              height={40}
-              className="h-9 w-9 object-contain"
-              priority
-            />
-          </div>
-          <div className="min-w-0 leading-tight">
-            <p className="text-sm font-semibold tracking-tight text-brand-navy">CareMate</p>
-            <p className="truncate text-xs text-muted">Care Portal · Payer</p>
-          </div>
-        </div>
-
-        <div className="mx-4 mb-2 rounded-lg bg-primary-light/60 px-3 py-2">
-          <p className="truncate text-xs font-medium text-primary-dark">{organizationName}</p>
-        </div>
-
-        <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-3">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="flex flex-col gap-1">
-              <p className="px-3 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-muted/70">
-                {group.label}
-              </p>
-              {group.items.map(({ href, label, icon: Icon }) => {
-                const active =
-                  pathname === href ||
-                  (href !== '/payer/dashboard' &&
-                    href !== '/payer/providers' &&
-                    href !== '/payer/patients' &&
-                    pathname.startsWith(href)) ||
-                  (href === '/payer/providers' &&
-                    pathname.startsWith('/payer/providers') &&
-                    !pathname.startsWith('/payer/providers/requests')) ||
-                  (href === '/payer/patients' &&
-                    pathname.startsWith('/payer/patients') &&
-                    !pathname.startsWith('/payer/patients/requests'));
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={cn(
-                      'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all',
-                      active
-                        ? 'bg-primary-light text-primary-dark'
-                        : 'text-muted hover:bg-surface-muted hover:text-foreground',
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        'absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-opacity',
-                        active ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    <Icon
-                      className={cn(
-                        'h-4 w-4 transition-colors',
-                        active ? 'text-primary' : 'text-muted group-hover:text-foreground',
-                      )}
-                    />
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-
-        <div className="border-t border-border p-4">
-          <div className="flex items-center gap-3 rounded-lg bg-surface-muted p-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold uppercase text-white">
-              {email.charAt(0)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">{email}</p>
-              <Badge className="mt-0.5" variant="secondary">
-                {PROVIDER_ROLE_LABELS[role]}
-              </Badge>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-2 w-full justify-start text-muted hover:text-foreground"
-            loading={signingOut}
-            loadingLabel="Signing out…"
-            onClick={signOut}
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
-        </div>
-      </aside>
-
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
-      </main>
-    </div>
+    <CarePortalShell
+      email={email}
+      role={role}
+      organizationName={organizationName}
+      workspaceSubtitle="Care Portal · Payer"
+      navGroups={PAYER_NAV_GROUPS}
+    >
+      {children}
+    </CarePortalShell>
   );
 }

@@ -6,36 +6,10 @@ import { toast } from 'sonner';
 import { createAdminSubscription } from '@/domains/billing/actions';
 import type { SubscriptionPrice } from '@/types/database';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-
-const PLAN_LABEL: Record<string, string> = {
-  personal: 'Personal',
-  family: 'Family',
-};
-
-const INTERVAL_LABEL: Record<string, string> = {
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-};
-
-function formatAmount(amountMinor: number, currency: string) {
-  const major = amountMinor / 100;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(major);
-  } catch {
-    return `${major} ${currency}`;
-  }
-}
-
-function priceOptionLabel(price: SubscriptionPrice) {
-  return `${PLAN_LABEL[price.plan_type] ?? price.plan_type} · ${INTERVAL_LABEL[price.billing_interval] ?? price.billing_interval} · ${formatAmount(price.amount_minor, price.currency)}`;
-}
+import { subscriptionPriceOptionLabel } from '@/features/billing/billing-display';
 
 export function AddSubscriberPanel({ prices }: { prices: SubscriptionPrice[] }) {
   const [open, setOpen] = useState(false);
@@ -83,64 +57,65 @@ export function AddSubscriberPanel({ prices }: { prices: SubscriptionPrice[] }) 
             Provider will show as <strong>Admin activated</strong>.
           </p>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="patient-id">Patient ID</Label>
-              <Input
-                id="patient-id"
-                name="patientId"
-                placeholder="XXXX XXXX XXXX"
-                inputMode="numeric"
-                autoComplete="off"
-                value={patientId}
-                onChange={(e) => setPatientId(e.target.value)}
-                required
-              />
-              <p className="text-xs text-muted">
-                12-digit CareMate Patient ID from the member&apos;s profile.
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="plan-price">Plan</Label>
-              <Select
-                id="plan-price"
-                name="priceId"
-                value={priceId}
-                onChange={(e) => setPriceId(e.target.value)}
-                required
+          <FormStack className="mt-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                label="Patient ID"
+                htmlFor="patient-id"
+                hint="12-digit CareMate Patient ID from the member's profile."
               >
-                {activePrices.length === 0 ? (
-                  <option value="">No active prices</option>
-                ) : (
-                  activePrices.map((price) => (
-                    <option key={price.id} value={price.id}>
-                      {priceOptionLabel(price)}
-                    </option>
-                  ))
-                )}
-              </Select>
-            </div>
-          </div>
+                <Input
+                  id="patient-id"
+                  name="patientId"
+                  placeholder="XXXX XXXX XXXX"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={patientId}
+                  onChange={(e) => setPatientId(e.target.value)}
+                  required
+                />
+              </FormField>
 
-          <div className="mt-4 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setOpen(false)}
-              disabled={pending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={activePrices.length === 0}
-              loading={pending}
-              loadingLabel="Activating…"
-            >
-              Create subscription
-            </Button>
-          </div>
+              <FormField label="Plan" htmlFor="plan-price">
+                <Select
+                  id="plan-price"
+                  name="priceId"
+                  value={priceId}
+                  onChange={(e) => setPriceId(e.target.value)}
+                  required
+                >
+                  {activePrices.length === 0 ? (
+                    <option value="">No active prices</option>
+                  ) : (
+                    activePrices.map((price) => (
+                      <option key={price.id} value={price.id}>
+                        {subscriptionPriceOptionLabel(price)}
+                      </option>
+                    ))
+                  )}
+                </Select>
+              </FormField>
+            </div>
+
+            <FormActions>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpen(false)}
+                disabled={pending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={activePrices.length === 0}
+                loading={pending}
+                loadingLabel="Activating…"
+              >
+                Create subscription
+              </Button>
+            </FormActions>
+          </FormStack>
         </form>
       ) : null}
     </div>

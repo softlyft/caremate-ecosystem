@@ -1,0 +1,264 @@
+import { createClient } from '@/lib/supabase/server';
+import {
+  DEFAULT_PAGE_SIZE,
+  emptyPage,
+  pageRange,
+  paginatedResult,
+  parsePage,
+  type PaginatedResult,
+} from '@/lib/pagination';
+import type { Json } from '@/types/database';
+
+export type PayerMessageConversation = {
+  id: string;
+  kind: 'org_patient';
+  payer_organization_id: string | null;
+  patient_user_id: string | null;
+  subject: string | null;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PayerMessageMessage = {
+  id: string;
+  conversation_id: string;
+  sender_party_type: 'user' | 'organization';
+  sender_user_id: string | null;
+  sender_payer_organization_id: string | null;
+  body: string;
+  subject: string | null;
+  metadata: Json;
+  created_at: string;
+};
+
+export type PayerInboxRow = PayerMessageConversation & {
+  patient_name: string | null;
+  patient_caremate_id: string | null;
+  unread: boolean;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function db(): Promise<any> {
+  return createClient();
+}
+
+async function enrichPayerInboxRows(
+  payerOrganizationId: string,
+  rows: PayerMessageConversation[],
+): Promise<PayerInboxRow[]> {
+  if (!rows.length) return [];
+
+  const supabase = await db();
+  const patientIds = rows.map((r) => r.patient_user_id).filter(Boolean) as string[];
+  const conversationIds = rows.map((r) => r.id);
+
+  const [{ data: profiles }, { data: participants }] = await Promise.all([
+    supabase.from('profiles').select('user_id, full_name, patient_id').in('user_id', patientIds),
+    supabase
+      .from('message_participants')
+      .select('conversation_id, last_read_at')
+      .eq('party_type', 'organization')
+      .eq('payer_organization_id', payerOrganizationId)
+      .in('conversation_id', conversationIds),
+  ]);
+
+  const profileByUser = new Map(
+    (profiles ?? []).map((p: { user_id: string; full_name: string; patient_id: string | null }) => [
+      p.user_id,
+      p,
+    ]),
+  );
+  const readByConv = new Map(
+    (participants ?? []).map((p: { conversation_id: string; last_read_at: string | null }) => [
+      p.conversation_id,
+      p.last_read_at,
+    ]),
+  );
+
+  return rows.map((row) => {
+    const profile = row.patient_user_id
+      ? (profileByUser.get(row.patient_user_id) as
+          | { full_name: string; patient_id: string | null }
+          | undefined)
+      : undefined;
+    const lastRead = readByConv.get(row.id) as string | null | undefined;
+    const unread = Boolean(
+      row.last_message_at && (!lastRead || new Date(row.last_message_at) > new Date(lastRead)),
+    );
+    return {
+      ...row,
+      patient_name: profile?.full_name ?? null,
+      patient_caremate_id: profile?.patient_id ?? null,
+      unread,
+    };
+  });
+}
+
+export async function listPayerOrgConversations(
+  payerOrganizationId: string,
+  options?: { page?: number; pageSize?: number },
+): Promise<PaginatedResult<PayerInboxRow>> {
+  const page = parsePage(options?.page);
+  const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const { from, to } = pageRange(page, pageSize);
+  const supabase = await db();
+
+  const { data, error, count } = await supabase
+    .from('message_conversations')
+    .select('*', { count: 'exact' })
+    .eq('payer_organization_id', payerOrganizationId)
+    .eq('kind', 'org_patient')
+    .order('last_message_at', { ascending: false })
+    .range(from, to);
+
+  if (error) throw error;
+  const rows = (data ?? []) as PayerMessageConversation[];
+  if (!rows.length) return emptyPage(page, pageSize);
+
+  const enriched = await enrichPayerInboxRows(payerOrganizationId, rows);
+  return paginatedResult(enriched, count, page, pageSize);
+}
+
+export async function countPayerOrgConversations(payerOrganizationId: string): Promise<number> {
+  const supabase = await db();
+  const { count, error } = await supabase
+    .from('message_conversations')
+    .select('id', { count: 'exact', head: true })
+    .eq('payer_organization_id', payerOrganizationId)
+    .eq('kind', 'org_patient');
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export async function getPayerOrgConversation(
+  payerOrganizationId: string,
+  conversationId: string,
+): Promise<PayerInboxRow | null> {
+  const supabase = await db();
+  const { data, error } = await supabase
+    .from('message_conversations')
+    .select('*')
+    .eq('id', conversationId)
+    .eq('payer_organization_id', payerOrganizationId)
+    .eq('kind', 'org_patient')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  const [enriched] = await enrichPayerInboxRows(payerOrganizationId, [data as PayerMessageConversation]);
+  return enriched ?? null;
+}
+
+export async function listPayerConversationMessages(
+  payerOrganizationId: string,
+  conversationId: string,
+): Promise<PayerMessageMessage[]> {
+  const supabase = await db();
+  const { data: conversation, error: convError } = await supabase
+    .from('message_conversations')
+    .select('id')
+    .eq('id', conversationId)
+    .eq('payer_organization_id', payerOrganizationId)
+    .maybeSingle();
+  if (convError) throw convError;
+  if (!conversation) return [];
+
+  const { data, error } = await supabase
+    .from('message_messages')
+    .select('*')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as PayerMessageMessage[];
+}
+
+export async function sendPayerOrgMessage(input: {
+  payerOrganizationId: string;
+  body: string;
+  subject?: string | null;
+  audience: 'all' | 'selected';
+  patientIds?: string[];
+  expiresAt?: string | null;
+}): Promise<{ messageIds: string[]; recipientCount: number }> {
+  const supabase = await db();
+  const { data, error } = await supabase.rpc('send_payer_org_message', {
+    p_payer_organization_id: input.payerOrganizationId,
+    p_body: input.body,
+    p_subject: input.subject ?? undefined,
+    p_audience: input.audience,
+    p_patient_ids: input.audience === 'selected' ? input.patientIds : undefined,
+    p_expires_at: input.expiresAt ?? undefined,
+  });
+
+  if (error) throw error;
+
+  const payload = data as {
+    message_ids?: string[];
+    recipient_count?: number;
+  };
+
+  const messageIds = payload.message_ids ?? [];
+  await notifyPatientPush(supabase, input.payerOrganizationId, messageIds, 'payer');
+
+  return {
+    messageIds,
+    recipientCount: payload.recipient_count ?? messageIds.length,
+  };
+}
+
+async function notifyPatientPush(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  organizationId: string,
+  messageIds: string[],
+  orgKind: 'provider' | 'payer',
+) {
+  if (!messageIds.length) return;
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) return;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anon) return;
+    await fetch(`${url}/functions/v1/notify-message`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        apikey: anon,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        organizationId,
+        messageIds,
+        orgKind,
+      }),
+    });
+  } catch {
+    // Push is best-effort.
+  }
+}
+
+export async function replyPayerOrgMessage(input: {
+  payerOrganizationId: string;
+  conversationId: string;
+  body: string;
+}): Promise<PayerMessageMessage> {
+  const supabase = await db();
+  const { data, error } = await supabase.rpc('post_payer_org_message', {
+    p_conversation_id: input.conversationId,
+    p_body: input.body,
+  });
+  if (error) throw error;
+
+  const message = data as PayerMessageMessage;
+  if (message?.sender_payer_organization_id !== input.payerOrganizationId) {
+    throw new Error('Conversation does not belong to this organization');
+  }
+
+  await notifyPatientPush(supabase, input.payerOrganizationId, [message.id], 'payer');
+  return message;
+}

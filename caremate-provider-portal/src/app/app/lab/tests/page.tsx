@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { PageHeader, PageShell } from '@/components/page-header';
+import { TextLink } from '@/components/ui/text-link';
 import { requireModule } from '@/domains/modules/guard';
 import { requireProviderSession } from '@/lib/auth';
 import { listLabTests } from '@/domains/lab/repository';
@@ -22,18 +23,12 @@ export default async function LabTestsPage() {
   const tests = await listLabTests(session.activeOrganizationId, { activeOnly: false });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href="/app/lab" className="text-sm text-primary hover:underline">
-          ← Laboratory
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-brand-navy">
-          Test catalog
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Define the tests your organization offers. Codes must be unique per org.
-        </p>
-      </div>
+    <PageShell>
+      <TextLink href="/app/lab">← Laboratory</TextLink>
+      <PageHeader
+        title="Test catalog"
+        description="Define the tests your organization offers. Codes must be unique per org."
+      />
 
       {canWrite ? (
         <Card>
@@ -92,6 +87,6 @@ export default async function LabTestsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

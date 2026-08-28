@@ -5,11 +5,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
 import { useMessageInbox } from '@/domains/messaging/hooks';
 import type { MessageConversation } from '@/domains/messaging/repository';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 function formatThreadTime(value: string | null): string {
   if (!value) return '';
@@ -27,7 +27,15 @@ function formatThreadTime(value: string | null): string {
 
 function ConversationRow({ item }: { item: MessageConversation }) {
   const { t } = useTranslation();
-  const title = item.title?.trim() || item.organization_name?.trim() || 'Provider';
+  const fallback =
+    item.org_side === 'payer' ? t('messages.insurerFallback') : t('messages.providerFallback');
+  const title = item.title?.trim() || item.organization_name?.trim() || fallback;
+  const badgePrefix =
+    item.kind === 'direct'
+      ? `${t('messages.directBadge')} · `
+      : item.org_side === 'payer'
+        ? `${t('messages.insurerBadge')} · `
+        : '';
   return (
     <Button
       style={styles.row}
@@ -55,7 +63,7 @@ function ConversationRow({ item }: { item: MessageConversation }) {
             style={[styles.preview, item.unread ? styles.previewUnread : null]}
             numberOfLines={2}
           >
-            {item.kind === 'direct' ? `${t('messages.directBadge')} · ` : ''}
+            {badgePrefix}
             {item.subject ? `${item.subject} — ` : ''}
             {item.last_message_preview ?? ''}
           </AppText>
@@ -90,7 +98,7 @@ export default function MessagesInboxScreen() {
   const isEmpty = items.length === 0;
 
   return (
-    <View style={[styles.screen, { paddingBottom: insets.bottom + spacing.md }]}>
+    <Screen padded={false} style={{ paddingBottom: insets.bottom + spacing.md }}>
       {!isEmpty ? (
         <View style={styles.toolbar}>
           <Button
@@ -124,15 +132,11 @@ export default function MessagesInboxScreen() {
           renderItem={({ item }) => <ConversationRow item={item} />}
         />
       )}
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   toolbar: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.sm,
@@ -145,7 +149,7 @@ const styles = StyleSheet.create({
     gap: 6,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.22)',
+    borderColor: primaryAlpha(0.22),
     backgroundColor: palette.primaryLight,
     paddingHorizontal: 14,
     paddingVertical: 8,

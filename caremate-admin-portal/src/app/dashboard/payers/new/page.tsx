@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { TextLink } from '@/components/ui/text-link';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { PageHeader } from '@/components/page-header';
@@ -14,9 +14,9 @@ export default async function NewPayerOrganizationPage() {
         <p className="text-sm text-muted">
           You do not have permission to create health insurance organizations.
         </p>
-        <Link href="/dashboard/payers" className="mt-4 inline-block text-primary hover:underline">
+        <TextLink href="/dashboard/payers" className="mt-4 inline-block">
           Back to list
-        </Link>
+        </TextLink>
       </div>
     );
   }
@@ -27,9 +27,9 @@ export default async function NewPayerOrganizationPage() {
         title="Create health insurance organization"
         description="Add a payer to the Care Portal catalog. Set a claim contact email so the org can claim."
       >
-        <Link href="/dashboard/payers" className="text-sm text-muted hover:text-foreground">
+        <TextLink href="/dashboard/payers" className="text-muted hover:text-foreground">
           Back to list
-        </Link>
+        </TextLink>
       </PageHeader>
       <Card>
         <CardHeader>

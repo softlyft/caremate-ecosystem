@@ -91,6 +91,16 @@ export const STATIC_PAGE_SEO: Record<string, Omit<PageSeo, 'path'>> = {
     description:
       'CareMate Free, Premium, and Family plans. Compare features for emergency profile, Learn, trackers, and household care.',
   },
+  '/providers/pricing': {
+    title: titleWithBrand('Care Portal plans'),
+    description:
+      'Private Care Team for healthcare providers — Free, Basic, Pro, and Enterprise. Org Messages stay free; Paystack NGN checkout.',
+  },
+  '/payers/pricing': {
+    title: titleWithBrand('Payer Support Team plans'),
+    description:
+      'Support Team for health insurers and payers — Free, Basic, Pro, and Enterprise. Text and voice chat; Pro adds group coordination. Paystack NGN.',
+  },
   '/providers': {
     title: titleWithBrand('For healthcare providers'),
     description:

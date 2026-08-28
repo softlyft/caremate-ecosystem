@@ -4,8 +4,8 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { Button, FormActions } from '@/components/ui/form-controls';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyConnectionService, familyRepository } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
@@ -58,9 +58,9 @@ export default function FamilyRequestsScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen tone="background">
         <AppText variant="body">{t('family.requests.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -88,63 +88,62 @@ export default function FamilyRequestsScreen() {
   const requests = requestsQuery.data ?? [];
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
-      <AppText variant="sectionTitle">{t('family.requests.title')}</AppText>
-      <AppText variant="subtitle">{t('family.requests.subtitle')}</AppText>
+    <Screen padded={false} tone="background">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
+        <AppText variant="sectionTitle">{t('family.requests.title')}</AppText>
+        <AppText variant="subtitle">{t('family.requests.subtitle')}</AppText>
 
-      {requests.length === 0 ? (
-        <View style={styles.card}>
-          <AppText variant="body">{t('family.requests.empty')}</AppText>
-        </View>
-      ) : (
-        requests.map((request) => (
-          <View key={request.id} style={styles.card}>
-            <AppText variant="cardTitle">{t('family.requests.spouseConnection')}</AppText>
-            <AppText variant="caption" style={styles.muted}>
-              {t('family.requests.fromUser', { id: request.fromUserId.slice(0, 8) })}
-            </AppText>
-            {request.toEmail ? (
-              <AppText variant="caption">
-                {t('family.requests.lookupEmail', { email: request.toEmail })}
-              </AppText>
-            ) : null}
-            {request.toPhone ? (
-              <AppText variant="caption">
-                {t('family.requests.lookupPhone', { phone: request.toPhone })}
-              </AppText>
-            ) : null}
-            <View style={styles.actions}>
-              <Button
-                label={
-                  busyId === request.id ? t('family.requests.working') : t('family.requests.accept')
-                }
-                disabled={busyId === request.id}
-                onPress={() => respond(request.id, true)}
-              />
-              <Button
-                label={t('family.requests.decline')}
-                variant="secondary"
-                disabled={busyId === request.id}
-                onPress={() => respond(request.id, false)}
-              />
-            </View>
+        {requests.length === 0 ? (
+          <View style={styles.card}>
+            <AppText variant="body">{t('family.requests.empty')}</AppText>
           </View>
-        ))
-      )}
-    </ScrollView>
+        ) : (
+          requests.map((request) => (
+            <View key={request.id} style={styles.card}>
+              <AppText variant="cardTitle">{t('family.requests.spouseConnection')}</AppText>
+              <AppText variant="caption" style={styles.muted}>
+                {t('family.requests.fromUser', { id: request.fromUserId.slice(0, 8) })}
+              </AppText>
+              {request.toEmail ? (
+                <AppText variant="caption">
+                  {t('family.requests.lookupEmail', { email: request.toEmail })}
+                </AppText>
+              ) : null}
+              {request.toPhone ? (
+                <AppText variant="caption">
+                  {t('family.requests.lookupPhone', { phone: request.toPhone })}
+                </AppText>
+              ) : null}
+              <FormActions style={styles.actions}>
+                <Button
+                  label={
+                    busyId === request.id
+                      ? t('family.requests.working')
+                      : t('family.requests.accept')
+                  }
+                  disabled={busyId === request.id}
+                  onPress={() => respond(request.id, true)}
+                />
+                <Button
+                  label={t('family.requests.decline')}
+                  variant="secondary"
+                  disabled={busyId === request.id}
+                  onPress={() => respond(request.id, false)}
+                />
+              </FormActions>
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.background },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
-  },
+  flex: { flex: 1 },
   content: {
     padding: layoutSpacing.screenHorizontal,
     gap: spacing.md,

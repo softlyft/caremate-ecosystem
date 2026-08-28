@@ -342,6 +342,14 @@ export function SectionTitle({ title, subtitle }: { title: string; subtitle?: st
   );
 }
 
+export { DetailRow } from '@/components/ui/detail-row';
+export { FormActions, FormField, FormStack } from '@/components/ui/form-field';
+export { FormNotice } from '@/components/ui/form-notice';
+export { MessageComposer } from '@/components/ui/message-composer';
+export { SearchField } from '@/components/ui/search-field';
+export type { SearchFieldProps } from '@/components/ui/search-field';
+export { TextLink } from '@/components/ui/text-link';
+
 const styles = StyleSheet.create({
   buttonBase: {
     borderRadius: radius.full,

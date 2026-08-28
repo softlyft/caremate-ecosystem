@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {
   listProviderHealthcareServices,
   listProviderLocations,
@@ -11,9 +10,13 @@ import { PROVIDER_TYPES, PROVIDER_TYPE_LABELS } from '@/constants/content';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
+import { FilterBar } from '@/components/filter-bar';
+import { TabNav } from '@/components/tab-nav';
 import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/ui/button-link';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { TextLink } from '@/components/ui/text-link';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -110,43 +113,26 @@ export default async function ProvidersPage({
       >
         {canEdit ? (
           <>
-            <Link
-              href="/dashboard/providers/organizations/new"
-              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary-dark"
-            >
-              Create organization
-            </Link>
-            <Link
-              href="/dashboard/providers/upload"
-              className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
-            >
+            <ButtonLink href="/dashboard/providers/organizations/new">Create organization</ButtonLink>
+            <ButtonLink href="/dashboard/providers/upload" variant="secondary">
               Upload workbook
-            </Link>
+            </ButtonLink>
           </>
         ) : null}
       </PageHeader>
 
-      <nav className="mb-4 flex flex-wrap gap-2">
-        {VIEWS.map((v) => {
-          const active = view === v.id;
-          const href = providersHref({ view: v.id, q });
-          return (
-            <Link
-              key={v.id}
-              href={href}
-              className={
-                active
-                  ? 'rounded-md bg-primary px-3 py-1.5 text-sm text-white'
-                  : 'rounded-md border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground'
-              }
-            >
-              {v.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <TabNav
+        tabs={VIEWS.map((v) => ({
+          key: v.id,
+          label: v.label,
+          href: providersHref({ view: v.id, q }),
+        }))}
+        current={view}
+        ariaLabel="Catalog view"
+        variant="pill"
+      />
 
-      <form className="mb-4 flex flex-wrap gap-2">
+      <FilterBar>
         <input type="hidden" name="view" value={view} />
         <Input name="q" defaultValue={q} placeholder="Search…" className="max-w-xs" />
         {view === 'pins' ? (
@@ -159,10 +145,7 @@ export default async function ProvidersPage({
             ))}
           </Select>
         ) : null}
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm text-white">
-          Filter
-        </button>
-      </form>
+      </FilterBar>
 
       <Card>
         <CardContent className="p-0">
@@ -188,31 +171,25 @@ export default async function ProvidersPage({
                   organizations.rows.map((org) => (
                     <TableRow key={org.id}>
                       <TableCell className="max-w-[18rem] font-mono text-xs">
-                        <Link
+                        <TextLink
                           href={`/dashboard/providers/organizations/${org.id}`}
-                          className="break-all text-primary hover:underline"
+                          className="break-all"
                           title={org.id}
                         >
                           {org.id}
-                        </Link>
+                        </TextLink>
                       </TableCell>
                       <TableCell className="font-medium">
-                        <Link
-                          href={`/dashboard/providers/organizations/${org.id}`}
-                          className="text-primary hover:underline"
-                        >
+                        <TextLink href={`/dashboard/providers/organizations/${org.id}`}>
                           {org.name}
-                        </Link>
+                        </TextLink>
                       </TableCell>
                       <TableCell>{org.active ? 'Yes' : 'No'}</TableCell>
                       <TableCell className="text-muted">{org.source ?? '—'}</TableCell>
                       <TableCell>
-                        <Link
-                          href={`/dashboard/providers/organizations/${org.id}?fhir=1`}
-                          className="text-sm font-medium text-primary hover:underline"
-                        >
+                        <TextLink href={`/dashboard/providers/organizations/${org.id}?fhir=1`}>
                           View
-                        </Link>
+                        </TextLink>
                       </TableCell>
                     </TableRow>
                   ))
@@ -247,41 +224,27 @@ export default async function ProvidersPage({
                     return (
                     <TableRow key={loc.id}>
                       <TableCell className="max-w-[14rem] font-mono text-xs">
-                        <Link
-                          href={catalogHref}
-                          className="break-all text-primary hover:underline"
-                          title={loc.id}
-                        >
+                        <TextLink href={catalogHref} className="break-all" title={loc.id}>
                           {loc.id}
-                        </Link>
+                        </TextLink>
                       </TableCell>
                       <TableCell className="font-medium">
-                        <Link href={catalogHref} className="text-primary hover:underline">
-                          {loc.name}
-                        </Link>
+                        <TextLink href={catalogHref}>{loc.name}</TextLink>
                       </TableCell>
                       <TableCell
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={loc.organization_id}
                       >
-                        <Link
-                          href={`/dashboard/providers/organizations/${loc.organization_id}`}
-                          className="text-primary hover:underline"
-                        >
+                        <TextLink href={`/dashboard/providers/organizations/${loc.organization_id}`}>
                           {loc.organization_id}
-                        </Link>
+                        </TextLink>
                       </TableCell>
                       <TableCell className="max-w-xs truncate text-muted">
                         {loc.address ?? '—'}
                       </TableCell>
                       <TableCell>{loc.status}</TableCell>
                       <TableCell>
-                        <Link
-                          href={`${catalogHref}?fhir=1`}
-                          className="text-sm font-medium text-primary hover:underline"
-                        >
-                          View
-                        </Link>
+                        <TextLink href={`${catalogHref}?fhir=1`}>View</TextLink>
                       </TableCell>
                     </TableRow>
                     );
@@ -319,32 +282,21 @@ export default async function ProvidersPage({
                     return (
                     <TableRow key={hs.id}>
                       <TableCell className="max-w-[14rem] break-all font-mono text-xs">
-                        <Link
-                          href={catalogHref}
-                          className="text-primary hover:underline"
-                        >
-                          {hs.id}
-                        </Link>
+                        <TextLink href={catalogHref}>{hs.id}</TextLink>
                       </TableCell>
                       <TableCell className="font-medium">
-                        <Link
-                          href={catalogHref}
-                          className="text-primary hover:underline"
-                        >
-                          {hs.name}
-                        </Link>
+                        <TextLink href={catalogHref}>{hs.name}</TextLink>
                       </TableCell>
                       <TableCell
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={hs.location_id ?? undefined}
                       >
                         {hs.location_id && hs.organization_id ? (
-                          <Link
+                          <TextLink
                             href={`/dashboard/providers/organizations/${hs.organization_id}/locations/${hs.location_id}`}
-                            className="text-primary hover:underline"
                           >
                             {hs.location_id}
-                          </Link>
+                          </TextLink>
                         ) : (
                           (hs.location_id ?? '—')
                         )}
@@ -353,21 +305,13 @@ export default async function ProvidersPage({
                         className="max-w-[14rem] truncate font-mono text-xs text-muted"
                         title={hs.organization_id}
                       >
-                        <Link
-                          href={`/dashboard/providers/organizations/${hs.organization_id}`}
-                          className="text-primary hover:underline"
-                        >
+                        <TextLink href={`/dashboard/providers/organizations/${hs.organization_id}`}>
                           {hs.organization_id}
-                        </Link>
+                        </TextLink>
                       </TableCell>
                       <TableCell className="text-muted">{hs.service_type ?? '—'}</TableCell>
                       <TableCell>
-                        <Link
-                          href={`${catalogHref}?fhir=1`}
-                          className="text-sm font-medium text-primary hover:underline"
-                        >
-                          View
-                        </Link>
+                        <TextLink href={`${catalogHref}?fhir=1`}>View</TextLink>
                       </TableCell>
                     </TableRow>
                     );
@@ -406,21 +350,15 @@ export default async function ProvidersPage({
                     return (
                       <TableRow key={p.id}>
                         <TableCell className="max-w-[12rem] truncate font-mono text-xs">
-                          <Link
+                          <TextLink
                             href={`/dashboard/providers/${p.id}`}
-                            className="text-primary hover:underline"
                             title={locationId}
                           >
                             {locationId}
-                          </Link>
+                          </TextLink>
                         </TableCell>
                         <TableCell>
-                          <Link
-                            href={`/dashboard/providers/${p.id}`}
-                            className="font-medium text-primary hover:underline"
-                          >
-                            {p.name}
-                          </Link>
+                          <TextLink href={`/dashboard/providers/${p.id}`}>{p.name}</TextLink>
                           {!p.active ? (
                             <Badge variant="secondary" className="ml-2">
                               Inactive
@@ -442,12 +380,7 @@ export default async function ProvidersPage({
                           {p.address ?? '—'}
                         </TableCell>
                         <TableCell>
-                          <Link
-                            href={`/dashboard/providers/${p.id}?fhir=1`}
-                            className="text-sm font-medium text-primary hover:underline"
-                          >
-                            View
-                          </Link>
+                          <TextLink href={`/dashboard/providers/${p.id}?fhir=1`}>View</TextLink>
                         </TableCell>
                       </TableRow>
                     );

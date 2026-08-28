@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { ButtonLink } from '@/components/ui/button-link';
+import { TextLink } from '@/components/ui/text-link';
 import { notFound } from 'next/navigation';
 
 import { emptyFhirBundle } from '@/domains/providers/fhir-bundle';
@@ -28,15 +29,7 @@ import { ProviderFhirViewButton } from '@/features/providers/provider-fhir-view-
 import { LocationForm } from '@/features/providers/location-form';
 import { ArchiveLocationButton } from '@/features/providers/catalog-archive-buttons';
 import type { ProviderHealthcareService } from '@/types/database';
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm text-foreground">{children}</dd>
-    </div>
-  );
-}
+import { DescriptionRow } from '@/components/ui/detail-row';
 
 export default async function LocationDetailPage({
   params,
@@ -101,12 +94,12 @@ export default async function LocationDetailPage({
         {canEdit ? (
           <ArchiveLocationButton locationId={location.id} organizationId={organizationId} />
         ) : null}
-        <Link
+        <TextLink
           href={`/dashboard/providers/organizations/${organizationId}`}
-          className="text-sm text-muted hover:text-foreground"
+          className="text-muted hover:text-foreground"
         >
           Back to organization
-        </Link>
+        </TextLink>
       </PageHeader>
 
       <Card>
@@ -123,29 +116,24 @@ export default async function LocationDetailPage({
             />
           ) : (
             <dl>
-              <Row label="Address">{location.address ?? '—'}</Row>
-              <Row label="Phone">{location.phone ?? '—'}</Row>
-              <Row label="Email">{location.email ?? '—'}</Row>
-              <Row label="Status">{location.status}</Row>
+              <DescriptionRow label="Address">{location.address ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Phone">{location.phone ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Email">{location.email ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Status">{location.status}</DescriptionRow>
             </dl>
           )}
           <dl className="mt-6 border-t border-border pt-4">
-            <Row label="Location ID">
+            <DescriptionRow label="Location ID">
               <code className="break-all text-xs">{location.id}</code>
-            </Row>
-            <Row label="Source">{location.source ?? '—'}</Row>
-            <Row label="Nearby pin">
+            </DescriptionRow>
+            <DescriptionRow label="Source">{location.source ?? '—'}</DescriptionRow>
+            <DescriptionRow label="Nearby pin">
               {pin ? (
-                <Link
-                  href={`/dashboard/providers/${pin.id}`}
-                  className="text-primary hover:underline"
-                >
-                  View projection
-                </Link>
+                <TextLink href={`/dashboard/providers/${pin.id}`}>View projection</TextLink>
               ) : (
                 '—'
               )}
-            </Row>
+            </DescriptionRow>
           </dl>
         </CardContent>
       </Card>
@@ -154,12 +142,12 @@ export default async function LocationDetailPage({
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
           <CardTitle>Healthcare services</CardTitle>
           {canEdit ? (
-            <Link
+            <ButtonLink
               href={`/dashboard/providers/organizations/${organizationId}/locations/${locationId}/services/new`}
-              className="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-white hover:opacity-90"
+              size="sm"
             >
               Add service
-            </Link>
+            </ButtonLink>
           ) : null}
         </CardHeader>
         <CardContent className="p-0">
@@ -191,12 +179,11 @@ export default async function LocationDetailPage({
                     </TableCell>
                     <TableCell>{svc.active ? 'Yes' : 'No'}</TableCell>
                     <TableCell>
-                      <Link
+                      <TextLink
                         href={`/dashboard/providers/organizations/${organizationId}/locations/${locationId}/services/${svc.id}`}
-                        className="text-sm font-medium text-primary hover:underline"
                       >
                         {canEdit ? 'Edit' : 'View'}
-                      </Link>
+                      </TextLink>
                     </TableCell>
                   </TableRow>
                 ))

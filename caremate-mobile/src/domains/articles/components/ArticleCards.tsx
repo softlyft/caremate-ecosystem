@@ -11,7 +11,7 @@ import { ArticleShareButton } from '@/domains/articles/components/ArticleShareBu
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
 import { isEvergreenArticle } from '@/domains/articles/utils/evergreen-articles';
-import { palette, radius, shadow, spacing } from '@/theme';
+import { palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
 function getCategoryAccent(categoryId: string): string {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xxl,
     backgroundColor: palette.background,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.12)',
+    borderColor: primaryAlpha(0.12),
     overflow: 'hidden',
   },
   featuredMedia: {

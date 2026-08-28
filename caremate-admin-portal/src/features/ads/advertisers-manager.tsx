@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import {
   Table,
@@ -82,38 +82,36 @@ function AdvertiserForm({
   return (
     <Card>
       <CardContent className="p-6">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="name">Organization name</Label>
-              <Input id="name" {...register('name', { required: true })} />
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="Organization name" htmlFor="name" className="md:col-span-2">
+                <Input id="name" {...register('name', { required: true })} />
+              </FormField>
+              <FormField label="Type" htmlFor="orgType">
+                <Select
+                  id="orgType"
+                  defaultValue={advertiser?.org_type ?? 'other'}
+                  onChange={(e) => setValue('orgType', e.target.value as FormValues['orgType'])}
+                >
+                  {ORG_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t.replace('_', ' ')}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Website" htmlFor="websiteUrl">
+                <Input id="websiteUrl" {...register('websiteUrl')} placeholder="https://" />
+              </FormField>
+              <FormField label="Logo URL" htmlFor="logoUrl" className="md:col-span-2">
+                <Input id="logoUrl" {...register('logoUrl')} />
+              </FormField>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="orgType">Type</Label>
-              <Select
-                id="orgType"
-                defaultValue={advertiser?.org_type ?? 'other'}
-                onChange={(e) => setValue('orgType', e.target.value as FormValues['orgType'])}
-              >
-                {ORG_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t.replace('_', ' ')}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="websiteUrl">Website</Label>
-              <Input id="websiteUrl" {...register('websiteUrl')} placeholder="https://" />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="logoUrl">Logo URL</Label>
-              <Input id="logoUrl" {...register('logoUrl')} />
-            </div>
-          </div>
-          <Button type="submit" loading={pending} loadingLabel="Saving…">
-            Save advertiser
-          </Button>
+            <Button type="submit" loading={pending} loadingLabel="Saving…">
+              Save advertiser
+            </Button>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

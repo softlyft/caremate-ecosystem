@@ -73,7 +73,7 @@ Mirrored in portal `constants/content.ts` and ingest `PROVIDER_TYPES`.
 | `imaging_centre` | Imaging Centre | ✅ |
 | `dentist` | Dental Clinic | ✅ |
 | `eye_care` | Eye Clinic | ✅ |
-| `insurance` | Insurance | — (data model only; not in Nearby chips) |
+| `insurance` | Insurance | — (Nearby chip / pin type for facilities tagged insurance; **not** the Health Insurance Directory / `payer_organizations`) |
 | `blood_bank` | Blood Bank | — |
 | `ambulance` | Ambulance Service | — |
 | `telemedicine` | Telemedicine | — |
@@ -98,9 +98,11 @@ Patient ↔ provider **connections**, documents, **messages**, and appointment r
 
 **Connections (shipped):** either side can request; the other party approves (required `rejection_reason` if declined). One connection row per patient↔organization. **Approving auto-grants secure messaging consent** (revocable under Connections). Clinical data (e.g. emergency profile) stays opt-in via **Me → Connections → Connected providers → [provider] → Add consent** (`shared_scopes` is a denormalized cache). Patient: Nearby detail → Connect (verified claimed orgs only); **Me → Connections**. Provider: CareMate Patient ID under Connection requests.
 
+**Patient ↔ payer (shipped):** separate catalog (`payer_organizations` / `payer_directory`). Patient: **Me → Health Insurance Directory** → Connect only when payer is claim-verified (`is_payer_org_verified`); disconnect from the connected list or insurer detail. Payer portal: CareMate Patient ID under `/payer/patients/requests`. Insurer org messages appear in **Messages** (approved connection only; no messaging-consent scope). See [Connections — Patient ↔ payer](../../caremate-provider-portal/docs/connections.md#patient--payer-connections).
+
 **Documents (shipped):** patients upload under **Me → Documents** (org optional; link later after connect); providers upload to connected patients; both appear in the same list (signed URL open). Patient-sourced files are visible to a provider only after the patient links that org and the connection is approved.
 
-**Messages (shipped):** portal **Messages** compose + two-way threads; mobile Home → **Messages** inbox / reply / New message (DMs). Org ↔ patient messaging requires active **messaging** consent. Push via Edge Function `notify-message` when the device is registered. Staff elevation: connected patient → Mark as staff (optional company fields).
+**Messages (shipped):** portal **Messages** compose + two-way threads; mobile Home → **Messages** inbox / reply / New message (DMs). Provider org ↔ patient requires active **messaging** consent; payer org ↔ patient requires approved connection only. Push via Edge Function `notify-message` when the device is registered (tap opens thread). Staff elevation: connected patient → Mark as staff (optional company fields).
 
 ## Flexible attributes
 

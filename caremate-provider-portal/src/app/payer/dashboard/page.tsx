@@ -1,98 +1,108 @@
-import Link from 'next/link';
 import { requirePayerSession } from '@/lib/auth';
-import { getPayerOrganizationProfile } from '@/domains/payer/repository';
-import { listPayerProviderConnectionsByStatus } from '@/domains/payer-connections/repository';
+import { getPayerDashboardSnapshot } from '@/domains/payer-dashboard/repository';
+import { PageHeader, PageShell } from '@/components/page-header';
+import { DashboardMetricGrid } from '@/components/features/dashboard-metric-card';
+import { DashboardQuickActions } from '@/components/features/dashboard-quick-actions';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardLink } from '@/components/ui/card-link';
+import { Users, UserPlus, FileText, Megaphone, Hospital, Upload, Send } from 'lucide-react';
 
 export default async function PayerDashboardPage() {
   const session = await requirePayerSession();
-  const data = await getPayerOrganizationProfile(session.activeOrganizationId);
-  const verification = data?.profile?.verification_status ?? 'pending';
-
-  const [connected, inbound] = await Promise.all([
-    listPayerProviderConnectionsByStatus(session.activeOrganizationId, 'approved', {
-      page: 1,
-      pageSize: 1,
-    }),
-    listPayerProviderConnectionsByStatus(session.activeOrganizationId, 'pending', {
-      page: 1,
-      pageSize: 1,
-      initiatedBy: 'provider',
-    }),
-  ]);
+  const snapshot = await getPayerDashboardSnapshot(session.activeOrganizationId);
+  const { verificationStatus } = snapshot;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted">
-            Welcome to Care Portal for {session.activeOrganizationName}
-          </p>
-        </div>
-        <Badge
-          variant={
-            verification === 'verified'
-              ? 'success'
-              : verification === 'suspended'
-                ? 'danger'
-                : 'warning'
-          }
-        >
-          {verification}
-        </Badge>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Connected providers</CardTitle>
-            <CardDescription>Approved network links</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-semibold text-brand-navy">{connected.total}</p>
-            <Link
-              href="/payer/providers"
-              className="text-sm font-medium text-primary hover:underline"
-            >
-              View connected providers →
-            </Link>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Pending requests</CardTitle>
-            <CardDescription>Awaiting your review</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-semibold text-brand-navy">{inbound.total}</p>
-            <Link
-              href="/payer/providers/requests"
-              className="text-sm font-medium text-primary hover:underline"
-            >
-              Review connection requests →
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Organization</CardTitle>
-          <CardDescription>
-            Keep directory contact details current for patients and providers
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link
-            href="/payer/organization"
-            className="text-sm font-medium text-primary hover:underline"
+    <PageShell spacing="loose">
+      <PageHeader
+        title="Dashboard"
+        description={`Patient engagement overview for ${session.activeOrganizationName}`}
+        actions={
+          <Badge
+            variant={
+              verificationStatus === 'verified'
+                ? 'success'
+                : verificationStatus === 'suspended'
+                  ? 'danger'
+                  : 'warning'
+            }
           >
-            Edit organization profile →
-          </Link>
-        </CardContent>
-      </Card>
-    </div>
+            {verificationStatus}
+          </Badge>
+        }
+      />
+
+      <DashboardMetricGrid
+        title="Network"
+        columns="sm:grid-cols-2"
+        metrics={[
+          {
+            label: 'Connected Providers',
+            value: snapshot.connectedProviders,
+            icon: Hospital,
+            href: '/payer/providers',
+          },
+          {
+            label: 'Provider Requests',
+            value: snapshot.inboundProviderRequests,
+            icon: UserPlus,
+            href: '/payer/providers/requests',
+          },
+        ]}
+      />
+
+      <DashboardMetricGrid
+        title="Engagement"
+        metrics={[
+          {
+            label: 'Connected Patients',
+            value: snapshot.connectedPatients,
+            icon: Users,
+            href: '/payer/patients',
+          },
+          {
+            label: 'Patient Requests',
+            value: snapshot.inboundPatientRequests,
+            icon: UserPlus,
+            href: '/payer/patients/requests',
+          },
+          {
+            label: 'Shared Documents',
+            value: snapshot.documentsShared,
+            icon: FileText,
+            href: '/payer/documents',
+          },
+          {
+            label: 'Message Threads',
+            value: snapshot.messageThreads,
+            icon: Megaphone,
+            href: '/payer/broadcasts',
+          },
+        ]}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <CardLink
+          className="lg:col-span-2"
+          title="Organization"
+          description="Keep directory contact details current for patients and providers"
+          href="/payer/organization"
+          linkLabel="Edit organization profile →"
+        />
+
+        <DashboardQuickActions
+          actions={[
+            {
+              label: 'Send message',
+              href: '/payer/broadcasts',
+              icon: Send,
+              variant: 'primary',
+            },
+            { label: 'Upload document', href: '/payer/documents', icon: Upload },
+            { label: 'View patients', href: '/payer/patients', icon: Users },
+          ]}
+        />
+      </div>
+    </PageShell>
   );
 }

@@ -8,6 +8,8 @@ type NotifyBody = {
   messageIds?: string[];
   /** Direct DM: notify the other participant for these message ids. */
   mode?: 'org' | 'direct';
+  /** When set to payer, authorize via payer_org_members and payer message columns. */
+  orgKind?: 'provider' | 'payer';
 };
 
 /**
@@ -49,7 +51,7 @@ Deno.serve(async (req) => {
       return await notifyDirect(authHeader, user.id, messageIds);
     }
 
-    return await notifyOrg(user.id, body.organizationId?.trim(), messageIds);
+    return await notifyOrg(user.id, body.organizationId?.trim(), messageIds, body.orgKind ?? 'provider');
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unexpected error';
     console.error('notify-message', message);
@@ -57,12 +59,115 @@ Deno.serve(async (req) => {
   }
 });
 
-async function notifyOrg(userId: string, organizationId: string | undefined, messageIds: string[]) {
+async function notifyOrg(
+  userId: string,
+  organizationId: string | undefined,
+  messageIds: string[],
+  orgKind: 'provider' | 'payer' = 'provider',
+) {
   if (!organizationId) {
     return jsonResponse({ error: 'organizationId and messageIds are required' }, 400);
   }
 
   const service = createServiceClient();
+
+  if (orgKind === 'payer') {
+    const { data: membership } = await service
+      .from('payer_org_members')
+      .select('role')
+      .eq('organization_id', organizationId)
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .maybeSingle();
+
+    const role = membership?.role as string | undefined;
+    const allowed = role === 'owner' || role === 'administrator' || role === 'staff';
+    if (!allowed) {
+      return jsonResponse({ error: 'Forbidden' }, 403);
+    }
+
+    const { data: org } = await service
+      .from('payer_organizations')
+      .select('name')
+      .eq('id', organizationId)
+      .maybeSingle();
+    const orgName =
+      (typeof org?.name === 'string' && org.name.trim()) || 'your insurer';
+
+    const { data: messages, error: messagesError } = await service
+      .from('message_messages')
+      .select('id, conversation_id, body, subject, sender_payer_organization_id')
+      .in('id', messageIds)
+      .eq('sender_payer_organization_id', organizationId);
+
+    if (messagesError) {
+      return jsonResponse({ error: messagesError.message }, 500);
+    }
+    if (!messages?.length) {
+      return jsonResponse({ error: 'No matching messages' }, 404);
+    }
+
+    const conversationIds = [...new Set(messages.map((m) => m.conversation_id as string))];
+    const { data: conversations, error: convError } = await service
+      .from('message_conversations')
+      .select('id, patient_user_id, payer_organization_id')
+      .in('id', conversationIds)
+      .eq('payer_organization_id', organizationId);
+
+    if (convError) {
+      return jsonResponse({ error: convError.message }, 500);
+    }
+
+    const patientByConversation = new Map(
+      (conversations ?? []).map((c) => [c.id as string, c.patient_user_id as string]),
+    );
+
+    const results: Array<{ messageId: string; status: string }> = [];
+
+    for (const message of messages) {
+      const patientId = patientByConversation.get(message.conversation_id as string);
+      if (!patientId) {
+        results.push({ messageId: message.id as string, status: 'skipped_no_patient' });
+        continue;
+      }
+
+      const pushTitle = orgName;
+      const pushBody = `New message from ${orgName}`;
+
+      try {
+        const sent = await sendExpoPushNotification({
+          service,
+          userId: patientId,
+          domain: 'messaging',
+          eventType: 'org_message',
+          title: pushTitle,
+          body: pushBody,
+          severity: 'info',
+          dedupeKey: `messaging:org_message:${message.id}`,
+          entityType: 'message_messages',
+          entityId: message.id as string,
+          data: {
+            conversationId: message.conversation_id,
+            messageId: message.id,
+            organizationId,
+            orgKind: 'payer',
+            path: `/messages/${message.conversation_id}`,
+          },
+        });
+        results.push({ messageId: message.id as string, status: sent.deliveryStatus });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'push failed';
+        console.error('notify-message push', message.id, msg);
+        results.push({ messageId: message.id as string, status: 'failed' });
+      }
+    }
+
+    return jsonResponse({
+      ok: true,
+      providerName: orgName,
+      results,
+    });
+  }
 
   const { data: membership } = await service
     .from('provider_org_members')

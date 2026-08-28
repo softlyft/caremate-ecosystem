@@ -3,26 +3,26 @@
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FormActions, FormField } from '@/components/ui/form-field';
 import {
-  approveConnectionAction,
-  cancelPendingConnectionAction,
-  disconnectConnectionAction,
-  rejectConnectionAction,
-} from '@/domains/connections/actions';
+  providerPatientConnectionHandlers,
+  type ConnectionActionHandlers,
+} from '@/lib/connection-action-handlers';
 
-type ConnectionActionMode = 'inbound-pending' | 'outbound-pending' | 'approved';
+export type ConnectionActionMode = 'inbound-pending' | 'outbound-pending' | 'approved';
 
 export function ConnectionActions({
   connectionId,
   mode,
+  handlers = providerPatientConnectionHandlers,
   /** @deprecated Use `mode` instead. */
   showApprove = true,
 }: {
   connectionId: string;
   mode?: ConnectionActionMode;
-  /** Hide for outbound (provider-initiated) rows awaiting the patient. */
+  handlers?: ConnectionActionHandlers;
+  /** Hide for outbound rows awaiting the other party. */
   showApprove?: boolean;
 }) {
   const resolvedMode: ConnectionActionMode =
@@ -60,24 +60,28 @@ export function ConnectionActions({
       setPendingAction(action);
       try {
         if (resolvedMode === 'inbound-pending') {
-          await rejectConnectionAction(connectionId, trimmed);
+          await handlers.reject(connectionId, trimmed);
           toast.success('Connection rejected');
         } else if (resolvedMode === 'outbound-pending') {
-          await cancelPendingConnectionAction(connectionId, trimmed);
+          await handlers.cancel(connectionId, trimmed);
           toast.success('Request cancelled');
         } else {
-          await disconnectConnectionAction(connectionId, trimmed || undefined);
+          await handlers.disconnect(connectionId, trimmed || undefined);
           toast.success('Connection ended');
         }
         setReasonOpen(false);
         setReason('');
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : `Failed to ${primaryLabel.toLowerCase()}`);
+        toast.error(
+          handlers.formatError(err, `Failed to ${primaryLabel.toLowerCase()}`),
+        );
       } finally {
         setPendingAction(null);
       }
     });
   }
+
+  const reasonFieldId = `connection-reason-${connectionId}`;
 
   return (
     <div className="flex min-w-[12rem] flex-col items-end gap-2">
@@ -92,10 +96,10 @@ export function ConnectionActions({
               startTransition(async () => {
                 setPendingAction('approve');
                 try {
-                  await approveConnectionAction(connectionId);
+                  await handlers.approve(connectionId);
                   toast.success('Connection approved');
                 } catch (err) {
-                  toast.error(err instanceof Error ? err.message : 'Failed to approve');
+                  toast.error(handlers.formatError(err, 'Failed to approve'));
                 } finally {
                   setPendingAction(null);
                 }
@@ -116,22 +120,25 @@ export function ConnectionActions({
       </div>
       {reasonOpen ? (
         <div className="w-64 space-y-2 rounded-md border border-border bg-white p-3 shadow-sm">
-          <Label htmlFor={`connection-reason-${connectionId}`}>
-            {reasonRequired ? 'Reason (required)' : 'Reason (optional)'}
-          </Label>
-          <Textarea
-            id={`connection-reason-${connectionId}`}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            rows={3}
-            placeholder={
-              resolvedMode === 'approved'
-                ? 'Why is this connection being ended?'
-                : 'Why is this request being declined?'
-            }
-            disabled={pending}
-          />
-          <div className="flex justify-end gap-2">
+          <FormField
+            compact
+            label={reasonRequired ? 'Reason (required)' : 'Reason (optional)'}
+            htmlFor={reasonFieldId}
+          >
+            <Textarea
+              id={reasonFieldId}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+              placeholder={
+                resolvedMode === 'approved'
+                  ? 'Why is this connection being ended?'
+                  : 'Why is this request being declined?'
+              }
+              disabled={pending}
+            />
+          </FormField>
+          <FormActions>
             <Button
               size="sm"
               variant="secondary"
@@ -153,7 +160,7 @@ export function ConnectionActions({
             >
               Confirm
             </Button>
-          </div>
+          </FormActions>
         </div>
       ) : null}
     </div>

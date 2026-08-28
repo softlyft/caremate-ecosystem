@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
-import { Box } from '@/components/ui/box';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { CompactArticleCard } from '@/domains/articles/components/ArticleCards';
@@ -65,7 +64,7 @@ export default function ReadingHistoryScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => <CompactArticleCard article={item} />}
-          ItemSeparatorComponent={() => <Box className="h-3" />}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
     </Screen>
@@ -117,5 +116,8 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: spacing.xl,
+  },
+  separator: {
+    height: 12,
   },
 });

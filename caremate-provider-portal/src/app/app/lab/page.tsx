@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { format } from 'date-fns';
 import { requireModule } from '@/domains/modules/guard';
 import { requireProviderSession } from '@/lib/auth';
@@ -8,8 +7,11 @@ import { hrefWithPage, parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
 import { CreateLabOrderForm } from '@/components/features/create-lab-order-form';
 import { canWriteOrg } from '@/constants/roles';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import {
   Table,
   TableBody,
@@ -54,21 +56,16 @@ export default async function LabPage({
   }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Laboratory</h1>
-          <p className="mt-1 text-sm text-muted">
-            Order tests, collect samples, enter results, validate, and report.
-          </p>
-        </div>
-        <Link
-          href="/app/lab/tests"
-          className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
-        >
-          Test catalog
-        </Link>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Laboratory"
+        description="Order tests, collect samples, enter results, validate, and report."
+        actions={
+          <ButtonLink href="/app/lab/tests" variant="secondary">
+            Test catalog
+          </ButtonLink>
+        }
+      />
 
       {canWrite ? (
         <Card>
@@ -132,12 +129,7 @@ export default async function LabPage({
                         {format(new Date(order.ordered_at), 'dd MMM yyyy HH:mm')}
                       </TableCell>
                       <TableCell>
-                        <Link
-                          href={`/app/lab/orders/${order.id}`}
-                          className="text-sm text-primary hover:underline"
-                        >
-                          Open
-                        </Link>
+                        <TextLink href={`/app/lab/orders/${order.id}`}>Open</TextLink>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -151,6 +143,6 @@ export default async function LabPage({
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

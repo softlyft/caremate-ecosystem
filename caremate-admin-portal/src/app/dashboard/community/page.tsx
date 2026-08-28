@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {
   Award,
   BarChart3,
@@ -10,6 +9,7 @@ import {
 import { getCommunityStats } from '@/domains/community/repository';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { NavCard } from '@/components/ui/nav-card';
 import { Badge } from '@/components/ui/badge';
 
 const LINKS = [
@@ -115,19 +115,17 @@ export default async function CommunityOverviewPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {LINKS.map(({ href, label, description, icon: Icon }) => (
-          <Link key={href} href={href} className="group">
-            <Card className="transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
-              <CardHeader className="flex flex-row items-start gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-light text-primary-dark">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <div>
-                  <CardTitle className="text-base">{label}</CardTitle>
-                  <p className="mt-1 text-sm text-muted">{description}</p>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
+          <NavCard key={href} href={href}>
+            <CardHeader className="flex flex-row items-start gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-light text-primary-dark">
+                <Icon className="h-4 w-4" />
+              </span>
+              <div>
+                <CardTitle className="text-base">{label}</CardTitle>
+                <p className="mt-1 text-sm text-muted">{description}</p>
+              </div>
+            </CardHeader>
+          </NavCard>
         ))}
       </div>
     </div>

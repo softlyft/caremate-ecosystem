@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { updateOrganizationContactEmailAction } from '@/domains/providers/actions';
 
 export function OrganizationContactEmailForm({
@@ -25,21 +25,19 @@ export function OrganizationContactEmailForm({
 
   if (locked) {
     return (
-      <div className="space-y-2">
-        <Label>Claim contact email</Label>
+      <FormField label="Claim contact email">
         <p className="text-sm font-medium">{email?.trim() || '—'}</p>
         <p className="text-xs text-muted">
           {verified
             ? 'Locked after verification. Providers and staff cannot change it.'
             : 'You do not have permission to edit this email.'}
         </p>
-      </div>
+      </FormField>
     );
   }
 
   return (
     <form
-      className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -54,8 +52,11 @@ export function OrganizationContactEmailForm({
         });
       }}
     >
-      <div className="space-y-2">
-        <Label htmlFor="email">Claim contact email</Label>
+      <FormField
+        label="Claim contact email"
+        htmlFor="email"
+        hint="Unique org email used for claim. Editable only while unverified; syncs to every location."
+      >
         <Input
           id="email"
           name="email"
@@ -64,13 +65,12 @@ export function OrganizationContactEmailForm({
           defaultValue={email ?? ''}
           placeholder="org@example.com"
         />
-        <p className="text-xs text-muted">
-          Unique org email used for claim. Editable only while unverified; syncs to every location.
-        </p>
-      </div>
-      <Button type="submit" size="sm" loading={pending}>
-        Save email
-      </Button>
+      </FormField>
+      <FormActions className="mt-3 justify-start">
+        <Button type="submit" size="sm" loading={pending}>
+          Save email
+        </Button>
+      </FormActions>
     </form>
   );
 }

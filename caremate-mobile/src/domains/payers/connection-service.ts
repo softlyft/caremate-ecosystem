@@ -1,11 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
 export type PayerConnectionStatus =
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'cancelled'
-  | 'disconnected';
+  'pending' | 'approved' | 'rejected' | 'cancelled' | 'disconnected';
 export type PayerConnectionInitiatedBy = 'patient' | 'payer';
 
 export type PatientPayerConnection = {
@@ -85,9 +81,7 @@ async function loadPayerNames(payerIds: string[]): Promise<Map<string, string>> 
 async function mapRows(rows: RemotePayerConnectionRow[]): Promise<PatientPayerConnection[]> {
   const payerIds = rows.map((row) => row.payer_organization_id);
   const names = await loadPayerNames(payerIds);
-  return rows.map((row) =>
-    mapRow(row, names.get(row.payer_organization_id) ?? null),
-  );
+  return rows.map((row) => mapRow(row, names.get(row.payer_organization_id) ?? null));
 }
 
 class PayerConnectionService {

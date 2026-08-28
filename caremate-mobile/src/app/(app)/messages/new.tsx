@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useDeferredValue, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '@/components/ui/form-controls';
-
+import { Button, FormNotice, SearchField } from '@/components/ui/form-controls';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState } from '@/components/ui/screen-states';
+import { EmptyState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { config } from '@/constants/env';
 import { useTranslation } from '@/domains/localization';
@@ -16,7 +15,7 @@ import {
   type MessageableUser,
 } from '@/domains/messaging/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
 
 export default function NewMessageScreen() {
   const { t } = useTranslation();
@@ -55,21 +54,19 @@ export default function NewMessageScreen() {
   const results = searchQuery.data ?? [];
 
   return (
-    <View style={[styles.screen, { paddingBottom: insets.bottom + spacing.md }]}>
+    <Screen padded={false} style={{ paddingBottom: insets.bottom + spacing.md }}>
       <View style={styles.searchWrap}>
-        <TextInput
-          style={styles.search}
+        <SearchField
           value={query}
           onChangeText={setQuery}
           placeholder={t('messages.searchPlaceholder')}
-          placeholderTextColor={textColors.placeholder}
-          autoCapitalize="none"
-          autoCorrect={false}
-          clearButtonMode="while-editing"
+          inputProps={{
+            autoCapitalize: 'none',
+            autoCorrect: false,
+            clearButtonMode: 'while-editing',
+          }}
         />
-        <AppText variant="caption" style={styles.hint}>
-          {t('messages.searchHint')}
-        </AppText>
+        <FormNotice>{t('messages.searchHint')}</FormNotice>
       </View>
 
       {deferredQuery.length < 2 ? (
@@ -122,32 +119,15 @@ export default function NewMessageScreen() {
           )}
         />
       )}
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   searchWrap: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.sm,
-  },
-  search: {
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    backgroundColor: palette.background,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: palette.text,
-  },
-  hint: {
-    color: palette.textSecondary,
   },
   loading: {
     paddingTop: spacing.xl,

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { listUsersPage, type AdminUserRow } from '@/domains/users/repository';
 import { getPortalSession } from '@/lib/auth';
@@ -6,8 +5,9 @@ import { canManageUsers } from '@/constants/roles';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
+import { SearchForm } from '@/components/search-form';
+import { TextLink } from '@/components/ui/text-link';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -59,14 +59,7 @@ export default async function UsersPage({
         description="Search accounts, disable access, and assign portal roles."
       />
 
-      <form className="mb-4">
-        <Input
-          name="q"
-          defaultValue={q}
-          placeholder="Search by email, name, or phone…"
-          className="max-w-md"
-        />
-      </form>
+      <SearchForm placeholder="Search by email, name, or phone…" defaultValue={q} className="mb-4" />
 
       <Card>
         <CardContent className="p-0">
@@ -91,12 +84,9 @@ export default async function UsersPage({
                 users.rows.map((u) => (
                   <TableRow key={u.id}>
                     <TableCell>
-                      <Link
-                        href={`/dashboard/users/${u.id}`}
-                        className="font-medium text-primary-dark hover:underline"
-                      >
+                      <TextLink href={`/dashboard/users/${u.id}`} className="font-medium text-primary-dark">
                         {u.email}
-                      </Link>
+                      </TextLink>
                     </TableCell>
                     <TableCell className="text-muted">
                       {u.profile?.full_name ?? '—'}
