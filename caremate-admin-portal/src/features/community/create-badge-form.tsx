@@ -8,8 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { createBadge } from '@/domains/community/actions';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -71,40 +71,32 @@ export function CreateBadgeForm() {
         <CardTitle>Create badge</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="slug">Slug</Label>
-              <Input id="slug" placeholder="community_builder" {...register('slug')} />
-              {errors.slug ? (
-                <p className="text-xs text-danger">{errors.slug.message}</p>
-              ) : null}
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="Slug" htmlFor="slug" error={errors.slug?.message}>
+                <Input id="slug" placeholder="community_builder" {...register('slug')} />
+              </FormField>
+              <FormField label="Name" htmlFor="name" error={errors.name?.message}>
+                <Input id="name" placeholder="Community Builder" {...register('name')} />
+              </FormField>
+              <FormField label="Description" htmlFor="description" className="sm:col-span-2">
+                <Textarea id="description" rows={2} {...register('description')} />
+              </FormField>
+              <FormField label="Points" htmlFor="points_value">
+                <Input
+                  id="points_value"
+                  type="number"
+                  min={0}
+                  value={pointsValue}
+                  onChange={(e) => setValue('points_value', Number(e.target.value) || 0)}
+                />
+              </FormField>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Community Builder" {...register('name')} />
-              {errors.name ? (
-                <p className="text-xs text-danger">{errors.name.message}</p>
-              ) : null}
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea id="description" rows={2} {...register('description')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="points_value">Points</Label>
-              <Input
-                id="points_value"
-                type="number"
-                min={0}
-                value={pointsValue}
-                onChange={(e) => setValue('points_value', Number(e.target.value) || 0)}
-              />
-            </div>
-          </div>
-          <Button type="submit" loading={pending} loadingLabel="Creating…">
-            Create badge
-          </Button>
+            <Button type="submit" loading={pending} loadingLabel="Creating…">
+              Create badge
+            </Button>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { emptyFhirBundle } from '@/domains/providers/fhir-bundle';
@@ -12,18 +11,11 @@ import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DescriptionRow } from '@/components/ui/detail-row';
+import { TextLink } from '@/components/ui/text-link';
 import { ProviderFhirViewButton } from '@/features/providers/provider-fhir-view-button';
 import { HealthcareServiceForm } from '@/features/providers/healthcare-service-form';
 import { ArchiveServiceButton } from '@/features/providers/catalog-archive-buttons';
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm text-foreground">{children}</dd>
-    </div>
-  );
-}
 
 export default async function EditServicePage({
   params,
@@ -82,12 +74,12 @@ export default async function EditServicePage({
             locationId={locationId}
           />
         ) : null}
-        <Link
+        <TextLink
           href={`/dashboard/providers/organizations/${organizationId}/locations/${locationId}`}
-          className="text-sm text-muted hover:text-foreground"
+          className="text-muted hover:text-foreground"
         >
           Back to location
-        </Link>
+        </TextLink>
       </PageHeader>
 
       <Card>
@@ -104,15 +96,15 @@ export default async function EditServicePage({
             />
           ) : (
             <dl>
-              <Row label="Type">{service.service_type ?? '—'}</Row>
-              <Row label="Active">{service.active ? 'Yes' : 'No'}</Row>
+              <DescriptionRow label="Type">{service.service_type ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Active">{service.active ? 'Yes' : 'No'}</DescriptionRow>
             </dl>
           )}
           <dl className="mt-6 border-t border-border pt-4">
-            <Row label="Service ID">
+            <DescriptionRow label="Service ID">
               <code className="break-all text-xs">{service.id}</code>
-            </Row>
-            <Row label="Source">{service.source ?? '—'}</Row>
+            </DescriptionRow>
+            <DescriptionRow label="Source">{service.source ?? '—'}</DescriptionRow>
           </dl>
         </CardContent>
       </Card>

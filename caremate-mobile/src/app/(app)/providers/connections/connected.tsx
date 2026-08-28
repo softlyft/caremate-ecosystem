@@ -5,7 +5,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { hasConsentScope } from '@/domains/providers/connection-consents';
@@ -26,9 +26,9 @@ export default function ConnectedProvidersScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen>
         <AppText variant="body">{t('nearby.connections.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -56,10 +56,11 @@ export default function ConnectedProvidersScreen() {
   const connected = query.data ?? [];
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
+    <Screen padded={false}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
       <AppText variant="sectionTitle">{t('nearby.connections.connectedTitle')}</AppText>
       <AppText variant="subtitle">{t('nearby.connections.connectedSubtitle')}</AppText>
 
@@ -105,24 +106,19 @@ export default function ConnectedProvidersScreen() {
           );
         })
       )}
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
   card: {
     backgroundColor: palette.background,

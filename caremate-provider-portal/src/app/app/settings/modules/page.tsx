@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { PageHeader, PageShell } from '@/components/page-header';
+import { TextLink } from '@/components/ui/text-link';
 import { requireProviderSession } from '@/lib/auth';
 import { listActivatableModules } from '@/domains/modules/catalog';
 import { getEnabledModules } from '@/domains/modules/repository';
@@ -14,17 +15,12 @@ export default async function ModulesSettingsPage() {
   const canManage = canManageOrg(session.activeRole);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href="/app/settings" className="text-sm text-primary hover:underline">
-          ← Settings
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-brand-navy">Modules</h1>
-        <p className="mt-1 text-sm text-muted">
-          Activate optional CareMate capabilities for this organization. Core engagement features
-          stay on by default.
-        </p>
-      </div>
+    <PageShell>
+      <TextLink href="/app/settings">← Settings</TextLink>
+      <PageHeader
+        title="Modules"
+        description="Activate optional CareMate capabilities for this organization. Core engagement features stay on by default."
+      />
 
       <Card>
         <CardHeader>
@@ -61,6 +57,6 @@ export default async function ModulesSettingsPage() {
           })}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

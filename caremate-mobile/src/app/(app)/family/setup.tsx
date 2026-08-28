@@ -8,6 +8,7 @@ import { Button, Card } from '@/components/ui/form-controls';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { useFamilySetupStore } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -23,7 +24,7 @@ export default function FamilySetupScreen() {
   const setIsParent = useFamilySetupStore((s) => s.setIsParent);
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
@@ -85,15 +86,11 @@ export default function FamilySetupScreen() {
           </Card>
         </AnimatedSection>
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,

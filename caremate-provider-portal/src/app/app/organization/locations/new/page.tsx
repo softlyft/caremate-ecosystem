@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { PageHeader, PageShell } from '@/components/page-header';
+import { TextLink } from '@/components/ui/text-link';
 import { requireProviderSession } from '@/lib/auth';
 import { canManageOrg } from '@/constants/roles';
 import { LocationForm } from '@/components/features/location-form';
@@ -10,25 +11,20 @@ export default async function NewLocationPage() {
 
   if (!canManage) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-brand-navy">Add location</h1>
-        <p className="text-sm text-muted">Only owners and administrators can create locations.</p>
-        <Link href="/app/organization" className="text-sm text-primary hover:underline">
-          Back to organization
-        </Link>
-      </div>
+      <PageShell>
+        <PageHeader
+          title="Add location"
+          description="Only owners and administrators can create locations."
+        />
+        <TextLink href="/app/organization">Back to organization</TextLink>
+      </PageShell>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <Link href="/app/organization" className="text-sm text-primary hover:underline">
-          ← Organization
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-brand-navy">Add location</h1>
-        <p className="mt-1 text-sm text-muted">{session.activeOrganizationName}</p>
-      </div>
+    <PageShell className="mx-auto max-w-2xl">
+      <TextLink href="/app/organization">← Organization</TextLink>
+      <PageHeader title="Add location" description={session.activeOrganizationName} />
 
       <Card>
         <CardHeader>
@@ -42,6 +38,6 @@ export default async function NewLocationPage() {
           <LocationForm mode="create" />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

@@ -1,12 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  PasswordInput,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
@@ -68,64 +74,49 @@ export default function ResetPasswordScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              secureTextEntry
-              placeholder={t('auth.reset.password')}
-              autoComplete="new-password"
-              textContentType="newPassword"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        <AppText
-          variant="caption"
-          style={{ color: colors.textMuted, fontSize: 12, lineHeight: 17 }}
+      <FormStack style={styles.form}>
+        <FormField
+          error={formState.errors.password?.message}
+          hint={t('auth.password.requirements')}
         >
-          {t('auth.password.requirements')}
-        </AppText>
-        {formState.errors.password ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.password.message}
-          </AppText>
-        ) : null}
-        <Controller
-          control={control}
-          name="confirmPassword"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              secureTextEntry
-              placeholder={t('auth.reset.confirm')}
-              autoComplete="new-password"
-              textContentType="newPassword"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {formState.errors.confirmPassword ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.confirmPassword.message}
-          </AppText>
-        ) : null}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <PasswordInput
+                placeholder={t('auth.reset.password')}
+                autoComplete="new-password"
+                textContentType="newPassword"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+        </FormField>
+        <FormField error={formState.errors.confirmPassword?.message}>
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <PasswordInput
+                placeholder={t('auth.reset.confirm')}
+                autoComplete="new-password"
+                textContentType="newPassword"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+        </FormField>
         <Button
           label={isLoading ? t('common.loading') : t('auth.reset.submit')}
           disabled={isLoading}
           onPress={handleSubmit(onSubmit)}
         />
-        <Button
-          label={t('auth.forgot.back')}
-          variant="ghost"
-          onPress={() => router.replace('/(auth)/login')}
-        />
-      </View>
+        <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+      </FormStack>
     </SafeAreaView>
   );
 }
@@ -137,6 +128,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

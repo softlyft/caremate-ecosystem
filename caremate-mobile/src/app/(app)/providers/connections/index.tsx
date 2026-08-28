@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { providerConnectionService } from '@/domains/providers/connection-service';
@@ -37,9 +38,9 @@ export default function ProviderConnectionsHubScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen>
         <AppText variant="body">{t('nearby.connections.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -48,10 +49,11 @@ export default function ProviderConnectionsHubScreen() {
   const outboundCount = outboundCountQuery.data ?? 0;
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
+    <Screen padded={false}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
       <AppText variant="sectionTitle">{t('nearby.connections.title')}</AppText>
       <AppText variant="subtitle">{t('nearby.connections.subtitle')}</AppText>
 
@@ -91,24 +93,19 @@ export default function ProviderConnectionsHubScreen() {
           onPress={() => router.push('/providers/connections/outbound' as Href)}
         />
       </ProfileCard>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
   divider: {
     height: StyleSheet.hairlineWidth,

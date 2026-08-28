@@ -3,7 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native';
 
 import { Button } from '@/components/ui/form-controls';
 import { useArticleBookmark } from '@/domains/articles/hooks/use-article-bookmark';
-import { palette, radius } from '@/theme';
+import { palette, primaryAlpha, radius } from '@/theme';
 
 interface BookmarkToggleButtonProps {
   articleId: string;
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   },
   buttonActive: {
     backgroundColor: palette.primaryLight,
-    borderColor: 'rgba(13, 148, 136, 0.25)',
+    borderColor: primaryAlpha(0.25),
   },
   buttonBusy: {
     opacity: 0.6,

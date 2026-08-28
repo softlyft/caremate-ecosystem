@@ -5,32 +5,14 @@ import { toast } from 'sonner';
 import { updateSubscriptionPrice } from '@/domains/billing/actions';
 import type { SubscriptionPrice } from '@/types/database';
 import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-
-function formatDisplayAmount(amountMinor: number, currency: string) {
-  const major = amountMinor / 100;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(major);
-  } catch {
-    return `${major} ${currency}`;
-  }
-}
-
-const PLAN_LABEL: Record<string, string> = {
-  personal: 'Premium Personal',
-  family: 'Premium Family',
-};
-
-const INTERVAL_LABEL: Record<string, string> = {
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-};
+import {
+  BILLING_INTERVAL_LABEL,
+  formatDisplayAmount,
+  SUBSCRIPTION_PLAN_LABEL_PREMIUM,
+} from '@/features/billing/billing-display';
 
 type CurrencyGroup = {
   currency: string;
@@ -105,10 +87,10 @@ function PriceRow({
     >
       <div className="min-w-0 sm:self-center">
         <p className="text-sm font-medium text-foreground">
-          {PLAN_LABEL[price.plan_type] ?? price.plan_type}
+          {SUBSCRIPTION_PLAN_LABEL_PREMIUM[price.plan_type] ?? price.plan_type}
         </p>
         <p className="mt-0.5 text-xs text-muted">
-          {INTERVAL_LABEL[price.billing_interval] ?? price.billing_interval}
+          {BILLING_INTERVAL_LABEL[price.billing_interval] ?? price.billing_interval}
           <span className="mx-1.5 text-border">·</span>
           {formatDisplayAmount(price.amount_minor, price.currency)}
           {!price.is_active ? (
@@ -120,8 +102,7 @@ function PriceRow({
         </p>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor={`${price.id}-amount`}>{amountLabel}</Label>
+      <FormField label={amountLabel} htmlFor={`${price.id}-amount`} compact>
         <Input
           id={`${price.id}-amount`}
           name="amount_major"
@@ -132,33 +113,31 @@ function PriceRow({
           disabled={!canEdit || pending}
           required
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
+      <FormField
+        label={price.provider === 'stripe' ? 'Stripe price ID' : 'Paystack plan code'}
+        htmlFor={price.provider === 'stripe' ? `${price.id}-stripe` : `${price.id}-paystack`}
+        compact
+      >
         {price.provider === 'stripe' ? (
-          <>
-            <Label htmlFor={`${price.id}-stripe`}>Stripe price ID</Label>
-            <Input
-              id={`${price.id}-stripe`}
-              name="stripe_price_id"
-              defaultValue={price.stripe_price_id ?? ''}
-              disabled={!canEdit || pending}
-              placeholder="Optional · price_…"
-            />
-          </>
+          <Input
+            id={`${price.id}-stripe`}
+            name="stripe_price_id"
+            defaultValue={price.stripe_price_id ?? ''}
+            disabled={!canEdit || pending}
+            placeholder="Optional · price_…"
+          />
         ) : (
-          <>
-            <Label htmlFor={`${price.id}-paystack`}>Paystack plan code</Label>
-            <Input
-              id={`${price.id}-paystack`}
-              name="paystack_plan_code"
-              defaultValue={price.paystack_plan_code ?? ''}
-              disabled={!canEdit || pending}
-              placeholder="Optional · PLN_…"
-            />
-          </>
+          <Input
+            id={`${price.id}-paystack`}
+            name="paystack_plan_code"
+            defaultValue={price.paystack_plan_code ?? ''}
+            disabled={!canEdit || pending}
+            placeholder="Optional · PLN_…"
+          />
         )}
-      </div>
+      </FormField>
 
       <div className="flex flex-wrap items-center gap-3 sm:justify-end">
         <label className="flex items-center gap-2 text-sm text-foreground">

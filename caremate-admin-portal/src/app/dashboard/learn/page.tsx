@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { listArticlesPage } from '@/domains/articles/repository';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
@@ -7,6 +6,8 @@ import { HEALTH_CATEGORIES } from '@/constants/categories';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
+import { FilterBar } from '@/components/filter-bar';
+import { TextLink } from '@/components/ui/text-link';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -64,7 +65,7 @@ export default async function LearnPage({
         actionLabel={canEdit ? 'New item' : undefined}
       />
 
-      <form className="mb-4 flex flex-wrap gap-2">
+      <FilterBar>
         <Input name="q" defaultValue={q} placeholder="Search title…" className="max-w-xs" />
         <Select name="type" defaultValue={type ?? ''} className="w-40">
           <option value="">All types</option>
@@ -82,10 +83,7 @@ export default async function LearnPage({
             </option>
           ))}
         </Select>
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm text-white">
-          Filter
-        </button>
-      </form>
+      </FilterBar>
 
       <Card>
         <CardContent className="p-0">
@@ -109,12 +107,9 @@ export default async function LearnPage({
                 articles.rows.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell>
-                      <Link
-                        href={`/dashboard/learn/${a.id}`}
-                        className="font-medium text-primary-dark hover:underline"
-                      >
+                      <TextLink href={`/dashboard/learn/${a.id}`} className="font-medium text-primary-dark">
                         {a.title}
-                      </Link>
+                      </TextLink>
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">

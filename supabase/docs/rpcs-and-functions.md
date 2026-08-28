@@ -54,11 +54,14 @@ Connection RPCs power patient ↔ org engagement (portal + mobile). Details: [Pr
 
 ### Patient ↔ payer RPCs
 
+- `is_payer_org_verified`
 - `request_patient_payer_connection`
 - `request_payer_patient_connection_by_caremate_id`
 - `respond_patient_payer_connection`
 - `cancel_pending_patient_payer_connection`
 - `disconnect_patient_payer_connection`
+
+Patient Connect on the Health Insurance Directory is gated like providers: UI calls `is_payer_org_verified`; request RPCs also enforce verification. Details: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md#patient--payer-connections).
 
 Also portal RLS helpers (security definer): `is_provider_org_member`, `provider_org_role`, `can_write_provider_org`, `can_manage_provider_org`.
 
@@ -87,6 +90,8 @@ Edge Functions live under `supabase/functions/`.
 | `notify-family-email` | Mobile after family connection request / accept / decline | required |
 | `notify-message` | Org message or direct DM push to recipient devices | required |
 | `notify-provider-connection` | Mobile or portal after patient ↔ provider connection lifecycle | required |
+| `notify-provider-document` | Portal after provider uploads a document for a connected patient (in-app + push) | required |
+| `create-provider-org-checkout` | Care Portal Private Care Team Paystack checkout (org JWT) | required |
 
 Shared helpers:
 

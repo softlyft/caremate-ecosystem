@@ -4,34 +4,44 @@ import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { requestPatientConnectionByCaremateIdAction } from '@/domains/patient-payer-connections/actions';
-import { mapPatientPayerConnectionError } from '@/domains/patient-payer-connections/errors';
+import { FormField, formInlineGridClassName } from '@/components/ui/form-field';
+import { requestConnectionByCaremateIdAction } from '@/domains/connections/actions';
 
-export function RequestPatientConnectionForm() {
+type RequestPatientConnectionAction = typeof requestConnectionByCaremateIdAction;
+
+export function RequestPatientConnectionForm({
+  requestAction = requestConnectionByCaremateIdAction,
+  noteFieldName = 'provider_note',
+  notePlaceholder = 'e.g. Follow-up after walk-in visit',
+  formatError = (err, fallback) => (err instanceof Error ? err.message : fallback),
+}: {
+  requestAction?: RequestPatientConnectionAction;
+  noteFieldName?: 'provider_note' | 'payer_note';
+  notePlaceholder?: string;
+  formatError?: (err: unknown, fallback: string) => string;
+}) {
   const [pending, startTransition] = useTransition();
 
   return (
     <form
-      className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+      className={formInlineGridClassName}
       onSubmit={(e) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
         startTransition(async () => {
           try {
-            await requestPatientConnectionByCaremateIdAction(formData);
+            await requestAction(formData);
             toast.success('Connection request sent — waiting for the patient to approve');
             form.reset();
           } catch (err) {
-            toast.error(mapPatientPayerConnectionError(err, 'Failed to request connection'));
+            toast.error(formatError(err, 'Failed to request connection'));
           }
         });
       }}
     >
-      <div className="space-y-2">
-        <Label htmlFor="caremate_id">CareMate Patient ID</Label>
+      <FormField label="CareMate Patient ID" htmlFor="caremate_id">
         <Input
           id="caremate_id"
           name="caremate_id"
@@ -42,17 +52,16 @@ export function RequestPatientConnectionForm() {
           pattern="[\d\s]{12,14}"
           title="12-digit CareMate Patient ID"
         />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="payer_note">Note (optional)</Label>
+      </FormField>
+      <FormField label="Note (optional)" htmlFor={noteFieldName}>
         <Textarea
-          id="payer_note"
-          name="payer_note"
+          id={noteFieldName}
+          name={noteFieldName}
           rows={1}
-          placeholder="e.g. Policy enrollment follow-up"
+          placeholder={notePlaceholder}
           className="min-h-[42px] resize-none"
         />
-      </div>
+      </FormField>
       <Button type="submit" loading={pending} loadingLabel="Sending…" className="sm:mb-0.5">
         Request connection
       </Button>

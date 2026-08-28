@@ -6,30 +6,17 @@ import { toast } from 'sonner';
 import { adminUpgradeToFamily } from '@/domains/billing/actions';
 import type { SubscriptionPrice } from '@/types/database';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import {
+  BILLING_INTERVAL_LABEL,
+  formatDisplayAmount,
+  SUBSCRIPTION_PLAN_LABEL,
+} from '@/features/billing/billing-display';
 
-const INTERVAL_LABEL: Record<string, string> = {
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-};
-
-function formatAmount(amountMinor: number, currency: string) {
-  const major = amountMinor / 100;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(major);
-  } catch {
-    return `${major} ${currency}`;
-  }
-}
-
-function priceOptionLabel(price: SubscriptionPrice) {
-  return `Family · ${INTERVAL_LABEL[price.billing_interval] ?? price.billing_interval} · ${formatAmount(price.amount_minor, price.currency)}`;
+function familyPriceOptionLabel(price: SubscriptionPrice) {
+  return `${SUBSCRIPTION_PLAN_LABEL.family} · ${BILLING_INTERVAL_LABEL[price.billing_interval] ?? price.billing_interval} · ${formatDisplayAmount(price.amount_minor, price.currency)}`;
 }
 
 export function UpgradeToFamilyPanel({ prices }: { prices: SubscriptionPrice[] }) {
@@ -78,61 +65,61 @@ export function UpgradeToFamilyPanel({ prices }: { prices: SubscriptionPrice[] }
             starting today (no payment). Requires an existing household in the app.
           </p>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="upgrade-patient-id">Patient ID</Label>
-              <Input
-                id="upgrade-patient-id"
-                name="patientId"
-                placeholder="XXXX XXXX XXXX"
-                inputMode="numeric"
-                autoComplete="off"
-                value={patientId}
-                onChange={(e) => setPatientId(e.target.value)}
-                required
-              />
+          <FormStack className="mt-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="Patient ID" htmlFor="upgrade-patient-id">
+                <Input
+                  id="upgrade-patient-id"
+                  name="patientId"
+                  placeholder="XXXX XXXX XXXX"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={patientId}
+                  onChange={(e) => setPatientId(e.target.value)}
+                  required
+                />
+              </FormField>
+
+              <FormField label="Family plan" htmlFor="upgrade-plan-price">
+                <Select
+                  id="upgrade-plan-price"
+                  name="priceId"
+                  value={priceId}
+                  onChange={(e) => setPriceId(e.target.value)}
+                  required
+                >
+                  {familyPrices.length === 0 ? (
+                    <option value="">No active Family prices</option>
+                  ) : (
+                    familyPrices.map((price) => (
+                      <option key={price.id} value={price.id}>
+                        {familyPriceOptionLabel(price)}
+                      </option>
+                    ))
+                  )}
+                </Select>
+              </FormField>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="upgrade-plan-price">Family plan</Label>
-              <Select
-                id="upgrade-plan-price"
-                name="priceId"
-                value={priceId}
-                onChange={(e) => setPriceId(e.target.value)}
-                required
+            <FormActions>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpen(false)}
+                disabled={pending}
               >
-                {familyPrices.length === 0 ? (
-                  <option value="">No active Family prices</option>
-                ) : (
-                  familyPrices.map((price) => (
-                    <option key={price.id} value={price.id}>
-                      {priceOptionLabel(price)}
-                    </option>
-                  ))
-                )}
-              </Select>
-            </div>
-          </div>
-
-          <div className="mt-4 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setOpen(false)}
-              disabled={pending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={familyPrices.length === 0}
-              loading={pending}
-              loadingLabel="Upgrading…"
-            >
-              Upgrade to Family
-            </Button>
-          </div>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={familyPrices.length === 0}
+                loading={pending}
+                loadingLabel="Upgrading…"
+              >
+                Upgrade to Family
+              </Button>
+            </FormActions>
+          </FormStack>
         </form>
       ) : null}
     </div>

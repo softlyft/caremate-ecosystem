@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import {
   Table,
   TableBody,
@@ -153,14 +154,9 @@ export function ExternalNewsManager({
                         <div className="max-w-md">
                           <p className="font-medium text-foreground">{article.title}</p>
                           {article.source_url ? (
-                            <a
-                              href={article.source_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-xs text-primary hover:underline"
-                            >
+                            <TextLink href={article.source_url} external className="text-xs">
                               Source
-                            </a>
+                            </TextLink>
                           ) : null}
                         </div>
                       </TableCell>

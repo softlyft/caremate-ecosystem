@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { ButtonLink } from '@/components/ui/button-link';
 import { reportClientErrorAction } from '@/lib/report-client-error';
 
 export default function AppError({
@@ -33,12 +33,9 @@ export default function AppError({
           <Button type="button" onClick={reset}>
             Try again
           </Button>
-          <Link
-            href="/app/dashboard"
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
-          >
+          <ButtonLink href="/app/dashboard" variant="secondary">
             Dashboard
-          </Link>
+          </ButtonLink>
         </div>
       </div>
     </main>

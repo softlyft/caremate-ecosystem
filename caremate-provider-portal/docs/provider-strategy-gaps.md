@@ -23,7 +23,8 @@ Core engagement spine is shipped. Portal now has a **module activation** surface
 |------------|--------|-----------------|-------|-----|
 | Patient Registry | Partial | Search, register, view CareMate profiles, link local IDs | Connected patients list + detail by CareMate ID | No provider-side patient create/search beyond connected CRM; no local record linking (left as-is by product choice) |
 | Emergency Profile Access | Shipped | Allergies, conditions, meds, contacts, blood group with consent | FHIR Consent–aligned emergency grant; portal shows profile when consented | Meds not on emergency card; no emergency-workflow override path |
-| Secure Messaging | Partial | DM, file sharing, notifications, care coordination → telemedicine later | Org threads + staff DMs + push; documents separate | No care-team workflows / escalation; telemedicine not started |
+| Secure Messaging | Partial | DM, file sharing, notifications, care coordination → telemedicine later | Org threads + **Private Care Team** DMs + push; documents separate | Voice/video hours reserved on plans; telemedicine not started |
+| Billing | Partial | Invoicing, payments, insurance claims | **Private Care Team** org plans (Paystack NGN; SoftLyft catalog) — separate from patient Premium | Clinical/insurance billing still Phase 3 |
 | Document Management | Partial | Labs, imaging, referrals, discharge → longitudinal record with consent | Bidirectional document vault + signed URLs | No consent-gated longitudinal publish; no DocumentReference FHIR export |
 
 ## Capability modules
@@ -34,7 +35,7 @@ Core engagement spine is shipped. Portal now has a **module activation** surface
 | Laboratory | Partial | Order → sample → process → validate → report → notify → share | Portal module (opt-in): catalog, orders, results, validation, report timestamp | Patient notify/share in app; FHIR DiagnosticReport; analyzer integrations |
 | Pharmacy | Gap | Rx, dispensing, inventory, refills | Catalog type only | Entire pharmacy module (Phase 2) |
 | Clinical Records | Future | Consults, diagnoses, notes, vitals, procedures | None in provider portal | Strategy future; portal MVP out of scope |
-| Billing | Future | Invoicing, payments, insurance claims | None for providers | Strategy Phase 3 |
+| Billing | Future | Invoicing, payments, insurance claims | Private Care Team org subscriptions shipped; no clinical claims | Strategy Phase 3 clinical billing |
 | Inventory | Future | Med/lab stock, reorder, expiry | None | Strategy Phase 3 |
 | Referrals | Gap | Referral network between providers | Activity spine only | Strategy Phase 3 |
 | Telemedicine | Future | Video/voice, AI summaries | Messaging only | Strategy Phase 4 |

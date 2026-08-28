@@ -11,8 +11,8 @@ import type { ChapterType, CommunityCountry } from '@/types/community';
 import { sanitizeAdministrativeHierarchy, sortedAdministrativeLevels } from '@/lib/community-geography';
 import { AdministrativeHierarchyFields } from '@/components/community/administrative-hierarchy-fields';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -113,87 +113,78 @@ export function CreateChapterForm({
         <CardTitle>Create chapter</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Lagos Mainland Chapter" {...register('name')} />
-              {errors.name ? (
-                <p className="text-xs text-danger">{errors.name.message}</p>
-              ) : null}
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                rows={2}
-                placeholder="Optional summary for members"
-                {...register('description')}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="chapter_type">Type</Label>
-              <Select id="chapter_type" {...register('chapter_type')}>
-                {CHAPTER_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {CHAPTER_TYPE_LABELS[type]}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="country_code">Country</Label>
-              <Select
-                id="country_code"
-                value={countryCode}
-                onChange={(event) => {
-                  const nextCountry = event.target.value;
-                  setCountryCode(nextCountry);
-                  setValue('country_code', nextCountry, { shouldValidate: true });
-                  setAdministrativeHierarchy({});
-                }}
-              >
-                {countries.length === 0 ? (
-                  <option value="">No countries seeded</option>
-                ) : (
-                  countries.map((item) => (
-                    <option key={item.code} value={item.code}>
-                      {item.name} ({item.code})
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="Name" htmlFor="name" className="sm:col-span-2" error={errors.name?.message}>
+                <Input id="name" placeholder="Lagos Mainland Chapter" {...register('name')} />
+              </FormField>
+              <FormField label="Description" htmlFor="description" className="sm:col-span-2">
+                <Textarea
+                  id="description"
+                  rows={2}
+                  placeholder="Optional summary for members"
+                  {...register('description')}
+                />
+              </FormField>
+              <FormField label="Type" htmlFor="chapter_type">
+                <Select id="chapter_type" {...register('chapter_type')}>
+                  {CHAPTER_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {CHAPTER_TYPE_LABELS[type]}
                     </option>
-                  ))
-                )}
-              </Select>
-              {errors.country_code ? (
-                <p className="text-xs text-danger">{errors.country_code.message}</p>
-              ) : null}
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Country" htmlFor="country_code" error={errors.country_code?.message}>
+                <Select
+                  id="country_code"
+                  value={countryCode}
+                  onChange={(event) => {
+                    const nextCountry = event.target.value;
+                    setCountryCode(nextCountry);
+                    setValue('country_code', nextCountry, { shouldValidate: true });
+                    setAdministrativeHierarchy({});
+                  }}
+                >
+                  {countries.length === 0 ? (
+                    <option value="">No countries seeded</option>
+                  ) : (
+                    countries.map((item) => (
+                      <option key={item.code} value={item.code}>
+                        {item.name} ({item.code})
+                      </option>
+                    ))
+                  )}
+                </Select>
+              </FormField>
+              <AdministrativeHierarchyFields
+                country={country}
+                value={administrativeHierarchy}
+                onChange={setAdministrativeHierarchy}
+                idPrefix="create_admin"
+              />
+              <FormField label="Status" htmlFor="status">
+                <Select id="status" {...register('status')}>
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="archived">Archived</option>
+                </Select>
+              </FormField>
             </div>
-            <AdministrativeHierarchyFields
-              country={country}
-              value={administrativeHierarchy}
-              onChange={setAdministrativeHierarchy}
-              idPrefix="create_admin"
-            />
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select id="status" {...register('status')}>
-                <option value="active">Active</option>
-                <option value="pending">Pending</option>
-                <option value="archived">Archived</option>
-              </Select>
-            </div>
-          </div>
-          <p className="text-xs text-muted">
-            Country is required. Select fixed subdivisions (for example Nigeria State → LGA), or
-            choose Other to type a custom value. Lower levels can be filled later when editing.
-          </p>
-          <Button
-            type="submit"
-            disabled={countries.length === 0}
-            loading={pending}
-            loadingLabel="Creating…"
-          >
-            Create chapter
-          </Button>
+            <p className="text-xs text-muted">
+              Country is required. Select fixed subdivisions (for example Nigeria State → LGA), or
+              choose Other to type a custom value. Lower levels can be filled later when editing.
+            </p>
+            <Button
+              type="submit"
+              disabled={countries.length === 0}
+              loading={pending}
+              loadingLabel="Creating…"
+            >
+              Create chapter
+            </Button>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

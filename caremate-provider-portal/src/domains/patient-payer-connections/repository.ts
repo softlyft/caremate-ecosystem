@@ -24,12 +24,28 @@ export async function listPatientPayerConnectionsByStatus(
     page?: number;
     pageSize?: number;
     initiatedBy?: PatientPayerInitiatedBy;
+    search?: string;
   },
 ): Promise<PaginatedResult<PatientPayerConnectionWithProfile>> {
   const supabase = await createClient();
   const page = parsePage(options?.page);
   const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
   const { from, to } = pageRange(page, pageSize);
+  const q = options?.search?.trim();
+
+  let matchingPatientIds: string[] | null = null;
+  if (q) {
+    const escaped = q.replace(/[%_\\]/g, '\\$&');
+    const { data: matchingProfiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .or(
+        `full_name.ilike.%${escaped}%,patient_id.ilike.%${escaped}%,phone.ilike.%${escaped}%`,
+      );
+    if (profileError) throw profileError;
+    matchingPatientIds = (matchingProfiles ?? []).map((p) => p.user_id);
+    if (!matchingPatientIds.length) return emptyPage(page, pageSize);
+  }
 
   let query = supabase
     .from('patient_payer_connections')
@@ -41,6 +57,10 @@ export async function listPatientPayerConnectionsByStatus(
 
   if (options?.initiatedBy) {
     query = query.eq('initiated_by', options.initiatedBy);
+  }
+
+  if (matchingPatientIds) {
+    query = query.in('patient_id', matchingPatientIds);
   }
 
   const { data, error, count } = await query;

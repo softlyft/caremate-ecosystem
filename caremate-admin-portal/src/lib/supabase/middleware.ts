@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import type { Database } from '@caremate/db-types';
+import type { Database } from '@/types/database';
 import { isStaffRole } from '@/constants/roles';
 import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 

@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
-import { Search, Shield } from 'lucide-react-native';
+import { Shield } from 'lucide-react-native';
 import { useDeferredValue, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,7 +8,6 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,7 +16,8 @@ import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { SearchField } from '@/components/ui/search-field';
+import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { PayerDirectoryCard } from '@/domains/payers/components/PayerDirectoryCard';
@@ -25,7 +25,8 @@ import { payerConnectionService } from '@/domains/payers/connection-service';
 import { PAYER_DIRECTORY_PAGE_SIZE, payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { useNetworkStatus } from '@/hooks/use-network-status';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { textColors } from '@/theme/typography';
 
 export default function InsuranceDirectoryScreen() {
   const { t } = useTranslation();
@@ -129,15 +130,15 @@ export default function InsuranceDirectoryScreen() {
 
   if (query.isLoading && query.data === undefined) {
     return (
-      <View style={styles.screen}>
+      <Screen tone="background" padded={false}>
         <LoadingState title={t('insurance.loading')} />
-      </View>
+      </Screen>
     );
   }
 
   if (query.isError && query.data === undefined) {
     return (
-      <View style={styles.screen}>
+      <Screen tone="background" padded={false}>
         <ErrorState
           title={t('insurance.loadFailed.title')}
           message={
@@ -148,12 +149,12 @@ export default function InsuranceDirectoryScreen() {
             void query.refetch();
           }}
         />
-      </View>
+      </Screen>
     );
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen tone="background" padded={false}>
       <FlatList
         data={payers}
         keyExtractor={(item) => item.id}
@@ -292,21 +293,12 @@ export default function InsuranceDirectoryScreen() {
               </AppText>
             ) : null}
 
-            <View style={[styles.searchShell, shadow.soft]}>
-              <View style={styles.searchIcon}>
-                <Search color={palette.primary} size={16} strokeWidth={2.5} />
-              </View>
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t('insurance.searchPlaceholder')}
-                placeholderTextColor={textColors.placeholder}
-                value={search}
-                onChangeText={setSearch}
-                autoCapitalize="none"
-                autoCorrect={false}
-                clearButtonMode="while-editing"
-              />
-            </View>
+            <SearchField
+              value={search}
+              onChangeText={setSearch}
+              placeholder={t('insurance.searchPlaceholder')}
+              onClear={() => setSearch('')}
+            />
           </View>
         }
         renderItem={({ item }) => (
@@ -332,15 +324,11 @@ export default function InsuranceDirectoryScreen() {
           ) : null
         }
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.background,
-  },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingBottom: spacing.xl,
@@ -403,25 +391,6 @@ const styles = StyleSheet.create({
   },
   statusNote: {
     color: textColors.secondary,
-  },
-  searchShell: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: palette.surface,
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: palette.divider,
-    paddingHorizontal: spacing.md,
-    minHeight: 48,
-  },
-  searchIcon: {
-    marginRight: spacing.sm,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: textColors.primary,
-    paddingVertical: spacing.sm,
   },
   footerLoading: {
     paddingVertical: spacing.lg,

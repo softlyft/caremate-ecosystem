@@ -23,7 +23,7 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Understand encryption, wipe, deep links, checkout handoff | [Security](./security.md) |
 | Work on UI, fonts, theming | [UI & Theme](./ui-and-theme.md) |
 | Work on mini-apps (Medication, Checkup, Immunization, Pregnancy, Period) | [Mini-Apps](./mini-apps.md) · [Contract](./mini-app-contract.md) |
-| Work on Home, Emergency, Articles (Learn), Providers | [Core Features](./features.md) · [Provider model](./provider-model.md) · [Learn content model](./learn-content-model.md) · [Notifications](./notifications.md) · [Ads](./ads.md) |
+| Work on Home, Emergency, Articles (Learn), Providers, Insurance | [Core Features](./features.md) · [Provider model](./provider-model.md) · [Learn content model](./learn-content-model.md) · [Notifications](./notifications.md) · [Ads](./ads.md) · [Portal connections](../../caremate-provider-portal/docs/connections.md) |
 | Configure env vars, app.json, constants | [Configuration](./configuration.md) |
 | Ship Android to Play (GitHub Actions AAB) | [Play Android release](./play-android-release.md) |
 | Ship iOS dev build to TestFlight (GitHub Actions) | [iOS TestFlight release](./ios-testflight-release.md) |

@@ -90,7 +90,11 @@ Editors (`admin` / `editor`) mutate via `can_edit_catalog()` RLS. Soft-archive s
 
 ### Claim contact email
 
-One org-wide email (same value on `provider_profiles.email` and every `provider_locations.email`). Used for provider claim. SoftLyft may change it on the organization page only while the profile is not `verified`; after verification it is locked. Providers cannot edit it.
+Org-wide claim email on `payer_organizations.email`. Used for Care Portal **payer** claim (`payer_claim` OTP). SoftLyft may change it while the payer profile is not `verified`; after verification it is locked. Payer staff cannot edit the claim email.
+
+Patients browse payers in the mobile **Health Insurance Directory** (`payer_directory` view — claim email hidden). Connect requires a claimed/verified payer. See [Connections — Patient ↔ payer](../../caremate-provider-portal/docs/connections.md#patient--payer-connections).
+
+## Providers — workbook ingest
 
 ### Upload flow
 
@@ -145,3 +149,16 @@ These are intended for initial bootstrap and fixture loading, not as a primary c
 - Provider upload depends on the external `caremate-provider-ingestion` service being configured and running
 - The portal exposes an audit log browser at `/dashboard/audit`
 - Some validation still lives mostly in forms/UI rather than in a shared server-side validation layer
+
+## Org billing catalogs
+
+Separate from patient Premium (`/dashboard/billing`):
+
+| Route | Purpose |
+|-------|---------|
+| `/dashboard/provider-plans` | Private Care Team price catalog (provider orgs) |
+| `/dashboard/provider-plans/grants` | Complimentary / Enterprise provider entitlements |
+| `/dashboard/payer-plans` | Support Team price catalog (payer orgs) |
+| `/dashboard/payer-plans/grants` | Complimentary / Enterprise payer entitlements |
+
+Tables: `provider_org_plan_prices` · `payer_org_plan_prices`. Checkout uses Paystack via Edge Functions; webhook finalizes entitlements.

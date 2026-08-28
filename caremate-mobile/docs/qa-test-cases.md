@@ -149,6 +149,20 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 
 ---
 
+## 4b. Health Insurance Directory (payers)
+
+| ID | P | Pre | Steps | Expected |
+|----|---|-----|-------|----------|
+| IN-01 | P0 | Online | Me → Health Insurance Directory | Directory loads; search filters payers. |
+| IN-02 | P0 | Signed-in; payer claimed/verified; no connection | Open insurer detail | **Connect with insurer** visible; send request → pending. |
+| IN-03 | P0 | Payer not claimed / not verified | Open insurer detail | Connect card **not** shown (unless an existing connection row). |
+| IN-04 | P0 | Approved patient↔payer | Directory **Your connected insurers** | Row shows; **Disconnect** → confirm → removed from list; success alert. |
+| IN-05 | P0 | Approved connection | Insurer detail → Disconnect | Optional reason; status ends; Connect may reappear if still verified. |
+| IN-06 | P1 | Inbound payer request | Directory inbound → Approve | Moves to connected; detail shows Connected. |
+| IN-07 | P1 | Guest | Open directory / detail | Browse OK; connect/manage actions gated. |
+
+---
+
 ## 5. Emergency profile
 
 | ID | P | Pre | Steps | Expected |
@@ -189,6 +203,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. |
 | ME-16 | P1 | Guest | Settings account section | Delete account is hidden. |
 | ME-17 | P0 | Signed-in + provider shared a file | Me → Documents | List shows title, type, provider; tap opens document. |
+| ME-17b | P0 | Same; notifications enabled + push registered | After provider upload | Bell inbox shows “New document”; OS push when app backgrounded (if token registered). |
 | ME-18 | P1 | Signed-in, no files | Me → Documents | Empty state invites upload. |
 | ME-19 | P1 | Guest | Me → Documents | Sign-in prompt / guest copy. |
 | ME-20 | P0 | Signed-in | Me → Documents → Upload | Title + type required; org optional (“Assign later”); pick file; appears in list as patient upload. |

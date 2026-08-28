@@ -1,15 +1,16 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Bookmark, BookOpen, CheckCheck, Search } from 'lucide-react-native';
+import { Bookmark, BookOpen, CheckCheck } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
+import { SearchField } from '@/components/ui/search-field';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import {
@@ -30,7 +31,7 @@ import {
 } from '@/features/home/components/HealthCategoriesRow';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 import type { Article } from '@/types';
 
 const LIST_PAGE_SIZE = 10;
@@ -162,9 +163,9 @@ export default function ArticlesTabScreen() {
 
   if (showInitialLoader) {
     return (
-      <View style={styles.screen}>
+      <Screen padded={false}>
         <LoadingState title={t('learn.loading')} />
-      </View>
+      </Screen>
     );
   }
 
@@ -174,7 +175,7 @@ export default function ArticlesTabScreen() {
     : t('learn.news');
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <FlatList
         data={visibleRest}
         keyExtractor={(item) => item.id}
@@ -231,24 +232,16 @@ export default function ArticlesTabScreen() {
 
             <OfflineBanner flush />
 
-            <View style={[styles.searchShell, shadow.soft]}>
-              <View style={styles.searchIcon}>
-                <Search color={palette.primary} size={16} strokeWidth={2.5} />
-              </View>
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t('learn.searchPlaceholder')}
-                placeholderTextColor={textColors.placeholder}
-                value={search}
-                onChangeText={setSearch}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="search"
-              />
-              {articlesQuery.isFetching && (trimmedSearch || selectedCategoryId) ? (
-                <ActivityIndicator color={palette.primary} size="small" />
-              ) : null}
-            </View>
+            <SearchField
+              value={search}
+              onChangeText={setSearch}
+              placeholder={t('learn.searchPlaceholder')}
+              trailing={
+                articlesQuery.isFetching && (trimmedSearch || selectedCategoryId) ? (
+                  <ActivityIndicator color={palette.primary} size="small" />
+                ) : null
+              }
+            />
 
             <HealthCategoriesRow
               showHeader={false}
@@ -297,15 +290,11 @@ export default function ArticlesTabScreen() {
           ) : null
         }
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingBottom: 40,
@@ -357,7 +346,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.14)',
+    borderColor: primaryAlpha(0.14),
     zIndex: 1,
   },
   heroBadgeLabel: {
@@ -389,31 +378,6 @@ const styles = StyleSheet.create({
     color: palette.textSecondary,
     maxWidth: '95%',
   },
-  searchShell: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.12)',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  searchIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    backgroundColor: palette.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: palette.text,
-    paddingVertical: 4,
-  },
   bookmarksCta: {
     flexShrink: 0,
     flexDirection: 'row',
@@ -432,7 +396,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: palette.primaryLight,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.16)',
+    borderColor: primaryAlpha(0.16),
   },
   featuredWrap: {
     gap: 8,

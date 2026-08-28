@@ -6,27 +6,27 @@ CareMate helps people keep critical health details ready when care is needed, di
 
 ## Product
 
-- Homepage: https://www.getcaremate.com/
-- Pricing: https://www.getcaremate.com/pricing
-- Patient guide: https://www.getcaremate.com/docs/patient
-- Security: https://www.getcaremate.com/security
-- Privacy: https://www.getcaremate.com/privacy
-- Terms: https://www.getcaremate.com/terms
-- Refunds: https://www.getcaremate.com/refunds
+- Homepage: https://getcaremate.com/
+- Pricing: https://getcaremate.com/pricing
+- Patient guide: https://getcaremate.com/docs/patient
+- Security: https://getcaremate.com/security
+- Privacy: https://getcaremate.com/privacy
+- Terms: https://getcaremate.com/terms
+- Refunds: https://getcaremate.com/refunds
 
 ## Solutions
 
-- Providers (healthcare organizations): https://www.getcaremate.com/providers
-- Provider guide: https://www.getcaremate.com/docs/providers
-- CareMate Community Network (CCN): https://www.getcaremate.com/ccn
-- Community guide: https://www.getcaremate.com/docs/community
-- Docs index: https://www.getcaremate.com/docs
+- Providers (healthcare organizations): https://getcaremate.com/providers
+- Provider guide: https://getcaremate.com/docs/providers
+- CareMate Community Network (CCN): https://getcaremate.com/ccn
+- Community guide: https://getcaremate.com/docs/community
+- Docs index: https://getcaremate.com/docs
 
 ## Learn
 
 Trusted health education articles for patients and families:
 
-- Articles index: https://www.getcaremate.com/articles
+- Articles index: https://getcaremate.com/articles
 - Categories cover prevention, conditions, symptoms, family health, emergency, care navigation, medicines, mental health, tests, and nutrition.
 
 ## Apps
@@ -37,4 +37,4 @@ Trusted health education articles for patients and families:
 ## Contact
 
 - Support: hello@getcaremate.com
-- Website: https://www.getcaremate.com/
+- Website: https://getcaremate.com/

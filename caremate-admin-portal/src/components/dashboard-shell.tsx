@@ -95,6 +95,16 @@ function growthItemsForRole(role: StaffRole): NavItem[] {
   }
   if (canManageBilling(role)) {
     items.push({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard });
+    items.push({
+      href: '/dashboard/provider-plans',
+      label: 'Provider plans',
+      icon: CreditCard,
+    });
+    items.push({
+      href: '/dashboard/payer-plans',
+      label: 'Payer plans',
+      icon: CreditCard,
+    });
   }
   if (canViewAuditLogs(role)) {
     items.push({ href: '/dashboard/audit', label: 'Audit logs', icon: ScrollText });

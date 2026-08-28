@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { requireProviderSession } from '@/lib/auth';
 import { requireModule } from '@/domains/modules/guard';
 import { getOrganizationProfile } from '@/domains/org/repository';
@@ -11,8 +10,11 @@ import { PaginationBar } from '@/components/pagination-bar';
 import { OrgProfileForm } from '@/components/features/org-profile-form';
 import { canManageOrg } from '@/constants/roles';
 import { ORG_TYPE_LABELS } from '@/constants/org-types';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import {
   Table,
   TableBody,
@@ -44,29 +46,31 @@ export default async function OrganizationPage({
   const verification = data?.profile?.verification_status ?? 'pending';
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Organization</h1>
-          <p className="mt-1 text-sm text-muted">{data?.organization.name}</p>
-        </div>
-        <Badge
-          variant={
-            verification === 'verified'
-              ? 'success'
-              : verification === 'suspended'
-                ? 'danger'
-                : 'warning'
-          }
-        >
-          {verification}
-        </Badge>
-        {data?.profile?.organization_type && (
-          <Badge variant="secondary">
-            {ORG_TYPE_LABELS[data.profile.organization_type]}
-          </Badge>
-        )}
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Organization"
+        description={data?.organization.name}
+        actions={
+          <>
+            <Badge
+              variant={
+                verification === 'verified'
+                  ? 'success'
+                  : verification === 'suspended'
+                    ? 'danger'
+                    : 'warning'
+              }
+            >
+              {verification}
+            </Badge>
+            {data?.profile?.organization_type ? (
+              <Badge variant="secondary">
+                {ORG_TYPE_LABELS[data.profile.organization_type]}
+              </Badge>
+            ) : null}
+          </>
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
@@ -77,20 +81,12 @@ export default async function OrganizationPage({
             </CardDescription>
           </div>
           {canManage && primary ? (
-            <Link
-              href={`/app/organization/locations/${primary.id}`}
-              className="text-sm font-medium text-primary hover:underline"
-            >
+            <TextLink href={`/app/organization/locations/${primary.id}`}>
               Edit primary location
-            </Link>
+            </TextLink>
           ) : null}
           {canManage && !primary ? (
-            <Link
-              href="/app/organization/locations/new"
-              className="text-sm font-medium text-primary hover:underline"
-            >
-              Add location
-            </Link>
+            <TextLink href="/app/organization/locations/new">Add location</TextLink>
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
@@ -116,9 +112,7 @@ export default async function OrganizationPage({
             {catalog.services.length === 0 ? (
               <p className="text-sm text-muted">
                 No catalog services yet.
-                {canManage && primary
-                  ? ' Add services on a location to list them here.'
-                  : ''}
+                {canManage && primary ? ' Add services on a location to list them here.' : ''}
               </p>
             ) : (
               <ul className="space-y-1 text-sm">
@@ -132,12 +126,11 @@ export default async function OrganizationPage({
                       </span>
                     ) : null}
                     {canManage && svc.location_id ? (
-                      <Link
+                      <TextLink
                         href={`/app/organization/locations/${svc.location_id}/services/${svc.id}`}
-                        className="text-primary hover:underline"
                       >
                         Edit
-                      </Link>
+                      </TextLink>
                     ) : null}
                   </li>
                 ))}
@@ -183,12 +176,9 @@ export default async function OrganizationPage({
             </CardDescription>
           </div>
           {canManage ? (
-            <Link
-              href="/app/organization/locations/new"
-              className="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-white hover:bg-primary-dark"
-            >
+            <ButtonLink href="/app/organization/locations/new" size="sm">
               Add location
-            </Link>
+            </ButtonLink>
           ) : null}
         </CardHeader>
         <CardContent className="p-0">
@@ -222,12 +212,7 @@ export default async function OrganizationPage({
                       {loc.address ?? '—'}
                     </TableCell>
                     <TableCell>
-                      <Link
-                        href={`/app/organization/locations/${loc.id}`}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        Manage
-                      </Link>
+                      <TextLink href={`/app/organization/locations/${loc.id}`}>Manage</TextLink>
                     </TableCell>
                   </TableRow>
                 ))
@@ -237,7 +222,7 @@ export default async function OrganizationPage({
           <PaginationBar result={locations} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

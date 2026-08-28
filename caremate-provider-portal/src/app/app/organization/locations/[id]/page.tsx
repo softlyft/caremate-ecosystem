@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireProviderSession } from '@/lib/auth';
 import { canManageOrg } from '@/constants/roles';
@@ -11,8 +10,11 @@ import { hrefWithPage, parsePage } from '@/lib/pagination';
 import { PaginationBar } from '@/components/pagination-bar';
 import { LocationForm } from '@/components/features/location-form';
 import { SoftDeleteLocationButton } from '@/components/features/catalog-delete-buttons';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import {
   Table,
   TableBody,
@@ -44,19 +46,17 @@ export default async function LocationDetailPage({
     hrefWithPage(`/app/organization/locations/${id}`, p);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href="/app/organization" className="text-sm text-primary hover:underline">
-          ← Organization
-        </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">{location.name}</h1>
+    <PageShell>
+      <TextLink href="/app/organization">← Organization</TextLink>
+      <PageHeader
+        title={location.name}
+        actions={
           <Badge variant={location.status === 'active' ? 'success' : 'secondary'}>
             {location.status}
           </Badge>
-        </div>
-        <p className="mt-1 font-mono text-xs text-muted">{location.id}</p>
-      </div>
+        }
+      />
+      <p className="-mt-4 font-mono text-xs text-muted">{location.id}</p>
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
@@ -98,12 +98,9 @@ export default async function LocationDetailPage({
             </CardDescription>
           </div>
           {canManage ? (
-            <Link
-              href={`/app/organization/locations/${location.id}/services/new`}
-              className="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-white hover:bg-primary-dark"
-            >
+            <ButtonLink href={`/app/organization/locations/${location.id}/services/new`} size="sm">
               Add service
-            </Link>
+            </ButtonLink>
           ) : null}
         </CardHeader>
         <CardContent className="p-0">
@@ -135,12 +132,11 @@ export default async function LocationDetailPage({
                     </TableCell>
                     <TableCell>{svc.active ? 'Yes' : 'No'}</TableCell>
                     <TableCell>
-                      <Link
+                      <TextLink
                         href={`/app/organization/locations/${location.id}/services/${svc.id}`}
-                        className="text-sm font-medium text-primary hover:underline"
                       >
                         {canManage ? 'Edit' : 'View'}
-                      </Link>
+                      </TextLink>
                     </TableCell>
                   </TableRow>
                 ))
@@ -150,7 +146,7 @@ export default async function LocationDetailPage({
           <PaginationBar result={services} hrefForPage={hrefForPage} />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

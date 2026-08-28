@@ -4,8 +4,8 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { Button, FormActions } from '@/components/ui/form-controls';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyConnectionService, familyRepository } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
@@ -58,9 +58,9 @@ export default function FamilyRequestsScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen tone="background">
         <AppText variant="body">{t('family.requests.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -88,10 +88,11 @@ export default function FamilyRequestsScreen() {
   const requests = requestsQuery.data ?? [];
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
+    <Screen padded={false} tone="background">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
       <AppText variant="sectionTitle">{t('family.requests.title')}</AppText>
       <AppText variant="subtitle">{t('family.requests.subtitle')}</AppText>
 
@@ -116,7 +117,7 @@ export default function FamilyRequestsScreen() {
                 {t('family.requests.lookupPhone', { phone: request.toPhone })}
               </AppText>
             ) : null}
-            <View style={styles.actions}>
+            <FormActions style={styles.actions}>
               <Button
                 label={
                   busyId === request.id ? t('family.requests.working') : t('family.requests.accept')
@@ -130,21 +131,17 @@ export default function FamilyRequestsScreen() {
                 disabled={busyId === request.id}
                 onPress={() => respond(request.id, false)}
               />
-            </View>
+            </FormActions>
           </View>
         ))
       )}
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.background },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
-  },
+  flex: { flex: 1 },
   content: {
     padding: layoutSpacing.screenHorizontal,
     gap: spacing.md,

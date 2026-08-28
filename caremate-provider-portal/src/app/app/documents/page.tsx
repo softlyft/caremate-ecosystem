@@ -1,24 +1,10 @@
-import { format } from 'date-fns';
 import { requireProviderSession } from '@/lib/auth';
 import { requireModule } from '@/domains/modules/guard';
 import { listDocuments } from '@/domains/documents/repository';
 import { listConnectedPatients } from '@/domains/patients/repository';
 import { hrefWithPage, parsePage } from '@/lib/pagination';
-import { PaginationBar } from '@/components/pagination-bar';
-import { DocumentUploadForm } from '@/components/features/document-upload-form';
-import { OpenDocumentButton } from '@/components/features/open-document-button';
-import { DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
+import { OrgDocumentsPanel } from '@/components/features/org-documents-panel';
 import { canWriteOrg } from '@/constants/roles';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 
 export default async function DocumentsPage({
   searchParams,
@@ -42,78 +28,13 @@ export default async function DocumentsPage({
     label: `${p.profile?.full_name ?? 'Unknown'} (${p.profile?.patient_id ?? '—'})`,
   }));
 
-  const hrefForPage = (p: number) => hrefWithPage('/app/documents', p);
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Documents</h1>
-        <p className="mt-1 text-sm text-muted">
-          Share files with connected patients. Open them here, or patients can open them in the
-          CareMate app under Me → Documents.
-        </p>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {canWrite && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload</CardTitle>
-              <CardDescription>Stored in Supabase Storage (provider-documents)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DocumentUploadForm patients={patientOptions} />
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className={canWrite ? 'lg:col-span-2' : 'lg:col-span-3'}>
-          <CardHeader>
-            <CardTitle>Recent uploads</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Uploaded</TableHead>
-                  <TableHead className="w-[1%] text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {documents.rows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted">
-                      No documents yet.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  documents.rows.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium">{doc.title}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {DOCUMENT_TYPE_LABELS[doc.document_type] ?? doc.document_type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">{doc.patient_id.slice(0, 8)}…</TableCell>
-                      <TableCell>
-                        {format(new Date(doc.created_at), 'MMM d, yyyy')}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <OpenDocumentButton documentId={doc.id} />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-            <PaginationBar result={documents} hrefForPage={hrefForPage} />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <OrgDocumentsPanel
+      description="Share files with connected patients. Open them here, or patients can open them in the CareMate app under Me → Documents."
+      canWrite={canWrite}
+      patients={patientOptions}
+      documents={documents}
+      hrefForPage={(p) => hrefWithPage('/app/documents', p)}
+    />
   );
 }

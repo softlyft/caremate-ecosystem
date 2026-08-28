@@ -8,15 +8,14 @@ import {
   ChevronLeft,
   LayoutGrid,
   MapPin,
-  Search,
-  X,
   type LucideIcon,
 } from 'lucide-react-native';
 import { Button } from '@/components/ui/form-controls';
+import { SearchField } from '@/components/ui/search-field';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { CompactArticleCard } from '@/domains/articles/components/ArticleCards';
 import { useTranslation } from '@/domains/localization';
@@ -24,8 +23,7 @@ import { NearbyProviderCard } from '@/domains/providers/components/NearbyProvide
 import { normalizeSearchQuery, runGlobalSearch } from '@/domains/search';
 import { getMiniAppLabel } from '@/mini-apps/_kit/registry';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
-import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
-import { textColors } from '@/theme/typography';
+import { fontFamily, layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = palette.primary;
 const SOFT = palette.primaryLight;
@@ -63,7 +61,7 @@ export default function SearchScreen() {
     results.tools.length === 0;
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    <Screen padded={false} style={{ paddingTop: insets.top }}>
       <View style={styles.meshTop} pointerEvents="none" />
       <View style={styles.meshAccent} pointerEvents="none" />
 
@@ -80,36 +78,15 @@ export default function SearchScreen() {
           <ChevronLeft color={ACCENT} size={22} strokeWidth={2.4} />
         </Button>
 
-        <View style={[styles.searchShell, shadow.soft]}>
-          <View style={styles.searchIcon}>
-            <Search color={ACCENT} size={16} strokeWidth={2.5} />
-          </View>
-          <TextInput
-            ref={inputRef}
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('search.placeholder')}
-            placeholderTextColor={textColors.placeholder}
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="search"
-            style={styles.input}
-            accessibilityLabel={t('common.search')}
-          />
-          {query.length > 0 ? (
-            <Button
-              accessibilityRole="button"
-              accessibilityLabel={t('search.clearA11y')}
-              onPress={() => setQuery('')}
-              style={styles.clearButton}
-              hitSlop={8}
-              scale={0.92}
-              variant="plain"
-            >
-              <X color={palette.textSecondary} size={16} strokeWidth={2.4} />
-            </Button>
-          ) : null}
-        </View>
+        <SearchField
+          style={styles.searchField}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('search.placeholder')}
+          onClear={() => setQuery('')}
+          inputRef={inputRef}
+          accessibilityLabel={t('common.search')}
+        />
       </View>
 
       <ScrollView
@@ -250,7 +227,7 @@ export default function SearchScreen() {
           </AnimatedSection>
         ) : null}
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -290,10 +267,6 @@ function Section({
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   meshTop: {
     position: 'absolute',
     top: -40,
@@ -311,7 +284,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(13, 148, 136, 0.08)',
+    backgroundColor: primaryAlpha(0.08),
   },
   header: {
     flexDirection: 'row',
@@ -332,41 +305,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: `${ACCENT}33`,
   },
-  searchShell: {
+  searchField: {
     flex: 1,
     minHeight: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 6,
-  },
-  searchIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    backgroundColor: SOFT,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  input: {
-    flex: 1,
-    fontFamily: fontFamily.regular,
-    fontSize: 16,
-    color: palette.text,
-    paddingVertical: 6,
-  },
-  clearButton: {
-    width: 30,
-    height: 30,
-    borderRadius: radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
@@ -377,7 +320,7 @@ const styles = StyleSheet.create({
     backgroundColor: palette.background,
     borderRadius: radius.xxl,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.1)',
+    borderColor: primaryAlpha(0.1),
     padding: spacing.lg,
     alignItems: 'center',
     gap: spacing.sm,

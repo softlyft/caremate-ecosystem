@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Box } from '@/components/ui/box';
 import { EmptyState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import {
@@ -61,12 +60,12 @@ export default function ArticleCategoryScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           ListHeaderComponent={
-            <Box className="mb-3 gap-3">
+            <View style={styles.listHeader}>
               {featured ? <FeaturedArticleCard article={featured} /> : null}
-            </Box>
+            </View>
           }
           renderItem={({ item }) => <CompactArticleCard article={item} />}
-          ItemSeparatorComponent={() => <Box className="h-3" />}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
     </Screen>
@@ -76,5 +75,12 @@ export default function ArticleCategoryScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingBottom: spacing.xl,
+  },
+  listHeader: {
+    marginBottom: 12,
+    gap: 12,
+  },
+  separator: {
+    height: 12,
   },
 });

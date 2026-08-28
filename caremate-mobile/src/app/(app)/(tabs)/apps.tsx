@@ -12,12 +12,13 @@ import { Button } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { loadMiniAppsOrder, saveMiniAppsOrder } from '@/mini-apps/_kit/order-preference';
 import { MINI_APPS, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 export default function AppsTabScreen() {
   const { t } = useTranslation();
@@ -58,8 +59,9 @@ export default function AppsTabScreen() {
   );
 
   return (
-    <GestureHandlerRootView style={styles.screen}>
-      <DraggableFlatList
+    <Screen padded={false} style={styles.flex}>
+      <GestureHandlerRootView style={styles.flex}>
+        <DraggableFlatList
         data={apps}
         keyExtractor={(item) => item.id}
         onDragEnd={({ data }) => {
@@ -68,7 +70,7 @@ export default function AppsTabScreen() {
         }}
         renderItem={renderItem}
         activationDistance={12}
-        containerStyle={styles.screen}
+        containerStyle={styles.flex}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
@@ -121,14 +123,14 @@ export default function AppsTabScreen() {
           </View>
         }
       />
-    </GestureHandlerRootView>
+      </GestureHandlerRootView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.14)',
+    borderColor: primaryAlpha(0.14),
     zIndex: 1,
   },
   heroBadgeLabel: {
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
   guestBanner: {
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.18)',
+    borderColor: primaryAlpha(0.18),
     backgroundColor: palette.primaryLight,
     padding: layoutSpacing.cardPadding,
     gap: spacing.sm,

@@ -11,6 +11,7 @@ import { ArticleShareDeepLinkHandler } from '@/components/ArticleShareDeepLinkHa
 import { BillingDeepLinkHandler } from '@/components/BillingDeepLinkHandler';
 import { EmergencyShareDeepLinkHandler } from '@/components/EmergencyShareDeepLinkHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { MessagePushDeepLinkHandler } from '@/components/MessagePushDeepLinkHandler';
 import { PushPermissionReconciler } from '@/components/PushPermissionReconciler';
 import { AppDialogHost } from '@/components/ui/AppDialogHost';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
@@ -48,6 +49,7 @@ function RootLayout() {
           <BillingDeepLinkHandler />
           <EmergencyShareDeepLinkHandler />
           <ArticleShareDeepLinkHandler />
+          <MessagePushDeepLinkHandler />
           <PushPermissionReconciler />
           <Stack
             screenOptions={{

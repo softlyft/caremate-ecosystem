@@ -2,12 +2,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ShieldPlus, Unlink } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, ChoiceChip, InputControl } from '@/components/ui/form-controls';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import {
+  Button,
+  ChoiceChip,
+  FormField,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { addCalendarDays, isDateKey, todayDateKey } from '@/domains/timeline/consent-window';
@@ -20,7 +26,7 @@ import {
 } from '@/domains/providers/connection-consents';
 import { providerConnectionService } from '@/domains/providers/connection-service';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 export default function ConnectedProviderDetailScreen() {
   const { t } = useTranslation();
@@ -111,9 +117,9 @@ export default function ConnectedProviderDetailScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen tone="surface">
         <AppText variant="body">{t('nearby.connections.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -218,10 +224,11 @@ export default function ConnectedProviderDetailScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
+    <Screen padded={false} tone="surface">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
       <View style={[styles.card, shadow.soft]}>
         <AppText variant="sectionTitle">{orgName}</AppText>
         <AppText variant="caption" style={styles.meta}>
@@ -375,22 +382,26 @@ export default function ConnectedProviderDetailScreen() {
               />
             </View>
             {rangePreset === 'custom' ? (
-              <View style={styles.dateFields}>
-                <InputControl
-                  placeholder={t('nearby.connections.timelineFrom')}
-                  value={periodStart}
-                  onChangeText={setPeriodStart}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <InputControl
-                  placeholder={t('nearby.connections.timelineTo')}
-                  value={periodEnd}
-                  onChangeText={setPeriodEnd}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
+              <FormStack style={styles.dateFields}>
+                <FormField label={t('nearby.connections.timelineFrom')}>
+                  <Input
+                    placeholder={t('nearby.connections.timelineFrom')}
+                    value={periodStart}
+                    onChangeText={setPeriodStart}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </FormField>
+                <FormField label={t('nearby.connections.timelineTo')}>
+                  <Input
+                    placeholder={t('nearby.connections.timelineTo')}
+                    value={periodEnd}
+                    onChangeText={setPeriodEnd}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </FormField>
+              </FormStack>
             ) : (
               <AppText variant="caption" style={styles.meta}>
                 {periodStart && periodEnd
@@ -440,18 +451,16 @@ export default function ConnectedProviderDetailScreen() {
         <AppText variant="subtitle">{t('nearby.connections.disconnectHint')}</AppText>
         {disconnecting ? (
           <View style={styles.list}>
-            <AppText variant="caption" style={styles.listLabel}>
-              {t('nearby.connections.disconnectReasonLabel')}
-            </AppText>
-            <TextInput
-              style={styles.reasonInput}
-              value={disconnectReason}
-              onChangeText={setDisconnectReason}
-              placeholder={t('nearby.connections.disconnectReasonPlaceholder')}
-              placeholderTextColor={textColors.placeholder}
-              multiline
-              editable={!busy}
-            />
+            <FormField label={t('nearby.connections.disconnectReasonLabel')}>
+              <Input
+                value={disconnectReason}
+                onChangeText={setDisconnectReason}
+                placeholder={t('nearby.connections.disconnectReasonPlaceholder')}
+                multiline
+                editable={!busy}
+                style={styles.reasonInput}
+              />
+            </FormField>
             <Button
               label={t('nearby.connections.disconnectConfirmAction')}
               variant="secondary"
@@ -478,24 +487,17 @@ export default function ConnectedProviderDetailScreen() {
           />
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
+  flex: { flex: 1 },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
   card: {
     backgroundColor: palette.background,
@@ -510,7 +512,7 @@ const styles = StyleSheet.create({
   },
   note: {
     marginTop: spacing.xs,
-    color: textColors.secondary,
+    color: palette.textSecondary,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -573,11 +575,6 @@ const styles = StyleSheet.create({
   },
   reasonInput: {
     minHeight: 80,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    borderRadius: radius.lg,
-    padding: 12,
-    color: palette.text,
     textAlignVertical: 'top',
   },
 });

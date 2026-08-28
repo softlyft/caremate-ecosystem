@@ -247,6 +247,7 @@ export type GatewayMessageRow = {
   sender_party_type: 'user' | 'organization';
   sender_user_id: string | null;
   sender_organization_id: string | null;
+  sender_payer_organization_id?: string | null;
   body: string;
   subject: string | null;
   created_at: string;
@@ -256,6 +257,7 @@ export type GatewayConversationRow = {
   id: string;
   kind: 'org_patient' | 'direct';
   organization_id: string | null;
+  payer_organization_id?: string | null;
   patient_user_id: string | null;
   subject: string | null;
   last_message_at: string | null;

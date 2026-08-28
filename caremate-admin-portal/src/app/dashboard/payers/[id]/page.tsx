@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getPayerOrganization } from '@/domains/payers/repository';
@@ -7,17 +6,10 @@ import { canEditCatalog } from '@/constants/roles';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DescriptionRow } from '@/components/ui/detail-row';
+import { TextLink } from '@/components/ui/text-link';
 import { PayerOrganizationForm } from '@/features/payers/organization-form';
 import { ArchivePayerOrganizationButton } from '@/features/payers/archive-payer-button';
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm text-foreground">{children}</dd>
-    </div>
-  );
-}
 
 export default async function PayerOrganizationDetailPage({
   params,
@@ -46,9 +38,9 @@ export default async function PayerOrganizationDetailPage({
           {organization.active ? 'Active' : 'Inactive'}
         </Badge>
         {canEdit ? <ArchivePayerOrganizationButton organizationId={organization.id} /> : null}
-        <Link href="/dashboard/payers" className="text-sm text-muted hover:text-foreground">
+        <TextLink href="/dashboard/payers" className="text-muted hover:text-foreground">
           Back to list
-        </Link>
+        </TextLink>
       </PageHeader>
 
       <Card>
@@ -60,12 +52,12 @@ export default async function PayerOrganizationDetailPage({
             <PayerOrganizationForm mode="edit" organization={organization} />
           ) : (
             <dl>
-              <Row label="Name">{organization.name}</Row>
-              <Row label="Claim email">{organization.email ?? '—'}</Row>
-              <Row label="Phone">{organization.phone ?? '—'}</Row>
-              <Row label="Website">{organization.website ?? '—'}</Row>
-              <Row label="Address">{organization.address ?? '—'}</Row>
-              <Row label="Active">{organization.active ? 'Yes' : 'No'}</Row>
+              <DescriptionRow label="Name">{organization.name}</DescriptionRow>
+              <DescriptionRow label="Claim email">{organization.email ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Phone">{organization.phone ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Website">{organization.website ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Address">{organization.address ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Active">{organization.active ? 'Yes' : 'No'}</DescriptionRow>
             </dl>
           )}
         </CardContent>

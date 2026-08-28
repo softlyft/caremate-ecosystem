@@ -9,7 +9,7 @@ import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import { getMiniAppLabel, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 
 type MiniAppCardProps = {
   app: MiniAppDefinition;
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   dragging: {
     opacity: 0.92,
     transform: [{ scale: 1.02 }],
-    borderColor: 'rgba(13, 148, 136, 0.35)',
+    borderColor: primaryAlpha(0.35),
   },
   unavailable: {
     opacity: 0.62,

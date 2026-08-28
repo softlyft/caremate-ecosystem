@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/form-controls';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { images } from '@/constants/assets';
 import { WEBSITE_URLS } from '@/constants/config';
 import { premiumLabel } from '@/domains/billing/entitlement';
@@ -37,7 +38,7 @@ import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
-import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 import { useAccountDisplayName } from '@/hooks/use-account-display-name';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { usePremiumState } from '@/hooks/use-premium-state';
@@ -108,7 +109,7 @@ export default function ProfileTabScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         entering={FadeIn.duration(300)}
         showsVerticalScrollIndicator={false}
@@ -364,15 +365,11 @@ export default function ProfileTabScreen() {
           </AnimatedSection>
         ) : null}
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     gap: spacing.sm,
@@ -413,7 +410,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xxl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.12)',
+    borderColor: primaryAlpha(0.12),
     zIndex: 1,
   },
   identityInner: {
@@ -434,7 +431,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: palette.background,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.18)',
+    borderColor: primaryAlpha(0.18),
     zIndex: 2,
   },
   avatarRing: {
@@ -443,7 +440,7 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     padding: 4,
     borderWidth: 2,
-    borderColor: 'rgba(13, 148, 136, 0.25)',
+    borderColor: primaryAlpha(0.25),
   },
   avatar: {
     flex: 1,

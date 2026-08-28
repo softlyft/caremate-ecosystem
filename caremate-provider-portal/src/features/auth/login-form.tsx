@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -11,8 +10,9 @@ import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/browser';
 import { resolveCareHomePath, sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { TextLink } from '@/components/ui/text-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const schema = z.object({
@@ -116,39 +116,35 @@ export function LoginForm() {
         </div>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" autoComplete="email" {...register('email')} />
-            {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgot-password"
-                className="text-xs font-medium text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              {...register('password')}
-            />
-            {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
-          </div>
-          <Button type="submit" className="w-full" loading={loading} loadingLabel="Signing in…">
-            Sign in
-          </Button>
-          <p className="text-center text-sm text-muted">
-            First time?{' '}
-            <Link href="/claim" className="font-medium text-primary hover:underline">
-              Claim your organization
-            </Link>
-          </p>
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <FormField label="Email" htmlFor="email" error={errors.email?.message}>
+              <Input id="email" type="email" autoComplete="email" {...register('email')} />
+            </FormField>
+            <FormField
+              label="Password"
+              htmlFor="password"
+              error={errors.password?.message}
+              labelExtra={
+                <TextLink href="/forgot-password" className="text-xs">
+                  Forgot password?
+                </TextLink>
+              }
+            >
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                {...register('password')}
+              />
+            </FormField>
+            <Button type="submit" className="w-full" loading={loading} loadingLabel="Signing in…">
+              Sign in
+            </Button>
+            <p className="text-center text-sm text-muted">
+              First time? <TextLink href="/claim">Claim your organization</TextLink>
+            </p>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

@@ -2,14 +2,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { Globe, Link2, Mail, MapPin, Phone, Shield } from 'lucide-react-native';
 import { useLayoutEffect, useState } from 'react';
-import { Alert, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import {
+  Button,
+  FormActions,
+  FormField,
+  Input,
+  TextLink,
+} from '@/components/ui/form-controls';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { payerConnectionService } from '@/domains/payers/connection-service';
@@ -155,15 +161,15 @@ export default function InsuranceOrgDetailScreen() {
 
   if (query.isLoading) {
     return (
-      <View style={styles.screen}>
+      <Screen tone="background" padded={false}>
         <LoadingState title={t('insurance.detail.loading')} />
-      </View>
+      </Screen>
     );
   }
 
   if (query.isError || !query.data) {
     return (
-      <View style={styles.screen}>
+      <Screen tone="background" padded={false}>
         <ErrorState
           title={t('insurance.detail.notFoundTitle')}
           message={
@@ -176,7 +182,7 @@ export default function InsuranceOrgDetailScreen() {
             void query.refetch();
           }}
         />
-      </View>
+      </Screen>
     );
   }
 
@@ -192,11 +198,12 @@ export default function InsuranceOrgDetailScreen() {
     : null;
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
+    <Screen tone="background" padded={false}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
       <AnimatedSection index={0}>
         <View style={[styles.hero, shadow.soft]}>
           <LinearGradientFill
@@ -234,16 +241,17 @@ export default function InsuranceOrgDetailScreen() {
                 </AppText>
                 {disconnecting ? (
                   <>
-                    <TextInput
-                      style={styles.reasonInput}
-                      value={disconnectReason}
-                      onChangeText={setDisconnectReason}
-                      placeholder={t('insurance.connections.disconnectReasonPlaceholder')}
-                      placeholderTextColor={textColors.placeholder}
-                      multiline
-                      editable={!disconnectMutation.isPending}
-                    />
-                    <View style={styles.connectRow}>
+                    <FormField>
+                      <Input
+                        value={disconnectReason}
+                        onChangeText={setDisconnectReason}
+                        placeholder={t('insurance.connections.disconnectReasonPlaceholder')}
+                        multiline
+                        editable={!disconnectMutation.isPending}
+                        style={styles.reasonInput}
+                      />
+                    </FormField>
+                    <FormActions style={styles.connectRow}>
                       <Button
                         style={styles.secondaryCta}
                         disabled={disconnectMutation.isPending}
@@ -267,7 +275,7 @@ export default function InsuranceOrgDetailScreen() {
                           {t('insurance.connections.disconnectConfirmAction')}
                         </AppText>
                       </Button>
-                    </View>
+                    </FormActions>
                   </>
                 ) : (
                   <Button
@@ -305,16 +313,17 @@ export default function InsuranceOrgDetailScreen() {
                 ) : null}
                 {declining ? (
                   <>
-                    <TextInput
-                      style={styles.reasonInput}
-                      value={rejectionReason}
-                      onChangeText={setRejectionReason}
-                      placeholder={t('insurance.connections.reasonPlaceholder')}
-                      placeholderTextColor={textColors.placeholder}
-                      multiline
-                      editable={!respondMutation.isPending}
-                    />
-                    <View style={styles.connectRow}>
+                    <FormField>
+                      <Input
+                        value={rejectionReason}
+                        onChangeText={setRejectionReason}
+                        placeholder={t('insurance.connections.reasonPlaceholder')}
+                        multiline
+                        editable={!respondMutation.isPending}
+                        style={styles.reasonInput}
+                      />
+                    </FormField>
+                    <FormActions style={styles.connectRow}>
                       <Button
                         style={styles.secondaryCta}
                         disabled={respondMutation.isPending}
@@ -340,7 +349,7 @@ export default function InsuranceOrgDetailScreen() {
                           {t('insurance.connections.confirmDecline')}
                         </AppText>
                       </Button>
-                    </View>
+                    </FormActions>
                   </>
                 ) : (
                   <View style={styles.connectRow}>
@@ -374,16 +383,17 @@ export default function InsuranceOrgDetailScreen() {
                 </AppText>
                 {cancelling ? (
                   <>
-                    <TextInput
-                      style={styles.reasonInput}
-                      value={cancelReason}
-                      onChangeText={setCancelReason}
-                      placeholder={t('insurance.connections.cancelReasonPlaceholder')}
-                      placeholderTextColor={textColors.placeholder}
-                      multiline
-                      editable={!cancelMutation.isPending}
-                    />
-                    <View style={styles.connectRow}>
+                    <FormField>
+                      <Input
+                        value={cancelReason}
+                        onChangeText={setCancelReason}
+                        placeholder={t('insurance.connections.cancelReasonPlaceholder')}
+                        multiline
+                        editable={!cancelMutation.isPending}
+                        style={styles.reasonInput}
+                      />
+                    </FormField>
+                    <FormActions style={styles.connectRow}>
                       <Button
                         style={styles.secondaryCta}
                         disabled={cancelMutation.isPending}
@@ -407,7 +417,7 @@ export default function InsuranceOrgDetailScreen() {
                           {t('insurance.connections.confirmCancelRequest')}
                         </AppText>
                       </Button>
-                    </View>
+                    </FormActions>
                   </>
                 ) : (
                   <Button
@@ -460,48 +470,42 @@ export default function InsuranceOrgDetailScreen() {
           ) : null}
 
           {payer.phone ? (
-            <Button
-              variant="plain"
-              style={styles.row}
-              onPress={() => void Linking.openURL(`tel:${payer.phone}`)}
-              accessibilityRole="link"
-              accessibilityLabel={t('insurance.detail.callA11y', { phone: payer.phone })}
-            >
+            <View style={styles.row}>
               <Phone color={THEME.accent} size={18} />
-              <AppText variant="body" style={[styles.rowText, styles.linkText]}>
+              <TextLink
+                external
+                href={`tel:${payer.phone}`}
+                accessibilityLabel={t('insurance.detail.callA11y', { phone: payer.phone })}
+              >
                 {payer.phone}
-              </AppText>
-            </Button>
+              </TextLink>
+            </View>
           ) : null}
 
           {payer.email ? (
-            <Button
-              variant="plain"
-              style={styles.row}
-              onPress={() => void Linking.openURL(`mailto:${payer.email}`)}
-              accessibilityRole="link"
-              accessibilityLabel={t('insurance.detail.emailA11y', { email: payer.email })}
-            >
+            <View style={styles.row}>
               <Mail color={THEME.accent} size={18} />
-              <AppText variant="body" style={[styles.rowText, styles.linkText]}>
+              <TextLink
+                external
+                href={`mailto:${payer.email}`}
+                accessibilityLabel={t('insurance.detail.emailA11y', { email: payer.email })}
+              >
                 {payer.email}
-              </AppText>
-            </Button>
+              </TextLink>
+            </View>
           ) : null}
 
           {websiteUrl ? (
-            <Button
-              variant="plain"
-              style={styles.row}
-              onPress={() => void Linking.openURL(websiteUrl)}
-              accessibilityRole="link"
-              accessibilityLabel={t('insurance.detail.websiteA11y')}
-            >
+            <View style={styles.row}>
               <Globe color={THEME.accent} size={18} />
-              <AppText variant="body" style={[styles.rowText, styles.linkText]} numberOfLines={2}>
+              <TextLink
+                external
+                href={websiteUrl}
+                accessibilityLabel={t('insurance.detail.websiteA11y')}
+              >
                 {payer.website}
-              </AppText>
-            </Button>
+              </TextLink>
+            </View>
           ) : null}
 
           {!payer.address && !payer.phone && !payer.email && !websiteUrl ? (
@@ -517,14 +521,14 @@ export default function InsuranceOrgDetailScreen() {
           {t('insurance.detail.footnote')}
         </AppText>
       </AnimatedSection>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.background,
   },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
@@ -592,11 +596,6 @@ const styles = StyleSheet.create({
   },
   reasonInput: {
     minHeight: 80,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    borderRadius: radius.lg,
-    padding: 12,
-    color: palette.text,
     textAlignVertical: 'top',
   },
   primaryCta: {
@@ -631,10 +630,6 @@ const styles = StyleSheet.create({
   rowText: {
     flex: 1,
     color: textColors.primary,
-  },
-  linkText: {
-    color: THEME.accent,
-    fontWeight: '500',
   },
   emptyContact: {
     color: textColors.secondary,

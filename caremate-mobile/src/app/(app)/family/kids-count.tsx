@@ -4,7 +4,8 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Button, FormActions, FormField, FormNotice, FormStack, Input } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { useFamilySetupStore } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
@@ -36,32 +37,38 @@ export default function FamilyKidsCountScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-      keyboardShouldPersistTaps="handled"
-    >
+    <Screen padded={false} tone="background">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+        keyboardShouldPersistTaps="handled"
+      >
       <AppText variant="sectionTitle">{t('family.kidsCount.title')}</AppText>
       <AppText variant="subtitle">{t('family.kidsCount.subtitle')}</AppText>
-      <AppText variant="caption" style={styles.hint}>
-        {t('family.kidsCountLimitHint')}
-      </AppText>
+      <FormNotice>{t('family.kidsCountLimitHint')}</FormNotice>
 
       <View style={styles.card}>
-        <Input
-          placeholder={t('family.kidsCount.placeholder')}
-          keyboardType="number-pad"
-          value={value}
-          onChangeText={setValue}
-        />
-        <Button label={t('common.continue')} onPress={continueNext} />
+        <FormStack>
+          <FormField label={t('family.kidsCount.title')}>
+            <Input
+              placeholder={t('family.kidsCount.placeholder')}
+              keyboardType="number-pad"
+              value={value}
+              onChangeText={setValue}
+            />
+          </FormField>
+          <FormActions>
+            <Button label={t('common.continue')} onPress={continueNext} />
+          </FormActions>
+        </FormStack>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.background },
+  flex: { flex: 1 },
   content: {
     padding: layoutSpacing.screenHorizontal,
     gap: spacing.md,
@@ -72,9 +79,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.divider,
     padding: layoutSpacing.cardPadding,
-    gap: spacing.sm,
-  },
-  hint: {
-    color: palette.textSecondary,
   },
 });

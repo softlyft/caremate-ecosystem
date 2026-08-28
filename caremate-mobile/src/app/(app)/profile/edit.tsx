@@ -15,7 +15,15 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, ChoiceChip, Input } from '@/components/ui/form-controls';
+import {
+  Button,
+  ChoiceChip,
+  FormActions,
+  FormField,
+  FormNotice,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
 import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -262,215 +270,228 @@ function EditProfileForm({
           scrollEventThrottle={16}
           onScroll={onScroll}
         >
-          <AppText variant="caption">{t('profile.edit.hint')}</AppText>
+          <FormStack>
+            <FormNotice>{t('profile.edit.hint')}</FormNotice>
 
-          <Input
-            placeholder={t('profile.edit.fullName')}
-            autoCapitalize="words"
-            value={fullName}
-            onChangeText={setFullName}
-          />
-          <Input
-            placeholder={t('profile.edit.phone')}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            textContentType="telephoneNumber"
-            maxLength={16}
-            value={phone}
-            onChangeText={(value) => setPhone(sanitizePhoneInput(value))}
-          />
+            <FormField label={t('profile.edit.fullName')}>
+              <Input
+                placeholder={t('profile.edit.fullName')}
+                autoCapitalize="words"
+                value={fullName}
+                onChangeText={setFullName}
+              />
+            </FormField>
 
-          <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">{t('profile.edit.dateOfBirth')}</AppText>
-            <AppText variant="caption" style={styles.muted}>
-              {t('profile.edit.dateOfBirthHint')}
-            </AppText>
-            <MonthCalendarNavigator
-              accentColor={palette.primary}
-              monthRef={dobMonthRef}
-              onMonthChange={setDobMonthRef}
-              maximumYear={currentYear}
-            />
-            <MonthCalendarGrid
-              monthRef={dobMonthRef}
-              interactive
-              accentColor={palette.primary}
-              onDayPress={(dayKey) => {
-                if (dayKey > todayKey) return;
-                setDateOfBirth(dayKey);
-              }}
-              getDayState={(dayKey) => ({
-                selected: dayKey === dateOfBirth,
-                today: dayKey === todayKey,
-              })}
-            />
-            {dateOfBirth ? (
-              <View style={styles.dobSelectedRow}>
-                <AppText variant="body">
-                  {t('profile.edit.dateOfBirthSelected', { date: formatDobLabel(dateOfBirth) })}
-                </AppText>
-                <Button
-                  accessibilityRole="button"
-                  onPress={() => setDateOfBirth('')}
-                  hitSlop={8}
-                  variant="plain"
-                >
-                  <AppText variant="caption" color="brand">
-                    {t('common.clear')}
+            <FormField label={t('profile.edit.phone')}>
+              <Input
+                placeholder={t('profile.edit.phone')}
+                keyboardType="phone-pad"
+                autoComplete="tel"
+                textContentType="telephoneNumber"
+                maxLength={16}
+                value={phone}
+                onChangeText={(value) => setPhone(sanitizePhoneInput(value))}
+              />
+            </FormField>
+
+            <FormField label={t('profile.edit.dateOfBirth')} hint={t('profile.edit.dateOfBirthHint')}>
+              <MonthCalendarNavigator
+                accentColor={palette.primary}
+                monthRef={dobMonthRef}
+                onMonthChange={setDobMonthRef}
+                maximumYear={currentYear}
+              />
+              <MonthCalendarGrid
+                monthRef={dobMonthRef}
+                interactive
+                accentColor={palette.primary}
+                onDayPress={(dayKey) => {
+                  if (dayKey > todayKey) return;
+                  setDateOfBirth(dayKey);
+                }}
+                getDayState={(dayKey) => ({
+                  selected: dayKey === dateOfBirth,
+                  today: dayKey === todayKey,
+                })}
+              />
+              {dateOfBirth ? (
+                <View style={styles.dobSelectedRow}>
+                  <AppText variant="body">
+                    {t('profile.edit.dateOfBirthSelected', { date: formatDobLabel(dateOfBirth) })}
                   </AppText>
-                </Button>
+                  <Button
+                    accessibilityRole="button"
+                    onPress={() => setDateOfBirth('')}
+                    hitSlop={8}
+                    variant="plain"
+                  >
+                    <AppText variant="caption" color="brand">
+                      {t('common.clear')}
+                    </AppText>
+                  </Button>
+                </View>
+              ) : null}
+            </FormField>
+
+            <FormField label={t('profile.edit.gender')}>
+              <View style={styles.chipRow}>
+                {GENDERS.map((value) => (
+                  <Chip
+                    key={value}
+                    label={t(`profile.edit.genders.${value}`)}
+                    selected={gender === value}
+                    onPress={() => setGender(value)}
+                  />
+                ))}
+              </View>
+            </FormField>
+
+            <FormField label={t('profile.edit.maritalStatus')}>
+              <View style={styles.chipRow}>
+                {MARITAL.map((value) => (
+                  <Chip
+                    key={value}
+                    label={t(`profile.edit.marital.${value}`)}
+                    selected={maritalStatus === value}
+                    onPress={() => setMaritalStatus(value)}
+                  />
+                ))}
+              </View>
+            </FormField>
+
+            <FormField label={t('profile.edit.addressLine')}>
+              <Input
+                placeholder={t('profile.edit.addressLine')}
+                value={addressLine}
+                onChangeText={setAddressLine}
+                onFocus={keyboardApi.scheduleScrollIntoView}
+              />
+            </FormField>
+
+            <FormField label={t('profile.edit.city')}>
+              <Input
+                placeholder={t('profile.edit.city')}
+                value={city}
+                onChangeText={setCity}
+                onFocus={keyboardApi.scheduleScrollIntoView}
+              />
+            </FormField>
+
+            <FormField label={t('profile.edit.state')}>
+              <Input
+                placeholder={t('profile.edit.state')}
+                value={stateValue}
+                onChangeText={setStateValue}
+                onFocus={keyboardApi.scheduleScrollIntoView}
+              />
+            </FormField>
+
+            <FormField label={t('profile.edit.postalCode')}>
+              <Input
+                placeholder={t('profile.edit.postalCode')}
+                value={postalCode}
+                onChangeText={setPostalCode}
+                onFocus={keyboardApi.scheduleScrollIntoView}
+              />
+            </FormField>
+
+            <FormField
+              label={nationalIdLabel}
+              hint={isNigeria ? t('profile.edit.ninHint') : t('profile.edit.nationalIdHint')}
+              error={nationalIdError ?? undefined}
+            >
+              <Input
+                placeholder={nationalIdLabel}
+                keyboardType={isNigeria ? 'number-pad' : 'default'}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                maxLength={isNigeria ? 11 : 32}
+                value={nationalId}
+                onChangeText={(value) => {
+                  setNationalId(sanitizeNationalIdInput(value, countryCode));
+                  if (nationalIdError) {
+                    setNationalIdError(null);
+                  }
+                }}
+                onFocus={keyboardApi.scheduleScrollIntoView}
+                onBlur={() => {
+                  const result = parseNationalId(nationalId, countryCode, nationalIdMessages);
+                  setNationalIdError(result.ok ? null : result.message);
+                }}
+              />
+            </FormField>
+
+            <FormField
+              label={t('profile.edit.practitionerTitle')}
+              hint={t('profile.edit.practitionerHint')}
+            >
+              <View style={styles.chipRow}>
+                <Chip
+                  label={t('common.yes')}
+                  selected={isPractitioner}
+                  onPress={() => setIsPractitioner(true)}
+                />
+                <Chip
+                  label={t('common.no')}
+                  selected={!isPractitioner}
+                  onPress={() => setIsPractitioner(false)}
+                />
+              </View>
+            </FormField>
+
+            {isPractitioner ? (
+              <View style={[styles.orgCard, { borderColor: palette.divider }]}>
+                <AppText variant="cardTitle">{t('profile.edit.connectOrgTitle')}</AppText>
+                <AppText variant="caption">{t('profile.edit.connectOrgBody')}</AppText>
+
+                {approved.length > 0 ? (
+                  <View style={styles.orgList}>
+                    {approved.map((c) => (
+                      <AppText key={c.id} variant="body">
+                        {t(c.isOrgStaff ? 'profile.edit.staffOrg' : 'profile.edit.connectedOrg', {
+                          name: c.organizationName ?? t('profile.edit.unknownOrg'),
+                        })}
+                      </AppText>
+                    ))}
+                    {awaitingStaff ? (
+                      <AppText variant="caption">{t('profile.edit.awaitingStaff')}</AppText>
+                    ) : null}
+                  </View>
+                ) : null}
+
+                {pending.length > 0 ? (
+                  <View style={styles.orgList}>
+                    {pending.map((c) => (
+                      <AppText key={c.id} variant="caption">
+                        {t('profile.edit.pendingOrg', {
+                          name: c.organizationName ?? t('profile.edit.unknownOrg'),
+                        })}
+                      </AppText>
+                    ))}
+                  </View>
+                ) : null}
+
+                <Button
+                  label={t('profile.edit.findOrg')}
+                  variant="secondary"
+                  onPress={() => router.push('/(app)/(tabs)/providers')}
+                />
+                <Button
+                  label={t('profile.edit.openConnections')}
+                  variant="ghost"
+                  onPress={() => router.push('/providers/connections')}
+                />
               </View>
             ) : null}
-          </View>
 
-          <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">{t('profile.edit.gender')}</AppText>
-            <View style={styles.chipRow}>
-              {GENDERS.map((value) => (
-                <Chip
-                  key={value}
-                  label={t(`profile.edit.genders.${value}`)}
-                  selected={gender === value}
-                  onPress={() => setGender(value)}
-                />
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">{t('profile.edit.maritalStatus')}</AppText>
-            <View style={styles.chipRow}>
-              {MARITAL.map((value) => (
-                <Chip
-                  key={value}
-                  label={t(`profile.edit.marital.${value}`)}
-                  selected={maritalStatus === value}
-                  onPress={() => setMaritalStatus(value)}
-                />
-              ))}
-            </View>
-          </View>
-
-          <Input
-            placeholder={t('profile.edit.addressLine')}
-            value={addressLine}
-            onChangeText={setAddressLine}
-            onFocus={keyboardApi.scheduleScrollIntoView}
-          />
-          <Input
-            placeholder={t('profile.edit.city')}
-            value={city}
-            onChangeText={setCity}
-            onFocus={keyboardApi.scheduleScrollIntoView}
-          />
-          <Input
-            placeholder={t('profile.edit.state')}
-            value={stateValue}
-            onChangeText={setStateValue}
-            onFocus={keyboardApi.scheduleScrollIntoView}
-          />
-          <Input
-            placeholder={t('profile.edit.postalCode')}
-            value={postalCode}
-            onChangeText={setPostalCode}
-            onFocus={keyboardApi.scheduleScrollIntoView}
-          />
-          <Input
-            placeholder={nationalIdLabel}
-            keyboardType={isNigeria ? 'number-pad' : 'default'}
-            autoCapitalize="characters"
-            autoCorrect={false}
-            maxLength={isNigeria ? 11 : 32}
-            value={nationalId}
-            onChangeText={(value) => {
-              setNationalId(sanitizeNationalIdInput(value, countryCode));
-              if (nationalIdError) {
-                setNationalIdError(null);
-              }
-            }}
-            onFocus={keyboardApi.scheduleScrollIntoView}
-            onBlur={() => {
-              const result = parseNationalId(nationalId, countryCode, nationalIdMessages);
-              setNationalIdError(result.ok ? null : result.message);
-            }}
-          />
-          {nationalIdError ? (
-            <AppText variant="caption" style={styles.fieldError}>
-              {nationalIdError}
-            </AppText>
-          ) : (
-            <AppText variant="caption" style={styles.muted}>
-              {isNigeria ? t('profile.edit.ninHint') : t('profile.edit.nationalIdHint')}
-            </AppText>
-          )}
-
-          <View style={styles.fieldGroup}>
-            <AppText variant="cardTitle">{t('profile.edit.practitionerTitle')}</AppText>
-            <AppText variant="caption">{t('profile.edit.practitionerHint')}</AppText>
-            <View style={styles.chipRow}>
-              <Chip
-                label={t('common.yes')}
-                selected={isPractitioner}
-                onPress={() => setIsPractitioner(true)}
-              />
-              <Chip
-                label={t('common.no')}
-                selected={!isPractitioner}
-                onPress={() => setIsPractitioner(false)}
-              />
-            </View>
-          </View>
-
-          {isPractitioner ? (
-            <View style={[styles.orgCard, { borderColor: palette.divider }]}>
-              <AppText variant="cardTitle">{t('profile.edit.connectOrgTitle')}</AppText>
-              <AppText variant="caption">{t('profile.edit.connectOrgBody')}</AppText>
-
-              {approved.length > 0 ? (
-                <View style={styles.orgList}>
-                  {approved.map((c) => (
-                    <AppText key={c.id} variant="body">
-                      {t(c.isOrgStaff ? 'profile.edit.staffOrg' : 'profile.edit.connectedOrg', {
-                        name: c.organizationName ?? t('profile.edit.unknownOrg'),
-                      })}
-                    </AppText>
-                  ))}
-                  {awaitingStaff ? (
-                    <AppText variant="caption">{t('profile.edit.awaitingStaff')}</AppText>
-                  ) : null}
-                </View>
-              ) : null}
-
-              {pending.length > 0 ? (
-                <View style={styles.orgList}>
-                  {pending.map((c) => (
-                    <AppText key={c.id} variant="caption">
-                      {t('profile.edit.pendingOrg', {
-                        name: c.organizationName ?? t('profile.edit.unknownOrg'),
-                      })}
-                    </AppText>
-                  ))}
-                </View>
-              ) : null}
-
+            <FormActions>
               <Button
-                label={t('profile.edit.findOrg')}
-                variant="secondary"
-                onPress={() => router.push('/(app)/(tabs)/providers')}
+                label={saving ? t('common.saving') : t('common.save')}
+                onPress={() => void handleSave()}
+                disabled={saving}
               />
-              <Button
-                label={t('profile.edit.openConnections')}
-                variant="ghost"
-                onPress={() => router.push('/providers/connections')}
-              />
-            </View>
-          ) : null}
-
-          <Button
-            label={saving ? t('common.saving') : t('common.save')}
-            onPress={() => void handleSave()}
-            disabled={saving}
-          />
+            </FormActions>
+          </FormStack>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
@@ -482,16 +503,6 @@ const styles = StyleSheet.create({
   content: {
     gap: spacing.md,
     paddingBottom: spacing.xl * 2,
-  },
-  fieldGroup: {
-    gap: spacing.sm,
-  },
-  muted: {
-    color: palette.textSecondary,
-  },
-  fieldError: {
-    color: palette.danger,
-    marginTop: -spacing.sm,
   },
   dobSelectedRow: {
     flexDirection: 'row',

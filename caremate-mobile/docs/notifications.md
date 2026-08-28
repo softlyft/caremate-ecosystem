@@ -2,7 +2,7 @@
 
 [← Back to index](./README.md)
 
-> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message`). Quiet hours and category prefs still pending.  
+> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message` + **provider connection** via `notify-provider-connection` + **provider document shared** via `notify-provider-document`). Quiet hours and category prefs still pending.  
 > Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push.
 
 ## Decisions (locked)
@@ -72,6 +72,9 @@ Home header Bell
 - `expo-notifications` + `notification_devices` (RLS own rows)
 - Mobile `syncPushRegistration` / `clearPushRegistration` (guests skip; prefs off clears token)
 - Edge `_shared/push.ts` → Expo Push API; `notify-family-email` sends request push (+ SES) to receiver and accept/decline push to sender
+- `notify-message` — org / direct message push (+ cloud inbox row)
+- `notify-provider-connection` — patient ↔ provider lifecycle push (+ cloud inbox row)
+- `notify-provider-document` — provider shared a document → patient in-app + push
 - Quiet hours / med-checkup OS pushes still later
 
 - Unread badge / dot on the bell when any `read_at IS NULL`.
@@ -148,9 +151,11 @@ Home header Bell
 | Favorite toggled | ✅ | — | — | |
 | Nearby refresh | — | — | — | Too noisy |
 | Appointment at provider (future) | ✅ | ✅ (Self) | ⚪ | |
+| Provider connection request / accept / decline / cancel / disconnect | ✅ | ✅ (Patient when applicable) | — | Edge `notify-provider-connection` |
+| Provider shared a document | ✅ | ✅ (Patient) | — | Edge `notify-provider-document`; dedupe `providers:document_uploaded:{id}`; hint path `/profile/documents` |
 | Org / clinic message | Messages inbox | ✅ (Self) | — | Edge `notify-message` (org mode); deep link `/messages/{id}` |
 | Direct message (practitioner chat) | Messages inbox | ✅ (Self) | — | Edge `notify-message` (`mode: 'direct'`) |
-| Notifications bell inbox | ✅ | — | — | Separate from Messages (family, meds tips, etc.) |
+| Notifications bell inbox | ✅ | — | — | Separate from Messages (family, meds tips, documents, etc.) |
 
 ### Sync / reliability
 
@@ -432,6 +437,9 @@ Templates are code-owned HTML in `supabase/functions/_shared/email-templates/`, 
 | Feature stub | `src/features/notifications/` |
 | SES shared sender | `supabase/functions/_shared/ses.ts`, `email.ts`, `email-templates/` |
 | Family request email | `supabase/functions/notify-family-email` |
+| Provider document shared | `supabase/functions/notify-provider-document` (portal upload → patient in-app + push) |
+| Provider connection lifecycle | `supabase/functions/notify-provider-connection` |
+| Messages push | `supabase/functions/notify-message` |
 | Billing emails | webhooks + `verify-checkout` + `billing-renewal-reminders` + `send-billing-email` |
 | Family flows | [Family profiles](./family-profiles.md) |
 | Mini-apps | [Mini-apps](./mini-apps.md) |

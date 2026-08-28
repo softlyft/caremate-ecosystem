@@ -133,6 +133,12 @@ export async function uploadDocument(input: {
       summary: `Document uploaded: ${input.title}`,
       metadata: { document_id: documentId, document_type: input.documentType },
     });
+    await notifyPatientDocumentUpload(supabase, {
+      documentId,
+      organizationId: input.organizationId,
+      patientId: input.patientId,
+      title: input.title,
+    });
     return gatewayRow;
   }
 
@@ -164,7 +170,42 @@ export async function uploadDocument(input: {
     metadata: { document_id: documentId, document_type: input.documentType },
   });
 
+  await notifyPatientDocumentUpload(supabase, {
+    documentId,
+    organizationId: input.organizationId,
+    patientId: input.patientId,
+    title: input.title,
+  });
+
   return data as ProviderDocument;
+}
+
+async function notifyPatientDocumentUpload(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  input: {
+    documentId: string;
+    organizationId: string;
+    patientId: string;
+    title: string;
+  },
+) {
+  try {
+    void supabase.functions
+      .invoke('notify-provider-document', {
+        body: {
+          documentId: input.documentId,
+          organizationId: input.organizationId,
+          patientId: input.patientId,
+          title: input.title,
+        },
+      })
+      .catch(() => {
+        // In-app + push are best-effort.
+      });
+  } catch {
+    // In-app + push are best-effort.
+  }
 }
 
 /**

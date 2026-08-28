@@ -1,7 +1,9 @@
 import { requireProviderSession } from '@/lib/auth';
 import { requireModule } from '@/domains/modules/guard';
 import { getAnalyticsSnapshot } from '@/domains/analytics/repository';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
 
 export default async function AnalyticsPage() {
   await requireModule('analytics');
@@ -18,20 +20,15 @@ export default async function AnalyticsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Analytics</h1>
-        <p className="mt-1 text-sm text-muted">Simple engagement metrics for your organization</p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Analytics"
+        description="Simple engagement metrics for your organization"
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {summary.map((item) => (
-          <Card key={item.label}>
-            <CardContent className="p-5">
-              <p className="text-2xl font-semibold">{item.value}</p>
-              <p className="text-sm text-muted">{item.label}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={item.label} label={item.label} value={item.value} />
         ))}
       </div>
 
@@ -64,7 +61,7 @@ export default async function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageShell>
   );
 }
 

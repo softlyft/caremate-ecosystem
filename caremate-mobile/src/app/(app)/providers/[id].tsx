@@ -13,15 +13,15 @@ import {
   Star,
 } from 'lucide-react-native';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Alert, Linking, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { Button } from '@/components/ui/form-controls';
+import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
@@ -36,7 +36,7 @@ import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-m
 import { providerRepository } from '@/domains/providers/repository';
 import type { ProviderType } from '@/domains/providers/types';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Provider } from '@/types';
 
 function readRating(provider: Provider): number | null {
@@ -251,22 +251,8 @@ export default function ProviderDetailScreen() {
     }
   }
 
-  function callProvider() {
-    if (!detail.phone) {
-      return;
-    }
-    void Linking.openURL(`tel:${detail.phone}`);
-  }
-
-  function emailProvider() {
-    if (!detail.email) {
-      return;
-    }
-    void Linking.openURL(`mailto:${detail.email}`);
-  }
-
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
@@ -370,12 +356,7 @@ export default function ProviderDetailScreen() {
 
             <View style={styles.divider} />
 
-            <Button
-              disabled={!detail.phone}
-              onPress={callProvider}
-              style={styles.infoRow}
-              variant="plain"
-            >
+            <View style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Phone color={theme.accent} size={18} />
               </View>
@@ -383,23 +364,21 @@ export default function ProviderDetailScreen() {
                 <AppText variant="caption" style={styles.infoLabel}>
                   {t('nearby.detail.phone')}
                 </AppText>
-                <AppText
-                  variant="body"
-                  style={[styles.infoValue, detail.phone ? { color: theme.accent } : null]}
-                >
-                  {detail.phone ?? t('nearby.detail.phoneUnavailable')}
-                </AppText>
+                {detail.phone ? (
+                  <TextLink external href={`tel:${detail.phone}`}>
+                    {detail.phone}
+                  </TextLink>
+                ) : (
+                  <AppText variant="body" style={styles.infoValue}>
+                    {t('nearby.detail.phoneUnavailable')}
+                  </AppText>
+                )}
               </View>
-            </Button>
+            </View>
 
             <View style={styles.divider} />
 
-            <Button
-              disabled={!detail.email}
-              onPress={emailProvider}
-              style={styles.infoRow}
-              variant="plain"
-            >
+            <View style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Mail color={theme.accent} size={18} />
               </View>
@@ -407,14 +386,17 @@ export default function ProviderDetailScreen() {
                 <AppText variant="caption" style={styles.infoLabel}>
                   {t('nearby.detail.email')}
                 </AppText>
-                <AppText
-                  variant="body"
-                  style={[styles.infoValue, detail.email ? { color: theme.accent } : null]}
-                >
-                  {detail.email ?? t('nearby.detail.emailUnavailable')}
-                </AppText>
+                {detail.email ? (
+                  <TextLink external href={`mailto:${detail.email}`}>
+                    {detail.email}
+                  </TextLink>
+                ) : (
+                  <AppText variant="body" style={styles.infoValue}>
+                    {t('nearby.detail.emailUnavailable')}
+                  </AppText>
+                )}
               </View>
-            </Button>
+            </View>
           </View>
         </AnimatedSection>
 
@@ -508,16 +490,17 @@ export default function ProviderDetailScreen() {
                   ) : null}
                   {declining ? (
                     <>
-                      <TextInput
-                        style={styles.reasonInput}
-                        value={rejectionReason}
-                        onChangeText={setRejectionReason}
-                        placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
-                        placeholderTextColor={textColors.placeholder}
-                        multiline
-                        editable={!respondMutation.isPending}
-                      />
-                      <View style={styles.connectRow}>
+                      <FormField>
+                        <Input
+                          value={rejectionReason}
+                          onChangeText={setRejectionReason}
+                          placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
+                          multiline
+                          editable={!respondMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
                         <Button
                           style={[
                             styles.secondaryCta,
@@ -553,10 +536,10 @@ export default function ProviderDetailScreen() {
                             {t('nearby.connectionRequests.confirmDecline')}
                           </AppText>
                         </Button>
-                      </View>
+                      </FormActions>
                     </>
                   ) : (
-                    <View style={styles.connectRow}>
+                    <FormActions style={styles.connectRow}>
                       <Button
                         style={[
                           styles.primaryCta,
@@ -584,7 +567,7 @@ export default function ProviderDetailScreen() {
                           {t('nearby.detail.declineInbound')}
                         </AppText>
                       </Button>
-                    </View>
+                    </FormActions>
                   )}
                 </View>
               ) : connection?.status === 'pending' && connection.initiatedBy === 'patient' ? (
@@ -597,16 +580,17 @@ export default function ProviderDetailScreen() {
                       <AppText variant="caption" style={styles.connectHint}>
                         {t('nearby.detail.cancelRequestHint')}
                       </AppText>
-                      <TextInput
-                        style={styles.reasonInput}
-                        value={cancelReason}
-                        onChangeText={setCancelReason}
-                        placeholder={t('nearby.detail.cancelReasonPlaceholder')}
-                        placeholderTextColor={textColors.placeholder}
-                        multiline
-                        editable={!cancelMutation.isPending}
-                      />
-                      <View style={styles.connectRow}>
+                      <FormField>
+                        <Input
+                          value={cancelReason}
+                          onChangeText={setCancelReason}
+                          placeholder={t('nearby.detail.cancelReasonPlaceholder')}
+                          multiline
+                          editable={!cancelMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
                         <Button
                           style={[
                             styles.secondaryCta,
@@ -637,7 +621,7 @@ export default function ProviderDetailScreen() {
                             {t('nearby.detail.confirmCancelRequest')}
                           </AppText>
                         </Button>
-                      </View>
+                      </FormActions>
                     </>
                   ) : (
                     <Button
@@ -725,15 +709,11 @@ export default function ProviderDetailScreen() {
           </View>
         </AnimatedSection>
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -890,11 +870,6 @@ const styles = StyleSheet.create({
   },
   reasonInput: {
     minHeight: 80,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    borderRadius: radius.lg,
-    padding: 12,
-    color: palette.text,
     textAlignVertical: 'top',
   },
   primaryCta: {

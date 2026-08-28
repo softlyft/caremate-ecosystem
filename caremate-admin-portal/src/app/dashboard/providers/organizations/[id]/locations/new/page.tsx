@@ -1,10 +1,10 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { getOrganizationContactEmail, getProviderOrganization } from '@/domains/providers/repository';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import { LocationForm } from '@/features/providers/location-form';
 
 export default async function NewLocationPage({
@@ -25,12 +25,9 @@ export default async function NewLocationPage({
     return (
       <div>
         <PageHeader title="Create location" description="Editors only" />
-        <Link
-          href={`/dashboard/providers/organizations/${organizationId}`}
-          className="text-sm text-primary hover:underline"
-        >
+        <TextLink href={`/dashboard/providers/organizations/${organizationId}`}>
           Back to organization
-        </Link>
+        </TextLink>
       </div>
     );
   }
@@ -41,12 +38,12 @@ export default async function NewLocationPage({
         title="Create location"
         description={`Add a site under ${organization.name}`}
       >
-        <Link
+        <TextLink
           href={`/dashboard/providers/organizations/${organizationId}`}
-          className="text-sm text-muted hover:text-foreground"
+          className="text-muted hover:text-foreground"
         >
           Back to organization
-        </Link>
+        </TextLink>
       </PageHeader>
       <Card>
         <CardHeader>

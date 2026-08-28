@@ -1,13 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  Input,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
@@ -131,9 +137,7 @@ export default function VerifyResetScreen() {
           title={t('auth.verifyReset.title')}
           subtitle={t('auth.verifyReset.missingEmail')}
         />
-        <Link href="/(auth)/forgot-password">
-          <AppText variant="seeAll">{t('auth.verifyReset.backToForgot')}</AppText>
-        </Link>
+        <TextLink href="/(auth)/forgot-password">{t('auth.verifyReset.backToForgot')}</TextLink>
       </SafeAreaView>
     );
   }
@@ -146,34 +150,31 @@ export default function VerifyResetScreen() {
           subtitle={t('auth.verifyReset.subtitle', { email })}
         />
       </AuthBrandHeader>
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="code"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="number-pad"
-              textContentType="oneTimeCode"
-              autoComplete="one-time-code"
-              maxLength={6}
-              placeholder={t('auth.verifyReset.codePlaceholder')}
-              onBlur={onBlur}
-              onChangeText={(text) => {
-                const digits = text.replace(/\D/g, '').slice(0, 6);
-                onChange(digits);
-                setValue('code', digits, { shouldValidate: true });
-              }}
-              value={value}
-            />
-          )}
-        />
-        {formState.errors.code ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.code.message}
-          </AppText>
-        ) : null}
+      <FormStack style={styles.form}>
+        <FormField error={formState.errors.code?.message}>
+          <Controller
+            control={control}
+            name="code"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="number-pad"
+                textContentType="oneTimeCode"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder={t('auth.verifyReset.codePlaceholder')}
+                onBlur={onBlur}
+                onChangeText={(text) => {
+                  const digits = text.replace(/\D/g, '').slice(0, 6);
+                  onChange(digits);
+                  setValue('code', digits, { shouldValidate: true });
+                }}
+                value={value}
+              />
+            )}
+          />
+        </FormField>
 
         <Button
           label={isLoading ? t('common.loading') : t('auth.verifyReset.submit')}
@@ -194,10 +195,8 @@ export default function VerifyResetScreen() {
           onPress={() => void onResend()}
         />
 
-        <Link href="/(auth)/login">
-          <AppText variant="seeAll">{t('auth.verifyReset.backToSignIn')}</AppText>
-        </Link>
-      </View>
+        <TextLink href="/(auth)/login">{t('auth.verifyReset.backToSignIn')}</TextLink>
+      </FormStack>
     </SafeAreaView>
   );
 }
@@ -209,6 +208,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

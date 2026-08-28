@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import { OrganizationForm } from '@/features/providers/organization-form';
 
 export default async function NewOrganizationPage() {
@@ -12,9 +12,9 @@ export default async function NewOrganizationPage() {
       <div>
         <PageHeader title="Create organization" description="Editors only" />
         <p className="text-sm text-muted">You do not have permission to create organizations.</p>
-        <Link href="/dashboard/providers?view=organizations" className="mt-4 inline-block text-primary hover:underline">
+        <TextLink href="/dashboard/providers?view=organizations" className="mt-4 inline-block">
           Back to list
-        </Link>
+        </TextLink>
       </div>
     );
   }
@@ -22,12 +22,9 @@ export default async function NewOrganizationPage() {
   return (
     <div>
       <PageHeader title="Create organization" description="Add a provider organization to the shared catalog.">
-        <Link
-          href="/dashboard/providers?view=organizations"
-          className="text-sm text-muted hover:text-foreground"
-        >
+        <TextLink href="/dashboard/providers?view=organizations" className="text-muted hover:text-foreground">
           Back to list
-        </Link>
+        </TextLink>
       </PageHeader>
       <Card>
         <CardHeader>

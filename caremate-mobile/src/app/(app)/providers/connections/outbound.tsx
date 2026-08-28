@@ -1,16 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '@/components/ui/form-controls';
+import { Button, FormActions, FormField, Input } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { providerConnectionService } from '@/domains/providers/connection-service';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 export default function ProviderOutboundConnectionRequestsScreen() {
   const { t } = useTranslation();
@@ -52,9 +52,9 @@ export default function ProviderOutboundConnectionRequestsScreen() {
 
   if (isGuest) {
     return (
-      <View style={styles.padded}>
+      <Screen tone="surface">
         <AppText variant="body">{t('nearby.connectionRequests.guest')}</AppText>
-      </View>
+      </Screen>
     );
   }
 
@@ -82,10 +82,11 @@ export default function ProviderOutboundConnectionRequestsScreen() {
   const requests = requestsQuery.data ?? [];
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
+    <Screen padded={false} tone="surface">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
       <AppText variant="sectionTitle">{t('nearby.connections.outboundScreenTitle')}</AppText>
       <AppText variant="subtitle">{t('nearby.connections.outboundScreenSubtitle')}</AppText>
 
@@ -116,19 +117,17 @@ export default function ProviderOutboundConnectionRequestsScreen() {
 
               {cancelling ? (
                 <View style={styles.reasonBlock}>
-                  <AppText variant="caption" style={styles.noteLabel}>
-                    {t('nearby.detail.cancelReasonLabel')}
-                  </AppText>
-                  <TextInput
-                    style={styles.reasonInput}
-                    value={reason}
-                    onChangeText={setReason}
-                    placeholder={t('nearby.detail.cancelReasonPlaceholder')}
-                    placeholderTextColor={textColors.placeholder}
-                    multiline
-                    editable={!busy}
-                  />
-                  <View style={styles.actions}>
+                  <FormField label={t('nearby.detail.cancelReasonLabel')}>
+                    <Input
+                      value={reason}
+                      onChangeText={setReason}
+                      placeholder={t('nearby.detail.cancelReasonPlaceholder')}
+                      multiline
+                      editable={!busy}
+                      style={styles.reasonInput}
+                    />
+                  </FormField>
+                  <FormActions style={styles.actions}>
                     <Button
                       style={styles.decline}
                       disabled={busy}
@@ -155,10 +154,10 @@ export default function ProviderOutboundConnectionRequestsScreen() {
                         {t('nearby.detail.confirmCancelRequest')}
                       </AppText>
                     </Button>
-                  </View>
+                  </FormActions>
                 </View>
               ) : (
-                <View style={styles.actions}>
+                <FormActions style={styles.actions}>
                   <Button
                     style={styles.decline}
                     disabled={busy}
@@ -172,30 +171,23 @@ export default function ProviderOutboundConnectionRequestsScreen() {
                       {t('nearby.detail.cancelRequest')}
                     </AppText>
                   </Button>
-                </View>
+                </FormActions>
               )}
             </View>
           );
         })
       )}
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
+  flex: { flex: 1 },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  padded: {
-    flex: 1,
-    padding: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
   },
   card: {
     backgroundColor: palette.background,
@@ -224,16 +216,9 @@ const styles = StyleSheet.create({
   },
   reasonInput: {
     minHeight: 80,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    borderRadius: radius.lg,
-    padding: 12,
-    color: palette.text,
     textAlignVertical: 'top',
   },
   actions: {
-    flexDirection: 'row',
-    gap: 10,
     marginTop: spacing.sm,
   },
   approve: {
