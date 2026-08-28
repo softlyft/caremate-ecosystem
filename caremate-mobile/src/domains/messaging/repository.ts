@@ -142,9 +142,7 @@ export async function listPatientConversations(userId: string): Promise<MessageC
     ...new Set(rows.map((r) => r.organization_id).filter(Boolean) as string[]),
   ];
   const payerOrgIds = [
-    ...new Set(
-      rows.map((r) => r.payer_organization_id).filter(Boolean) as string[],
-    ),
+    ...new Set(rows.map((r) => r.payer_organization_id).filter(Boolean) as string[]),
   ];
   const directIds = rows.filter((r) => r.kind === 'direct').map((r) => r.id);
 
@@ -183,8 +181,8 @@ export async function listPatientConversations(userId: string): Promise<MessageC
   );
   const payerNameById = new Map(
     (payers ?? [])
-      .filter((p: { id: string | null; name: string | null }) => p.id && p.name)
-      .map((p: { id: string; name: string }) => [p.id, p.name]),
+      .filter((p): p is { id: string; name: string } => Boolean(p.id && p.name))
+      .map((p) => [p.id, p.name]),
   );
   const peerNameById = new Map(
     (peerProfiles ?? []).map((p: { user_id: string; full_name: string }) => [

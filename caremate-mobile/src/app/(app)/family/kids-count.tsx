@@ -4,7 +4,14 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, FormActions, FormField, FormNotice, FormStack, Input } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormActions,
+  FormField,
+  FormNotice,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
 import { Screen } from '@/components/ui/screen-states';
 import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { useFamilySetupStore } from '@/domains/family';
@@ -43,25 +50,25 @@ export default function FamilyKidsCountScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
         keyboardShouldPersistTaps="handled"
       >
-      <AppText variant="sectionTitle">{t('family.kidsCount.title')}</AppText>
-      <AppText variant="subtitle">{t('family.kidsCount.subtitle')}</AppText>
-      <FormNotice>{t('family.kidsCountLimitHint')}</FormNotice>
+        <AppText variant="sectionTitle">{t('family.kidsCount.title')}</AppText>
+        <AppText variant="subtitle">{t('family.kidsCount.subtitle')}</AppText>
+        <FormNotice>{t('family.kidsCountLimitHint')}</FormNotice>
 
-      <View style={styles.card}>
-        <FormStack>
-          <FormField label={t('family.kidsCount.title')}>
-            <Input
-              placeholder={t('family.kidsCount.placeholder')}
-              keyboardType="number-pad"
-              value={value}
-              onChangeText={setValue}
-            />
-          </FormField>
-          <FormActions>
-            <Button label={t('common.continue')} onPress={continueNext} />
-          </FormActions>
-        </FormStack>
-      </View>
+        <View style={styles.card}>
+          <FormStack>
+            <FormField label={t('family.kidsCount.title')}>
+              <Input
+                placeholder={t('family.kidsCount.placeholder')}
+                keyboardType="number-pad"
+                value={value}
+                onChangeText={setValue}
+              />
+            </FormField>
+            <FormActions>
+              <Button label={t('common.continue')} onPress={continueNext} />
+            </FormActions>
+          </FormStack>
+        </View>
       </ScrollView>
     </Screen>
   );

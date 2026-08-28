@@ -10,9 +10,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { AppText } from '@/components/ui/AppText';
 import { Button, PressableCard } from '@/components/ui/form-controls';
-import { fontFamily, layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
+import { fontFamily, layoutSpacing, palette, primaryAlpha, radius, shadow } from '@/theme';
 import { textColors } from '@/theme/typography';
 
 type SearchFieldInlineProps = {

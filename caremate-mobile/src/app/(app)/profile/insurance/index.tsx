@@ -2,14 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { router, type Href } from 'expo-router';
 import { Shield } from 'lucide-react-native';
 import { useDeferredValue, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -197,7 +190,9 @@ export default function InsuranceDirectoryScreen() {
             {!isGuest && inbound.length > 0 ? (
               <AnimatedSection index={1}>
                 <View style={[styles.connectionCard, shadow.soft]}>
-                  <AppText variant="sectionTitle">{t('insurance.connections.inboundTitle')}</AppText>
+                  <AppText variant="sectionTitle">
+                    {t('insurance.connections.inboundTitle')}
+                  </AppText>
                   <AppText variant="subtitle" style={styles.connectionSubtitle}>
                     {t('insurance.connections.inboundSubtitle')}
                   </AppText>
@@ -206,7 +201,9 @@ export default function InsuranceDirectoryScreen() {
                       <Pressable
                         style={styles.inboundCopy}
                         onPress={() =>
-                          router.push(`/(app)/profile/insurance/${request.payerOrganizationId}` as Href)
+                          router.push(
+                            `/(app)/profile/insurance/${request.payerOrganizationId}` as Href,
+                          )
                         }
                       >
                         <AppText variant="body" style={styles.inboundName}>
@@ -232,7 +229,9 @@ export default function InsuranceDirectoryScreen() {
                           label={t('insurance.connections.declineInbound')}
                           variant="secondary"
                           onPress={() =>
-                            router.push(`/(app)/profile/insurance/${request.payerOrganizationId}` as Href)
+                            router.push(
+                              `/(app)/profile/insurance/${request.payerOrganizationId}` as Href,
+                            )
                           }
                         />
                       </View>

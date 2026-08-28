@@ -1,15 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Alert,
-  Dimensions,
-  FlatList,
-  Keyboard,
-  Platform,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Alert, Dimensions, FlatList, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MessageComposer } from '@/components/ui/form-controls';
 

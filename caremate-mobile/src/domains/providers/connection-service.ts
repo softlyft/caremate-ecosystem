@@ -9,12 +9,7 @@ import { isDateKey } from '@/domains/timeline/consent-window';
 import { supabase } from '@/lib/supabase';
 import type { Provider } from '@/types';
 
-export type ConnectionStatus =
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'cancelled'
-  | 'disconnected';
+export type ConnectionStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'disconnected';
 export type ConnectionInitiatedBy = 'patient' | 'provider';
 
 export type PatientProviderConnection = {

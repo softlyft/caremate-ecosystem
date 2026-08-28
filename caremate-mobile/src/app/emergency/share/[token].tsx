@@ -84,9 +84,7 @@ export default function EmergencyShareScreen() {
   if (query.isError) {
     const practitionerBlocked = isEmergencyShareAccessError(query.error)
       ? query.error.code === 'practitioner_required'
-      : /health practitioner/i.test(
-          query.error instanceof Error ? query.error.message : '',
-        );
+      : /health practitioner/i.test(query.error instanceof Error ? query.error.message : '');
 
     return (
       <Screen style={styles.centered}>

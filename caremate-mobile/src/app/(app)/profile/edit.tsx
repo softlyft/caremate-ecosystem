@@ -294,7 +294,10 @@ function EditProfileForm({
               />
             </FormField>
 
-            <FormField label={t('profile.edit.dateOfBirth')} hint={t('profile.edit.dateOfBirthHint')}>
+            <FormField
+              label={t('profile.edit.dateOfBirth')}
+              hint={t('profile.edit.dateOfBirthHint')}
+            >
               <MonthCalendarNavigator
                 accentColor={palette.primary}
                 monthRef={dobMonthRef}

@@ -6,13 +6,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import {
-  Button,
-  ChoiceChip,
-  FormField,
-  FormStack,
-  Input,
-} from '@/components/ui/form-controls';
+import { Button, ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -96,7 +90,8 @@ export default function ConnectedProviderDetailScreen() {
   });
 
   const disconnectMutation = useMutation({
-    mutationFn: () => providerConnectionService.disconnectConnection(connectionId, disconnectReason),
+    mutationFn: () =>
+      providerConnectionService.disconnectConnection(connectionId, disconnectReason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setDisconnecting(false);
@@ -229,264 +224,267 @@ export default function ConnectedProviderDetailScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <View style={[styles.card, shadow.soft]}>
-        <AppText variant="sectionTitle">{orgName}</AppText>
-        <AppText variant="caption" style={styles.meta}>
-          {t('nearby.connections.connectedSince', {
-            date: new Date(connection.approvedAt ?? connection.createdAt).toLocaleDateString(),
-          })}
-        </AppText>
-        {connection.providerNote ? (
-          <AppText variant="body" style={styles.note}>
-            {connection.providerNote}
-          </AppText>
-        ) : null}
-      </View>
-
-      <View style={[styles.card, shadow.soft]}>
-        <View style={styles.sectionHeader}>
-          <ShieldPlus size={20} color={palette.primary} />
-          <AppText variant="body" style={styles.sectionTitle}>
-            {t('nearby.connections.consentSectionTitle')}
-          </AppText>
-        </View>
-        <AppText variant="subtitle">{t('nearby.connections.consentSectionSubtitle')}</AppText>
-
-        {granted.length > 0 ? (
-          <View style={styles.list}>
-            <AppText variant="caption" style={styles.listLabel}>
-              {t('nearby.connections.grantedLabel')}
-            </AppText>
-            {granted.map((consent) => {
-              const title = resolveConsentTitle(consent, t);
-              const description = resolveConsentDescription(consent, t);
-              return (
-                <View key={consent.definitionId ?? consent.scope} style={styles.consentRow}>
-                  <View style={styles.consentCopy}>
-                    <AppText variant="body" style={styles.consentTitle}>
-                      {title}
-                    </AppText>
-                    {description ? (
-                      <AppText variant="caption" style={styles.meta}>
-                        {description}
-                      </AppText>
-                    ) : null}
-                    <AppText variant="caption" style={styles.grantedBadge}>
-                      {t('nearby.connections.grantedBadge')}
-                    </AppText>
-                    {consent.scope === 'health_timeline'
-                      ? (() => {
-                          const grant = (consentsQuery.data ?? []).find(
-                            (row) =>
-                              row.definitionId === consent.definitionId ||
-                              row.code === 'health_timeline',
-                          );
-                          if (!grant?.periodStart || !grant.periodEnd) {
-                            return null;
-                          }
-                          return (
-                            <AppText variant="caption" style={styles.meta}>
-                              {t('nearby.connections.timelineWindow', {
-                                from: grant.periodStart,
-                                to: grant.periodEnd,
-                              })}
-                            </AppText>
-                          );
-                        })()
-                      : null}
-                  </View>
-                  <Button
-                    label={t('nearby.connections.removeConsent')}
-                    variant="secondary"
-                    onPress={() => confirmRevoke(consent)}
-                    disabled={busy}
-                    loading={busy}
-                  />
-                </View>
-              );
+        <View style={[styles.card, shadow.soft]}>
+          <AppText variant="sectionTitle">{orgName}</AppText>
+          <AppText variant="caption" style={styles.meta}>
+            {t('nearby.connections.connectedSince', {
+              date: new Date(connection.approvedAt ?? connection.createdAt).toLocaleDateString(),
             })}
-          </View>
-        ) : (
-          <AppText variant="body" style={styles.emptyConsent}>
-            {t('nearby.connections.noGrantedConsent')}
           </AppText>
-        )}
-
-        {pickingConsent ? (
-          <View style={styles.list}>
-            <AppText variant="caption" style={styles.listLabel}>
-              {t('nearby.connections.availableLabel')}
+          {connection.providerNote ? (
+            <AppText variant="body" style={styles.note}>
+              {connection.providerNote}
             </AppText>
-            {available.length === 0 ? (
-              <AppText variant="body">{t('nearby.connections.noAvailableConsent')}</AppText>
-            ) : (
-              available.map((consent) => {
+          ) : null}
+        </View>
+
+        <View style={[styles.card, shadow.soft]}>
+          <View style={styles.sectionHeader}>
+            <ShieldPlus size={20} color={palette.primary} />
+            <AppText variant="body" style={styles.sectionTitle}>
+              {t('nearby.connections.consentSectionTitle')}
+            </AppText>
+          </View>
+          <AppText variant="subtitle">{t('nearby.connections.consentSectionSubtitle')}</AppText>
+
+          {granted.length > 0 ? (
+            <View style={styles.list}>
+              <AppText variant="caption" style={styles.listLabel}>
+                {t('nearby.connections.grantedLabel')}
+              </AppText>
+              {granted.map((consent) => {
                 const title = resolveConsentTitle(consent, t);
                 const description = resolveConsentDescription(consent, t);
                 return (
-                  <Pressable
-                    key={consent.definitionId ?? consent.scope}
-                    style={({ pressed }) => [styles.pickRow, pressed && styles.pressed]}
-                    onPress={() => confirmGrant(consent)}
-                    disabled={busy}
-                    accessibilityRole="button"
-                    accessibilityLabel={title}
-                  >
-                    <AppText variant="body" style={styles.consentTitle}>
-                      {title}
-                    </AppText>
-                    {description ? (
-                      <AppText variant="caption" style={styles.meta}>
-                        {description}
+                  <View key={consent.definitionId ?? consent.scope} style={styles.consentRow}>
+                    <View style={styles.consentCopy}>
+                      <AppText variant="body" style={styles.consentTitle}>
+                        {title}
                       </AppText>
-                    ) : null}
-                  </Pressable>
+                      {description ? (
+                        <AppText variant="caption" style={styles.meta}>
+                          {description}
+                        </AppText>
+                      ) : null}
+                      <AppText variant="caption" style={styles.grantedBadge}>
+                        {t('nearby.connections.grantedBadge')}
+                      </AppText>
+                      {consent.scope === 'health_timeline'
+                        ? (() => {
+                            const grant = (consentsQuery.data ?? []).find(
+                              (row) =>
+                                row.definitionId === consent.definitionId ||
+                                row.code === 'health_timeline',
+                            );
+                            if (!grant?.periodStart || !grant.periodEnd) {
+                              return null;
+                            }
+                            return (
+                              <AppText variant="caption" style={styles.meta}>
+                                {t('nearby.connections.timelineWindow', {
+                                  from: grant.periodStart,
+                                  to: grant.periodEnd,
+                                })}
+                              </AppText>
+                            );
+                          })()
+                        : null}
+                    </View>
+                    <Button
+                      label={t('nearby.connections.removeConsent')}
+                      variant="secondary"
+                      onPress={() => confirmRevoke(consent)}
+                      disabled={busy}
+                      loading={busy}
+                    />
+                  </View>
                 );
-              })
-            )}
-            <Button
-              label={t('common.cancel')}
-              variant="secondary"
-              onPress={() => setPickingConsent(false)}
-              disabled={busy}
-            />
-          </View>
-        ) : rangeConsent ? (
-          <View style={styles.list}>
-            <AppText variant="caption" style={styles.listLabel}>
-              {t('nearby.connections.timelineRangeLabel')}
+              })}
+            </View>
+          ) : (
+            <AppText variant="body" style={styles.emptyConsent}>
+              {t('nearby.connections.noGrantedConsent')}
             </AppText>
-            <AppText variant="caption" style={styles.meta}>
-              {t('nearby.connections.timelineRangeHint')}
-            </AppText>
-            <View style={styles.chipRow}>
-              {([30, 90, 180] as const).map((days) => (
-                <ChoiceChip
-                  key={days}
-                  label={t('nearby.connections.timelinePreset', { days })}
-                  selected={rangePreset === days}
-                  onPress={() => {
-                    const end = todayDateKey();
-                    setRangePreset(days);
-                    setPeriodEnd(end);
-                    setPeriodStart(addCalendarDays(end, -(days - 1)));
-                  }}
-                  disabled={busy}
-                />
-              ))}
-              <ChoiceChip
-                label={t('nearby.connections.timelineCustom')}
-                selected={rangePreset === 'custom'}
-                onPress={() => setRangePreset('custom')}
+          )}
+
+          {pickingConsent ? (
+            <View style={styles.list}>
+              <AppText variant="caption" style={styles.listLabel}>
+                {t('nearby.connections.availableLabel')}
+              </AppText>
+              {available.length === 0 ? (
+                <AppText variant="body">{t('nearby.connections.noAvailableConsent')}</AppText>
+              ) : (
+                available.map((consent) => {
+                  const title = resolveConsentTitle(consent, t);
+                  const description = resolveConsentDescription(consent, t);
+                  return (
+                    <Pressable
+                      key={consent.definitionId ?? consent.scope}
+                      style={({ pressed }) => [styles.pickRow, pressed && styles.pressed]}
+                      onPress={() => confirmGrant(consent)}
+                      disabled={busy}
+                      accessibilityRole="button"
+                      accessibilityLabel={title}
+                    >
+                      <AppText variant="body" style={styles.consentTitle}>
+                        {title}
+                      </AppText>
+                      {description ? (
+                        <AppText variant="caption" style={styles.meta}>
+                          {description}
+                        </AppText>
+                      ) : null}
+                    </Pressable>
+                  );
+                })
+              )}
+              <Button
+                label={t('common.cancel')}
+                variant="secondary"
+                onPress={() => setPickingConsent(false)}
                 disabled={busy}
               />
             </View>
-            {rangePreset === 'custom' ? (
-              <FormStack style={styles.dateFields}>
-                <FormField label={t('nearby.connections.timelineFrom')}>
-                  <Input
-                    placeholder={t('nearby.connections.timelineFrom')}
-                    value={periodStart}
-                    onChangeText={setPeriodStart}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </FormField>
-                <FormField label={t('nearby.connections.timelineTo')}>
-                  <Input
-                    placeholder={t('nearby.connections.timelineTo')}
-                    value={periodEnd}
-                    onChangeText={setPeriodEnd}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </FormField>
-              </FormStack>
-            ) : (
-              <AppText variant="caption" style={styles.meta}>
-                {periodStart && periodEnd
-                  ? t('nearby.connections.timelineWindow', { from: periodStart, to: periodEnd })
-                  : null}
+          ) : rangeConsent ? (
+            <View style={styles.list}>
+              <AppText variant="caption" style={styles.listLabel}>
+                {t('nearby.connections.timelineRangeLabel')}
               </AppText>
-            )}
-            <Button
-              label={t('nearby.connections.grantConfirmAction')}
-              onPress={() =>
-                consentMutation.mutate({
-                  scope: rangeConsent.scope,
-                  granted: true,
-                  definitionId: rangeConsent.definitionId,
-                  periodStart,
-                  periodEnd,
-                })
-              }
-              disabled={
-                busy || !isDateKey(periodStart) || !isDateKey(periodEnd) || periodEnd < periodStart
-              }
-              loading={busy}
-            />
-            <Button
-              label={t('common.cancel')}
-              variant="secondary"
-              onPress={() => setRangeConsent(null)}
-              disabled={busy}
-            />
-          </View>
-        ) : available.length > 0 ? (
-          <Button
-            label={t('nearby.connections.addConsent')}
-            onPress={() => setPickingConsent(true)}
-            disabled={busy}
-          />
-        ) : null}
-      </View>
-
-      <View style={[styles.card, shadow.soft]}>
-        <View style={styles.sectionHeader}>
-          <Unlink size={20} color={palette.danger} />
-          <AppText variant="body" style={styles.sectionTitle}>
-            {t('nearby.connections.disconnect')}
-          </AppText>
-        </View>
-        <AppText variant="subtitle">{t('nearby.connections.disconnectHint')}</AppText>
-        {disconnecting ? (
-          <View style={styles.list}>
-            <FormField label={t('nearby.connections.disconnectReasonLabel')}>
-              <Input
-                value={disconnectReason}
-                onChangeText={setDisconnectReason}
-                placeholder={t('nearby.connections.disconnectReasonPlaceholder')}
-                multiline
-                editable={!busy}
-                style={styles.reasonInput}
+              <AppText variant="caption" style={styles.meta}>
+                {t('nearby.connections.timelineRangeHint')}
+              </AppText>
+              <View style={styles.chipRow}>
+                {([30, 90, 180] as const).map((days) => (
+                  <ChoiceChip
+                    key={days}
+                    label={t('nearby.connections.timelinePreset', { days })}
+                    selected={rangePreset === days}
+                    onPress={() => {
+                      const end = todayDateKey();
+                      setRangePreset(days);
+                      setPeriodEnd(end);
+                      setPeriodStart(addCalendarDays(end, -(days - 1)));
+                    }}
+                    disabled={busy}
+                  />
+                ))}
+                <ChoiceChip
+                  label={t('nearby.connections.timelineCustom')}
+                  selected={rangePreset === 'custom'}
+                  onPress={() => setRangePreset('custom')}
+                  disabled={busy}
+                />
+              </View>
+              {rangePreset === 'custom' ? (
+                <FormStack style={styles.dateFields}>
+                  <FormField label={t('nearby.connections.timelineFrom')}>
+                    <Input
+                      placeholder={t('nearby.connections.timelineFrom')}
+                      value={periodStart}
+                      onChangeText={setPeriodStart}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                  </FormField>
+                  <FormField label={t('nearby.connections.timelineTo')}>
+                    <Input
+                      placeholder={t('nearby.connections.timelineTo')}
+                      value={periodEnd}
+                      onChangeText={setPeriodEnd}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                  </FormField>
+                </FormStack>
+              ) : (
+                <AppText variant="caption" style={styles.meta}>
+                  {periodStart && periodEnd
+                    ? t('nearby.connections.timelineWindow', { from: periodStart, to: periodEnd })
+                    : null}
+                </AppText>
+              )}
+              <Button
+                label={t('nearby.connections.grantConfirmAction')}
+                onPress={() =>
+                  consentMutation.mutate({
+                    scope: rangeConsent.scope,
+                    granted: true,
+                    definitionId: rangeConsent.definitionId,
+                    periodStart,
+                    periodEnd,
+                  })
+                }
+                disabled={
+                  busy ||
+                  !isDateKey(periodStart) ||
+                  !isDateKey(periodEnd) ||
+                  periodEnd < periodStart
+                }
+                loading={busy}
               />
-            </FormField>
+              <Button
+                label={t('common.cancel')}
+                variant="secondary"
+                onPress={() => setRangeConsent(null)}
+                disabled={busy}
+              />
+            </View>
+          ) : available.length > 0 ? (
             <Button
-              label={t('nearby.connections.disconnectConfirmAction')}
-              variant="secondary"
-              onPress={() => disconnectMutation.mutate()}
-              disabled={busy}
-              loading={disconnectMutation.isPending}
-            />
-            <Button
-              label={t('common.cancel')}
-              variant="secondary"
-              onPress={() => {
-                setDisconnecting(false);
-                setDisconnectReason('');
-              }}
+              label={t('nearby.connections.addConsent')}
+              onPress={() => setPickingConsent(true)}
               disabled={busy}
             />
+          ) : null}
+        </View>
+
+        <View style={[styles.card, shadow.soft]}>
+          <View style={styles.sectionHeader}>
+            <Unlink size={20} color={palette.danger} />
+            <AppText variant="body" style={styles.sectionTitle}>
+              {t('nearby.connections.disconnect')}
+            </AppText>
           </View>
-        ) : (
-          <Button
-            label={t('nearby.connections.disconnect')}
-            variant="secondary"
-            onPress={() => setDisconnecting(true)}
-            disabled={busy}
-          />
-        )}
-      </View>
+          <AppText variant="subtitle">{t('nearby.connections.disconnectHint')}</AppText>
+          {disconnecting ? (
+            <View style={styles.list}>
+              <FormField label={t('nearby.connections.disconnectReasonLabel')}>
+                <Input
+                  value={disconnectReason}
+                  onChangeText={setDisconnectReason}
+                  placeholder={t('nearby.connections.disconnectReasonPlaceholder')}
+                  multiline
+                  editable={!busy}
+                  style={styles.reasonInput}
+                />
+              </FormField>
+              <Button
+                label={t('nearby.connections.disconnectConfirmAction')}
+                variant="secondary"
+                onPress={() => disconnectMutation.mutate()}
+                disabled={busy}
+                loading={disconnectMutation.isPending}
+              />
+              <Button
+                label={t('common.cancel')}
+                variant="secondary"
+                onPress={() => {
+                  setDisconnecting(false);
+                  setDisconnectReason('');
+                }}
+                disabled={busy}
+              />
+            </View>
+          ) : (
+            <Button
+              label={t('nearby.connections.disconnect')}
+              variant="secondary"
+              onPress={() => setDisconnecting(true)}
+              disabled={busy}
+            />
+          )}
+        </View>
       </ScrollView>
     </Screen>
   );

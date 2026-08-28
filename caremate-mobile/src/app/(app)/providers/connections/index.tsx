@@ -54,45 +54,45 @@ export default function ProviderConnectionsHubScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <AppText variant="sectionTitle">{t('nearby.connections.title')}</AppText>
-      <AppText variant="subtitle">{t('nearby.connections.subtitle')}</AppText>
+        <AppText variant="sectionTitle">{t('nearby.connections.title')}</AppText>
+        <AppText variant="subtitle">{t('nearby.connections.subtitle')}</AppText>
 
-      <ProfileCard>
-        <ProfileMenuRow
-          icon={Building2}
-          iconColor={palette.primary}
-          iconBackground={palette.primaryLight}
-          title={t('nearby.connections.connectedTitle')}
-          subtitle={t('nearby.connections.connectedCount', { count: connectedCount })}
-          onPress={() => router.push('/providers/connections/connected' as Href)}
-        />
-        <View style={styles.divider} />
-        <ProfileMenuRow
-          icon={Inbox}
-          iconColor={palette.brandBlue}
-          iconBackground={palette.brandBlueLight}
-          title={t('nearby.connections.requestsTitle')}
-          subtitle={
-            inboundCount > 0
-              ? t('nearby.connections.requestsCount', { count: inboundCount })
-              : t('nearby.connections.requestsEmptySubtitle')
-          }
-          onPress={() => router.push('/providers/connections/requests' as Href)}
-        />
-        <View style={styles.divider} />
-        <ProfileMenuRow
-          icon={Send}
-          iconColor={palette.warning}
-          iconBackground="#FEF3C7"
-          title={t('nearby.connections.outboundTitle')}
-          subtitle={
-            outboundCount > 0
-              ? t('nearby.connections.outboundCount', { count: outboundCount })
-              : t('nearby.connections.outboundEmptySubtitle')
-          }
-          onPress={() => router.push('/providers/connections/outbound' as Href)}
-        />
-      </ProfileCard>
+        <ProfileCard>
+          <ProfileMenuRow
+            icon={Building2}
+            iconColor={palette.primary}
+            iconBackground={palette.primaryLight}
+            title={t('nearby.connections.connectedTitle')}
+            subtitle={t('nearby.connections.connectedCount', { count: connectedCount })}
+            onPress={() => router.push('/providers/connections/connected' as Href)}
+          />
+          <View style={styles.divider} />
+          <ProfileMenuRow
+            icon={Inbox}
+            iconColor={palette.brandBlue}
+            iconBackground={palette.brandBlueLight}
+            title={t('nearby.connections.requestsTitle')}
+            subtitle={
+              inboundCount > 0
+                ? t('nearby.connections.requestsCount', { count: inboundCount })
+                : t('nearby.connections.requestsEmptySubtitle')
+            }
+            onPress={() => router.push('/providers/connections/requests' as Href)}
+          />
+          <View style={styles.divider} />
+          <ProfileMenuRow
+            icon={Send}
+            iconColor={palette.warning}
+            iconBackground="#FEF3C7"
+            title={t('nearby.connections.outboundTitle')}
+            subtitle={
+              outboundCount > 0
+                ? t('nearby.connections.outboundCount', { count: outboundCount })
+                : t('nearby.connections.outboundEmptySubtitle')
+            }
+            onPress={() => router.push('/providers/connections/outbound' as Href)}
+          />
+        </ProfileCard>
       </ScrollView>
     </Screen>
   );

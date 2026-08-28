@@ -8,13 +8,7 @@ import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
-import {
-  Button,
-  FormActions,
-  FormField,
-  Input,
-  TextLink,
-} from '@/components/ui/form-controls';
+import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -204,323 +198,324 @@ export default function InsuranceOrgDetailScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-      <AnimatedSection index={0}>
-        <View style={[styles.hero, shadow.soft]}>
-          <LinearGradientFill
-            colors={[
-              { offset: '0%', color: THEME.soft },
-              { offset: '100%', color: THEME.softEnd },
-            ]}
-            angle={140}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.heroIconWrap}>
-            <Shield color={THEME.accent} size={28} strokeWidth={2.25} />
-          </View>
-          <AppText variant="screenTitle" style={styles.heroTitle}>
-            {payer.name}
-          </AppText>
-          <View style={styles.typePill}>
-            <AppText variant="caption" style={styles.typePillLabel}>
-              {t('insurance.orgType')}
+        <AnimatedSection index={0}>
+          <View style={[styles.hero, shadow.soft]}>
+            <LinearGradientFill
+              colors={[
+                { offset: '0%', color: THEME.soft },
+                { offset: '100%', color: THEME.softEnd },
+              ]}
+              angle={140}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.heroIconWrap}>
+              <Shield color={THEME.accent} size={28} strokeWidth={2.25} />
+            </View>
+            <AppText variant="screenTitle" style={styles.heroTitle}>
+              {payer.name}
             </AppText>
+            <View style={styles.typePill}>
+              <AppText variant="caption" style={styles.typePillLabel}>
+                {t('insurance.orgType')}
+              </AppText>
+            </View>
           </View>
-        </View>
-      </AnimatedSection>
+        </AnimatedSection>
 
-      {showConnectCard ? (
-        <AnimatedSection index={1}>
-          <View style={styles.card}>
-            <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-              {t('insurance.connections.connect')}
-            </AppText>
-            {connection?.status === 'approved' ? (
-              <View style={styles.connectBlock}>
-                <AppText variant="body" style={[styles.connectStatus, { color: palette.primary }]}>
-                  {t('insurance.connections.connectApproved')}
-                </AppText>
-                {disconnecting ? (
-                  <>
-                    <FormField>
-                      <Input
-                        value={disconnectReason}
-                        onChangeText={setDisconnectReason}
-                        placeholder={t('insurance.connections.disconnectReasonPlaceholder')}
-                        multiline
-                        editable={!disconnectMutation.isPending}
-                        style={styles.reasonInput}
-                      />
-                    </FormField>
-                    <FormActions style={styles.connectRow}>
-                      <Button
-                        style={styles.secondaryCta}
-                        disabled={disconnectMutation.isPending}
-                        onPress={() => {
-                          setDisconnecting(false);
-                          setDisconnectReason('');
-                        }}
-                        variant="plain"
-                      >
-                        <AppText variant="button" style={{ color: THEME.accent }}>
-                          {t('common.cancel')}
-                        </AppText>
-                      </Button>
-                      <Button
-                        style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
-                        disabled={disconnectMutation.isPending}
-                        onPress={() => disconnectMutation.mutate()}
-                        variant="plain"
-                      >
-                        <AppText variant="button" style={styles.primaryCtaLabel}>
-                          {t('insurance.connections.disconnectConfirmAction')}
-                        </AppText>
-                      </Button>
-                    </FormActions>
-                  </>
-                ) : (
-                  <Button
-                    style={styles.secondaryCta}
-                    disabled={disconnectMutation.isPending}
-                    onPress={() => setDisconnecting(true)}
-                    variant="plain"
+        {showConnectCard ? (
+          <AnimatedSection index={1}>
+            <View style={styles.card}>
+              <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                {t('insurance.connections.connect')}
+              </AppText>
+              {connection?.status === 'approved' ? (
+                <View style={styles.connectBlock}>
+                  <AppText
+                    variant="body"
+                    style={[styles.connectStatus, { color: palette.primary }]}
                   >
-                    <AppText variant="button" style={{ color: THEME.accent }}>
-                      {t('insurance.connections.disconnect')}
-                    </AppText>
-                  </Button>
-                )}
-              </View>
-            ) : connection?.status === 'rejected' ? (
-              <View style={styles.connectBlock}>
-                <AppText variant="body" style={styles.connectStatus}>
-                  {t('insurance.connections.connectRejectedFinal')}
-                </AppText>
-                {connection.rejectionReason ? (
-                  <AppText variant="caption" style={styles.connectHint}>
-                    {connection.rejectionReason}
+                    {t('insurance.connections.connectApproved')}
                   </AppText>
-                ) : null}
-              </View>
-            ) : connection?.status === 'pending' && connection.initiatedBy === 'payer' ? (
-              <View style={styles.connectBlock}>
-                <AppText variant="body" style={styles.connectStatus}>
-                  {t('insurance.connections.connectPendingInbound')}
-                </AppText>
-                {connection.payerNote ? (
-                  <AppText variant="caption" style={styles.connectHint}>
-                    {connection.payerNote}
-                  </AppText>
-                ) : null}
-                {declining ? (
-                  <>
-                    <FormField>
-                      <Input
-                        value={rejectionReason}
-                        onChangeText={setRejectionReason}
-                        placeholder={t('insurance.connections.reasonPlaceholder')}
-                        multiline
-                        editable={!respondMutation.isPending}
-                        style={styles.reasonInput}
-                      />
-                    </FormField>
-                    <FormActions style={styles.connectRow}>
-                      <Button
-                        style={styles.secondaryCta}
-                        disabled={respondMutation.isPending}
-                        onPress={() => {
-                          setDeclining(false);
-                          setRejectionReason('');
-                        }}
-                        variant="plain"
-                      >
-                        <AppText variant="button" style={{ color: THEME.accent }}>
-                          {t('common.cancel')}
-                        </AppText>
-                      </Button>
-                      <Button
-                        style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
-                        disabled={respondMutation.isPending}
-                        onPress={() =>
-                          respondMutation.mutate({ accept: false, rejectionReason })
-                        }
-                        variant="plain"
-                      >
-                        <AppText variant="button" style={styles.primaryCtaLabel}>
-                          {t('insurance.connections.confirmDecline')}
-                        </AppText>
-                      </Button>
-                    </FormActions>
-                  </>
-                ) : (
-                  <View style={styles.connectRow}>
+                  {disconnecting ? (
+                    <>
+                      <FormField>
+                        <Input
+                          value={disconnectReason}
+                          onChangeText={setDisconnectReason}
+                          placeholder={t('insurance.connections.disconnectReasonPlaceholder')}
+                          multiline
+                          editable={!disconnectMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
+                        <Button
+                          style={styles.secondaryCta}
+                          disabled={disconnectMutation.isPending}
+                          onPress={() => {
+                            setDisconnecting(false);
+                            setDisconnectReason('');
+                          }}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={{ color: THEME.accent }}>
+                            {t('common.cancel')}
+                          </AppText>
+                        </Button>
+                        <Button
+                          style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
+                          disabled={disconnectMutation.isPending}
+                          onPress={() => disconnectMutation.mutate()}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('insurance.connections.disconnectConfirmAction')}
+                          </AppText>
+                        </Button>
+                      </FormActions>
+                    </>
+                  ) : (
                     <Button
-                      style={[styles.primaryCta, { backgroundColor: THEME.accent, flex: 1 }]}
-                      disabled={respondMutation.isPending}
-                      onPress={() => respondMutation.mutate({ accept: true })}
-                      variant="plain"
-                    >
-                      <AppText variant="button" style={styles.primaryCtaLabel}>
-                        {t('insurance.connections.approveInbound')}
-                      </AppText>
-                    </Button>
-                    <Button
-                      style={[styles.secondaryCta, { flex: 1 }]}
-                      disabled={respondMutation.isPending}
-                      onPress={() => setDeclining(true)}
+                      style={styles.secondaryCta}
+                      disabled={disconnectMutation.isPending}
+                      onPress={() => setDisconnecting(true)}
                       variant="plain"
                     >
                       <AppText variant="button" style={{ color: THEME.accent }}>
-                        {t('insurance.connections.declineInbound')}
+                        {t('insurance.connections.disconnect')}
                       </AppText>
                     </Button>
-                  </View>
-                )}
-              </View>
-            ) : connection?.status === 'pending' && connection.initiatedBy === 'patient' ? (
-              <View style={styles.connectBlock}>
-                <AppText variant="body" style={styles.connectStatus}>
-                  {t('insurance.connections.connectPendingOutbound')}
-                </AppText>
-                {cancelling ? (
-                  <>
-                    <FormField>
-                      <Input
-                        value={cancelReason}
-                        onChangeText={setCancelReason}
-                        placeholder={t('insurance.connections.cancelReasonPlaceholder')}
-                        multiline
-                        editable={!cancelMutation.isPending}
-                        style={styles.reasonInput}
-                      />
-                    </FormField>
-                    <FormActions style={styles.connectRow}>
+                  )}
+                </View>
+              ) : connection?.status === 'rejected' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('insurance.connections.connectRejectedFinal')}
+                  </AppText>
+                  {connection.rejectionReason ? (
+                    <AppText variant="caption" style={styles.connectHint}>
+                      {connection.rejectionReason}
+                    </AppText>
+                  ) : null}
+                </View>
+              ) : connection?.status === 'pending' && connection.initiatedBy === 'payer' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('insurance.connections.connectPendingInbound')}
+                  </AppText>
+                  {connection.payerNote ? (
+                    <AppText variant="caption" style={styles.connectHint}>
+                      {connection.payerNote}
+                    </AppText>
+                  ) : null}
+                  {declining ? (
+                    <>
+                      <FormField>
+                        <Input
+                          value={rejectionReason}
+                          onChangeText={setRejectionReason}
+                          placeholder={t('insurance.connections.reasonPlaceholder')}
+                          multiline
+                          editable={!respondMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
+                        <Button
+                          style={styles.secondaryCta}
+                          disabled={respondMutation.isPending}
+                          onPress={() => {
+                            setDeclining(false);
+                            setRejectionReason('');
+                          }}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={{ color: THEME.accent }}>
+                            {t('common.cancel')}
+                          </AppText>
+                        </Button>
+                        <Button
+                          style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
+                          disabled={respondMutation.isPending}
+                          onPress={() => respondMutation.mutate({ accept: false, rejectionReason })}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('insurance.connections.confirmDecline')}
+                          </AppText>
+                        </Button>
+                      </FormActions>
+                    </>
+                  ) : (
+                    <View style={styles.connectRow}>
                       <Button
-                        style={styles.secondaryCta}
-                        disabled={cancelMutation.isPending}
-                        onPress={() => {
-                          setCancelling(false);
-                          setCancelReason('');
-                        }}
-                        variant="plain"
-                      >
-                        <AppText variant="button" style={{ color: THEME.accent }}>
-                          {t('common.cancel')}
-                        </AppText>
-                      </Button>
-                      <Button
-                        style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
-                        disabled={cancelMutation.isPending}
-                        onPress={() => cancelMutation.mutate()}
+                        style={[styles.primaryCta, { backgroundColor: THEME.accent, flex: 1 }]}
+                        disabled={respondMutation.isPending}
+                        onPress={() => respondMutation.mutate({ accept: true })}
                         variant="plain"
                       >
                         <AppText variant="button" style={styles.primaryCtaLabel}>
-                          {t('insurance.connections.confirmCancelRequest')}
+                          {t('insurance.connections.approveInbound')}
                         </AppText>
                       </Button>
-                    </FormActions>
-                  </>
-                ) : (
+                      <Button
+                        style={[styles.secondaryCta, { flex: 1 }]}
+                        disabled={respondMutation.isPending}
+                        onPress={() => setDeclining(true)}
+                        variant="plain"
+                      >
+                        <AppText variant="button" style={{ color: THEME.accent }}>
+                          {t('insurance.connections.declineInbound')}
+                        </AppText>
+                      </Button>
+                    </View>
+                  )}
+                </View>
+              ) : connection?.status === 'pending' && connection.initiatedBy === 'patient' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('insurance.connections.connectPendingOutbound')}
+                  </AppText>
+                  {cancelling ? (
+                    <>
+                      <FormField>
+                        <Input
+                          value={cancelReason}
+                          onChangeText={setCancelReason}
+                          placeholder={t('insurance.connections.cancelReasonPlaceholder')}
+                          multiline
+                          editable={!cancelMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
+                        <Button
+                          style={styles.secondaryCta}
+                          disabled={cancelMutation.isPending}
+                          onPress={() => {
+                            setCancelling(false);
+                            setCancelReason('');
+                          }}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={{ color: THEME.accent }}>
+                            {t('common.cancel')}
+                          </AppText>
+                        </Button>
+                        <Button
+                          style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
+                          disabled={cancelMutation.isPending}
+                          onPress={() => cancelMutation.mutate()}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('insurance.connections.confirmCancelRequest')}
+                          </AppText>
+                        </Button>
+                      </FormActions>
+                    </>
+                  ) : (
+                    <Button
+                      style={styles.secondaryCta}
+                      disabled={cancelMutation.isPending}
+                      onPress={() => setCancelling(true)}
+                      variant="plain"
+                    >
+                      <AppText variant="button" style={{ color: THEME.accent }}>
+                        {t('insurance.connections.cancelRequest')}
+                      </AppText>
+                    </Button>
+                  )}
+                </View>
+              ) : (
+                <View style={styles.connectBlock}>
+                  <AppText variant="caption" style={styles.connectHint}>
+                    {t('insurance.connections.connectHint')}
+                  </AppText>
                   <Button
-                    style={styles.secondaryCta}
-                    disabled={cancelMutation.isPending}
-                    onPress={() => setCancelling(true)}
+                    style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
+                    disabled={connectMutation.isPending || connectionQuery.isLoading}
+                    onPress={() => connectMutation.mutate()}
                     variant="plain"
                   >
-                    <AppText variant="button" style={{ color: THEME.accent }}>
-                      {t('insurance.connections.cancelRequest')}
+                    <Link2 color="#FFFFFF" size={18} strokeWidth={2.25} />
+                    <AppText variant="button" style={styles.primaryCtaLabel}>
+                      {t('insurance.connections.connect')}
                     </AppText>
                   </Button>
-                )}
-              </View>
-            ) : (
-              <View style={styles.connectBlock}>
-                <AppText variant="caption" style={styles.connectHint}>
-                  {t('insurance.connections.connectHint')}
+                </View>
+              )}
+            </View>
+          </AnimatedSection>
+        ) : null}
+
+        <AnimatedSection index={2}>
+          <View style={styles.card}>
+            <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+              {t('insurance.detail.contact')}
+            </AppText>
+
+            {payer.address ? (
+              <View style={styles.row}>
+                <MapPin color={palette.textSecondary} size={18} />
+                <AppText variant="body" style={styles.rowText}>
+                  {payer.address}
                 </AppText>
-                <Button
-                  style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
-                  disabled={connectMutation.isPending || connectionQuery.isLoading}
-                  onPress={() => connectMutation.mutate()}
-                  variant="plain"
-                >
-                  <Link2 color="#FFFFFF" size={18} strokeWidth={2.25} />
-                  <AppText variant="button" style={styles.primaryCtaLabel}>
-                    {t('insurance.connections.connect')}
-                  </AppText>
-                </Button>
               </View>
-            )}
+            ) : null}
+
+            {payer.phone ? (
+              <View style={styles.row}>
+                <Phone color={THEME.accent} size={18} />
+                <TextLink
+                  external
+                  href={`tel:${payer.phone}`}
+                  accessibilityLabel={t('insurance.detail.callA11y', { phone: payer.phone })}
+                >
+                  {payer.phone}
+                </TextLink>
+              </View>
+            ) : null}
+
+            {payer.email ? (
+              <View style={styles.row}>
+                <Mail color={THEME.accent} size={18} />
+                <TextLink
+                  external
+                  href={`mailto:${payer.email}`}
+                  accessibilityLabel={t('insurance.detail.emailA11y', { email: payer.email })}
+                >
+                  {payer.email}
+                </TextLink>
+              </View>
+            ) : null}
+
+            {websiteUrl ? (
+              <View style={styles.row}>
+                <Globe color={THEME.accent} size={18} />
+                <TextLink
+                  external
+                  href={websiteUrl}
+                  accessibilityLabel={t('insurance.detail.websiteA11y')}
+                >
+                  {payer.website}
+                </TextLink>
+              </View>
+            ) : null}
+
+            {!payer.address && !payer.phone && !payer.email && !websiteUrl ? (
+              <AppText variant="body" style={styles.emptyContact}>
+                {t('insurance.detail.noContact')}
+              </AppText>
+            ) : null}
           </View>
         </AnimatedSection>
-      ) : null}
 
-      <AnimatedSection index={2}>
-        <View style={styles.card}>
-          <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
-            {t('insurance.detail.contact')}
+        <AnimatedSection index={3}>
+          <AppText variant="caption" style={styles.footnote}>
+            {t('insurance.detail.footnote')}
           </AppText>
-
-          {payer.address ? (
-            <View style={styles.row}>
-              <MapPin color={palette.textSecondary} size={18} />
-              <AppText variant="body" style={styles.rowText}>
-                {payer.address}
-              </AppText>
-            </View>
-          ) : null}
-
-          {payer.phone ? (
-            <View style={styles.row}>
-              <Phone color={THEME.accent} size={18} />
-              <TextLink
-                external
-                href={`tel:${payer.phone}`}
-                accessibilityLabel={t('insurance.detail.callA11y', { phone: payer.phone })}
-              >
-                {payer.phone}
-              </TextLink>
-            </View>
-          ) : null}
-
-          {payer.email ? (
-            <View style={styles.row}>
-              <Mail color={THEME.accent} size={18} />
-              <TextLink
-                external
-                href={`mailto:${payer.email}`}
-                accessibilityLabel={t('insurance.detail.emailA11y', { email: payer.email })}
-              >
-                {payer.email}
-              </TextLink>
-            </View>
-          ) : null}
-
-          {websiteUrl ? (
-            <View style={styles.row}>
-              <Globe color={THEME.accent} size={18} />
-              <TextLink
-                external
-                href={websiteUrl}
-                accessibilityLabel={t('insurance.detail.websiteA11y')}
-              >
-                {payer.website}
-              </TextLink>
-            </View>
-          ) : null}
-
-          {!payer.address && !payer.phone && !payer.email && !websiteUrl ? (
-            <AppText variant="body" style={styles.emptyContact}>
-              {t('insurance.detail.noContact')}
-            </AppText>
-          ) : null}
-        </View>
-      </AnimatedSection>
-
-      <AnimatedSection index={3}>
-        <AppText variant="caption" style={styles.footnote}>
-          {t('insurance.detail.footnote')}
-        </AppText>
-      </AnimatedSection>
+        </AnimatedSection>
       </ScrollView>
     </Screen>
   );

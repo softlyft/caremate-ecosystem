@@ -65,7 +65,10 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <Screen padded={false} style={{ paddingBottom: insets.bottom + spacing.md, backgroundColor: '#F8FAFF' }}>
+    <Screen
+      padded={false}
+      style={{ paddingBottom: insets.bottom + spacing.md, backgroundColor: '#F8FAFF' }}
+    >
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}

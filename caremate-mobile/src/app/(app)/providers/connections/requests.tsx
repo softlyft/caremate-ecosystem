@@ -91,110 +91,110 @@ export default function ProviderConnectionRequestsScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <AppText variant="sectionTitle">{t('nearby.connectionRequests.title')}</AppText>
-      <AppText variant="subtitle">{t('nearby.connectionRequests.subtitle')}</AppText>
+        <AppText variant="sectionTitle">{t('nearby.connectionRequests.title')}</AppText>
+        <AppText variant="subtitle">{t('nearby.connectionRequests.subtitle')}</AppText>
 
-      {requests.length === 0 ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="body">{t('nearby.connectionRequests.empty')}</AppText>
-        </View>
-      ) : (
-        requests.map((request) => {
-          const busy = busyId === request.id;
-          const declining = decliningId === request.id;
-          return (
-            <View key={request.id} style={[styles.card, shadow.soft]}>
-              <AppText variant="body" style={styles.orgName}>
-                {request.organizationName ?? t('nearby.connectionRequests.providerFallback')}
-              </AppText>
-              {request.providerNote ? (
-                <>
-                  <AppText variant="caption" style={styles.noteLabel}>
-                    {t('nearby.connectionRequests.noteLabel')}
-                  </AppText>
-                  <AppText variant="body">{request.providerNote}</AppText>
-                </>
-              ) : null}
+        {requests.length === 0 ? (
+          <View style={[styles.card, shadow.soft]}>
+            <AppText variant="body">{t('nearby.connectionRequests.empty')}</AppText>
+          </View>
+        ) : (
+          requests.map((request) => {
+            const busy = busyId === request.id;
+            const declining = decliningId === request.id;
+            return (
+              <View key={request.id} style={[styles.card, shadow.soft]}>
+                <AppText variant="body" style={styles.orgName}>
+                  {request.organizationName ?? t('nearby.connectionRequests.providerFallback')}
+                </AppText>
+                {request.providerNote ? (
+                  <>
+                    <AppText variant="caption" style={styles.noteLabel}>
+                      {t('nearby.connectionRequests.noteLabel')}
+                    </AppText>
+                    <AppText variant="body">{request.providerNote}</AppText>
+                  </>
+                ) : null}
 
-              {declining ? (
-                <View style={styles.reasonBlock}>
-                  <FormField label={t('nearby.connectionRequests.reasonLabel')}>
-                    <Input
-                      value={reason}
-                      onChangeText={setReason}
-                      placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
-                      multiline
-                      editable={!busy}
-                      style={styles.reasonInput}
-                    />
-                  </FormField>
+                {declining ? (
+                  <View style={styles.reasonBlock}>
+                    <FormField label={t('nearby.connectionRequests.reasonLabel')}>
+                      <Input
+                        value={reason}
+                        onChangeText={setReason}
+                        placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
+                        multiline
+                        editable={!busy}
+                        style={styles.reasonInput}
+                      />
+                    </FormField>
+                    <FormActions style={styles.actions}>
+                      <Button
+                        style={styles.decline}
+                        disabled={busy}
+                        onPress={() => {
+                          setDecliningId(null);
+                          setReason('');
+                        }}
+                        variant="plain"
+                      >
+                        <AppText variant="button" style={styles.declineLabel}>
+                          {t('common.cancel')}
+                        </AppText>
+                      </Button>
+                      <Button
+                        style={styles.approve}
+                        loading={busy}
+                        onPress={() => {
+                          setBusyId(request.id);
+                          respondMutation.mutate({
+                            connectionId: request.id,
+                            accept: false,
+                            rejectionReason: reason,
+                          });
+                        }}
+                        variant="plain"
+                      >
+                        <AppText variant="button" style={styles.approveLabel}>
+                          {t('nearby.connectionRequests.confirmDecline')}
+                        </AppText>
+                      </Button>
+                    </FormActions>
+                  </View>
+                ) : (
                   <FormActions style={styles.actions}>
-                    <Button
-                      style={styles.decline}
-                      disabled={busy}
-                      onPress={() => {
-                        setDecliningId(null);
-                        setReason('');
-                      }}
-                      variant="plain"
-                    >
-                      <AppText variant="button" style={styles.declineLabel}>
-                        {t('common.cancel')}
-                      </AppText>
-                    </Button>
                     <Button
                       style={styles.approve}
                       loading={busy}
                       onPress={() => {
                         setBusyId(request.id);
-                        respondMutation.mutate({
-                          connectionId: request.id,
-                          accept: false,
-                          rejectionReason: reason,
-                        });
+                        respondMutation.mutate({ connectionId: request.id, accept: true });
                       }}
                       variant="plain"
                     >
                       <AppText variant="button" style={styles.approveLabel}>
-                        {t('nearby.connectionRequests.confirmDecline')}
+                        {t('nearby.connectionRequests.approve')}
+                      </AppText>
+                    </Button>
+                    <Button
+                      style={styles.decline}
+                      disabled={busy}
+                      onPress={() => {
+                        setDecliningId(request.id);
+                        setReason('');
+                      }}
+                      variant="plain"
+                    >
+                      <AppText variant="button" style={styles.declineLabel}>
+                        {t('nearby.connectionRequests.decline')}
                       </AppText>
                     </Button>
                   </FormActions>
-                </View>
-              ) : (
-                <FormActions style={styles.actions}>
-                  <Button
-                    style={styles.approve}
-                    loading={busy}
-                    onPress={() => {
-                      setBusyId(request.id);
-                      respondMutation.mutate({ connectionId: request.id, accept: true });
-                    }}
-                    variant="plain"
-                  >
-                    <AppText variant="button" style={styles.approveLabel}>
-                      {t('nearby.connectionRequests.approve')}
-                    </AppText>
-                  </Button>
-                  <Button
-                    style={styles.decline}
-                    disabled={busy}
-                    onPress={() => {
-                      setDecliningId(request.id);
-                      setReason('');
-                    }}
-                    variant="plain"
-                  >
-                    <AppText variant="button" style={styles.declineLabel}>
-                      {t('nearby.connectionRequests.decline')}
-                    </AppText>
-                  </Button>
-                </FormActions>
-              )}
-            </View>
-          );
-        })
-      )}
+                )}
+              </View>
+            );
+          })
+        )}
       </ScrollView>
     </Screen>
   );

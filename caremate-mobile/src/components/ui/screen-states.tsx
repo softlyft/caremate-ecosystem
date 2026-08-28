@@ -82,7 +82,13 @@ export function Screen({
   );
 }
 
-export function StateCard({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function StateCard({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
   return <View style={[styles.stateCard, style]}>{children}</View>;
 }
 

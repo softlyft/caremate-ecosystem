@@ -4,8 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { config } from '@/constants/env';
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function extractConversationId(data: Record<string, unknown> | undefined): string | null {
   if (!data) return null;
@@ -43,7 +42,8 @@ export function MessagePushDeepLinkHandler() {
 
     const handleResponse = (response: Notifications.NotificationResponse | null) => {
       if (!response) return;
-      const data = response.notification.request.content.data as Record<string, unknown> | undefined;
+      const data = response.notification.request.content.data as
+        Record<string, unknown> | undefined;
       const conversationId = extractConversationId(data);
       if (conversationId) {
         openConversation(conversationId);

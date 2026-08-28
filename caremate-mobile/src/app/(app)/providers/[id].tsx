@@ -13,7 +13,7 @@ import {
   Star,
 } from 'lucide-react-native';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
 
@@ -425,9 +425,7 @@ export default function ProviderDetailScreen() {
                       <Button
                         style={styles.infoRow}
                         variant="plain"
-                        onPress={() =>
-                          router.push(`/(app)/profile/insurance/${payer.id}` as Href)
-                        }
+                        onPress={() => router.push(`/(app)/profile/insurance/${payer.id}` as Href)}
                         accessibilityLabel={payer.name}
                       >
                         <View style={[styles.infoIcon, { backgroundColor: '#E0E7FF' }]}>

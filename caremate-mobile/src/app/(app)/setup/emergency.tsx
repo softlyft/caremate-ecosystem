@@ -16,7 +16,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, ChoiceChip, FormField, FormStack, FormNotice, Input } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { syncEmergencyLockSurface } from '@/domains/emergency/lock-surface';

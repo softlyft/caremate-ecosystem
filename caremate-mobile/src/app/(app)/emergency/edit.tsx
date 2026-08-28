@@ -16,7 +16,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, ChoiceChip, FormActions, FormField, FormNotice, FormStack, Input } from '@/components/ui/form-controls';
+import {
+  Button,
+  ChoiceChip,
+  FormActions,
+  FormField,
+  FormNotice,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
 import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import {
@@ -630,7 +638,10 @@ export default function EmergencyEditScreen() {
                 value={draftContact.name}
                 onFocus={scrollContactsIntoView}
                 onChangeText={(name) => {
-                  setDraftContact((current) => ({ ...current, name: sanitizePersonNameInput(name) }));
+                  setDraftContact((current) => ({
+                    ...current,
+                    name: sanitizePersonNameInput(name),
+                  }));
                   setContactError(null);
                 }}
               />

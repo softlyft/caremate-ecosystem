@@ -93,48 +93,50 @@ export default function FamilyRequestsScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <AppText variant="sectionTitle">{t('family.requests.title')}</AppText>
-      <AppText variant="subtitle">{t('family.requests.subtitle')}</AppText>
+        <AppText variant="sectionTitle">{t('family.requests.title')}</AppText>
+        <AppText variant="subtitle">{t('family.requests.subtitle')}</AppText>
 
-      {requests.length === 0 ? (
-        <View style={styles.card}>
-          <AppText variant="body">{t('family.requests.empty')}</AppText>
-        </View>
-      ) : (
-        requests.map((request) => (
-          <View key={request.id} style={styles.card}>
-            <AppText variant="cardTitle">{t('family.requests.spouseConnection')}</AppText>
-            <AppText variant="caption" style={styles.muted}>
-              {t('family.requests.fromUser', { id: request.fromUserId.slice(0, 8) })}
-            </AppText>
-            {request.toEmail ? (
-              <AppText variant="caption">
-                {t('family.requests.lookupEmail', { email: request.toEmail })}
-              </AppText>
-            ) : null}
-            {request.toPhone ? (
-              <AppText variant="caption">
-                {t('family.requests.lookupPhone', { phone: request.toPhone })}
-              </AppText>
-            ) : null}
-            <FormActions style={styles.actions}>
-              <Button
-                label={
-                  busyId === request.id ? t('family.requests.working') : t('family.requests.accept')
-                }
-                disabled={busyId === request.id}
-                onPress={() => respond(request.id, true)}
-              />
-              <Button
-                label={t('family.requests.decline')}
-                variant="secondary"
-                disabled={busyId === request.id}
-                onPress={() => respond(request.id, false)}
-              />
-            </FormActions>
+        {requests.length === 0 ? (
+          <View style={styles.card}>
+            <AppText variant="body">{t('family.requests.empty')}</AppText>
           </View>
-        ))
-      )}
+        ) : (
+          requests.map((request) => (
+            <View key={request.id} style={styles.card}>
+              <AppText variant="cardTitle">{t('family.requests.spouseConnection')}</AppText>
+              <AppText variant="caption" style={styles.muted}>
+                {t('family.requests.fromUser', { id: request.fromUserId.slice(0, 8) })}
+              </AppText>
+              {request.toEmail ? (
+                <AppText variant="caption">
+                  {t('family.requests.lookupEmail', { email: request.toEmail })}
+                </AppText>
+              ) : null}
+              {request.toPhone ? (
+                <AppText variant="caption">
+                  {t('family.requests.lookupPhone', { phone: request.toPhone })}
+                </AppText>
+              ) : null}
+              <FormActions style={styles.actions}>
+                <Button
+                  label={
+                    busyId === request.id
+                      ? t('family.requests.working')
+                      : t('family.requests.accept')
+                  }
+                  disabled={busyId === request.id}
+                  onPress={() => respond(request.id, true)}
+                />
+                <Button
+                  label={t('family.requests.decline')}
+                  variant="secondary"
+                  disabled={busyId === request.id}
+                  onPress={() => respond(request.id, false)}
+                />
+              </FormActions>
+            </View>
+          ))
+        )}
       </ScrollView>
     </Screen>
   );

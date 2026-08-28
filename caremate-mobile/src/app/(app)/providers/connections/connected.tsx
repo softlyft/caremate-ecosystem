@@ -61,51 +61,51 @@ export default function ConnectedProvidersScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <AppText variant="sectionTitle">{t('nearby.connections.connectedTitle')}</AppText>
-      <AppText variant="subtitle">{t('nearby.connections.connectedSubtitle')}</AppText>
+        <AppText variant="sectionTitle">{t('nearby.connections.connectedTitle')}</AppText>
+        <AppText variant="subtitle">{t('nearby.connections.connectedSubtitle')}</AppText>
 
-      {connected.length === 0 ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="body">{t('nearby.connections.connectedEmpty')}</AppText>
-        </View>
-      ) : (
-        connected.map((item) => {
-          const hasEmergency = hasConsentScope(item.sharedScopes, 'emergency');
-          return (
-            <Pressable
-              key={item.id}
-              style={({ pressed }) => [styles.card, shadow.soft, pressed && styles.pressed]}
-              onPress={() => router.push(`/(app)/providers/connections/${item.id}` as Href)}
-              accessibilityRole="button"
-              accessibilityLabel={
-                item.organizationName ?? t('nearby.connectionRequests.providerFallback')
-              }
-            >
-              <View style={styles.row}>
-                <View style={styles.copy}>
-                  <AppText variant="body" style={styles.orgName}>
-                    {item.organizationName ?? t('nearby.connectionRequests.providerFallback')}
-                  </AppText>
-                  <AppText variant="caption" style={styles.meta}>
-                    {t('nearby.connections.connectedSince', {
-                      date: new Date(item.approvedAt ?? item.createdAt).toLocaleDateString(),
-                    })}
-                  </AppText>
-                  <AppText
-                    variant="caption"
-                    style={hasEmergency ? styles.consentOn : styles.consentOff}
-                  >
-                    {hasEmergency
-                      ? t('nearby.connections.listEmergencyShared')
-                      : t('nearby.connections.listEmergencyPending')}
-                  </AppText>
+        {connected.length === 0 ? (
+          <View style={[styles.card, shadow.soft]}>
+            <AppText variant="body">{t('nearby.connections.connectedEmpty')}</AppText>
+          </View>
+        ) : (
+          connected.map((item) => {
+            const hasEmergency = hasConsentScope(item.sharedScopes, 'emergency');
+            return (
+              <Pressable
+                key={item.id}
+                style={({ pressed }) => [styles.card, shadow.soft, pressed && styles.pressed]}
+                onPress={() => router.push(`/(app)/providers/connections/${item.id}` as Href)}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  item.organizationName ?? t('nearby.connectionRequests.providerFallback')
+                }
+              >
+                <View style={styles.row}>
+                  <View style={styles.copy}>
+                    <AppText variant="body" style={styles.orgName}>
+                      {item.organizationName ?? t('nearby.connectionRequests.providerFallback')}
+                    </AppText>
+                    <AppText variant="caption" style={styles.meta}>
+                      {t('nearby.connections.connectedSince', {
+                        date: new Date(item.approvedAt ?? item.createdAt).toLocaleDateString(),
+                      })}
+                    </AppText>
+                    <AppText
+                      variant="caption"
+                      style={hasEmergency ? styles.consentOn : styles.consentOff}
+                    >
+                      {hasEmergency
+                        ? t('nearby.connections.listEmergencyShared')
+                        : t('nearby.connections.listEmergencyPending')}
+                    </AppText>
+                  </View>
+                  <ChevronRight size={20} color={palette.textSecondary} />
                 </View>
-                <ChevronRight size={20} color={palette.textSecondary} />
-              </View>
-            </Pressable>
-          );
-        })
-      )}
+              </Pressable>
+            );
+          })
+        )}
       </ScrollView>
     </Screen>
   );

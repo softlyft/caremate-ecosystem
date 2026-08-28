@@ -62,35 +62,38 @@ export default function FamilyReviewScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <AppText variant="sectionTitle">{t('family.review.heading')}</AppText>
-      <AppText variant="subtitle">{t('family.review.subtitle')}</AppText>
+        <AppText variant="sectionTitle">{t('family.review.heading')}</AppText>
+        <AppText variant="subtitle">{t('family.review.subtitle')}</AppText>
 
-      <View style={styles.card}>
-        {draftChildren.length === 0 ? (
-          <AppText variant="body">{t('family.review.empty')}</AppText>
-        ) : (
-          draftChildren.map((child, index) => (
-            <DetailRow key={`${child.fullName}-${index}`} label={`${index + 1}. ${child.fullName}`}>
-              <AppText variant="caption" style={styles.muted}>
-                {t('family.review.childMeta', { dob: child.dateOfBirth, gender: child.gender })}
-              </AppText>
-            </DetailRow>
-          ))
-        )}
-        <FormActions style={styles.actions}>
-          <Button
-            label={saving ? t('common.saving') : t('family.review.create')}
-            disabled={saving}
-            onPress={saveFamily}
-          />
-          <Button
-            label={t('family.review.back')}
-            variant="secondary"
-            disabled={saving}
-            onPress={() => router.back()}
-          />
-        </FormActions>
-      </View>
+        <View style={styles.card}>
+          {draftChildren.length === 0 ? (
+            <AppText variant="body">{t('family.review.empty')}</AppText>
+          ) : (
+            draftChildren.map((child, index) => (
+              <DetailRow
+                key={`${child.fullName}-${index}`}
+                label={`${index + 1}. ${child.fullName}`}
+              >
+                <AppText variant="caption" style={styles.muted}>
+                  {t('family.review.childMeta', { dob: child.dateOfBirth, gender: child.gender })}
+                </AppText>
+              </DetailRow>
+            ))
+          )}
+          <FormActions style={styles.actions}>
+            <Button
+              label={saving ? t('common.saving') : t('family.review.create')}
+              disabled={saving}
+              onPress={saveFamily}
+            />
+            <Button
+              label={t('family.review.back')}
+              variant="secondary"
+              disabled={saving}
+              onPress={() => router.back()}
+            />
+          </FormActions>
+        </View>
       </ScrollView>
     </Screen>
   );

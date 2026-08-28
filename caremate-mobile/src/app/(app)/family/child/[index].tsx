@@ -6,7 +6,14 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, ChoiceChip, FormActions, FormField, FormStack, Input } from '@/components/ui/form-controls';
+import {
+  Button,
+  ChoiceChip,
+  FormActions,
+  FormField,
+  FormStack,
+  Input,
+} from '@/components/ui/form-controls';
 import { Screen } from '@/components/ui/screen-states';
 import { createChildProfileSchema, FAMILY_GENDERS, useFamilySetupStore } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
@@ -112,114 +119,116 @@ export default function FamilyChildFormScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
         keyboardShouldPersistTaps="handled"
       >
-      <AppText variant="sectionTitle">
-        {t('family.child.titleOf', { current: index + 1, total: childCount })}
-      </AppText>
-      <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
+        <AppText variant="sectionTitle">
+          {t('family.child.titleOf', { current: index + 1, total: childCount })}
+        </AppText>
+        <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
 
-      <View style={styles.card}>
-        <FormStack>
-          <Controller
-            control={control}
-            name="fullName"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <FormField
-                label={t('family.child.name')}
-                error={formState.errors.fullName?.message}
-              >
-                <Input
-                  placeholder={t('family.child.name')}
-                  autoCapitalize="words"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              </FormField>
-            )}
-          />
-
-          <FormField
-            label={t('family.child.dob')}
-            hint={t('family.child.dobHint')}
-            error={formState.errors.dateOfBirth?.message}
-          >
-            <MonthCalendarNavigator
-              accentColor={palette.primary}
-              monthRef={dobMonthRef}
-              onMonthChange={setDobMonthRef}
-              maximumYear={currentYear}
-            />
-            <MonthCalendarGrid
-              monthRef={dobMonthRef}
-              interactive
-              accentColor={palette.primary}
-              onDayPress={(dayKey) => {
-                if (dayKey > todayKey) return;
-                setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
-              }}
-              getDayState={(dayKey) => ({
-                selected: dayKey === dateOfBirth,
-                today: dayKey === todayKey,
-                disabled: dayKey > todayKey,
-              })}
-            />
-            {dateOfBirth ? (
-              <View style={styles.dobSelectedRow}>
-                <AppText variant="body">
-                  {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
-                </AppText>
-                <Button
-                  accessibilityRole="button"
-                  onPress={() =>
-                    setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })
-                  }
-                  hitSlop={8}
-                  variant="plain"
+        <View style={styles.card}>
+          <FormStack>
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormField
+                  label={t('family.child.name')}
+                  error={formState.errors.fullName?.message}
                 >
-                  <AppText variant="caption" color="brand">
-                    {t('common.clear')}
-                  </AppText>
-                </Button>
-              </View>
-            ) : null}
-          </FormField>
-
-          <FormField label={t('family.child.gender')} error={formState.errors.gender?.message}>
-            <View style={styles.chipRow}>
-              {FAMILY_GENDERS.map((g) => (
-                <ChoiceChip
-                  key={g.value}
-                  label={g.label}
-                  selected={gender === g.value}
-                  onPress={() => setValue('gender', g.value, { shouldValidate: true })}
-                />
-              ))}
-            </View>
-          </FormField>
-
-          <Controller
-            control={control}
-            name="notes"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <FormField>
-                <Input
-                  placeholder={t('family.child.notesPlaceholder')}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              </FormField>
-            )}
-          />
-
-          <FormActions>
-            <Button
-              label={index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')}
-              onPress={handleSubmit(onSubmit)}
+                  <Input
+                    placeholder={t('family.child.name')}
+                    autoCapitalize="words"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                </FormField>
+              )}
             />
-          </FormActions>
-        </FormStack>
-      </View>
+
+            <FormField
+              label={t('family.child.dob')}
+              hint={t('family.child.dobHint')}
+              error={formState.errors.dateOfBirth?.message}
+            >
+              <MonthCalendarNavigator
+                accentColor={palette.primary}
+                monthRef={dobMonthRef}
+                onMonthChange={setDobMonthRef}
+                maximumYear={currentYear}
+              />
+              <MonthCalendarGrid
+                monthRef={dobMonthRef}
+                interactive
+                accentColor={palette.primary}
+                onDayPress={(dayKey) => {
+                  if (dayKey > todayKey) return;
+                  setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
+                }}
+                getDayState={(dayKey) => ({
+                  selected: dayKey === dateOfBirth,
+                  today: dayKey === todayKey,
+                  disabled: dayKey > todayKey,
+                })}
+              />
+              {dateOfBirth ? (
+                <View style={styles.dobSelectedRow}>
+                  <AppText variant="body">
+                    {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
+                  </AppText>
+                  <Button
+                    accessibilityRole="button"
+                    onPress={() =>
+                      setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })
+                    }
+                    hitSlop={8}
+                    variant="plain"
+                  >
+                    <AppText variant="caption" color="brand">
+                      {t('common.clear')}
+                    </AppText>
+                  </Button>
+                </View>
+              ) : null}
+            </FormField>
+
+            <FormField label={t('family.child.gender')} error={formState.errors.gender?.message}>
+              <View style={styles.chipRow}>
+                {FAMILY_GENDERS.map((g) => (
+                  <ChoiceChip
+                    key={g.value}
+                    label={g.label}
+                    selected={gender === g.value}
+                    onPress={() => setValue('gender', g.value, { shouldValidate: true })}
+                  />
+                ))}
+              </View>
+            </FormField>
+
+            <Controller
+              control={control}
+              name="notes"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormField>
+                  <Input
+                    placeholder={t('family.child.notesPlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                </FormField>
+              )}
+            />
+
+            <FormActions>
+              <Button
+                label={
+                  index + 1 < childCount ? t('family.child.nextChild') : t('family.review.heading')
+                }
+                onPress={handleSubmit(onSubmit)}
+              />
+            </FormActions>
+          </FormStack>
+        </View>
       </ScrollView>
     </Screen>
   );

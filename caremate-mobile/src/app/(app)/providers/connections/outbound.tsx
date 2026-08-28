@@ -34,10 +34,7 @@ export default function ProviderOutboundConnectionRequestsScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setCancellingId(null);
       setReason('');
-      Alert.alert(
-        t('nearby.detail.cancelSuccessTitle'),
-        t('nearby.detail.cancelSuccessMessage'),
-      );
+      Alert.alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
     },
     onError: (error) => {
       Alert.alert(
@@ -87,96 +84,96 @@ export default function ProviderOutboundConnectionRequestsScreen() {
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
       >
-      <AppText variant="sectionTitle">{t('nearby.connections.outboundScreenTitle')}</AppText>
-      <AppText variant="subtitle">{t('nearby.connections.outboundScreenSubtitle')}</AppText>
+        <AppText variant="sectionTitle">{t('nearby.connections.outboundScreenTitle')}</AppText>
+        <AppText variant="subtitle">{t('nearby.connections.outboundScreenSubtitle')}</AppText>
 
-      {requests.length === 0 ? (
-        <View style={[styles.card, shadow.soft]}>
-          <AppText variant="body">{t('nearby.connections.outboundEmpty')}</AppText>
-        </View>
-      ) : (
-        requests.map((request) => {
-          const busy = busyId === request.id;
-          const cancelling = cancellingId === request.id;
-          return (
-            <View key={request.id} style={[styles.card, shadow.soft]}>
-              <AppText variant="body" style={styles.orgName}>
-                {request.organizationName ?? t('nearby.connectionRequests.providerFallback')}
-              </AppText>
-              <AppText variant="caption" style={styles.statusLabel}>
-                {t('nearby.connections.outboundPendingLabel')}
-              </AppText>
-              {request.patientNote ? (
-                <>
-                  <AppText variant="caption" style={styles.noteLabel}>
-                    {t('nearby.connectionRequests.noteLabel')}
-                  </AppText>
-                  <AppText variant="body">{request.patientNote}</AppText>
-                </>
-              ) : null}
+        {requests.length === 0 ? (
+          <View style={[styles.card, shadow.soft]}>
+            <AppText variant="body">{t('nearby.connections.outboundEmpty')}</AppText>
+          </View>
+        ) : (
+          requests.map((request) => {
+            const busy = busyId === request.id;
+            const cancelling = cancellingId === request.id;
+            return (
+              <View key={request.id} style={[styles.card, shadow.soft]}>
+                <AppText variant="body" style={styles.orgName}>
+                  {request.organizationName ?? t('nearby.connectionRequests.providerFallback')}
+                </AppText>
+                <AppText variant="caption" style={styles.statusLabel}>
+                  {t('nearby.connections.outboundPendingLabel')}
+                </AppText>
+                {request.patientNote ? (
+                  <>
+                    <AppText variant="caption" style={styles.noteLabel}>
+                      {t('nearby.connectionRequests.noteLabel')}
+                    </AppText>
+                    <AppText variant="body">{request.patientNote}</AppText>
+                  </>
+                ) : null}
 
-              {cancelling ? (
-                <View style={styles.reasonBlock}>
-                  <FormField label={t('nearby.detail.cancelReasonLabel')}>
-                    <Input
-                      value={reason}
-                      onChangeText={setReason}
-                      placeholder={t('nearby.detail.cancelReasonPlaceholder')}
-                      multiline
-                      editable={!busy}
-                      style={styles.reasonInput}
-                    />
-                  </FormField>
+                {cancelling ? (
+                  <View style={styles.reasonBlock}>
+                    <FormField label={t('nearby.detail.cancelReasonLabel')}>
+                      <Input
+                        value={reason}
+                        onChangeText={setReason}
+                        placeholder={t('nearby.detail.cancelReasonPlaceholder')}
+                        multiline
+                        editable={!busy}
+                        style={styles.reasonInput}
+                      />
+                    </FormField>
+                    <FormActions style={styles.actions}>
+                      <Button
+                        style={styles.decline}
+                        disabled={busy}
+                        onPress={() => {
+                          setCancellingId(null);
+                          setReason('');
+                        }}
+                        variant="plain"
+                      >
+                        <AppText variant="button" style={styles.declineLabel}>
+                          {t('common.cancel')}
+                        </AppText>
+                      </Button>
+                      <Button
+                        style={styles.approve}
+                        loading={busy}
+                        onPress={() => {
+                          setBusyId(request.id);
+                          cancelMutation.mutate({ connectionId: request.id, reason });
+                        }}
+                        variant="plain"
+                      >
+                        <AppText variant="button" style={styles.approveLabel}>
+                          {t('nearby.detail.confirmCancelRequest')}
+                        </AppText>
+                      </Button>
+                    </FormActions>
+                  </View>
+                ) : (
                   <FormActions style={styles.actions}>
                     <Button
                       style={styles.decline}
                       disabled={busy}
                       onPress={() => {
-                        setCancellingId(null);
+                        setCancellingId(request.id);
                         setReason('');
                       }}
                       variant="plain"
                     >
                       <AppText variant="button" style={styles.declineLabel}>
-                        {t('common.cancel')}
-                      </AppText>
-                    </Button>
-                    <Button
-                      style={styles.approve}
-                      loading={busy}
-                      onPress={() => {
-                        setBusyId(request.id);
-                        cancelMutation.mutate({ connectionId: request.id, reason });
-                      }}
-                      variant="plain"
-                    >
-                      <AppText variant="button" style={styles.approveLabel}>
-                        {t('nearby.detail.confirmCancelRequest')}
+                        {t('nearby.detail.cancelRequest')}
                       </AppText>
                     </Button>
                   </FormActions>
-                </View>
-              ) : (
-                <FormActions style={styles.actions}>
-                  <Button
-                    style={styles.decline}
-                    disabled={busy}
-                    onPress={() => {
-                      setCancellingId(request.id);
-                      setReason('');
-                    }}
-                    variant="plain"
-                  >
-                    <AppText variant="button" style={styles.declineLabel}>
-                      {t('nearby.detail.cancelRequest')}
-                    </AppText>
-                  </Button>
-                </FormActions>
-              )}
-            </View>
-          );
-        })
-      )}
+                )}
+              </View>
+            );
+          })
+        )}
       </ScrollView>
     </Screen>
   );
