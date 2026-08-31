@@ -7,6 +7,7 @@ import {
   type ConnectedOrgRow,
 } from '@/components/features/connected-orgs-panel';
 import { canWriteOrg } from '@/constants/roles';
+import { ProviderPayerConnectionsLiveRefresh } from '@/components/features/provider-payer-connections-live-refresh';
 
 function mapRow(
   r: Awaited<ReturnType<typeof listProviderPayerConnectionsByStatus>>['rows'][number],
@@ -48,7 +49,12 @@ export default async function ConnectedPayersPage({
     : result.rows;
 
   return (
-    <ConnectedOrgsPanel
+    <>
+      <ProviderPayerConnectionsLiveRefresh
+        organizationId={session.activeOrganizationId}
+        side="provider"
+      />
+      <ConnectedOrgsPanel
       title="Connected payers"
       tableTitle="Payers"
       total={result.total}
@@ -63,5 +69,6 @@ export default async function ConnectedPayersPage({
       entityNameHeader="Payer name"
       showPhoneColumn
     />
+    </>
   );
 }

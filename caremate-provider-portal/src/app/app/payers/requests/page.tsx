@@ -9,6 +9,7 @@ import {
   type OrgOrgConnectionRequestRow,
 } from '@/components/features/org-org-connection-requests-panel';
 import { canWriteOrg } from '@/constants/roles';
+import { ProviderPayerConnectionsLiveRefresh } from '@/components/features/provider-payer-connections-live-refresh';
 
 const BASE_PATH = '/app/payers/requests';
 
@@ -69,7 +70,12 @@ export default async function PayerConnectionRequestsPage({
   const outbound = { ...outboundRaw, rows: outboundRaw.rows.map(mapOutboundRow) };
 
   return (
-    <OrgOrgConnectionRequestsPanel
+    <>
+      <ProviderPayerConnectionsLiveRefresh
+        organizationId={session.activeOrganizationId}
+        side="provider"
+      />
+      <OrgOrgConnectionRequestsPanel
       title="Payer connection requests"
       description="Request a connection with a verified payer organization, or approve payers who want to connect"
       entityLabel="Payer"
@@ -96,5 +102,6 @@ export default async function PayerConnectionRequestsPage({
       emptyOutboundMessage="No outbound requests waiting on payers."
       awaitingOutboundLabel="Awaiting payer"
     />
+    </>
   );
 }
