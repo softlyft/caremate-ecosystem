@@ -42,6 +42,7 @@ export default async function PayerPatientDetailPage({
         connectionId={connection.id}
         canWrite={canWrite}
         connectionHandlers={payerPatientConnectionHandlers}
+        connectionErrorMapper="payer-patient"
       />
 
       <div className="grid gap-6 lg:grid-cols-2">

@@ -5,6 +5,7 @@ import { PageHeader, PageShell } from '@/components/page-header';
 import { SearchForm } from '@/components/search-form';
 import { ConnectionActions } from '@/components/features/connection-actions';
 import type { ConnectionActionHandlers } from '@/lib/connection-action-handlers';
+import type { ConnectionErrorMapper } from '@/lib/connection-error-format';
 import type { PaginatedResult } from '@/lib/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ export function ConnectedPatientsPanel({
   rows,
   hrefForPage,
   connectionHandlers,
+  connectionErrorMapper = 'provider-patient',
   showStaffColumn = false,
   showLastActivityColumn = false,
 }: {
@@ -49,6 +51,7 @@ export function ConnectedPatientsPanel({
   rows: ConnectedPatientListRow[];
   hrefForPage: (page: number) => string;
   connectionHandlers?: ConnectionActionHandlers;
+  connectionErrorMapper?: ConnectionErrorMapper;
   showStaffColumn?: boolean;
   showLastActivityColumn?: boolean;
 }) {
@@ -133,6 +136,7 @@ export function ConnectedPatientsPanel({
                             connectionId={r.connectionId}
                             mode="approved"
                             handlers={connectionHandlers}
+                            errorMapper={connectionErrorMapper}
                           />
                         ) : null}
                       </TableCell>

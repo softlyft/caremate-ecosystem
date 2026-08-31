@@ -47,6 +47,7 @@ export default async function ConnectedPatientsPage({
       rows={result.rows}
       hrefForPage={(p) => hrefWithPage('/payer/patients', p, { q })}
       connectionHandlers={payerPatientConnectionHandlers}
+      connectionErrorMapper="payer-patient"
     />
   );
 }

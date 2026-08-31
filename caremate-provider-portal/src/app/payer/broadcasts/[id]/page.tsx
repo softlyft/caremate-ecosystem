@@ -4,6 +4,8 @@ import {
   getPayerOrgConversation,
   listPayerConversationMessages,
 } from '@/domains/payer-messaging/repository';
+import { listCareCoordinationStaffCandidates } from '@/domains/messaging/care-coordination';
+import { addPayerCareCoordinationStaffAction } from '@/domains/payer-messaging/care-coordination-actions';
 import { replyPayerOrgMessageAction } from '@/domains/payer-messaging/actions';
 import { markOrgConversationRead } from '@/lib/mark-org-conversation-read';
 import { canWriteOrg } from '@/constants/roles';
@@ -22,7 +24,12 @@ export default async function PayerBroadcastThreadPage({
   const conversation = await getPayerOrgConversation(orgId, id);
   if (!conversation) notFound();
 
-  const messages = await listPayerConversationMessages(orgId, id);
+  const [messages, staffCandidates] = await Promise.all([
+    listPayerConversationMessages(orgId, id),
+    conversation.kind === 'care_coordination' && canWrite
+      ? listCareCoordinationStaffCandidates(id)
+      : Promise.resolve([]),
+  ]);
   await markOrgConversationRead('payer', orgId, id);
 
   return (
@@ -31,9 +38,14 @@ export default async function PayerBroadcastThreadPage({
       patientName={conversation.patient_name}
       patientCaremateId={conversation.patient_caremate_id}
       messages={messages}
-      orgSenderLabel="Insurer"
+      orgSenderLabel="Clinic"
+      payerSenderLabel="Insurer"
       canWrite={canWrite}
       conversationId={id}
+      conversationKind={conversation.kind === 'care_coordination' ? 'care_coordination' : 'org_patient'}
+      partnerOrgName={conversation.partner_org_name}
+      staffCandidates={staffCandidates}
+      addStaffAction={addPayerCareCoordinationStaffAction}
       replyAction={replyPayerOrgMessageAction}
     />
   );

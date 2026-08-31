@@ -16,7 +16,7 @@ export type OrgSide = 'provider' | 'payer';
 
 export type MessageConversation = {
   id: string;
-  kind: 'org_patient' | 'direct';
+  kind: 'org_patient' | 'direct' | 'care_coordination';
   organization_id: string | null;
   payer_organization_id?: string | null;
   org_side?: OrgSide | null;
@@ -31,6 +31,8 @@ export type MessageConversation = {
   peer_name?: string | null;
   title?: string;
   unread?: boolean;
+  coordination_provider_name?: string | null;
+  coordination_payer_name?: string | null;
 };
 
 export type MessageMessage = {
@@ -62,6 +64,12 @@ type ConversationRow = Omit<
 function conversationTitle(row: MessageConversation): string {
   if (row.kind === 'direct') {
     return row.peer_name?.trim() || 'Direct message';
+  }
+  if (row.kind === 'care_coordination') {
+    const provider = row.coordination_provider_name?.trim();
+    const payer = row.coordination_payer_name?.trim();
+    if (provider && payer) return `${provider} + ${payer}`;
+    return provider || payer || 'Care coordination';
   }
   if (row.payer_organization_id || row.org_side === 'payer') {
     return row.organization_name?.trim() || 'Insurer';
@@ -145,8 +153,25 @@ export async function listPatientConversations(userId: string): Promise<MessageC
     ...new Set(rows.map((r) => r.payer_organization_id).filter(Boolean) as string[]),
   ];
   const directIds = rows.filter((r) => r.kind === 'direct').map((r) => r.id);
+  const coordinationProviderIds = [
+    ...new Set(
+      rows
+        .filter((r) => r.kind === 'care_coordination')
+        .map((r) => r.organization_id)
+        .filter(Boolean) as string[],
+    ),
+  ];
+  const coordinationPayerIds = [
+    ...new Set(
+      rows
+        .filter((r) => r.kind === 'care_coordination')
+        .map((r) => r.payer_organization_id)
+        .filter(Boolean) as string[],
+    ),
+  ];
 
-  const [{ data: orgs }, { data: payers }, { data: allParticipants }] = await Promise.all([
+  const [{ data: orgs }, { data: payers }, { data: allParticipants }, { data: coordProviders }, { data: coordPayers }] =
+    await Promise.all([
     providerOrgIds.length
       ? supabase.from('provider_organizations').select('id, name').in('id', providerOrgIds)
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),
@@ -162,6 +187,12 @@ export async function listPatientConversations(userId: string): Promise<MessageC
       : Promise.resolve({
           data: [] as { conversation_id: string; user_id: string }[],
         }),
+    coordinationProviderIds.length
+      ? supabase.from('provider_organizations').select('id, name').in('id', coordinationProviderIds)
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    coordinationPayerIds.length
+      ? supabase.from('payer_directory').select('id, name').in('id', coordinationPayerIds)
+      : Promise.resolve({ data: [] as { id: string; name: string | null }[] }),
   ]);
 
   const peerIds = [
@@ -181,6 +212,14 @@ export async function listPatientConversations(userId: string): Promise<MessageC
   );
   const payerNameById = new Map(
     (payers ?? [])
+      .filter((p): p is { id: string; name: string } => Boolean(p.id && p.name))
+      .map((p) => [p.id, p.name]),
+  );
+  const coordProviderNameById = new Map(
+    (coordProviders ?? []).map((o: { id: string; name: string }) => [o.id, o.name]),
+  );
+  const coordPayerNameById = new Map(
+    (coordPayers ?? [])
       .filter((p): p is { id: string; name: string } => Boolean(p.id && p.name))
       .map((p) => [p.id, p.name]),
   );
@@ -220,6 +259,14 @@ export async function listPatientConversations(userId: string): Promise<MessageC
         ? (payerNameById.get(row.payer_organization_id!) ?? null)
         : row.organization_id
           ? (orgNameById.get(row.organization_id) ?? null)
+          : null,
+      coordination_provider_name:
+        row.kind === 'care_coordination' && row.organization_id
+          ? (coordProviderNameById.get(row.organization_id) ?? null)
+          : null,
+      coordination_payer_name:
+        row.kind === 'care_coordination' && row.payer_organization_id
+          ? (coordPayerNameById.get(row.payer_organization_id) ?? null)
           : null,
       peer_user_id: peerUserId,
       peer_name: peerUserId ? (peerNameById.get(peerUserId) ?? null) : null,
@@ -360,6 +407,80 @@ export async function getConversation(
 ): Promise<MessageConversation | null> {
   const list = await listPatientConversations(userId);
   return list.find((c) => c.id === conversationId) ?? null;
+}
+
+export type CareCoordinationCandidate = {
+  organization_id: string;
+  org_kind: 'provider' | 'payer';
+  organization_name: string;
+};
+
+export async function listCareCoordinationCandidates(
+  sourceConversationId: string,
+): Promise<CareCoordinationCandidate[]> {
+  if (!config.isSupabaseConfigured) return [];
+
+  const { data, error } = await db.rpc('list_care_coordination_candidates', {
+    p_source_conversation_id: sourceConversationId,
+  });
+  if (error) throw error;
+  return (data ?? []) as CareCoordinationCandidate[];
+}
+
+export async function startCareCoordinationConversation(input: {
+  sourceConversationId: string;
+  candidate: CareCoordinationCandidate;
+}): Promise<string> {
+  if (!config.isSupabaseConfigured) {
+    throw new Error('Supabase is not configured');
+  }
+
+  const source = await db
+    .from('message_conversations')
+    .select('kind, organization_id, payer_organization_id, patient_user_id')
+    .eq('id', input.sourceConversationId)
+    .maybeSingle();
+
+  if (source.error) throw source.error;
+  const conv = source.data as {
+    kind: string;
+    organization_id: string | null;
+    payer_organization_id: string | null;
+  } | null;
+  if (!conv || conv.kind !== 'org_patient') {
+    throw new Error('Invalid source conversation');
+  }
+
+  let providerOrgId: string;
+  let payerOrgId: string;
+
+  if (conv.organization_id && !conv.payer_organization_id) {
+    providerOrgId = conv.organization_id;
+    if (input.candidate.org_kind !== 'payer') {
+      throw new Error('Invalid candidate');
+    }
+    payerOrgId = input.candidate.organization_id;
+  } else if (conv.payer_organization_id && !conv.organization_id) {
+    payerOrgId = conv.payer_organization_id;
+    if (input.candidate.org_kind !== 'provider') {
+      throw new Error('Invalid candidate');
+    }
+    providerOrgId = input.candidate.organization_id;
+  } else {
+    throw new Error('Invalid source conversation');
+  }
+
+  const { data, error } = await db.rpc('start_care_coordination_conversation', {
+    p_provider_organization_id: providerOrgId,
+    p_payer_organization_id: payerOrgId,
+  });
+  if (error) throw error;
+
+  const payload = data as { conversation_id?: string };
+  if (!payload.conversation_id) {
+    throw new Error('Could not start care coordination conversation');
+  }
+  return payload.conversation_id;
 }
 
 async function notifyDirectMessagePush(messageIds: string[]): Promise<void> {

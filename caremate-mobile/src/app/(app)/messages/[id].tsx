@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, FlatList, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
 import { MessageComposer } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -15,6 +16,7 @@ import {
   markConversationRead,
   patientMessageErrorKey,
   sendPatientReply,
+  type MessageConversation,
   type MessageMessage,
 } from '@/domains/messaging/repository';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
@@ -210,6 +212,7 @@ export default function MessageThreadScreen() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [title, setTitle] = useState(t('messages.threadTitle'));
+  const [threadConversation, setThreadConversation] = useState<MessageConversation | null>(null);
   const { lift, composerPaddingBottom, keyboardOpen } = useKeyboardLift();
   const todayLabel = t('messages.today');
   const yesterdayLabel = t('messages.yesterday');
@@ -221,6 +224,7 @@ export default function MessageThreadScreen() {
       try {
         const conversation = await getConversation(conversationId, userId);
         if (active && conversation) {
+          setThreadConversation(conversation);
           setTitle(
             conversation.title ?? conversation.organization_name ?? t('messages.threadTitle'),
           );
@@ -302,6 +306,7 @@ export default function MessageThreadScreen() {
         <AppText variant="caption" color="brand">
           {title}
         </AppText>
+        {threadConversation ? <AddCareCoordinationButton conversation={threadConversation} /> : null}
       </View>
       <FlatList
         ref={listRef}

@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField, formInlineGridClassName } from '@/components/ui/form-field';
 import { requestPayerConnectionByEmailAction } from '@/domains/payer-connections/actions';
-import { mapPayerConnectionError } from '@/domains/payer-connections/errors';
+import {
+  formatConnectionError,
+  type ConnectionErrorMapper,
+} from '@/lib/connection-error-format';
 
 type RequestOrgConnectionAction = typeof requestPayerConnectionByEmailAction;
 
@@ -18,7 +21,7 @@ export function RequestOrgConnectionForm({
   noteFieldName = 'provider_note',
   notePlaceholder = 'e.g. Network participation request',
   successMessage = 'Connection request sent — waiting for the payer to approve',
-  formatError = mapPayerConnectionError,
+  errorMapper = 'payer-org',
 }: {
   requestAction?: RequestOrgConnectionAction;
   emailLabel?: string;
@@ -26,7 +29,7 @@ export function RequestOrgConnectionForm({
   noteFieldName?: 'provider_note' | 'payer_note';
   notePlaceholder?: string;
   successMessage?: string;
-  formatError?: (err: unknown, fallback: string) => string;
+  errorMapper?: ConnectionErrorMapper;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -43,7 +46,7 @@ export function RequestOrgConnectionForm({
             toast.success(successMessage);
             form.reset();
           } catch (err) {
-            toast.error(formatError(err, 'Failed to request connection'));
+            toast.error(formatConnectionError(errorMapper, err, 'Failed to request connection'));
           }
         });
       }}
