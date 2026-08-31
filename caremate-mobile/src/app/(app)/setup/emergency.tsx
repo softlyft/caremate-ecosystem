@@ -8,7 +8,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -32,11 +31,14 @@ import {
 import { useTranslation } from '@/domains/localization';
 import { markEmergencyEssentialsDone } from '@/domains/onboarding';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { useScheduleFocusedInputScroll } from '@/hooks/use-keyboard-aware-scroll';
 import { syncEngine } from '@/sync/engine';
 import { fontFamily, palette, radius, spacing } from '@/theme';
 
 const CHIP_ACCENT = palette.brandPurple;
 const CHIP_SOFT = palette.purpleLight;
+/** Skip row inside the safe area (not the status-bar inset). */
+const SETUP_HEADER_HEIGHT = 48;
 
 export default function SetupEmergencyEssentialsScreen() {
   const { t } = useTranslation();
@@ -45,7 +47,9 @@ export default function SetupEmergencyEssentialsScreen() {
   const queryClient = useQueryClient();
   const scrollRef = useRef<ScrollView>(null);
   const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
   const [bloodGroup, setBloodGroup] = useState('');
   const [genotype, setGenotype] = useState('');
   const [allergies, setAllergies] = useState('');
@@ -59,32 +63,19 @@ export default function SetupEmergencyEssentialsScreen() {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
     const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
       setKeyboardHeight(event.endCoordinates.height);
-      const keyboardTop = event.endCoordinates.screenY;
-      requestAnimationFrame(() => {
-        setTimeout(
-          () => {
-            const input = TextInput.State.currentlyFocusedInput?.();
-            if (!input || !scrollRef.current) return;
-            input.measureInWindow((_x, y, _width, height) => {
-              const overlap = y + height + spacing.md - keyboardTop;
-              if (overlap <= 0) return;
-              scrollRef.current?.scrollTo({
-                y: Math.max(0, scrollYRef.current + overlap),
-                animated: true,
-              });
-            });
-          },
-          Platform.OS === 'ios' ? 80 : 120,
-        );
-      });
+      keyboardApi.scheduleScrollIntoView();
     });
-    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
+      setKeyboardHeight(0);
+    });
     return () => {
       showSub.remove();
       hideSub.remove();
     };
-  }, []);
+  }, [keyboardApi]);
 
   async function goNext() {
     const href = await markEmergencyEssentialsDone();
@@ -170,10 +161,14 @@ export default function SetupEmergencyEssentialsScreen() {
     }
   }
 
+  // Extra scroll room so bottom ICE fields + Save can rise above the keyboard.
+  // Applied on both platforms: Android adjustResize alone is not enough for late fields.
   const bottomPad =
-    Platform.OS === 'ios' && keyboardHeight > 0
-      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
       : spacing.xl;
+  // SafeAreaView already applies the top inset; only offset for the in-layout skip row.
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? SETUP_HEADER_HEIGHT : 0;
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     scrollYRef.current = event.nativeEvent.contentOffset.y;
@@ -184,7 +179,7 @@ export default function SetupEmergencyEssentialsScreen() {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <View style={styles.header}>
           <Button onPress={() => void handleSkip()} hitSlop={8} disabled={busy} variant="plain">
@@ -200,8 +195,9 @@ export default function SetupEmergencyEssentialsScreen() {
           contentContainerStyle={[styles.body, { paddingBottom: bottomPad }]}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          contentInsetAdjustmentBehavior="automatic"
+          // Avoid stacking RN content insets on top of KeyboardAvoidingView + our bottom pad.
+          automaticallyAdjustKeyboardInsets={false}
+          contentInsetAdjustmentBehavior="never"
           scrollEventThrottle={16}
           onScroll={onScroll}
         >
@@ -253,6 +249,7 @@ export default function SetupEmergencyEssentialsScreen() {
                 placeholder={t('emergency.fields.allergies')}
                 value={allergies}
                 onChangeText={setAllergies}
+                onFocus={keyboardApi.scheduleScrollIntoView}
               />
             </FormField>
 
@@ -264,6 +261,7 @@ export default function SetupEmergencyEssentialsScreen() {
                 autoCapitalize="words"
                 autoCorrect={false}
                 maxLength={PERSON_NAME_MAX_CHARS}
+                onFocus={keyboardApi.scheduleScrollIntoView}
               />
             </FormField>
 
@@ -273,6 +271,7 @@ export default function SetupEmergencyEssentialsScreen() {
                 value={iceRelationship}
                 onChangeText={setIceRelationship}
                 autoCapitalize="words"
+                onFocus={keyboardApi.scheduleScrollIntoView}
               />
             </FormField>
 
@@ -285,19 +284,20 @@ export default function SetupEmergencyEssentialsScreen() {
                 textContentType="telephoneNumber"
                 autoComplete="tel"
                 maxLength={ICE_PHONE_MAX_CHARS}
+                onFocus={keyboardApi.scheduleScrollIntoView}
               />
             </FormField>
           </FormStack>
-        </ScrollView>
 
-        <View style={styles.footer}>
-          <Button
-            label={busy ? t('common.saving') : t('setup.emergency.save')}
-            style={styles.primaryCta}
-            loading={busy}
-            onPress={() => void handleSave()}
-          />
-        </View>
+          <View style={styles.footer}>
+            <Button
+              label={busy ? t('common.saving') : t('setup.emergency.save')}
+              style={styles.primaryCta}
+              loading={busy}
+              onPress={() => void handleSave()}
+            />
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -315,6 +315,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
+    minHeight: SETUP_HEADER_HEIGHT,
   },
   skip: {
     color: palette.primary,
@@ -345,7 +346,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   footer: {
-    padding: spacing.lg,
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
   },
   primaryCta: {
     backgroundColor: palette.brandPurple,

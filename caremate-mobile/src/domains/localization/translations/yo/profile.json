@@ -148,7 +148,8 @@
     "staffOrg": "Oṣiṣẹ ni: {{name}}",
     "pendingOrg": "N duro: {{name}}",
     "awaitingStaff": "N duro fun ile-iṣẹ rẹ lati samọ rẹ bi oṣiṣẹ.",
-    "unknownOrg": "Ile-iṣẹ"
+    "unknownOrg": "Ile-iṣẹ",
+    "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK). Keep it under 81 characters."
   },
   "connections": {
     "subtitle": "Awọn olupese ti a sopọ ati awọn ibeere asopọ",

@@ -44,11 +44,18 @@ export async function banUser(userId: string) {
     ban_duration: '876000h',
   });
   if (error) throw error;
+
+  // Ban blocks new sign-in but does not revoke existing sessions by itself.
+  const { error: revokeError } = await admin.rpc('admin_revoke_user_sessions', {
+    target_user_id: userId,
+  });
+  if (revokeError) throw revokeError;
+
   await writeAuditEvent({
     action: 'ban_user',
     entityType: 'user',
     entityId: userId,
-    payload: { actor: session.user.id },
+    payload: { actor: session.user.id, sessions_revoked: true },
   });
   revalidatePath('/dashboard/users');
   revalidatePath(`/dashboard/users/${userId}`);

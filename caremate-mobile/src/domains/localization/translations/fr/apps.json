@@ -681,7 +681,15 @@
       "Headache": "Mal de tête",
       "Insomnia": "Insomnie",
       "Food cravings": "Envies alimentaires",
-      "Swelling": "Gonflement"
+      "Swelling": "Gonflement",
+      "Afterpains": "Tranchées",
+      "Bleeding": "Saignements",
+      "Perineal discomfort": "Inconfort périnéal",
+      "Breast engorgement": "Engorgement mammaire",
+      "Incision pain": "Douleur à l’incision",
+      "Constipation": "Constipation",
+      "Anxiety": "Anxiété",
+      "Mood swings": "Sautes d’humeur"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "Appuyez sur + à chaque mouvement ressenti",
       "logHistory": "Journaux récents",
       "recent": "Récent",
-      "endPregnancyMessage": "Cela archive la chronologie et les journaux quotidiens, puis reprend Period Tracker si elle était en pause pour la grossesse. Vous pourrez configurer une nouvelle grossesse plus tard."
+      "endPregnancyMessage": "Cela archive la chronologie et les journaux quotidiens, puis reprend Period Tracker si elle était en pause pour la grossesse. Vous pourrez configurer une nouvelle grossesse plus tard.",
+      "howFeelingSubtitlePostpartum": "Notez comment se passe votre rétablissement aujourd’hui. Cela aide à repérer les tendances pendant la guérison."
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} est cette semaine.",

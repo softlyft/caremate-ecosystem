@@ -5,6 +5,7 @@
 import {
   MOOD_OPTIONS,
   PREGNANCY_DAYS,
+  POSTPARTUM_SYMPTOM_OPTIONS,
   SYMPTOM_OPTIONS,
 } from '@/mini-apps/pregnancy-tracker/constants';
 import {
@@ -87,6 +88,8 @@ export type PregnancyLogDraft = {
   kickCount: number;
   notes: string;
   weightKg?: number | null;
+  /** When postpartum, kicks are cleared and only recovery symptoms are accepted. */
+  journeyStatus?: 'active' | 'postpartum' | 'ended' | null;
 };
 
 export type PregnancyLogAssessment = {
@@ -115,6 +118,7 @@ export const DUE_FUTURE_HARD_DAYS = PREGNANCY_DAYS + 21;
 const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const MOOD_SET = new Set<string>(MOOD_OPTIONS);
 const SYMPTOM_SET = new Set<string>(SYMPTOM_OPTIONS);
+const POSTPARTUM_SYMPTOM_SET = new Set<string>(POSTPARTUM_SYMPTOM_OPTIONS);
 
 export function isValidDateKey(value: string): boolean {
   if (!DATE_KEY_RE.test(value)) return false;
@@ -235,22 +239,29 @@ export function assessPregnancySetupDraft(draft: PregnancySetupDraft): Pregnancy
 
 export function assessPregnancyLogDraft(draft: PregnancyLogDraft): PregnancyLogAssessment {
   const soft: PregnancyIssue[] = [];
+  const isPostpartum = draft.journeyStatus === 'postpartum';
+  const allowedSymptoms = isPostpartum ? POSTPARTUM_SYMPTOM_SET : SYMPTOM_SET;
 
-  if (!Number.isFinite(draft.kickCount) || draft.kickCount < 0) {
-    return {
-      hard: { code: 'kicks_negative', messageKey: 'unusualCheck' },
-      soft: [],
-      payload: null,
-    };
-  }
+  let kickCount = 0;
+  if (isPostpartum) {
+    kickCount = 0;
+  } else {
+    if (!Number.isFinite(draft.kickCount) || draft.kickCount < 0) {
+      return {
+        hard: { code: 'kicks_negative', messageKey: 'unusualCheck' },
+        soft: [],
+        payload: null,
+      };
+    }
 
-  const kickCount = Math.floor(draft.kickCount);
-  if (kickCount > KICKS_SOFT_MAX) {
-    soft.push({
-      code: 'soft_kicks_high',
-      messageKey: 'kicksHigh',
-      params: { count: kickCount },
-    });
+    kickCount = Math.floor(draft.kickCount);
+    if (kickCount > KICKS_SOFT_MAX) {
+      soft.push({
+        code: 'soft_kicks_high',
+        messageKey: 'kicksHigh',
+        params: { count: kickCount },
+      });
+    }
   }
 
   const notes = draft.notes.trim();
@@ -263,7 +274,7 @@ export function assessPregnancyLogDraft(draft: PregnancyLogDraft): PregnancyLogA
   }
 
   const mood = draft.mood && MOOD_SET.has(draft.mood) ? draft.mood : undefined;
-  const symptoms = draft.symptoms.filter((item) => SYMPTOM_SET.has(item));
+  const symptoms = draft.symptoms.filter((item) => allowedSymptoms.has(item));
 
   let weightKg: number | undefined;
   if (draft.weightKg != null) {

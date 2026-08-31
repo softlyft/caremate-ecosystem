@@ -5,8 +5,8 @@ import { reconcilePushRegistrationWithOsPermission } from '@/domains/notificatio
 import { useAuthStore } from '@/features/auth/store';
 
 /**
- * When returning to the foreground, drop the Expo push token if the OS revoked
- * notification permission (or re-sync if it was granted again).
+ * Keep the in-app Push toggle aligned with OS notification permission:
+ * run on sign-in mount and when returning to the foreground.
  */
 export function PushPermissionReconciler() {
   const isInitialized = useAuthStore((state) => state.isInitialized);
@@ -17,6 +17,8 @@ export function PushPermissionReconciler() {
     if (!isInitialized || !isAuthenticated) {
       return;
     }
+
+    void reconcilePushRegistrationWithOsPermission();
 
     const onChange = (next: AppStateStatus) => {
       const wasBackground = appState.current === 'background' || appState.current === 'inactive';

@@ -148,7 +148,8 @@
     "staffOrg": "Ma'aikaci a: {{name}}",
     "pendingOrg": "Ana jira: {{name}}",
     "awaitingStaff": "Ana jiran ƙungiyar ku ta nuna ka a matsayin ma'aikaci.",
-    "unknownOrg": "Ƙungiyar"
+    "unknownOrg": "Ƙungiyar",
+    "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK). Keep it under 81 characters."
   },
   "connections": {
     "subtitle": "Masu ba da sabis da buƙatun haɗin kai",

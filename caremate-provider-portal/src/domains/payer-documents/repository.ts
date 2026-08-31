@@ -122,17 +122,29 @@ async function notifyPatientPayerDocumentUpload(
   },
 ) {
   try {
-    void supabase.functions
-      .invoke('notify-provider-document', {
-        body: {
-          documentId: input.documentId,
-          organizationId: input.payerOrganizationId,
-          patientId: input.patientId,
-          title: input.title,
-          orgKind: 'payer',
-        },
-      })
-      .catch(() => {});
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) return;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anon) return;
+
+    // Must await: fire-and-forget invoke is dropped when the Amplify/Next request ends.
+    await fetch(`${url}/functions/v1/notify-provider-document`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        apikey: anon,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        documentId: input.documentId,
+        organizationId: input.payerOrganizationId,
+        patientId: input.patientId,
+        title: input.title,
+        orgKind: 'payer',
+      }),
+    });
   } catch {
     // Best-effort.
   }

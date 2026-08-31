@@ -30,9 +30,10 @@ import { WEBSITE_URLS } from '@/constants/config';
 import { premiumLabel } from '@/domains/billing/entitlement';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { familyRepository } from '@/domains/family/repository';
-import { getFinishSetupItems, setDeviceDefaults, type FinishSetupItem } from '@/domains/onboarding';
+import { getFinishSetupItems, type FinishSetupItem } from '@/domains/onboarding';
 import { useTranslation } from '@/domains/localization';
-import { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
+import { applyNotificationsEnabledPreference } from '@/domains/notifications/push';
+import { sanitizeFullNameInput } from '@/domains/emergency/validation';
 import { PatientIdCard } from '@/features/profile/PatientIdCard';
 import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
@@ -51,9 +52,9 @@ export default function ProfileTabScreen() {
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
-  const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
   const { fullName, profileQuery } = useAccountDisplayName();
-  const displayName = fullName?.trim() || t('profile.patientId.fallbackName');
+  const displayName =
+    sanitizeFullNameInput(fullName ?? '') || t('profile.patientId.fallbackName');
 
   // Canonical ['billing','premium'] cache — flat PremiumState only (see usePremiumState).
   const premiumQuery = usePremiumState();
@@ -82,15 +83,21 @@ export default function ProfileTabScreen() {
   const finishItems = finishSetupQuery.data ?? [];
 
   async function handleNotificationsToggle(value: boolean) {
-    setNotificationsEnabled(value);
-    await Promise.all([
-      profileRepository.saveSettings(userId, { notificationsEnabled: value }),
-      setDeviceDefaults({ notificationsEnabled: value }),
-    ]);
-    if (value) {
-      void syncPushRegistration({ requestPermission: true });
-    } else {
-      void clearPushRegistration();
+    const result = await applyNotificationsEnabledPreference(value);
+    if (value && !result.applied) {
+      Alert.alert(
+        t('settings.notifications.permissionDeniedTitle'),
+        t('settings.notifications.permissionDeniedMessage'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('settings.notifications.openSystemSettings'),
+            onPress: () => {
+              void Linking.openSettings();
+            },
+          },
+        ],
+      );
     }
   }
 
@@ -144,7 +151,12 @@ export default function ProfileTabScreen() {
                     <UserRound color={palette.primary} size={32} strokeWidth={2} />
                   </View>
                 </View>
-                <AppText variant="heroGreeting" style={styles.name}>
+                <AppText
+                  variant="heroGreeting"
+                  style={styles.name}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
                   {isGuest ? t('profile.guest.title') : displayName}
                 </AppText>
                 <AppText variant="subtitle" style={styles.subtitle}>
@@ -454,6 +466,7 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     letterSpacing: -0.5,
     textAlign: 'center',
+    maxWidth: '90%',
   },
   subtitle: {
     textAlign: 'center',

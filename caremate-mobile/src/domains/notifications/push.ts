@@ -5,6 +5,8 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { useAuthStore } from '@/features/auth/store';
+import { setDeviceDefaults } from '@/domains/onboarding/device-defaults';
+import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { supabase } from '@/lib/supabase';
 
@@ -47,6 +49,44 @@ async function ensureAndroidChannel(): Promise<void> {
   });
 }
 
+/**
+ * Whether the OS currently allows delivering notifications.
+ * On iOS, provisional / ephemeral authorization can deliver quietly even when
+ * top-level `status` is not always `'granted'` — match Expo’s recommended check.
+ */
+export function allowsOsNotifications(
+  settings: Notifications.NotificationPermissionsStatus,
+): boolean {
+  if (settings.granted || settings.status === 'granted') {
+    return true;
+  }
+  const iosStatus = settings.ios?.status;
+  return (
+    iosStatus === Notifications.IosAuthorizationStatus.AUTHORIZED ||
+    iosStatus === Notifications.IosAuthorizationStatus.PROVISIONAL ||
+    iosStatus === Notifications.IosAuthorizationStatus.EPHEMERAL
+  );
+}
+
+/** Persist in-app preference so the toggle matches OS permission / user choice. */
+async function persistNotificationsEnabled(enabled: boolean): Promise<void> {
+  useSettingsStore.getState().setNotificationsEnabled(enabled);
+  try {
+    await setDeviceDefaults({ notificationsEnabled: enabled });
+  } catch {
+    // Device defaults are best-effort.
+  }
+  const { user, isGuest, isAuthenticated } = useAuthStore.getState();
+  if (!isAuthenticated || isGuest || !user?.id) {
+    return;
+  }
+  try {
+    await profileRepository.saveSettings(user.id, { notificationsEnabled: enabled });
+  } catch {
+    // Cloud settings are best-effort.
+  }
+}
+
 async function getCurrentExpoPushToken(options?: {
   /** When true, prompt the OS if permission is not already granted (settings toggle). */
   requestPermission?: boolean;
@@ -69,17 +109,16 @@ async function getCurrentExpoPushToken(options?: {
 
   await ensureAndroidChannel();
 
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  let finalStatus = existing;
-  if (existing !== 'granted' && options?.requestPermission) {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
+  let settings = await Notifications.getPermissionsAsync();
+  if (!allowsOsNotifications(settings) && options?.requestPermission) {
+    settings = await Notifications.requestPermissionsAsync();
   }
-  if (finalStatus !== 'granted') {
+  if (!allowsOsNotifications(settings)) {
     if (__DEV__) {
       console.warn(
         'syncPushRegistration: notification permission not granted',
-        finalStatus,
+        settings.status,
+        settings.ios?.status,
         options?.requestPermission ? '(after prompt)' : '(no prompt on this call)',
       );
     }
@@ -205,28 +244,63 @@ export async function clearPushRegistration(): Promise<void> {
 }
 
 /**
- * Align remote push registration with the current OS permission.
- * Clears the device token when permission was revoked; re-syncs when granted again.
- * Never prompts the user.
+ * Align in-app Push toggle + remote registration with OS notification permission.
+ * Clears the device token and turns the preference off when permission is missing.
+ * Never prompts the user. Works for iOS (including Settings → Notifications off) and Android.
  */
 export async function reconcilePushRegistrationWithOsPermission(): Promise<void> {
   try {
     const { user, isGuest, isAuthenticated } = useAuthStore.getState();
-    const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
-    if (!isAuthenticated || isGuest || !user?.id || !notificationsEnabled) {
+    if (!isAuthenticated || isGuest || !user?.id) {
       return;
     }
 
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status === 'granted') {
-      await syncPushRegistration();
+    const settings = await Notifications.getPermissionsAsync();
+    const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
+
+    if (allowsOsNotifications(settings)) {
+      if (notificationsEnabled) {
+        await syncPushRegistration();
+      }
       return;
     }
+
     await clearPushRegistration();
+    if (notificationsEnabled) {
+      await persistNotificationsEnabled(false);
+    }
   } catch (err) {
     console.warn(
       'reconcilePushRegistrationWithOsPermission',
       err instanceof Error ? err.message : err,
     );
   }
+}
+
+/**
+ * User flipped the Push notifications switch. Requests OS permission when enabling;
+ * reverts the toggle if the OS denies (or previously revoked) permission.
+ * On iOS after Deny, the system will not re-prompt — Open Settings is required.
+ */
+export async function applyNotificationsEnabledPreference(enabled: boolean): Promise<{
+  applied: boolean;
+  osGranted: boolean;
+}> {
+  if (!enabled) {
+    await persistNotificationsEnabled(false);
+    await clearPushRegistration();
+    return { applied: true, osGranted: false };
+  }
+
+  await persistNotificationsEnabled(true);
+  await syncPushRegistration({ requestPermission: true });
+
+  const settings = await Notifications.getPermissionsAsync();
+  if (allowsOsNotifications(settings)) {
+    return { applied: true, osGranted: true };
+  }
+
+  await persistNotificationsEnabled(false);
+  await clearPushRegistration();
+  return { applied: false, osGranted: false };
 }

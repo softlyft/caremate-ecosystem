@@ -681,7 +681,15 @@
       "Headache": "Ti",
       "Insomnia": "Insomnia",
       "Food cravings": "Food cravings",
-      "Swelling": "Swelling"
+      "Swelling": "Swelling",
+      "Afterpains": "Afterpains",
+      "Bleeding": "Bleeding",
+      "Perineal discomfort": "Perineal discomfort",
+      "Breast engorgement": "Breast engorgement",
+      "Incision pain": "Incision pain",
+      "Constipation": "Constipation",
+      "Anxiety": "Anxiety",
+      "Mood swings": "Mood swings"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "Tap + bere a wo feel movement",
       "logHistory": "Recent logs",
       "recent": "Recent",
-      "endPregnancyMessage": "Eyi bɛ archive timeline ne daily logs, na resume Period Tracker sɛ wɔagyina mfi pregnancy. Wobɛtumi asan pregnancy foforo akyiri."
+      "endPregnancyMessage": "Eyi bɛ archive timeline ne daily logs, na resume Period Tracker sɛ wɔagyina mfi pregnancy. Wobɛtumi asan pregnancy foforo akyiri.",
+      "howFeelingSubtitlePostpartum": "Log how recovery feels today. This helps you spot patterns as you heal."
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} yɛ dapɛn yi.",

@@ -3,6 +3,7 @@
 #
 # Builds: Android APK (GitHub artifact + Slack channel) + iOS TestFlight (dev env).
 # Prod store releases: ios-app-store.yml + android-play.yml (prod branch).
+# Do not run this workflow from branch `prod` — it always uses development env.
 #
 # Android Slack upload (development environment secrets):
 #   SLACK_BOT_TOKEN              — bot token with chat:write + files:write
@@ -45,6 +46,20 @@ jobs:
       ios: ${{ steps.targets.outputs.ios }}
       android: ${{ steps.targets.outputs.android }}
     steps:
+      - name: Reject prod branch
+        run: |
+          set -euo pipefail
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          if [ "$BRANCH" = 'prod' ]; then
+            echo "::error::Mobile Main CD is for development builds only (APK + Slack / TestFlight)."
+            echo "You selected branch 'prod'. For store releases use:"
+            echo "  • Actions → Android Play (Play Store AAB)"
+            echo "  • Actions → iOS App Store (App Store IPA)"
+            echo "Run Mobile Main CD from branch 'main' instead."
+            exit 1
+          fi
+          echo "Branch $BRANCH is allowed for Mobile Main CD."
+
       - name: Verify latest CI passed
         if: inputs.skip_ci_check != true
         env:

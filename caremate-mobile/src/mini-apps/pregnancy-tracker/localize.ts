@@ -1,8 +1,15 @@
-import { MILESTONES, MOOD_OPTIONS, SYMPTOM_OPTIONS } from '@/mini-apps/pregnancy-tracker/constants';
+import {
+  MILESTONES,
+  MOOD_OPTIONS,
+  POSTPARTUM_SYMPTOM_OPTIONS,
+  SYMPTOM_OPTIONS,
+} from '@/mini-apps/pregnancy-tracker/constants';
 import type { PregnancyAlertCopy } from '@/mini-apps/pregnancy-tracker/alerts';
 import type { TranslateFn } from '@/mini-apps/_kit/i18n';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import type { PregnancyMilestone, Trimester } from '@/mini-apps/pregnancy-tracker/utils';
+
+export type PregnancyLogPhase = 'active' | 'postpartum';
 
 export function localizeMood(mood: string, t: TranslateFn): string {
   return t(`apps.pregnancy.moods.${mood}`) || mood;
@@ -16,8 +23,9 @@ export function localizeMoodOptions(t: TranslateFn) {
   return MOOD_OPTIONS.map((mood) => ({ id: mood, label: localizeMood(mood, t) }));
 }
 
-export function localizeSymptomOptions(t: TranslateFn) {
-  return SYMPTOM_OPTIONS.map((symptom) => ({ id: symptom, label: localizeSymptom(symptom, t) }));
+export function localizeSymptomOptions(t: TranslateFn, phase: PregnancyLogPhase = 'active') {
+  const options = phase === 'postpartum' ? POSTPARTUM_SYMPTOM_OPTIONS : SYMPTOM_OPTIONS;
+  return options.map((symptom) => ({ id: symptom, label: localizeSymptom(symptom, t) }));
 }
 
 export function localizeMilestone(

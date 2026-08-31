@@ -8,14 +8,42 @@ Workflow: [`.github/workflows/android-play.yml`](../../.github/workflows/android
 Package: `com.softlyft.caremate`  
 GitHub Environment: **`production`** (git branch is **`prod`**)
 
-Sideload APKs on **`main`** ([`mobile-main-cd.yml`](../../.github/workflows/mobile-main-cd.yml)) stay on the debug keystore — not for Play testers.
+Sideload APKs on **`main`** ([`mobile-main-cd.yml`](../../.github/workflows/mobile-main-cd.yml)) stay on the debug keystore — not for Play testers. **Do not** upload `main` / Slack builds to any Play track.
+
+If Play returns **`APK has been signed in debug mode`**, the AAB used the debug keystore. Android Play now patches release signing after prebuild and rejects debug-signed AABs before upload. Re-run on **`prod`** after merging the latest workflow (and keep `ANDROID_KEYSTORE_*` secrets set on Environment **`production`**).
+
+## Play tracks vs CareMate envs
+
+Play **internal / alpha / beta / production** are release lanes for the **same** production-signed app. They are **not** the same as GitHub Environments `development` / `production`, and they are **not** “point `main` at internal.”
+
+| Lane | CareMate use |
+|------|----------------|
+| **Dev (`main`)** | Mobile Main CD → Slack / artifact only. Never Play. |
+| **Prod (`prod`)** | Android Play → production-signed AAB. Use Play tracks below. |
+| Play **internal** | First prod QA (same prod backends / secrets). |
+| Play **alpha / beta** | Optional wider testing — ignore until you need them. |
+| Play **production** | Store users. Upload as **draft**, finish in Console. |
+
+## Recommended release flow
+
+Dev stays as-is. To ship Android:
+
+1. Merge `main` → **`prod`** (CI runs; no Play upload).
+2. **Actions → Android Play** (branch **`prod`**) → track **`internal`**, **upload** on → QA validates against **production** env.
+3. If good, either:
+   - **Promote** that AAB from internal → production in Play Console (no second CI build), or
+   - Run **Android Play** again → track **`production`**, **upload** on, **publish_production** off → creates a **draft**.
+4. In Play Console, review and **complete / roll out** the production release when ready.
+
+Do **not** check **publish_production** until you intentionally want CI to complete the production release without a Console step.
 
 ## Trigger
 
 - **Manual only:** Actions → **Android Play** → Run workflow (pick branch **`prod`**)
 - Merge / push to **`prod`** runs **CI** only — it does **not** upload to Play
+- **Mobile Main CD** rejects branch `prod` (Slack/TestFlight path only)
 
-Default manual dispatch uploads to the **production** track as a **draft**. Complete the release in Play Console, or check **publish_production** to auto-complete.
+Workflow default track is **production** (draft). For the flow above, set track to **`internal`** on the first run.
 
 ## What you must provide
 
@@ -60,6 +88,29 @@ In Play Console, enroll **Play App Signing** and upload this key as the **upload
 |--------|--------|
 | `PLAY_SERVICE_ACCOUNT_JSON` | Full service-account JSON (raw text) — **must** be on GitHub Environment **`production`** (it currently may exist only under `development`) |
 
+The secret must be the **entire** downloaded key file, e.g.:
+
+```json
+{
+  "type": "service_account",
+  "project_id": "...",
+  "private_key_id": "...",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+  "client_email": "caremate-play@....iam.gserviceaccount.com",
+  "client_id": "...",
+  ...
+}
+```
+
+Common failures (`The incoming JSON object does not contain a client_email field`):
+
+- Secret is **base64** of the file (use raw JSON, unlike the Android keystore secret)
+- Extra quotes around the whole JSON, or truncated paste
+- Wrong file (OAuth client JSON, Firebase config, etc. — must include `client_email` and `"type": "service_account"`)
+- Secret set on **`development`** only — Android Play reads **`production`**
+
+After updating the secret, re-run **Android Play**. The workflow validates `client_email` before calling Play.
+
 Store workflows **fail closed** if AdMob app IDs are missing/sample, Supabase/host URLs are missing, or the Supabase URL still points at `caremate-dev`.
 
 ### App env (recommended for a real Play build)
@@ -95,9 +146,9 @@ Manual options:
 
 | Input | Default (manual) | Notes |
 |-------|------------------|-------|
-| **track** | production | internal / alpha / beta / production |
+| **track** | production | Prefer **`internal`** for first QA; ignore alpha/beta unless needed; **production** = store (use draft) |
 | **upload** | on | Off = artifact only |
-| **publish_production** | off | On = complete production release (not draft) |
+| **publish_production** | off | Keep off so production uploads stay **draft**; finish in Console |
 | **version_code** | auto | Override if needed |
 
 If the Play API rejects the first upload (listing still incomplete), download the AAB artifact from the run and upload it once in Play Console, then retry the API on later runs.

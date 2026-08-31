@@ -28,6 +28,11 @@ import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import {
+  FULL_NAME_MAX_CHARS,
+  isValidFullName,
+  sanitizeFullNameInput,
+} from '@/domains/emergency/validation';
+import {
   isNigeriaCountry,
   parseNationalId,
   sanitizeNationalIdInput,
@@ -127,7 +132,8 @@ function EditProfileForm({
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
 
-  const [fullName, setFullName] = useState(profile.fullName ?? '');
+  const [fullName, setFullName] = useState(() => sanitizeFullNameInput(profile.fullName ?? ''));
+  const [nameError, setNameError] = useState<string | null>(null);
   const [phone, setPhone] = useState(() => sanitizePhoneInput(profile.phone ?? ''));
   const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? '');
   const [dobMonthRef, setDobMonthRef] = useState(() => initialMonthRef(profile.dateOfBirth));
@@ -206,11 +212,20 @@ function EditProfileForm({
   }
 
   async function handleSave() {
-    const name = fullName.trim();
+    const name = sanitizeFullNameInput(fullName).trim();
     if (!name) {
-      Alert.alert(t('profile.edit.nameRequired'));
+      const message = t('profile.edit.nameRequired');
+      setNameError(message);
+      Alert.alert(message);
       return;
     }
+    if (!isValidFullName(name)) {
+      const message = t('profile.edit.nameInvalid');
+      setNameError(message);
+      Alert.alert(message);
+      return;
+    }
+    setNameError(null);
 
     const nationalIdResult = parseNationalId(nationalId, countryCode, nationalIdMessages);
     if (!nationalIdResult.ok) {
@@ -273,12 +288,28 @@ function EditProfileForm({
           <FormStack>
             <FormNotice>{t('profile.edit.hint')}</FormNotice>
 
-            <FormField label={t('profile.edit.fullName')}>
+            <FormField label={t('profile.edit.fullName')} error={nameError ?? undefined}>
               <Input
                 placeholder={t('profile.edit.fullName')}
                 autoCapitalize="words"
+                autoCorrect={false}
+                textContentType="name"
+                maxLength={FULL_NAME_MAX_CHARS}
                 value={fullName}
-                onChangeText={setFullName}
+                onChangeText={(value) => {
+                  setFullName(sanitizeFullNameInput(value));
+                  if (nameError) {
+                    setNameError(null);
+                  }
+                }}
+                onBlur={() => {
+                  const trimmed = fullName.trim();
+                  if (!trimmed) {
+                    setNameError(t('profile.edit.nameRequired'));
+                    return;
+                  }
+                  setNameError(isValidFullName(trimmed) ? null : t('profile.edit.nameInvalid'));
+                }}
               />
             </FormField>
 

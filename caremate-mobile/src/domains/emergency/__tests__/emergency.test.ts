@@ -14,10 +14,14 @@ import {
   syncEmergencyLockSurface,
 } from '@/domains/emergency/lock-surface';
 import {
+  FULL_NAME_MAX_CHARS,
   hasRequiredIceContact,
   isCompleteIceContact,
+  isValidFullName,
   isValidIcePhone,
   isValidPersonName,
+  PERSON_NAME_MAX_CHARS,
+  sanitizeFullNameInput,
   sanitizePersonNameInput,
   sanitizePhoneInput,
 } from '@/domains/emergency/validation';
@@ -94,7 +98,8 @@ describe('emergency/validation', () => {
     expect(sanitizePersonNameInput('Ada  Lovelace!!!')).toBe('Ada Lovelace');
     expect(sanitizePersonNameInput("Mary-Jane O'Brien 123")).toBe("Mary-Jane O'Brien ");
     expect(sanitizePersonNameInput('🚀Ada@Softlyft')).toBe('AdaSoftlyft');
-    expect(sanitizePersonNameInput('A'.repeat(50))).toHaveLength(40);
+    expect(sanitizePersonNameInput('A'.repeat(50))).toHaveLength(PERSON_NAME_MAX_CHARS);
+    expect(sanitizePersonNameInput('Ada\nLovelace\nhttps://x.com')).toBe('Ada Lovelace httpsx.com');
   });
 
   it('validates person names require letters only with limited punctuation', () => {
@@ -105,6 +110,17 @@ describe('emergency/validation', () => {
     expect(isValidPersonName('123')).toBe(false);
     expect(isValidPersonName('Ada@Home')).toBe(false);
     expect(isValidPersonName('   ')).toBe(false);
+  });
+
+  it('sanitizes and caps full names used on profile edit', () => {
+    const pasted = `${'Chat log '.repeat(200)}\nhttps://example.com\n@@@\nAda Lovelace`;
+    const cleaned = sanitizeFullNameInput(pasted);
+    expect(cleaned).toHaveLength(FULL_NAME_MAX_CHARS);
+    expect(cleaned.includes('\n')).toBe(false);
+    expect(cleaned.includes('http')).toBe(false);
+    expect(isValidFullName(cleaned)).toBe(true);
+    expect(isValidFullName('Ada Lovelace')).toBe(true);
+    expect(isValidFullName('A'.repeat(FULL_NAME_MAX_CHARS + 1))).toBe(false);
   });
 
   it('requires name, valid phone, and relationship for a complete ICE contact', () => {
