@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "sɛ Greater Accra",
     "searchPlaceholder": "Hwehwɛ nman",
-    "searchEmpty": "Ɔman biara nni hɔ a ɛne nhwehwɛmu no hyia."
+    "searchEmpty": "Ɔman biara nni hɔ a ɛne nhwehwɛmu no hyia.",
+    "selectPlaceholder": "Select a country"
   },
   "priorities": {
     "title": "Deɛn na ɛho hia sen biara?",
@@ -56,8 +57,10 @@
       "hint": "Nhyehyɛe a ɛyɛ yiye ma ayaresabea ne clinic a ɛbɛn wo"
     },
     "approximate": {
-      "title": "Ɛbɛn"
-    }
+      "title": "Ɛbɛn",
+      "hint": "{{place}} fallback pin — change anytime later"
+    },
+    "subtitle": "Use precise GPS for best matches, or keep approximate pin for {{place}}."
   },
   "notifications": {
     "title": "Tena amanneɛ mu",

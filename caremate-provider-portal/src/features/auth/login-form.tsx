@@ -7,8 +7,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { resolvePostLoginRedirectAction } from '@/domains/auth/actions';
 import { createClient } from '@/lib/supabase/browser';
-import { resolveCareHomePath, sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { Button } from '@/components/ui/button';
 import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -48,47 +48,14 @@ export function LoginForm() {
       if (error) throw error;
       if (!data.user) throw new Error('Login failed');
 
-      const [{ count: providerCount, error: providerError }, { count: payerCount, error: payerError }] =
-        await Promise.all([
-          supabase
-            .from('provider_org_members')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', data.user.id)
-            .is('deleted_at', null),
-          supabase
-            .from('payer_org_members')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', data.user.id)
-            .is('deleted_at', null),
-        ]);
-
-      if (providerError) throw providerError;
-      if (payerError) throw payerError;
-
-      const hasProvider = (providerCount ?? 0) > 0;
-      const hasPayer = (payerCount ?? 0) > 0;
-
-      if (!hasProvider && !hasPayer) {
+      const redirect = await resolvePostLoginRedirectAction(searchParams.get('next'));
+      if (!redirect.ok) {
         await supabase.auth.signOut();
-        toast.error('This account is not a member of any care organization.');
+        toast.error(redirect.error);
         return;
       }
 
-      const preferredKind =
-        typeof document !== 'undefined'
-          ? document.cookie
-              .split('; ')
-              .find((row) => row.startsWith('care_active_kind='))
-              ?.split('=')[1]
-          : null;
-
-      const home = resolveCareHomePath({
-        hasProvider,
-        hasPayer,
-        preferredKind,
-      });
-      const next = sanitizePostLoginPath(searchParams.get('next'), home);
-      router.replace(next);
+      router.replace(redirect.path);
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Login failed');

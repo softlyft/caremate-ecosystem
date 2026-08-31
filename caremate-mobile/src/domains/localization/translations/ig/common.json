@@ -24,5 +24,14 @@
   "signIn": "Banye",
   "signOut": "Pụọ",
   "createAccount": "Mepụta akaụntụ",
-  "notifications": "Ọkwa"
+  "notifications": "Ọkwa",
+  "ok": "OK",
+  "networkError": "Enweghị njikọ ịntanetị. Lelee njikọ gị ma nwaa ọzọ.",
+  "emailDeliveryError": "Enweghị ike izipu ozi email ugbu a. Biko nwaa ọzọ n'ime obere nkeji.",
+  "loadFailed": "Enweghị ike ibubata ihuenyo a",
+  "loadFailedMessage": "Lelee njikọ gị ma nwaa ọzọ.",
+  "goBack": "Laghachi",
+  "clear": "Hichapụ",
+  "remove": "Wepụ",
+  "messages": "Ozi"
 }

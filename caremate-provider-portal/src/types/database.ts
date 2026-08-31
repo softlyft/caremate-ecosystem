@@ -282,57 +282,6 @@ export type AppointmentRequest = {
   checked_in_at?: string | null;
 } & Timestamps;
 
-export type LabOrderStatus =
-  | 'ordered'
-  | 'sample_collected'
-  | 'processing'
-  | 'awaiting_validation'
-  | 'validated'
-  | 'reported'
-  | 'cancelled';
-
-export type LabTestDefinition = {
-  id: string;
-  organization_id: string;
-  code: string;
-  name: string;
-  description: string;
-  specimen_type: string;
-  unit: string | null;
-  reference_range: string | null;
-  active: boolean;
-} & Timestamps;
-
-export type LabOrder = {
-  id: string;
-  organization_id: string;
-  patient_id: string;
-  status: LabOrderStatus;
-  clinical_notes: string | null;
-  ordered_by: string | null;
-  ordered_at: string;
-  sample_collected_at: string | null;
-  sample_collected_by: string | null;
-  specimen_type: string | null;
-  processing_started_at: string | null;
-  validated_at: string | null;
-  validated_by: string | null;
-  reported_at: string | null;
-  patient_notified_at: string | null;
-} & Timestamps;
-
-export type LabOrderItem = {
-  id: string;
-  order_id: string;
-  test_definition_id: string;
-  status: 'pending' | 'completed' | 'cancelled';
-  result_value: string | null;
-  result_unit: string | null;
-  reference_range: string | null;
-  result_flag: 'normal' | 'low' | 'high' | 'critical' | 'abnormal' | null;
-  result_notes: string | null;
-} & Timestamps;
-
 export type AppointmentAvailability = {
   id: string;
   organization_id: string;
@@ -606,66 +555,6 @@ type PortalTables = {
       updated_at?: string;
     };
     Update: Partial<PortalTables['provider_appointment_availability']['Insert']>;
-    Relationships: [];
-  };
-  lab_test_definitions: {
-    Row: LabTestDefinition;
-    Insert: {
-      id?: string;
-      organization_id: string;
-      code: string;
-      name: string;
-      description?: string;
-      specimen_type?: string;
-      unit?: string | null;
-      reference_range?: string | null;
-      active?: boolean;
-      created_at?: string;
-      updated_at?: string;
-    };
-    Update: Partial<PortalTables['lab_test_definitions']['Insert']>;
-    Relationships: [];
-  };
-  lab_orders: {
-    Row: LabOrder;
-    Insert: {
-      id?: string;
-      organization_id: string;
-      patient_id: string;
-      status?: LabOrderStatus;
-      clinical_notes?: string | null;
-      ordered_by?: string | null;
-      ordered_at?: string;
-      sample_collected_at?: string | null;
-      sample_collected_by?: string | null;
-      specimen_type?: string | null;
-      processing_started_at?: string | null;
-      validated_at?: string | null;
-      validated_by?: string | null;
-      reported_at?: string | null;
-      patient_notified_at?: string | null;
-      created_at?: string;
-      updated_at?: string;
-    };
-    Update: Partial<PortalTables['lab_orders']['Insert']>;
-    Relationships: [];
-  };
-  lab_order_items: {
-    Row: LabOrderItem;
-    Insert: {
-      id?: string;
-      order_id: string;
-      test_definition_id: string;
-      status?: 'pending' | 'completed' | 'cancelled';
-      result_value?: string | null;
-      result_unit?: string | null;
-      reference_range?: string | null;
-      result_flag?: LabOrderItem['result_flag'];
-      result_notes?: string | null;
-      created_at?: string;
-      updated_at?: string;
-    };
-    Update: Partial<PortalTables['lab_order_items']['Insert']>;
     Relationships: [];
   };
   provider_org_claims: {

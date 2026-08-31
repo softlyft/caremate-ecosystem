@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
 import { markFamilyPromptDone } from '@/domains/onboarding';
 import { fontFamily, palette, radius, spacing } from '@/theme';
@@ -34,6 +35,7 @@ export default function SetupFamilyPromptScreen() {
   }
 
   return (
+    <Screen padded={false}>
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.body}>
         <AppText variant="caption" style={styles.eyebrow}>
@@ -64,13 +66,13 @@ export default function SetupFamilyPromptScreen() {
         />
       </View>
     </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   body: {
     flex: 1,

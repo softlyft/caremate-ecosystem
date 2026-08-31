@@ -16,7 +16,12 @@
     "contacts": "Lambobin gaggawa",
     "hospital": "Asibitin da aka fi so",
     "insurance": "Mai bayar da inshora",
-    "notes": "Bayanan kula"
+    "notes": "Bayanan kula",
+    "firstName": "Sunan farko",
+    "lastName": "Sunan mahaifi",
+    "allergiesPlaceholder": "Allergies (rabewa da waƙafi)",
+    "medicationsPlaceholder": "Magunguna (rabewa da waƙafi)",
+    "conditionsPlaceholder": "Cututtuka na tsawon lokaci (rabewa da waƙafi)"
   },
   "edit": {
     "title": "Gyara bayanin gaggawa",
@@ -29,17 +34,86 @@
     "nameInvalid": "Yi amfani da haruffa kawai (sarari, layuka da apostrophe sun yiwu)",
     "editContact": "Gyara",
     "saveContact": "Ajiye contact",
-    "cancelEdit": "Soke"
+    "cancelEdit": "Soke",
+    "hint": "An ajiye a gida da farko. Daidaitawa yana faruwa a bango lokacin da kake kan layi.",
+    "loading": "Ana loda bayani...",
+    "saveFailed": "Ajiyewa ta gaza",
+    "saveFailedMessage": "Ba a iya ajiye bayani ba",
+    "phoneNumber": "Lambar waya",
+    "relationshipPlaceholder": "Dangantaka (misali Ma'aurata, Uba/Uwa)",
+    "noContactsYet": "Har yanzu ba a ƙara lambobi ba.",
+    "remove": "Cire",
+    "contactRequired": "Ana buƙatar suna, waya, da dangantaka",
+    "contactAtLeastOne": "Ƙara aƙalla lamba ICE ɗaya kafin ajiyewa",
+    "contactDuplicate": "Wannan lambar tana cikin jerinka",
+    "firstNameRequired": "Ana buƙatar sunan farko",
+    "lastNameRequired": "Ana buƙatar sunan mahaifi",
+    "bloodGroupRequired": "Zaɓi rukuni na jini",
+    "genotypeRequired": "Zaɓi genotype"
   },
   "qr": {
     "title": "QR na gaggawa",
-    "empty": "Fara ƙirƙirar bayanin gaggawa"
+    "empty": "Fara ƙirƙirar bayanin gaggawa",
+    "loading": "Ana buɗe katin Patient ID...",
+    "redirectHint": "Lambobin QR suna baya katin Patient ID ɗinka a shafin Ni."
   },
   "lock": {
     "title": "Katin gaggawa",
     "call": "Kira ICE",
-    "help": "Nuna wannan katin idan ba za ka iya yi magana da kanka ba."
+    "help": "Nuna wannan katin idan ba za ka iya yi magana da kanka ba.",
+    "loading": "Ana loda...",
+    "badge": "CAREMATE",
+    "retiredTitle": "An cire widgets na allon kulle",
+    "retiredHelp": "Bayanan gaggawa suna cikin app CareMate. Raba su tare da katin QR Patient ID.",
+    "retiredBody": "Widgets na Lock Screen da Home Screen ba sa nuna bayanan lafiya. Ƙirƙiri Patient ID a shafin Ni — QR a baya yana buɗe CareMate ga masu aiki da suka shiga.",
+    "openPatientId": "Buɗe katin Patient ID",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Kira lambar gaggawa",
+    "accessTitle": "Samun allon kulle",
+    "widgetIos": "Ƙara widget CareMate \"Emergency Info\" zuwa Lock Screen (danna dogon lokaci → Customize → Add Widget).",
+    "widgetAndroid": "Ƙara widget CareMate \"Emergency Info\" zuwa Home Screen (danna dogon lokaci akan gida → Widgets).",
+    "minimalFields": "Filayen da aka nuna: suna, rukuni na jini, genotype, allergies, da lambar ICE ta farko.",
+    "noProfile": "Babu bayanin gaggawa",
+    "noProfileMessage": "Buɗe CareMate ka ƙirƙiri Bayanin Lafiya na Gaggawa.",
+    "contactTitle": "Lambar gaggawa",
+    "contactName": "Suna",
+    "noContact": "Babu lambar ICE da aka ajiye.",
+    "noneListed": "Babu abin da aka lissafa",
+    "footnoteIos": "Yi amfani da QR Patient ID ɗinka maimakon widgets na Lock Screen.",
+    "footnoteAndroid": "Yi amfani da QR Patient ID ɗinka maimakon widgets na Home Screen."
   },
   "widget": "Sabunta widget na allon kulle",
-  "preview": "Duba allon kulle"
+  "preview": "Duba allon kulle",
+  "setupWizard": {
+    "missingDetailsTitle": "Bayanan da suka bace",
+    "missingDetailsMessage": "Zaɓi rukuni jini da genotype don ci gaba.",
+    "iceContactTitle": "Abokin taimako na gaggawa",
+    "iceContactRequired": "Ƙara suna, waya, da dangantaka don abokin taimako na farko."
+  },
+  "loadFailed": {
+    "title": "Ba a iya loda bayanin gaggawa ba",
+    "message": "Duba haɗin ka kuma sake gwadawa."
+  },
+  "profileEyebrow": "Bayanan gaggawa",
+  "healthDetails": "Bayanan lafiya",
+  "noContacts": "Ba a ƙara lambobi ba.",
+  "editProfile": "Gyara bayani",
+  "showQr": "Katin Patient ID (QR)",
+  "share": {
+    "loading": "Ana loda katin gaggawa...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Bayanan gaggawa",
+    "help": "An raba ta hanyar CareMate Patient ID QR. Mai aikin lafiya da ya shiga kawai zai iya duba bayanan gaggawa da lambobin ICE.",
+    "noProfileYet": "Wannan CareMate ID ba shi da bayanin gaggawa tukuna.",
+    "noneListed": "Babu abin da aka lissafa",
+    "invalidTitle": "Hanyar QR mara kyau",
+    "invalidMessage": "Wannan hanyar raba gaggawa ba ta da inganci.",
+    "notFoundTitle": "Ba a samu ba",
+    "notFoundMessage": "Babu raba gaggawa da ya dace da wannan lambar.",
+    "errorTitle": "Ba a iya loda ba",
+    "errorMessage": "Duba haɗin ka kuma sake gwadawa.",
+    "practitionerRequiredTitle": "Masu aiki kawai",
+    "practitionerRequiredMessage": "Bayanan gaggawa daga QR Patient ID suna samuwa ga masu aiki da suka shiga kawai. Kunna \"Ni mai aikin lafiya ne\" a bayaninka, sannan ka sake duba.",
+    "openPractitionerSetting": "Buɗe saitunan bayani"
+  }
 }

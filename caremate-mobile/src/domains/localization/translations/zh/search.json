@@ -1,0 +1,23 @@
+{
+  "placeholder": "搜索文章、服务方、工具…",
+  "clearA11y": "清除搜索",
+  "loading": "搜索中…",
+  "idle": {
+    "title": "搜索 CareMate",
+    "message": "查找健康文章、附近服务方和健康工具。"
+  },
+  "empty": {
+    "title": "无结果",
+    "message": "请尝试其他关键词或检查拼写。"
+  },
+  "sections": {
+    "articles": "文章",
+    "nearby": "附近",
+    "tools": "工具"
+  },
+  "seeAllLearn": "在学习中查看全部",
+  "seeAllNearby": "在附近中查看全部",
+  "hintArticles": "文章",
+  "hintNearby": "附近",
+  "hintTools": "工具"
+}

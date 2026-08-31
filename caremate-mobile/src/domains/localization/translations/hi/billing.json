@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "भुगतान प्राप्त",
+    "confirming": "आपके भुगतान की पुष्टि हो रही है…",
+    "syncingPremium": "भुगतान प्राप्त। Premium सिंक हो रहा है…",
+    "activated": "Premium सक्रिय। आपकी योजना खोली जा रही है…",
+    "syncingStatus": "भुगतान प्राप्त। Premium स्थिति सिंक हो रही है…"
+  },
+  "cancel": {
+    "title": "चेकआउट रद्द",
+    "subtitle": "Premium पर वापस जा रहे हैं…"
+  }
+}

@@ -18,6 +18,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { LEGAL_URLS } from '@/constants/config';
 import { config } from '@/constants/env';
 import { joinFullName } from '@/domains/emergency/constants';
@@ -69,7 +70,7 @@ export default function RegisterScreen() {
           .min(1, 'Enter your last name')
           .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
         phone: z.string().trim().refine(isValidIcePhone, t('emergency.edit.contactPhoneInvalid')),
-        email: z.email('Enter a valid email'),
+        email: z.email(t('auth.validation.emailInvalid')),
         password: passwordSchema(t('auth.password.requirements')),
         acceptedLegal: z.boolean().refine((value) => value === true, {
           message: t('auth.register.acceptRequired'),
@@ -101,10 +102,7 @@ export default function RegisterScreen() {
   async function onSubmit(values: RegisterForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before registering.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       const email = normalizeAccountEmail(values.email);
@@ -151,7 +149,8 @@ export default function RegisterScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
       <AuthBrandHeader>
         <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
       </AuthBrandHeader>
@@ -295,6 +294,7 @@ export default function RegisterScreen() {
           {t('auth.register.hasAccount')} {t('auth.register.signIn')}
         </TextLink>
       </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }

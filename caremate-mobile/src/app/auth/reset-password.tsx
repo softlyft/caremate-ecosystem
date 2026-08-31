@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
+import { useMemo } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
@@ -13,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
@@ -32,15 +34,19 @@ export default function ResetPasswordScreen() {
   const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  const schema = z
-    .object({
-      password: passwordSchema(t('auth.password.requirements')),
-      confirmPassword: z.string().min(1, 'Confirm your password'),
-    })
-    .refine((values) => values.password === values.confirmPassword, {
-      message: 'Passwords do not match',
-      path: ['confirmPassword'],
-    });
+  const schema = useMemo(
+    () =>
+      z
+        .object({
+          password: passwordSchema(t('auth.password.requirements')),
+          confirmPassword: z.string().min(1, t('auth.validation.confirmPasswordRequired')),
+        })
+        .refine((values) => values.password === values.confirmPassword, {
+          message: t('auth.validation.passwordsMismatch'),
+          path: ['confirmPassword'],
+        }),
+    [t],
+  );
 
   const { control, handleSubmit, formState } = useForm<ResetPasswordForm>({
     resolver: zodResolver(schema),
@@ -59,20 +65,22 @@ export default function ResetPasswordScreen() {
         return;
       }
       await updatePassword(values.password);
-      Alert.alert('Password updated', 'You can now sign in with your new password.', [
+      Alert.alert(t('auth.reset.successTitle'), t('auth.reset.successMessage'), [
         {
-          text: 'Continue',
+          text: t('common.continue'),
           onPress: () => router.replace('/(app)/(tabs)'),
         },
       ]);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to update password';
-      Alert.alert('Update failed', message);
+      const message =
+        error instanceof Error ? error.message : t('auth.reset.failedFallback');
+      Alert.alert(t('auth.reset.failedTitle'), message);
     }
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
       <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
       <FormStack style={styles.form}>
         <FormField
@@ -117,6 +125,7 @@ export default function ResetPasswordScreen() {
         />
         <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
       </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }

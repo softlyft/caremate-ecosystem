@@ -11,7 +11,8 @@
   "empty": {
     "title": "Aucun article trouvé",
     "categoryTitle": "Aucun article {{category}}",
-    "message": "Essayez une autre recherche ou catégorie."
+    "message": "Essayez une autre recherche ou catégorie.",
+    "newsTitle": "Pas de nouvelles pour le moment"
   },
   "bookmarksTitle": "Favoris",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "Article introuvable",
     "message": "Cet article a peut-être été supprimé."
-  }
+  },
+  "reading": "Historique de lecture",
+  "readingShort": "Lecture",
+  "readingBadge": "Lecture",
+  "readBadge": "Lu",
+  "readingTab": "Lecture",
+  "readTab": "Lu",
+  "loadingReading": "Chargement de l'historique de lecture...",
+  "loadingArticle": "Chargement de l'article...",
+  "loadingBookmarks": "Chargement des signets...",
+  "loadingCategory": "Chargement de la catégorie...",
+  "category": "Catégorie",
+  "categoryEmpty": "Aucun article dans cette catégorie",
+  "readingEmpty": {
+    "title": "Rien en cours",
+    "message": "Ouvrez un article pour commencer à suivre ce que vous lisez."
+  },
+  "readEmpty": {
+    "title": "Pas encore d'articles terminés",
+    "message": "Marquez les articles comme lus, ou faites défiler jusqu'à la fin en lisant."
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} min de lecture",
+  "externalSource": "Source externe",
+  "careMateGuide": "Guide CareMate",
+  "shareArticle": "Partager l'article",
+  "shareContinue": "Lisez l'article complet :",
+  "readFull": "Lire l'article complet"
 }

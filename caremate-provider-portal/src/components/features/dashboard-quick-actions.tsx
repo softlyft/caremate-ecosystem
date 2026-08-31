@@ -1,5 +1,3 @@
-'use client';
-
 import type { LucideIcon } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,29 +1,32 @@
 import { router, type Href } from 'expo-router';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
+import { useTranslation } from '@/domains/localization';
 import { palette, spacing } from '@/theme';
 
 /**
  * Deep-link target: caremate://billing/cancel
  */
 export default function BillingCancelScreen() {
+  const { t } = useTranslation();
   useEffect(() => {
     void WebBrowser.dismissBrowser();
     router.replace('/(app)/profile/premium' as Href);
   }, []);
 
   return (
-    <View style={styles.container}>
+    <Screen tone="background" style={styles.container}>
       <AppText variant="sectionTitle" style={styles.title}>
-        Checkout cancelled
+        {t('billing.cancel.title')}
       </AppText>
       <AppText variant="body" style={styles.subtitle}>
-        Returning to Premium…
+        {t('billing.cancel.subtitle')}
       </AppText>
-    </View>
+    </Screen>
   );
 }
 

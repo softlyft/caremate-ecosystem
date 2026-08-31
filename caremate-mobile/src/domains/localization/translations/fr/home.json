@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Profil d'urgence",
     "body": "Gardez groupe sanguin, allergies et contacts ICE prêts hors ligne.",
-    "cta": "Configurer"
+    "cta": "Configurer",
+    "ctaUpdate": "Mettre à jour"
   },
   "featuredArticles": {
     "title": "Pour vous",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Voyez les prestataires CareMate près de vous",
       "body": "Activez la localisation pour découvrir les hôpitaux, cliniques et pharmacies autour de vous — le tout dans CareMate.",
-      "cta": "Activer la localisation"
+      "cta": "Activer la localisation",
+      "blockedBody": "L'accès à la localisation est bloqué pour CareMate. Ouvrez Réglages pour l'activer, puis revenez ici.",
+      "openSettings": "Ouvrir Réglages"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "Impossible de charger l'accueil",
+    "message": "Vérifiez votre connexion et réessayez."
+  },
+  "timeline": {
+    "label": "Vos dossiers",
+    "title": "Chronologie de santé",
+    "cta": "Voir la chronologie",
+    "guestBody": "Connectez-vous pour voir les journaux de vos apps de santé dans une chronologie.",
+    "emptyBody": "Les journaux de signes vitaux, médicaments, grossesse, règles, immunisation et contrôles apparaîtront ici.",
+    "loading": "Chargement de la chronologie...",
+    "loadFailedTitle": "Impossible de charger la chronologie",
+    "loadFailedMessage": "Vérifiez votre connexion et réessayez.",
+    "screenSubtitle": "Journaux de vos apps de santé CareMate.",
+    "rangeFrom": "De",
+    "rangeTo": "À",
+    "rangeEmpty": "Aucun journal dans cette plage de dates. Essayez une autre date de début ou de fin.",
+    "lastThreeMonths": "3 derniers mois",
+    "jumpToMonth": "Aller à {{month}}",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "kinds": {
+      "vital": "Signe vital",
+      "med_dose": "Dose",
+      "pregnancy_log": "Grossesse",
+      "tt_dose": "Dose TT",
+      "period_day": "Cycle",
+      "vaccine": "Vaccin",
+      "checkup": "Contrôle"
+    }
+  },
+  "notifications": {
+    "loading": "Chargement des notifications…",
+    "loadFailed": "Impossible de charger les notifications",
+    "emptyTitle": "Vous êtes à jour",
+    "emptyMessage": "Les mises à jour sur la famille, rappels et activité du compte apparaîtront ici.",
+    "openHint": "Ouvrir les notifications",
+    "welcomeTitle": "Bienvenue sur CareMate",
+    "welcomeBody": "Voici un guide rapide pour vous repérer :\n\n• Accueil — Carte d'urgence, Soins à proximité, Apprendre et raccourcis\n• Apps — Médicaments, vaccins, contrôles, grossesse et suivi des règles\n• Famille — Profils du foyer et soins partagés des enfants\n• Profil — Patient ID, paramètres et préférences\n\nCette cloche regroupe les mises à jour. Explorez à votre rythme — CareMate fonctionne aussi hors ligne."
   }
 }

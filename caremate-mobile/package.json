@@ -17,7 +17,6 @@
     "@tanstack/react-query": "^5.101.2",
     "base64-arraybuffer": "^1.0.2",
     "drizzle-orm": "^0.45.1",
-    "emergency-lock-widget": "file:modules/emergency-lock-widget",
     "expo": "~57.0.14",
     "expo-application": "~57.0.2",
     "expo-background-task": "~57.0.11",

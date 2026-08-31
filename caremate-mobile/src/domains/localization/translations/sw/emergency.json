@@ -16,7 +16,12 @@
     "contacts": "Anwani za dharura",
     "hospital": "Hospitali inayopendelewa",
     "insurance": "Mtoa bima",
-    "notes": "Maelezo"
+    "notes": "Maelezo",
+    "firstName": "Jina la kwanza",
+    "lastName": "Jina la mwisho",
+    "allergiesPlaceholder": "Mzio (tenganishwa kwa koma)",
+    "medicationsPlaceholder": "Dawa (tenganishwa kwa koma)",
+    "conditionsPlaceholder": "Magonjwa sugu (tenganishwa kwa koma)"
   },
   "edit": {
     "title": "Hariri wasifu wa dharura",
@@ -29,17 +34,86 @@
     "nameInvalid": "Tumia herufi pekee (nafasi, viungio na alama za nukta juu zinaruhusiwa)",
     "editContact": "Hariri",
     "saveContact": "Hifadhi anwani",
-    "cancelEdit": "Ghairi"
+    "cancelEdit": "Ghairi",
+    "hint": "Imehifadhiwa ndani kwanza. Usawazishaji hufanyika chinichini ukiwa mtandaoni.",
+    "loading": "Inapakia wasifu...",
+    "saveFailed": "Imeshindwa kuhifadhi",
+    "saveFailedMessage": "Imeshindwa kuhifadhi wasifu",
+    "phoneNumber": "Nambari ya simu",
+    "relationshipPlaceholder": "Uhusiano (mf. Mwenzi, Mzazi)",
+    "noContactsYet": "Hakuna mawasiliano yaliyoongezwa bado.",
+    "remove": "Ondoa",
+    "contactRequired": "Jina, simu, na uhusiano vinahitajika",
+    "contactAtLeastOne": "Ongeza angalau mawasiliano moja ya ICE kabla ya kuhifadhi",
+    "contactDuplicate": "Mawasiliano hayo yako tayari kwenye orodha yako",
+    "firstNameRequired": "Jina la kwanza linahitajika",
+    "lastNameRequired": "Jina la mwisho linahitajika",
+    "bloodGroupRequired": "Chagua kundi la damu",
+    "genotypeRequired": "Chagua genotype"
   },
   "qr": {
     "title": "QR ya dharura",
-    "empty": "Unda wasifu wa dharura kwanza"
+    "empty": "Unda wasifu wa dharura kwanza",
+    "loading": "Inafungua kadi ya Patient ID...",
+    "redirectHint": "Misimbo wa QR uko nyuma ya kadi yako ya Patient ID kwenye kichupo Cha Mimi."
   },
   "lock": {
     "title": "Kadi ya dharura",
     "call": "Piga ICE",
-    "help": "Onyesha kadi hii ikiwa huwezi kuzungumza kwa ajili yako mwenyewe."
+    "help": "Onyesha kadi hii ikiwa huwezi kuzungumza kwa ajili yako mwenyewe.",
+    "loading": "Inapakia...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Wijeti za skrini ya kufunga zimeondolewa",
+    "retiredHelp": "Maelezo ya dharura yako kwenye programu CareMate. Yashiriki na kadi yako ya QR Patient ID.",
+    "retiredBody": "Wijeti za skrini ya kufunga na nyumbani hazionyeshi tena taarifa za afya. Tengeneza Patient ID kwenye kichupo Cha Mimi — QR nyuma hufungua CareMate kwa wataalamu walioingia.",
+    "openPatientId": "Fungua kadi ya Patient ID",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Piga simu wa dharura",
+    "accessTitle": "Ufikiaji wa skrini ya kufunga",
+    "widgetIos": "Ongeza wijeti ya CareMate \"Emergency Info\" kwenye Skrini ya Kufunga (bonyeza ndefu → Customize → Ongeza Widget).",
+    "widgetAndroid": "Ongeza wijeti ya CareMate \"Emergency Info\" kwenye Skrini ya Nyumbani (bonyeza ndefu nyumbani → Widgets).",
+    "minimalFields": "Sehemu ndogo zinazoonyeshwa: jina, kundi la damu, genotype, mzio, na mawasiliano yako ya kwanza ya ICE.",
+    "noProfile": "Hakuna wasifu wa dharura",
+    "noProfileMessage": "Fungua CareMate na unda Wasifu wa Afya wa Dharura.",
+    "contactTitle": "Mawasiliano wa dharura",
+    "contactName": "Jina",
+    "noContact": "Hakuna mawasiliano ya ICE yaliyohifadhiwa.",
+    "noneListed": "Hakuna kilichoorodheshwa",
+    "footnoteIos": "Tumia QR yako ya Patient ID badala ya wijeti za skrini ya kufunga.",
+    "footnoteAndroid": "Tumia QR yako ya Patient ID badala ya wijeti za skrini ya nyumbani."
   },
   "widget": "Sasisha widget ya skrini ya kufunga",
-  "preview": "Hakiki skrini ya kufunga"
+  "preview": "Hakiki skrini ya kufunga",
+  "setupWizard": {
+    "missingDetailsTitle": "Maelezo yanayokosekana",
+    "missingDetailsMessage": "Chagua kundi la damu na genotype ili kuendelea.",
+    "iceContactTitle": "Mwasiliani wa dharura",
+    "iceContactRequired": "Ongeza jina, simu, na uhusiano wa mwasiliani wako wa kwanza wa dharura."
+  },
+  "loadFailed": {
+    "title": "Imeshindwa kupakia wasifu wa dharura",
+    "message": "Angalia muunganisho wako na ujaribu tena."
+  },
+  "profileEyebrow": "Wasifu wa dharura",
+  "healthDetails": "Maelezo ya afya",
+  "noContacts": "Hakuna mawasiliano yaliyoongezwa.",
+  "editProfile": "Hariri wasifu",
+  "showQr": "Kadi ya Patient ID (QR)",
+  "share": {
+    "loading": "Inapakia kadi ya dharura...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Maelezo ya dharura",
+    "help": "Imeshirikiwa kupitia CareMate Patient ID QR. Mtaalamu wa afya aliyeingia tu anaweza kuona maelezo ya dharura na mawasiliano ya ICE.",
+    "noProfileYet": "Kitambulisho hiki cha CareMate bado hakina wasifu wa dharura.",
+    "noneListed": "Hakuna kilichoorodheshwa",
+    "invalidTitle": "Kiungo cha QR si sahihi",
+    "invalidMessage": "Kiungo hiki cha ushiriki wa dharura si halali.",
+    "notFoundTitle": "Haipatikani",
+    "notFoundMessage": "Hakuna ushiriki wa dharura unaolingana na msimbo huu.",
+    "errorTitle": "Imeshindwa kupakia",
+    "errorMessage": "Angalia muunganisho wako na ujaribu tena.",
+    "practitionerRequiredTitle": "Wataalamu tu",
+    "practitionerRequiredMessage": "Maelezo ya dharura kutoka QR Patient ID yanapatikana kwa wataalamu walioingia tu. Washa \"Mimi ni mtaalamu wa afya\" kwenye wasifu, kisha skani tena.",
+    "openPractitionerSetting": "Fungua mipangilio ya wasifu"
+  }
 }

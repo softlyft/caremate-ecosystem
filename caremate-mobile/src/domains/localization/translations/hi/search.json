@@ -1,0 +1,23 @@
+{
+  "placeholder": "लेख, प्रदाता, टूल खोजें…",
+  "clearA11y": "खोज साफ़ करें",
+  "loading": "खोज रहे हैं…",
+  "idle": {
+    "title": "CareMate खोजें",
+    "message": "स्वास्थ्य लेख, नज़दीकी प्रदाता और स्वास्थ्य टूल खोजें।"
+  },
+  "empty": {
+    "title": "कोई परिणाम नहीं",
+    "message": "दूसरा कीवर्ड आज़माएं या वर्तनी जांचें।"
+  },
+  "sections": {
+    "articles": "लेख",
+    "nearby": "नज़दीक",
+    "tools": "टूल"
+  },
+  "seeAllLearn": "सीखें में सभी देखें",
+  "seeAllNearby": "नज़दीक में सभी देखें",
+  "hintArticles": "लेख",
+  "hintNearby": "नज़दीक",
+  "hintTools": "टूल"
+}

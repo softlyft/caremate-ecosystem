@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "Wogye sika no",
+    "confirming": "Ɛre si wo payment no so…",
+    "syncingPremium": "Wogye sika no. Ɛres sync Premium…",
+    "activated": "Premium adi. Ɛrebue wo plan no…",
+    "syncingStatus": "Wogye sika no. Ɛres sync Premium status…"
+  },
+  "cancel": {
+    "title": "Wotwaa checkout no",
+    "subtitle": "Ɛresan kɔ Premium…"
+  }
+}

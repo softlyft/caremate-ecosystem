@@ -23,26 +23,26 @@ export default function AppsLayout() {
         name="vitals-tracker/index"
         options={miniAppHeaderOptions({
           appId: 'vitals-tracker',
-          title: 'Vitals',
-          backAccessibilityLabel: 'Back to Apps',
+          title: t('apps.vitalsTracker.screenTitle'),
+          backAccessibilityLabel: t('apps.vitalsTracker.backToApps'),
         })}
       />
       <Stack.Screen
         name="vitals-tracker/log"
         options={miniAppHeaderOptions({
           appId: 'vitals-tracker',
-          title: 'Log Vital',
+          title: t('apps.vitalsTracker.logTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.vitalsTracker.close'),
         })}
       />
       <Stack.Screen
         name="vitals-tracker/setup"
         options={miniAppHeaderOptions({
           appId: 'vitals-tracker',
-          title: 'Vitals setup',
+          title: t('apps.vitalsTracker.setupTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.vitalsTracker.close'),
         })}
       />
 
@@ -50,17 +50,17 @@ export default function AppsLayout() {
         name="period-tracker/index"
         options={miniAppHeaderOptions({
           appId: 'period-tracker',
-          title: 'Period Tracker',
-          backAccessibilityLabel: 'Back to Apps',
+          title: t('apps.periodTracker.screenTitle'),
+          backAccessibilityLabel: t('apps.periodTracker.backToApps'),
         })}
       />
       <Stack.Screen
         name="period-tracker/log"
         options={miniAppHeaderOptions({
           appId: 'period-tracker',
-          title: 'Log Period',
+          title: t('apps.periodTracker.logTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.periodTracker.close'),
         })}
       />
 
@@ -113,26 +113,26 @@ export default function AppsLayout() {
         name="immunization-tracker/index"
         options={miniAppHeaderOptions({
           appId: 'immunization-tracker',
-          title: 'Immunization Tracker',
-          backAccessibilityLabel: 'Back to Apps',
+          title: t('apps.immunizationTracker.screenTitle'),
+          backAccessibilityLabel: t('apps.immunizationTracker.backToApps'),
         })}
       />
       <Stack.Screen
         name="immunization-tracker/setup"
         options={miniAppHeaderOptions({
           appId: 'immunization-tracker',
-          title: 'Family children',
+          title: t('apps.immunizationTracker.setupTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.immunizationTracker.close'),
         })}
       />
       <Stack.Screen
         name="immunization-tracker/log"
         options={miniAppHeaderOptions({
           appId: 'immunization-tracker',
-          title: 'Log Vaccine',
+          title: t('apps.immunizationTracker.logTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.immunizationTracker.close'),
         })}
       />
 
@@ -175,26 +175,26 @@ export default function AppsLayout() {
         name="checkup-planner/index"
         options={miniAppHeaderOptions({
           appId: 'checkup-planner',
-          title: 'Checkup Planner',
-          backAccessibilityLabel: 'Back to Apps',
+          title: t('apps.checkupPlanner.screenTitle'),
+          backAccessibilityLabel: t('apps.checkupPlanner.backToApps'),
         })}
       />
       <Stack.Screen
         name="checkup-planner/setup"
         options={miniAppHeaderOptions({
           appId: 'checkup-planner',
-          title: 'Set Up Planner',
+          title: t('apps.checkupPlanner.setupTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.checkupPlanner.close'),
         })}
       />
       <Stack.Screen
         name="checkup-planner/log"
         options={miniAppHeaderOptions({
           appId: 'checkup-planner',
-          title: 'Log Checkup',
+          title: t('apps.checkupPlanner.logTitle'),
           modal: true,
-          backAccessibilityLabel: 'Close',
+          backAccessibilityLabel: t('apps.checkupPlanner.close'),
         })}
       />
     </Stack>

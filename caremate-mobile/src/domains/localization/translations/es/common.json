@@ -24,5 +24,14 @@
   "signIn": "Iniciar sesión",
   "signOut": "Cerrar sesión",
   "createAccount": "Crear cuenta",
-  "notifications": "Notificaciones"
+  "notifications": "Notificaciones",
+  "ok": "OK",
+  "networkError": "Sin conexión a Internet. Comprueba tu conexión e inténtalo de nuevo.",
+  "emailDeliveryError": "No pudimos enviar el correo ahora. Inténtalo de nuevo en unos minutos.",
+  "loadFailed": "No se pudo cargar esta pantalla",
+  "loadFailedMessage": "Comprueba tu conexión e inténtalo de nuevo.",
+  "goBack": "Volver",
+  "clear": "Borrar",
+  "remove": "Eliminar",
+  "messages": "Mensajes"
 }

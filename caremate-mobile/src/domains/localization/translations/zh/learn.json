@@ -11,7 +11,8 @@
   "empty": {
     "title": "未找到文章",
     "categoryTitle": "没有 {{category}} 相关文章",
-    "message": "请尝试其他搜索或分类。"
+    "message": "请尝试其他搜索或分类。",
+    "newsTitle": "暂无新闻"
   },
   "bookmarksTitle": "收藏",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "未找到文章",
     "message": "该文章可能已被移除。"
-  }
+  },
+  "reading": "阅读历史",
+  "readingShort": "阅读中",
+  "readingBadge": "阅读中",
+  "readBadge": "已读",
+  "readingTab": "阅读中",
+  "readTab": "已读",
+  "loadingReading": "正在加载阅读历史...",
+  "loadingArticle": "正在加载文章...",
+  "loadingBookmarks": "正在加载书签...",
+  "loadingCategory": "正在加载分类...",
+  "category": "分类",
+  "categoryEmpty": "此分类暂无文章",
+  "readingEmpty": {
+    "title": "暂无进行中内容",
+    "message": "打开文章以开始跟踪阅读进度。"
+  },
+  "readEmpty": {
+    "title": "暂无已读完文章",
+    "message": "将文章标为已读，或在阅读时滑到底部。"
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} 分钟阅读",
+  "externalSource": "外部来源",
+  "careMateGuide": "CareMate 指南",
+  "shareArticle": "分享文章",
+  "shareContinue": "阅读全文：",
+  "readFull": "阅读全文"
 }

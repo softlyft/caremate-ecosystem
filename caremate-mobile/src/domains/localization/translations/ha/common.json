@@ -24,5 +24,14 @@
   "signIn": "Shiga",
   "signOut": "Fita",
   "createAccount": "Ƙirƙiri asusu",
-  "notifications": "Sanarwa"
+  "notifications": "Sanarwa",
+  "ok": "TO",
+  "networkError": "Babu haɗin intanet. Duba haɗin ku kuma sake gwadawa.",
+  "emailDeliveryError": "Ba mu iya aika imel yanzu ba. Da fatan za a sake gwadawa cikin mintuna kaɗan.",
+  "loadFailed": "Ba a iya lodawa wannan allo ba",
+  "loadFailedMessage": "Duba haɗin ku kuma sake gwadawa.",
+  "goBack": "Komawa",
+  "clear": "Share",
+  "remove": "Cire",
+  "messages": "Saƙonni"
 }

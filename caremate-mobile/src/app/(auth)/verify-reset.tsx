@@ -14,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
@@ -70,10 +71,7 @@ export default function VerifyResetScreen() {
   async function onSubmit(values: VerifyResetForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before verifying.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
@@ -132,18 +130,21 @@ export default function VerifyResetScreen() {
 
   if (!email) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <Screen padded={false} style={styles.container}>
         <SectionTitle
           title={t('auth.verifyReset.title')}
           subtitle={t('auth.verifyReset.missingEmail')}
         />
         <TextLink href="/(auth)/forgot-password">{t('auth.verifyReset.backToForgot')}</TextLink>
+        </Screen>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
       <AuthBrandHeader>
         <SectionTitle
           title={t('auth.verifyReset.title')}
@@ -197,6 +198,7 @@ export default function VerifyResetScreen() {
 
         <TextLink href="/(auth)/login">{t('auth.verifyReset.backToSignIn')}</TextLink>
       </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }

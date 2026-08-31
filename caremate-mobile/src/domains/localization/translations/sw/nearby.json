@@ -13,7 +13,10 @@
     "title": "Washa eneo ili kupata watoa huduma wa CareMate karibu",
     "message": "Tunahitaji eneo lako ili kuonyesha watoa huduma wa CareMate karibu nawe. Washa eneo, au tafuta mtoa huduma kwa jina hapo juu.",
     "action": "Washa eneo",
-    "enabling": "Inawasha…"
+    "enabling": "Inawasha…",
+    "openSettings": "Fungua Mipangilio",
+    "blockedTitle": "Ufikiaji wa eneo umezuiwa",
+    "blockedMessage": "CareMate haiwezi kuomba eneo tena kwenye kifaa hiki. Fungua Mipangilio, washa Eneo kwa CareMate, kisha rudi hapa."
   },
   "approximate": "Inatumia eneo la takriban",
   "outsideArea": "Nje ya eneo lako la kawaida — matokeo yanaweza kuwa machache",
@@ -27,11 +30,52 @@
     "directions": "Maelekezo",
     "supportedPayers": "Supported insurers",
     "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
-    "supportedPayersEmpty": "No connected insurers listed yet."
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Mtoa huduma",
+    "backToNearby": "Rudi kwenye Karibu",
+    "verified": "Imethibitishwa",
+    "contact": "Mwasiliani",
+    "address": "Anwani",
+    "phone": "Simu",
+    "email": "Barua pepe",
+    "addressUnavailable": "Anwani haipatikani",
+    "phoneUnavailable": "Simu haipatikani",
+    "emailUnavailable": "Barua pepe haipatikani",
+    "distanceKm": "{{distance}} km mbali",
+    "openInMaps": "Fungua kwenye Ramani",
+    "openInMapsHint": "Gusa kufungua kwenye programu yako ya ramani",
+    "connect": "Ungana na mtoa huduma",
+    "connectHint": "Huunda ombi la muunganisho. Wakiukubali, ujumbe salama unawashwa — unaweza kuondoa wakati wowote. Data ya dharura na afya inabaki ya faragha hadi uishiriki.",
+    "connectPending": "Ombi la muunganisho linasubiri",
+    "connectPendingOutbound": "Inasubiri mtoa huduma aidhinishe",
+    "connectPendingInbound": "Mtoa huduma huyu anataka kuunganishwa",
+    "connectApproved": "Imeunganishwa",
+    "connectRejected": "Muunganisho umekataliwa",
+    "connectUnavailable": "Muunganisho haupatikani kwa orodha hii bado",
+    "connectGuest": "Ingia ili kuunganishwa na watoa huduma",
+    "connectSuccessTitle": "Ombi limetumwa",
+    "connectSuccessMessage": "Mtoa huduma atakagua ombi lako. Ujumbe utapatikana akikubali.",
+    "connectFailedTitle": "Imeshindwa kutuma ombi",
+    "approveInbound": "Idhinisha muunganisho",
+    "declineInbound": "Kataa",
+    "approveSuccessTitle": "Imeunganishwa",
+    "approveSuccessMessage": "Umeunganishwa. Ujumbe salama umewashwa — simamia chini ya Miunganisho wakati wowote.",
+    "respondFailedTitle": "Imeshindwa kusasisha muunganisho",
+    "connectRejectedFinal": "Muunganisho umekataliwa",
+    "cancelRequest": "Ghairi ombi",
+    "cancelRequestHint": "Ondoa ombi lako la muunganisho linalosubiri.",
+    "cancelReasonLabel": "Sababu ya kughairi",
+    "cancelReasonPlaceholder": "Mwambie mtoa huduma kwa nini unaghairi",
+    "confirmCancelRequest": "Thibitisha kughairi",
+    "cancelSuccessTitle": "Ombi limeghairiwa",
+    "cancelSuccessMessage": "Ombi lako la muunganisho limeondolewa.",
+    "cancelFailedTitle": "Imeshindwa kughairi ombi"
   },
   "map": {
     "loading": "Inapakia ramani...",
-    "empty": "Hakuna maeneo ya ramani"
+    "empty": "Hakuna maeneo ya ramani",
+    "title": "Karibu",
+    "subtitle": "Fungua mtoa huduma kuanzisha maelekezo kwenye programu yako ya ramani."
   },
   "types": {
     "hospital": "Hospitali",
@@ -59,7 +103,8 @@
   },
   "lastKnown": {
     "message": "Eneo limzimwa. Inaonyesha watoa huduma wa CareMate karibu na mahali pako pa mwisho kujulikana.",
-    "action": "Washa"
+    "action": "Washa",
+    "openSettings": "Fungua Mipangilio"
   },
   "connections": {
     "title": "Connections",
@@ -101,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Ratiba ya afya",
+        "description": "Rekodi za kusoma tu kutoka programu zako za afya kwa masafa ya tarehe unayochagua. Si uhamisho wa faili. Unaweza kuondoa wakati wowote."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -109,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Masafa ya tarehe",
+    "timelineRangeHint": "Mtoa huduma anaweza kuona rekodi zilizotokea katika masafa haya tu. Hawezi kupakua au kuhamisha rekodi zako.",
+    "timelinePreset": "Siku {{days}} zilizopita",
+    "timelineCustom": "Maalum",
+    "timelineFrom": "Kutoka (YYYY-MM-DD)",
+    "timelineTo": "Hadi (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} hadi {{to}}",
+    "outboundTitle": "Maombi yaliyotumwa",
+    "outboundCount": "{{count}} inasubiri mtoa huduma",
+    "outboundEmptySubtitle": "Hakuna maombi yaliyotumwa yanayosubiri",
+    "outboundScreenTitle": "Maombi ya muunganisho yaliyotumwa",
+    "outboundScreenSubtitle": "Maombi uliyotuma kwa watoa huduma. Unaweza kughairi wakati bado yanasubiri.",
+    "outboundEmpty": "Huna maombi yaliyotumwa yanayosubiri.",
+    "outboundPendingLabel": "Inasubiri idhini",
+    "disconnect": "Tenganisha",
+    "disconnectHint": "Maliza muunganisho huu. Unaweza kutuma ombi jipya baadaye.",
+    "disconnectConfirmTitle": "Tenganisha na mtoa huduma?",
+    "disconnectConfirmMessage": "Mtoa huduma huyu hatahusishwi tena na akaunti yako ya CareMate.",
+    "disconnectConfirmAction": "Tenganisha",
+    "disconnectReasonLabel": "Sababu (si lazima)",
+    "disconnectReasonPlaceholder": "Mwambie mtoa huduma kwa nini unatenganisha",
+    "disconnectSuccessTitle": "Imetenganishwa",
+    "disconnectSuccessMessage": "Hujaunganishwa tena na mtoa huduma huyu.",
+    "disconnectFailedTitle": "Imeshindwa kutenganisha"
+  },
+  "loadFailed": {
+    "title": "Imeshindwa kupakia watoa huduma",
+    "message": "Angalia muunganisho wako na ujaribu tena."
+  },
+  "favorites": {
+    "openA11y": "Angalia watoa huduma vipendwa",
+    "loading": "Inapakia vipendwa...",
+    "emptyTitle": "Bado hakuna vipendwa",
+    "emptyMessage": "Hifadhi mtoa huduma kutoka skrini yake ya maelezo ili kumpata hapa baadaye.",
+    "emptyAction": "Vinjari karibu",
+    "loadFailed": {
+      "title": "Imeshindwa kupakia vipendwa",
+      "message": "Angalia muunganisho wako na ujaribu tena."
     }
+  },
+  "connectionRequests": {
+    "link": "Maombi ya muunganisho",
+    "linkWithCount": "Maombi ya muunganisho ({{count}})",
+    "title": "Maombi ya muunganisho",
+    "subtitle": "Watoa huduma wanaotaka kuunganishwa nawe. Kuidhinisha huwasha ujumbe salama (unaweza kuondoa baadaye). Data ya dharura haijashirikiwa hadi utoe idhini hiyo.",
+    "loading": "Inapakia maombi...",
+    "empty": "Hakuna maombi ya muunganisho yanayosubiri.",
+    "guest": "Ingia ili kusimamia maombi ya muunganisho wa watoa huduma.",
+    "providerFallback": "Mtoa huduma",
+    "noteLabel": "Dokezo kutoka mtoa huduma",
+    "approve": "Idhinisha",
+    "decline": "Kataa",
+    "approvedTitle": "Imeunganishwa",
+    "approvedMessage": "Umeunganishwa. Ujumbe salama umewashwa — simamia idhini wakati wowote.",
+    "declinedTitle": "Imekataliwa",
+    "declinedMessage": "Umekataa ombi hili la muunganisho.",
+    "failedTitle": "Imeshindwa kusasisha ombi",
+    "failedMessage": "Tafadhali jaribu tena.",
+    "loadFailed": {
+      "title": "Imeshindwa kupakia maombi",
+      "message": "Angalia muunganisho wako na ujaribu tena."
+    },
+    "reasonLabel": "Sababu ya kukataa",
+    "reasonPlaceholder": "Mwambie mtoa huduma kwa nini unakataa",
+    "confirmDecline": "Thibitisha kukataa"
   }
 }

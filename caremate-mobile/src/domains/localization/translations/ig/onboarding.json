@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "dịka Greater Accra",
     "searchPlaceholder": "Chọọ mba",
-    "searchEmpty": "Enweghị mba dabara n'ọchịchọ a."
+    "searchEmpty": "Enweghị mba dabara n'ọchịchọ a.",
+    "selectPlaceholder": "Họrọ obodo"
   },
   "priorities": {
     "title": "Gịnị ka dị mkpa nke ọma?",
@@ -56,8 +57,10 @@
       "hint": "Nhazi kacha mma maka ụlọ ọgwụ na ụlọ ọgwụ nta gburugburu gị"
     },
     "approximate": {
-      "title": "Dị nso"
-    }
+      "title": "Dị nso",
+      "hint": "Pin fallback {{place}} — gbanwee mgbe ọ bụla"
+    },
+    "subtitle": "Jiri GPS ziri ezi maka nke kacha mma, ma ọ bụ debe pin nke dị nso maka {{place}}."
   },
   "notifications": {
     "title": "Nọrọ na ozi",

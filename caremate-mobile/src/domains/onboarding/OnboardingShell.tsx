@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 import { ONBOARDING_STEP_THEMES } from './themes';
@@ -63,7 +64,7 @@ export function OnboardingShell({
   }));
 
   return (
-    <View style={styles.root}>
+    <Screen padded={false} tone="surface">
       <LinearGradientFill
         colors={[
           { offset: '0%', color: theme.soft },
@@ -170,7 +171,7 @@ export function OnboardingShell({
           </Animated.View>
         ) : null}
       </SafeAreaView>
-    </View>
+    </Screen>
   );
 }
 
@@ -236,10 +237,6 @@ export function OnboardingSecondaryButton({
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   meshBlob: {
     position: 'absolute',
     width: 260,

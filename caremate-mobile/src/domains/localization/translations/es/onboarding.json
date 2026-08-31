@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "ej. Gran Accra",
     "searchPlaceholder": "Buscar países",
-    "searchEmpty": "Ningún país coincide con esa búsqueda."
+    "searchEmpty": "Ningún país coincide con esa búsqueda.",
+    "selectPlaceholder": "Selecciona un país"
   },
   "priorities": {
     "title": "¿Qué es lo más importante?",
@@ -56,8 +57,10 @@
       "hint": "Mejor clasificación de hospitales y clínicas a tu alrededor"
     },
     "approximate": {
-      "title": "Aproximada"
-    }
+      "title": "Aproximada",
+      "hint": "Pin de respaldo {{place}} — cámbialo cuando quieras"
+    },
+    "subtitle": "Usa GPS preciso para mejores coincidencias, o mantén un pin aproximado para {{place}}."
   },
   "notifications": {
     "title": "Mantente al día",

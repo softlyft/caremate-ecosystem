@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "mf. Greater Accra",
     "searchPlaceholder": "Tafuta nchi",
-    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo."
+    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo.",
+    "selectPlaceholder": "Chagua nchi"
   },
   "priorities": {
     "title": "Nini muhimu zaidi?",
@@ -56,8 +57,10 @@
       "hint": "Uorodheshaji bora kwa hospitali na kliniki karibu nawe"
     },
     "approximate": {
-      "title": "Takriban"
-    }
+      "title": "Takriban",
+      "hint": "Pini ya akiba {{place}} — badilisha wakati wowote"
+    },
+    "subtitle": "Tumia GPS sahihi kwa mechi bora, au weka pini ya takriban kwa {{place}}."
   },
   "notifications": {
     "title": "Endelea kupata habari",

@@ -14,7 +14,7 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Prov
 | Org ↔ patient Messages + DMs | [Messaging](./messaging.md) |
 | Private Care Team plans (Paystack) | [Provider plans](./provider-plans.md) |
 | Tables, migrations, RPCs | [Data model](./data-model.md) |
-| Capability modules, Lab, appointments | [Modules](./modules.md) |
+| Capability modules, appointments, documents | [Modules](./modules.md) |
 | Strategy vs shipped gaps | [Provider strategy gaps](./provider-strategy-gaps.md) |
 | Local setup, env, scripts | [Development](./development.md) |
 | AWS Amplify hosting (monorepo) | [`../../docs/amplify-hosting.md`](../../docs/amplify-hosting.md) · [`../amplify.yml`](../amplify.yml) |
@@ -33,14 +33,14 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Prov
 - Secure document upload to a patient (patients view under Me → Documents; **in-app + push** via `notify-provider-document`)
 - Patients can also upload their own files and link an org later when connected
 - Appointment **scheduling** in portal (availability, staff schedule, request queue, check-in)
-- Optional **Laboratory** module (activate in Settings)
+- **Documents** for sharing lab results (PDF), prescriptions, and other clinical files
 - Org profile + claim-time verification badge
 
 Direct (person-to-person) chat in the **CareMate mobile app** requires the staff peer to be on the org **Private Care Team** (not merely marked as staff). See [Messaging](./messaging.md) and [Provider plans](./provider-plans.md).
 
 ## Out of scope
 
-Billing, inventory, clinical notes / EMR, pharmacy stock, insurance claims, replacing the provider’s HMS. Mobile lab / appointment booking UI is deferred.
+Billing, inventory, clinical notes / EMR, pharmacy stock, insurance claims, replacing the provider’s HMS. Structured lab order workflows and mobile appointment booking UI are deferred — use Documents for file sharing.
 
 ## Related docs
 

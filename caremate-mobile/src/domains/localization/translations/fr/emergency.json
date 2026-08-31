@@ -16,7 +16,12 @@
     "contacts": "Contacts d'urgence",
     "hospital": "Hôpital préféré",
     "insurance": "Assureur",
-    "notes": "Notes"
+    "notes": "Notes",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "allergiesPlaceholder": "Allergies (séparées par des virgules)",
+    "medicationsPlaceholder": "Médicaments (séparés par des virgules)",
+    "conditionsPlaceholder": "Maladies chroniques (séparées par des virgules)"
   },
   "edit": {
     "title": "Modifier le profil d'urgence",
@@ -29,17 +34,86 @@
     "nameInvalid": "Utilisez uniquement des lettres (espaces, tirets et apostrophes autorisés)",
     "editContact": "Modifier",
     "saveContact": "Enregistrer le contact",
-    "cancelEdit": "Annuler"
+    "cancelEdit": "Annuler",
+    "hint": "Enregistré localement d'abord. La synchronisation se fait en arrière-plan lorsque vous êtes en ligne.",
+    "loading": "Chargement du profil...",
+    "saveFailed": "Échec de l'enregistrement",
+    "saveFailedMessage": "Impossible d'enregistrer le profil",
+    "phoneNumber": "Numéro de téléphone",
+    "relationshipPlaceholder": "Lien de parenté (ex. Conjoint, Parent)",
+    "noContactsYet": "Aucun contact ajouté pour l'instant.",
+    "remove": "Retirer",
+    "contactRequired": "Le nom, le téléphone et le lien de parenté sont obligatoires",
+    "contactAtLeastOne": "Ajoutez au moins un contact ICE avant d'enregistrer",
+    "contactDuplicate": "Ce contact est déjà dans votre liste",
+    "firstNameRequired": "Le prénom est obligatoire",
+    "lastNameRequired": "Le nom est obligatoire",
+    "bloodGroupRequired": "Sélectionnez un groupe sanguin",
+    "genotypeRequired": "Sélectionnez un génotype"
   },
   "qr": {
     "title": "QR d'urgence",
-    "empty": "Créez d'abord un profil d'urgence"
+    "empty": "Créez d'abord un profil d'urgence",
+    "loading": "Ouverture de la carte Patient ID...",
+    "redirectHint": "Les codes QR se trouvent au verso de votre carte Patient ID dans l'onglet Moi."
   },
   "lock": {
     "title": "Carte d'urgence",
     "call": "Appeler ICE",
-    "help": "Montrez cette carte si vous ne pouvez pas parler."
+    "help": "Montrez cette carte si vous ne pouvez pas parler.",
+    "loading": "Chargement...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Widgets d'écran de verrouillage retirés",
+    "retiredHelp": "Les détails d'urgence restent dans l'app CareMate. Partagez-les avec votre carte QR Patient ID.",
+    "retiredBody": "Les widgets d'écran de verrouillage et d'accueil n'affichent plus d'informations de santé. Générez un Patient ID dans l'onglet Moi — le QR au verso ouvre CareMate pour les praticiens connectés.",
+    "openPatientId": "Ouvrir la carte Patient ID",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Appeler le contact d'urgence",
+    "accessTitle": "Accès écran de verrouillage",
+    "widgetIos": "Ajoutez le widget CareMate « Emergency Info » à votre écran de verrouillage (appui long sur l'écran de verrouillage → Personnaliser → Ajouter un widget).",
+    "widgetAndroid": "Ajoutez le widget CareMate « Emergency Info » à votre écran d'accueil (appui long sur l'accueil → Widgets).",
+    "minimalFields": "Champs minimaux affichés : nom, groupe sanguin, génotype, allergies et votre premier contact ICE.",
+    "noProfile": "Pas de profil d'urgence",
+    "noProfileMessage": "Ouvrez CareMate et créez un profil de santé d'urgence.",
+    "contactTitle": "Contact d'urgence",
+    "contactName": "Nom",
+    "noContact": "Aucun contact ICE enregistré.",
+    "noneListed": "Aucun élément répertorié",
+    "footnoteIos": "Utilisez votre QR Patient ID au lieu des widgets d'écran de verrouillage.",
+    "footnoteAndroid": "Utilisez votre QR Patient ID au lieu des widgets d'écran d'accueil."
   },
   "widget": "Mettre à jour le widget d'écran de verrouillage",
-  "preview": "Aperçu de l'écran de verrouillage"
+  "preview": "Aperçu de l'écran de verrouillage",
+  "setupWizard": {
+    "missingDetailsTitle": "Détails manquants",
+    "missingDetailsMessage": "Sélectionnez le groupe sanguin et le génotype pour continuer.",
+    "iceContactTitle": "Contact ICE",
+    "iceContactRequired": "Ajoutez le nom, le téléphone et le lien de parenté de votre premier contact d'urgence."
+  },
+  "loadFailed": {
+    "title": "Impossible de charger le profil d'urgence",
+    "message": "Vérifiez votre connexion et réessayez."
+  },
+  "profileEyebrow": "Profil d'urgence",
+  "healthDetails": "Détails de santé",
+  "noContacts": "Aucun contact ajouté.",
+  "editProfile": "Modifier le profil",
+  "showQr": "Carte Patient ID (QR)",
+  "share": {
+    "loading": "Chargement de la carte d'urgence...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Détails d'urgence",
+    "help": "Partagé via QR Patient ID CareMate. Seul un professionnel de santé connecté peut voir ces détails d'urgence et contacts ICE.",
+    "noProfileYet": "Cet identifiant CareMate n'a pas encore de profil d'urgence.",
+    "noneListed": "Aucun élément répertorié",
+    "invalidTitle": "Lien QR invalide",
+    "invalidMessage": "Ce lien de partage d'urgence n'est pas valide.",
+    "notFoundTitle": "Introuvable",
+    "notFoundMessage": "Aucun partage d'urgence ne correspond à ce code.",
+    "errorTitle": "Impossible de charger",
+    "errorMessage": "Vérifiez votre connexion et réessayez.",
+    "practitionerRequiredTitle": "Praticiens uniquement",
+    "practitionerRequiredMessage": "Les détails d'urgence médicale d'un QR Patient ID ne sont accessibles qu'aux praticiens connectés. Activez « Je suis un professionnel de santé » dans votre profil, puis scannez à nouveau.",
+    "openPractitionerSetting": "Ouvrir les paramètres du profil"
+  }
 }

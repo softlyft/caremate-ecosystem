@@ -1,0 +1,23 @@
+{
+  "placeholder": "Tafuta makala, watoa huduma, zana…",
+  "clearA11y": "Futa utafutaji",
+  "loading": "Inatafuta…",
+  "idle": {
+    "title": "Tafuta CareMate",
+    "message": "Pata makala za afya, watoa huduma wa karibu, na zana za afya."
+  },
+  "empty": {
+    "title": "Hakuna matokeo",
+    "message": "Jaribu neno lingine au angalia tahajia."
+  },
+  "sections": {
+    "articles": "Makala",
+    "nearby": "Karibu",
+    "tools": "Zana"
+  },
+  "seeAllLearn": "Ona yote katika Jifunze",
+  "seeAllNearby": "Ona yote katika Karibu",
+  "hintArticles": "Makala",
+  "hintNearby": "Karibu",
+  "hintTools": "Zana"
+}

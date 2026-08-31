@@ -16,7 +16,12 @@
     "contacts": "आपातकालीन संपर्क",
     "hospital": "पसंदीदा अस्पताल",
     "insurance": "बीमा प्रदाता",
-    "notes": "नोट्स"
+    "notes": "नोट्स",
+    "firstName": "पहला नाम",
+    "lastName": "अंतिम नाम",
+    "allergiesPlaceholder": "एलर्जी (अल्पविराम से अलग)",
+    "medicationsPlaceholder": "दवाएँ (अल्पविराम से अलग)",
+    "conditionsPlaceholder": "पुरानी बीमारियाँ (अल्पविराम से अलग)"
   },
   "edit": {
     "title": "आपातकालीन प्रोफ़ाइल संपादित करें",
@@ -29,17 +34,86 @@
     "nameInvalid": "केवल अक्षरों का उपयोग करें (स्पेस, हाइफ़न और अपॉस्ट्रॉफ़ी ठीक हैं)",
     "editContact": "संपादित करें",
     "saveContact": "संपर्क सहेजें",
-    "cancelEdit": "रद्द करें"
+    "cancelEdit": "रद्द करें",
+    "hint": "पहले स्थानीय सहेजा। ऑनलाइन होने पर पृष्ठभूमि में सिंक।",
+    "loading": "प्रोफ़ाइल लोड हो रही है...",
+    "saveFailed": "सहेजना विफल",
+    "saveFailedMessage": "प्रोफ़ाइल सहेज नहीं सकी",
+    "phoneNumber": "फ़ोन नंबर",
+    "relationshipPlaceholder": "संबंध (जैसे पति/पत्नी, माता-पिता)",
+    "noContactsYet": "अभी कोई संपर्क नहीं जोड़ा।",
+    "remove": "हटाएँ",
+    "contactRequired": "नाम, फ़ोन और संबंध आवश्यक हैं",
+    "contactAtLeastOne": "सहेजने से पहले कम से कम एक ICE संपर्क जोड़ें",
+    "contactDuplicate": "वह संपर्क पहले से सूची में है",
+    "firstNameRequired": "पहला नाम आवश्यक है",
+    "lastNameRequired": "अंतिम नाम आवश्यक है",
+    "bloodGroupRequired": "रक्त समूह चुनें",
+    "genotypeRequired": "जीनोटाइप चुनें"
   },
   "qr": {
     "title": "आपातकालीन QR",
-    "empty": "पहले आपातकालीन प्रोफ़ाइल बनाएँ"
+    "empty": "पहले आपातकालीन प्रोफ़ाइल बनाएँ",
+    "loading": "Patient ID कार्ड खोला जा रहा है...",
+    "redirectHint": "QR कोड Me टैब पर Patient ID कार्ड के पीछे हैं।"
   },
   "lock": {
     "title": "आपातकालीन कार्ड",
     "call": "ICE कॉल करें",
-    "help": "यदि आप खुद नहीं बोल सकते तो यह कार्ड दिखाएँ।"
+    "help": "यदि आप खुद नहीं बोल सकते तो यह कार्ड दिखाएँ।",
+    "loading": "लोड हो रहा है...",
+    "badge": "CAREMATE",
+    "retiredTitle": "लॉक स्क्रीन विजेट हटाए गए",
+    "retiredHelp": "आपातकालीन विवरण CareMate ऐप में रहते हैं। Patient ID QR कार्ड से साझा करें।",
+    "retiredBody": "लॉक और होम स्क्रीन विजेट अब स्वास्थ्य जानकारी नहीं दिखाते। Me टैब पर Patient ID बनाएँ — पीछे QR साइन-इन प्रैक्टिशनर के लिए CareMate खोलता है।",
+    "openPatientId": "Patient ID कार्ड खोलें",
+    "cardBadge": "EMERGENCY",
+    "callContact": "आपातकालीन संपर्क पर कॉल करें",
+    "accessTitle": "लॉक स्क्रीन एक्सेस",
+    "widgetIos": "CareMate \"Emergency Info\" विजेट लॉक स्क्रीन पर जोड़ें (लॉक स्क्रीन दबाकर रखें → Customize → Add Widget)।",
+    "widgetAndroid": "CareMate \"Emergency Info\" विजेट होम स्क्रीन पर जोड़ें (होम दबाकर रखें → विजेट)।",
+    "minimalFields": "न्यूनतम फ़ील्ड: नाम, रक्त समूह, जीनोटाइप, एलर्जी और पहला ICE संपर्क।",
+    "noProfile": "कोई आपातकालीन प्रोफ़ाइल नहीं",
+    "noProfileMessage": "CareMate खोलें और आपातकालीन स्वास्थ्य प्रोफ़ाइल बनाएँ।",
+    "contactTitle": "आपातकालीन संपर्क",
+    "contactName": "नाम",
+    "noContact": "कोई ICE संपर्क सहेजा नहीं।",
+    "noneListed": "कोई सूचीबद्ध नहीं",
+    "footnoteIos": "लॉक-स्क्रीन विजेट के बजाय Patient ID QR उपयोग करें।",
+    "footnoteAndroid": "होम-स्क्रीन विजेट के बजाय Patient ID QR उपयोग करें।"
   },
   "widget": "लॉक-स्क्रीन विजेट अपडेट करें",
-  "preview": "लॉक स्क्रीन पूर्वावलोकन"
+  "preview": "लॉक स्क्रीन पूर्वावलोकन",
+  "setupWizard": {
+    "missingDetailsTitle": "विवरण अधूरा",
+    "missingDetailsMessage": "जारी रखने के लिए रक्त समूह और जीनotype चुनें।",
+    "iceContactTitle": "ICE संपर्क",
+    "iceContactRequired": "अपने पहले आपातकालीन संपर्क के लिए नाम, फ़ोन और संबंध जोड़ें।"
+  },
+  "loadFailed": {
+    "title": "आपातकालीन प्रोफ़ाइल लोड नहीं हो सकी",
+    "message": "अपना कनेक्शन जाँचें और पुनः प्रयास करें।"
+  },
+  "profileEyebrow": "आपातकालीन प्रोफ़ाइल",
+  "healthDetails": "स्वास्थ्य विवरण",
+  "noContacts": "कोई संपर्क नहीं जोड़ा।",
+  "editProfile": "प्रोफ़ाइल संपादित करें",
+  "showQr": "Patient ID कार्ड (QR)",
+  "share": {
+    "loading": "आपातकालीन कार्ड लोड हो रहा है...",
+    "badge": "EMERGENCY SHARE",
+    "title": "आपातकालीन विवरण",
+    "help": "CareMate Patient ID QR से साझा। केवल साइन-इन स्वास्थ्य प्रैक्टिशनर आपातकालीन विवरण और ICE संपर्क देख सकते हैं।",
+    "noProfileYet": "इस CareMate ID में अभी आपातकालीन प्रोफ़ाइल नहीं।",
+    "noneListed": "कोई सूचीबद्ध नहीं",
+    "invalidTitle": "अमान्य QR लिंक",
+    "invalidMessage": "यह आपातकालीन साझा लिंक मान्य नहीं।",
+    "notFoundTitle": "नहीं मिला",
+    "notFoundMessage": "इस कोड से कोई आपातकालीन साझा मेल नहीं खाता।",
+    "errorTitle": "लोड नहीं हो सका",
+    "errorMessage": "अपना कनेक्शन जाँचें और पुनः प्रयास करें।",
+    "practitionerRequiredTitle": "केवल प्रैक्टिशनर",
+    "practitionerRequiredMessage": "Patient ID QR की आपातकालीन जानकारी केवल साइन-इन प्रैक्टिशनर को। प्रोफ़ाइल में \"मैं स्वास्थ्य प्रैक्टिशनर हूँ\" चालू करें, फिर फिर स्कैन करें।",
+    "openPractitionerSetting": "प्रोफ़ाइल सेटिंग्स खोलें"
+  }
 }

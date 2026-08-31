@@ -35,7 +35,8 @@
     "save": "Enregistrer la localisation",
     "saving": "Enregistrement...",
     "searchPlaceholder": "Rechercher des pays",
-    "searchEmpty": "Aucun pays ne correspond à cette recherche."
+    "searchEmpty": "Aucun pays ne correspond à cette recherche.",
+    "selectPlaceholder": "Sélectionner un pays"
   },
   "family": {
     "title": "Famille",

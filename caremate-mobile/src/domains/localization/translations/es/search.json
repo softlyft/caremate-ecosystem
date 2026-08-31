@@ -1,0 +1,23 @@
+{
+  "placeholder": "Buscar artículos, proveedores, herramientas…",
+  "clearA11y": "Borrar búsqueda",
+  "loading": "Buscando…",
+  "idle": {
+    "title": "Buscar en CareMate",
+    "message": "Encuentra artículos de salud, proveedores cercanos y herramientas de salud."
+  },
+  "empty": {
+    "title": "Sin resultados",
+    "message": "Prueba otra palabra clave o revisa la ortografía."
+  },
+  "sections": {
+    "articles": "Artículos",
+    "nearby": "Cercanos",
+    "tools": "Herramientas"
+  },
+  "seeAllLearn": "Ver todo en Aprender",
+  "seeAllNearby": "Ver todo en Cercanos",
+  "hintArticles": "Artículos",
+  "hintNearby": "Cercanos",
+  "hintTools": "Herramientas"
+}

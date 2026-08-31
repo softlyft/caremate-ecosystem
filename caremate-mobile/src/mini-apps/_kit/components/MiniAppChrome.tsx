@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { Button, Card, ChoiceChip } from '@/components/ui/form-controls';
 import {
   MiniAppKeyboardContext,
@@ -80,8 +81,9 @@ export function MiniAppScreen({
 
   return (
     <MiniAppKeyboardContext.Provider value={keyboardApi}>
+      <Screen padded={false}>
       <KeyboardAvoidingView
-        style={styles.screen}
+        style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
@@ -102,6 +104,7 @@ export function MiniAppScreen({
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
+      </Screen>
     </MiniAppKeyboardContext.Provider>
   );
 }
@@ -401,9 +404,8 @@ export function StatusPill({
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   scroll: {
     flex: 1,

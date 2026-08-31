@@ -29,7 +29,7 @@
       "description": "Bi diggin zagaye, rubuta ranakun haila, kuma ga hasashe masu sauƙi."
     }
   },
-  "signInRequired": "Shiga don daidaita wannan kayan aiki a duk na'urori",
+  "signInRequired": "Shiga don daidaita wannan kayan aikin a na'urori",
   "save": "Ajiye",
   "log": "Rubuta shigarwa",
   "setup": "Saita",
@@ -164,7 +164,20 @@
       "refillDateOptional": "Ranar sake cikawa na zaɓi — taɓa kuma don share",
       "historySubtitle": "Allurai na kwanan nan da ka rubuta",
       "historyEmpty": "Har yanzu babu allurai. Yi alama an sha don gina tarihi.",
-      "unknownMedicine": "Magani da ba a sani ba"
+      "unknownMedicine": "Magani da ba a sani ba",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "Lokacin magani",
+      "durationDays": "{{count}} kwanaki",
+      "treatmentEndedTitle": "An riga an gama magani",
+      "treatmentPeriodHint": "Zaɓi tsawon lokacin da za a sha wannan magani, ko bar shi yana ci gaba.",
+      "durationOngoing": "Ana ci gaba",
+      "durationCustom": "Ƙarshe na musamman",
+      "endDate": "Ranar ƙarshe",
+      "endBeforeStartTitle": "Ranar ƙarshe ta wuce da wuri",
+      "endBeforeStartMessage": "Zaɓi ranar ƙarewa a ranar farawa ko bayanta.",
+      "clearRefillDate": "Share kwanan wata",
+      "startsOngoing": "Ya fara {{date}} · ana ci gaba",
+      "treatmentEndedMessage": "Wannan lokacin magani ya ƙare kafin yau. Zaɓi ranar ƙarewa ta daga baya, tsawon lokaci mai tsawo, ko yi alama magani yana ci gaba."
     },
     "status": {
       "taken": "An sha",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} an rasa. Cika lokacin da za ka iya.",
       "refillTitle": "Sake cikawa nan ba da jimawa: {{name}}",
       "refillBody": "{{name}} yana ƙarewa ko lokacin sake cikawa ya zo."
+    },
+    "validation": {
+      "undoTitle": "A soke wannan ƙarar?",
+      "undoMessage": "Wannan zai nuna ƙarar ba a ci ba. Idan an rage adadin, za a maido da shi.",
+      "undoConfirm": "Soke",
+      "nameLong": "Sunan wannan magani ya yi tsawo sosai. Da fatan za a tabbatar daidai ne.",
+      "instructionsOtherEmpty": "Ka zaɓi umarnin \"Other\" amma ka bar cikakkun bayanai babu komai. Da fatan za a tabbatar kafin ajiyewa.",
+      "asNeededMany": "Ka riga ka rubuta ƙarorin {{count}} a buƙata don wannan magani yau. Da fatan za a tabbatar kafin ƙara wani.",
+      "checkTitle": "Da fatan za a duba wannan",
+      "confirmTitle": "Da fatan za a tabbatar",
+      "cancel": "Soke",
+      "requiredName": "Da fatan za a shigar da sunan magani kafin ajiyewa.",
+      "requiredDosage": "Da fatan za a shigar da ƙarar (misali 500mg) kafin ajiyewa.",
+      "requiredStart": "Da fatan za a zaɓi ranar farawa kafin ajiyewa.",
+      "childRequired": "Zaɓi wane yaro wannan magani yake.",
+      "slotTimesInvalid": "Zaɓi lokaci mai inganci ga kowace dozin ta amfani da clock picker.",
+      "slotTimesDuplicate": "Kowace dozin tana buƙatar lokaci daban. Biyu ba za su iya raba lokaci guda ba.",
+      "saveAnyway": "Ajiye duk da haka",
+      "endBeforeStart": "Ranar ƙarewa ya kamata ta kasance a ranar farawa ko bayan haka.",
+      "treatmentEnded": "Wannan lokacin magani ya ƙare kafin yau. Zaɓi ranar ƙarewa ta daga baya, tsawon lokaci mai tsawo, ko yi alama magani yana ci gaba.",
+      "quantityInvalid": "Adadin da ya rage ya kamata ya zama lamba cikakke (0 ko fiye), ko a bar shi babu komai.",
+      "thresholdInvalid": "Ƙofar tunatarwar sake cikawa ya kamata ta zama lamba cikakke (0 ko fiye).",
+      "unusualCheck": "Wannan yana kama da ba na al'ada ba. Da fatan za a duba cewa ka shigar da shi daidai.",
+      "dosageNoUnit": "Wannan ƙarar tana kama da lamba kawai. Kuna nufin haɗa raka'a (mg, ml, tablet…)?",
+      "slotsTooClose": "Lokutan wadannan allurai sun fi ƙasa da sa'o'i 2. Da fatan za a tabbatar haka ne nufi.",
+      "courseLong": "Wannan magani ya fi shekara ɗaya tsawo (kwanaki {{days}}). Da fatan za a tabbatar daidai ne.",
+      "refillBeforeStart": "Ranar sake cikawa tana kafin ranar farawa ta magani. Da fatan za a tabbatar daidai ne.",
+      "quantityHigh": "Wannan adadi ({{value}}) ya yi yawa fiye da yadda ake saba. Da fatan za a tabbatar daidai ne.",
+      "thresholdAboveQuantity": "Tunatarwar sake cikawa an saita a sama da adadin da ya rage. Da fatan za a tabbatar haka ne nufi.",
+      "logBeforeStart": "Wannan kwanan wata yana kafin ranar farawa ta magani. Da fatan za a tabbatar kafin ajiyewa.",
+      "logAfterEnd": "Wannan kwanan wata ya bayan ranar ƙarewar magani. Da fatan za a tabbatar kafin ajiyewa.",
+      "logFuture": "Wannan kwanan wata yana nan gaba. Da fatan za a tabbatar kuna son rubutawa a gaba."
     }
   },
   "edit": "Gyara",
@@ -201,5 +246,789 @@
   "saveChanges": "Ajiye canje-canje",
   "loading": "Ana lodawa…",
   "editProfile": "Gyara bayanin martaba",
-  "signInRequiredTitle": "Ana buƙatar shiga"
+  "signInRequiredTitle": "Ana buƙatar shiga",
+  "vitalsTracker": {
+    "eyebrow": "Muhimman alamomi",
+    "screenTitle": "Muhimman alamomi",
+    "backToApps": "Koma zuwa Apps",
+    "close": "Rufe",
+    "emptyTitle": "Muhimman alamominka, a gani da sauri",
+    "emptySubtitle": "Rubuta karatu cikin daƙiƙa — kamar duba ma'auni.",
+    "titleWithData": "Muhimman alamomi na baya-bayan nan",
+    "subtitleWithData": "Sauri buɗewa, sauƙi sabuntawa",
+    "logVital": "Rubuta muhimmi alama",
+    "logTitle": "Rubuta muhimmi alama",
+    "logSubtitle": "Zaɓi awo, shigar da daraja, ka ajiye.",
+    "saveLog": "Ajiye karatu",
+    "setupTitle": "Zaɓi raka'oinka",
+    "setupSubtitle": "Zaɓi yadda kake awo akai-akai — za ka iya canza daga baya.",
+    "setupCta": "Saita raka'o'i",
+    "setupSave": "Ajiye abubuwan da aka fi so",
+    "editUnits": "Gyara raka'o'i"
+  },
+  "periodTracker": {
+    "eyebrow": "Yau",
+    "screenTitle": "Mai bin diddigin Lokaci",
+    "logTitle": "Rubuta lokaci",
+    "backToApps": "Koma zuwa Apps",
+    "close": "Rufe",
+    "emptyTitle": "Fara bin diddigin lokacinka",
+    "emptySubtitle": "Rubuta lokacinka na baya don ganin hasashe",
+    "logPeriodDays": "Rubuta kwanakin lokaci",
+    "markPeriod": "Alama lokacinka",
+    "markPeriodSubtitle": "Ta kwanakin da kake lokaci. Za ka iya zaɓar kwanaki da yawa a wata."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Allurar rigakafi",
+    "screenTitle": "Mai bin diddigin Rigakafi",
+    "setupTitle": "Yaran iyali",
+    "logTitle": "Rubuta allura",
+    "backToApps": "Koma zuwa Apps",
+    "close": "Rufe",
+    "loading": "Ana loda yara daga iyali…",
+    "loadingLog": "Ana loda rubutun allura…",
+    "emptyTitle": "Bin diddigin rigakafi",
+    "signInSubtitle": "Bin diddigin rigakafi yana amfani da yara daga bayanin iyali CareMate naka.",
+    "needsFamilySubtitle": "Ƙirƙiri bayanin iyali kuma ƙara yara tare da ranar haihuwa. Sannan jadawalin allurar zai bayyana a nan.",
+    "needsChildrenSubtitle": "Gidan ku ba shi da yara da suke da ranar haihuwa tukuna. Ƙara yara a Iyali don fara bin diddigin allura.",
+    "childrenFromFamilyTitle": "Yara suna daga Iyali",
+    "childrenFromFamilySubtitle": "Ba za ka iya ƙara yaro a nan ba. Saita bayanin iyali kuma ƙara yara da ranar haihuwa, sannan ka dawo zuwa Mai bin diddigin Rigakafi.",
+    "logVaccine": "Rubuta allura",
+    "saveVaccine": "Ajiye allura",
+    "updateRecord": "Sabunta rubutu",
+    "noChildSelected": "Ba a zaɓi yaro ba",
+    "noChildSubtitle": "Ƙara yara a cikin bayanin Iyali kafin rubuta allurar rigakafi."
+  },
+  "checkupPlanner": {
+    "eyebrow": "Tsarin Binciken Lafiya",
+    "screenTitle": "Tsarin Binciken Lafiya",
+    "setupTitle": "Saita Mai Tsara",
+    "logTitle": "Rubuta binciken lafiya",
+    "backToApps": "Koma zuwa Apps",
+    "close": "Rufe",
+    "emptyTitle": "Tsara binciken lafiyarka",
+    "emptySubtitle": "Shigar da ranar haihuwa, jinsi, da yanki (optional) don ganin binciken da aka ba da shawara",
+    "setUpPlanner": "Saita mai tsara",
+    "editProfile": "Gyara bayani",
+    "setupSave": "Ajiye ka duba tsari",
+    "setupSaveEdit": "Ajiye canje-canje",
+    "needSetup": "Saita bayanin binciken lafiyarka da farko."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Ciki",
+    "emptyTitle": "Bin diddigin tafiyar cikin ku",
+    "emptySubtitle": "Saita ranar haihuwa ko lokacinka na baya don farawa",
+    "setUp": "Saita ciki",
+    "updateDueDate": "Sabunta ranar haihuwa",
+    "logToday": "Rubuta yau",
+    "setupSave": "Ajiye",
+    "saveLog": "Ajiye rubutu",
+    "screenTitle": "Mai bin diddigin Ciki",
+    "setupTitle": "Saita Ciki",
+    "logTitle": "Rubutun yau da kullum",
+    "ttTitle": "Rubuta ƙarar TT",
+    "birthTitle": "Na haihu",
+    "backToApps": "Koma zuwa Apps",
+    "close": "Rufe"
+  },
+  "reorderHint": "Riƙe kati, sannan ja don sake tsara. Tsari yana kan wannan na'urar.",
+  "reorderHintA11y": "Ta sau biyu ka rike, sannan ja don sake tsara",
+  "checkup": {
+    "cadence": {
+      "annual": "Kowace shekara",
+      "once": "Sau ɗaya (lokacin da ya dace)",
+      "every-2-years": "Kowace shekara 2",
+      "every-3-years": "Kowace shekara 3",
+      "every-5-years": "Kowace shekara 5"
+    },
+    "gender": {
+      "female": "Mace",
+      "male": "Namiji",
+      "other": "Sauran / ba na son faɗi ba"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "Ziyarar shekara-shekara ga likita don binciken lafiya gaba ɗaya.",
+        "name": "Binciken lafiya gaba ɗaya"
+      },
+      "dental-checkup": {
+        "name": "Binciken haƙori",
+        "description": "Tsabtace da binciken baki don gano ramuka da cutar igiya da wuri."
+      },
+      "eye-exam": {
+        "name": "Binciken ido / gani",
+        "description": "Duba gani da lafiyar ido; akai-akai idan kuna sanya gilashi ko kuna da ciwon sukari."
+      },
+      "blood-pressure": {
+        "name": "Binciken hawan jini",
+        "description": "Bincika hawan jini — haɗari mai shiru ga cutar zuciya da stroke."
+      },
+      "blood-sugar": {
+        "name": "Binciken sukari / ciwon sukari",
+        "description": "Glucose a azumi ko HbA1c, musamman idan akwai tarihin iyali ko nauyi mai yawa."
+      },
+      "cholesterol": {
+        "name": "Cholesterol / lipid panel",
+        "description": "Gwajin jini don haɗarin zuciya. Tattauna yawan lokaci da likita."
+      },
+      "weight-bmi": {
+        "name": "Binciken nauyi da BMI",
+        "description": "Bi sawun yanayin nauyin lafiya a matsayin ɓangare na binciken shekara."
+      },
+      "flu-vaccine": {
+        "description": "Allurar rigakafin ciwon mura na shekara a inda ake samu kuma ana ba da shawara.",
+        "name": "Allurar rigakafin ciwon mura na lokaci"
+      },
+      "cervical-screening": {
+        "name": "Binciken cervix (Pap / HPV)",
+        "description": "Bincika cutar cervical. Bi ka'idojin gida don lokaci."
+      },
+      "mammogram": {
+        "name": "Mammogram",
+        "description": "Binciken cutar kansa na nono. Shekarun farawa suna bambanta bisa jagororin da haɗari."
+      },
+      "prostate-discussion": {
+        "name": "Tattaunawa game da lafiyar prostate",
+        "description": "Yi magana da likita game da gwajin PSA da alamomin prostate."
+      },
+      "prostate-earlier": {
+        "name": "Tattaunawa game da prostate da wuri",
+        "description": "Yi la'akari tattaunawa kan bincike da wuri idan kana da asalin Afirka ko tarihin iyali."
+      },
+      "colorectal-screening": {
+        "name": "Binciken cutar kansa na colorectal",
+        "description": "Gwajin datti ko colonoscopy daga tsakiyar shekaru — tambayi wane zaɓi ya dace da ku."
+      },
+      "skin-check": {
+        "name": "Binciken fata",
+        "description": "Bincika spots da canje-canjen fata tare da likita."
+      },
+      "hearing-check": {
+        "name": "Binciken ji",
+        "description": "Bincika asarar ji da shekaru ke haifar."
+      },
+      "bone-density-women": {
+        "name": "Yawan kasa (DEXA)",
+        "description": "Bincika haɗarin osteoporosis bayan menopause / tsawon shekaru."
+      },
+      "bone-density-men": {
+        "name": "Yawan kasa (DEXA)",
+        "description": "Bincika haɗarin osteoporosis a tsawon shekaru."
+      },
+      "tetanus-booster": {
+        "description": "Tabbatar cewa karin rigakafin tetanus (da makamancinsa) suna sabuntawa — yawanci kowane shekaru 10.",
+        "name": "Binciken ƙarin rigakafin tetanus"
+      }
+    },
+    "status": {
+      "upcoming": "Mai zuwa",
+      "completed": "An gama",
+      "due": "Ya kamata",
+      "overdue": "Ya wuce lokaci"
+    },
+    "ui": {
+      "actionableOne": "{{count}} bincike don {{year}}",
+      "actionableMany": "{{count}} bincike don {{year}}",
+      "onTrack": "Binciken {{year}} a kan hanya",
+      "yearPlan": "Tsarin ku na {{year}}",
+      "thisYear": "Wannan shekara ({{year}})",
+      "ofTotal": "{{completed}} cikin {{total}}",
+      "checklist": "Jerin bincike na {{year}}",
+      "clearConfirmMessage": "Bayanan ku da tarihin kammalawa za a cire daga wannan na'urar.",
+      "regionHint": "Ana amfani da shi don wasu shawarwari bisa ƙasa. Bar Global idan ba ka tabbata ba.",
+      "regionSelectPlaceholder": "Zaɓi ƙasa",
+      "dob": "Ranar haihuwa",
+      "genderLabel": "Jinsi",
+      "updateLog": "Sabunta rubutun",
+      "setupIntro": "Muna amfani da ranar haihuwarku, jinsi, da yanki don ba da shawarar bincike na yau da kullum. Yanki na zaɓi kuma tsoho shine International.",
+      "ageLine": "Shekaru {{age}} · {{gender}} · {{region}}",
+      "nextYear": "Shekara mai zuwa ({{year}})",
+      "done": "An gama",
+      "guidance": "Jagora kawai — yi magana da likita don shawara ta sirri.",
+      "emptyYear": "Babu bincike da aka jera don wannan shekara tare da bayanan ku na yanzu.",
+      "doneDate": "An gama {{date}}",
+      "clearData": "Share bayanan tsari",
+      "clearConfirmTitle": "Share tsarin bincike?",
+      "regionOptional": "Kasa (na zaɓi)",
+      "regionSearchEmpty": "Babu ƙasa da ta dace da wannan bincike.",
+      "globalOption": "Global ({{code}})",
+      "notesPlaceholder": "Sunan asibiti, sakamakon da za a bi baya…",
+      "markDone": "Yi alama an gama don {{year}}",
+      "dobLabel": "Ranar haihuwa: {{date}}",
+      "logIntro": "Rubuta cewa ka kammala wannan binciken don {{year}}. Za ka iya soke daga baya daga wannan allo.",
+      "dateCompleted": "Ranar da aka kammala",
+      "completedLabel": "An kammala: {{date}}",
+      "notesOptional": "Bayanan kula (na zaɓi)",
+      "globalShort": "Global",
+      "tapToLog": "Danna don rubutawa",
+      "regionSearchPlaceholder": "Nemo kasashe",
+      "removeLog": "Cire wannan rubutun",
+      "tapDob": "Danna ranar haihuwarku.",
+      "notFound": "Ba a sami wannan binciken ba.",
+      "removeCompletion": "Cire kammalawa"
+    },
+    "validation": {
+      "undoConfirm": "Cire",
+      "completedYearMismatch": "Ka rubuta {{completedYear}}, amma wannan abu na tsarin {{planYear}} ne. Da fatan za a tabbatar haka ne nufi.",
+      "onceAlreadyLogged": "An riga an rubuta wannan binciken lokaci ɗaya don {{year}}. Da fatan za a tabbatar kuna son sake rubutawa.",
+      "checkTitle": "Da fatan za a duba wannan",
+      "confirmTitle": "Da fatan za a tabbatar",
+      "cancel": "Soke",
+      "requiredGender": "Da fatan za a zaɓi zaɓin jinsi kafin ajiyewa.",
+      "requiredDob": "Da fatan za a zaɓi ranar haihuwarku kafin ajiyewa.",
+      "dobFuture": "Ranar haihuwa ba ta iya zama nan gaba ba.",
+      "ageYoung": "A shekaru {{age}}, binciken manya kaɗan ne za su bayyana. Da fatan za a tabbatar ranar haihuwa daidai ce.",
+      "completedFuture": "Ba za a iya alamar da bincike a matsayin an gama shi da kwanan wata na nan gaba ba. Zaɓi yau ko wata da ta wuce.",
+      "saveAnyway": "Ajiye duk da haka",
+      "undoTitle": "A cire wannan kammalawa?",
+      "undoMessage": "Wannan bincike zai nuna ba a yi ba don wannan shekarar sake.",
+      "invalidCheckup": "Ba a sami wannan binciken ba. Koma baya ka sake gwadawa.",
+      "invalidYear": "Wannan shekarar tsari tana kama da ba ta dace ba. Da fatan za a buɗe binciken daga jerin shekarar ku.",
+      "unusualCheck": "Wannan yana kama da ba na al'ada ba. Da fatan za a duba cewa ka shigar da shi daidai.",
+      "completedBeforeDob": "Ranar kammalawa ba za ta iya zama kafin ranar haihuwarku ba.",
+      "ageHigh": "Wannan ranar haihuwa za ta sa ku zama {{age}}. Da fatan za a tabbatar daidai ne.",
+      "notesLong": "Waɗannan bayanan sun yi tsawo sosai. Da fatan za a tabbatar kafin ajiyewa."
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Dozin haihuwa",
+        "description": "Yana karewa daga nau'ikan cutar tarin fuka mai tsanani."
+      },
+      "hep-b-birth": {
+        "name": "Hepatitis B",
+        "doseLabel": "Dozin haihuwa",
+        "description": "An ba da ƙarar farko a haihuwa ko cikin sa'o'i 24."
+      },
+      "opv-0": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozin 0",
+        "description": "Dozin haihuwa na allurar rigakafin OPV."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozin 1",
+        "description": "Ya rufe diphtheria, tetanus, pertussis, hepatitis B, da Hib."
+      },
+      "opv-1": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozin 1",
+        "description": "An ba da ƙarar farko ta daidaitaccen polio."
+      },
+      "pcv-1": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozin 1",
+        "description": "Yana karewa daga cutar pneumococcal."
+      },
+      "rota-1": {
+        "doseLabel": "Dozin 1",
+        "name": "Rotavirus",
+        "description": "Yana karewa daga gudawa mai tsanani daga rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozin 2",
+        "description": "An ba da ƙarar pentavalent na biyu."
+      },
+      "opv-2": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozin 2",
+        "description": "An ba da ƙarar polio na biyu na yau da kullum."
+      },
+      "pcv-2": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozin 2",
+        "description": "An ba da ƙarar pneumococcal na biyu."
+      },
+      "rota-2": {
+        "doseLabel": "Dozin 2",
+        "name": "Rotavirus",
+        "description": "An ba da ƙarar rotavirus na biyu."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozin 3",
+        "description": "Ƙarar pentavalent ta uku."
+      },
+      "opv-3": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozin 3",
+        "description": "Ƙarar polio na yau da kullum ta uku."
+      },
+      "pcv-3": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozin 3",
+        "description": "Ƙarar pneumococcal ta uku."
+      },
+      "ipv": {
+        "name": "Polio (IPV)",
+        "doseLabel": "Karin rigakafi",
+        "description": "An ba da ƙarin rigakafin polio da ba a riga ba kusan watanni 6."
+      },
+      "measles-1": {
+        "name": "Measles / MR",
+        "doseLabel": "Dozin 1",
+        "description": "An ba da ƙarar farko na masurafa-rubella kusan watanni 9."
+      },
+      "yellow-fever": {
+        "name": "Yellow Fever",
+        "doseLabel": "Ƙarar guda",
+        "description": "An ba da shawara a yankunan da cuta ke ta yadu daga watanni 9."
+      },
+      "measles-2": {
+        "name": "Measles / MR",
+        "doseLabel": "Dozin 2",
+        "description": "An ba da ƙarar farko na masurafa-rubella na biyu kusan watanni 15."
+      },
+      "vitamin-a": {
+        "name": "Vitamin A",
+        "doseLabel": "Ƙarin",
+        "description": "Ƙarin vitamin A na yau da kullum daga watanni 15."
+      }
+    },
+    "ui": {
+      "dob": "Ranar haihuwa",
+      "scheduleTitle": "Jadawalin rigakafi",
+      "timeline": "Tsarin lokaci",
+      "vaccineRecord": "Tarihin rigakafi",
+      "whereToGo": "Inda za a je",
+      "overdueVisit": "{{count}} allurar rigakafi da ta wuce — tsara ziyara",
+      "overdueVisit_other": "{{count}} allurar rigakafi da suka wuce — tsara ziyara",
+      "vaccinesCompleted": "{{completed}} cikin {{total}} allurar rigakafi da aka kammala",
+      "children": "Yara",
+      "family": "Iyali",
+      "percentComplete": "{{percent}}% an kammala",
+      "daysOverdue": "{{count}} rana da ta wuce",
+      "daysOverdue_other": "{{count}} kwanaki da suka wuce",
+      "vaccineRecordTitle": "Tarihin rigakafi",
+      "noChildSelected": "Ba a zaɓi yaro ba",
+      "vaccine": "Allurar rigakafi",
+      "selectedDate": "An zaɓa: {{date}}",
+      "nextDue": "Na gaba: {{name}} ({{dose}})",
+      "allUpToDate": "Dukkan rigakafin da aka tsara suna sabunta",
+      "attention": "Ana buƙatar kulawa",
+      "alreadyLogged": "An riga an rubuta",
+      "administeredDate": "Ranar da aka ba",
+      "optional": "Na zaɓi",
+      "notesPlaceholder": "Lambar batch, martani, da sauransu.",
+      "nextSteps": "Matakan na gaba",
+      "childrenFromFamilyCaption": "Yara suna fito daga bayanin Iyali.",
+      "details": "Cikakkun bayani",
+      "age": "Shekaru",
+      "nextUp": "Na gaba",
+      "dueToday": "Ya kamata yau",
+      "dueInDays": "Ya kamata cikin kwana {{count}}",
+      "dueInDays_other": "Ya kamata cikin kwanaki {{count}}",
+      "givenOn": "An ba a {{date}}",
+      "dueOn": "Ya kamata {{date}}",
+      "logIntro": "Rubuta lokacin da aka ba wannan rigakafi. Za ka iya sabunta ko cire rubutun daga baya.",
+      "alreadyLoggedPill": "An riga an rubuta",
+      "completedOn": "An kammala: {{date}}",
+      "notes": "Bayanan kula",
+      "familySetupExplainer": "Saitin iyali yana tattara ranar haihuwar kowane yaro — hakan ne ke taimaka wa jadawalin rigakafi.",
+      "selectChild": "Zaɓi yaro don ganin jadawalin rigakafi da aka ba da shawara",
+      "providerOptional": "Mai ba da sabis / likita",
+      "removeRecord": "Cire rubutun",
+      "profile": "Bayani",
+      "recommendedBy": "An ba da shawara kafin {{date}}",
+      "select": "Zaɓi",
+      "tapAdministeredDate": "Danna ranar da aka ba da wannan rigakafi"
+    },
+    "status": {
+      "upcoming": "Mai zuwa",
+      "completed": "An kammala",
+      "overdue": "Ya wuce lokaci",
+      "due-soon": "Ya kamata nan gaba"
+    },
+    "validation": {
+      "undoConfirm": "Cire",
+      "checkTitle": "Da fatan za a duba wannan",
+      "confirmTitle": "Da fatan za a tabbatar",
+      "cancel": "Soke",
+      "requiredProfile": "Zaɓi yaro da ke da ranar haihuwa kafin rubuta allura.",
+      "requiredAdministeredDate": "Da fatan za a zaɓi ranar da aka ba wannan rigakafi.",
+      "administeredFuture": "Ba za a iya rubuta dozin da aka kammala da kwanan wata na nan gaba ba. Zaɓi yau ko wata da ta wuce.",
+      "seriesOutOfOrder": "Har yanzu ba a rubuta wata dozin da ta gabata a cikin wannan jerin ba ({{missing}}). Da fatan za a tabbatar kafin ajiyewa.",
+      "saveAnyway": "Ajiye duk da haka",
+      "undoTitle": "A cire wannan rubutun rigakafi?",
+      "undoMessage": "Wannan ƙarar za ta nuna ba a yi ba a jadawalin sake.",
+      "invalidVaccine": "Ba a sami wannan rigakafi ba. Koma baya ka sake gwadawa.",
+      "unusualCheck": "Wannan yana kama da ba na al'ada ba. Da fatan za a duba cewa ka shigar da shi daidai.",
+      "administeredBeforeDob": "Ranar da aka yi ba za ta iya zama kafin ranar haihuwar yaron ba.",
+      "veryEarly": "Wannan kwanan wata ya gabata kwanaki {{days}} kafin ranar da aka ba da shawara ({{recommended}}). Da fatan za a tabbatar daidai ne.",
+      "farFromRecommended": "Wannan kwanan wata yana da kwanaki {{days}} daga ranar da aka ba da shawara ({{recommended}}). Da fatan za a tabbatar daidai ne.",
+      "providerLong": "Sunan mai ba da sabis ya yi tsawo sosai. Da fatan za a tabbatar kafin ajiyewa.",
+      "notesLong": "Waɗannan bayanan sun yi tsawo sosai. Da fatan za a tabbatar kafin ajiyewa."
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "Gajiya",
+      "Unwell": "Ba lafiya",
+      "Happy": "Farin ciki",
+      "Calm": "Natsu",
+      "Anxious": "Damuwa",
+      "Excited": "Farin ciki"
+    },
+    "symptoms": {
+      "Nausea": "Kumburin ciki",
+      "Fatigue": "Gajiya",
+      "Back pain": "Ciwon baya",
+      "Cramping": "Ciwon ciki",
+      "Heartburn": "Ciwon ciki",
+      "Headache": "Ciwon kai",
+      "Insomnia": "Barci ba ya zuwa",
+      "Food cravings": "Kishirwar abinci",
+      "Swelling": "Kumburi"
+    },
+    "milestones": {
+      "8": {
+        "title": "Ziyarar farko na kafin haihuwa",
+        "description": "Shirya binciken farko tare da mai ba da sabis."
+      },
+      "12": {
+        "title": "Ƙarshen trimester na farko",
+        "description": "Haɗarin rashin ciki ya ragu sosai."
+      },
+      "20": {
+        "title": "Binciken anatomy",
+        "description": "Ultrasound na tsakiyar ciki kusan makonni 18–22."
+      },
+      "28": {
+        "description": "Jariri yana girma da sauri — huta idan zaka iya.",
+        "title": "Kashi na uku ya fara"
+      },
+      "36": {
+        "title": "Binciken mako-mako",
+        "description": "Likitan ku na iya so ka ga shi akai-akai."
+      },
+      "40": {
+        "description": "Ranar haihuwar da aka kiyasta.",
+        "title": "Ranar da ya kamata"
+      }
+    },
+    "ui": {
+      "weekDay": "Mako {{weeks}}, Rana {{days}}",
+      "daysUntilDue": "{{count}} rana har ranar haihuwar {{name}}",
+      "daysUntilDue_other": "{{count}} kwanaki har ranar haihuwar {{name}}",
+      "todayIsDue": "Yau ne ranar haihuwar {{name}}",
+      "daysPastDue": "{{count}} rana bayan ranar haihuwa",
+      "daysPastDue_other": "{{count}} kwanaki bayan ranar haihuwa",
+      "timeline": "Tsarin lokaci",
+      "percentComplete": "{{percent}}% an kammala",
+      "week0": "Mako 0",
+      "week40": "Mako 40",
+      "trimesterBar": {
+        "weekRange": "Mako {{from}}–{{to}}",
+        "now": "Mako {{weeks}}",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "Rubutun yau",
+      "weekThisWeek": "Mako {{week}} · Wannan mako",
+      "weekInDays": "Mako {{week}} · Kwanaki {{count}}",
+      "weekInDays_other": "Mako {{week}} · Kwanaki {{count}}",
+      "weekLabel": "Mako {{week}}",
+      "weight": "Nauyi",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} buga",
+      "postpartumTitle": "Ka wuce ranar haihuwarku",
+      "postpartumBody": "Ranar haihuwar da aka kiyasta ta wuce. Ka gama ciki idan ka shirya, ko sabunta ranar idan likita ya gyara ta.",
+      "dailyLog": "Rubutun yau da kullum",
+      "howFeeling": "Yaya kake ji?",
+      "howFeelingSubtitle": "Rubuta yadda kake ji yau. Wannan yana taimaka maka gano tsari a lokaci.",
+      "babyKicks": "Kumburin jariri",
+      "notesPlaceholder": "Yaya kake ji? Akwai tambayoyi don ziyararku na gaba?",
+      "setTimelineSubtitle": "Zaɓi yadda kake son saita tsarin cikin daurin ku. Kuna iya amfani da lokacin ku na karshe ko ranar da likita ya bayar.",
+      "lastPeriod": "Lokaci na baya",
+      "dueDate": "Ranar da ya kamata",
+      "babyNickname": "Laƙabin jariri",
+      "pickDate": "Zaɓi wata",
+      "estimatedDue": "Kiyasin ranar da ya kamata",
+      "kicksLogged": "An rubuta buga",
+      "comingUp": "Mai zuwa",
+      "milestonesTitle": "Muhimman matakai",
+      "journey": "Tafiya",
+      "estimatedFromLmp": "An kiyasta daga lokacin haidar ku na baya",
+      "estimatedFromProvider": "Bisa ga ranar da likita ya bayar",
+      "daily": "Kowace rana",
+      "mood": "Yanayi",
+      "noSymptomsToday": "Har yanzu babu alamomi da aka rubuta yau",
+      "notes": "Bayanan kula",
+      "babyPlaceholder": "Jariri",
+      "weightHint": "Na zaɓi. Shigar da nauyinku a kilogiram.",
+      "endPregnancy": "Kammala cikin daurin",
+      "endPregnancyTitle": "Kammala wannan cikin daurin?",
+      "endPregnancyConfirm": "Kammala cikin daurin",
+      "postpartumEyebrow": "Ya wuce ranar",
+      "pastPregnancies": "Cikin da suka wuce",
+      "history": "Tarihi",
+      "pastPregnancySubtitle": "Ya kamata {{due}} · An kammala {{ended}} · {{logs}} rubutu",
+      "archivedLogsEmpty": "Ba a ajiye rubutun yau da kullum don wannan ciki ba.",
+      "setTimeline": "Saita tsarin lokacinku",
+      "tapLmp": "Danna ranar farko ta hailarku ta karshe.",
+      "tapDue": "Danna ranar haihuwar da likita ya kiyasta.",
+      "selectedDue": "Ranar haihuwar da aka zaɓa",
+      "progress": "Ci gaban ciki",
+      "symptoms": "Alamomi",
+      "setupEyebrow": "Saitawa",
+      "tapKickHint": "Danna + duk lokacin da ka ji motsi",
+      "logHistory": "Rubutun kwanan nan",
+      "recent": "Kwanan nan",
+      "endPregnancyMessage": "Wannan yana adana tsarin lokaci da rubutun yau da kullum, sannan ya dawo da Period Tracker idan an dakatar da shi saboda ciki. Za ka iya saita sabon ciki daga baya."
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} a wannan mako.",
+      "milestoneSoonBody": "{{title}} cikin kwanaki {{count}}.",
+      "milestoneSoonBody_other": "{{title}} cikin kwanaki {{count}}.",
+      "dueSoonTitle": "Ranar haihuwar {{name}} cikin rana {{count}}",
+      "dueSoonTitle_other": "Ranar haihuwar {{name}} cikin kwanaki {{count}}",
+      "dueSoonBody": "Ranar haihuwar da aka kiyasta ta {{name}} cikin rana {{count}}. Duba tsarin lokacin cikin ku.",
+      "dueSoonBody_other": "Ranar haihuwar da aka kiyasta ta {{name}} cikin kwanaki {{count}}. Duba tsarin lokacin cikin ku.",
+      "dueTodayTitle": "Yau ne ranar haihuwar {{name}}",
+      "dueTodayBody": "Ranar haihuwar da aka kiyasta ta {{name}} yau ce.",
+      "pastDueTitle": "{{count}} rana bayan ranar haihuwa",
+      "pastDueTitle_other": "{{count}} kwanaki bayan ranar haihuwa",
+      "pastDueBody": "Ranar haihuwar da aka kiyasta ta {{name}} ta wuce rana {{count}} da ta wuce. Sabunta tsarin lokaci ko ka gama ciki idan ka shirya.",
+      "pastDueBody_other": "Ranar haihuwar da aka kiyasta ta {{name}} ta wuce kwanaki {{count}} da suka wuce. Sabunta tsarin lokaci ko ka gama ciki idan ka shirya.",
+      "milestoneSoonTitle": "Mai zuwa: Mako {{week}}",
+      "dailyNudgeTitle": "Rubuta yadda kake ji yau",
+      "dailyNudgeBody": "Rubutun yanayi, alamu, ko kumburi cikin sauri yana barin tarihin cikin daurin ku da amfani.",
+      "ttDoseDueBody": "An wuce makonni 4 tun TT1. Tambayi likitocinku game da ƙarar tetanus (TT) na gaba.",
+      "ttDoseDueTitle": "TT2 na iya zama lokaci"
+    },
+    "motherCare": {
+      "progress": "{{completed}} cikin {{total}} ƙarorin da aka rubuta",
+      "logSubtitle": "{{completed}} cikin {{total}} ƙarorin da aka riga an rubuta. Zaɓi ranar da ka karɓa.",
+      "completeBody": "Ka rubuta TT1 zuwa TT5. Ajiye katin likitocinku a matsayin rubutun hukuma.",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "Wannan kwanaki {{gap}} ne kawai bayan ƙarar da ta gabata (yawanci a jira kwanaki {{days}}). Da fatan za a tabbatar tare da likitocinku.",
+        "checkTitle": "Da fatan za a duba wannan",
+        "confirmTitle": "Da fatan za a tabbatar",
+        "cancel": "Soke",
+        "requiredDate": "Da fatan za a zaɓi wata kafin ajiyewa.",
+        "ttFuture": "Kwanan wata na dozin TT ba zai iya zama nan gaba ba.",
+        "ttOutOfOrder": "Rubuta ƙarorin bisa tsari. Na gaba da ake tsammani shine {{next}} (ka gwada {{dose}}).",
+        "saveAnyway": "Ajiye duk da haka",
+        "unusualCheck": "Wannan yana kama da ba na al'ada ba. Da fatan za a duba cewa ka shigar da shi daidai.",
+        "ttBeforePrevious": "Wannan kwanan wata yana kafin {{previous}} ({{previousDate}}). Da fatan za a tabbatar daidai ne."
+      },
+      "eyebrow": "Kula da mahaifiya",
+      "nextDose": "Na gaba: {{dose}}",
+      "notLogged": "Ba a rubuta ba",
+      "logNext": "Rubuta TT na gaba",
+      "logTt1": "Rubuta TT1",
+      "logTitle": "Rubuta {{dose}}",
+      "pickDate": "Ranar dozin",
+      "done": "An gama",
+      "disclaimer": "Bin diddiga na ilimi kawai — bi tsarin asibitin ku da jagororin gida.",
+      "title": "Kariya daga tetanus (TT)",
+      "body": "Ƙarorin TT suna kare ku da sabon jariri daga ciwon tetanus. Rubuta ƙarorin daga katin antenatal — wannan yana daban da mai bin diddigin mako na ciki.",
+      "complete": "An rubuta TT1–TT5",
+      "archivedTitle": "Ƙarorin TT daga wannan ciki",
+      "tapDate": "Danna ranar da ka karɓi {{dose}}.",
+      "selectedDate": "Ranar da aka zaɓa",
+      "saveDose": "Ajiye {{dose}}",
+      "completeTitle": "An kammala jadawalin TT"
+    },
+    "trimester": {
+      "1": "Trimester na farko",
+      "2": "Trimester na biyu",
+      "3": "Kashi na uku"
+    },
+    "validation": {
+      "lmpFuture": "Ranar lokacinku na baya ba za ta iya zama a nan gaba ba.",
+      "dueInPast": "Wannan ranar haihuwa ta wuce kwanaki {{days}} da suka wuce. Da fatan za a tabbatar kuna son ci gaba da amfani da ita.",
+      "nicknameLong": "Wannan laƙabi ya yi tsawo sosai. Da fatan za a tabbatar daidai ne.",
+      "overwriteTimeline": "Kana sabunta tsarin lokacin cikin ku. Rubutun yau da kullum na wannan ciki za a ajiye.",
+      "startNewAfterEnded": "Kana fara sabon ciki bayan ka gama na baya. Za a ƙirƙiri sabon tsarin lokaci da rubutun yau da kullum marar komai.",
+      "checkTitle": "Da fatan za a duba wannan",
+      "confirmTitle": "Da fatan za a tabbatar",
+      "cancel": "Soke",
+      "requiredDate": "Da fatan za a zaɓi wata kafin ajiyewa.",
+      "emptyLog": "Ba a cika komai don yau ba. A ajiye rubutun maras komai duk da haka?",
+      "setupBlockedPostpartum": "Ka fara gama kula da mahaifiya bayan haihuwa, sannan za ka iya saita sabon tsarin lokacin ciki.",
+      "birthFuture": "Ranar haihuwa ba ta iya zama nan gaba ba.",
+      "saveAnyway": "Ajiye duk da haka",
+      "unusualCheck": "Wannan yana kama da ba na al'ada ba. Da fatan za a duba cewa ka shigar da shi daidai.",
+      "dueTooFar": "Wannan ranar haihuwa ta yi nisa sosai a nan gaba don zama gaskiya. Da fatan za a duba ranar.",
+      "pastTerm": "Wannan kwanan wata yana nuna cewa kuna iya zama fiye da makonni {{weeks}} ciki. Da fatan za a tabbatar daidai ne.",
+      "willPausePeriod": "Ajiye tsarin lokacin cikin ku zai dakatar da hasashen Period Tracker. Tarihin lokacin ku yana ajiye.",
+      "kicksHigh": "Wannan adadin bugu ({{count}}) ya yi yawa fiye da yadda ake saba ga rana ɗaya. Da fatan za a tabbatar daidai ne.",
+      "notesLong": "Waɗannan bayanan sun yi tsawo sosai. Da fatan za a tabbatar kafin ajiyewa.",
+      "weightUnusual": "Wannan nauyi ({{value}} kg) ya wuce yankin da ake saba ({{min}}–{{max}} kg). Da fatan za a tabbatar daidai ne.",
+      "birthBeforeLmp": "Wannan ranar haihuwa tana kafin ranar lokacinku na baya. Da fatan za a tabbatar daidai ne."
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "{{count}} kwanaki tun haihuwa",
+      "careTitle": "Warkewarku",
+      "careBody": "Wannan sarari don kula da bayan haihuwa — hutu, warkewa, da bin likitoci. Bin diddigin jariri yana daban.",
+      "pastDueHint": "Ranar haihuwarku ta wuce. Idan ka haihu, danna Na haihu don fara kula da bayan haihuwa na mahaifiya. Idan kana buƙatar ajiye wannan ciki a sirri, yi amfani da Rufe wannan ciki a ƙasa.",
+      "iveGivenBirth": "Na haihu",
+      "birthTitle": "Yaushe haihuwar ta faru?",
+      "birthSubtitle": "Za mu canza zuwa kula da bayan haihuwa na mahaifiya. Ƙarorin TT ku suna kan wannan allo.",
+      "finishMessage": "Za mu adana wannan cikin haihuwa a matsayin haihuwa, share tsarin lokacin ciki, kuma dawo da Period Tracker idan an dakatar. Ƙarorin TT ku suna ajiye.",
+      "closeMessage": "Za mu ajiye tsarin lokacin ciki. Rubutun kula da mahaifiya kamar ƙarorin TT suna ajiye, kuma Period Tracker zai iya dawowa. Ka ɗauki lokacin da kake buƙata — ba ka kadai ba.",
+      "closedPregnancyTitle": "Ciki",
+      "eyebrow": "Kula da mahaifiya",
+      "heroTitle": "Kula da bayan haihuwa",
+      "heroSubtitle": "Ka mai da hankali kan warkewarku. Rubutun TT ku yana nan.",
+      "daysSinceBirth": "Rana {{count}} tun haihuwa",
+      "birthDateLabel": "Ranar haihuwa",
+      "pickBirthDate": "Ranar haihuwa",
+      "birthDisclaimer": "Bin diddiga na ilimi kawai — bi shawarwarin bayan haihuwar asibitin ku.",
+      "logMotherDay": "Rubuta yadda kake ji",
+      "finishPostpartum": "Gama kula da bayan haihuwa",
+      "finishTitle": "A gama kula da bayan haihuwa?",
+      "finishConfirm": "Gama",
+      "closeLink": "Rufe wannan cikin daurin",
+      "closeTitle": "Rufe wannan cikin daurin?",
+      "closeConfirm": "Rufe cikin daurin",
+      "pastBirthSubtitle": "An haife {{born}} · {{logs}} rubutu",
+      "pastClosedSubtitle": "An rufe {{ended}}",
+      "tapBirthDate": "Danna ranar da ka haihu.",
+      "selectedBirthDate": "Ranar da aka zaɓa",
+      "startPostpartum": "Fara kula da bayan haihuwa",
+      "notActive": "Saita tsarin lokacin ciki mai aiki kafin rubuta haihuwa."
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Lokacinku na gaba na iya farawa yau",
+      "thisWeek": "Wannan mako",
+      "daysCount": "{{count}} kwanaki",
+      "daysSelected": "{{count}} rana da aka zaɓa",
+      "daysSelected_other": "{{count}} kwanaki da aka zaɓa",
+      "pausedCardTitle": "An dakatar da bin diddigi",
+      "pauseWhilePregnantBody": "Za ka iya dakatar da hasashen zagayowar yayin da kake da ciki. Tarihinku yana ajiye.",
+      "backToTracker": "Koma baya",
+      "cycleSummary": "Taƙaitaccen tsari",
+      "averageCycle": "Matsakaicin zagayowar",
+      "decreaseAverageCycle": "Rage tsawon tsari na matsakaici",
+      "increaseAverageCycle": "Ƙara tsawon zagayowar matsakaici",
+      "periodLength": "Tsawon lokaci",
+      "loggedDays": "Kwanakin da aka rubuta",
+      "dayOfCycle": "Rana {{day}} na tsarin ku",
+      "dayPill": "Rana {{day}}",
+      "daysUntilPeriod": "Kusan kwana {{count}} kafin lokacin ku na gaba",
+      "daysUntilPeriod_other": "Kusan kwanaki {{count}} kafin lokacin ku na gaba",
+      "calendar": "Kalanda",
+      "loggedPeriod": "Lokacin da aka rubuta",
+      "predicted": "Lokacin da aka hasashe",
+      "predictedWindow": "Lokacin da aka hasashe na gaba: {{range}}",
+      "fertile": "Mai haihuwa",
+      "ovulation": "Ovulation",
+      "pausedTitle": "An dakatar da bin diddigin lokaci",
+      "pausedSubtitle": "Hasashe da rubutun sun dakata.",
+      "pausedBecausePregnant": "An dakatar yayin da kake da ciki. Tarihin da ka rubuta yana nan.",
+      "pausedPill": "An dakatar",
+      "pausedCardBody": "Hasashen tsari da rubutun lokaci an dakata. Ci gaba kowane lokaci — ko ci gaba a Pregnancy Tracker.",
+      "pauseTracking": "Dakatar da bin diddigin lokaci",
+      "openPregnancyTracker": "Buɗe Bin Diddigin Ciki",
+      "resumeTracking": "Dawo da bin diddigin lokaci",
+      "pauseWhilePregnantTitle": "Kina da ciki?"
+    },
+    "validation": {
+      "clearMessage": "Wannan yana cire kowace rana da aka rubuta daga wannan na'urar. Hasashen zai sake saiti har sai ka sake rubutawa.",
+      "periodVsCycle": "Tsawon wannan lokaci ({{periodDays}} kwanaki) ya yi tsayi ko fiye da tsawon zagayowar ku ({{cycleDays}} kwanaki). Da fatan za a tabbatar.",
+      "checkTitle": "Da fatan za a duba wannan",
+      "confirmTitle": "Da fatan za a tabbatar",
+      "cancel": "Soke",
+      "saveAnyway": "Rubuta duk da haka",
+      "clearTitle": "Share dukkanin ranakun da aka rubuta?",
+      "clearConfirm": "Share",
+      "trackingPaused": "An dakatar da bin diddigin lokaci. Dawo da bin diddigi don rubuta kwanaki.",
+      "resumeWhilePregnant": "Bin Diddigin Ciki har yanzu yana da tsarin lokaci mai aiki. A dawo da bin diddigin lokaci duk da haka?",
+      "unusualCheck": "Wannan yana kama da ba na al'ada ba. Da fatan za a duba cewa ka shigar da shi daidai.",
+      "dayFuture": "Wannan kwanan wata yana nan gaba. Da fatan za a tabbatar kuna son rubutawa a gaba.",
+      "dayFarPast": "Wannan kwanan wata ya wuce kwanaki {{days}} da suka wuce. Da fatan za a tabbatar yana cikin tarihinku.",
+      "periodLong": "Wannan zai sa wannan lokaci ya kai kwanaki {{days}}. Da fatan za a tabbatar daidai ne."
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "Nauyi",
+      "blood_pressure": "Hawan jini",
+      "blood_sugar": "Sukari a jini",
+      "heart_rate": "Bugun zuciya",
+      "body_temperature": "Zafin jiki",
+      "height": "Tsayi",
+      "oxygen_saturation": "Cikakken oksijin",
+      "respiratory_rate": "Yawan numfashi"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "ft / in",
+      "breaths_min": "numfashi/min",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "Azumi",
+      "before_meal": "Kafin cin abinci",
+      "two_hours_after_meal": "Sa'o'i 2 bayan cin abinci",
+      "random": "Ba a tsara ba"
+    },
+    "ui": {
+      "vital": "Alamar mahimmi",
+      "unit": "Raka'a",
+      "reading": "Karatu",
+      "measurementType": "Yaushe aka auna wannan?",
+      "notesPlaceholder": "misali bayan tafiya da safe",
+      "latest": "Karatu na baya",
+      "noReading": "Har yanzu babu karatu",
+      "diastolic": "Diastolic",
+      "feet": "Kafafu",
+      "inches": "Inches",
+      "valuePlaceholder": "Shigar da daraja",
+      "bpHint": "Shigar da systolic / diastolic a mmHg",
+      "notesOptional": "Bayanan kula (na zaɓi)",
+      "setupSugarHint": "Ana adana karatu sukari a mg/dL kuma ana nuna su a cikin raka'ar da kuka fi so.",
+      "balance": "Hoton lokaci",
+      "recent": "Kwanan nan",
+      "emptyHint": "Fara da hawan jini, bugun zuciya, ko nauyi — abin da kuka fi auna.",
+      "systolic": "Systolic",
+      "setupIntro": "Saita raka'o'in da kuka fi so sau ɗaya domin rubutawa ta kasance sauri da daidaituwa."
+    },
+    "validation": {
+      "useSuggestion": "Yi amfani da {{value}}",
+      "unusualConfirm": "Wannan karatu ba na yau da kullun ba ne. Da fatan za a duba kafin ajiyewa.",
+      "bloodSugarUnusual": "Wannan karatu ba na yau da kullun ba ne. Da fatan za a duba kafin ajiyewa.",
+      "oxygenLow": "Wannan matakin oksijin ya yi ƙasa fiye da yadda ake saba. Da fatan za a tabbatar da karatu ko a sake auna.",
+      "trendWeight": "Nauyinku ya canya sosai tun shigarwar da ta gabata ({{previous}} {{unit}}). Da fatan za a tabbatar daidai ne.",
+      "trendBloodPressure": "Wannan karatu ya yi girma ko ƙasa fiye da shigarwar da ta gabata ({{previous}}). Da fatan za a tabbatar kafin ajiyewa.",
+      "trendOxygen": "Wannan karatun oksijin ya bambanta da shigarwar da ta gabata ({{previous}}%). Da fatan za a tabbatar ko a sake auna.",
+      "trendGeneric": "Wannan darajar ta bambanta da yawa da aunin da ka yi a baya ({{previous}} {{unit}}). Da fatan za a tabbatar daidai ne.",
+      "checkTitle": "Da fatan za a duba wannan karatu",
+      "confirmTitle": "Da fatan za a tabbatar",
+      "cancel": "Soke",
+      "requiredReading": "Da fatan za a shigar da karatu kafin ajiyewa.",
+      "bpDiastolicOrder": "Hawan diastolic ya kamata ya kasance ƙasa da hawan systolic.",
+      "bloodSugarContextRequired": "Zaɓi lokacin da aka auna wannan sukari (kwanaki ba cin abinci, kafin cin abinci, bayan cin abinci, ko bazuwar).",
+      "typoBloodSugar": "Kuna nufin {{suggested}}?",
+      "typoWeight": "Kuna nufin {{suggested}}?",
+      "typoTemperature": "Kuna nufin {{suggested}}°C?",
+      "saveAnyway": "Ajiye duk da haka",
+      "unusualCheck": "Wannan darajar tana kama da ba ta dace ba. Da fatan za a duba cewa ka shigar da ita daidai.",
+      "bpUnusual": "Wannan karatun hawan jini ba na yau da kullun ba ne. Da fatan za a tabbatar daidai ne."
+    }
+  }
 }

@@ -16,7 +16,12 @@
     "contacts": "Contactos de emergencia",
     "hospital": "Hospital preferido",
     "insurance": "Aseguradora",
-    "notes": "Notas"
+    "notes": "Notas",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "allergiesPlaceholder": "Alergias (separadas por comas)",
+    "medicationsPlaceholder": "Medicamentos (separados por comas)",
+    "conditionsPlaceholder": "Enfermedades crónicas (separadas por comas)"
   },
   "edit": {
     "title": "Editar perfil de emergencia",
@@ -29,17 +34,86 @@
     "nameInvalid": "Usa solo letras (espacios, guiones y apóstrofos están permitidos)",
     "editContact": "Editar",
     "saveContact": "Guardar contacto",
-    "cancelEdit": "Cancelar"
+    "cancelEdit": "Cancelar",
+    "hint": "Guardado localmente primero. La sincronización ocurre en segundo plano cuando estás en línea.",
+    "loading": "Cargando perfil...",
+    "saveFailed": "Error al guardar",
+    "saveFailedMessage": "No se pudo guardar el perfil",
+    "phoneNumber": "Número de teléfono",
+    "relationshipPlaceholder": "Relación (p. ej. Cónyuge, Padre/Madre)",
+    "noContactsYet": "Aún no se han añadido contactos.",
+    "remove": "Eliminar",
+    "contactRequired": "El nombre, teléfono y relación son obligatorios",
+    "contactAtLeastOne": "Añade al menos un contacto ICE antes de guardar",
+    "contactDuplicate": "Ese contacto ya está en tu lista",
+    "firstNameRequired": "El nombre es obligatorio",
+    "lastNameRequired": "El apellido es obligatorio",
+    "bloodGroupRequired": "Selecciona un grupo sanguíneo",
+    "genotypeRequired": "Selecciona un genotipo"
   },
   "qr": {
     "title": "QR de emergencia",
-    "empty": "Crea primero un perfil de emergencia"
+    "empty": "Crea primero un perfil de emergencia",
+    "loading": "Abriendo tarjeta Patient ID...",
+    "redirectHint": "Los códigos QR están en el reverso de tu tarjeta Patient ID en la pestaña Yo."
   },
   "lock": {
     "title": "Tarjeta de emergencia",
     "call": "Llamar ICE",
-    "help": "Muestra esta tarjeta si no puedes hablar por ti mismo."
+    "help": "Muestra esta tarjeta si no puedes hablar por ti mismo.",
+    "loading": "Cargando...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Widgets de pantalla de bloqueo retirados",
+    "retiredHelp": "Los detalles de emergencia permanecen en la app CareMate. Compártelos con tu tarjeta QR Patient ID.",
+    "retiredBody": "Los widgets de pantalla de bloqueo e inicio ya no muestran información de salud. Genera un Patient ID en la pestaña Yo — el QR del reverso abre CareMate para profesionales con sesión iniciada.",
+    "openPatientId": "Abrir tarjeta Patient ID",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Llamar al contacto de emergencia",
+    "accessTitle": "Acceso a pantalla de bloqueo",
+    "widgetIos": "Añade el widget CareMate « Emergency Info » a tu pantalla de bloqueo (mantén pulsado pantalla de bloqueo → Personalizar → Añadir widget).",
+    "widgetAndroid": "Añade el widget CareMate « Emergency Info » a tu pantalla de inicio (mantén pulsado inicio → Widgets).",
+    "minimalFields": "Campos mínimos mostrados: nombre, grupo sanguíneo, genotipo, alergias y tu primer contacto ICE.",
+    "noProfile": "Sin perfil de emergencia",
+    "noProfileMessage": "Abre CareMate y crea un perfil de salud de emergencia.",
+    "contactTitle": "Contacto de emergencia",
+    "contactName": "Nombre",
+    "noContact": "No hay contacto ICE guardado.",
+    "noneListed": "Ninguno listado",
+    "footnoteIos": "Usa tu QR Patient ID en lugar de widgets de pantalla de bloqueo.",
+    "footnoteAndroid": "Usa tu QR Patient ID en lugar de widgets de pantalla de inicio."
   },
   "widget": "Actualizar widget de pantalla de bloqueo",
-  "preview": "Vista previa de pantalla de bloqueo"
+  "preview": "Vista previa de pantalla de bloqueo",
+  "setupWizard": {
+    "missingDetailsTitle": "Faltan datos",
+    "missingDetailsMessage": "Selecciona grupo sanguíneo y genotipo para continuar.",
+    "iceContactTitle": "Contacto ICE",
+    "iceContactRequired": "Añade nombre, teléfono y relación de tu primer contacto de emergencia."
+  },
+  "loadFailed": {
+    "title": "No se pudo cargar el perfil de emergencia",
+    "message": "Comprueba tu conexión e inténtalo de nuevo."
+  },
+  "profileEyebrow": "Perfil de emergencia",
+  "healthDetails": "Detalles de salud",
+  "noContacts": "No se han añadido contactos.",
+  "editProfile": "Editar perfil",
+  "showQr": "Tarjeta Patient ID (QR)",
+  "share": {
+    "loading": "Cargando tarjeta de emergencia...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Detalles de emergencia",
+    "help": "Compartido vía QR Patient ID CareMate. Solo un profesional de salud con sesión iniciada puede ver estos detalles de emergencia y contactos ICE.",
+    "noProfileYet": "Este ID CareMate aún no tiene perfil de emergencia.",
+    "noneListed": "Ninguno listado",
+    "invalidTitle": "Enlace QR no válido",
+    "invalidMessage": "Este enlace de compartido de emergencia no es válido.",
+    "notFoundTitle": "No encontrado",
+    "notFoundMessage": "Ningún compartido de emergencia coincide con este código.",
+    "errorTitle": "No se pudo cargar",
+    "errorMessage": "Comprueba tu conexión e inténtalo de nuevo.",
+    "practitionerRequiredTitle": "Solo profesionales",
+    "practitionerRequiredMessage": "Los detalles de emergencia médica de un QR Patient ID solo están disponibles para profesionales con sesión iniciada. Activa « Soy profesional de salud » en tu perfil y escanea de nuevo.",
+    "openPractitionerSetting": "Abrir ajustes del perfil"
+  }
 }

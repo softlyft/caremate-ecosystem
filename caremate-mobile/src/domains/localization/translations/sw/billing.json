@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "Malipo yamepokelewa",
+    "confirming": "Inathibitisha malipo yako…",
+    "syncingPremium": "Malipo yamepokelewa. Inasawazisha Premium…",
+    "activated": "Premium imewashwa. Inafungua mpango wako…",
+    "syncingStatus": "Malipo yamepokelewa. Inasawazisha hali ya Premium…"
+  },
+  "cancel": {
+    "title": "Malipo yameghairiwa",
+    "subtitle": "Inarudi kwenye Premium…"
+  }
+}

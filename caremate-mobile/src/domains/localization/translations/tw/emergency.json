@@ -16,7 +16,12 @@
     "contacts": "Ahoyɛ nkitahodie",
     "hospital": "Ayaresabea a wopɛ",
     "insurance": "Insurance ɔde ma",
-    "notes": "Nkyerɛw"
+    "notes": "Nkyerɛw",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "allergiesPlaceholder": "Allergies (comma separated)",
+    "medicationsPlaceholder": "Medications (comma separated)",
+    "conditionsPlaceholder": "Chronic conditions (comma separated)"
   },
   "edit": {
     "title": "Sesa ahoyɛ profile",
@@ -29,17 +34,86 @@
     "nameInvalid": "Fa nkyerɛwde nko ara di dwuma (space, hyphen ne apostrophe yɛ)",
     "editContact": "Sesa",
     "saveContact": "Kora contact",
-    "cancelEdit": "Gyae"
+    "cancelEdit": "Gyae",
+    "hint": "Saved locally first. Sync happens in background when online.",
+    "loading": "Loading profile...",
+    "saveFailed": "Save failed",
+    "saveFailedMessage": "Unable to save profile",
+    "phoneNumber": "Phone number",
+    "relationshipPlaceholder": "Relationship (e.g. Spouse, Parent)",
+    "noContactsYet": "No contacts added yet.",
+    "remove": "Yi",
+    "contactRequired": "Name, phone, and relationship are required",
+    "contactAtLeastOne": "Fa ICE contact baako ansa na wobɛsave",
+    "contactDuplicate": "That contact already on your list",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "bloodGroupRequired": "Select a blood group",
+    "genotypeRequired": "Select a genotype"
   },
   "qr": {
     "title": "Ahoyɛ QR",
-    "empty": "Yɛ ahoyɛ profile kan"
+    "empty": "Yɛ ahoyɛ profile kan",
+    "loading": "Opening Patient ID card...",
+    "redirectHint": "QR codes wɔ wo Patient ID card akyi wɔ Me tab so."
   },
   "lock": {
     "title": "Ahoyɛ kaade",
     "call": "Frɛ ICE",
-    "help": "Kyerɛ kaade yi sɛ wontumi nkasa mma wo ho a."
+    "help": "Kyerɛ kaade yi sɛ wontumi nkasa mma wo ho a.",
+    "loading": "Loading...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Lock screen widgets retired",
+    "retiredHelp": "Emergency details wɔ CareMate app mu. Share wɔ wo Patient ID QR card so.",
+    "retiredBody": "Lock Screen ne Home Screen widgets nnyinaa nni health info bio. Generate Patient ID wɔ Me tab so — QR a ɛwɔ akyi no bue CareMate ma signed-in health practitioners.",
+    "openPatientId": "Open Patient ID card",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Call emergency contact",
+    "accessTitle": "Lock screen access",
+    "widgetIos": "Fa CareMate \"Emergency Info\" widget ka wo Lock Screen so (long-press Lock Screen → Customize → Add Widget).",
+    "widgetAndroid": "Fa CareMate \"Emergency Info\" widget ka wo Home Screen so (long-press home → Widgets).",
+    "minimalFields": "Minimal fields: name, blood group, genotype, allergies, ne first ICE contact.",
+    "noProfile": "No emergency profile",
+    "noProfileMessage": "Open CareMate and create Emergency Health Profile.",
+    "contactTitle": "Emergency contact",
+    "contactName": "Name",
+    "noContact": "No ICE contact saved.",
+    "noneListed": "None listed",
+    "footnoteIos": "Use Patient ID QR instead of lock-screen widgets.",
+    "footnoteAndroid": "Use Patient ID QR instead of home-screen widgets."
   },
   "widget": "Sesa lock-screen widget",
-  "preview": "Hwɛ lock screen"
+  "preview": "Hwɛ lock screen",
+  "setupWizard": {
+    "missingDetailsTitle": "Nsɛm a ɛnni hɔ",
+    "missingDetailsMessage": "Paw blood group ne genotype na wo kɔ so.",
+    "iceContactTitle": "ICE nnamfo",
+    "iceContactRequired": "Fa din, fon, ne n'abusua kyerɛ wo ICE nnamfo a edi kan."
+  },
+  "loadFailed": {
+    "title": "Antumi emergency profile no load",
+    "message": "Hwɛ wo connection na san bio."
+  },
+  "profileEyebrow": "Emergency profile",
+  "healthDetails": "Health details",
+  "noContacts": "No contacts added.",
+  "editProfile": "Sesa profile no",
+  "showQr": "Patient ID card (QR)",
+  "share": {
+    "loading": "Loading emergency card...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Emergency details",
+    "help": "Shared via CareMate Patient ID QR. Signed-in health practitioner only can view emergency details and ICE contacts.",
+    "noProfileYet": "This CareMate ID has no emergency profile yet.",
+    "noneListed": "None listed",
+    "invalidTitle": "Invalid QR link",
+    "invalidMessage": "This emergency share link is not valid.",
+    "notFoundTitle": "Not found",
+    "notFoundMessage": "No emergency share matches this code.",
+    "errorTitle": "Antumi load",
+    "errorMessage": "Hwɛ wo connection na san bio.",
+    "practitionerRequiredTitle": "Practitioners only",
+    "practitionerRequiredMessage": "Medical emergency details from Patient ID QR available to signed-in practitioners only. Turn on \"I am a health practitioner\" in profile, then scan again.",
+    "openPractitionerSetting": "Open profile settings"
+  }
 }

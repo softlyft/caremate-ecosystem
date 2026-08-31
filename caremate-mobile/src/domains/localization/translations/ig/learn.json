@@ -11,7 +11,8 @@
   "empty": {
     "title": "Ahụghị edemede ọ bụla",
     "categoryTitle": "Enweghị edemede {{category}}",
-    "message": "Nwaa ọchụchọ ọzọ ma ọ bụ udi ọzọ."
+    "message": "Nwaa ọchụchọ ọzọ ma ọ bụ udi ọzọ.",
+    "newsTitle": "Enweghị akụkọ ugbu a"
   },
   "bookmarksTitle": "Akara akwụkwọ",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "Ahụghị edemede ahụ",
     "message": "Enwere ike ewepụla edemede a."
-  }
+  },
+  "reading": "Akụkọ ihe gbasara gbasara",
+  "readingShort": "Na-agụ",
+  "readingBadge": "Na-agụ",
+  "readBadge": "Agụọla",
+  "readingTab": "Na-agụ",
+  "readTab": "Agụọla",
+  "loadingReading": "Na-ebunye akụkọ ihe gbasara gbasara...",
+  "loadingArticle": "Na-ebunye isiokwu...",
+  "loadingBookmarks": "Na-ebunye akara akwụkwọ...",
+  "loadingCategory": "Na-ebunye otu...",
+  "category": "Otu",
+  "categoryEmpty": "Enweghị isiokwu na otu a",
+  "readingEmpty": {
+    "title": "Enweghị ihe na-aga n'ihu",
+    "message": "Mepee isiokwu iji malite ịsọ ihe ị na-agụ."
+  },
+  "readEmpty": {
+    "title": "Enweghị isiokwu e mechara ugbu a",
+    "message": "Kaa isiokwu dị ka agụọla, ma ọ bụ gbanwee ruo njedebe mgbe ị na-agụ."
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} nkeji gụọ",
+  "externalSource": "Isi mmalite mpụga",
+  "careMateGuide": "Ntuziaka CareMate",
+  "shareArticle": "Kesaa isiokwu",
+  "shareContinue": "Gụọ isiokwu zuru ezu:",
+  "readFull": "Gụọ isiokwu zuru ezu"
 }

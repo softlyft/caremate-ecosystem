@@ -1,12 +1,14 @@
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { billingRepository } from '@/domains/billing/repository';
+import { useTranslation } from '@/domains/localization';
 import { palette, spacing } from '@/theme';
 
 /**
@@ -14,10 +16,11 @@ import { palette, spacing } from '@/theme';
  * Verifies a website/community Paystack/Stripe charge, then activates Premium.
  */
 export default function BillingSuccessScreen() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ reference?: string; trxref?: string }>();
   const reference = (params.reference ?? params.trxref ?? '').toString().trim() || null;
-  const [message, setMessage] = useState('Confirming your payment…');
+  const [message, setMessage] = useState(t('billing.success.confirming'));
 
   useEffect(() => {
     void WebBrowser.dismissBrowser();
@@ -29,12 +32,12 @@ export default function BillingSuccessScreen() {
         if (!cancelled) {
           setMessage(
             state.tier === 'free'
-              ? 'Payment received. Syncing Premium…'
-              : 'Premium activated. Opening your plan…',
+              ? t('billing.success.syncingPremium')
+              : t('billing.success.activated'),
           );
         }
       } catch {
-        if (!cancelled) setMessage('Payment received. Syncing Premium status…');
+        if (!cancelled) setMessage(t('billing.success.syncingStatus'));
         try {
           await billingRepository.pullFromRemote();
         } catch {
@@ -55,17 +58,17 @@ export default function BillingSuccessScreen() {
     return () => {
       cancelled = true;
     };
-  }, [reference, queryClient]);
+  }, [reference, queryClient, t]);
 
   return (
-    <View style={styles.container}>
+    <Screen tone="background" style={styles.container}>
       <AppText variant="sectionTitle" style={styles.title}>
-        Payment received
+        {t('billing.success.title')}
       </AppText>
       <AppText variant="body" style={styles.subtitle}>
         {message}
       </AppText>
-    </View>
+    </Screen>
   );
 }
 

@@ -1,18 +1,17 @@
 import { router } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, Card } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
-import { layoutSpacing, palette, radius, spacing } from '@/theme';
+import { palette, radius, spacing } from '@/theme';
 
 export function MiniAppGuestGate() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + spacing.lg }]}>
+    <Screen padded={false} tone="surface" style={{ justifyContent: 'center', paddingBottom: spacing.xl }}>
       <Card style={styles.card}>
         <AppText variant="screenTitle" style={styles.title}>
           {t('apps.signInRequiredTitle')}
@@ -32,18 +31,11 @@ export function MiniAppGuestGate() {
           style={styles.secondaryCta}
         />
       </Card>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-    paddingHorizontal: layoutSpacing.screenHorizontal,
-    justifyContent: 'center',
-    paddingBottom: spacing.xl,
-  },
   card: {
     borderColor: 'rgba(15, 23, 42, 0.06)',
     gap: spacing.md,

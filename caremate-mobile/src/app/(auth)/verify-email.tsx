@@ -14,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
@@ -76,10 +77,7 @@ export default function VerifyEmailScreen() {
   async function onSubmit(values: VerifyForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before verifying.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
@@ -132,15 +130,18 @@ export default function VerifyEmailScreen() {
 
   if (!email) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <Screen padded={false} style={styles.container}>
         <SectionTitle title={t('auth.verify.title')} subtitle={t('auth.verify.missingEmail')} />
         <TextLink href="/(auth)/register">{t('auth.verify.backToRegister')}</TextLink>
+        </Screen>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
       <AuthBrandHeader>
         <SectionTitle
           title={t('auth.verify.title')}
@@ -194,6 +195,7 @@ export default function VerifyEmailScreen() {
 
         <TextLink href="/(auth)/login">{t('auth.verify.backToSignIn')}</TextLink>
       </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }

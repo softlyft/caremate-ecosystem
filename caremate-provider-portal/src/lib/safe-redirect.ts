@@ -14,6 +14,11 @@ export function sanitizePostLoginPath(
   return value;
 }
 
+/** Infer workspace kind from a sanitized portal path (`/app/*` or `/payer/*`). */
+export function careKindFromPortalPath(path: string): 'provider' | 'payer' {
+  return path.startsWith('/payer') ? 'payer' : 'provider';
+}
+
 /** Pick default home when no `next` is provided. Dual membership prefers provider unless cookie says payer. */
 export function resolveCareHomePath(input: {
   hasProvider: boolean;

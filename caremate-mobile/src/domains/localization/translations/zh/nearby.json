@@ -13,7 +13,10 @@
     "title": "启用定位以查找附近的 CareMate 服务机构",
     "message": "我们需要您的位置来显示附近的 CareMate 服务机构。请启用定位，或在上方按名称搜索。",
     "action": "启用定位",
-    "enabling": "正在启用…"
+    "enabling": "正在启用…",
+    "openSettings": "打开设置",
+    "blockedTitle": "位置访问已被阻止",
+    "blockedMessage": "CareMate 无法在此设备上再次请求位置。打开设置，为 CareMate 开启位置，然后返回此处。"
   },
   "approximate": "正在使用大致位置",
   "outsideArea": "超出您常去区域 — 结果可能有限",
@@ -27,11 +30,52 @@
     "directions": "导航",
     "supportedPayers": "Supported insurers",
     "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
-    "supportedPayersEmpty": "No connected insurers listed yet."
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "提供者",
+    "backToNearby": "返回附近",
+    "verified": "已验证",
+    "contact": "联系方式",
+    "address": "地址",
+    "phone": "电话",
+    "email": "电子邮件",
+    "addressUnavailable": "地址不可用",
+    "phoneUnavailable": "电话不可用",
+    "emailUnavailable": "电子邮件不可用",
+    "distanceKm": "距 {{distance}} 公里",
+    "openInMaps": "在地图中打开",
+    "openInMapsHint": "点击在地图应用中打开",
+    "connect": "与提供者连接",
+    "connectHint": "创建连接请求。若对方接受，将启用安全消息 — 您可随时撤销。紧急及其他健康数据在您分享前保持私密。",
+    "connectPending": "连接请求待处理",
+    "connectPendingOutbound": "等待提供者批准",
+    "connectPendingInbound": "此提供者想连接",
+    "connectApproved": "已连接",
+    "connectRejected": "连接被拒绝",
+    "connectUnavailable": "此列表尚不支持连接",
+    "connectGuest": "登录以与提供者连接",
+    "connectSuccessTitle": "请求已发送",
+    "connectSuccessMessage": "提供者将审核连接请求。接受后可使用消息。",
+    "connectFailedTitle": "无法发送请求",
+    "approveInbound": "批准连接",
+    "declineInbound": "拒绝",
+    "approveSuccessTitle": "已连接",
+    "approveSuccessMessage": "已连接。安全消息已开启 — 可在连接中随时管理。",
+    "respondFailedTitle": "无法更新连接",
+    "connectRejectedFinal": "连接被拒绝",
+    "cancelRequest": "取消请求",
+    "cancelRequestHint": "撤回待处理的连接请求。",
+    "cancelReasonLabel": "取消原因",
+    "cancelReasonPlaceholder": "告知提供者取消原因",
+    "confirmCancelRequest": "确认取消",
+    "cancelSuccessTitle": "请求已取消",
+    "cancelSuccessMessage": "您的连接请求已撤回。",
+    "cancelFailedTitle": "无法取消请求"
   },
   "map": {
     "loading": "正在加载地图...",
-    "empty": "地图上暂无可用位置"
+    "empty": "地图上暂无可用位置",
+    "title": "附近",
+    "subtitle": "打开提供者以在地图应用中启动导航。"
   },
   "types": {
     "hospital": "医院",
@@ -59,7 +103,8 @@
   },
   "lastKnown": {
     "message": "定位已关闭。正在显示您上次已知位置附近的 CareMate 服务机构。",
-    "action": "启用"
+    "action": "启用",
+    "openSettings": "打开设置"
   },
   "connections": {
     "title": "Connections",
@@ -101,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "健康时间线",
+        "description": "所选日期范围内健康应用的只读记录。非文件导出。可随时撤销。"
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -109,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "日期范围",
+    "timelineRangeHint": "此提供者仅可查看该范围内记录。无法下载或导出。",
+    "timelinePreset": "最近 {{days}} 天",
+    "timelineCustom": "自定义",
+    "timelineFrom": "从 (YYYY-MM-DD)",
+    "timelineTo": "到 (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} 至 {{to}}",
+    "outboundTitle": "已发送请求",
+    "outboundCount": "{{count}} 等待提供者",
+    "outboundEmptySubtitle": "无待处理已发送请求",
+    "outboundScreenTitle": "已发送连接请求",
+    "outboundScreenSubtitle": "您发送给提供者的请求。待处理时可取消。",
+    "outboundEmpty": "无待处理已发送请求。",
+    "outboundPendingLabel": "等待批准",
+    "disconnect": "断开连接",
+    "disconnectHint": "结束此连接。您可稍后发送新请求。",
+    "disconnectConfirmTitle": "断开与提供者的连接？",
+    "disconnectConfirmMessage": "此提供者将不再关联您的 CareMate 账户。",
+    "disconnectConfirmAction": "断开连接",
+    "disconnectReasonLabel": "原因（可选）",
+    "disconnectReasonPlaceholder": "告知提供者断开原因",
+    "disconnectSuccessTitle": "已断开",
+    "disconnectSuccessMessage": "您已与此提供者断开连接。",
+    "disconnectFailedTitle": "无法断开连接"
+  },
+  "loadFailed": {
+    "title": "无法加载提供者",
+    "message": "请检查网络连接并重试。"
+  },
+  "favorites": {
+    "openA11y": "查看收藏的提供者",
+    "loading": "正在加载收藏...",
+    "emptyTitle": "暂无收藏",
+    "emptyMessage": "从详情页收藏提供者以便稍后在此查找。",
+    "emptyAction": "浏览附近",
+    "loadFailed": {
+      "title": "无法加载收藏",
+      "message": "请检查网络连接并重试。"
     }
+  },
+  "connectionRequests": {
+    "link": "连接请求",
+    "linkWithCount": "连接请求 ({{count}})",
+    "title": "连接请求",
+    "subtitle": "想与您连接的提供者。批准启用安全消息（可稍后撤销）。紧急数据在您同意前不会分享。",
+    "loading": "正在加载请求...",
+    "empty": "无待处理连接请求。",
+    "guest": "登录以管理提供者连接请求。",
+    "providerFallback": "提供者",
+    "noteLabel": "提供者备注",
+    "approve": "批准",
+    "decline": "拒绝",
+    "approvedTitle": "已连接",
+    "approvedMessage": "已连接。安全消息已开启 — 可随时管理同意。",
+    "declinedTitle": "已拒绝",
+    "declinedMessage": "您已拒绝此连接请求。",
+    "failedTitle": "无法更新请求",
+    "failedMessage": "请重试。",
+    "loadFailed": {
+      "title": "无法加载请求",
+      "message": "请检查网络连接并重试。"
+    },
+    "reasonLabel": "拒绝原因",
+    "reasonPlaceholder": "告知提供者拒绝原因",
+    "confirmDecline": "确认拒绝"
   }
 }
