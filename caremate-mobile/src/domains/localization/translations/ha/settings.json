@@ -35,7 +35,8 @@
     "save": "Ajiye wuri",
     "saving": "Ana ajiyewa...",
     "searchPlaceholder": "Nemo ƙasashe",
-    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike."
+    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike.",
+    "selectPlaceholder": "Zaɓi ƙasa"
   },
   "family": {
     "title": "Iyali",

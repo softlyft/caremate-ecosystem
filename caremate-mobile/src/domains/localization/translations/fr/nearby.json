@@ -13,7 +13,10 @@
     "title": "Activez la localisation pour trouver des prestataires CareMate à proximité",
     "message": "Nous avons besoin de votre position pour afficher les prestataires CareMate près de vous. Activez la localisation, ou recherchez un prestataire par nom ci-dessus.",
     "action": "Activer la localisation",
-    "enabling": "Activation…"
+    "enabling": "Activation…",
+    "openSettings": "Ouvrir Réglages",
+    "blockedTitle": "L'accès à la localisation est bloqué",
+    "blockedMessage": "CareMate ne peut plus demander la localisation sur cet appareil. Ouvrez Réglages, activez la localisation pour CareMate, puis revenez ici."
   },
   "approximate": "Localisation approximative utilisée",
   "outsideArea": "Hors de votre zone habituelle — résultats éventuellement limités",
@@ -24,11 +27,55 @@
     "favorite": "Ajouter aux favoris",
     "unfavorite": "Retirer des favoris",
     "call": "Appeler",
-    "directions": "Itinéraire"
+    "directions": "Itinéraire",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Prestataire",
+    "backToNearby": "Retour à À proximité",
+    "verified": "Vérifié",
+    "contact": "Contact",
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "addressUnavailable": "Adresse indisponible",
+    "phoneUnavailable": "Téléphone indisponible",
+    "emailUnavailable": "E-mail indisponible",
+    "distanceKm": "À {{distance}} km",
+    "openInMaps": "Ouvrir dans Plans",
+    "openInMapsHint": "Appuyez pour ouvrir dans votre app de cartes",
+    "connect": "Se connecter avec un prestataire",
+    "connectHint": "Crée une demande de connexion. S'ils acceptent, la messagerie sécurisée est activée — vous pouvez la révoquer à tout moment. Les données d'urgence et autres données de santé restent privées jusqu'à ce que vous les partagiez.",
+    "connectPending": "Demande de connexion en attente",
+    "connectPendingOutbound": "En attente de l'approbation du prestataire",
+    "connectPendingInbound": "Ce prestataire souhaite se connecter",
+    "connectApproved": "Connecté",
+    "connectRejected": "Connexion refusée",
+    "connectUnavailable": "La connexion n'est pas encore disponible pour cette fiche",
+    "connectGuest": "Connectez-vous pour vous connecter avec des prestataires",
+    "connectSuccessTitle": "Demande envoyée",
+    "connectSuccessMessage": "Le prestataire examinera votre demande de connexion. La messagerie sera disponible s'il accepte.",
+    "connectFailedTitle": "Impossible d'envoyer la demande",
+    "approveInbound": "Approuver la connexion",
+    "declineInbound": "Refuser",
+    "approveSuccessTitle": "Connecté",
+    "approveSuccessMessage": "Vous êtes connecté. La messagerie sécurisée est activée — gérez-la dans Connexions à tout moment.",
+    "respondFailedTitle": "Impossible de mettre à jour la connexion",
+    "connectRejectedFinal": "Connexion refusée",
+    "cancelRequest": "Annuler la demande",
+    "cancelRequestHint": "Retirez votre demande de connexion en attente.",
+    "cancelReasonLabel": "Motif d'annulation",
+    "cancelReasonPlaceholder": "Indiquez au prestataire pourquoi vous annulez",
+    "confirmCancelRequest": "Confirmer l'annulation",
+    "cancelSuccessTitle": "Demande annulée",
+    "cancelSuccessMessage": "Votre demande de connexion a été retirée.",
+    "cancelFailedTitle": "Impossible d'annuler la demande"
   },
   "map": {
     "loading": "Chargement de la carte...",
-    "empty": "Aucun emplacement disponible sur la carte"
+    "empty": "Aucun emplacement disponible sur la carte",
+    "title": "À proximité",
+    "subtitle": "Ouvrez un prestataire pour lancer l'itinéraire dans votre app de cartes."
   },
   "types": {
     "hospital": "Hôpital",
@@ -56,7 +103,8 @@
   },
   "lastKnown": {
     "message": "La localisation est désactivée. Affichage des prestataires CareMate près de votre dernier emplacement connu.",
-    "action": "Activer"
+    "action": "Activer",
+    "openSettings": "Ouvrir Réglages"
   },
   "connections": {
     "title": "Connections",
@@ -98,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Chronologie de santé",
+        "description": "Journaux en lecture seule de vos apps de santé pour une plage de dates que vous choisissez. Pas d'export de fichier. Révocable à tout moment."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -106,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Plage de dates",
+    "timelineRangeHint": "Ce prestataire peut voir uniquement les journaux survenus dans cette plage. Il ne peut pas télécharger ni exporter vos dossiers.",
+    "timelinePreset": "{{days}} derniers jours",
+    "timelineCustom": "Personnalisé",
+    "timelineFrom": "De (AAAA-MM-JJ)",
+    "timelineTo": "À (AAAA-MM-JJ)",
+    "timelineWindow": "{{from}} à {{to}}",
+    "outboundTitle": "Demandes envoyées",
+    "outboundCount": "{{count}} en attente du prestataire",
+    "outboundEmptySubtitle": "Aucune demande envoyée en attente",
+    "outboundScreenTitle": "Demandes de connexion envoyées",
+    "outboundScreenSubtitle": "Demandes que vous avez envoyées aux prestataires. Vous pouvez annuler tant qu'elles sont en attente.",
+    "outboundEmpty": "Vous n'avez aucune demande envoyée en attente.",
+    "outboundPendingLabel": "En attente d'approbation",
+    "disconnect": "Se déconnecter",
+    "disconnectHint": "Met fin à cette connexion. Vous pourrez envoyer une nouvelle demande plus tard.",
+    "disconnectConfirmTitle": "Se déconnecter du prestataire ?",
+    "disconnectConfirmMessage": "Ce prestataire ne sera plus lié à votre compte CareMate.",
+    "disconnectConfirmAction": "Se déconnecter",
+    "disconnectReasonLabel": "Motif (facultatif)",
+    "disconnectReasonPlaceholder": "Indiquez au prestataire pourquoi vous vous déconnectez",
+    "disconnectSuccessTitle": "Déconnecté",
+    "disconnectSuccessMessage": "Vous n'êtes plus connecté avec ce prestataire.",
+    "disconnectFailedTitle": "Impossible de se déconnecter"
+  },
+  "loadFailed": {
+    "title": "Impossible de charger les prestataires",
+    "message": "Vérifiez votre connexion et réessayez."
+  },
+  "favorites": {
+    "openA11y": "Voir les prestataires favoris",
+    "loading": "Chargement des favoris...",
+    "emptyTitle": "Pas encore de favoris",
+    "emptyMessage": "Enregistrez un prestataire depuis son écran de détail pour le retrouver ici plus tard.",
+    "emptyAction": "Parcourir à proximité",
+    "loadFailed": {
+      "title": "Impossible de charger les favoris",
+      "message": "Vérifiez votre connexion et réessayez."
     }
+  },
+  "connectionRequests": {
+    "link": "Demandes de connexion",
+    "linkWithCount": "Demandes de connexion ({{count}})",
+    "title": "Demandes de connexion",
+    "subtitle": "Prestataires qui souhaitent se connecter avec vous. L'approbation active la messagerie sécurisée (révocable plus tard). Les données d'urgence ne sont pas partagées tant que vous n'avez pas donné ce consentement.",
+    "loading": "Chargement des demandes...",
+    "empty": "Aucune demande de connexion en attente.",
+    "guest": "Connectez-vous pour gérer les demandes de connexion prestataires.",
+    "providerFallback": "Prestataire",
+    "noteLabel": "Note du prestataire",
+    "approve": "Approuver",
+    "decline": "Refuser",
+    "approvedTitle": "Connecté",
+    "approvedMessage": "Vous êtes connecté. La messagerie sécurisée est activée — gérez les consentements à tout moment.",
+    "declinedTitle": "Refusé",
+    "declinedMessage": "Vous avez refusé cette demande de connexion.",
+    "failedTitle": "Impossible de mettre à jour la demande",
+    "failedMessage": "Veuillez réessayer.",
+    "loadFailed": {
+      "title": "Impossible de charger les demandes",
+      "message": "Vérifiez votre connexion et réessayez."
+    },
+    "reasonLabel": "Motif de refus",
+    "reasonPlaceholder": "Indiquez au prestataire pourquoi vous refusez",
+    "confirmDecline": "Confirmer le refus"
   }
 }

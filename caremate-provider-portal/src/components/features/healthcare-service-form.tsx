@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { ORG_TYPES, ORG_TYPE_LABELS } from '@/constants/org-types';
 import {
@@ -28,7 +28,6 @@ export function HealthcareServiceForm({
 
   return (
     <form
-      className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -54,42 +53,43 @@ export function HealthcareServiceForm({
     >
       <input type="hidden" name="location_id" value={locationId} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="name">Service name</Label>
-          <Input id="name" name="name" required defaultValue={service?.name ?? ''} />
+      <FormStack>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Service name" htmlFor="name" className="sm:col-span-2">
+            <Input id="name" name="name" required defaultValue={service?.name ?? ''} />
+          </FormField>
+          <FormField label="Service type" htmlFor="service_type">
+            <Select
+              id="service_type"
+              name="service_type"
+              defaultValue={service?.service_type ?? ''}
+            >
+              <option value="">Select type…</option>
+              {ORG_TYPES.map((t: ProviderOrgType) => (
+                <option key={t} value={t}>
+                  {ORG_TYPE_LABELS[t]}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField label="Active" htmlFor="active">
+            <Select
+              id="active"
+              name="active"
+              defaultValue={service?.active === false ? 'false' : 'true'}
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </Select>
+          </FormField>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="service_type">Service type</Label>
-          <Select
-            id="service_type"
-            name="service_type"
-            defaultValue={service?.service_type ?? ''}
-          >
-            <option value="">Select type…</option>
-            {ORG_TYPES.map((t: ProviderOrgType) => (
-              <option key={t} value={t}>
-                {ORG_TYPE_LABELS[t]}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="active">Active</Label>
-          <Select
-            id="active"
-            name="active"
-            defaultValue={service?.active === false ? 'false' : 'true'}
-          >
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </Select>
-        </div>
-      </div>
 
-      <Button type="submit" loading={pending}>
-        {mode === 'create' ? 'Create service' : 'Save service'}
-      </Button>
+        <FormActions className="justify-start">
+          <Button type="submit" loading={pending}>
+            {mode === 'create' ? 'Create service' : 'Save service'}
+          </Button>
+        </FormActions>
+      </FormStack>
     </form>
   );
 }

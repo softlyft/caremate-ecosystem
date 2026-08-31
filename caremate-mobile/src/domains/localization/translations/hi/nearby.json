@@ -13,7 +13,10 @@
     "title": "नज़दीकी CareMate प्रदाता खोजने के लिए स्थान सक्षम करें",
     "message": "आपके पास CareMate प्रदाता दिखाने के लिए हमें आपका स्थान चाहिए। स्थान सक्षम करें, या ऊपर नाम से खोजें।",
     "action": "स्थान सक्षम करें",
-    "enabling": "सक्षम हो रहा है…"
+    "enabling": "सक्षम हो रहा है…",
+    "openSettings": "सेटिंग्स खोलें",
+    "blockedTitle": "स्थान एक्सेस अवरुद्ध है",
+    "blockedMessage": "CareMate इस डिवाइस पर फिर स्थान नहीं मांग सकता। सेटिंग्स खोलें, CareMate के लिए Location चालू करें, फिर यहाँ लौटें।"
   },
   "approximate": "अनुमानित स्थान इस्तेमाल हो रहा है",
   "outsideArea": "आपके सामान्य क्षेत्र से बाहर — परिणाम सीमित हो सकते हैं",
@@ -24,11 +27,55 @@
     "favorite": "पसंदीदा सहेजें",
     "unfavorite": "पसंदीदा हटाएँ",
     "call": "कॉल करें",
-    "directions": "दिशा-निर्देश"
+    "directions": "दिशा-निर्देश",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "प्रदाता",
+    "backToNearby": "नज़दीकी पर वापस",
+    "verified": "सत्यापित",
+    "contact": "संपर्क",
+    "address": "पता",
+    "phone": "फ़ोन",
+    "email": "ईमेल",
+    "addressUnavailable": "पता उपलब्ध नहीं",
+    "phoneUnavailable": "फ़ोन उपलब्ध नहीं",
+    "emailUnavailable": "ईमेल उपलब्ध नहीं",
+    "distanceKm": "{{distance}} किमी दूर",
+    "openInMaps": "मानचित्र में खोलें",
+    "openInMapsHint": "मानचित्र ऐप में खोलने के लिए टैप करें",
+    "connect": "प्रदाता से जुड़ें",
+    "connectHint": "कनेक्शन अनुरोध बनाता है। स्वीकार होने पर सुरक्षित मैसेजिंग चालू — कभी भी रद्द कर सकते हैं। आपातकालीन और अन्य स्वास्थ्य डेटा साझा करने तक निजी रहते हैं।",
+    "connectPending": "कनेक्शन अनुरोध लंबित",
+    "connectPendingOutbound": "प्रदाता की स्वीकृति की प्रतीक्षा",
+    "connectPendingInbound": "यह प्रदाता जुड़ना चाहता है",
+    "connectApproved": "जुड़ा हुआ",
+    "connectRejected": "कनेक्शन अस्वीकृत",
+    "connectUnavailable": "इस सूची के लिए कनेक्शन अभी उपलब्ध नहीं",
+    "connectGuest": "प्रदाताओं से जुड़ने के लिए साइन इन करें",
+    "connectSuccessTitle": "अनुरोध भेजा गया",
+    "connectSuccessMessage": "प्रदाता अनुरोध की समीक्षा करेगा। स्वीकार होने पर मैसेजिंग उपलब्ध।",
+    "connectFailedTitle": "अनुरोध नहीं भेजा जा सका",
+    "approveInbound": "कनेक्शन स्वीकार करें",
+    "declineInbound": "अस्वीकार",
+    "approveSuccessTitle": "जुड़ा हुआ",
+    "approveSuccessMessage": "जुड़े हैं। सुरक्षित मैसेजिंग चालू — कनेक्शन में कभी भी प्रबंधित करें।",
+    "respondFailedTitle": "कनेक्शन अपडेट नहीं हो सका",
+    "connectRejectedFinal": "कनेक्शन अस्वीकृत",
+    "cancelRequest": "अनुरोध रद्द करें",
+    "cancelRequestHint": "लंबित कनेक्शन अनुरोध वापस लें।",
+    "cancelReasonLabel": "रद्द करने का कारण",
+    "cancelReasonPlaceholder": "रद्द करने का कारण प्रदाता को बताएँ",
+    "confirmCancelRequest": "रद्द करने की पुष्टि",
+    "cancelSuccessTitle": "अनुरोध रद्द",
+    "cancelSuccessMessage": "आपका कनेक्शन अनुरोध वापस लिया गया।",
+    "cancelFailedTitle": "अनुरोध रद्द नहीं हो सका"
   },
   "map": {
     "loading": "मानचित्र लोड हो रहा है...",
-    "empty": "मानचित्र पर कोई स्थान उपलब्ध नहीं"
+    "empty": "मानचित्र पर कोई स्थान उपलब्ध नहीं",
+    "title": "नज़दीकी",
+    "subtitle": "मानचित्र ऐप में दिशा-निर्देश के लिए प्रदाता खोलें।"
   },
   "types": {
     "hospital": "अस्पताल",
@@ -56,7 +103,8 @@
   },
   "lastKnown": {
     "message": "स्थान बंद है। आपके अंतिम ज्ञात स्थान के पास CareMate प्रदाता दिखाए जा रहे हैं।",
-    "action": "सक्षम करें"
+    "action": "सक्षम करें",
+    "openSettings": "सेटिंग्स खोलें"
   },
   "connections": {
     "title": "Connections",
@@ -98,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "स्वास्थ्य टाइमलाइन",
+        "description": "चुनी तिथि सीमा के लिए स्वास्थ्य ऐप के केवल-पढ़ने लॉग। फ़ाइल निर्यात नहीं। कभी भी रद्द।"
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -106,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "तिथि सीमा",
+    "timelineRangeHint": "प्रदाता केवल इस सीमा के लॉग देख सकता है। डाउनलोड/निर्यात नहीं।",
+    "timelinePreset": "पिछले {{days}} दिन",
+    "timelineCustom": "कस्टम",
+    "timelineFrom": "से (YYYY-MM-DD)",
+    "timelineTo": "तक (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} से {{to}}",
+    "outboundTitle": "भेजे अनुरोध",
+    "outboundCount": "{{count}} प्रदाता की प्रतीक्षा",
+    "outboundEmptySubtitle": "कोई लंबित भेजे अनुरोध नहीं",
+    "outboundScreenTitle": "भेजे गए कनेक्शन अनुरोध",
+    "outboundScreenSubtitle": "प्रदाताओं को भेजे अनुरोध। लंबित होने पर रद्द कर सकते हैं।",
+    "outboundEmpty": "कोई लंबित भेजे अनुरोध नहीं।",
+    "outboundPendingLabel": "अनुमोदन की प्रतीक्षा",
+    "disconnect": "डिस्कनेक्ट",
+    "disconnectHint": "यह कनेक्शन समाप्त करें। बाद में नया अनुरोध भेज सकते हैं।",
+    "disconnectConfirmTitle": "प्रदाता से डिस्कनेक्ट करें?",
+    "disconnectConfirmMessage": "यह प्रदाता अब CareMate खाते से लिंक नहीं रहेगा।",
+    "disconnectConfirmAction": "डिस्कनेक्ट",
+    "disconnectReasonLabel": "कारण (वैकल्पिक)",
+    "disconnectReasonPlaceholder": "डिस्कनेक्ट का कारण प्रदाता को बताएँ",
+    "disconnectSuccessTitle": "डिस्कनेक्ट",
+    "disconnectSuccessMessage": "अब इस प्रदाता से जुड़े नहीं हैं।",
+    "disconnectFailedTitle": "डिस्कनेक्ट नहीं हो सका"
+  },
+  "loadFailed": {
+    "title": "प्रदाता लोड नहीं हो सके",
+    "message": "अपना कनेक्शन जाँचें और पुनः प्रयास करें।"
+  },
+  "favorites": {
+    "openA11y": "पसंदीदा प्रदाता देखें",
+    "loading": "पसंदीदा लोड हो रहे हैं...",
+    "emptyTitle": "अभी कोई पसंदीदा नहीं",
+    "emptyMessage": "बाद में यहाँ ढूँढने के लिए विवरण स्क्रीन से प्रदाता सहेजें।",
+    "emptyAction": "आस-पास ब्राउज़ करें",
+    "loadFailed": {
+      "title": "पसंदीदा लोड नहीं हो सके",
+      "message": "अपना कनेक्शन जाँचें और पुनः प्रयास करें।"
     }
+  },
+  "connectionRequests": {
+    "link": "कनेक्शन अनुरोध",
+    "linkWithCount": "कनेक्शन अनुरोध ({{count}})",
+    "title": "कनेक्शन अनुरोध",
+    "subtitle": "आपसे जुड़ना चाहने वाले प्रदाता। स्वीकृति से सुरक्षित मैसेजिंग (बाद में रद्द)। सहमति तक आपातकालीन डेटा साझा नहीं।",
+    "loading": "अनुरोध लोड हो रहे हैं...",
+    "empty": "कोई लंबित कनेक्शन अनुरोध नहीं।",
+    "guest": "प्रदाता कनेक्शन अनुरोध प्रबंधित करने के लिए साइन इन करें।",
+    "providerFallback": "प्रदाता",
+    "noteLabel": "प्रदाता की टिप्पणी",
+    "approve": "अनुमोदन करें",
+    "decline": "अस्वीकार",
+    "approvedTitle": "जुड़ा हुआ",
+    "approvedMessage": "जुड़े हैं। सुरक्षित मैसेजिंग चालू — सहमति कभी भी प्रबंधित करें।",
+    "declinedTitle": "अस्वीकृत",
+    "declinedMessage": "आपने यह कनेक्शन अनुरोध अस्वीकार किया।",
+    "failedTitle": "अनुरोध अपडेट नहीं हो सका",
+    "failedMessage": "कृपया पुनः प्रयास करें।",
+    "loadFailed": {
+      "title": "अनुरोध लोड नहीं हो सके",
+      "message": "अपना कनेक्शन जाँचें और पुनः प्रयास करें।"
+    },
+    "reasonLabel": "अस्वीकार का कारण",
+    "reasonPlaceholder": "अस्वीकार का कारण प्रदाता को बताएँ",
+    "confirmDecline": "अस्वीकार की पुष्टि"
   }
 }

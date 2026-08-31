@@ -9,7 +9,7 @@ import { isDateKey } from '@/domains/timeline/consent-window';
 import { supabase } from '@/lib/supabase';
 import type { Provider } from '@/types';
 
-export type ConnectionStatus = 'pending' | 'approved' | 'rejected';
+export type ConnectionStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'disconnected';
 export type ConnectionInitiatedBy = 'patient' | 'provider';
 
 export type PatientProviderConnection = {
@@ -101,6 +101,11 @@ function mapRow(
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+/** Terminal-ish states where the patient can open a new request via RPC. */
+export function isInactiveProviderConnectionStatus(status: ConnectionStatus): boolean {
+  return status === 'cancelled' || status === 'disconnected';
 }
 
 /** Resolve catalog org id from a Nearby provider pin (RPC / attributes). */
@@ -222,11 +227,15 @@ class ProviderConnectionService {
 
     const names = await loadOrganizationNames([organizationId]);
     const staffOrgIds = await loadMyStaffOrganizationIds([organizationId]);
-    return mapRow(
+    const connection = mapRow(
       data as RemoteConnectionRow,
       names.get(organizationId) ?? null,
       staffOrgIds.has(organizationId),
     );
+    if (isInactiveProviderConnectionStatus(connection.status)) {
+      return null;
+    }
+    return connection;
   }
 
   async listMine(): Promise<PatientProviderConnection[]> {
@@ -271,6 +280,21 @@ class ProviderConnectionService {
     return mapRows((data ?? []) as RemoteConnectionRow[]);
   }
 
+  async listOutboundPending(): Promise<PatientProviderConnection[]> {
+    const { data, error } = await supabase
+      .from('patient_provider_connections')
+      .select('*')
+      .eq('status', 'pending')
+      .eq('initiated_by', 'patient')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return mapRows((data ?? []) as RemoteConnectionRow[]);
+  }
+
   async countInboundPending(): Promise<number> {
     const { count, error } = await supabase
       .from('patient_provider_connections')
@@ -300,20 +324,29 @@ class ProviderConnectionService {
     const row = (Array.isArray(data) ? data[0] : data) as RemoteConnectionRow;
     const names = await loadOrganizationNames([params.organizationId]);
     const staffOrgIds = await loadMyStaffOrganizationIds([params.organizationId]);
-    return mapRow(
+    const connection = mapRow(
       row,
       names.get(params.organizationId) ?? null,
       staffOrgIds.has(params.organizationId),
     );
+
+    void supabase.functions
+      .invoke('notify-provider-connection', {
+        body: { connectionId: connection.id, kind: 'request' },
+      })
+      .catch(() => {
+        // Push is optional; offline / missing Expo must not fail the connection flow.
+      });
+
+    return connection;
   }
 
   async respondToRequest(params: {
     connectionId: string;
     accept: boolean;
     rejectionReason?: string | null;
+    note?: string | null;
   }): Promise<void> {
-    const now = new Date().toISOString();
-
     if (!params.accept) {
       const reason = params.rejectionReason?.trim() ?? '';
       if (!reason) {
@@ -321,69 +354,70 @@ class ProviderConnectionService {
       }
     }
 
-    const { data: existing, error: loadError } = await supabase
-      .from('patient_provider_connections')
-      .select('*')
-      .eq('id', params.connectionId)
-      .eq('status', 'pending')
-      .eq('initiated_by', 'provider')
-      .maybeSingle();
-
-    if (loadError) {
-      throw loadError;
-    }
-    if (!existing) {
-      throw new Error('Connection request not found');
-    }
-
-    const { data, error } = await supabase
-      .from('patient_provider_connections')
-      .update(
-        params.accept
-          ? {
-              status: 'approved',
-              approved_at: now,
-              rejected_at: null,
-              rejection_reason: null,
-              // Connection ≠ clinical share — emergency stays opt-in.
-              // Messaging consent is auto-granted by DB trigger on approve.
-              shared_scopes: ['basic'],
-            }
-          : {
-              status: 'rejected',
-              approved_at: null,
-              rejected_at: now,
-              rejection_reason: params.rejectionReason!.trim(),
-            },
-      )
-      .eq('id', params.connectionId)
-      .eq('status', 'pending')
-      .eq('initiated_by', 'provider')
-      .select('*')
-      .single();
+    const { error } = await supabase.rpc('respond_patient_provider_connection', {
+      p_connection_id: params.connectionId,
+      p_accept: params.accept,
+      p_rejection_reason: params.rejectionReason?.trim() ?? undefined,
+      p_note: params.note?.trim() ?? undefined,
+    });
 
     if (error) {
       throw error;
     }
 
-    const row = data as RemoteConnectionRow;
-    const reason = params.rejectionReason?.trim();
-    const { error: activityError } = await supabase.from('patient_provider_activities').insert({
-      organization_id: row.organization_id,
-      patient_id: row.patient_id,
-      connection_id: row.id,
-      event_type: params.accept ? 'connection_approved' : 'connection_rejected',
-      summary: params.accept ? 'Patient approved connection' : 'Patient rejected connection',
-      metadata: {
-        initiated_by: 'provider',
-        responded_by: 'patient',
-        ...(reason ? { rejection_reason: reason } : {}),
-      },
+    void supabase.functions
+      .invoke('notify-provider-connection', {
+        body: {
+          connectionId: params.connectionId,
+          kind: params.accept ? 'accepted' : 'declined',
+        },
+      })
+      .catch(() => {
+        // Push is optional; offline / missing Expo must not fail the connection flow.
+      });
+  }
+
+  async cancelPendingRequest(connectionId: string, reason: string): Promise<void> {
+    const trimmed = reason.trim();
+    if (!trimmed) {
+      throw new Error('A cancellation reason is required');
+    }
+
+    const { error } = await supabase.rpc('cancel_pending_patient_provider_connection', {
+      p_connection_id: connectionId,
+      p_reason: trimmed,
     });
 
-    if (activityError) {
-      throw activityError;
+    if (error) {
+      throw error;
     }
+
+    void supabase.functions
+      .invoke('notify-provider-connection', {
+        body: { connectionId, kind: 'cancelled' },
+      })
+      .catch(() => {
+        // Push is optional; offline / missing Expo must not fail the connection flow.
+      });
+  }
+
+  async disconnectConnection(connectionId: string, reason?: string | null): Promise<void> {
+    const { error } = await supabase.rpc('disconnect_patient_provider_connection', {
+      p_connection_id: connectionId,
+      p_reason: reason?.trim() ?? undefined,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    void supabase.functions
+      .invoke('notify-provider-connection', {
+        body: { connectionId, kind: 'disconnected' },
+      })
+      .catch(() => {
+        // Push is optional; offline / missing Expo must not fail the connection flow.
+      });
   }
 
   /**

@@ -38,17 +38,39 @@ Manual checklist for the Provider Portal MVP. Prefer a claimed org with a known 
 | PP-23 | P0 | Decline provider request with reason | Required reason; inbound list updates |
 | PP-24 | P1 | After reject, open same provider detail | No Connect button; declined state may show |
 
+## Patient ↔ payer (portal + mobile)
+
+| ID | Priority | Steps | Expected |
+|----|----------|-------|----------|
+| PP-40 | P0 | `/payer/patients/requests` → valid CareMate ID → send | Pending under awaiting patient |
+| PP-41 | P0 | Mobile: Me → Health Insurance Directory for **verified** payer | Connect visible; request creates pending |
+| PP-42 | P0 | Mobile: unverified / unclaimed payer detail | Connect card hidden (no existing row) |
+| PP-43 | P0 | Approved link → mobile connected list **Disconnect** | Confirm → removed; portal patients list updates |
+| PP-44 | P0 | `/payer/patients` → disconnect approved patient | Connection ends; mobile list refreshes |
+
 ## Documents / messages / appointments (smoke)
 
 | ID | Priority | Steps | Expected |
 |----|----------|-------|----------|
 | PP-30 | P1 | Upload document for connected patient | Stored; visible on patient detail in portal; success toast only (no `.reset` / null error); form clears |
+| PP-30a | P0 | Same upload; patient has push registered + notifications on | Patient gets Expo push “New document”; bell inbox shows matching card after sync |
 | PP-30b | P0 | Patient: Me → Documents after upload | Document listed; tap opens file |
 | PP-31 | P0 | Messages → send to all connected | Threads created; patient inbox shows; push when device registered; UI shows success toast (not a `.reset` / null error) and form clears once |
 | PP-31b | P0 | Patient replies in mobile thread | Message appears; portal thread reply works |
 | PP-31c | P1 | Patient detail → Mark as staff | Membership created; Staff badge on patients list |
 | PP-31d | P1 | Mobile: New message → search staff/patient by name or Patient ID | DM opens when chat matrix allows |
+| PP-31e | P0 | Staff not on Private Care Team | Patient searches for that staff | Not messageable / cannot start DM |
+| PP-31f | P0 | Staff added to Private Care Team within seats | Patient search + start DM | Succeeds when messaging consent present |
+| PP-31g | P1 | Free org at 5 approved patients | Approve another connection | Blocked with plan upgrade error |
 | PP-32 | P2 | Appointment request list | Status updates persist |
+
+## Private Care Team billing
+
+| ID | Priority | Steps | Expected |
+|----|----------|-------|----------|
+| PP-50 | P0 | SoftLyft admin → Provider plans | Edit Basic/Pro monthly/yearly NGN amounts + limits |
+| PP-51 | P0 | Care Portal → Settings → Billing → Basic monthly | Paystack checkout; after webhook, entitlements show Basic |
+| PP-52 | P1 | Website `/providers/pricing` | Distinct from consumer `/pricing`; monthly/yearly toggle; Care Portal CTAs |
 
 ## Related
 

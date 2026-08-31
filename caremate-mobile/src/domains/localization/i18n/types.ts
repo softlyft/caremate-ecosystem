@@ -10,6 +10,7 @@ export type TranslationNamespace =
   | 'home'
   | 'learn'
   | 'nearby'
+  | 'insurance'
   | 'profile'
   | 'auth'
   | 'emergency'
@@ -17,7 +18,9 @@ export type TranslationNamespace =
   | 'setup'
   | 'apps'
   | 'search'
-  | 'messages';
+  | 'messages'
+  | 'nav'
+  | 'billing';
 
 export type TranslationCatalog = Record<TranslationNamespace, TranslationNode>;
 

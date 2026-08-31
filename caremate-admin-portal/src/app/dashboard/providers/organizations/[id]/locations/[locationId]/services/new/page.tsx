@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
@@ -8,6 +7,7 @@ import {
 } from '@/domains/providers/repository';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TextLink } from '@/components/ui/text-link';
 import { HealthcareServiceForm } from '@/features/providers/healthcare-service-form';
 
 export default async function NewServicePage({
@@ -31,12 +31,11 @@ export default async function NewServicePage({
     return (
       <div>
         <PageHeader title="Create service" description="Editors only" />
-        <Link
+        <TextLink
           href={`/dashboard/providers/organizations/${organizationId}/locations/${locationId}`}
-          className="text-sm text-primary hover:underline"
         >
           Back to location
-        </Link>
+        </TextLink>
       </div>
     );
   }
@@ -47,12 +46,12 @@ export default async function NewServicePage({
         title="Create healthcare service"
         description={`Add a service at ${location.name}`}
       >
-        <Link
+        <TextLink
           href={`/dashboard/providers/organizations/${organizationId}/locations/${locationId}`}
-          className="text-sm text-muted hover:text-foreground"
+          className="text-muted hover:text-foreground"
         >
           Back to location
-        </Link>
+        </TextLink>
       </PageHeader>
       <Card>
         <CardHeader>

@@ -31,12 +31,15 @@ Legacy `provider_broadcasts` rows may still be written as send audit; the live i
 
 **Chat matrix (same org):**
 
-- Org ↔ patient — allowed (org Messages)
-- Patient ↔ practitioner (staff) — allowed (DM)
-- Practitioner ↔ practitioner — allowed (DM)
+- Org ↔ patient — allowed (org Messages) — **always free** (no Private Care Team plan required)
+- Patient ↔ Private Care Team member — allowed (DM)
+- Practitioner ↔ practitioner — allowed (DM) when both are org members
+- Patient ↔ staff who is **not** on Private Care Team — **blocked**
 - Patient ↔ patient (neither is staff) — **blocked**
 
-“Practitioner” for DMs means an active `provider_org_members` row for that org (Phase B mark-as-staff), not only `profiles.is_health_practitioner`.
+“Private Care Team member” means `provider_org_members.private_care_team = true` (and not a viewer). Mark-as-staff alone does **not** enable patient DMs. Plans / seats: [Provider plans](./provider-plans.md).
+
+`can_direct_message` enforces PCT for any DM involving a patient; staff↔staff keeps the membership-based check.
 
 Both parties must be linked to the org (approved connection **or** active membership). Patient ↔ practitioner DMs also require the patient’s active **messaging** consent for that org.
 
@@ -50,6 +53,18 @@ Both parties must be linked to the org (approved connection **or** active member
 ## Device push registration (mobile)
 
 `syncPushRegistration()` upserts `notification_devices` when the user is signed in (not guest), notifications are enabled, and OS permission + Expo token succeed. Runs after auth bootstrap and when the Me notifications toggle is turned on.
+
+## Realtime
+
+Mobile inbox + thread subscribe to Supabase Realtime `postgres_changes` on:
+
+- `message_messages`
+- `message_conversations`
+- `message_participants`
+
+Publication + `REPLICA IDENTITY FULL`: migration `20260827140000_messaging_realtime.sql`.
+
+Delivery is RLS-scoped (same SELECT policies as REST). React Query caches invalidate on events; a slow poll (~60s) remains as a reconnect safety net. Push via `notify-message` still notifies when the app is backgrounded.
 
 ## Related
 

@@ -31,28 +31,54 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isAuthRoute =
     path.startsWith('/login') || path.startsWith('/claim') || path.startsWith('/forgot-password');
-  const isProtected = path.startsWith('/app');
+  const isProviderProtected = path.startsWith('/app');
+  const isPayerProtected = path.startsWith('/payer');
 
-  let hasMembership = false;
+  let hasProviderMembership = false;
+  let hasPayerMembership = false;
   if (user) {
-    const { count } = await supabase
-      .from('provider_org_members')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .is('deleted_at', null);
-    hasMembership = (count ?? 0) > 0;
+    const [{ count: providerCount }, { count: payerCount }] = await Promise.all([
+      supabase
+        .from('provider_org_members')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .is('deleted_at', null),
+      supabase
+        .from('payer_org_members')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .is('deleted_at', null),
+    ]);
+    hasProviderMembership = (providerCount ?? 0) > 0;
+    hasPayerMembership = (payerCount ?? 0) > 0;
   }
 
-  if (isProtected && (!user || !hasMembership)) {
+  const hasAnyMembership = hasProviderMembership || hasPayerMembership;
+
+  if (isProviderProtected && (!user || !hasProviderMembership)) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('next', path);
     return NextResponse.redirect(url);
   }
 
-  if (isAuthRoute && user && hasMembership) {
+  if (isPayerProtected && (!user || !hasPayerMembership)) {
     const url = request.nextUrl.clone();
-    url.pathname = '/app/dashboard';
+    url.pathname = '/login';
+    url.searchParams.set('next', path);
+    return NextResponse.redirect(url);
+  }
+
+  if (isAuthRoute && user && hasAnyMembership) {
+    const url = request.nextUrl.clone();
+    const kindCookie = request.cookies.get('care_active_kind')?.value;
+    if (hasProviderMembership && hasPayerMembership) {
+      url.pathname = kindCookie === 'payer' ? '/payer/dashboard' : '/app/dashboard';
+    } else if (hasPayerMembership) {
+      url.pathname = '/payer/dashboard';
+    } else {
+      url.pathname = '/app/dashboard';
+    }
     return NextResponse.redirect(url);
   }
 

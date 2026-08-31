@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Bayanin gaggawa",
     "body": "Ajiye nau'in jini, rashin jituwa, da lambobin ICE a shirye ba tare da intanet ba.",
-    "cta": "Saita"
+    "cta": "Saita",
+    "ctaUpdate": "Sabunta"
   },
   "featuredArticles": {
     "title": "A gare ka",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Ga masu ba da kulawa na CareMate kusa da kai",
       "body": "Kunna wurin don gano asibitoci, clinic, da kantin magani a kusa da kai — duk a cikin CareMate.",
-      "cta": "Kunna wuri"
+      "cta": "Kunna wuri",
+      "blockedBody": "An katange samun wuri don CareMate. Buɗe Saituna don kunna shi, sannan ka dawo nan.",
+      "openSettings": "Buɗe Saituna"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "Ba a iya loda Gida ba",
+    "message": "Duba haɗin ka kuma sake gwadawa."
+  },
+  "timeline": {
+    "label": "Bayanan ka",
+    "title": "Jerin lokacin lafiya",
+    "cta": "Duba jerin lokaci",
+    "guestBody": "Shiga don duba rubutun daga app ɗin lafiyarka a jerin lokaci guda.",
+    "emptyBody": "Rubutun daga mahimman alamomi, magani, ciki, lokaci, rigakafi, da bincike za su bayyana a nan.",
+    "loading": "Ana loda jerin lokaci...",
+    "loadFailedTitle": "Ba a iya loda jerin lokaci ba",
+    "loadFailedMessage": "Duba haɗin ka kuma sake gwadawa.",
+    "screenSubtitle": "Rubutun daga app ɗin lafiyar CareMate.",
+    "rangeFrom": "Daga",
+    "rangeTo": "Zuwa",
+    "rangeEmpty": "Babu rubutun a wannan kewayon kwanaki. Gwada wani ranar farawa ko ƙarshe.",
+    "lastThreeMonths": "Watanni 3 da suka gabata",
+    "jumpToMonth": "Je zuwa {{month}}",
+    "today": "Yau",
+    "yesterday": "Jiya",
+    "kinds": {
+      "vital": "Alamar mahimmi",
+      "med_dose": "Adadi",
+      "pregnancy_log": "Ciki",
+      "tt_dose": "Adadin TT",
+      "period_day": "Zagayowar",
+      "vaccine": "Allurar rigakafi",
+      "checkup": "Bincike"
+    }
+  },
+  "notifications": {
+    "loading": "Ana loda sanarwa…",
+    "loadFailed": "Ba a iya loda sanarwa ba",
+    "emptyTitle": "Ka kai tsaye",
+    "emptyMessage": "Sabuntawa game da iyali, tunatarwa, da ayyukan asusu za su bayyana a nan.",
+    "openHint": "Buɗe sanarwa",
+    "welcomeTitle": "Barka da zuwa CareMate",
+    "welcomeBody": "Ga ta jagorar sauri don kewayawa:\n\n• Gida — Katin gaggawa, Kulawa kusa, Koyo, da gajerun hanya\n• Apps — Magani, allurar rigakafi, bincike, ciki, da bin lokaci\n• Iyali — Bayanan gida da raba kulawar yara\n• Bayani — Patient ID, saituna, da abubuwan da aka fi so\n\nWannan agogon yana tara sabuntawa a wuri guda. Bincika a saurin ku — CareMate yana aiki ba tare da intanet ba."
   }
 }

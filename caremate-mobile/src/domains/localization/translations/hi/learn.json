@@ -11,7 +11,8 @@
   "empty": {
     "title": "कोई लेख नहीं मिला",
     "categoryTitle": "कोई {{category}} लेख नहीं",
-    "message": "दूसरी खोज या श्रेणी आज़माएँ।"
+    "message": "दूसरी खोज या श्रेणी आज़माएँ।",
+    "newsTitle": "अभी कोई समाचार नहीं"
   },
   "bookmarksTitle": "बुकमार्क",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "लेख नहीं मिला",
     "message": "यह लेख हटाया गया हो सकता है।"
-  }
+  },
+  "reading": "पढ़ने का इतिहास",
+  "readingShort": "पढ़ रहे हैं",
+  "readingBadge": "पढ़ रहे हैं",
+  "readBadge": "पढ़ा",
+  "readingTab": "पढ़ रहे हैं",
+  "readTab": "पढ़ा",
+  "loadingReading": "पढ़ने का इतिहास लोड हो रहा है...",
+  "loadingArticle": "लेख लोड हो रहा है...",
+  "loadingBookmarks": "बुकमार्क लोड हो रहे हैं...",
+  "loadingCategory": "श्रेणी लोड हो रही है...",
+  "category": "श्रेणी",
+  "categoryEmpty": "इस श्रेणी में कोई लेख नहीं",
+  "readingEmpty": {
+    "title": "कुछ प्रगति में नहीं",
+    "message": "पढ़ने की प्रगति ट्रैक करने के लिए लेख खोलें।"
+  },
+  "readEmpty": {
+    "title": "अभी कोई पूरा लेख नहीं",
+    "message": "लेख पढ़ा चिह्नित करें, या पढ़ते हुए अंत तक स्क्रॉल करें।"
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} मिनट पढ़ना",
+  "externalSource": "बाहरी स्रोत",
+  "careMateGuide": "CareMate गाइड",
+  "shareArticle": "लेख साझा करें",
+  "shareContinue": "पूरा लेख पढ़ें:",
+  "readFull": "पूरा लेख पढ़ें"
 }

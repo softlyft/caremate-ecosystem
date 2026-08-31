@@ -68,7 +68,20 @@ describe('email templates', () => {
     assert.match(mail.html, /482913/);
     assert.match(mail.html, /Lagos Clinic &lt;script&gt;/);
     assert.match(mail.text, /482913/);
+    assert.match(mail.html, /Care Portal/);
     assert.match(mail.html, /provider\.getcaremate\.com\/claim/);
+  });
+
+  it('renders payer claim OTP with Care Portal branding', () => {
+    const mail = renderProviderOrgClaimOtp({
+      code: '991122',
+      orgName: 'Demo Payer',
+      orgKind: 'payer',
+      expiresMinutes: 10,
+    });
+    assert.match(mail.subject, /payer verification code/i);
+    assert.match(mail.html, /991122/);
+    assert.match(mail.html, /Care Portal/);
   });
 
   it('renders community join OTP with code and join CTA', () => {

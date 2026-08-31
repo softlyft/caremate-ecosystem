@@ -6,9 +6,13 @@ import {
 import { collectMedicationAlerts } from '@/mini-apps/medication-tracker/alerts';
 import { resolveMedicationFamilyKidsSource } from '@/mini-apps/medication-tracker/family-source';
 import {
+  buildMedicationAlertCopy,
   localizeDoseSlotLabel,
   localizeFrequencyLabel,
   localizeFrequencyOptions,
+  localizeInstructionKind,
+  localizeInstructionOptions,
+  localizeInstructionsSummary,
   localizeMedicationPatient,
   localizeMedicationStatus,
   localizeSlotLabel,
@@ -374,6 +378,41 @@ describe('medication-tracker/localize', () => {
       new Date(2026, 6, 17, 8, 30),
     )[0]!;
     expect(localizeDoseSlotLabel(asNeededOpen, t)).toContain('as-needed.label');
+
+    const asNeededTaken = {
+      ...asNeededOpen,
+      status: 'taken' as const,
+      slotIndex: 2,
+    };
+    expect(localizeDoseSlotLabel(asNeededTaken, t)).toContain('doseN');
+  });
+
+  it('localizes instructions, kid patients, and alert copy', () => {
+    expect(localizeInstructionKind('with_food', t)).toContain('instructions.with_food');
+    expect(localizeInstructionOptions(t).length).toBeGreaterThan(0);
+    expect(localizeInstructionsSummary({ kind: 'none' }, t)).toBeNull();
+    expect(localizeInstructionsSummary({ kind: 'none', text: '  take with water  ' }, t)).toBe(
+      'take with water',
+    );
+    expect(localizeInstructionsSummary({ kind: 'other' }, t)).toContain('instructions.other');
+    expect(localizeInstructionsSummary({ kind: 'other', text: 'custom note' }, t)).toBe(
+      'custom note',
+    );
+    expect(localizeInstructionsSummary({ kind: 'with_food' }, t)).toContain(
+      'instructions.with_food',
+    );
+    expect(localizeMedicationPatient(med({ forKid: true, patientName: 'Ada' }), t)).toBe('Ada');
+    expect(localizeMedicationPatient(med({ forKid: true, patientName: '  ' }), t)).toContain(
+      'ui.child',
+    );
+
+    const alerts = buildMedicationAlertCopy(t);
+    expect(alerts.doseDueTitle('Amox')).toContain('doseDueTitle');
+    expect(alerts.doseDueBody('Amox', 'Morning')).toContain('doseDueBody');
+    expect(alerts.doseMissedTitle('Amox')).toContain('doseMissedTitle');
+    expect(alerts.doseMissedBody('Amox', 'Evening')).toContain('doseMissedBody');
+    expect(alerts.refillTitle('Amox')).toContain('refillTitle');
+    expect(alerts.refillBody('Amox')).toContain('refillBody');
   });
 });
 
@@ -390,6 +429,46 @@ describe('medication-tracker/family-source', () => {
         children: [],
       }).status,
     ).toBe('guest');
+
+    expect(
+      resolveMedicationFamilyKidsSource({
+        isGuest: false,
+        householdLoading: true,
+        childrenLoading: false,
+        householdId: null,
+        children: [],
+      }).status,
+    ).toBe('loading');
+
+    expect(
+      resolveMedicationFamilyKidsSource({
+        isGuest: false,
+        householdLoading: false,
+        childrenLoading: true,
+        householdId: 'hh-1',
+        children: [],
+      }).status,
+    ).toBe('loading');
+
+    expect(
+      resolveMedicationFamilyKidsSource({
+        isGuest: false,
+        householdLoading: false,
+        childrenLoading: false,
+        householdId: null,
+        children: [],
+      }).status,
+    ).toBe('needs_family_setup');
+
+    expect(
+      resolveMedicationFamilyKidsSource({
+        isGuest: false,
+        householdLoading: false,
+        childrenLoading: false,
+        householdId: 'hh-1',
+        children: [],
+      }).status,
+    ).toBe('needs_children');
 
     expect(
       resolveMedicationFamilyKidsSource({

@@ -7,12 +7,13 @@ export function ProviderGuidePage() {
   return (
     <main className={styles.page}>
       <article className={styles.article}>
-        <p className={styles.eyebrow}>Provider guide</p>
-        <h1>How to use the {BRAND.name} Provider Portal</h1>
+        <p className={styles.eyebrow}>Care Portal · Provider guide</p>
+        <h1>How to use the {BRAND.name} Care Portal</h1>
         <p className={styles.lead}>
           A plain-language walkthrough for hospitals, clinics, pharmacies, labs, and other care
           organizations — how to claim your listing, connect with CareMate patients, and use
-          engagement tools without replacing your clinical systems.
+          engagement tools without replacing your clinical systems. (Payers claim separately as a
+          Care Org type on the same Care Portal.)
         </p>
 
         <nav className={styles.toc} aria-label="Guide contents">
@@ -29,10 +30,10 @@ export function ProviderGuidePage() {
 
         <h2 id="what">What this portal is</h2>
         <p>
-          The CareMate Provider Portal is a <strong>patient engagement</strong> channel. It is not
-          an HMS, LIMS, pharmacy system, or EHR. You keep your clinical and operations software.
-          CareMate gives you a trusted way to link with patients who already use the CareMate mobile
-          app.
+          The CareMate Care Portal is a <strong>patient engagement</strong> channel for providers. It
+          is not an HMS, LIMS, pharmacy system, or EHR. You keep your clinical and operations
+          software. CareMate gives you a trusted way to link with patients who already use the
+          CareMate mobile app.
         </p>
         <p>In scope today:</p>
         <ul className={styles.list}>
@@ -54,8 +55,9 @@ export function ProviderGuidePage() {
         </p>
         <ol className={styles.steps}>
           <li>
-            Open the Provider Portal claim page and enter the contact email SoftLyft already has on
-            your catalog listing (location email, or the organization contact).
+            Open the Care Portal claim page, choose <strong>Provider</strong>, and enter the contact
+            email SoftLyft already has on your catalog listing (location email, or the organization
+            contact).
           </li>
           <li>
             Confirm the verification code (shown in the product today while email delivery is still
@@ -205,7 +207,7 @@ export function ProviderGuidePage() {
 
         <h2 id="safety">Important to know</h2>
         <p className={styles.callout}>
-          <strong>CareMate Provider Portal does not replace clinical systems.</strong> Do not use it
+          <strong>CareMate Care Portal does not replace clinical systems.</strong> Do not use it
           as your medical record, billing system, or emergency communications channel. Follow your
           organization&apos;s privacy, consent, and clinical policies when messaging or sharing
           documents with patients.

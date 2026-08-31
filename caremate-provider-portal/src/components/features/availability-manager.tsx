@@ -7,8 +7,8 @@ import {
   deleteAvailabilityAction,
 } from '@/domains/appointments/actions';
 import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import type { AppointmentAvailability } from '@/types/database';
 
@@ -95,8 +95,7 @@ export function AvailabilityManager({
             });
           }}
         >
-          <div className="space-y-1">
-            <Label htmlFor="weekday">Day</Label>
+          <FormField compact label="Day" htmlFor="weekday">
             <Select id="weekday" name="weekday" defaultValue="1">
               {WEEKDAYS.map((label, i) => (
                 <option key={label} value={i}>
@@ -104,17 +103,14 @@ export function AvailabilityManager({
                 </option>
               ))}
             </Select>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="start_time">Start</Label>
+          </FormField>
+          <FormField compact label="Start" htmlFor="start_time">
             <Input id="start_time" name="start_time" type="time" required defaultValue="09:00" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="end_time">End</Label>
+          </FormField>
+          <FormField compact label="End" htmlFor="end_time">
             <Input id="end_time" name="end_time" type="time" required defaultValue="17:00" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="slot_minutes">Slot</Label>
+          </FormField>
+          <FormField compact label="Slot" htmlFor="slot_minutes">
             <Select id="slot_minutes" name="slot_minutes" defaultValue="30">
               {[15, 20, 30, 45, 60].map((m) => (
                 <option key={m} value={m}>
@@ -122,7 +118,7 @@ export function AvailabilityManager({
                 </option>
               ))}
             </Select>
-          </div>
+          </FormField>
           <div className="flex items-end">
             <Button type="submit" loading={pending}>
               Add window

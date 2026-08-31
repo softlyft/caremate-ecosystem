@@ -35,7 +35,8 @@
     "save": "स्थान सहेजें",
     "saving": "सहेजा जा रहा है...",
     "searchPlaceholder": "देश खोजें",
-    "searchEmpty": "कोई देश इस खोज से मेल नहीं खाता।"
+    "searchEmpty": "कोई देश इस खोज से मेल नहीं खाता।",
+    "selectPlaceholder": "देश चुनें"
   },
   "family": {
     "title": "परिवार",

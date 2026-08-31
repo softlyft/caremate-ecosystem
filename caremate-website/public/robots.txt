@@ -6,4 +6,4 @@ Disallow: /auth/
 Disallow: /billing/
 Disallow: /emergency/share/
 
-Sitemap: https://www.getcaremate.com/sitemap.xml
+Sitemap: https://getcaremate.com/sitemap.xml

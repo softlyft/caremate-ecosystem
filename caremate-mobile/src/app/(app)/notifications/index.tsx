@@ -1,9 +1,9 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
 import { useNotificationsInbox } from '@/domains/notifications/hooks';
 import { markNotificationsRead } from '@/domains/notifications/service';
@@ -65,7 +65,10 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <View style={[styles.screen, { paddingBottom: insets.bottom + spacing.md }]}>
+    <Screen
+      padded={false}
+      style={{ paddingBottom: insets.bottom + spacing.md, backgroundColor: '#F8FAFF' }}
+    >
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
@@ -73,15 +76,11 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <NotificationCard notification={item} />}
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#F8FAFF',
-  },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,

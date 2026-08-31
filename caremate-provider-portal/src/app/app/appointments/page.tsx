@@ -13,6 +13,7 @@ import { AppointmentActions } from '@/components/features/appointment-actions';
 import { ScheduleAppointmentForm } from '@/components/features/schedule-appointment-form';
 import { AvailabilityManager } from '@/components/features/availability-manager';
 import { canWriteOrg } from '@/constants/roles';
+import { PageHeader, PageShell } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -78,13 +79,11 @@ export default async function AppointmentsPage({
   const hrefForPage = (p: number) => hrefWithPage('/app/appointments', p, { tab });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Appointments</h1>
-        <p className="mt-1 text-sm text-muted">
-          Set availability, schedule visits for connected patients, and work the request queue.
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Appointments"
+        description="Set availability, schedule visits for connected patients, and work the request queue."
+      />
 
       <div className="flex flex-wrap gap-2 border-b border-border pb-2">
         {TABS.map((t) => (
@@ -183,7 +182,7 @@ export default async function AppointmentsPage({
           </CardContent>
         </Card>
       ) : null}
-    </div>
+    </PageShell>
   );
 }
 

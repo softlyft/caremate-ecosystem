@@ -5,6 +5,7 @@ import {
   SYMPTOM_OPTIONS,
 } from '@/mini-apps/pregnancy-tracker/constants';
 import {
+  buildPregnancyAlertCopy,
   localizeMilestone,
   localizeMilestones,
   localizeMood,
@@ -129,6 +130,24 @@ describe('pregnancy-tracker/localize', () => {
       localizePregnancyMilestone({ ...MILESTONES[0], daysUntil: 3, isPast: false }, t).daysUntil,
     ).toBe(3);
     expect(localizeTrimester(2, t)).toContain('trimester.2');
+  });
+
+  it('builds pregnancy alert copy including due and milestone branches', () => {
+    const copy = buildPregnancyAlertCopy(t);
+    expect(copy.milestoneSoonTitle('Heartbeat', 8)).toContain('milestoneSoonTitle');
+    expect(copy.milestoneSoonBody('Heartbeat', 0)).toContain('milestoneSoonThisWeek');
+    expect(copy.milestoneSoonBody('Heartbeat', 3)).toContain('milestoneSoonBody_other');
+    expect(copy.milestoneSoonBody('Heartbeat', 1)).toContain('milestoneSoonBody');
+    expect(copy.dueSoonTitle('Baby', 2)).toContain('dueSoonTitle_other');
+    expect(copy.dueSoonBody('Baby', 1)).toContain('dueSoonBody');
+    expect(copy.dueTodayTitle('Baby')).toContain('dueTodayTitle');
+    expect(copy.dueTodayBody('Baby')).toContain('dueTodayBody');
+    expect(copy.pastDueTitle('Baby', 4)).toContain('pastDueTitle_other');
+    expect(copy.pastDueBody('Baby', 1)).toContain('pastDueBody');
+    expect(copy.dailyNudgeTitle()).toContain('dailyNudgeTitle');
+    expect(copy.dailyNudgeBody()).toContain('dailyNudgeBody');
+    expect(copy.ttDoseDueTitle()).toContain('ttDoseDueTitle');
+    expect(copy.ttDoseDueBody()).toContain('ttDoseDueBody');
   });
 });
 

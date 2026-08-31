@@ -10,18 +10,22 @@ Defined in `src/domains/modules/catalog.ts`.
 |--------|---------|-------------------------|--------|
 | Dashboard | On | No | `/app/dashboard` |
 | Patients | On | No | `/app/patients` |
-| Appointments | On | No | `/app/appointments` |
+| Payers | On | No | `/app/payers` |
+| Appointments | Off | No | `/app/appointments` |
 | Documents | On | No | `/app/documents` |
 | Messaging | On | No | `/app/broadcasts` |
 | Analytics | On | No | `/app/analytics` |
 | Organization | On | No | `/app/organization` |
-| Laboratory | Off | Yes | `/app/lab` |
 
 Missing `provider_org_modules` row → catalog `defaultEnabled`.
 
 ## Activation UI
 
-**Settings → Modules** (`/app/settings/modules`). Only activatable modules are listed (Laboratory for now). Owners/admins toggle; nav and `requireModule()` gate routes.
+**Settings → Modules** (`/app/settings/modules`). Activatable modules appear here when shipped. Owners/admins toggle; nav and `requireModule()` gate routes.
+
+## Documents (clinical file sharing)
+
+Use **Documents** (`/app/documents`) for lab results (PDF), prescriptions, imaging reports, and other files shared with connected patients. Document types include `lab_result`, `prescription`, and `imaging_report`. Structured extraction and mapping are deferred.
 
 ## Appointments (portal)
 
@@ -31,17 +35,6 @@ Missing `provider_org_modules` row → catalog `defaultEnabled`.
 - Statuses include `checked_in` / `cancelled`
 
 Mobile appointment UI is intentionally unchanged.
-
-## Laboratory
-
-Activate via Settings, then:
-
-1. **Test catalog** (`/app/lab/tests`) — org-scoped definitions
-2. **Orders** (`/app/lab`) — order for connected patients
-3. **Workflow** — ordered → sample collected → processing → awaiting validation → validated → reported
-4. Enter item results during processing; validate; report (portal-only notification timestamp for now)
-
-Tables: `lab_test_definitions`, `lab_orders`, `lab_order_items`.
 
 ## Extending
 
@@ -55,4 +48,5 @@ Tables: `lab_test_definitions`, `lab_orders`, `lab_order_items`.
 
 - [Strategy gaps](./provider-strategy-gaps.md)
 - [Data model](./data-model.md)
-- Migration: `supabase/migrations/20260803120000_provider_modules_appointments_lab.sql`
+- Migration (create): `supabase/migrations/20260803120000_provider_modules_appointments_lab.sql`
+- Migration (drop lab tables): `supabase/migrations/20260831150000_drop_provider_laboratory_module.sql`

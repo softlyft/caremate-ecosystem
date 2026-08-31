@@ -280,6 +280,56 @@ class FamilyRepository extends BaseRepository {
     });
   }
 
+  async findMemberById(memberId: string): Promise<FamilyMember | null> {
+    const db = getDatabase();
+    const [row] = await db
+      .select()
+      .from(familyMembers)
+      .where(and(eq(familyMembers.id, memberId), isNull(familyMembers.deletedAt)))
+      .limit(1);
+    return row ? mapMember(row) : null;
+  }
+
+  async updateChild(memberId: string, child: ChildProfileDraft): Promise<FamilyMember> {
+    const existing = await this.findMemberById(memberId);
+    if (!existing || existing.kind !== 'child') {
+      throw new Error('Child profile not found');
+    }
+
+    const db = getDatabase();
+    const timestamp = nowIso();
+    const updated: FamilyMember = {
+      ...existing,
+      fullName: child.fullName.trim(),
+      dateOfBirth: child.dateOfBirth,
+      gender: child.gender,
+      notes: child.notes?.trim() || null,
+      syncStatus: 'pending',
+      updatedAt: timestamp,
+    };
+
+    await db
+      .update(familyMembers)
+      .set({
+        fullName: updated.fullName,
+        dateOfBirth: updated.dateOfBirth,
+        gender: updated.gender,
+        notes: updated.notes,
+        syncStatus: 'pending',
+        updatedAt: timestamp,
+      })
+      .where(eq(familyMembers.id, memberId));
+
+    await this.queueSync({
+      entityType: 'family_members',
+      entityId: updated.id,
+      operation: 'update',
+      payload: updated,
+    });
+
+    return updated;
+  }
+
   private async insertMember(input: {
     householdId: string;
     kind: FamilyMemberKind;

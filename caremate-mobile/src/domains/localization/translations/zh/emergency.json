@@ -16,7 +16,12 @@
     "contacts": "紧急联系人",
     "hospital": "首选医院",
     "insurance": "保险公司",
-    "notes": "备注"
+    "notes": "备注",
+    "firstName": "名",
+    "lastName": "姓",
+    "allergiesPlaceholder": "过敏（逗号分隔）",
+    "medicationsPlaceholder": "药物（逗号分隔）",
+    "conditionsPlaceholder": "慢性病（逗号分隔）"
   },
   "edit": {
     "title": "编辑急救档案",
@@ -29,17 +34,86 @@
     "nameInvalid": "仅可使用字母（允许空格、连字符和撇号）",
     "editContact": "编辑",
     "saveContact": "保存联系人",
-    "cancelEdit": "取消"
+    "cancelEdit": "取消",
+    "hint": "先本地保存。在线时在后台同步。",
+    "loading": "正在加载资料...",
+    "saveFailed": "保存失败",
+    "saveFailedMessage": "无法保存资料",
+    "phoneNumber": "电话号码",
+    "relationshipPlaceholder": "关系（如配偶、父母）",
+    "noContactsYet": "尚未添加联系人。",
+    "remove": "移除",
+    "contactRequired": "姓名、电话和关系为必填",
+    "contactAtLeastOne": "保存前请至少添加一个 ICE 联系人",
+    "contactDuplicate": "该联系人已在列表中",
+    "firstNameRequired": "名为必填",
+    "lastNameRequired": "姓为必填",
+    "bloodGroupRequired": "选择血型",
+    "genotypeRequired": "选择基因型"
   },
   "qr": {
     "title": "急救二维码",
-    "empty": "请先创建急救档案"
+    "empty": "请先创建急救档案",
+    "loading": "正在打开 Patient ID 卡...",
+    "redirectHint": "QR 码位于「我」标签 Patient ID 卡背面。"
   },
   "lock": {
     "title": "急救卡",
     "call": "拨打紧急联系人",
-    "help": "如果您无法自行表达，请出示此卡。"
+    "help": "如果您无法自行表达，请出示此卡。",
+    "loading": "加载中...",
+    "badge": "CAREMATE",
+    "retiredTitle": "锁定屏幕小组件已停用",
+    "retiredHelp": "紧急详情保留在 CareMate 应用中。通过 Patient ID QR 卡分享。",
+    "retiredBody": "锁定屏幕和主屏幕小组件不再显示健康信息。在「我」标签生成 Patient ID — 背面 QR 为已登录医疗从业者打开 CareMate。",
+    "openPatientId": "打开 Patient ID 卡",
+    "cardBadge": "EMERGENCY",
+    "callContact": "拨打紧急联系人",
+    "accessTitle": "锁定屏幕访问",
+    "widgetIos": "将 CareMate「Emergency Info」小组件添加到锁定屏幕（长按锁定屏幕 → 自定义 → 添加小组件）。",
+    "widgetAndroid": "将 CareMate「Emergency Info」小组件添加到主屏幕（长按主屏幕 → 小组件）。",
+    "minimalFields": "显示最少字段：姓名、血型、基因型、过敏和首个 ICE 联系人。",
+    "noProfile": "无紧急资料",
+    "noProfileMessage": "打开 CareMate 并创建紧急健康资料。",
+    "contactTitle": "紧急联系人",
+    "contactName": "姓名",
+    "noContact": "未保存 ICE 联系人。",
+    "noneListed": "未列出",
+    "footnoteIos": "使用 Patient ID QR 代替锁定屏幕小组件。",
+    "footnoteAndroid": "使用 Patient ID QR 代替主屏幕小组件。"
   },
   "widget": "更新锁屏小组件",
-  "preview": "预览锁屏"
+  "preview": "预览锁屏",
+  "setupWizard": {
+    "missingDetailsTitle": "缺少详细信息",
+    "missingDetailsMessage": "请选择血型和基因型以继续。",
+    "iceContactTitle": "ICE 联系人",
+    "iceContactRequired": "请添加第一位紧急联系人的姓名、电话和关系。"
+  },
+  "loadFailed": {
+    "title": "无法加载紧急资料",
+    "message": "请检查网络连接并重试。"
+  },
+  "profileEyebrow": "紧急资料",
+  "healthDetails": "健康详情",
+  "noContacts": "未添加联系人。",
+  "editProfile": "编辑资料",
+  "showQr": "Patient ID 卡 (QR)",
+  "share": {
+    "loading": "正在加载紧急卡...",
+    "badge": "EMERGENCY SHARE",
+    "title": "紧急详情",
+    "help": "通过 CareMate Patient ID QR 分享。仅已登录医疗从业者可查看紧急详情和 ICE 联系人。",
+    "noProfileYet": "此 CareMate ID 尚无紧急资料。",
+    "noneListed": "未列出",
+    "invalidTitle": "无效的 QR 链接",
+    "invalidMessage": "此紧急分享链接无效。",
+    "notFoundTitle": "未找到",
+    "notFoundMessage": "无与此代码匹配的紧急分享。",
+    "errorTitle": "无法加载",
+    "errorMessage": "请检查网络连接并重试。",
+    "practitionerRequiredTitle": "仅限从业者",
+    "practitionerRequiredMessage": "Patient ID QR 的紧急医疗详情仅对已登录医疗从业者可用。在资料中开启「我是医疗从业者」，然后重新扫描。",
+    "openPractitionerSetting": "打开资料设置"
+  }
 }

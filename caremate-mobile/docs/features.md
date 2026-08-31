@@ -139,7 +139,7 @@ Nearby is no longer driven by seeded bundle data as the primary source. The curr
 | Nearby tab | `/(app)/(tabs)/providers` | Horizontal type chips with icons + search; `nearby.list` ad |
 | Provider detail | `/(app)/providers/[id]` | Favorite, Connect (verified orgs), contact, `nearby.provider` ad |
 | Connections | `/(app)/providers/connections/*` | Me → Connections: approved list + inbound requests |
-| Messages | `/(app)/messages/*` | Home → Messages: clinic threads + DMs |
+| Messages | `/(app)/messages/*` | Home → Messages: clinic + insurer threads and DMs |
 | Map (legacy) | `/(app)/providers/map` | Redirects to the Nearby tab |
 
 ### UX notes
@@ -190,6 +190,24 @@ Plan tiers, mini-app limits, family caps, and guest vs patient account rules: **
 - Emergency and family entry points
 - Premium status and checkout entry points
 - Connections / Documents menu rows
+- Health Insurance Directory (Me → menu) — payer catalog + connect / disconnect
+
+### Health Insurance Directory
+
+**Routes:** `/(app)/profile/insurance`, `/(app)/profile/insurance/[id]`  
+**Domain:** `src/domains/payers/`
+
+Patients discover SoftLyft-seeded insurers via the public `payer_directory` view (claim email hidden). This is **not** the Nearby `insurance` provider type.
+
+| Capability | Behavior |
+|------------|----------|
+| Browse / search | Paginated directory; detail shows contact fields |
+| Connect | Signed-in only; **Connect with insurer** only when the payer is claim-verified (`is_payer_org_verified`) or a connection row already exists |
+| Inbound requests | Directory header lists payer-initiated pending; Approve / Decline (+ reason on detail) |
+| Connected list | **Your connected insurers** with **Disconnect** (confirm → `disconnect_patient_payer_connection`) |
+| Detail lifecycle | Pending outbound cancel; approved disconnect (optional reason); rejected is final |
+
+Full rules: [Provider Portal connections — Patient ↔ payer](../../caremate-provider-portal/docs/connections.md#patient--payer-connections).
 
 ### Implemented settings features
 
@@ -217,7 +235,7 @@ Emergency profile data is intended to be available offline in the app. Lock Scre
 | `/(app)/emergency` | View emergency profile |
 | `/(app)/emergency/edit` | Create / edit |
 | `/(app)/emergency/qr` | Redirects to Me → Patient ID card (QR on card back) |
-| `/emergency/share/[token]` | Auth-gated view of another user’s emergency (from QR) |
+| `/emergency/share/[token]` | Practitioner + sign-in gated view of another user’s emergency (from QR) |
 
 ### Lock and widget surface
 
@@ -230,7 +248,7 @@ Emergency profile data is intended to be available offline in the app. Lock Scre
 - Account required to generate Patient ID + opaque `emergency_share_token`
 - QR encodes `caremate://emergency/share/<token>` only (no PHI in the barcode)
 - Scanner / OS camera opens CareMate; viewer must be signed in (not guest)
-- Server RPC `get_emergency_by_share_token` returns a narrow emergency card for authenticated callers
+- Server RPC `get_emergency_by_share_token` returns a narrow emergency card for signed-in health practitioners (or Care Portal provider staff / SoftLyft staff)
 
 ### Editable data
 

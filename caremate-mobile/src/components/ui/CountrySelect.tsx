@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Search, X } from 'lucide-react-native';
+import { Check, ChevronDown, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Dimensions,
@@ -15,7 +15,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Button } from '@/components/ui/form-controls';
+import { SearchField } from '@/components/ui/search-field';
 import { localizationService } from '@/domains/localization';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
@@ -177,19 +178,14 @@ export function CountrySelect({
               </Button>
             </View>
 
-            <View style={styles.searchRow}>
-              <Search color={accent} size={16} strokeWidth={2.25} />
-              <View style={styles.searchInput}>
-                <Input
-                  placeholder={searchPlaceholder}
-                  value={query}
-                  onChangeText={setQuery}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoFocus
-                />
-              </View>
-            </View>
+            <SearchField
+              value={query}
+              onChangeText={setQuery}
+              placeholder={searchPlaceholder}
+              onClear={() => setQuery('')}
+              style={styles.searchField}
+              inputProps={{ autoFocus: true }}
+            />
 
             <FlatList
               data={countries}
@@ -323,13 +319,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: palette.surface,
   },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  searchInput: {
-    flex: 1,
+  searchField: {
+    shadowOpacity: 0,
+    elevation: 0,
   },
   list: {
     flexGrow: 1,

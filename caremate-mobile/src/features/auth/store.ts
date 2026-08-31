@@ -21,6 +21,7 @@ interface AuthState {
     password: string,
     fullName: string,
     phone: string,
+    options?: { legalAcceptedAt?: string },
   ) => Promise<{ needsEmailVerification: boolean; email: string }>;
   verifySignupEmail: (
     email: string,
@@ -33,6 +34,12 @@ interface AuthState {
   /** Resend the password-reset email (same as requesting reset again). */
   resendRecoveryEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /**
+   * Local cleanup when Supabase reports the session ended elsewhere
+   * (e.g. another device signed in and revoked this refresh token).
+   * Does not call cloud sign-out again.
+   */
+  handleRemoteSessionEnd: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   markPasswordRecovery: () => Promise<void>;
   clearPasswordRecovery: () => void;
@@ -119,10 +126,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signUp: async (email, password, fullName, phone) => {
+  signUp: async (email, password, fullName, phone, options) => {
     set({ isLoading: true });
     try {
-      const result = await authService.signUpWithEmail(email, password, fullName, phone);
+      const result = await authService.signUpWithEmail(email, password, fullName, phone, options);
       if (result.needsEmailVerification) {
         // Stay guest until the email OTP is verified.
         return {
@@ -204,6 +211,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await authService.signOut();
     trackEvent(AnalyticsEvents.signOut);
     // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.
+    queryClient.removeQueries({ queryKey: ['billing', 'premium'] });
+    setGuestState(set);
+  },
+
+  handleRemoteSessionEnd: async () => {
+    if (get().isGuest || !get().isAuthenticated) {
+      return;
+    }
+    try {
+      const { clearPushRegistration } = await import('@/domains/notifications/push');
+      await clearPushRegistration();
+    } catch {
+      // Best-effort; session is already gone.
+    }
     queryClient.removeQueries({ queryKey: ['billing', 'premium'] });
     setGuestState(set);
   },

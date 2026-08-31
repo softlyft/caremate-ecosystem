@@ -13,7 +13,10 @@
     "title": "Gbanye ebe iji chọta ndị na-enye CareMate dị nso",
     "message": "Anyị chọrọ ebe gị iji gosi ndị na-enye CareMate dị nso gị. Gbanye ebe, ma ọ bụ jiri aha chọọ onye na-enye n’elu.",
     "action": "Gbanye ebe",
-    "enabling": "Na-agbanye…"
+    "enabling": "Na-agbanye…",
+    "openSettings": "Mepee Ntọala",
+    "blockedTitle": "Enyere ohere ịnweta ebe mgbochi",
+    "blockedMessage": "CareMate enweghị ike ịjụ ebe ọzọ na ngwaọrụ a. Mepee Ntọala, gbanye Ebe maka CareMate, wee laghachi ebe a."
   },
   "approximate": "Na-eji ebe dị nso",
   "outsideArea": "N'èzí mpaghara gị nkịtị — nsonaazụ nwere ike ịdị obere",
@@ -24,11 +27,55 @@
     "favorite": "Chekwaa ọkacha mmasị",
     "unfavorite": "Wepụ ọkacha mmasị",
     "call": "Kpọọ",
-    "directions": "Ụzọ"
+    "directions": "Ụzọ",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Onye na-enye",
+    "backToNearby": "Laghachi na Nearby",
+    "verified": "Ekwenyere",
+    "contact": "Kpọtụ",
+    "address": "Adreesị",
+    "phone": "Ekwentị",
+    "email": "Imel",
+    "addressUnavailable": "Adreesị adịghị",
+    "phoneUnavailable": "Ekwentị adịghị",
+    "emailUnavailable": "Imel adịghị",
+    "distanceKm": "{{distance}} km n'ebe a",
+    "openInMaps": "Mepee na Maps",
+    "openInMapsHint": "Pịa iji mepee na ngwa maapụ gị",
+    "connect": "Jikọọ na onye na-enye",
+    "connectHint": "Na-emepụta arịrịọ njikọ. Ọ bụrụ na anabata, ozi echekwara agbanyere — ị nwere ike iwepụ ya mgbe ọ bụla. Data gbalịa na data ahụike ndị ọzọ na-adị nzuzo ruo mgbe ị kesaa ha.",
+    "connectPending": "Arịrịọ njikọ na-eche",
+    "connectPendingOutbound": "Na-eche ka onye na-enye kwenye",
+    "connectPendingInbound": "Onye na-enye a chọrọ ijikọ",
+    "connectApproved": "Ejikọtara",
+    "connectRejected": "Ajụrụ njikọ",
+    "connectUnavailable": "Njikọ adịghị maka ndepụta a ugbu a",
+    "connectGuest": "Banye iji jikọọ na ndị na-enye",
+    "connectSuccessTitle": "E zipula arịrịọ",
+    "connectSuccessMessage": "Onye na-enye ga-enyocha arịrịọ njikọ gị. Ozi ga-adị ma ọ bụrụ na anabata.",
+    "connectFailedTitle": "Enweghị ike izipu arịrịọ",
+    "approveInbound": "Kwado njikọ",
+    "declineInbound": "Jụ",
+    "approveSuccessTitle": "Ejikọtara",
+    "approveSuccessMessage": "Ejikọrọ gị. Ozi echekwara agbanyere — jikọọ ya n'okpuru Njikọ mgbe ọ bụla.",
+    "respondFailedTitle": "Enweghị ike imelite njikọ",
+    "connectRejectedFinal": "Ajụrụ njikọ",
+    "cancelRequest": "Kagbuo arịrịọ",
+    "cancelRequestHint": "Wepụ arịrịọ njikọ gị na-eche.",
+    "cancelReasonLabel": "Ihe kpatara nkagbu",
+    "cancelReasonPlaceholder": "Gwa onye na-enye ihe kpatara ịkagbu",
+    "confirmCancelRequest": "Kwenye nkagbu",
+    "cancelSuccessTitle": "Akagburu arịrịọ",
+    "cancelSuccessMessage": "Ewepụla arịrịọ njikọ gị.",
+    "cancelFailedTitle": "Enweghị ike kagbuo arịrịọ"
   },
   "map": {
     "loading": "Na-ebu maapụ...",
-    "empty": "Enweghị ebe maapụ"
+    "empty": "Enweghị ebe maapụ",
+    "title": "Nso",
+    "subtitle": "Mepee onye na-enye iji malite ntuziaka na ngwa maapụ gị."
   },
   "types": {
     "hospital": "Ụlọ ọgwụ",
@@ -56,7 +103,8 @@
   },
   "lastKnown": {
     "message": "Ebe agbanyụrụ. Na-egosi ndị na-enye CareMate nso ebe ikpeazụ a maara.",
-    "action": "Gbanye"
+    "action": "Gbanye",
+    "openSettings": "Mepee Ntọala"
   },
   "connections": {
     "title": "Connections",
@@ -98,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Usoro oge ahụike",
+        "description": "Ndekọ naanị ịgụ sitere na ngwa ahụike gị maka ogbe oge ị họrọ. Abụghị mbupụ faịlụ. Ị nwere ike iwepụ ya mgbe ọ bụla."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -106,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Ogbe oge",
+    "timelineRangeHint": "Onye na-enye a nwere ike ịlele naanị ndekọ mere na ogbe oge a. Enweghị ike ibudata ma ọ bụ mbupụ ndekọ gị.",
+    "timelinePreset": "Ụbọchị {{days}} gara aga",
+    "timelineCustom": "Omenala",
+    "timelineFrom": "Site na (YYYY-MM-DD)",
+    "timelineTo": "Ru (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} ru {{to}}",
+    "outboundTitle": "Arịrịọ e zigara",
+    "outboundCount": "{{count}} na-eche onye na-enye",
+    "outboundEmptySubtitle": "Enweghị arịrịọ ezitere na-eche",
+    "outboundScreenTitle": "Arịrịọ njikọ e zigara",
+    "outboundScreenSubtitle": "Arịrịọ ị zigara ndị na-enye. Ị nwere ike ịkagbu mgbe ha na-eche.",
+    "outboundEmpty": "Ị enweghị arịrịọ ezitere na-eche.",
+    "outboundPendingLabel": "Na-eche nkwenye",
+    "disconnect": "Wepụ njikọ",
+    "disconnectHint": "Mechie njikọ a. Ị nwere ike izipu arịrịọ ọhụrụ ma emechaa.",
+    "disconnectConfirmTitle": "Kwụpụ njikọ na onye na-enye?",
+    "disconnectConfirmMessage": "Onye na-enye a agaghị ejikọ akaụntụ CareMate gị.",
+    "disconnectConfirmAction": "Wepụ njikọ",
+    "disconnectReasonLabel": "Ihe kpatara ya (nhọrọ)",
+    "disconnectReasonPlaceholder": "Gwa onye na-enye ihe kpatara ịkwụpụ njikọ",
+    "disconnectSuccessTitle": "Ewepụla njikọ",
+    "disconnectSuccessMessage": "Ị adịghị ejikọ na onye na-enye a.",
+    "disconnectFailedTitle": "Enweghị ike iwepụ njikọ"
+  },
+  "loadFailed": {
+    "title": "Enweghị ike ibunye ndị na-enye",
+    "message": "Lelee njikọ gị ma nwaa ọzọ."
+  },
+  "favorites": {
+    "openA11y": "Lelee ndị na-enye a họrọ",
+    "loading": "Na-ebunye ndị a họrọ...",
+    "emptyTitle": "Enweghị ndị a họrọ ugbu a",
+    "emptyMessage": "Chekwa onye na-enye site na ihuenyo nkọwa ya iji chọta ya ebe a ma emechaa.",
+    "emptyAction": "Chọọ nso",
+    "loadFailed": {
+      "title": "Enweghị ike ibunye ndị a họrọ",
+      "message": "Lelee njikọ gị ma nwaa ọzọ."
     }
+  },
+  "connectionRequests": {
+    "link": "Arịrịọ njikọ",
+    "linkWithCount": "Arịrịọ njikọ ({{count}})",
+    "title": "Arịrịọ njikọ",
+    "subtitle": "Ndị na-enye chọrọ ijikọ gị. Inabata na-enyere ozi echekwara (ị nwere ike iwepụ ya ma emechaa). Data gbalịa anaghị ekesa ruo mgbe ị nyere nkwenye ahụ.",
+    "loading": "Na-ebunye arịrịọ...",
+    "empty": "Enweghị arịrịọ njikọ na-eche.",
+    "guest": "Banye iji jikọọ arịrịọ njikọ onye na-enye.",
+    "providerFallback": "Onye na-enye",
+    "noteLabel": "Ihe ndị onye na-enye dere",
+    "approve": "Kwenye",
+    "decline": "Jụ",
+    "approvedTitle": "Ejikọtara",
+    "approvedMessage": "Ejikọrọ gị. Ozi echekwara agbanyere — jikọọ nkwenye mgbe ọ bụla.",
+    "declinedTitle": "Ajụrụ",
+    "declinedMessage": "Ị jụrụ arịrịọ njikọ a.",
+    "failedTitle": "Enweghị ike imelite arịrịọ",
+    "failedMessage": "Biko nwaa ọzọ.",
+    "loadFailed": {
+      "title": "Enweghị ike ibunye arịrịọ",
+      "message": "Lelee njikọ gị ma nwaa ọzọ."
+    },
+    "reasonLabel": "Ihe kpatara njụ",
+    "reasonPlaceholder": "Gwa onye na-enye ihe kpatara ịjụ",
+    "confirmDecline": "Kwenye njụ"
   }
 }

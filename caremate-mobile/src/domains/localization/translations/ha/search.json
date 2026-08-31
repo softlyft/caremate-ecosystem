@@ -1,0 +1,23 @@
+{
+  "placeholder": "Nemo labarai, masu ba da sabis, kayan aiki…",
+  "clearA11y": "Share bincike",
+  "loading": "Ana bincike…",
+  "idle": {
+    "title": "Bincika CareMate",
+    "message": "Nemo labaran lafiya, masu ba da sabis na kusa, da kayan aikin lafiya."
+  },
+  "empty": {
+    "title": "Babu sakamako",
+    "message": "Gwada wani kalma ko duba rubutu."
+  },
+  "sections": {
+    "articles": "Labarai",
+    "nearby": "Kusa",
+    "tools": "Kayan aiki"
+  },
+  "seeAllLearn": "Duba duka a Koyo",
+  "seeAllNearby": "Duba duka a Kusa",
+  "hintArticles": "Labarai",
+  "hintNearby": "Kusa",
+  "hintTools": "Kayan aiki"
+}

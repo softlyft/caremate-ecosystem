@@ -125,17 +125,22 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   const appleTeamId = process.env.EXPO_APPLE_TEAM_ID?.trim();
 
+  const { associatedDomains: _associatedDomains, ...iosWithoutAssociatedDomains } = base.ios ?? {};
+  const { intentFilters: _intentFilters, ...androidWithoutIntentFilters } = base.android ?? {};
+
   return {
     ...base,
     ios: {
-      ...base.ios,
+      ...iosWithoutAssociatedDomains,
       ...(appleTeamId ? { appleTeamId } : {}),
+      // Associated domains require a signing team even for Simulator builds.
+      // Keep them production-only so local `expo run:ios` works unsigned.
       ...(isProductionAppEnv
         ? { associatedDomains: productionAssociatedDomains(base.ios?.associatedDomains) }
         : {}),
     },
     android: {
-      ...base.android,
+      ...androidWithoutIntentFilters,
       versionCode: androidVersionCode(base),
       ...(isProductionAppEnv
         ? { intentFilters: productionIntentFilters(base.android?.intentFilters) }

@@ -13,7 +13,10 @@
     "title": "Sɔ beaeɛ sɛnea wobɛnya CareMate wɔn a wɔma a ɛbɛn",
     "message": "Yɛhia wo beaeɛ sɛnea yɛbɛkyerɛ CareMate wɔn a wɔma a ɛbɛn wo. Sɔ beaeɛ, anaa hwehwɛ ɔde ma bi din wɔ soro ha.",
     "action": "Sɔ beaeɛ",
-    "enabling": "Ɛresɔ…"
+    "enabling": "Ɛresɔ…",
+    "openSettings": "Open Settings",
+    "blockedTitle": "Location access is blocked",
+    "blockedMessage": "CareMate ntumi bis location bio wɔ device yi so bio. Bue Settings, yɛ Location ma CareMate, na san ba ha."
   },
   "approximate": "Ɛrede beaeɛ a ɛbɛn di dwuma",
   "outsideArea": "Ɛwɔ wo mpɔtam a wotumi di so no akyi — nsonaazɛ betumi asua",
@@ -24,11 +27,55 @@
     "favorite": "Sie ɔpɛ",
     "unfavorite": "Yi ɔpɛ",
     "call": "Frɛ",
-    "directions": "Kwan"
+    "directions": "Kwan",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Provider",
+    "backToNearby": "San kɔ Nearby",
+    "verified": "Verified",
+    "contact": "Contact",
+    "address": "Address",
+    "phone": "Fon",
+    "email": "Email",
+    "addressUnavailable": "Address nni hɔ",
+    "phoneUnavailable": "Phone unavailable",
+    "emailUnavailable": "Email unavailable",
+    "distanceKm": "{{distance}} km away",
+    "openInMaps": "Open in Maps",
+    "openInMapsHint": "Tap to open in maps app",
+    "connect": "Connect with provider",
+    "connectHint": "Ɛbɔ connection request. Sɛ wogye tom a, secure messaging bɛyɛ adwuma — wobetumi ayi no bere biara. Emergency ne afieyɛ data yɛ private kosi sɛ wo share.",
+    "connectPending": "Connection request pending",
+    "connectPendingOutbound": "Waiting for provider to approve",
+    "connectPendingInbound": "This provider wants to connect",
+    "connectApproved": "Wɔaka ho",
+    "connectRejected": "Wɔapue connection no",
+    "connectUnavailable": "Connection isn't available for this listing yet",
+    "connectGuest": "Sign in to connect with providers",
+    "connectSuccessTitle": "Wɔasoma request",
+    "connectSuccessMessage": "Provider will review connection request. Messaging available if they accept.",
+    "connectFailedTitle": "Antumi request no som",
+    "approveInbound": "Gye connection no tom",
+    "declineInbound": "Pue",
+    "approveSuccessTitle": "Wɔaka ho",
+    "approveSuccessMessage": "You're connected. Secure messaging on — manage under Connections anytime.",
+    "respondFailedTitle": "Antumi connection no update",
+    "connectRejectedFinal": "Wɔapue connection no",
+    "cancelRequest": "Twa request no",
+    "cancelRequestHint": "Withdraw pending connection request.",
+    "cancelReasonLabel": "Reason ma cancel",
+    "cancelReasonPlaceholder": "Tell provider why you are cancelling",
+    "confirmCancelRequest": "Si cancel no so",
+    "cancelSuccessTitle": "Wɔatwa request no",
+    "cancelSuccessMessage": "Wɔatwe wo connection request.",
+    "cancelFailedTitle": "Antumi request no twa"
   },
   "map": {
     "loading": "Ɛreloa map...",
-    "empty": "Map beaeɛ nni hɔ"
+    "empty": "Map beaeɛ nni hɔ",
+    "title": "Nearby",
+    "subtitle": "Open provider to launch directions in maps app."
   },
   "types": {
     "hospital": "Ayaresabea",
@@ -56,7 +103,8 @@
   },
   "lastKnown": {
     "message": "Beaeɛ adum. Ɛredi CareMate wɔn a wɔma a ɛbɛn wo beaeɛ a wɔnim no a etwa to nkyerɛ.",
-    "action": "Sɔ"
+    "action": "Sɔ",
+    "openSettings": "Open Settings"
   },
   "connections": {
     "title": "Connections",
@@ -98,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Health timeline",
+        "description": "View-only logs from health apps for date range you choose. Not file export. Revoke anytime."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -106,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Date range",
+    "timelineRangeHint": "Provider can view logs in this range only. Cannot download or export records.",
+    "timelinePreset": "Last {{days}} days",
+    "timelineCustom": "Custom",
+    "timelineFrom": "From (YYYY-MM-DD)",
+    "timelineTo": "To (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} to {{to}}",
+    "outboundTitle": "Sent requests",
+    "outboundCount": "{{count}} waiting for provider",
+    "outboundEmptySubtitle": "No pending sent requests",
+    "outboundScreenTitle": "Sent connection requests",
+    "outboundScreenSubtitle": "Requests you sent to providers. Cancel while still pending.",
+    "outboundEmpty": "You have no pending sent requests.",
+    "outboundPendingLabel": "Waiting for approval",
+    "disconnect": "Yi nkyɛn",
+    "disconnectHint": "End connection yi. Wobetumi asoma request foforo akyiri.",
+    "disconnectConfirmTitle": "Disconnect from provider?",
+    "disconnectConfirmMessage": "This provider will no longer be linked to CareMate account.",
+    "disconnectConfirmAction": "Yi nkyɛn",
+    "disconnectReasonLabel": "Reason (optional)",
+    "disconnectReasonPlaceholder": "Tell provider why you are disconnecting",
+    "disconnectSuccessTitle": "Wɔayɛ nkyɛn",
+    "disconnectSuccessMessage": "You are no longer connected with this provider.",
+    "disconnectFailedTitle": "Antumi disconnect"
+  },
+  "loadFailed": {
+    "title": "Antumi providers no load",
+    "message": "Hwɛ wo connection na san bio."
+  },
+  "favorites": {
+    "openA11y": "View favorite providers",
+    "loading": "Loading favorites...",
+    "emptyTitle": "No favorites yet",
+    "emptyMessage": "Save provider from detail screen to find here later.",
+    "emptyAction": "Browse nearby",
+    "loadFailed": {
+      "title": "Antumi favorites no load",
+      "message": "Hwɛ wo connection na san bio."
     }
+  },
+  "connectionRequests": {
+    "link": "Connection requests",
+    "linkWithCount": "Connection requests ({{count}})",
+    "title": "Connection requests",
+    "subtitle": "Providers wey want connect with you. Approving enables secure messaging (revoke later). Emergency data no share until you grant consent.",
+    "loading": "Loading requests...",
+    "empty": "No pending connection requests.",
+    "guest": "Sign in to manage provider connection requests.",
+    "providerFallback": "Provider",
+    "noteLabel": "Note from provider",
+    "approve": "Approve",
+    "decline": "Pue",
+    "approvedTitle": "Wɔaka ho",
+    "approvedMessage": "You're connected. Secure messaging on — manage consents anytime.",
+    "declinedTitle": "Wɔapue",
+    "declinedMessage": "Woapue connection request yi.",
+    "failedTitle": "Antumi update request",
+    "failedMessage": "Yɛ bio.",
+    "loadFailed": {
+      "title": "Antumi requests no load",
+      "message": "Hwɛ wo connection na san bio."
+    },
+    "reasonLabel": "Reason ma decline",
+    "reasonPlaceholder": "Tell provider why you are declining",
+    "confirmDecline": "Si decline no so"
   }
 }

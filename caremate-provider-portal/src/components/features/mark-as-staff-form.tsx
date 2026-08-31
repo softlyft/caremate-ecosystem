@@ -4,21 +4,37 @@ import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormActions, FormField } from '@/components/ui/form-field';
+import { DetailRow } from '@/components/ui/detail-row';
 import { PROVIDER_ROLE_LABELS } from '@/constants/roles';
 import { markAsStaffAction } from '@/domains/members/actions';
-import type { ProviderOrgMember } from '@/types/database';
+import type { ProviderMemberRole } from '@/types/database';
+
+export type OrgStaffMembership = {
+  user_id: string;
+  role: ProviderMemberRole | string;
+  display_name: string | null;
+  company_email: string | null;
+  company_phone: string | null;
+  position: string | null;
+};
+
+type MarkAsStaffAction = typeof markAsStaffAction;
 
 export function MarkAsStaffForm({
   patientUserId,
   defaultDisplayName,
   membership,
   canManage,
+  markAction = markAsStaffAction,
+  positionPlaceholder = 'e.g. Nurse, Pharmacist',
 }: {
   patientUserId: string;
   defaultDisplayName: string;
-  membership: ProviderOrgMember | null;
+  membership: OrgStaffMembership | null;
   canManage: boolean;
+  markAction?: MarkAsStaffAction;
+  positionPlaceholder?: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
@@ -28,18 +44,20 @@ export function MarkAsStaffForm({
     return null;
   }
 
+  const roleLabel =
+    membership &&
+    (PROVIDER_ROLE_LABELS[membership.role as ProviderMemberRole] ?? membership.role);
+
   if (isStaff && membership) {
     return (
       <div className="space-y-3 text-sm">
-        <p className="font-medium text-foreground">
-          Staff · {PROVIDER_ROLE_LABELS[membership.role] ?? membership.role}
-        </p>
-        <dl className="space-y-2">
-          <Detail label="Display name" value={membership.display_name} />
-          <Detail label="Position" value={membership.position} />
-          <Detail label="Company email" value={membership.company_email} />
-          <Detail label="Company phone" value={membership.company_phone} />
-        </dl>
+        <p className="font-medium text-foreground">Staff · {roleLabel}</p>
+        <div className="space-y-2">
+          <DetailRow label="Display name" value={membership.display_name ?? '—'} />
+          <DetailRow label="Position" value={membership.position ?? '—'} />
+          <DetailRow label="Company email" value={membership.company_email ?? '—'} />
+          <DetailRow label="Company phone" value={membership.company_phone ?? '—'} />
+        </div>
         {canManage ? (
           <Button size="sm" variant="secondary" onClick={() => setOpen((v) => !v)}>
             {open ? 'Cancel' : 'Update staff details'}
@@ -51,11 +69,12 @@ export function MarkAsStaffForm({
             defaultDisplayName={membership.display_name ?? defaultDisplayName}
             defaults={membership}
             pending={pending}
+            positionPlaceholder={positionPlaceholder}
             submitLabel="Save staff details"
             onSubmit={(formData) => {
               startTransition(async () => {
                 try {
-                  await markAsStaffAction(formData);
+                  await markAction(formData);
                   toast.success('Staff details updated');
                   setOpen(false);
                 } catch (err) {
@@ -84,12 +103,13 @@ export function MarkAsStaffForm({
           patientUserId={patientUserId}
           defaultDisplayName={defaultDisplayName}
           pending={pending}
+          positionPlaceholder={positionPlaceholder}
           submitLabel="Confirm mark as staff"
           onCancel={() => setOpen(false)}
           onSubmit={(formData) => {
             startTransition(async () => {
               try {
-                await markAsStaffAction(formData);
+                await markAction(formData);
                 toast.success('Marked as staff');
                 setOpen(false);
               } catch (err) {
@@ -109,17 +129,19 @@ function StaffFieldsForm({
   defaults,
   pending,
   submitLabel,
+  positionPlaceholder,
   onSubmit,
   onCancel,
 }: {
   patientUserId: string;
   defaultDisplayName: string;
   defaults?: Pick<
-    ProviderOrgMember,
+    OrgStaffMembership,
     'display_name' | 'company_email' | 'company_phone' | 'position'
   > | null;
   pending: boolean;
   submitLabel: string;
+  positionPlaceholder: string;
   onSubmit: (formData: FormData) => void;
   onCancel?: () => void;
 }) {
@@ -143,7 +165,7 @@ function StaffFieldsForm({
         id="position"
         name="position"
         label="Position"
-        placeholder="e.g. Nurse, Pharmacist"
+        placeholder={positionPlaceholder}
         defaultValue={defaults?.position ?? ''}
         disabled={pending}
       />
@@ -152,7 +174,7 @@ function StaffFieldsForm({
         name="company_email"
         label="Company email"
         type="email"
-        placeholder="name@clinic.com"
+        placeholder="name@organization.com"
         defaultValue={defaults?.company_email ?? ''}
         disabled={pending}
       />
@@ -164,7 +186,7 @@ function StaffFieldsForm({
         defaultValue={defaults?.company_phone ?? ''}
         disabled={pending}
       />
-      <div className="flex justify-end gap-2">
+      <FormActions>
         {onCancel ? (
           <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={onCancel}>
             Cancel
@@ -173,7 +195,7 @@ function StaffFieldsForm({
         <Button type="submit" size="sm" loading={pending} loadingLabel="Saving…">
           {submitLabel}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }
@@ -196,8 +218,7 @@ function Field({
   type?: string;
 }) {
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
+    <FormField compact label={label} htmlFor={id}>
       <Input
         id={id}
         name={name}
@@ -206,15 +227,6 @@ function Field({
         disabled={disabled}
         placeholder={placeholder}
       />
-    </div>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string | null }) {
-  return (
-    <div className="flex justify-between gap-4">
-      <dt className="text-muted">{label}</dt>
-      <dd className="text-right font-medium text-foreground">{value?.trim() ? value : '—'}</dd>
-    </div>
+    </FormField>
   );
 }

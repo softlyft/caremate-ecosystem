@@ -24,5 +24,14 @@
   "signIn": "Hyɛn mu",
   "signOut": "Fi mu",
   "createAccount": "Yɛ akawnt",
-  "notifications": "Amanneɛbɔ"
+  "notifications": "Amanneɛbɔ",
+  "ok": "YOO",
+  "networkError": "Internet connection nni hɔ. Hwɛ wo connection na sɔ bio.",
+  "emailDeliveryError": "Yɛntumi nsom email seesei. Sɔ bio wɔ mminutes kakraa mu.",
+  "loadFailed": "Entumi nnhyɛ screen yi so",
+  "loadFailedMessage": "Hwɛ wo connection na sɔ bio.",
+  "goBack": "San kɔ",
+  "clear": "Pepa",
+  "remove": "Yi fi hɔ",
+  "messages": "Messages"
 }

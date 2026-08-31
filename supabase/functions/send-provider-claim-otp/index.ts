@@ -1,10 +1,11 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { renderProviderOrgClaimOtp } from '../_shared/email-templates/index.ts';
 import { isEmailConfigured, sendEmail } from '../_shared/mailer.ts';
+import { isServiceRoleRequest } from '../_shared/service-role.ts';
 
 /**
- * Service-role: send provider org-claim OTP (no auth user yet).
- * Body: { to, code, orgName?, expiresMinutes? }
+ * Service-role: send Care Portal org-claim OTP (no auth user yet).
+ * Body: { to, code, orgName?, orgKind?, expiresMinutes? }
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -16,10 +17,7 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Method not allowed' }, 405);
     }
 
-    const authHeader = req.headers.get('Authorization') ?? '';
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-    if (!serviceKey || token !== serviceKey) {
+    if (!(await isServiceRoleRequest(req))) {
       return jsonResponse({ error: 'Unauthorized' }, 401);
     }
 
@@ -27,6 +25,7 @@ Deno.serve(async (req) => {
       to?: string;
       code?: string;
       orgName?: string | null;
+      orgKind?: 'provider' | 'payer' | null;
       expiresMinutes?: number;
     };
 
@@ -43,6 +42,7 @@ Deno.serve(async (req) => {
     const mail = renderProviderOrgClaimOtp({
       code,
       orgName: body.orgName,
+      orgKind: body.orgKind === 'payer' ? 'payer' : 'provider',
       expiresMinutes: body.expiresMinutes ?? 15,
     });
 

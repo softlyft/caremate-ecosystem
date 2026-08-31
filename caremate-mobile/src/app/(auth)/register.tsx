@@ -1,15 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input, PasswordInput, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  Input,
+  PasswordInput,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { LEGAL_URLS } from '@/constants/config';
 import { config } from '@/constants/env';
 import { joinFullName } from '@/domains/emergency/constants';
@@ -61,7 +70,7 @@ export default function RegisterScreen() {
           .min(1, 'Enter your last name')
           .refine(isValidPersonName, t('emergency.edit.nameInvalid')),
         phone: z.string().trim().refine(isValidIcePhone, t('emergency.edit.contactPhoneInvalid')),
-        email: z.email('Enter a valid email'),
+        email: z.email(t('auth.validation.emailInvalid')),
         password: passwordSchema(t('auth.password.requirements')),
         acceptedLegal: z.boolean().refine((value) => value === true, {
           message: t('auth.register.acceptRequired'),
@@ -90,26 +99,10 @@ export default function RegisterScreen() {
     [registerSchema, watchedValues],
   );
 
-  async function openLegalUrl(url: string) {
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (!supported) {
-        Alert.alert(t('settings.legal.openFailed'));
-        return;
-      }
-      await Linking.openURL(url);
-    } catch {
-      Alert.alert(t('settings.legal.openFailed'));
-    }
-  }
-
   async function onSubmit(values: RegisterForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before registering.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       const email = normalizeAccountEmail(values.email);
@@ -127,6 +120,7 @@ export default function RegisterScreen() {
         values.password,
         joinFullName(values.firstName, values.lastName),
         values.phone.trim(),
+        { legalAcceptedAt: new Date().toISOString() },
       );
       if (result.needsEmailVerification) {
         router.push({
@@ -144,179 +138,163 @@ export default function RegisterScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.register.error'),
-        toUserFacingErrorMessage(error, t('auth.register.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.register.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     }
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <AuthBrandHeader>
-        <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
-      </AuthBrandHeader>
-      <View style={styles.form}>
-        <View style={styles.nameRow}>
-          <View style={styles.nameField}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
+        <AuthBrandHeader>
+          <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <View style={styles.nameRow}>
+            <FormField compact error={formState.errors.firstName?.message} style={styles.nameField}>
+              <Controller
+                control={control}
+                name="firstName"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    textContentType="givenName"
+                    maxLength={PERSON_NAME_MAX_CHARS}
+                    placeholder={t('auth.register.firstNamePlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <FormField compact error={formState.errors.lastName?.message} style={styles.nameField}>
+              <Controller
+                control={control}
+                name="lastName"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    textContentType="familyName"
+                    maxLength={PERSON_NAME_MAX_CHARS}
+                    placeholder={t('auth.register.lastNamePlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+          </View>
+          <FormField error={formState.errors.phone?.message}>
             <Controller
               control={control}
-              name="firstName"
+              name="phone"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  textContentType="givenName"
-                  maxLength={PERSON_NAME_MAX_CHARS}
-                  placeholder={t('auth.register.firstNamePlaceholder')}
+                  autoCapitalize="none"
+                  keyboardType="phone-pad"
+                  textContentType="telephoneNumber"
+                  autoComplete="tel"
+                  maxLength={ICE_PHONE_MAX_CHARS}
+                  placeholder={t('emergency.edit.contactPhone')}
                   onBlur={onBlur}
-                  onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                  onChangeText={(next) => onChange(sanitizePhoneInput(next))}
                   value={value}
                 />
               )}
             />
-          </View>
-          <View style={styles.nameField}>
+          </FormField>
+          <FormField error={formState.errors.email?.message}>
             <Controller
               control={control}
-              name="lastName"
+              name="email"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  textContentType="familyName"
-                  maxLength={PERSON_NAME_MAX_CHARS}
-                  placeholder={t('auth.register.lastNamePlaceholder')}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder={t('auth.register.email')}
                   onBlur={onBlur}
-                  onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                  onChangeText={onChange}
                   value={value}
                 />
               )}
             />
-          </View>
-        </View>
-        <Controller
-          control={control}
-          name="phone"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              keyboardType="phone-pad"
-              textContentType="telephoneNumber"
-              autoComplete="tel"
-              maxLength={ICE_PHONE_MAX_CHARS}
-              placeholder={t('emergency.edit.contactPhone')}
-              onBlur={onBlur}
-              onChangeText={(value) => onChange(sanitizePhoneInput(value))}
-              value={value}
+          </FormField>
+          <FormField
+            error={formState.errors.password?.message}
+            hint={t('auth.password.requirements')}
+          >
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.register.password')}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              keyboardType="email-address"
-              placeholder={t('auth.register.email')}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
+          </FormField>
+          <FormField error={formState.errors.acceptedLegal?.message}>
+            <Controller
+              control={control}
+              name="acceptedLegal"
+              render={({ field: { onChange, value } }) => (
+                <View style={styles.acceptRow}>
+                  <Button
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: value }}
+                    accessibilityLabel={t('auth.register.acceptA11y')}
+                    onPress={() => onChange(!value)}
+                    hitSlop={8}
+                    style={[
+                      styles.checkbox,
+                      value ? styles.checkboxChecked : null,
+                      formState.errors.acceptedLegal ? styles.checkboxError : null,
+                    ]}
+                    variant="plain"
+                  >
+                    {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
+                  </Button>
+                  <View style={styles.acceptCopy}>
+                    <AppText variant="caption" style={styles.acceptText}>
+                      {t('auth.register.acceptLead')}{' '}
+                    </AppText>
+                    <TextLink external href={LEGAL_URLS.terms} style={styles.acceptLink}>
+                      {t('settings.legal.terms')}
+                    </TextLink>
+                    <AppText variant="caption" style={styles.acceptText}>
+                      {' '}
+                      {t('auth.register.acceptAnd')}{' '}
+                    </AppText>
+                    <TextLink external href={LEGAL_URLS.privacy} style={styles.acceptLink}>
+                      {t('settings.legal.privacy')}
+                    </TextLink>
+                  </View>
+                </View>
+              )}
             />
-          )}
-        />
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <PasswordInput
-              placeholder={t('auth.register.password')}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        <AppText variant="caption" style={[styles.hint, { color: colors.textMuted }]}>
-          {t('auth.password.requirements')}
-        </AppText>
-        <Controller
-          control={control}
-          name="acceptedLegal"
-          render={({ field: { onChange, value } }) => (
-            <View style={styles.acceptRow}>
-              <Button
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: value }}
-                accessibilityLabel={t('auth.register.acceptRequired')}
-                onPress={() => onChange(!value)}
-                hitSlop={8}
-                style={[
-                  styles.checkbox,
-                  value ? styles.checkboxChecked : null,
-                  formState.errors.acceptedLegal ? styles.checkboxError : null,
-                ]}
-                variant="plain"
-              >
-                {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
-              </Button>
-              <View style={styles.acceptCopy}>
-                <AppText variant="caption" style={styles.acceptText}>
-                  {t('auth.register.acceptLead')}{' '}
-                </AppText>
-                <Button
-                  onPress={() => void openLegalUrl(LEGAL_URLS.terms)}
-                  hitSlop={6}
-                  variant="plain"
-                >
-                  <AppText variant="caption" style={styles.acceptLink}>
-                    {t('settings.legal.terms')}
-                  </AppText>
-                </Button>
-                <AppText variant="caption" style={styles.acceptText}>
-                  {' '}
-                  {t('auth.register.acceptAnd')}{' '}
-                </AppText>
-                <Button
-                  onPress={() => void openLegalUrl(LEGAL_URLS.privacy)}
-                  hitSlop={6}
-                  variant="plain"
-                >
-                  <AppText variant="caption" style={styles.acceptLink}>
-                    {t('settings.legal.privacy')}
-                  </AppText>
-                </Button>
-              </View>
-            </View>
-          )}
-        />
-
-        {formState.errors.firstName ||
-        formState.errors.lastName ||
-        formState.errors.phone ||
-        formState.errors.email ||
-        formState.errors.password ||
-        formState.errors.acceptedLegal ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.firstName?.message ??
-              formState.errors.lastName?.message ??
-              formState.errors.phone?.message ??
-              formState.errors.email?.message ??
-              formState.errors.password?.message ??
-              formState.errors.acceptedLegal?.message ??
-              t('auth.register.acceptRequired')}
-          </AppText>
-        ) : null}
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.register.submit')}
-          disabled={isLoading || !canSubmit}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <Link href="/(auth)/login">
-          <AppText variant="seeAll">
+          </FormField>
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.register.submit')}
+            disabled={isLoading || !canSubmit}
+            onPress={handleSubmit(onSubmit)}
+          />
+          <TextLink href="/(auth)/login">
             {t('auth.register.hasAccount')} {t('auth.register.signIn')}
-          </AppText>
-        </Link>
-      </View>
+          </TextLink>
+        </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }
@@ -328,7 +306,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
   nameRow: {
     flexDirection: 'row',
@@ -373,15 +351,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   acceptLink: {
-    color: palette.primary,
     fontSize: 13,
     lineHeight: 19,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  hint: {
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: -4,
   },
 });

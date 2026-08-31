@@ -52,6 +52,7 @@ Current domain modules under `src/domains/`:
 | `messaging/` | Live inbox / threads / DM search (cloud-only) |
 | `notifications/` | In-app inbox + Expo push registration |
 | `onboarding/` | Onboarding flow state, device defaults, setup routing |
+| `payers/` | Health Insurance Directory + patient↔payer connections (cloud) |
 | `profile/` | User profile/settings persistence and helpers |
 | `providers/` | Nearby provider lookup, favorites, location helpers |
 | `search/` | Cross-domain search across articles, providers, and tools |
@@ -127,7 +128,8 @@ The sync system lives in `src/sync/`:
 | `src/app/(app)/setup/` | Post-onboarding setup screens |
 | `src/app/(app)/family/` | Family routes |
 | `src/app/(app)/articles/` | Article detail/category/bookmarks routes |
-| `src/app/(app)/providers/` | Provider detail and map placeholder |
+| `src/app/(app)/providers/` | Provider detail and connections |
+| `src/app/(app)/profile/insurance/` | Health Insurance Directory |
 | `src/app/(app)/emergency/` | Emergency detail/edit/QR routes |
 | `src/app/(app)/apps/` | Mini-app screens |
 | `src/app/emergency-lock.tsx` | Public emergency lock card route |

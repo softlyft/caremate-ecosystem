@@ -21,6 +21,23 @@ import type { AuthUser } from '@/types';
 /** Legacy SecureStore key from the removed biometric unlock feature. */
 const LEGACY_BIOMETRIC_ENABLED_KEY = 'caremate_biometric_enabled';
 
+/**
+ * Redirect for `resetPasswordForEmail`. Prefer the public website URL (allowlisted
+ * in Supabase Auth). Expo `exp://…` / `caremate://…` deep links are often missing
+ * from Redirect URLs and cause the request to fail — recovery is OTP-in-app anyway.
+ */
+function getRecoveryEmailRedirectTo(): string {
+  try {
+    const website = config.websiteUrl.replace(/\/$/, '');
+    if (website.startsWith('https://') || (__DEV__ && website.startsWith('http://'))) {
+      return `${website}/auth/reset-password`;
+    }
+  } catch {
+    // fall through
+  }
+  return getPasswordResetRedirectUri();
+}
+
 /** Prefer canonical email; include pre-canonicalization form for existing accounts. */
 function authEmailsToTry(email: string): string[] {
   const canonical = normalizeAccountEmail(email);
@@ -32,6 +49,23 @@ function isInvalidCredentialError(error: { message?: string; status?: number } |
   if (!error) return false;
   const message = (error.message ?? '').toLowerCase();
   return message.includes('invalid login credentials') || message.includes('invalid credentials');
+}
+
+/**
+ * Keep only this device's session. Call after a successful interactive login
+ * (password / OTP). Skips cold-start restore and checkout/auth token handoffs.
+ * Refresh tokens on other devices are revoked immediately; their access JWTs
+ * remain valid until expiry (`jwt_expiry`).
+ */
+async function enforceSingleActiveSession(): Promise<void> {
+  if (!config.isSupabaseConfigured) {
+    return;
+  }
+  try {
+    await supabase.auth.signOut({ scope: 'others' });
+  } catch {
+    // Best-effort: login must still succeed if revoke fails (offline, older Auth).
+  }
 }
 
 export class AuthService {
@@ -146,6 +180,7 @@ export class AuthService {
       });
       if (!error) {
         if (data.user) {
+          await enforceSingleActiveSession();
           await this.prepareLocalAccount(data.user);
         }
         return data;
@@ -159,13 +194,20 @@ export class AuthService {
     throw lastError ?? new Error('Sign in failed');
   }
 
-  async signUpWithEmail(email: string, password: string, fullName: string, phone: string) {
+  async signUpWithEmail(
+    email: string,
+    password: string,
+    fullName: string,
+    phone: string,
+    options?: { legalAcceptedAt?: string },
+  ) {
     if (!config.isSupabaseConfigured) {
       throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
     const normalizedEmail = normalizeAccountEmail(email);
     const normalizedPhone = phone.trim();
+    const legalAcceptedAt = options?.legalAcceptedAt?.trim() || undefined;
     const { data, error } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
@@ -173,6 +215,13 @@ export class AuthService {
         data: {
           full_name: fullName,
           phone: normalizedPhone,
+          ...(legalAcceptedAt
+            ? {
+                legal_accepted_at: legalAcceptedAt,
+                accepted_terms_at: legalAcceptedAt,
+                accepted_privacy_at: legalAcceptedAt,
+              }
+            : {}),
         },
       },
     });
@@ -195,6 +244,7 @@ export class AuthService {
     }
 
     if (data.user) {
+      await enforceSingleActiveSession();
       await this.prepareLocalAccount(
         data.user,
         { fullName, phone: normalizedPhone, email: normalizedEmail },
@@ -237,6 +287,7 @@ export class AuthService {
           throw new Error('Could not verify email. Try the code again or request a new one.');
         }
 
+        await enforceSingleActiveSession();
         await this.prepareLocalAccount(
           data.user,
           {
@@ -282,7 +333,9 @@ export class AuthService {
       return;
     }
 
-    const { error } = await supabase.auth.signOut();
+    // Only end this device's session. Other devices were already revoked at login
+    // (`enforceSingleActiveSession`); avoid default `global` which is broader than needed.
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) {
       throw error;
     }
@@ -334,13 +387,15 @@ export class AuthService {
     }
 
     // Email template shows a 6-digit {{ .Token }} (see supabase/templates/recovery.html).
-    // Users enter the code in-app via verifyOtp(type: 'recovery') — no browser redirect required.
+    // Users enter the code in-app via verifyOtp(type: 'recovery') — no app deep link required.
+    // Use the website redirect (allowlisted) so Expo Go `exp://IP:port` is not rejected.
     // Try canonical then legacy so pre-normalization Gmail accounts still receive the code.
     const emails = authEmailsToTry(email);
+    const redirectTo = getRecoveryEmailRedirectTo();
     let lastError: { message?: string } | null = null;
     for (const candidate of emails) {
       const { error } = await supabase.auth.resetPasswordForEmail(candidate, {
-        redirectTo: getPasswordResetRedirectUri(),
+        redirectTo,
       });
       if (!error) {
         return;
@@ -373,6 +428,7 @@ export class AuthService {
         if (!data.user || !data.session) {
           throw new Error('Could not verify reset code. Try again or request a new one.');
         }
+        await enforceSingleActiveSession();
         await this.prepareLocalAccount(data.user, { email: candidate });
         return data;
       }

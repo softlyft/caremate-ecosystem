@@ -1,13 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  Input,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
@@ -70,10 +77,7 @@ export default function VerifyEmailScreen() {
   async function onSubmit(values: VerifyForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before verifying.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
@@ -90,7 +94,12 @@ export default function VerifyEmailScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verify.error'),
-        toUserFacingErrorMessage(error, t('auth.verify.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verify.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     }
   }
@@ -107,7 +116,12 @@ export default function VerifyEmailScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verify.error'),
-        toUserFacingErrorMessage(error, t('auth.verify.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verify.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     } finally {
       setIsResending(false);
@@ -116,75 +130,72 @@ export default function VerifyEmailScreen() {
 
   if (!email) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <SectionTitle title={t('auth.verify.title')} subtitle={t('auth.verify.missingEmail')} />
-        <Link href="/(auth)/register">
-          <AppText variant="seeAll">{t('auth.verify.backToRegister')}</AppText>
-        </Link>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <Screen padded={false} style={styles.container}>
+          <SectionTitle title={t('auth.verify.title')} subtitle={t('auth.verify.missingEmail')} />
+          <TextLink href="/(auth)/register">{t('auth.verify.backToRegister')}</TextLink>
+        </Screen>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <AuthBrandHeader>
-        <SectionTitle
-          title={t('auth.verify.title')}
-          subtitle={t('auth.verify.subtitle', { email })}
-        />
-      </AuthBrandHeader>
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="code"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="number-pad"
-              textContentType="oneTimeCode"
-              autoComplete="one-time-code"
-              maxLength={6}
-              placeholder={t('auth.verify.codePlaceholder')}
-              onBlur={onBlur}
-              onChangeText={(text) => {
-                const digits = text.replace(/\D/g, '').slice(0, 6);
-                onChange(digits);
-                setValue('code', digits, { shouldValidate: true });
-              }}
-              value={value}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
+        <AuthBrandHeader>
+          <SectionTitle
+            title={t('auth.verify.title')}
+            subtitle={t('auth.verify.subtitle', { email })}
+          />
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <FormField error={formState.errors.code?.message}>
+            <Controller
+              control={control}
+              name="code"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  textContentType="oneTimeCode"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder={t('auth.verify.codePlaceholder')}
+                  onBlur={onBlur}
+                  onChangeText={(text) => {
+                    const digits = text.replace(/\D/g, '').slice(0, 6);
+                    onChange(digits);
+                    setValue('code', digits, { shouldValidate: true });
+                  }}
+                  value={value}
+                />
+              )}
             />
-          )}
-        />
-        {formState.errors.code ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.code.message}
-          </AppText>
-        ) : null}
+          </FormField>
 
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.verify.submit')}
-          disabled={isLoading || !formState.isValid}
-          onPress={handleSubmit(onSubmit)}
-        />
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.verify.submit')}
+            disabled={isLoading || !formState.isValid}
+            onPress={handleSubmit(onSubmit)}
+          />
 
-        <Button
-          label={
-            resendSeconds > 0
-              ? t('auth.verify.resendIn', { seconds: resendSeconds })
-              : isResending
-                ? t('common.loading')
-                : t('auth.verify.resend')
-          }
-          variant="secondary"
-          disabled={resendSeconds > 0 || isResending || isLoading}
-          onPress={() => void onResend()}
-        />
+          <Button
+            label={
+              resendSeconds > 0
+                ? t('auth.verify.resendIn', { seconds: resendSeconds })
+                : isResending
+                  ? t('common.loading')
+                  : t('auth.verify.resend')
+            }
+            variant="secondary"
+            disabled={resendSeconds > 0 || isResending || isLoading}
+            onPress={() => void onResend()}
+          />
 
-        <Link href="/(auth)/login">
-          <AppText variant="seeAll">{t('auth.verify.backToSignIn')}</AppText>
-        </Link>
-      </View>
+          <TextLink href="/(auth)/login">{t('auth.verify.backToSignIn')}</TextLink>
+        </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }
@@ -196,6 +207,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

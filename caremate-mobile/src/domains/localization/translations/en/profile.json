@@ -16,6 +16,7 @@
     "settings": "Settings",
     "connections": "Connections",
     "documents": "Documents",
+    "insuranceDirectory": "Health Insurance Directory",
     "community": "Join our movement",
     "communitySubtitle": "Help CareMate grow in your community"
   },
@@ -81,7 +82,7 @@
     "eyebrow": "Identity",
     "cardTitle": "Patient ID card",
     "title": "CareMate Patient ID",
-    "description": "Generate your CareMate ID to get a card with a QR on the back. Anyone who scans it opens CareMate and must sign in to view your emergency details and ICE contact.",
+    "description": "Generate your CareMate ID to get a card with a QR on the back. The QR updates when you change your emergency profile. A signed-in health practitioner who scans it can view your emergency details and ICE contacts.",
     "empty": "No Patient ID yet. Generate one to attach a CareMate ID card (with QR) to your profile.",
     "generate": "Generate ID for me",
     "generateError": "Could not generate Patient ID",
@@ -90,6 +91,7 @@
     "badge": "PATIENT ID",
     "tapForQr": "Tap for QR",
     "tapForFront": "Tap to flip back",
+    "icePreview": "ICE: {{name}} · {{phone}}",
     "qrSide": "Scan in CareMate",
     "flipA11y": "Flip Patient ID card"
   },
@@ -206,5 +208,9 @@
       "discharge_summary": "Discharge summary",
       "invoice": "Invoice"
     }
+  },
+  "insuranceDirectory": {
+    "menuSubtitle": "Browse insurers and HMOs in CareMate",
+    "guestSubtitle": "Browse insurers and HMOs in CareMate"
   }
 }

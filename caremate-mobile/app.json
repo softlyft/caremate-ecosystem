@@ -23,6 +23,7 @@
     },
     "android": {
       "package": "com.softlyft.caremate",
+      "googleServicesFile": "./google-services.json",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
@@ -163,8 +164,7 @@
           "image": "./assets/images/caremate-splash-icon.png",
           "imageWidth": 160
         }
-      ],
-      "expo-background-task"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

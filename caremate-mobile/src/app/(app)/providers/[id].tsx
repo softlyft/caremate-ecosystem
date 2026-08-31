@@ -1,28 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter, type Href } from 'expo-router';
 import {
   BadgeCheck,
+  ChevronRight,
   Heart,
   Link2,
   Mail,
   MapPin,
   Navigation,
   Phone,
+  Shield,
   Star,
 } from 'lucide-react-native';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Alert, Linking, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { Button } from '@/components/ui/form-controls';
+import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
+import { payerRepository } from '@/domains/payers/repository';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { getProviderTypeTheme } from '@/domains/providers/components/NearbyProviderCard';
 import {
@@ -33,7 +36,7 @@ import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-m
 import { providerRepository } from '@/domains/providers/repository';
 import type { ProviderType } from '@/domains/providers/types';
 import { useIsGuest } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Provider } from '@/types';
 
 function readRating(provider: Provider): number | null {
@@ -57,10 +60,13 @@ export default function ProviderDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const isGuest = useIsGuest();
   const [declining, setDeclining] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   const [openingMaps, setOpeningMaps] = useState(false);
   const openingMapsRef = useRef(false);
 
@@ -82,6 +88,12 @@ export default function ProviderDetailScreen() {
     queryKey: [...QUERY_KEYS.providerConnections, organizationId],
     queryFn: () => providerConnectionService.getConnectionForOrganization(organizationId!),
     enabled: Boolean(organizationId) && !isGuest,
+  });
+
+  const supportedPayersQuery = useQuery({
+    queryKey: [...QUERY_KEYS.payers, 'for-provider', organizationId],
+    queryFn: () => payerRepository.listApprovedForProviderOrganization(organizationId!),
+    enabled: Boolean(organizationId),
   });
 
   const favoriteMutation = useMutation({
@@ -145,6 +157,23 @@ export default function ProviderDetailScreen() {
     onError: (error) => {
       Alert.alert(
         t('nearby.detail.respondFailedTitle'),
+        error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
+      );
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: () =>
+      providerConnectionService.cancelPendingRequest(connectionQuery.data!.id, cancelReason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
+      setCancelling(false);
+      setCancelReason('');
+      Alert.alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
+    },
+    onError: (error) => {
+      Alert.alert(
+        t('nearby.detail.cancelFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );
     },
@@ -222,22 +251,8 @@ export default function ProviderDetailScreen() {
     }
   }
 
-  function callProvider() {
-    if (!detail.phone) {
-      return;
-    }
-    void Linking.openURL(`tel:${detail.phone}`);
-  }
-
-  function emailProvider() {
-    if (!detail.email) {
-      return;
-    }
-    void Linking.openURL(`mailto:${detail.email}`);
-  }
-
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
@@ -341,12 +356,7 @@ export default function ProviderDetailScreen() {
 
             <View style={styles.divider} />
 
-            <Button
-              disabled={!detail.phone}
-              onPress={callProvider}
-              style={styles.infoRow}
-              variant="plain"
-            >
+            <View style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Phone color={theme.accent} size={18} />
               </View>
@@ -354,23 +364,21 @@ export default function ProviderDetailScreen() {
                 <AppText variant="caption" style={styles.infoLabel}>
                   {t('nearby.detail.phone')}
                 </AppText>
-                <AppText
-                  variant="body"
-                  style={[styles.infoValue, detail.phone ? { color: theme.accent } : null]}
-                >
-                  {detail.phone ?? t('nearby.detail.phoneUnavailable')}
-                </AppText>
+                {detail.phone ? (
+                  <TextLink external href={`tel:${detail.phone}`}>
+                    {detail.phone}
+                  </TextLink>
+                ) : (
+                  <AppText variant="body" style={styles.infoValue}>
+                    {t('nearby.detail.phoneUnavailable')}
+                  </AppText>
+                )}
               </View>
-            </Button>
+            </View>
 
             <View style={styles.divider} />
 
-            <Button
-              disabled={!detail.email}
-              onPress={emailProvider}
-              style={styles.infoRow}
-              variant="plain"
-            >
+            <View style={styles.infoRow}>
               <View style={[styles.infoIcon, { backgroundColor: theme.soft }]}>
                 <Mail color={theme.accent} size={18} />
               </View>
@@ -378,19 +386,77 @@ export default function ProviderDetailScreen() {
                 <AppText variant="caption" style={styles.infoLabel}>
                   {t('nearby.detail.email')}
                 </AppText>
-                <AppText
-                  variant="body"
-                  style={[styles.infoValue, detail.email ? { color: theme.accent } : null]}
-                >
-                  {detail.email ?? t('nearby.detail.emailUnavailable')}
-                </AppText>
+                {detail.email ? (
+                  <TextLink external href={`mailto:${detail.email}`}>
+                    {detail.email}
+                  </TextLink>
+                ) : (
+                  <AppText variant="body" style={styles.infoValue}>
+                    {t('nearby.detail.emailUnavailable')}
+                  </AppText>
+                )}
               </View>
-            </Button>
+            </View>
           </View>
         </AnimatedSection>
 
-        {showConnectCard ? (
+        {organizationId ? (
           <AnimatedSection index={3}>
+            <View style={[styles.card, shadow.soft]}>
+              <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
+                {t('nearby.detail.supportedPayers')}
+              </AppText>
+              <AppText variant="caption" style={styles.supportedPayersHint}>
+                {t('nearby.detail.supportedPayersHint')}
+              </AppText>
+              {supportedPayersQuery.isLoading ? (
+                <AppText variant="body" style={styles.connectStatus}>
+                  {t('nearby.detail.loading')}
+                </AppText>
+              ) : (supportedPayersQuery.data?.length ?? 0) === 0 ? (
+                <AppText variant="body" style={styles.connectStatus}>
+                  {t('nearby.detail.supportedPayersEmpty')}
+                </AppText>
+              ) : (
+                <View style={styles.supportedPayersList}>
+                  {supportedPayersQuery.data!.map((payer, index) => (
+                    <View key={payer.id}>
+                      {index > 0 ? <View style={styles.divider} /> : null}
+                      <Button
+                        style={styles.infoRow}
+                        variant="plain"
+                        onPress={() => router.push(`/(app)/profile/insurance/${payer.id}` as Href)}
+                        accessibilityLabel={payer.name}
+                      >
+                        <View style={[styles.infoIcon, { backgroundColor: '#E0E7FF' }]}>
+                          <Shield color="#4F46E5" size={18} />
+                        </View>
+                        <View style={styles.infoCopy}>
+                          <AppText variant="body" style={styles.infoValue}>
+                            {payer.name}
+                          </AppText>
+                          {payer.phone ? (
+                            <AppText variant="caption" style={styles.supportedPayerMeta}>
+                              {payer.phone}
+                            </AppText>
+                          ) : null}
+                        </View>
+                        <View
+                          style={[styles.supportedPayerChevron, { backgroundColor: theme.soft }]}
+                        >
+                          <ChevronRight color={theme.accent} size={16} strokeWidth={2.5} />
+                        </View>
+                      </Button>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </AnimatedSection>
+        ) : null}
+
+        {showConnectCard ? (
+          <AnimatedSection index={4}>
             <View style={[styles.card, shadow.soft]}>
               <AppText variant="caption" color="brand" style={styles.sectionEyebrow}>
                 {t('nearby.detail.connect')}
@@ -422,16 +488,17 @@ export default function ProviderDetailScreen() {
                   ) : null}
                   {declining ? (
                     <>
-                      <TextInput
-                        style={styles.reasonInput}
-                        value={rejectionReason}
-                        onChangeText={setRejectionReason}
-                        placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
-                        placeholderTextColor={textColors.placeholder}
-                        multiline
-                        editable={!respondMutation.isPending}
-                      />
-                      <View style={styles.connectRow}>
+                      <FormField>
+                        <Input
+                          value={rejectionReason}
+                          onChangeText={setRejectionReason}
+                          placeholder={t('nearby.connectionRequests.reasonPlaceholder')}
+                          multiline
+                          editable={!respondMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
                         <Button
                           style={[
                             styles.secondaryCta,
@@ -467,10 +534,10 @@ export default function ProviderDetailScreen() {
                             {t('nearby.connectionRequests.confirmDecline')}
                           </AppText>
                         </Button>
-                      </View>
+                      </FormActions>
                     </>
                   ) : (
-                    <View style={styles.connectRow}>
+                    <FormActions style={styles.connectRow}>
                       <Button
                         style={[
                           styles.primaryCta,
@@ -498,7 +565,76 @@ export default function ProviderDetailScreen() {
                           {t('nearby.detail.declineInbound')}
                         </AppText>
                       </Button>
-                    </View>
+                    </FormActions>
+                  )}
+                </View>
+              ) : connection?.status === 'pending' && connection.initiatedBy === 'patient' ? (
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={styles.connectStatus}>
+                    {t('nearby.detail.connectPendingOutbound')}
+                  </AppText>
+                  {cancelling ? (
+                    <>
+                      <AppText variant="caption" style={styles.connectHint}>
+                        {t('nearby.detail.cancelRequestHint')}
+                      </AppText>
+                      <FormField>
+                        <Input
+                          value={cancelReason}
+                          onChangeText={setCancelReason}
+                          placeholder={t('nearby.detail.cancelReasonPlaceholder')}
+                          multiline
+                          editable={!cancelMutation.isPending}
+                          style={styles.reasonInput}
+                        />
+                      </FormField>
+                      <FormActions style={styles.connectRow}>
+                        <Button
+                          style={[
+                            styles.secondaryCta,
+                            { backgroundColor: theme.soft, borderColor: theme.accent, flex: 1 },
+                          ]}
+                          disabled={cancelMutation.isPending}
+                          onPress={() => {
+                            setCancelling(false);
+                            setCancelReason('');
+                          }}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={{ color: theme.accent }}>
+                            {t('common.cancel')}
+                          </AppText>
+                        </Button>
+                        <Button
+                          style={[
+                            styles.primaryCta,
+                            { backgroundColor: theme.accent, flex: 1 },
+                            shadow.soft,
+                          ]}
+                          disabled={cancelMutation.isPending}
+                          onPress={() => cancelMutation.mutate()}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('nearby.detail.confirmCancelRequest')}
+                          </AppText>
+                        </Button>
+                      </FormActions>
+                    </>
+                  ) : (
+                    <Button
+                      style={[
+                        styles.secondaryCta,
+                        { backgroundColor: theme.soft, borderColor: theme.accent },
+                      ]}
+                      disabled={cancelMutation.isPending}
+                      onPress={() => setCancelling(true)}
+                      variant="plain"
+                    >
+                      <AppText variant="button" style={{ color: theme.accent }}>
+                        {t('nearby.detail.cancelRequest')}
+                      </AppText>
+                    </Button>
                   )}
                 </View>
               ) : connection?.status === 'pending' ? (
@@ -527,7 +663,7 @@ export default function ProviderDetailScreen() {
           </AnimatedSection>
         ) : null}
 
-        <AnimatedSection index={4}>
+        <AnimatedSection index={5}>
           <View style={styles.actions}>
             <Button
               style={[
@@ -571,15 +707,11 @@ export default function ProviderDetailScreen() {
           </View>
         </AnimatedSection>
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -713,17 +845,29 @@ const styles = StyleSheet.create({
     color: palette.textSecondary,
     marginBottom: 4,
   },
+  supportedPayersHint: {
+    color: palette.textSecondary,
+    marginBottom: 8,
+  },
+  supportedPayersList: {
+    gap: 0,
+  },
+  supportedPayerMeta: {
+    color: palette.textSecondary,
+  },
+  supportedPayerChevron: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   connectRow: {
     flexDirection: 'row',
     gap: 10,
   },
   reasonInput: {
     minHeight: 80,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    borderRadius: radius.lg,
-    padding: 12,
-    color: palette.text,
     textAlignVertical: 'top',
   },
   primaryCta: {

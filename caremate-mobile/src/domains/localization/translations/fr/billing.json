@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "Paiement reçu",
+    "confirming": "Confirmation de votre paiement…",
+    "syncingPremium": "Paiement reçu. Synchronisation Premium…",
+    "activated": "Premium activé. Ouverture de votre forfait…",
+    "syncingStatus": "Paiement reçu. Synchronisation du statut Premium…"
+  },
+  "cancel": {
+    "title": "Paiement annulé",
+    "subtitle": "Retour à Premium…"
+  }
+}

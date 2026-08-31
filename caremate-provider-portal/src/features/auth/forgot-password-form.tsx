@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -17,9 +16,10 @@ import {
   meetsPasswordRequirements,
 } from '@/lib/password';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
+import { TextLink } from '@/components/ui/text-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 type Step = 'email' | 'code' | 'password';
 
@@ -107,7 +107,7 @@ export function ForgotPasswordForm() {
         <div>
           <CardTitle className="text-xl text-brand-navy">Forgot password</CardTitle>
           <CardDescription className="mt-1">
-            We&apos;ll email a verification code so you can set a new password for your provider
+            We&apos;ll email a verification code so you can set a new password for your Care Portal
             account.
           </CardDescription>
         </div>
@@ -129,104 +129,106 @@ export function ForgotPasswordForm() {
         </ol>
 
         {step === 'email' ? (
-          <form onSubmit={onSubmitEmail} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="reset-email">Account email</Label>
-              <Input
-                id="reset-email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full" loading={loading} loadingLabel="Sending…">
-              Send verification code
-            </Button>
+          <form onSubmit={onSubmitEmail}>
+            <FormStack>
+              <FormField label="Account email" htmlFor="reset-email">
+                <Input
+                  id="reset-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormField>
+              <Button type="submit" className="w-full" loading={loading} loadingLabel="Sending…">
+                Send verification code
+              </Button>
+            </FormStack>
           </form>
         ) : null}
 
         {step === 'code' ? (
-          <form onSubmit={onVerifyCode} className="space-y-4">
-            <p className="text-sm text-muted">
-              Enter the verification code sent to{' '}
-              <span className="font-medium text-foreground">{email}</span>.
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="reset-code">Verification code</Label>
-              <Input
-                id="reset-code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                required
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full" loading={loading} loadingLabel="Verifying…">
-              Verify code
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              disabled={loading}
-              onClick={() => {
-                setStep('email');
-                setCode('');
-                setResetId('');
-              }}
-            >
-              Start over
-            </Button>
+          <form onSubmit={onVerifyCode}>
+            <FormStack>
+              <p className="text-sm text-muted">
+                Enter the verification code sent to{' '}
+                <span className="font-medium text-foreground">{email}</span>.
+              </p>
+              <FormField label="Verification code" htmlFor="reset-code">
+                <Input
+                  id="reset-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+              </FormField>
+              <Button type="submit" className="w-full" loading={loading} loadingLabel="Verifying…">
+                Verify code
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                disabled={loading}
+                onClick={() => {
+                  setStep('email');
+                  setCode('');
+                  setResetId('');
+                }}
+              >
+                Start over
+              </Button>
+            </FormStack>
           </form>
         ) : null}
 
         {step === 'password' ? (
-          <form onSubmit={onSetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="reset-password">New password</Label>
-              <Input
-                id="reset-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={PASSWORD_MIN_LENGTH}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <p className="text-xs text-muted">{PASSWORD_REQUIREMENTS_MESSAGE}</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="reset-password-confirm">Confirm password</Label>
-              <Input
-                id="reset-password-confirm"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={PASSWORD_MIN_LENGTH}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              loading={loading}
-              loadingLabel="Updating…"
-            >
-              Update password
-            </Button>
+          <form onSubmit={onSetPassword}>
+            <FormStack>
+              <FormField
+                label="New password"
+                htmlFor="reset-password"
+                hint={PASSWORD_REQUIREMENTS_MESSAGE}
+              >
+                <Input
+                  id="reset-password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={PASSWORD_MIN_LENGTH}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FormField>
+              <FormField label="Confirm password" htmlFor="reset-password-confirm">
+                <Input
+                  id="reset-password-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={PASSWORD_MIN_LENGTH}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </FormField>
+              <Button
+                type="submit"
+                className="w-full"
+                loading={loading}
+                loadingLabel="Updating…"
+              >
+                Update password
+              </Button>
+            </FormStack>
           </form>
         ) : null}
 
         <p className="text-center text-sm text-muted">
-          Remembered it?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
-            Sign in
-          </Link>
+          Remembered it? <TextLink href="/login">Sign in</TextLink>
         </p>
       </CardContent>
     </Card>

@@ -12,8 +12,8 @@ import { isStaffRole } from '@/constants/roles';
 import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { useAuthStore } from '@/features/auth/store';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const schema = z.object({
@@ -86,30 +86,28 @@ export function LoginForm() {
         </div>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" autoComplete="email" {...register('email')} />
-            {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              {...register('password')}
-            />
-            {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
-          </div>
-          <Button
-            type="submit"
-            className="w-full"
-            loading={loading}
-            loadingLabel="Signing in…"
-          >
-            Sign in
-          </Button>
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <FormField label="Email" htmlFor="email" error={errors.email?.message}>
+              <Input id="email" type="email" autoComplete="email" {...register('email')} />
+            </FormField>
+            <FormField label="Password" htmlFor="password" error={errors.password?.message}>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                {...register('password')}
+              />
+            </FormField>
+            <Button
+              type="submit"
+              className="w-full"
+              loading={loading}
+              loadingLabel="Signing in…"
+            >
+              Sign in
+            </Button>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

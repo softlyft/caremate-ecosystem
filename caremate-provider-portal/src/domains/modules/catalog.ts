@@ -2,19 +2,19 @@
  * CareMate Provider Portal capability modules.
  *
  * Defaults are ON for engagement features already shipped.
- * Optional modules (e.g. laboratory) start OFF and are activated in Settings.
+ * Optional modules start OFF and can be activated in Settings when shipped.
  * Missing DB override → catalog defaultEnabled.
  */
 
 export const PROVIDER_MODULE_KEYS = [
   'dashboard',
   'patients',
+  'payers',
   'appointments',
   'documents',
   'messaging',
   'analytics',
   'organization',
-  'laboratory',
 ] as const;
 
 export type ProviderModuleKey = (typeof PROVIDER_MODULE_KEYS)[number];
@@ -32,7 +32,7 @@ export type ProviderModuleDefinition = {
   activatable: boolean;
   /** Nav / route prefixes gated by this module. */
   hrefs: readonly string[];
-  navGroup: 'General' | 'Patients' | 'Engagement' | 'Clinical' | 'Organization';
+  navGroup: 'General' | 'Patients' | 'Payers' | 'Engagement' | 'Organization';
   navLabel: string;
 };
 
@@ -56,6 +56,16 @@ export const PROVIDER_MODULES: readonly ProviderModuleDefinition[] = [
     hrefs: ['/app/patients', '/app/patients/requests'],
     navGroup: 'Patients',
     navLabel: 'Connected Patients',
+  },
+  {
+    key: 'payers',
+    name: 'Payer connections',
+    description: 'Connected health insurers and connection requests.',
+    defaultEnabled: true,
+    activatable: false,
+    hrefs: ['/app/payers', '/app/payers/requests'],
+    navGroup: 'Payers',
+    navLabel: 'Connected Payers',
   },
   {
     key: 'appointments',
@@ -107,17 +117,6 @@ export const PROVIDER_MODULES: readonly ProviderModuleDefinition[] = [
     navGroup: 'Organization',
     navLabel: 'Organization',
   },
-  {
-    key: 'laboratory',
-    name: 'Laboratory',
-    description:
-      'Test catalog, orders, sample collection, processing, validation, and reporting.',
-    defaultEnabled: false,
-    activatable: true,
-    hrefs: ['/app/lab'],
-    navGroup: 'Clinical',
-    navLabel: 'Laboratory',
-  },
 ] as const;
 
 export function isProviderModuleKey(value: string): value is ProviderModuleKey {
@@ -159,13 +158,13 @@ export function isModuleEnabled(
 export function moduleKeyForPath(pathname: string): ProviderModuleKey | null {
   if (!pathname.startsWith('/app')) return null;
   if (pathname.startsWith('/app/settings')) return null;
-  if (pathname.startsWith('/app/lab')) return 'laboratory';
   if (pathname.startsWith('/app/appointments')) return 'appointments';
   if (pathname.startsWith('/app/documents')) return 'documents';
   if (pathname.startsWith('/app/broadcasts')) return 'messaging';
   if (pathname.startsWith('/app/analytics')) return 'analytics';
   if (pathname.startsWith('/app/organization')) return 'organization';
   if (pathname.startsWith('/app/patients')) return 'patients';
+  if (pathname.startsWith('/app/payers')) return 'payers';
   if (pathname.startsWith('/app/dashboard')) return 'dashboard';
   return null;
 }

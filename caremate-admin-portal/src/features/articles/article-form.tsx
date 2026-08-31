@@ -12,8 +12,9 @@ import { LEARN_CONTENT_TYPES, LEARN_CONTENT_TYPE_LABELS } from '@/constants/cont
 import { HEALTH_CATEGORIES } from '@/constants/categories';
 import type { Article } from '@/types/database';
 import { Button } from '@/components/ui/button';
+import { FileUploadButton } from '@/components/ui/file-upload-button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
@@ -131,114 +132,89 @@ export function ArticleForm({ article }: { article?: Article }) {
   return (
     <Card>
       <CardContent className="space-y-4 p-6">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register('title')} />
-              {errors.title && <p className="text-xs text-danger">{errors.title.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="content_type">Content type</Label>
-              <Select id="content_type" {...register('content_type')}>
-                {LEARN_CONTENT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {LEARN_CONTENT_TYPE_LABELS[t]}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="category_id">Category</Label>
-              <Select id="category_id" {...register('category_id')}>
-                <option value="">—</option>
-                {HEALTH_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="summary">Summary</Label>
-              <Textarea id="summary" rows={2} {...register('summary')} />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="content">Content</Label>
-              <Textarea id="content" rows={10} {...register('content')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="published_at">Published at (empty = draft)</Label>
-              <Input id="published_at" type="datetime-local" {...register('published_at')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="source_url">Source URL</Label>
-              <Input id="source_url" {...register('source_url')} />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="image_url">Image URL</Label>
-              <div className="flex gap-2">
-                <Input id="image_url" {...register('image_url')} />
-                <label
-                  aria-busy={uploading || undefined}
-                  className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm hover:bg-gray-100"
-                >
-                  <input
-                    type="file"
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="Title" htmlFor="title" className="md:col-span-2" error={errors.title?.message}>
+                <Input id="title" {...register('title')} />
+              </FormField>
+              <FormField label="Content type" htmlFor="content_type">
+                <Select id="content_type" {...register('content_type')}>
+                  {LEARN_CONTENT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {LEARN_CONTENT_TYPE_LABELS[t]}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Category" htmlFor="category_id">
+                <Select id="category_id" {...register('category_id')}>
+                  <option value="">—</option>
+                  {HEALTH_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Summary" htmlFor="summary" className="md:col-span-2">
+                <Textarea id="summary" rows={2} {...register('summary')} />
+              </FormField>
+              <FormField label="Content" htmlFor="content" className="md:col-span-2">
+                <Textarea id="content" rows={10} {...register('content')} />
+              </FormField>
+              <FormField label="Published at (empty = draft)" htmlFor="published_at">
+                <Input id="published_at" type="datetime-local" {...register('published_at')} />
+              </FormField>
+              <FormField label="Source URL" htmlFor="source_url">
+                <Input id="source_url" {...register('source_url')} />
+              </FormField>
+              <FormField label="Image URL" htmlFor="image_url" className="md:col-span-2">
+                <div className="flex gap-2">
+                  <Input id="image_url" {...register('image_url')} />
+                  <FileUploadButton
                     accept="image/*"
-                    className="hidden"
-                    disabled={uploading}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) void onUpload(f);
-                    }}
+                    loading={uploading}
+                    onFile={(file) => void onUpload(file)}
                   />
-                  {uploading ? (
-                    <span
-                      aria-hidden="true"
-                      className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-                    />
-                  ) : null}
-                  {uploading ? 'Uploading…' : 'Upload'}
-                </label>
-              </div>
-              {imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={imageUrl} alt="" className="mt-2 h-24 rounded-md object-cover" />
-              ) : null}
+                </div>
+                {imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={imageUrl} alt="" className="mt-2 h-24 rounded-md object-cover" />
+                ) : null}
+              </FormField>
+              <FormField label="Attributes (JSON)" htmlFor="attributes_json" className="md:col-span-2">
+                <Textarea
+                  id="attributes_json"
+                  rows={5}
+                  className="font-mono text-xs"
+                  {...register('attributes_json')}
+                />
+              </FormField>
             </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="attributes_json">Attributes (JSON)</Label>
-              <Textarea
-                id="attributes_json"
-                rows={5}
-                className="font-mono text-xs"
-                {...register('attributes_json')}
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="submit"
-              disabled={pending}
-              loading={pendingAction === 'save'}
-              loadingLabel="Saving…"
-            >
-              Save
-            </Button>
-            {article ? (
+            <FormActions className="justify-start">
               <Button
-                type="button"
-                variant="danger"
+                type="submit"
                 disabled={pending}
-                loading={pendingAction === 'delete'}
-                loadingLabel="Deleting…"
-                onClick={onDelete}
+                loading={pendingAction === 'save'}
+                loadingLabel="Saving…"
               >
-                Delete
+                Save
               </Button>
-            ) : null}
-          </div>
+              {article ? (
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={pending}
+                  loading={pendingAction === 'delete'}
+                  loadingLabel="Deleting…"
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+              ) : null}
+            </FormActions>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

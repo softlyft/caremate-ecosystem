@@ -35,7 +35,8 @@
     "save": "Hifadhi eneo",
     "saving": "Inahifadhi...",
     "searchPlaceholder": "Tafuta nchi",
-    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo."
+    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo.",
+    "selectPlaceholder": "Chagua nchi"
   },
   "family": {
     "title": "Familia",

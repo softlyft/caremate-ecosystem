@@ -29,7 +29,7 @@
       "description": "追踪周期、记录经期并查看简单预测。"
     }
   },
-  "signInRequired": "登录以在各设备间同步此工具",
+  "signInRequired": "登录以在设备间同步此工具",
   "save": "保存",
   "log": "记录条目",
   "setup": "设置",
@@ -164,7 +164,20 @@
       "refillDateOptional": "可选补药日期 — 再点一次可清除",
       "historySubtitle": "最近记录的服药",
       "historyEmpty": "尚无记录。标记已服以建立历史。",
-      "unknownMedicine": "未知药品"
+      "unknownMedicine": "未知药品",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "治疗期",
+      "durationDays": "{{count}} 天",
+      "treatmentEndedTitle": "治疗已结束",
+      "treatmentPeriodHint": "选择服用此药多久，或设为持续服用。",
+      "durationOngoing": "进行中",
+      "durationCustom": "自定义结束",
+      "endDate": "结束日期",
+      "endBeforeStartTitle": "结束日期过早",
+      "endBeforeStartMessage": "选择结束日期，须不早于开始日期。",
+      "clearRefillDate": "清除日期",
+      "startsOngoing": "开始于 {{date}} · 进行中",
+      "treatmentEndedMessage": "该治疗期在今天之前结束。请选择更晚的结束日期、更长疗程，或标记为持续用药。"
     },
     "status": {
       "taken": "已服",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} 已漏服。有空时请补上。",
       "refillTitle": "即将补药：{{name}}",
       "refillBody": "{{name}} 所剩不多或到了补药时间。"
+    },
+    "validation": {
+      "undoTitle": "撤销此剂量？",
+      "undoMessage": "这将标记该剂量为未服用。若库存已扣减，将恢复。",
+      "undoConfirm": "撤销",
+      "nameLong": "此药名较长。请确认是否正确。",
+      "instructionsOtherEmpty": "您选择了“其他”说明但详情留空。请在保存前确认。",
+      "asNeededMany": "您今天已为此药记录 {{count}} 次按需剂量。添加前请确认。",
+      "checkTitle": "请检查此项",
+      "confirmTitle": "请确认",
+      "cancel": "取消",
+      "requiredName": "保存前请输入药品名称。",
+      "requiredDosage": "保存前请输入剂量（例如 500mg）。",
+      "requiredStart": "保存前请选择开始日期。",
+      "childRequired": "选择此药物是给哪个孩子的。",
+      "slotTimesInvalid": "请用时间选择器为每剂选择有效时间。",
+      "slotTimesDuplicate": "每剂需要不同时间。两剂不能在同一时间点。",
+      "saveAnyway": "仍要保存",
+      "endBeforeStart": "结束日期应在开始日期当天或之后。",
+      "treatmentEnded": "该治疗期在今天之前结束。请选择更晚的结束日期、更长疗程，或标记为持续用药。",
+      "quantityInvalid": "剩余数量应为整数（0 或更多），或留空。",
+      "thresholdInvalid": "补药提醒阈值应为整数（0 或更多）。",
+      "unusualCheck": "看起来不寻常。请检查输入是否正确。",
+      "dosageNoUnit": "此剂量看起来只有数字。是否要包含单位（mg、ml、片…）？",
+      "slotsTooClose": "这些服药时间间隔不足 2 小时。请确认这是有意的。",
+      "courseLong": "此疗程超过一年 ({{days}} 天)。请确认是否正确。",
+      "refillBeforeStart": "补药日期在治疗开始日期之前。请确认是否正确。",
+      "quantityHigh": "该数量 ({{value}}) 异常偏高。请确认是否正确。",
+      "thresholdAboveQuantity": "补药提醒高于剩余数量。请确认这是有意的。",
+      "logBeforeStart": "此日期在药物开始日期之前。请在保存前确认。",
+      "logAfterEnd": "此日期在治疗结束日期之后。请在保存前确认。",
+      "logFuture": "此日期在未来。请确认您是有意提前记录。"
     }
   },
   "edit": "编辑",
@@ -201,5 +246,789 @@
   "saveChanges": "保存更改",
   "loading": "加载中…",
   "editProfile": "编辑资料",
-  "signInRequiredTitle": "需要登录"
+  "signInRequiredTitle": "需要登录",
+  "vitalsTracker": {
+    "eyebrow": "生命体征",
+    "screenTitle": "生命体征",
+    "backToApps": "返回应用",
+    "close": "关闭",
+    "emptyTitle": "生命体征一览",
+    "emptySubtitle": "几秒内记录读数 — 就像查看账户余额。",
+    "titleWithData": "最新生命体征",
+    "subtitleWithData": "快速打开，轻松更新",
+    "logVital": "记录生命体征",
+    "logTitle": "记录生命体征",
+    "logSubtitle": "选择测量项，输入数值并保存。",
+    "saveLog": "保存读数",
+    "setupTitle": "选择单位",
+    "setupSubtitle": "选择常用测量方式 — 可稍后更改。",
+    "setupCta": "设置单位",
+    "setupSave": "保存偏好",
+    "editUnits": "编辑单位"
+  },
+  "periodTracker": {
+    "eyebrow": "今天",
+    "screenTitle": "经期跟踪",
+    "logTitle": "记录经期",
+    "backToApps": "返回应用",
+    "close": "关闭",
+    "emptyTitle": "开始跟踪周期",
+    "emptySubtitle": "记录上次经期以查看预测",
+    "logPeriodDays": "记录经期天数",
+    "markPeriod": "标记经期",
+    "markPeriodSubtitle": "点击经期天数。可选择跨月的多个日期。"
+  },
+  "immunizationTracker": {
+    "eyebrow": "免疫",
+    "screenTitle": "免疫跟踪",
+    "setupTitle": "家庭孩子",
+    "logTitle": "记录疫苗",
+    "backToApps": "返回应用",
+    "close": "关闭",
+    "loading": "正在从家庭加载孩子…",
+    "loadingLog": "正在加载疫苗记录…",
+    "emptyTitle": "跟踪免疫",
+    "signInSubtitle": "免疫跟踪使用 CareMate 家庭资料中的孩子。",
+    "needsFamilySubtitle": "创建家庭资料并添加孩子的出生日期。疫苗计划将显示在此处。",
+    "needsChildrenSubtitle": "家庭中尚无带出生日期的孩子。请在家庭中添加孩子以开始跟踪疫苗。",
+    "childrenFromFamilyTitle": "孩子来自家庭",
+    "childrenFromFamilySubtitle": "无法在此添加孩子。请设置家庭资料并添加出生日期，然后返回免疫跟踪。",
+    "logVaccine": "记录疫苗",
+    "saveVaccine": "保存疫苗",
+    "updateRecord": "更新记录",
+    "noChildSelected": "未选择孩子",
+    "noChildSubtitle": "请先在家庭资料中添加孩子，再记录疫苗。"
+  },
+  "checkupPlanner": {
+    "eyebrow": "体检规划",
+    "screenTitle": "体检规划",
+    "setupTitle": "设置规划器",
+    "logTitle": "记录体检",
+    "backToApps": "返回应用",
+    "close": "关闭",
+    "emptyTitle": "规划健康体检",
+    "emptySubtitle": "输入出生日期、性别和可选地区以查看推荐检查",
+    "setUpPlanner": "设置规划器",
+    "editProfile": "编辑资料",
+    "setupSave": "保存并查看计划",
+    "setupSaveEdit": "保存更改",
+    "needSetup": "请先设置体检资料。"
+  },
+  "pregnancyTracker": {
+    "eyebrow": "怀孕",
+    "emptyTitle": "跟踪怀孕历程",
+    "emptySubtitle": "设置预产期或上次经期以开始",
+    "setUp": "设置怀孕跟踪",
+    "updateDueDate": "更新预产期",
+    "logToday": "记录今日",
+    "setupSave": "保存",
+    "saveLog": "保存记录",
+    "screenTitle": "怀孕跟踪",
+    "setupTitle": "设置怀孕跟踪",
+    "logTitle": "每日记录",
+    "ttTitle": "记录 TT 剂量",
+    "birthTitle": "我已分娩",
+    "backToApps": "返回应用",
+    "close": "关闭"
+  },
+  "reorderHint": "按住卡片后拖动以重新排列。顺序保留在此设备上。",
+  "reorderHintA11y": "双击并按住，然后拖动以重新排列",
+  "checkup": {
+    "cadence": {
+      "annual": "每年",
+      "once": "一次（到期时）",
+      "every-2-years": "每 2 年",
+      "every-3-years": "每 3 年",
+      "every-5-years": "每 5 年"
+    },
+    "gender": {
+      "female": "女",
+      "male": "男",
+      "other": "其他 / 不愿透露"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "每年与临床人员进行一次整体健康复查。",
+        "name": "常规体检"
+      },
+      "dental-checkup": {
+        "name": "牙科检查",
+        "description": "清洁和口腔检查，及早发现龋齿和牙龈疾病。"
+      },
+      "eye-exam": {
+        "name": "眼科/视力检查",
+        "description": "检查视力和眼部健康；若戴眼镜或有糖尿病应更频繁。"
+      },
+      "blood-pressure": {
+        "name": "血压检查",
+        "description": "筛查高血压——心脏病和中风的隐性风险。"
+      },
+      "blood-sugar": {
+        "name": "血糖/糖尿病筛查",
+        "description": "空腹血糖或 HbA1c，尤其有家族史或超重时。"
+      },
+      "cholesterol": {
+        "name": "胆固醇/血脂检测",
+        "description": "心脏风险血液检测。请与医生讨论频率。"
+      },
+      "weight-bmi": {
+        "name": "体重与 BMI 复查",
+        "description": "作为年度体检的一部分，追踪健康体重趋势。"
+      },
+      "flu-vaccine": {
+        "description": "在有条件且推荐时接种年度流感疫苗。",
+        "name": "季节性流感疫苗"
+      },
+      "cervical-screening": {
+        "name": "宫颈筛查 (Pap / HPV)",
+        "description": "筛查宫颈癌。请遵循当地间隔指南。"
+      },
+      "mammogram": {
+        "name": "乳腺 X 光",
+        "description": "乳腺癌筛查。起始年龄因指南和风险而异。"
+      },
+      "prostate-discussion": {
+        "name": "前列腺健康讨论",
+        "description": "请与临床人员讨论 PSA 检测和前列腺症状。"
+      },
+      "prostate-earlier": {
+        "name": "较早讨论前列腺",
+        "description": "若有非洲血统或家族史，可考虑更早筛查。"
+      },
+      "colorectal-screening": {
+        "name": "结直肠癌筛查",
+        "description": "从中年开始便检或结肠镜——询问哪种适合您。"
+      },
+      "skin-check": {
+        "name": "皮肤检查",
+        "description": "请临床人员检查痣和皮肤变化。"
+      },
+      "hearing-check": {
+        "name": "听力检查",
+        "description": "筛查与年龄相关的听力损失。"
+      },
+      "bone-density-women": {
+        "name": "骨密度 (DEXA)",
+        "description": "筛查绝经后/晚年的骨质疏松风险。"
+      },
+      "bone-density-men": {
+        "name": "骨密度 (DEXA)",
+        "description": "筛查晚年骨质疏松风险。"
+      },
+      "tetanus-booster": {
+        "description": "确认破伤风（及相关）加强针已最新——通常每10年一次。",
+        "name": "破伤风加强针复查"
+      }
+    },
+    "status": {
+      "upcoming": "即将到来",
+      "completed": "完成",
+      "due": "到期",
+      "overdue": "逾期"
+    },
+    "ui": {
+      "actionableOne": "{{year}} 年 {{count}} 项体检",
+      "actionableMany": "{{year}} 年 {{count}} 项体检",
+      "onTrack": "{{year}} 年体检进度正常",
+      "yearPlan": "您的 {{year}} 计划",
+      "thisYear": "今年 ({{year}})",
+      "ofTotal": "{{completed}}/{{total}}",
+      "checklist": "{{year}} 清单",
+      "clearConfirmMessage": "您的资料和完成记录将从此设备删除。",
+      "regionHint": "用于部分按国家定制的提示。如不确定请保留 Global。",
+      "regionSelectPlaceholder": "选择国家",
+      "dob": "出生日期",
+      "genderLabel": "性别",
+      "updateLog": "更新记录",
+      "setupIntro": "我们使用您的出生日期、性别和地区来建议标准体检。地区为可选，默认为 International。",
+      "ageLine": "年龄 {{age}} · {{gender}} · {{region}}",
+      "nextYear": "明年 ({{year}})",
+      "done": "完成",
+      "guidance": "仅供参考——请咨询临床人员获取个人建议。",
+      "emptyYear": "当前资料下今年没有列出的体检。",
+      "doneDate": "完成 {{date}}",
+      "clearData": "清除计划数据",
+      "clearConfirmTitle": "清除检查计划？",
+      "regionOptional": "国家（可选）",
+      "regionSearchEmpty": "没有匹配该搜索的国家。",
+      "globalOption": "全球 ({{code}})",
+      "notesPlaceholder": "诊所名称、待跟进结果…",
+      "markDone": "标记 {{year}} 年已完成",
+      "dobLabel": "出生日期：{{date}}",
+      "logIntro": "记录您已完成 {{year}} 年的此项体检。可稍后在此屏幕撤销。",
+      "dateCompleted": "完成日期",
+      "completedLabel": "已完成：{{date}}",
+      "notesOptional": "备注（可选）",
+      "globalShort": "全球",
+      "tapToLog": "点按记录",
+      "regionSearchPlaceholder": "搜索国家",
+      "removeLog": "删除此记录",
+      "tapDob": "点按您的出生日期。",
+      "notFound": "未找到该体检。",
+      "removeCompletion": "移除完成记录"
+    },
+    "validation": {
+      "undoConfirm": "移除",
+      "completedYearMismatch": "您记录的是 {{completedYear}}，但此项属于 {{planYear}} 计划。请确认这是有意的。",
+      "onceAlreadyLogged": "此一次性体检已于 {{year}} 年记录。请确认您要再次记录。",
+      "checkTitle": "请检查此项",
+      "confirmTitle": "请确认",
+      "cancel": "取消",
+      "requiredGender": "保存前请选择性别选项。",
+      "requiredDob": "保存前请选择出生日期。",
+      "dobFuture": "出生日期不能是未来日期。",
+      "ageYoung": "在 {{age}} 岁时，显示的成人检查较少。请确认此出生日期是否正确。",
+      "completedFuture": "检查不能以未来日期标记为已完成。请选择今天或更早的日期。",
+      "saveAnyway": "仍要保存",
+      "undoTitle": "移除此完成记录？",
+      "undoMessage": "该体检将再次显示为该年未完成。",
+      "invalidCheckup": "未找到该体检。请返回重试。",
+      "invalidYear": "该计划年份看起来不寻常。请从年度清单打开体检。",
+      "unusualCheck": "看起来不寻常。请检查输入是否正确。",
+      "completedBeforeDob": "完成日期不能早于您的出生日期。",
+      "ageHigh": "此出生日期将使您为 {{age}} 岁。请确认是否正确。",
+      "notesLong": "这些备注较长。请在保存前确认。"
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "出生剂量",
+        "description": "预防严重结核病。"
+      },
+      "hep-b-birth": {
+        "name": "乙型肝炎",
+        "doseLabel": "出生剂量",
+        "description": "首剂在出生时或 24 小时内接种。"
+      },
+      "opv-0": {
+        "name": "脊灰 (OPV)",
+        "doseLabel": "第0剂",
+        "description": "口服脊灰疫苗出生剂量。"
+      },
+      "penta-1": {
+        "name": "五联疫苗",
+        "doseLabel": "第1剂",
+        "description": "覆盖白喉、破伤风、百日咳、乙型肝炎和 Hib。"
+      },
+      "opv-1": {
+        "name": "脊灰 (OPV)",
+        "doseLabel": "第1剂",
+        "description": "首次常规脊灰疫苗。"
+      },
+      "pcv-1": {
+        "name": "肺炎球菌 (PCV)",
+        "doseLabel": "第1剂",
+        "description": "预防肺炎球菌疾病。"
+      },
+      "rota-1": {
+        "doseLabel": "第1剂",
+        "name": "轮状病毒",
+        "description": "预防轮状病毒引起的严重腹泻。"
+      },
+      "penta-2": {
+        "name": "五联疫苗",
+        "doseLabel": "第2剂",
+        "description": "第二剂五联疫苗。"
+      },
+      "opv-2": {
+        "name": "脊灰 (OPV)",
+        "doseLabel": "第2剂",
+        "description": "第二剂常规脊灰疫苗。"
+      },
+      "pcv-2": {
+        "name": "肺炎球菌 (PCV)",
+        "doseLabel": "第2剂",
+        "description": "第二剂肺炎球菌疫苗。"
+      },
+      "rota-2": {
+        "doseLabel": "第2剂",
+        "name": "轮状病毒",
+        "description": "第二剂轮状病毒疫苗。"
+      },
+      "penta-3": {
+        "name": "五联疫苗",
+        "doseLabel": "第3剂",
+        "description": "第三剂五联疫苗。"
+      },
+      "opv-3": {
+        "name": "脊灰 (OPV)",
+        "doseLabel": "第3剂",
+        "description": "第三剂常规脊灰疫苗。"
+      },
+      "pcv-3": {
+        "name": "肺炎球菌 (PCV)",
+        "doseLabel": "第3剂",
+        "description": "第三剂肺炎球菌疫苗。"
+      },
+      "ipv": {
+        "name": "脊灰 (IPV)",
+        "doseLabel": "加强针",
+        "description": "约 6 个月接种灭活脊灰加强针。"
+      },
+      "measles-1": {
+        "name": "麻疹 / MR",
+        "doseLabel": "第1剂",
+        "description": "首次麻疹-风疹疫苗约 9 个月。"
+      },
+      "yellow-fever": {
+        "name": "黄热病",
+        "doseLabel": "单剂",
+        "description": "建议在流行区 9 个月起接种。"
+      },
+      "measles-2": {
+        "name": "麻疹 / MR",
+        "doseLabel": "第2剂",
+        "description": "第二剂麻疹-风疹疫苗约 15 个月。"
+      },
+      "vitamin-a": {
+        "name": "维生素 A",
+        "doseLabel": "补充剂",
+        "description": "15 个月起常规补充维生素 A。"
+      }
+    },
+    "ui": {
+      "dob": "出生日期",
+      "scheduleTitle": "疫苗时间表",
+      "timeline": "时间线",
+      "vaccineRecord": "疫苗记录",
+      "whereToGo": "前往地点",
+      "overdueVisit": "{{count}} 种疫苗逾期 — 请预约就诊",
+      "overdueVisit_other": "{{count}} 种疫苗逾期 — 请预约就诊",
+      "vaccinesCompleted": "已完成 {{completed}}/{{total}} 种疫苗",
+      "children": "孩子",
+      "family": "家庭",
+      "percentComplete": "已完成 {{percent}}%",
+      "daysOverdue": "逾期 {{count}} 天",
+      "daysOverdue_other": "逾期 {{count}} 天",
+      "vaccineRecordTitle": "疫苗记录",
+      "noChildSelected": "未选择孩子",
+      "vaccine": "疫苗",
+      "selectedDate": "已选择：{{date}}",
+      "nextDue": "下一剂：{{name}} ({{dose}})",
+      "allUpToDate": "所有计划疫苗均已最新",
+      "attention": "需要注意",
+      "alreadyLogged": "已记录",
+      "administeredDate": "给药日期",
+      "optional": "可选",
+      "notesPlaceholder": "批号、反应等",
+      "nextSteps": "后续步骤",
+      "childrenFromFamilyCaption": "孩子来自您的家庭资料。",
+      "details": "详情",
+      "age": "年龄",
+      "nextUp": "接下来",
+      "dueToday": "今天到期",
+      "dueInDays": "{{count}} 天后到期",
+      "dueInDays_other": "{{count}} 天后到期",
+      "givenOn": "接种日期 {{date}}",
+      "dueOn": "到期 {{date}}",
+      "logIntro": "记录此疫苗接种日期。可稍后更新或删除记录。",
+      "alreadyLoggedPill": "已记录",
+      "completedOn": "已完成：{{date}}",
+      "notes": "备注",
+      "familySetupExplainer": "家庭设置会收集每个孩子的出生日期——疫苗时间表由此生成。",
+      "selectChild": "选择孩子以查看推荐的疫苗时间表",
+      "providerOptional": "提供者/诊所",
+      "removeRecord": "删除记录",
+      "profile": "资料",
+      "recommendedBy": "建议于 {{date}} 前",
+      "select": "选择",
+      "tapAdministeredDate": "点按此疫苗接种日期"
+    },
+    "status": {
+      "upcoming": "即将到来",
+      "completed": "已完成",
+      "overdue": "逾期",
+      "due-soon": "即将到期"
+    },
+    "validation": {
+      "undoConfirm": "移除",
+      "checkTitle": "请检查此项",
+      "confirmTitle": "请确认",
+      "cancel": "取消",
+      "requiredProfile": "记录疫苗前请选择有出生日期的孩子。",
+      "requiredAdministeredDate": "请选择此疫苗接种日期。",
+      "administeredFuture": "已完成的剂次不能以未来日期记录。请选择今天或更早的日期。",
+      "seriesOutOfOrder": "此系列中较早一剂尚未记录 ({{missing}})。请在保存前确认。",
+      "saveAnyway": "仍要保存",
+      "undoTitle": "删除此疫苗记录？",
+      "undoMessage": "该剂量将再次在时间表上显示为未接种。",
+      "invalidVaccine": "未找到该疫苗。请返回重试。",
+      "unusualCheck": "看起来不寻常。请检查输入是否正确。",
+      "administeredBeforeDob": "接种日期不能早于孩子的出生日期。",
+      "veryEarly": "此日期比推荐日期 ({{recommended}}) 早 {{days}} 天。请确认是否正确。",
+      "farFromRecommended": "此日期距推荐日期 ({{recommended}}) {{days}} 天。请确认是否正确。",
+      "providerLong": "医疗机构名称较长。请在保存前确认。",
+      "notesLong": "这些备注较长。请在保存前确认。"
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "疲倦",
+      "Unwell": "不适",
+      "Happy": "开心",
+      "Calm": "平静",
+      "Anxious": "焦虑",
+      "Excited": "兴奋"
+    },
+    "symptoms": {
+      "Nausea": "恶心",
+      "Fatigue": "疲劳",
+      "Back pain": "背痛",
+      "Cramping": "痉挛",
+      "Heartburn": "胃灼热",
+      "Headache": "头痛",
+      "Insomnia": "失眠",
+      "Food cravings": "食物渴望",
+      "Swelling": "肿胀"
+    },
+    "milestones": {
+      "8": {
+        "title": "首次产前检查",
+        "description": "与您的提供者安排首次检查。"
+      },
+      "12": {
+        "title": "第一孕期结束",
+        "description": "流产风险显著降低。"
+      },
+      "20": {
+        "title": "大排畸超声",
+        "description": "孕中期超声约 18–22 周。"
+      },
+      "28": {
+        "description": "宝宝成长很快——尽量休息。",
+        "title": "孕晚期开始"
+      },
+      "36": {
+        "title": "每周检查",
+        "description": "您的医护人员可能希望更频繁地见您。"
+      },
+      "40": {
+        "description": "您的预计分娩日期。",
+        "title": "预产期"
+      }
+    },
+    "ui": {
+      "weekDay": "第 {{weeks}} 周，第 {{days}} 天",
+      "daysUntilDue": "距 {{name}} 预产期 {{count}} 天",
+      "daysUntilDue_other": "距 {{name}} 预产期 {{count}} 天",
+      "todayIsDue": "今天是 {{name}} 的预产期",
+      "daysPastDue": "已过预产期 {{count}} 天",
+      "daysPastDue_other": "已过预产期 {{count}} 天",
+      "timeline": "时间线",
+      "percentComplete": "已完成 {{percent}}%",
+      "week0": "第 0 周",
+      "week40": "第 40 周",
+      "trimesterBar": {
+        "weekRange": "第 {{from}}–{{to}} 周",
+        "now": "第 {{weeks}} 周",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "今日日志",
+      "weekThisWeek": "第 {{week}} 周 · 本周",
+      "weekInDays": "第 {{week}} 周 · 约 {{count}} 天后",
+      "weekInDays_other": "第 {{week}} 周 · 约 {{count}} 天后",
+      "weekLabel": "第 {{week}} 周",
+      "weight": "体重",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} 次胎动",
+      "postpartumTitle": "您已过预产期",
+      "postpartumBody": "您的预计预产期已过。准备好时结束怀孕，或若医生已调整请更新日期。",
+      "dailyLog": "每日记录",
+      "howFeeling": "您感觉如何？",
+      "howFeelingSubtitle": "记录您今天的感受。这有助于发现长期规律。",
+      "babyKicks": "胎动",
+      "notesPlaceholder": "您感觉如何？下次就诊有什么问题吗？",
+      "setTimelineSubtitle": "选择如何设置孕期时间线。可使用末次月经或医生提供的预产期。",
+      "lastPeriod": "末次月经",
+      "dueDate": "预产期",
+      "babyNickname": "宝宝昵称",
+      "pickDate": "选择日期",
+      "estimatedDue": "预计预产期",
+      "kicksLogged": "已记录胎动",
+      "comingUp": "即将到来",
+      "milestonesTitle": "里程碑",
+      "journey": "历程",
+      "estimatedFromLmp": "根据末次月经估算",
+      "estimatedFromProvider": "基于您的医生提供的预产期",
+      "daily": "每日",
+      "mood": "心情",
+      "noSymptomsToday": "今天尚未记录症状",
+      "notes": "备注",
+      "babyPlaceholder": "宝宝",
+      "weightHint": "可选。以千克输入体重。",
+      "endPregnancy": "结束孕期",
+      "endPregnancyTitle": "结束此孕期？",
+      "endPregnancyConfirm": "结束孕期",
+      "postpartumEyebrow": "已过日期",
+      "pastPregnancies": "以往怀孕",
+      "history": "历史记录",
+      "pastPregnancySubtitle": "到期 {{due}} · 结束 {{ended}} · {{logs}} 条记录",
+      "archivedLogsEmpty": "此次怀孕没有保存日常日志。",
+      "setTimeline": "设置时间线",
+      "tapLmp": "点按末次月经第一天。",
+      "tapDue": "点按提供者给出的预产期。",
+      "selectedDue": "所选预产期",
+      "progress": "怀孕进度",
+      "symptoms": "症状",
+      "setupEyebrow": "设置",
+      "tapKickHint": "每次感到胎动时点 +",
+      "logHistory": "最近日志",
+      "recent": "最近",
+      "endPregnancyMessage": "这将存档时间线和每日日志，并在因怀孕暂停时恢复 Period Tracker。您可稍后设置新的怀孕。"
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} 在本周。",
+      "milestoneSoonBody": "{{title}} 约 {{count}} 天后。",
+      "milestoneSoonBody_other": "{{title}} 约 {{count}} 天后。",
+      "dueSoonTitle": "{{name}} 的预产期还有 {{count}} 天",
+      "dueSoonTitle_other": "{{name}} 的预产期还有 {{count}} 天",
+      "dueSoonBody": "{{name}} 的预计预产期还有 {{count}} 天。请查看怀孕时间线。",
+      "dueSoonBody_other": "{{name}} 的预计预产期还有 {{count}} 天。请查看怀孕时间线。",
+      "dueTodayTitle": "今天是 {{name}} 的预产期",
+      "dueTodayBody": "{{name}} 的预计预产期是今天。",
+      "pastDueTitle": "已过预产期 {{count}} 天",
+      "pastDueTitle_other": "已过预产期 {{count}} 天",
+      "pastDueBody": "{{name}} 的预计预产期是 {{count}} 天前。准备好时请更新时间线或结束怀孕。",
+      "pastDueBody_other": "{{name}} 的预计预产期是 {{count}} 天前。准备好时请更新时间线或结束怀孕。",
+      "milestoneSoonTitle": "即将到来：第 {{week}} 周",
+      "dailyNudgeTitle": "记录您今天的感受",
+      "dailyNudgeBody": "快速记录心情、症状或胎动，让孕期记录更有用。",
+      "ttDoseDueBody": "距 TT1 已至少 4 周。请向诊所咨询下一剂破伤风 (TT) 疫苗。",
+      "ttDoseDueTitle": "TT2 可能到期"
+    },
+    "motherCare": {
+      "progress": "已记录 {{completed}}/{{total}} 剂",
+      "logSubtitle": "已记录 {{completed}}/{{total}} 剂。选择接种日期。",
+      "completeBody": "您已记录 TT1 至 TT5。请以诊所卡为正式记录。",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "距上一剂仅 {{gap}} 天（通常应间隔约 {{days}} 天）。请与您的诊所确认。",
+        "checkTitle": "请检查此项",
+        "confirmTitle": "请确认",
+        "cancel": "取消",
+        "requiredDate": "保存前请选择日期。",
+        "ttFuture": "TT 剂次日期不能是未来日期。",
+        "ttOutOfOrder": "请按顺序记录。下一剂应为 {{next}}（您尝试了 {{dose}}）。",
+        "saveAnyway": "仍要保存",
+        "unusualCheck": "看起来不寻常。请检查输入是否正确。",
+        "ttBeforePrevious": "此日期在 {{previous}} ({{previousDate}}) 之前。请确认是否正确。"
+      },
+      "eyebrow": "母婴护理",
+      "nextDose": "下一剂：{{dose}}",
+      "notLogged": "未记录",
+      "logNext": "记录下一剂 TT",
+      "logTt1": "记录 TT1",
+      "logTitle": "记录 {{dose}}",
+      "pickDate": "剂次日期",
+      "done": "完成",
+      "disclaimer": "仅供教育追踪——请遵循诊所安排和当地指南。",
+      "title": "破伤风 (TT) 防护",
+      "body": "TT 疫苗保护您和新生儿免受破伤风。请从产前卡记录剂量——与怀孕周跟踪分开。",
+      "complete": "已记录 TT1–TT5",
+      "archivedTitle": "此次怀孕的 TT 剂量",
+      "tapDate": "点按您接种 {{dose}} 的日期。",
+      "selectedDate": "所选日期",
+      "saveDose": "保存 {{dose}}",
+      "completeTitle": "TT 时间表已完成"
+    },
+    "trimester": {
+      "1": "第一孕期",
+      "2": "第二孕期",
+      "3": "孕晚期"
+    },
+    "validation": {
+      "lmpFuture": "您的末次月经日期不能在未来。",
+      "dueInPast": "此预产期已过去 {{days}} 天。请确认您仍要使用它。",
+      "nicknameLong": "此昵称较长。请确认是否正确。",
+      "overwriteTimeline": "您正在更新怀孕时间线。此次怀孕的日常日志会保留。",
+      "startNewAfterEnded": "您在结束上次怀孕后开始新的怀孕。将创建新的时间线和空的每日日志。",
+      "checkTitle": "请检查此项",
+      "confirmTitle": "请确认",
+      "cancel": "取消",
+      "requiredDate": "保存前请选择日期。",
+      "emptyLog": "今天未填写任何内容。仍要保存空日志？",
+      "setupBlockedPostpartum": "请先完成母亲产后护理，然后才能设置新的怀孕时间线。",
+      "birthFuture": "出生日期不能是未来日期。",
+      "saveAnyway": "仍要保存",
+      "unusualCheck": "看起来不寻常。请检查输入是否正确。",
+      "dueTooFar": "预产期过于遥远，不现实。请检查日期。",
+      "pastTerm": "此日期表明您可能已超过怀孕 {{weeks}} 周。请确认是否正确。",
+      "willPausePeriod": "保存怀孕时间线将暂停 Period Tracker 预测。经期历史会保留。",
+      "kicksHigh": "该胎动次数 ({{count}}) 对一天来说异常偏高。请确认是否正确。",
+      "notesLong": "这些备注较长。请在保存前确认。",
+      "weightUnusual": "该体重 ({{value}} kg) 超出常见范围 ({{min}}–{{max}} kg)。请确认是否正确。",
+      "birthBeforeLmp": "该出生日期在末次月经之前。请确认是否正确。"
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "出生后 {{count}} 天",
+      "careTitle": "您的恢复",
+      "careBody": "此空间用于您的产后护理——休息、康复及与诊所随访。宝宝追踪保持独立。",
+      "pastDueHint": "您的预产期已过。如已分娩，点按“我已分娩”开始母亲产后护理。如需 quietly 结束此次怀孕，请使用下方的“关闭此次怀孕”。",
+      "iveGivenBirth": "我已分娩",
+      "birthTitle": "出生日期是？",
+      "birthSubtitle": "我们将切换到母亲产后护理。您的 TT 剂量仍在此屏幕。",
+      "finishMessage": "我们将把此次怀孕存档为分娩，清除怀孕时间线，并在 Period Tracker 暂停时恢复它。您的 TT 剂量记录会保留。",
+      "closeMessage": "我们将收起怀孕时间线。TT 等母婴护理记录会保留，Period Tracker 可恢复。请按自己的节奏来——您并不孤单。",
+      "closedPregnancyTitle": "怀孕",
+      "eyebrow": "母婴护理",
+      "heroTitle": "产后护理",
+      "heroSubtitle": "专注于您的恢复。您的 TT 记录仍在此。",
+      "daysSinceBirth": "出生后第 {{count}} 天",
+      "birthDateLabel": "出生日期",
+      "pickBirthDate": "出生日期",
+      "birthDisclaimer": "仅供教育追踪——请遵循诊所的产后建议。",
+      "logMotherDay": "记录您的感受",
+      "finishPostpartum": "结束产后护理",
+      "finishTitle": "结束产后护理？",
+      "finishConfirm": "完成",
+      "closeLink": "结束此孕期",
+      "closeTitle": "结束此孕期？",
+      "closeConfirm": "结束孕期",
+      "pastBirthSubtitle": "出生于 {{born}} · {{logs}} 条记录",
+      "pastClosedSubtitle": "已于 {{ended}} 结束",
+      "tapBirthDate": "点按分娩日期。",
+      "selectedBirthDate": "所选日期",
+      "startPostpartum": "开始产后护理",
+      "notActive": "记录分娩前请先设置活跃的怀孕时间线。"
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "您的下次月经可能今天开始",
+      "thisWeek": "本周",
+      "daysCount": "{{count}} 天",
+      "daysSelected": "已选 {{count}} 天",
+      "daysSelected_other": "已选 {{count}} 天",
+      "pausedCardTitle": "追踪暂停",
+      "pauseWhilePregnantBody": "怀孕期间可暂停周期预测。历史记录会保留。",
+      "backToTracker": "返回",
+      "cycleSummary": "周期摘要",
+      "averageCycle": "平均周期",
+      "decreaseAverageCycle": "缩短平均周期长度",
+      "increaseAverageCycle": "增加平均周期长度",
+      "periodLength": "经期长度",
+      "loggedDays": "已记录天数",
+      "dayOfCycle": "周期第 {{day}} 天",
+      "dayPill": "第 {{day}} 天",
+      "daysUntilPeriod": "距离下次月经约 {{count}} 天",
+      "daysUntilPeriod_other": "距离下次月经约 {{count}} 天",
+      "calendar": "日历",
+      "loggedPeriod": "已记录经期",
+      "predicted": "预测经期",
+      "predictedWindow": "下次预测月经：{{range}}",
+      "fertile": "易孕期",
+      "ovulation": "排卵",
+      "pausedTitle": "经期追踪已暂停",
+      "pausedSubtitle": "预测和记录已暂停。",
+      "pausedBecausePregnant": "怀孕期间已暂停。已记录的历史仍在此。",
+      "pausedPill": "已暂停",
+      "pausedCardBody": "周期预测和月经记录已暂停。随时恢复——或在孕期追踪中继续。",
+      "pauseTracking": "暂停经期追踪",
+      "openPregnancyTracker": "打开怀孕追踪",
+      "resumeTracking": "恢复经期跟踪",
+      "pauseWhilePregnantTitle": "怀孕了吗？"
+    },
+    "validation": {
+      "clearMessage": "这将删除此设备上所有已记录的经期日。预测将重置，直到您再次记录。",
+      "periodVsCycle": "此经期长度 ({{periodDays}} 天) 与平均周期 ({{cycleDays}} 天) 一样长或更长。请确认。",
+      "checkTitle": "请检查此项",
+      "confirmTitle": "请确认",
+      "cancel": "取消",
+      "saveAnyway": "仍要记录",
+      "clearTitle": "清除所有已记录的天数？",
+      "clearConfirm": "清除",
+      "trackingPaused": "经期追踪已暂停。恢复追踪以记录天数。",
+      "resumeWhilePregnant": "怀孕追踪仍有活跃时间线。仍要恢复经期追踪？",
+      "unusualCheck": "看起来不寻常。请检查输入是否正确。",
+      "dayFuture": "此日期在未来。请确认您是有意提前记录。",
+      "dayFarPast": "此日期是 {{days}} 天前。请确认它属于您的历史记录。",
+      "periodLong": "这将使此次经期为 {{days}} 天。请确认是否正确。"
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "体重",
+      "blood_pressure": "血压",
+      "blood_sugar": "血糖",
+      "heart_rate": "心率",
+      "body_temperature": "体温",
+      "height": "身高",
+      "oxygen_saturation": "血氧饱和度",
+      "respiratory_rate": "呼吸频率"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "磅",
+      "cm": "厘米",
+      "ft": "英尺/英寸",
+      "breaths_min": "次/分",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "空腹",
+      "before_meal": "餐前",
+      "two_hours_after_meal": "餐后2小时",
+      "random": "随机"
+    },
+    "ui": {
+      "vital": "生命体征",
+      "unit": "单位",
+      "reading": "阅读中",
+      "measurementType": "何时测量？",
+      "notesPlaceholder": "例如：晨走后",
+      "latest": "最新读数",
+      "noReading": "尚无读数",
+      "diastolic": "舒张压",
+      "feet": "英尺",
+      "inches": "英寸",
+      "valuePlaceholder": "输入数值",
+      "bpHint": "输入收缩压/舒张压 (mmHg)",
+      "notesOptional": "备注（可选）",
+      "setupSugarHint": "血糖读数以 mg/dL 存储，并按您偏好的单位显示。",
+      "balance": "快照",
+      "recent": "最近",
+      "emptyHint": "从血压、心率或体重开始——您最常测量的项目。",
+      "systolic": "收缩压",
+      "setupIntro": "设置一次首选单位，使记录快速一致。"
+    },
+    "validation": {
+      "useSuggestion": "使用 {{value}}",
+      "unusualConfirm": "此读数不常见。请在保存前核实。",
+      "bloodSugarUnusual": "此读数不常见。请在保存前核实。",
+      "oxygenLow": "此血氧水平低于平常。请确认读数，或重新测量。",
+      "trendWeight": "您的体重自上次记录 ({{previous}} {{unit}}) 以来变化显著。请确认是否正确。",
+      "trendBloodPressure": "此读数与您上次记录 ({{previous}}) 相差很大。请在保存前确认。",
+      "trendOxygen": "此血氧读数与您上次记录不同 ({{previous}}%)。请确认，或重新测量。",
+      "trendGeneric": "此数值与您上次测量 ({{previous}} {{unit}}) 差异显著。请确认是否正确。",
+      "checkTitle": "请检查此读数",
+      "confirmTitle": "请确认",
+      "cancel": "取消",
+      "requiredReading": "保存前请输入读数。",
+      "bpDiastolicOrder": "舒张压应低于收缩压。",
+      "bloodSugarContextRequired": "选择此血糖测量时间（空腹、餐前、餐后或随机）。",
+      "typoBloodSugar": "您是否指 {{suggested}}？",
+      "typoWeight": "您是否指 {{suggested}}？",
+      "typoTemperature": "您是否指 {{suggested}}°C？",
+      "saveAnyway": "仍要保存",
+      "unusualCheck": "该数值看起来不寻常。请检查输入是否正确。",
+      "bpUnusual": "此血压读数不寻常。请确认是否正确。"
+    }
+  }
 }

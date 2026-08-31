@@ -16,7 +16,12 @@
     "contacts": "Àwọn olùbásọ̀rọ̀ pájáwìrì",
     "hospital": "Ilé-ìwòsàn tí o fẹ́",
     "insurance": "Olùpèsè ìṣúra",
-    "notes": "Àkọsílẹ̀"
+    "notes": "Àkọsílẹ̀",
+    "firstName": "Orukọ akọkọ",
+    "lastName": "Orukọ idile",
+    "allergiesPlaceholder": "Awọn alaisan (pín pẹlu awọn kọma)",
+    "medicationsPlaceholder": "Awọn oogun (pín pẹlu awọn kọma)",
+    "conditionsPlaceholder": "Awọn arun to n lọ ogologo (pín pẹlu awọn kọma)"
   },
   "edit": {
     "title": "Ṣàtúnṣe profáìlì pájáwìrì",
@@ -29,17 +34,86 @@
     "nameInvalid": "Lo lẹ́tà nìkan (ààyè, ààmì-ìsopọ̀ àti apostrophe jẹ́ ohun tó ṣeé ṣe)",
     "editContact": "Ṣàtúnṣe",
     "saveContact": "Fi olùbásọ̀rọ̀ pamọ́",
-    "cancelEdit": "Fagilé"
+    "cancelEdit": "Fagilé",
+    "hint": "Ti a fi pamọ ni agbegbe akọkọ. Afarayọ n ṣẹlẹ ni abẹlẹ nigbati o wa lori intanẹẹti.",
+    "loading": "N gbe profaili...",
+    "saveFailed": "Fipamọ kuna",
+    "saveFailedMessage": "Ko le fi profaili pamọ",
+    "phoneNumber": "Nọmba foonu",
+    "relationshipPlaceholder": "Ibatan (apẹ. Ololufe, Obi)",
+    "noContactsYet": "Ko si awọn olubasọrọ ti a fi kun sibẹ.",
+    "remove": "Yọ kuro",
+    "contactRequired": "Orukọ, foonu, ati ibatan jẹ dandan",
+    "contactAtLeastOne": "Fi o kere ju eni kan ti ICE kan ṣaaju fifipamọ",
+    "contactDuplicate": "Olubasọrọ naa ti wa lori atokọ rẹ",
+    "firstNameRequired": "Orukọ akọkọ jẹ dandan",
+    "lastNameRequired": "Orukọ idile jẹ dandan",
+    "bloodGroupRequired": "Yan ẹgbẹ ẹjẹ kan",
+    "genotypeRequired": "Yan genotype kan"
   },
   "qr": {
     "title": "QR pájáwìrì",
-    "empty": "Ṣẹ̀dá profáìlì pájáwìrì náà kọ́kọ́"
+    "empty": "Ṣẹ̀dá profáìlì pájáwìrì náà kọ́kọ́",
+    "loading": "N ṣii kaadi Patient ID...",
+    "redirectHint": "Awọn koodu QR wa lori ẹhin kaadi Patient ID rẹ lori taabu Mi."
   },
   "lock": {
     "title": "Káàdì pájáwìrì",
     "call": "Pè ICE",
-    "help": "Fi káàdì yìí hàn tí o kò bá le sọ̀rọ̀ fún ara rẹ."
+    "help": "Fi káàdì yìí hàn tí o kò bá le sọ̀rọ̀ fún ara rẹ.",
+    "loading": "N gbe...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Awọn widget iboju titipa ti yọ kuro",
+    "retiredHelp": "Awọn alaye ajẹmọ wa ninu app CareMate. Pin wọn pẹlu kaadi QR Patient ID rẹ.",
+    "retiredBody": "Awọn widget iboju titipa ati Ile ko ṣafihan alaye ilera mọ. Ṣẹda Patient ID lori taabu Mi — QR lori ẹhin ṣii CareMate fun awọn oniṣẹ ilera ti wọle.",
+    "openPatientId": "Ṣii kaadi Patient ID",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Pe contact ajẹmọ",
+    "accessTitle": "Iwọle iboju titipa",
+    "widgetIos": "Fi CareMate widget \"Emergency Info\" si iboju titipa rẹ (tẹ titi lori iboju titipa → Ṣatunṣe → Fi Widget kun).",
+    "widgetAndroid": "Fi CareMate widget \"Emergency Info\" si iboju Ile rẹ (tẹ titi lori ile → Widgets).",
+    "minimalFields": "Awọn aaye to kere julọ ti a fi han: orukọ, ẹgbẹ ẹjẹ, genotype, alaisan, ati ICE contact akọkọ rẹ.",
+    "noProfile": "Ko si profaili ajẹmọ",
+    "noProfileMessage": "Ṣii CareMate ki o ṣẹda Profaili Ilera Ajẹmọ.",
+    "contactTitle": "Olubasọrọ ajẹmọ",
+    "contactName": "Orukọ",
+    "noContact": "Ko si ICE contact ti a fi pamọ.",
+    "noneListed": "Ko si nkan ti a ṣe akojọ",
+    "footnoteIos": "Lo QR Patient ID rẹ dipo awọn widget iboju titipa.",
+    "footnoteAndroid": "Lo QR Patient ID rẹ dipo awọn widget iboju Ile."
   },
   "widget": "Ṣe àtúnṣe widget ojú ìṣèlọ́wọ́",
-  "preview": "Wò ojú ìṣèlọ́wọ́"
+  "preview": "Wò ojú ìṣèlọ́wọ́",
+  "setupWizard": {
+    "missingDetailsTitle": "Awọn alaye ti nsọnu",
+    "missingDetailsMessage": "Yan ẹgbẹ ẹjẹ ati genotype lati tẹsiwaju.",
+    "iceContactTitle": "Olubasọrọ ICE",
+    "iceContactRequired": "Fi orukọ, foonu, ati ibatan si olubasọrọ ajẹmọ akoko akọkọ rẹ kun."
+  },
+  "loadFailed": {
+    "title": "Ko le koju profaili ajẹmọ",
+    "message": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju."
+  },
+  "profileEyebrow": "Profaili ajẹmọ",
+  "healthDetails": "Awọn alaye ilera",
+  "noContacts": "Ko si awọn olubasọrọ ti a fi kun.",
+  "editProfile": "Ṣatunkọ profaili",
+  "showQr": "Kaadi Patient ID (QR)",
+  "share": {
+    "loading": "N gbe kaadi ajẹmọ...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Awọn alaye ajẹmọ",
+    "help": "Pin nipasẹ CareMate Patient ID QR. Oniṣẹ ilera ti wọle nikan ni o le wo awọn alaye ajẹmọ ati awọn ICE contact wọnyi.",
+    "noProfileYet": "CareMate ID yii ko ni profaili ajẹmọ sibẹ.",
+    "noneListed": "Ko si nkan ti a ṣe akojọ",
+    "invalidTitle": "Ọna asopọ QR ti ko tọ",
+    "invalidMessage": "Ọna asopọ ipin ajẹmọ yii ko wulo.",
+    "notFoundTitle": "Ko ri",
+    "notFoundMessage": "Ko si ipin ajẹmọ ti o baamu koodu yii.",
+    "errorTitle": "Ko le koju",
+    "errorMessage": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju.",
+    "practitionerRequiredTitle": "Awọn oniṣẹ ilera nikan",
+    "practitionerRequiredMessage": "Awọn alaye ajẹmọ ilera lati QR Patient ID wa fun awọn oniṣẹ ilera ti wọle nikan. Tan \"Mo jẹ oniṣẹ ilera\" ninu profaili rẹ, ki o tun ṣayẹwo.",
+    "openPractitionerSetting": "Ṣii eto profaili"
+  }
 }

@@ -10,8 +10,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
-import { ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { Button, ChoiceChip, FormField, Input } from '@/components/ui/form-controls';
+import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import {
   FAMILY_GENDERS,
@@ -248,8 +248,9 @@ export default function FamilyHubScreen() {
 
   if (isGuest) {
     return (
-      <View
-        style={[styles.screen, styles.guestWrap, { paddingBottom: insets.bottom + spacing.xl }]}
+      <Screen
+        padded={false}
+        style={[styles.guestWrap, { paddingBottom: insets.bottom + spacing.xl }]}
       >
         <View style={[styles.heroShell, shadow.card]}>
           <LinearGradientFill
@@ -278,7 +279,7 @@ export default function FamilyHubScreen() {
             {t('common.signIn')}
           </AppText>
         </Button>
-      </View>
+      </Screen>
     );
   }
 
@@ -323,7 +324,7 @@ export default function FamilyHubScreen() {
 
   if (!householdQuery.data) {
     return (
-      <View style={styles.screen}>
+      <Screen padded={false}>
         <Animated.ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
@@ -358,7 +359,7 @@ export default function FamilyHubScreen() {
             </AnimatedSection>
           ) : null}
         </Animated.ScrollView>
-      </View>
+      </Screen>
     );
   }
 
@@ -375,7 +376,7 @@ export default function FamilyHubScreen() {
   const canSendInvite = isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
@@ -507,7 +508,13 @@ export default function FamilyHubScreen() {
             {children.map((child, index) => (
               <View key={child.id}>
                 {index > 0 ? <View style={styles.divider} /> : null}
-                <View style={styles.memberRow}>
+                <Button
+                  style={styles.memberRow}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('family.editChildA11y', { name: child.fullName })}
+                  onPress={() => router.push(`/(app)/family/child/edit/${child.id}`)}
+                  variant="plain"
+                >
                   <View style={styles.avatar}>
                     <Baby color={ACCENT} size={16} />
                   </View>
@@ -522,7 +529,10 @@ export default function FamilyHubScreen() {
                       })}
                     </AppText>
                   </View>
-                </View>
+                  <AppText variant="caption" color="brand">
+                    {t('family.editChild')}
+                  </AppText>
+                </Button>
               </View>
             ))}
             {children.length === 0 ? (
@@ -538,44 +548,31 @@ export default function FamilyHubScreen() {
               />
             ) : (
               <>
-                <AppText
-                  variant="caption"
-                  style={[styles.sectionEyebrow, { marginTop: spacing.sm }]}
-                >
-                  {t('family.addAnotherChild')}
-                </AppText>
-                <Input
-                  placeholder={t('family.child.name')}
-                  value={childName}
-                  onChangeText={setChildName}
-                />
-                <Input
-                  placeholder={t('family.dobPlaceholder')}
-                  value={childDob}
-                  onChangeText={setChildDob}
-                  autoCapitalize="none"
-                />
-                <View style={styles.chipRow}>
-                  {FAMILY_GENDERS.map((g) => {
-                    const selected = childGender === g.value;
-                    return (
-                      <Button
+                <FormField label={t('family.addAnotherChild')}>
+                  <Input
+                    placeholder={t('family.child.name')}
+                    value={childName}
+                    onChangeText={setChildName}
+                  />
+                  <Input
+                    placeholder={t('family.dobPlaceholder')}
+                    value={childDob}
+                    onChangeText={setChildDob}
+                    autoCapitalize="none"
+                  />
+                  <View style={styles.chipRow}>
+                    {FAMILY_GENDERS.map((g) => (
+                      <ChoiceChip
                         key={g.value}
-                        style={[styles.chip, selected && styles.chipSelected]}
+                        label={g.label}
+                        selected={childGender === g.value}
                         onPress={() => setChildGender(g.value)}
-                        scale={0.96}
-                        variant="plain"
-                      >
-                        <AppText
-                          variant="caption"
-                          style={selected ? styles.chipTextSelected : styles.chipText}
-                        >
-                          {g.label}
-                        </AppText>
-                      </Button>
-                    );
-                  })}
-                </View>
+                        accent={ACCENT}
+                        soft={SOFT}
+                      />
+                    ))}
+                  </View>
+                </FormField>
                 <Button
                   style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
                   disabled={busy}
@@ -621,23 +618,22 @@ export default function FamilyHubScreen() {
               </>
             ) : (
               <>
-                <AppText variant="caption" style={styles.muted}>
-                  {t('family.connectSpouseHint')}
-                </AppText>
-                <AppText variant="caption" style={[styles.muted, { marginTop: spacing.xs }]}>
-                  {t('family.inviteSeats', {
-                    used: usedInviteSeats,
-                    limit: FAMILY_ADULT_INVITE_LIMIT,
-                    remaining: inviteSeatsRemaining,
-                  })}
-                </AppText>
-                <Input
-                  placeholder={t('family.emailOrPhone')}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  value={lookup}
-                  onChangeText={setLookup}
-                />
+                <FormField label={t('family.connectSpouse')} hint={t('family.connectSpouseHint')}>
+                  <AppText variant="caption" style={styles.muted}>
+                    {t('family.inviteSeats', {
+                      used: usedInviteSeats,
+                      limit: FAMILY_ADULT_INVITE_LIMIT,
+                      remaining: inviteSeatsRemaining,
+                    })}
+                  </AppText>
+                  <Input
+                    placeholder={t('family.emailOrPhone')}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    value={lookup}
+                    onChangeText={setLookup}
+                  />
+                </FormField>
                 <Button
                   style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
                   disabled={busy || !lookup.trim()}
@@ -720,7 +716,7 @@ export default function FamilyHubScreen() {
           </View>
         </AnimatedSection>
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -768,10 +764,6 @@ function FamilyHero({ title, subtitle, meta }: { title: string; subtitle: string
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   guestWrap: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
@@ -926,25 +918,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: palette.surface,
-  },
-  chipSelected: {
-    backgroundColor: SOFT,
-    borderColor: ACCENT,
-  },
-  chipText: {
-    color: palette.textSecondary,
-  },
-  chipTextSelected: {
-    color: ACCENT,
-    fontFamily: fontFamily.semiBold,
   },
   foundCard: {
     borderRadius: radius.xl,

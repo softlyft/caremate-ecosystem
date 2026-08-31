@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { Button, Card, ChoiceChip } from '@/components/ui/form-controls';
 import {
   MiniAppKeyboardContext,
@@ -80,28 +81,30 @@ export function MiniAppScreen({
 
   return (
     <MiniAppKeyboardContext.Provider value={keyboardApi}>
-      <KeyboardAvoidingView
-        style={styles.screen}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
-      >
-        <ScrollView
-          ref={scrollRef}
-          style={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-          // Avoid stacking RN content insets on top of KeyboardAvoidingView + our bottom pad.
-          automaticallyAdjustKeyboardInsets={false}
-          contentInsetAdjustmentBehavior="never"
-          nestedScrollEnabled
-          scrollEventThrottle={16}
-          onScroll={onScroll}
-          contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+      <Screen padded={false}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
         >
-          {children}
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <ScrollView
+            ref={scrollRef}
+            style={styles.scroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            // Avoid stacking RN content insets on top of KeyboardAvoidingView + our bottom pad.
+            automaticallyAdjustKeyboardInsets={false}
+            contentInsetAdjustmentBehavior="never"
+            nestedScrollEnabled
+            scrollEventThrottle={16}
+            onScroll={onScroll}
+            contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+          >
+            {children}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Screen>
     </MiniAppKeyboardContext.Provider>
   );
 }
@@ -401,9 +404,8 @@ export function StatusPill({
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  flex: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   scroll: {
     flex: 1,

@@ -12,10 +12,14 @@ import { supabase } from '@/lib/supabase';
 /** Untyped access until messaging RPCs are fully reflected in `@caremate/db-types`. */
 const db = supabase as any;
 
+export type OrgSide = 'provider' | 'payer';
+
 export type MessageConversation = {
   id: string;
   kind: 'org_patient' | 'direct';
   organization_id: string | null;
+  payer_organization_id?: string | null;
+  org_side?: OrgSide | null;
   patient_user_id: string | null;
   subject: string | null;
   last_message_at: string | null;
@@ -35,6 +39,7 @@ export type MessageMessage = {
   sender_party_type: 'user' | 'organization';
   sender_user_id: string | null;
   sender_organization_id: string | null;
+  sender_payer_organization_id?: string | null;
   body: string;
   subject: string | null;
   created_at: string;
@@ -58,7 +63,22 @@ function conversationTitle(row: MessageConversation): string {
   if (row.kind === 'direct') {
     return row.peer_name?.trim() || 'Direct message';
   }
+  if (row.payer_organization_id || row.org_side === 'payer') {
+    return row.organization_name?.trim() || 'Insurer';
+  }
   return row.organization_name?.trim() || 'Provider';
+}
+
+/** Map Supabase RPC errors to user-facing copy keys (caller supplies i18n). */
+export function patientMessageErrorKey(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  if (/not connected to this payer/i.test(message)) {
+    return 'messages.payerNotConnected';
+  }
+  if (/messaging consent required/i.test(message)) {
+    return 'messages.messagingConsentRequired';
+  }
+  return 'messages.sendFailedMessage';
 }
 
 export async function listPatientConversations(userId: string): Promise<MessageConversation[]> {
@@ -118,13 +138,21 @@ export async function listPatientConversations(userId: string): Promise<MessageC
   }[];
   const readByConv = new Map(myParticipation.map((p) => [p.conversation_id, p.last_read_at]));
 
-  const orgIds = [...new Set(rows.map((r) => r.organization_id).filter(Boolean) as string[])];
+  const providerOrgIds = [
+    ...new Set(rows.map((r) => r.organization_id).filter(Boolean) as string[]),
+  ];
+  const payerOrgIds = [
+    ...new Set(rows.map((r) => r.payer_organization_id).filter(Boolean) as string[]),
+  ];
   const directIds = rows.filter((r) => r.kind === 'direct').map((r) => r.id);
 
-  const [{ data: orgs }, { data: allParticipants }] = await Promise.all([
-    orgIds.length
-      ? supabase.from('provider_organizations').select('id, name').in('id', orgIds)
+  const [{ data: orgs }, { data: payers }, { data: allParticipants }] = await Promise.all([
+    providerOrgIds.length
+      ? supabase.from('provider_organizations').select('id, name').in('id', providerOrgIds)
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    payerOrgIds.length
+      ? supabase.from('payer_directory').select('id, name').in('id', payerOrgIds)
+      : Promise.resolve({ data: [] as { id: string; name: string | null }[] }),
     directIds.length
       ? db
           .from('message_participants')
@@ -151,6 +179,11 @@ export async function listPatientConversations(userId: string): Promise<MessageC
   const orgNameById = new Map(
     (orgs ?? []).map((o: { id: string; name: string }) => [o.id, o.name]),
   );
+  const payerNameById = new Map(
+    (payers ?? [])
+      .filter((p): p is { id: string; name: string } => Boolean(p.id && p.name))
+      .map((p) => [p.id, p.name]),
+  );
   const peerNameById = new Map(
     (peerProfiles ?? []).map((p: { user_id: string; full_name: string }) => [
       p.user_id,
@@ -171,11 +204,23 @@ export async function listPatientConversations(userId: string): Promise<MessageC
       row.last_message_at && (!lastRead || new Date(row.last_message_at) > new Date(lastRead)),
     );
     const peerUserId = row.kind === 'direct' ? (peerByConversation.get(row.id) ?? null) : null;
+    const isPayerOrg = Boolean(row.payer_organization_id);
     const enriched: MessageConversation = {
       ...row,
-      organization_name: row.organization_id
-        ? (orgNameById.get(row.organization_id) ?? null)
-        : null,
+      payer_organization_id: row.payer_organization_id ?? null,
+      org_side:
+        row.kind === 'org_patient'
+          ? isPayerOrg
+            ? 'payer'
+            : row.organization_id
+              ? 'provider'
+              : null
+          : null,
+      organization_name: isPayerOrg
+        ? (payerNameById.get(row.payer_organization_id!) ?? null)
+        : row.organization_id
+          ? (orgNameById.get(row.organization_id) ?? null)
+          : null,
       peer_user_id: peerUserId,
       peer_name: peerUserId ? (peerNameById.get(peerUserId) ?? null) : null,
       unread,
@@ -196,6 +241,7 @@ export async function listMessages(conversationId: string): Promise<MessageMessa
       sender_party_type: row.sender_party_type,
       sender_user_id: row.sender_user_id,
       sender_organization_id: row.sender_organization_id,
+      sender_payer_organization_id: row.sender_payer_organization_id ?? null,
       body: scrubEncryptedText(row.body) ?? '',
       subject: scrubEncryptedText(row.subject),
       created_at: row.created_at,
@@ -208,7 +254,7 @@ export async function listMessages(conversationId: string): Promise<MessageMessa
   const { data, error } = await db
     .from('message_messages')
     .select(
-      'id, conversation_id, sender_party_type, sender_user_id, sender_organization_id, body, subject, created_at',
+      'id, conversation_id, sender_party_type, sender_user_id, sender_organization_id, sender_payer_organization_id, body, subject, created_at',
     )
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true });
@@ -246,6 +292,7 @@ export async function sendPatientReply(
       sender_party_type: gatewayMessage.sender_party_type,
       sender_user_id: gatewayMessage.sender_user_id,
       sender_organization_id: gatewayMessage.sender_organization_id,
+      sender_payer_organization_id: gatewayMessage.sender_payer_organization_id ?? null,
       body: gatewayMessage.body,
       subject: gatewayMessage.subject,
       created_at: gatewayMessage.created_at,

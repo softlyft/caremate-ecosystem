@@ -11,7 +11,8 @@
   "empty": {
     "title": "Wonnnhu nkyerɛkyerɛ biara",
     "categoryTitle": "{{category}} nkyerɛkyerɛ nni hɔ",
-    "message": "Sɔ nhwehwɛmu foforo anaa kuw foforo hwɛ."
+    "message": "Sɔ nhwehwɛmu foforo anaa kuw foforo hwɛ.",
+    "newsTitle": "No news right now"
   },
   "bookmarksTitle": "Nhwɛsoɔ",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "Wonnnhu nkyerɛkyerɛ no",
     "message": "Ebia wɔayi nkyerɛkyerɛ yi afiri hɔ."
-  }
+  },
+  "reading": "Reading history",
+  "readingShort": "Reading",
+  "readingBadge": "Reading",
+  "readBadge": "Read",
+  "readingTab": "Reading",
+  "readTab": "Read",
+  "loadingReading": "Loading reading history...",
+  "loadingArticle": "Loading article...",
+  "loadingBookmarks": "Loading bookmarks...",
+  "loadingCategory": "Loading category...",
+  "category": "Category",
+  "categoryEmpty": "No articles in this category",
+  "readingEmpty": {
+    "title": "Nothing in progress",
+    "message": "Open article to start tracking what you're reading."
+  },
+  "readEmpty": {
+    "title": "No finished articles yet",
+    "message": "Mark articles as read, anaa scroll to end while reading."
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} min read",
+  "externalSource": "External source",
+  "careMateGuide": "CareMate guide",
+  "shareArticle": "Share article",
+  "shareContinue": "Read the full article:",
+  "readFull": "Read full article"
 }

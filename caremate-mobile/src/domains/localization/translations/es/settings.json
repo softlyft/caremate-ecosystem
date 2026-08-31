@@ -35,7 +35,8 @@
     "save": "Guardar ubicación",
     "saving": "Guardando...",
     "searchPlaceholder": "Buscar países",
-    "searchEmpty": "Ningún país coincide con esa búsqueda."
+    "searchEmpty": "Ningún país coincide con esa búsqueda.",
+    "selectPlaceholder": "Seleccionar un país"
   },
   "family": {
     "title": "Familia",

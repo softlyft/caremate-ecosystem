@@ -1,13 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  Input,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
@@ -64,10 +71,7 @@ export default function VerifyResetScreen() {
   async function onSubmit(values: VerifyResetForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before verifying.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
@@ -90,7 +94,12 @@ export default function VerifyResetScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verifyReset.error'),
-        toUserFacingErrorMessage(error, t('auth.verifyReset.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verifyReset.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     }
   }
@@ -107,7 +116,12 @@ export default function VerifyResetScreen() {
     } catch (error) {
       Alert.alert(
         t('auth.verifyReset.error'),
-        toUserFacingErrorMessage(error, t('auth.verifyReset.error'), t('common.networkError')),
+        toUserFacingErrorMessage(
+          error,
+          t('auth.verifyReset.error'),
+          t('common.networkError'),
+          t('common.emailDeliveryError'),
+        ),
       );
     } finally {
       setIsResending(false);
@@ -116,78 +130,75 @@ export default function VerifyResetScreen() {
 
   if (!email) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <SectionTitle
-          title={t('auth.verifyReset.title')}
-          subtitle={t('auth.verifyReset.missingEmail')}
-        />
-        <Link href="/(auth)/forgot-password">
-          <AppText variant="seeAll">{t('auth.verifyReset.backToForgot')}</AppText>
-        </Link>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <Screen padded={false} style={styles.container}>
+          <SectionTitle
+            title={t('auth.verifyReset.title')}
+            subtitle={t('auth.verifyReset.missingEmail')}
+          />
+          <TextLink href="/(auth)/forgot-password">{t('auth.verifyReset.backToForgot')}</TextLink>
+        </Screen>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <AuthBrandHeader>
-        <SectionTitle
-          title={t('auth.verifyReset.title')}
-          subtitle={t('auth.verifyReset.subtitle', { email })}
-        />
-      </AuthBrandHeader>
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="code"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="number-pad"
-              textContentType="oneTimeCode"
-              autoComplete="one-time-code"
-              maxLength={6}
-              placeholder={t('auth.verifyReset.codePlaceholder')}
-              onBlur={onBlur}
-              onChangeText={(text) => {
-                const digits = text.replace(/\D/g, '').slice(0, 6);
-                onChange(digits);
-                setValue('code', digits, { shouldValidate: true });
-              }}
-              value={value}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
+        <AuthBrandHeader>
+          <SectionTitle
+            title={t('auth.verifyReset.title')}
+            subtitle={t('auth.verifyReset.subtitle', { email })}
+          />
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <FormField error={formState.errors.code?.message}>
+            <Controller
+              control={control}
+              name="code"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  textContentType="oneTimeCode"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder={t('auth.verifyReset.codePlaceholder')}
+                  onBlur={onBlur}
+                  onChangeText={(text) => {
+                    const digits = text.replace(/\D/g, '').slice(0, 6);
+                    onChange(digits);
+                    setValue('code', digits, { shouldValidate: true });
+                  }}
+                  value={value}
+                />
+              )}
             />
-          )}
-        />
-        {formState.errors.code ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.code.message}
-          </AppText>
-        ) : null}
+          </FormField>
 
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.verifyReset.submit')}
-          disabled={isLoading || !formState.isValid}
-          onPress={handleSubmit(onSubmit)}
-        />
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.verifyReset.submit')}
+            disabled={isLoading || !formState.isValid}
+            onPress={handleSubmit(onSubmit)}
+          />
 
-        <Button
-          label={
-            resendSeconds > 0
-              ? t('auth.verifyReset.resendIn', { seconds: resendSeconds })
-              : isResending
-                ? t('common.loading')
-                : t('auth.verifyReset.resend')
-          }
-          variant="secondary"
-          disabled={resendSeconds > 0 || isResending || isLoading}
-          onPress={() => void onResend()}
-        />
+          <Button
+            label={
+              resendSeconds > 0
+                ? t('auth.verifyReset.resendIn', { seconds: resendSeconds })
+                : isResending
+                  ? t('common.loading')
+                  : t('auth.verifyReset.resend')
+            }
+            variant="secondary"
+            disabled={resendSeconds > 0 || isResending || isLoading}
+            onPress={() => void onResend()}
+          />
 
-        <Link href="/(auth)/login">
-          <AppText variant="seeAll">{t('auth.verifyReset.backToSignIn')}</AppText>
-        </Link>
-      </View>
+          <TextLink href="/(auth)/login">{t('auth.verifyReset.backToSignIn')}</TextLink>
+        </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }
@@ -199,6 +210,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

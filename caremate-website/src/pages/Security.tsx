@@ -9,10 +9,12 @@ export function SecurityPage() {
         <p className={styles.eyebrow}>Trust &amp; security</p>
         <h1>How CareMate protects your data</h1>
         <p className={styles.lead}>
-          CareMate is a health companion — not a social network. We built it so your information
-          stays under your control: on your phone first, encrypted where it matters, and shared only
-          when you choose. This page explains our approach in plain language. For legal details, see
-          our <Link to="/privacy">Privacy policy</Link>.
+          CareMate is a personal health companion for people across Africa — launching first in
+          Nigeria, and available worldwide where the app stores list it. SoftLyft built CareMate so
+          your information stays under your control: on your phone first, encrypted where it
+          matters, and shared only when you choose. This page explains our approach in plain
+          language. For legal details, see our <Link to="/privacy">Privacy policy</Link> and{' '}
+          <Link to="/terms">Terms of service</Link>.
         </p>
 
         <h2>Your phone comes first</h2>
@@ -44,9 +46,9 @@ export function SecurityPage() {
         </p>
         <p>
           For sensitive synced health fields, we use additional protection so clinical content is
-          not stored as readable plain text in the database. In practice, that means your signed-in
-          app can unlock your data — CareMate operators and infrastructure staff are not meant to
-          read your health content from the database itself.
+          not stored as readable plain text in the database when those protections are enabled. In
+          practice, that means your signed-in app can unlock your data — SoftLyft operators and
+          infrastructure staff are not meant to read your health content from the database itself.
         </p>
 
         <h2>You choose who sees what</h2>
@@ -73,9 +75,9 @@ export function SecurityPage() {
 
         <h2>Payments</h2>
         <p>
-          Premium checkout opens in a secure web flow. Card and wallet details are handled by our
-          payment partners (Paystack or Stripe). CareMate does not store your full card number on
-          our servers.
+          Premium checkout opens in a secure web flow or through Apple / Google billing. Card and
+          wallet details are handled by our payment partners (for example Paystack or Stripe) or the
+          app stores. CareMate does not store your full card number on our servers.
         </p>
 
         <h2>Shared or family devices</h2>
@@ -100,10 +102,12 @@ export function SecurityPage() {
 
         <h2>What this page is not</h2>
         <p>
-          This is a customer-facing summary, not a technical specification or a legal certification.
-          CareMate provides organizational tools and health information — it does not replace
+          This is a customer-facing summary, not a technical specification, audit report, or legal
+          certification (including HIPAA, GDPR, or NDPA &quot;compliant&quot; badges). CareMate
+          provides organizational tools and general health information — it does not replace
           professional medical care or emergency services. No system is perfectly immune to risk; we
-          continue to improve controls as the product grows.
+          continue to improve controls as the product grows across Africa and for users who join from
+          elsewhere.
         </p>
 
         <h2>Related</h2>
@@ -113,7 +117,7 @@ export function SecurityPage() {
           <Link to="/terms">Terms of service</Link>
         </p>
 
-        <p className={styles.meta}>Last updated: August 6, 2026</p>
+        <p className={styles.meta}>Last updated: August 25, 2026</p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
         </p>

@@ -1,6 +1,7 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { renderProviderPasswordResetOtp } from '../_shared/email-templates/index.ts';
 import { isEmailConfigured, sendEmail } from '../_shared/mailer.ts';
+import { isServiceRoleRequest } from '../_shared/service-role.ts';
 
 /**
  * Service-role: send provider password-reset OTP.
@@ -16,10 +17,7 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Method not allowed' }, 405);
     }
 
-    const authHeader = req.headers.get('Authorization') ?? '';
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-    if (!serviceKey || token !== serviceKey) {
+    if (!(await isServiceRoleRequest(req))) {
       return jsonResponse({ error: 'Unauthorized' }, 401);
     }
 

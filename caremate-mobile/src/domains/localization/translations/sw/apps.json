@@ -29,7 +29,7 @@
       "description": "Fuatilia mizunguko, rekodi siku za hedhi, na uone utabiri rahisi."
     }
   },
-  "signInRequired": "Ingia ili kusawazisha zana hii kati ya vifaa",
+  "signInRequired": "Ingia kusawazisha zana hii kwenye vifaa",
   "save": "Hifadhi",
   "log": "Rekodi ingizo",
   "setup": "Sanidi",
@@ -164,7 +164,20 @@
       "refillDateOptional": "Tarehe ya kujaza tena si lazima — gusa tena kufuta",
       "historySubtitle": "Dozi za hivi karibuni ulizorekodi",
       "historyEmpty": "Bado hakuna dozi. Weka alama umemeza ili kujenga historia.",
-      "unknownMedicine": "Dawa isiyojulikana"
+      "unknownMedicine": "Dawa isiyojulikana",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "Kipindi cha matibabu",
+      "durationDays": "{{count}} siku",
+      "treatmentEndedTitle": "Matibabu tayari imekwisha",
+      "treatmentPeriodHint": "Chagua muda wa kuchukua dawa hii, au acha iendelee.",
+      "durationOngoing": "Inaendelea",
+      "durationCustom": "Mwisho maalum",
+      "endDate": "Tarehe ya mwisho",
+      "endBeforeStartTitle": "Tarehe ya mwisho ni mapema sana",
+      "endBeforeStartMessage": "Chagua tarehe ya mwisho siku ya kuanza au baadaye.",
+      "clearRefillDate": "Futa tarehe",
+      "startsOngoing": "Inaanza {{date}} · inaendelea",
+      "treatmentEndedMessage": "Kipindi hiki cha matibabu kinakwisha kabla ya leo. Chagua tarehe ya baadaye, muda mrefu, au weka dawa kama inaendelea."
     },
     "status": {
       "taken": "Imechukuliwa",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} imekosekana. Kamilisha unapoweza.",
       "refillTitle": "Jaza tena hivi karibuni: {{name}}",
       "refillBody": "{{name}} inakaribia kuisha au ni wakati wa kujaza tena."
+    },
+    "validation": {
+      "undoTitle": "Tengua dozi hii?",
+      "undoMessage": "Hii itaweka dozi kama haijachukuliwa. Ikiwa akiba ilipunguzwa, itarejeshwa.",
+      "undoConfirm": "Tengua",
+      "nameLong": "Jina hili la dawa ni refu sana. Thibitisha ni sahihi.",
+      "instructionsOtherEmpty": "Ulichagua maelekezo \"Other\" lakini uliacha maelezo wazi. Thibitisha kabla ya kuhifadhi.",
+      "asNeededMany": "Tayari umeandika dozi {{count}} za kadiri mahitaji kwa dawa hii leo. Thibitisha kabla ya kuongeza nyingine.",
+      "checkTitle": "Tafadhali angalia hii",
+      "confirmTitle": "Tafadhali thibitisha",
+      "cancel": "Ghairi",
+      "requiredName": "Tafadhali weka jina la dawa kabla ya kuhifadhi.",
+      "requiredDosage": "Tafadhali weka kipimo (kwa mfano 500mg) kabla ya kuhifadhi.",
+      "requiredStart": "Tafadhali chagua tarehe ya kuanza kabla ya kuhifadhi.",
+      "childRequired": "Chagua mtoto gani dawa hii ni yake.",
+      "slotTimesInvalid": "Chagua muda halali kwa kila dozi kwa kutumia kichagua saa.",
+      "slotTimesDuplicate": "Kila dozi inahitaji muda tofauti. Dozi mbili haziwezi kuwa na saa moja.",
+      "saveAnyway": "Hifadhi hata hivyo",
+      "endBeforeStart": "Tarehe ya mwisho inapaswa kuwa siku ya kuanza au baadaye.",
+      "treatmentEnded": "Kipindi hiki cha matibabu kinakwisha kabla ya leo. Chagua tarehe ya baadaye, muda mrefu, au weka dawa kama inaendelea.",
+      "quantityInvalid": "Idadi iliyobaki inapaswa kuwa nambari kamili (0 au zaidi), au kuachwa wazi.",
+      "thresholdInvalid": "Kizingiti cha kikumbusho cha kujaza kinapaswa kuwa nambari kamili (0 au zaidi).",
+      "unusualCheck": "Hiyo inaonekana isiyo ya kawaida. Thibitisha umeingiza kwa usahihi.",
+      "dosageNoUnit": "Kipimo hiki kinaonekana nambari tu. Ulikusudia kuongeza kipimo (mg, ml, tembe…)?",
+      "slotsTooClose": "Nyakati hizi za dozi ziko chini ya saa 2. Thibitisha ni makusudi.",
+      "courseLong": "Matibabu haya ni mrefu kuliko mwaka (siku {{days}}). Thibitisha ni sahihi.",
+      "refillBeforeStart": "Tarehe ya kujaza iko kabla ya tarehe ya kuanza matibabu. Thibitisha ni sahihi.",
+      "quantityHigh": "Kiasi hiki ({{value}}) kinaonekana cha juu. Thibitisha ni sahihi.",
+      "thresholdAboveQuantity": "Kikumbusho cha kujaza kimewekwa juu ya idadi iliyobaki. Thibitisha ni makusudi.",
+      "logBeforeStart": "Tarehe hii ni kabla ya tarehe ya kuanza dawa. Thibitisha kabla ya kuhifadhi.",
+      "logAfterEnd": "Tarehe hii ni baada ya tarehe ya mwisho wa matibabu. Thibitisha kabla ya kuhifadhi.",
+      "logFuture": "Tarehe hii iko siku zijazo. Thibitisha ulikusudia kuandika mapema."
     }
   },
   "edit": "Hariri",
@@ -201,5 +246,789 @@
   "saveChanges": "Hifadhi mabadiliko",
   "loading": "Inapakia…",
   "editProfile": "Hariri wasifu",
-  "signInRequiredTitle": "Kuingia kunahitajika"
+  "signInRequiredTitle": "Inahitajika kuingia",
+  "vitalsTracker": {
+    "eyebrow": "Vitals",
+    "screenTitle": "Vitals",
+    "backToApps": "Rudi kwenye Apps",
+    "close": "Funga",
+    "emptyTitle": "Vitals zako, kwa muhtasari",
+    "emptySubtitle": "Andika kipimo kwa sekunde — kama kuangalia salio.",
+    "titleWithData": "Vitals za hivi karibuni",
+    "subtitleWithData": "Haraka kufungua, rahisi kusasisha",
+    "logVital": "Andika vital",
+    "logTitle": "Andika vital",
+    "logSubtitle": "Chagua kipimo, weka thamani, na hifadhi.",
+    "saveLog": "Hifadhi kipimo",
+    "setupTitle": "Chagua vitengo vyako",
+    "setupSubtitle": "Chagua jinsi unavyopima — unaweza kubadilisha baadaye.",
+    "setupCta": "Sanidi vitengo",
+    "setupSave": "Hifadhi mapendeleo",
+    "editUnits": "Hariri vitengo"
+  },
+  "periodTracker": {
+    "eyebrow": "Leo",
+    "screenTitle": "Kifuatiliaji cha Hedhi",
+    "logTitle": "Andika hedhi",
+    "backToApps": "Rudi kwenye Apps",
+    "close": "Funga",
+    "emptyTitle": "Anza kufuatilia mzunguko wako",
+    "emptySubtitle": "Andika hedhi yako ya mwisho kuona utabiri",
+    "logPeriodDays": "Andika siku za hedhi",
+    "markPeriod": "Weka alama ya hedhi",
+    "markPeriodSubtitle": "Gusa siku za hedhi yako. Unaweza kuchagua siku nyingi mwezini."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Chanjo",
+    "screenTitle": "Kifuatiliaji cha Chanjo",
+    "setupTitle": "Watoto wa familia",
+    "logTitle": "Andika chanjo",
+    "backToApps": "Rudi kwenye Apps",
+    "close": "Funga",
+    "loading": "Inapakia watoto kutoka familia…",
+    "loadingLog": "Inapakia rekodi ya chanjo…",
+    "emptyTitle": "Fuatilia chanjo",
+    "signInSubtitle": "Ufuatiliaji wa chanjo hutumia watoto kutoka wasifu wa familia CareMate.",
+    "needsFamilySubtitle": "Unda wasifu wa familia na ongeza watoto na tarehe ya kuzaliwa. Kisha ratiba ya chanjo itaonekana hapa.",
+    "needsChildrenSubtitle": "Kaya yako bado haina watoto wenye tarehe ya kuzaliwa. Ongeza watoto kwenye Familia kuanza kufuatilia chanjo.",
+    "childrenFromFamilyTitle": "Watoto hutoka Familia",
+    "childrenFromFamilySubtitle": "Huwezi kuongeza mtoto hapa. Sanidi wasifu wa familia na ongeza watoto na tarehe ya kuzaliwa, kisha rudi kwenye Kifuatiliaji cha Chanjo.",
+    "logVaccine": "Andika chanjo",
+    "saveVaccine": "Hifadhi chanjo",
+    "updateRecord": "Sasisha rekodi",
+    "noChildSelected": "Hakuna mtoto aliyechaguliwa",
+    "noChildSubtitle": "Ongeza watoto kwenye wasifu wa Familia kabla ya kuandika chanjo."
+  },
+  "checkupPlanner": {
+    "eyebrow": "Mpango wa Uchunguzi",
+    "screenTitle": "Mpango wa Uchunguzi",
+    "setupTitle": "Sanidi Mpango",
+    "logTitle": "Andika uchunguzi",
+    "backToApps": "Rudi kwenye Apps",
+    "close": "Funga",
+    "emptyTitle": "Panga uchunguzi wako wa afya",
+    "emptySubtitle": "Weka tarehe ya kuzaliwa, jinsia, na eneo la hiari ili kuona vipimo vilivyopendekezwa",
+    "setUpPlanner": "Sanidi mpango",
+    "editProfile": "Hariri wasifu",
+    "setupSave": "Hifadhi na angalia mpango",
+    "setupSaveEdit": "Hifadhi mabadiliko",
+    "needSetup": "Sanidi wasifu wako wa uchunguzi kwanza."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Ujauzito",
+    "emptyTitle": "Fuatilia safari yako ya ujauzito",
+    "emptySubtitle": "Weka tarehe ya kuzaliwa au hedhi yako ya mwisho kuanza",
+    "setUp": "Sanidi ujauzito",
+    "updateDueDate": "Sasisha tarehe ya kuzaliwa",
+    "logToday": "Andika leo",
+    "setupSave": "Hifadhi",
+    "saveLog": "Hifadhi rekodi",
+    "screenTitle": "Kifuatiliaji cha Ujauzito",
+    "setupTitle": "Sanidi Ujauzito",
+    "logTitle": "Rekodi ya kila siku",
+    "ttTitle": "Andika dozi ya TT",
+    "birthTitle": "Nimejifungua",
+    "backToApps": "Rudi kwenye Apps",
+    "close": "Funga"
+  },
+  "reorderHint": "Shikilia kadi, kisha buruta kupanga upya. Mpangilio hubaki kwenye kifaa hiki.",
+  "reorderHintA11y": "Gusa mara mbili na shikilia, kisha buruta kupanga upya",
+  "checkup": {
+    "cadence": {
+      "annual": "Kila mwaka",
+      "once": "Mara moja (inapostahili)",
+      "every-2-years": "Kila miaka 2",
+      "every-3-years": "Kila miaka 3",
+      "every-5-years": "Kila miaka 5"
+    },
+    "gender": {
+      "female": "Mke",
+      "male": "Mume",
+      "other": "Nyingine / sipendi kusema"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "Ziara ya kila mwaka kwa mtaalamu wa afya kwa ukaguzi wa jumla.",
+        "name": "Ukaguzi wa jumla wa afya"
+      },
+      "dental-checkup": {
+        "name": "Ukaguzi wa meno",
+        "description": "Usafishaji na uchunguzi wa mdomo kugundua mashimo na magonjwa ya fizi mapema."
+      },
+      "eye-exam": {
+        "name": "Ukaguzi wa macho / uoni",
+        "description": "Angalia uoni na afya ya macho; mara nyingi ukivaa miwani au una kisukari."
+      },
+      "blood-pressure": {
+        "name": "Ukaguzi wa shinikizo la damu",
+        "description": "Chunguza shinikizo la damu — hatari ya kimya kwa magonjwa ya moyo na kiharusi."
+      },
+      "blood-sugar": {
+        "name": "Uchunguzi wa sukari / kisukari",
+        "description": "Sukari ya bila chakula au HbA1c, hasa ikiwa kuna historia ya familia au uzito kupita kiasi."
+      },
+      "cholesterol": {
+        "name": "Cholesterol / lipid panel",
+        "description": "Kipimo cha damu kwa hatari ya moyo. Jadili mara kwa mtoa huduma wako."
+      },
+      "weight-bmi": {
+        "name": "Ukaguzi wa uzito na BMI",
+        "description": "Fuata mwenendo ya uzito wenye afya kama sehemu ya ukaguzi wako wa mwaka."
+      },
+      "flu-vaccine": {
+        "description": "Chanjo ya mafua ya kila mwaka inapopatikana na kupendekezwa.",
+        "name": "Chanjo ya mafua ya msimu"
+      },
+      "cervical-screening": {
+        "name": "Uchunguzi wa shingo ya kizazi (Pap / HPV)",
+        "description": "Chunguza saratani ya shingo ya kizazi. Fuata miongozo ya ndani kwa muda."
+      },
+      "mammogram": {
+        "name": "Mammogram",
+        "description": "Uchunguzi wa saratani ya matiti. Umri wa kuanza hutofautiana kwa miongozo na hatari."
+      },
+      "prostate-discussion": {
+        "name": "Mazungumzo kuhusu afya ya tezi dume",
+        "description": "Zungumza na mtaalamu wa afya kuhusu kipimo cha PSA na dalili za tezi dume."
+      },
+      "prostate-earlier": {
+        "name": "Mazungumzo ya mapema kuhusu tezi dume",
+        "description": "Fikiria kujadili uchunguzi mapema ikiwa una asili ya Kiafrika au historia ya familia."
+      },
+      "colorectal-screening": {
+        "name": "Uchunguzi wa saratani ya utumbo",
+        "description": "Kipimo cha kinyesi au colonoscopy kuanzia katikati ya utu uzima — uliza chaguo linalokufaa."
+      },
+      "skin-check": {
+        "name": "Ukaguzi wa ngozi",
+        "description": "Kagua vipele na mabadiliko ya ngozi na mtaalamu wa afya."
+      },
+      "hearing-check": {
+        "name": "Ukaguzi wa kusikia",
+        "description": "Chunguza upotevu wa kusikia unaohusiana na umri."
+      },
+      "bone-density-women": {
+        "name": "Msongamano wa mifupa (DEXA)",
+        "description": "Chunguza hatari ya osteoporosis baada ya menopause / utu uzima wa baadaye."
+      },
+      "bone-density-men": {
+        "name": "Msongamano wa mifupa (DEXA)",
+        "description": "Chunguza hatari ya osteoporosis katika utu uzima wa baadaye."
+      },
+      "tetanus-booster": {
+        "description": "Thibitisha dozi za nyongeza za pepopunda (na zinazohusiana) zimesasishwa — mara nyingi kila miaka 10.",
+        "name": "Ukaguzi wa booster ya pepo"
+      }
+    },
+    "status": {
+      "upcoming": "Inayokuja",
+      "completed": "Imekamilika",
+      "due": "Inayotarajiwa",
+      "overdue": "Imechelewa"
+    },
+    "ui": {
+      "actionableOne": "{{count}} ukaguzi kwa {{year}}",
+      "actionableMany": "{{count}} ukaguzi kwa {{year}}",
+      "onTrack": "Ukaguzi wa {{year}} uko sawa",
+      "yearPlan": "Mpango wako wa {{year}}",
+      "thisYear": "Mwaka huu ({{year}})",
+      "ofTotal": "{{completed}} kati ya {{total}}",
+      "checklist": "Orodha ya {{year}}",
+      "clearConfirmMessage": "Wasifu wako na historia ya ukamilishaji zitaondolewa kwenye kifaa hiki.",
+      "regionHint": "Inatumika kwa vidokezo vya nchi kadhaa. Acha Global ukiwa huna uhakika.",
+      "regionSelectPlaceholder": "Chagua nchi",
+      "dob": "Tarehe ya kuzaliwa",
+      "genderLabel": "Jinsia",
+      "updateLog": "Sasisha rekodi",
+      "setupIntro": "Tunatumia tarehe yako ya kuzaliwa, jinsia, na eneo kupendekeza ukaguzi wa kawaida. Eneo ni hiari na chaguo-msingi ni International.",
+      "ageLine": "Umri {{age}} · {{gender}} · {{region}}",
+      "nextYear": "Mwaka ujao ({{year}})",
+      "done": "Imekamilika",
+      "guidance": "Mwongozo tu — zungumza na mtaalamu wa afya kwa ushauri binafsi.",
+      "emptyYear": "Hakuna ukaguzi uliowekwa kwa mwaka huu na wasifu wako wa sasa.",
+      "doneDate": "Imekamilika {{date}}",
+      "clearData": "Futa data ya mpangaji",
+      "clearConfirmTitle": "Futa mpangaji wa uchunguzi?",
+      "regionOptional": "Nchi (hiari)",
+      "regionSearchEmpty": "Hakuna nchi inayolingana na utafutaji huo.",
+      "globalOption": "Global ({{code}})",
+      "notesPlaceholder": "Jina la kliniki, matokeo ya kufuatilia…",
+      "markDone": "Weka alama umekamilika kwa {{year}}",
+      "dobLabel": "Tarehe ya kuzaliwa: {{date}}",
+      "logIntro": "Andika kwamba umekamilisha ukaguzi huu kwa {{year}}. Unaweza kutengua baadaye kutoka skrini hii.",
+      "dateCompleted": "Tarehe iliyokamilika",
+      "completedLabel": "Imekamilika: {{date}}",
+      "notesOptional": "Maelezo (si lazima)",
+      "globalShort": "Global",
+      "tapToLog": "Gusa kuandika",
+      "regionSearchPlaceholder": "Tafuta nchi",
+      "removeLog": "Ondoa rekodi hii",
+      "tapDob": "Gusa tarehe yako ya kuzaliwa.",
+      "notFound": "Ukaguzi huo haukupatikana.",
+      "removeCompletion": "Ondoa ukamilishaji"
+    },
+    "validation": {
+      "undoConfirm": "Ondoa",
+      "completedYearMismatch": "Umeandika {{completedYear}}, lakini kipengele hiki ni cha mpango wa {{planYear}}. Thibitisha ni makusudi.",
+      "onceAlreadyLogged": "Ukaguzi huu wa mara moja tayari umeandikwa kwa {{year}}. Thibitisha unataka kuandika tena.",
+      "checkTitle": "Tafadhali angalia hii",
+      "confirmTitle": "Tafadhali thibitisha",
+      "cancel": "Ghairi",
+      "requiredGender": "Tafadhali chagua chaguo la jinsia kabla ya kuhifadhi.",
+      "requiredDob": "Tafadhali chagua tarehe yako ya kuzaliwa kabla ya kuhifadhi.",
+      "dobFuture": "Tarehe ya kuzaliwa haiwezi kuwa ya baadaye.",
+      "ageYoung": "Katika umri {{age}}, uchunguzi mdogo wa watu wazima utaonekana. Thibitisha tarehe hii ya kuzaliwa ni sahihi.",
+      "completedFuture": "Huwezi kuweka uchunguzi kama umekamilika na tarehe ya baadaye. Chagua leo au tarehe ya zamani.",
+      "saveAnyway": "Hifadhi hata hivyo",
+      "undoTitle": "Ondoa ukamilishaji huu?",
+      "undoMessage": "Ukaguzi huu utaonyeshwa kama haujafanywa kwa mwaka huo tena.",
+      "invalidCheckup": "Ukaguzi huo haukupatikana. Rudi nyuma ujaribu tena.",
+      "invalidYear": "Mwaka wa mpango huu unaonekana usio wa kawaida. Fungua ukaguzi kutoka orodha yako ya mwaka.",
+      "unusualCheck": "Hiyo inaonekana isiyo ya kawaida. Thibitisha umeingiza kwa usahihi.",
+      "completedBeforeDob": "Tarehe ya ukamilishaji haiwezi kuwa kabla ya tarehe yako ya kuzaliwa.",
+      "ageHigh": "Tarehe hii ya kuzaliwa itakufanya uwe {{age}}. Thibitisha ni sahihi.",
+      "notesLong": "Maelezo haya ni marefu sana. Thibitisha kabla ya kuhifadhi."
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Dozi ya kuzaliwa",
+        "description": "Inalinda dhidi ya aina kali za kifua kikuu."
+      },
+      "hep-b-birth": {
+        "name": "Hepatitis B",
+        "doseLabel": "Dozi ya kuzaliwa",
+        "description": "Dozi ya kwanza hutolewa kuzaliwa au ndani ya masaa 24."
+      },
+      "opv-0": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 0",
+        "description": "Dozi ya kuzaliwa ya chanjo ya OPV."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozi 1",
+        "description": "Husisha diphtheria, tetanus, pertussis, hepatitis B, na Hib."
+      },
+      "opv-1": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 1",
+        "description": "Dozi ya kwanza ya kawaida ya polio."
+      },
+      "pcv-1": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozi 1",
+        "description": "Inalinda dhidi ya ugonjwa wa pneumococcal."
+      },
+      "rota-1": {
+        "doseLabel": "Dozi 1",
+        "name": "Rotavirus",
+        "description": "Inalinda dhidi ya kuhara kali kutokana na rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi ya pili ya pentavalent."
+      },
+      "opv-2": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi ya pili ya kawaida ya polio."
+      },
+      "pcv-2": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi ya pili ya pneumococcal."
+      },
+      "rota-2": {
+        "doseLabel": "Dozi 2",
+        "name": "Rotavirus",
+        "description": "Dozi ya pili ya rotavirus."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozi 3",
+        "description": "Dozi ya tatu ya pentavalent."
+      },
+      "opv-3": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 3",
+        "description": "Dozi ya tatu ya kawaida ya polio."
+      },
+      "pcv-3": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozi 3",
+        "description": "Dozi ya tatu ya pneumococcal."
+      },
+      "ipv": {
+        "name": "Polio (IPV)",
+        "doseLabel": "Dozi ya nyongeza",
+        "description": "Booster ya polio isiyofanyiwa takriban miezi 6."
+      },
+      "measles-1": {
+        "name": "Surua / MR",
+        "doseLabel": "Dozi 1",
+        "description": "Dozi ya kwanza ya surua-panya takriban miezi 9."
+      },
+      "yellow-fever": {
+        "name": "Yellow Fever",
+        "doseLabel": "Dozi moja",
+        "description": "Inapendekezwa katika maeneo ya ugonjwa huo tangu miezi 9."
+      },
+      "measles-2": {
+        "name": "Surua / MR",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi ya pili ya surua-panya takriban miezi 15."
+      },
+      "vitamin-a": {
+        "name": "Vitamini A",
+        "doseLabel": "Nyongeza",
+        "description": "Nyongeza ya kawaida ya vitamini A tangu miezi 15."
+      }
+    },
+    "ui": {
+      "dob": "Tarehe ya kuzaliwa",
+      "scheduleTitle": "Ratiba ya chanjo",
+      "timeline": "Ratiba",
+      "vaccineRecord": "Rekodi ya chanjo",
+      "whereToGo": "Mahali pa kwenda",
+      "overdueVisit": "{{count}} chanjo imechelewa — panga ziara",
+      "overdueVisit_other": "{{count}} chanjo zimechelewa — panga ziara",
+      "vaccinesCompleted": "{{completed}} kati ya {{total}} chanjo zimekamilika",
+      "children": "Watoto",
+      "family": "Familia",
+      "percentComplete": "{{percent}}% imekamilika",
+      "daysOverdue": "{{count}} siku la kuchelewa",
+      "daysOverdue_other": "{{count}} siku la kuchelewa",
+      "vaccineRecordTitle": "Rekodi ya chanjo",
+      "noChildSelected": "Hakuna mtoto aliyechaguliwa",
+      "vaccine": "Chanjo",
+      "selectedDate": "Imechaguliwa: {{date}}",
+      "nextDue": "Ifuatayo: {{name}} ({{dose}})",
+      "allUpToDate": "Chanjo zote zilizopangwa zimesasishwa",
+      "attention": "Inahitaji umakini",
+      "alreadyLogged": "Tayari imeandikwa",
+      "administeredDate": "Tarehe ya kutolewa",
+      "optional": "Si lazima",
+      "notesPlaceholder": "Nambari ya kundi, athari, n.k.",
+      "nextSteps": "Hatua zijazo",
+      "childrenFromFamilyCaption": "Watoto hutoka kwenye wasifu wako wa Familia.",
+      "details": "Maelezo",
+      "age": "Umri",
+      "nextUp": "Inayofuata",
+      "dueToday": "Inatarajiwa leo",
+      "dueInDays": "Inatarajiwa siku {{count}}",
+      "dueInDays_other": "Inatarajiwa siku {{count}}",
+      "givenOn": "Imetolewa {{date}}",
+      "dueOn": "Inatarajiwa {{date}}",
+      "logIntro": "Andika wakati chanjo hii ilitolewa. Unaweza kusasisha au kuondoa rekodi baadaye.",
+      "alreadyLoggedPill": "Tayari imeandikwa",
+      "completedOn": "Imekamilika: {{date}}",
+      "notes": "Maelezo",
+      "familySetupExplainer": "Usanidi wa familia hukusanya tarehe ya kuzaliwa kwa kila mtoto — hilo ndilo linaloendesha ratiba ya chanjo.",
+      "selectChild": "Chagua mtoto kuona ratiba yake ya chanjo inayopendekezwa",
+      "providerOptional": "Mtoa huduma / kliniki",
+      "removeRecord": "Ondoa rekodi",
+      "profile": "Wasifu",
+      "recommendedBy": "Inapendekezwa ifikapo {{date}}",
+      "select": "Chagua",
+      "tapAdministeredDate": "Gusa tarehe chanjo hii ilitolewa"
+    },
+    "status": {
+      "upcoming": "Inayokuja",
+      "completed": "Imekamilika",
+      "overdue": "Imechelewa",
+      "due-soon": "Inatarajiwa hivi karibuni"
+    },
+    "validation": {
+      "undoConfirm": "Ondoa",
+      "checkTitle": "Tafadhali angalia hii",
+      "confirmTitle": "Tafadhali thibitisha",
+      "cancel": "Ghairi",
+      "requiredProfile": "Chagua mtoto mwenye tarehe ya kuzaliwa kabla ya kuandika chanjo.",
+      "requiredAdministeredDate": "Tafadhali chagua tarehe chanjo hii ilitolewa.",
+      "administeredFuture": "Huwezi kuandika dozi iliyokamilika na tarehe ya baadaye. Chagua leo au tarehe ya zamani.",
+      "seriesOutOfOrder": "Dozi ya awali katika mfululizo huu haijaandikwa bado ({{missing}}). Thibitisha kabla ya kuhifadhi.",
+      "saveAnyway": "Hifadhi hata hivyo",
+      "undoTitle": "Ondoa rekodi hii ya chanjo?",
+      "undoMessage": "Dozi hii itaonyeshwa kama haijapewa kwenye ratiba tena.",
+      "invalidVaccine": "Chanjo hiyo haikupatikana. Rudi nyuma ujaribu tena.",
+      "unusualCheck": "Hiyo inaonekana isiyo ya kawaida. Thibitisha umeingiza kwa usahihi.",
+      "administeredBeforeDob": "Tarehe ya uto haiwezi kuwa kabla ya tarehe ya kuzaliwa kwa mtoto.",
+      "veryEarly": "Tarehe hii ni siku {{days}} kabla ya tarehe inayopendekezwa ({{recommended}}). Thibitisha ni sahihi.",
+      "farFromRecommended": "Tarehe hii ni siku {{days}} kutoka tarehe inayopendekezwa ({{recommended}}). Thibitisha ni sahihi.",
+      "providerLong": "Jina la mtoa huduma ni refu sana. Thibitisha kabla ya kuhifadhi.",
+      "notesLong": "Maelezo haya ni marefu sana. Thibitisha kabla ya kuhifadhi."
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "Uchovu",
+      "Unwell": "Hajisikii vizuri",
+      "Happy": "Furaha",
+      "Calm": "Tulivu",
+      "Anxious": "Wasiwasi",
+      "Excited": "Amefurahi"
+    },
+    "symptoms": {
+      "Nausea": "Kichefuchefu",
+      "Fatigue": "Uchovu",
+      "Back pain": "Maumivu ya mgongo",
+      "Cramping": "Maumivu ya tumbo",
+      "Heartburn": "Maumivu ya kifua",
+      "Headache": "Maumivu ya kichwa",
+      "Insomnia": "Usingizi hauji",
+      "Food cravings": "Tamu la chakula",
+      "Swelling": "Uvimbe"
+    },
+    "milestones": {
+      "8": {
+        "title": "Ziara ya kwanza ya ujauzito",
+        "description": "Panga ukaguzi wako wa kwanza na mtoa huduma wako."
+      },
+      "12": {
+        "title": "Mwisho wa trimester ya kwanza",
+        "description": "Hatari ya kuharibika kwa mimba hupungua sana."
+      },
+      "20": {
+        "title": "Uchunguzi wa anatomy",
+        "description": "Ultrasound ya katikati ya ujauzito takriban wiki 18–22."
+      },
+      "28": {
+        "description": "Mtoto anakua haraka — pumzika unapoweza.",
+        "title": "Trimesta ya tatu inaanza"
+      },
+      "36": {
+        "title": "Ukaguzi wa kila wiki",
+        "description": "Mtoa huduma wako anaweza kutaka kukuona mara nyingi zaidi."
+      },
+      "40": {
+        "description": "Tarehe yako ya kujifungua iliyokadiriwa.",
+        "title": "Tarehe ya makadirio"
+      }
+    },
+    "ui": {
+      "weekDay": "Wiki {{weeks}}, Siku {{days}}",
+      "daysUntilDue": "{{count}} siku hadi tarehe ya kujifungua ya {{name}}",
+      "daysUntilDue_other": "{{count}} siku hadi tarehe ya kujifungua ya {{name}}",
+      "todayIsDue": "Leo ni tarehe ya kujifungua ya {{name}}",
+      "daysPastDue": "{{count}} siku baada ya tarehe ya kujifungua",
+      "daysPastDue_other": "{{count}} siku baada ya tarehe ya kujifungua",
+      "timeline": "Ratiba",
+      "percentComplete": "{{percent}}% imekamilika",
+      "week0": "Wiki 0",
+      "week40": "Wiki 40",
+      "trimesterBar": {
+        "weekRange": "Wiki {{from}}–{{to}}",
+        "now": "Wiki {{weeks}}",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "Rekodi ya leo",
+      "weekThisWeek": "Wiki {{week}} · Wiki hii",
+      "weekInDays": "Wiki {{week}} · Takriban siku {{count}}",
+      "weekInDays_other": "Wiki {{week}} · Takriban siku {{count}}",
+      "weekLabel": "Wiki {{week}}",
+      "weight": "Uzito",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} matemo",
+      "postpartumTitle": "Umevuka tarehe yako ya kujifungua",
+      "postpartumBody": "Tarehe yako ya kujifungua iliyokadiriwa imepita. Maliza ujauzito ukiwa tayari, au sasisha tarehe ikiwa mtoa huduma alibadilisha.",
+      "dailyLog": "Rekodi ya kila siku",
+      "howFeeling": "Unajisikiaje?",
+      "howFeelingSubtitle": "Andika unavyojisikia leo. Hii inakusaidia kuona mifumo kwa muda.",
+      "babyKicks": "Mateka ya mtoto",
+      "notesPlaceholder": "Unajisikiaje? Maswali yoyote kwa ziara yako ijayo?",
+      "setTimelineSubtitle": "Chagua jinsi unavyotaka kuweka ratiba yako ya ujauzito. Unaweza kutumia hedhi yako ya mwisho au tarehe ya makadirio kutoka kwa mtoa huduma wako.",
+      "lastPeriod": "Hedhi ya mwisho",
+      "dueDate": "Tarehe ya makadirio",
+      "babyNickname": "Jina la utani la mtoto",
+      "pickDate": "Chagua tarehe",
+      "estimatedDue": "Tarehe ya makadirio iliyokadiriwa",
+      "kicksLogged": "Matemo yaliyorekodiwa",
+      "comingUp": "Inakuja",
+      "milestonesTitle": "Hatua muhimu",
+      "journey": "Safari",
+      "estimatedFromLmp": "Imekadiriwa kutokana na hedhi yako ya mwisho",
+      "estimatedFromProvider": "Kulingana na tarehe ya makadirio kutoka kwa mtoa huduma wako",
+      "daily": "Kila siku",
+      "mood": "Hali",
+      "noSymptomsToday": "Bado hakuna dalili zilizorekodiwa leo",
+      "notes": "Maelezo",
+      "babyPlaceholder": "Mtoto",
+      "weightHint": "Si lazima. Weka uzito wako kwa kilogramu.",
+      "endPregnancy": "Maliza ujauzito",
+      "endPregnancyTitle": "Maliza ujauzito huu?",
+      "endPregnancyConfirm": "Maliza ujauzito",
+      "postpartumEyebrow": "Imepita tarehe",
+      "pastPregnancies": "Ujauzito uliopita",
+      "history": "Historia",
+      "pastPregnancySubtitle": "Inatarajiwa {{due}} · Imekamilika {{ended}} · {{logs}} rekodi",
+      "archivedLogsEmpty": "Hakuna rekodi za kila siku zilizohifadhiwa kwa ujauzito huu.",
+      "setTimeline": "Weka ratiba yako",
+      "tapLmp": "Gusa siku la kwanza la hedhi yako ya mwisho.",
+      "tapDue": "Gusa tarehe yako ya kujifungua iliyokadiriwa kutoka kwa mtoa huduma.",
+      "selectedDue": "Tarehe ya kujifungua iliyochaguliwa",
+      "progress": "Maendeleo ya ujauzito",
+      "symptoms": "Dalili",
+      "setupEyebrow": "Usanidi",
+      "tapKickHint": "Gusa + kila unapohisi mwendo",
+      "logHistory": "Rekodi za hivi karibuni",
+      "recent": "Hivi karibuni",
+      "endPregnancyMessage": "Hii inahifadhi ratiba na rekodi za kila siku, kisha inaendelea na Period Tracker ikiwa ilikuwa imesimamishwa kwa ujauzito. Unaweza kusanidi ujauzito mpya baadaye."
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} ni wiki hii.",
+      "milestoneSoonBody": "{{title}} ni takriban siku {{count}}.",
+      "milestoneSoonBody_other": "{{title}} ni takriban siku {{count}}.",
+      "dueSoonTitle": "Tarehe ya kujifungua ya {{name}} katika siku {{count}}",
+      "dueSoonTitle_other": "Tarehe ya kujifungua ya {{name}} katika siku {{count}}",
+      "dueSoonBody": "Tarehe ya kujifungua iliyokadiriwa ya {{name}} ni siku {{count}}. Angalia ratiba yako ya ujauzito.",
+      "dueSoonBody_other": "Tarehe ya kujifungua iliyokadiriwa ya {{name}} ni siku {{count}}. Angalia ratiba yako ya ujauzito.",
+      "dueTodayTitle": "Leo ni tarehe ya kujifungua ya {{name}}",
+      "dueTodayBody": "Tarehe ya kujifungua iliyokadiriwa ya {{name}} ni leo.",
+      "pastDueTitle": "{{count}} siku baada ya tarehe ya kujifungua",
+      "pastDueTitle_other": "{{count}} siku baada ya tarehe ya kujifungua",
+      "pastDueBody": "Tarehe ya kujifungua iliyokadiriwa ya {{name}} ilikuwa siku {{count}} zilizopita. Sasisha ratiba yako au maliza ujauzito ukiwa tayari.",
+      "pastDueBody_other": "Tarehe ya kujifungua iliyokadiriwa ya {{name}} ilikuwa siku {{count}} zilizopita. Sasisha ratiba yako au maliza ujauzito ukiwa tayari.",
+      "milestoneSoonTitle": "Inakuja: Wiki {{week}}",
+      "dailyNudgeTitle": "Andika unavyojisikia leo",
+      "dailyNudgeBody": "Kurekodi haraka hali, dalili, au mateka huweka historia yako ya ujauzito kuwa na manufaa.",
+      "ttDoseDueBody": "Imepita angalau wiki 4 tangu TT1. Uliza kliniki yako kuhusu dozi yako ijayo ya pepo (TT).",
+      "ttDoseDueTitle": "TT2 inaweza kuwa inayofaa"
+    },
+    "motherCare": {
+      "progress": "{{completed}} kati ya {{total}} dozi zimeandikwa",
+      "logSubtitle": "{{completed}} kati ya {{total}} dozi zimeandikwa. Chagua tarehe uliyopokea dozi hii.",
+      "completeBody": "Umeandika TT1 hadi TT5. Weka kadi yako ya kliniki kama rekodi rasmi.",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "Hii ni siku {{gap}} tu baada ya dozi iliyotangulia (kawaida subiri siku {{days}}). Thibitisha na kliniki yako.",
+        "checkTitle": "Tafadhali angalia hii",
+        "confirmTitle": "Tafadhali thibitisha",
+        "cancel": "Ghairi",
+        "requiredDate": "Tafadhali chagua tarehe kabla ya kuhifadhi.",
+        "ttFuture": "Tarehe ya dozi ya TT haiwezi kuwa ya baadaye.",
+        "ttOutOfOrder": "Andika dozi kwa mpangilio. Inayotarajiwa ijayo ni {{next}} (ulijaribu {{dose}}).",
+        "saveAnyway": "Hifadhi hata hivyo",
+        "unusualCheck": "Hiyo inaonekana isiyo ya kawaida. Thibitisha umeingiza kwa usahihi.",
+        "ttBeforePrevious": "Tarehe hii ni kabla ya {{previous}} ({{previousDate}}). Thibitisha ni sahihi."
+      },
+      "eyebrow": "Utunzaji wa mama",
+      "nextDose": "Ifuatayo: {{dose}}",
+      "notLogged": "Haijaandikwa",
+      "logNext": "Andika TT inayofuata",
+      "logTt1": "Andika TT1",
+      "logTitle": "Andika {{dose}}",
+      "pickDate": "Tarehe ya dozi",
+      "done": "Imekamilika",
+      "disclaimer": "Ufuatiliaji wa elimu tu — fuata ratiba ya kliniki yako na mwongozo wa ndani.",
+      "title": "Ulinzi wa pepo (TT)",
+      "body": "Dozi za TT zinakulinda wewe na mtoto wako mpya dhidi ya pepo. Andika dozi kutoka kadi yako ya ujauzito — hii ni tofauti na kifuatiliaji cha wiki za ujauzito.",
+      "complete": "TT1–TT5 zimeandikwa",
+      "archivedTitle": "Dozi za TT kutoka ujauzito huu",
+      "tapDate": "Gusa siku ulipopokea {{dose}}.",
+      "selectedDate": "Tarehe iliyochaguliwa",
+      "saveDose": "Hifadhi {{dose}}",
+      "completeTitle": "Ratiba ya TT imekamilika"
+    },
+    "trimester": {
+      "1": "Trimesta ya kwanza",
+      "2": "Trimesta ya pili",
+      "3": "Trimesta ya tatu"
+    },
+    "validation": {
+      "lmpFuture": "Tarehe ya hedhi yako ya mwisho haiwezi kuwa siku zijazo.",
+      "dueInPast": "Tarehe hii ya kujifungua imepita siku {{days}} zilizopita. Thibitisha bado unataka kuitumia.",
+      "nicknameLong": "Jina hili la utani ni refu sana. Thibitisha ni sahihi.",
+      "overwriteTimeline": "Unasasisha ratiba yako ya ujauzito. Rekodi za kila siku za ujauzito huu zitahifadhiwa.",
+      "startNewAfterEnded": "Unaanza ujauzito mpya baada ya kumaliza uliopita. Ratiba mpya na rekodi ya kila siku tupu itaundwa.",
+      "checkTitle": "Tafadhali angalia hii",
+      "confirmTitle": "Tafadhali thibitisha",
+      "cancel": "Ghairi",
+      "requiredDate": "Tafadhali chagua tarehe kabla ya kuhifadhi.",
+      "emptyLog": "Hakuna kilichojazwa kwa leo. Hifadhi rekodi tupu hata hivyo?",
+      "setupBlockedPostpartum": "Maliza kwanza utunzaji wa mama baada ya kujifungua, kisha unaweza kuweka ratiba mpya ya ujauzito.",
+      "birthFuture": "Tarehe ya kuzaliwa haiwezi kuwa ya baadaye.",
+      "saveAnyway": "Hifadhi hata hivyo",
+      "unusualCheck": "Hiyo inaonekana isiyo ya kawaida. Thibitisha umeingiza kwa usahihi.",
+      "dueTooFar": "Tarehe hii ya kujifungua iko mbali sana siku zijazo kuwa halisi. Tafadhali angalia tarehe.",
+      "pastTerm": "Tarehe hii inaonyesha unaweza kuwa tayari umezidi wiki {{weeks}} za ujauzito. Thibitisha ni sahihi.",
+      "willPausePeriod": "Kuhifadhi ratiba yako ya ujauzito kutasimamisha utabiri wa Period Tracker. Historia yako ya hedhi inabaki.",
+      "kicksHigh": "Hesabu hii ya mate ({{count}}) inaonekana juu sana kwa siku moja. Thibitisha ni sahihi.",
+      "notesLong": "Maelezo haya ni marefu sana. Thibitisha kabla ya kuhifadhi.",
+      "weightUnusual": "Uzito ({{value}} kg) uko nje ya kawaida ({{min}}–{{max}} kg). Thibitisha ni sahihi.",
+      "birthBeforeLmp": "Tarehe hii ya kuzaliwa iko kabla ya tarehe ya hedhi yako ya mwisho. Thibitisha ni sahihi."
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "{{count}} siku tangu kuzaliwa",
+      "careTitle": "Uponyaji wako",
+      "careBody": "Nafasi hii ni kwa utunzaji wako baada ya kujifungua — pumziko, uponyaji, na ufuatiliaji na kliniki yako. Ufuatiliaji wa mtoto unabaki tofauti.",
+      "pastDueHint": "Tarehe yako ya kujifungua imepita. Ukimzaa, gusa Nimemzaa kuanza utunzaji wa baada ya kujifungua wa mama. Ukihitaji kuweka ujauzito huu kimya, tumia Funga ujauzito huu hapa chini.",
+      "iveGivenBirth": "Nimejifungua",
+      "birthTitle": "Kuzaliwa kulikuwa lini?",
+      "birthSubtitle": "Tutabadili kwenda utunzaji wa baada ya kujifungua wa mama. Dozi zako za TT ziko kwenye skrini hii.",
+      "finishMessage": "Tutahifadhi ujauzito huu kama kuzaliwa, tutafuta ratiba ya ujauzito, na kuendelea na Period Tracker ikiwa ilikuwa imesimamishwa. Dozi zako za TT zinabaki.",
+      "closeMessage": "Tutaweka ratiba ya ujauzito. Rekodi za utunzaji wa mama kama dozi za TT zinabaki, na Period Tracker inaweza kuendelea. Chukua muda unaohitaji — hauko peke yako.",
+      "closedPregnancyTitle": "Ujauzito",
+      "eyebrow": "Utunzaji wa mama",
+      "heroTitle": "Utunzaji baada ya kujifungua",
+      "heroSubtitle": "Zingatia uponyaji wako. Rekodi yako ya TT inabaki hapa.",
+      "daysSinceBirth": "Siku {{count}} tangu kuzaliwa",
+      "birthDateLabel": "Tarehe ya kuzaliwa",
+      "pickBirthDate": "Tarehe ya kuzaliwa",
+      "birthDisclaimer": "Ufuatiliaji wa elimu tu — fuata ushauri wa baada ya kujifungua kutoka kwa kliniki yako.",
+      "logMotherDay": "Andika unavyojisikia",
+      "finishPostpartum": "Maliza utunzaji baada ya kujifungua",
+      "finishTitle": "Maliza utunzaji baada ya kujifungua?",
+      "finishConfirm": "Maliza",
+      "closeLink": "Funga ujauzito huu",
+      "closeTitle": "Funga ujauzito huu?",
+      "closeConfirm": "Funga ujauzito",
+      "pastBirthSubtitle": "Alizaliwa {{born}} · {{logs}} rekodi",
+      "pastClosedSubtitle": "Imefungwa {{ended}}",
+      "tapBirthDate": "Gusa siku ulizojifungua.",
+      "selectedBirthDate": "Tarehe iliyochaguliwa",
+      "startPostpartum": "Anza utunzaji baada ya kujifungua",
+      "notActive": "Weka ratiba hai ya ujauzito kabla ya kuandika kuzaliwa."
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Hedhi yako inayofuata inaweza kuanza leo",
+      "thisWeek": "Wiki hii",
+      "daysCount": "{{count}} siku",
+      "daysSelected": "{{count}} siku lililochaguliwa",
+      "daysSelected_other": "{{count}} siku lililochaguliwa",
+      "pausedCardTitle": "Ufuatiliaji umesimamishwa",
+      "pauseWhilePregnantBody": "Unaweza kusimamisha utabiri wa mzunguko ukiwa mjamzito. Historia yako inabaki.",
+      "backToTracker": "Rudi",
+      "cycleSummary": "Muhtasari wa mzunguko",
+      "averageCycle": "Mzunguko wa wastani",
+      "decreaseAverageCycle": "Punguza urefu wa wastani wa mzunguko",
+      "increaseAverageCycle": "Ongeza urefu wa wastani wa mzunguko",
+      "periodLength": "Urefu wa hedhi",
+      "loggedDays": "Siku zilizoandikwa",
+      "dayOfCycle": "Siku {{day}} la mzunguko wako",
+      "dayPill": "Siku {{day}}",
+      "daysUntilPeriod": "Takriban siku {{count}} hadi hedhi yako ijayo",
+      "daysUntilPeriod_other": "Takriban siku {{count}} hadi hedhi yako ijayo",
+      "calendar": "Kalenda",
+      "loggedPeriod": "Hedhi iliyoandikwa",
+      "predicted": "Hedhi inayotarajiwa",
+      "predictedWindow": "Hedhi inayotarajiwa: {{range}}",
+      "fertile": "Inayozaa",
+      "ovulation": "Ovulation",
+      "pausedTitle": "Ufuatiliaji wa hedhi umesimamishwa",
+      "pausedSubtitle": "Utabiri na uandikishaji vimesimamishwa.",
+      "pausedBecausePregnant": "Imesimamishwa ukiwa mjamzito. Historia yako iliyoandikwa bado iko hapa.",
+      "pausedPill": "Imesimamishwa",
+      "pausedCardBody": "Utabiri wa mzunguko na uandikaji wa hedhi umesimamishwa. Endelea wakati wowote — au endelea kwenye Pregnancy Tracker.",
+      "pauseTracking": "Simamisha ufuatiliaji wa hedhi",
+      "openPregnancyTracker": "Fungua Ufuatiliaji wa Ujauzito",
+      "resumeTracking": "Endelea ufuatiliaji wa hedhi",
+      "pauseWhilePregnantTitle": "Una mimba?"
+    },
+    "validation": {
+      "clearMessage": "Hii inaondoa kila siku ya hedhi iliyoandikwa kwenye kifaa hiki. Utabiri utawekwa upya hadi uandike tena.",
+      "periodVsCycle": "Urefu huu wa hedhi (siku {{periodDays}}) ni sawa au mrefu kuliko mzunguko wako wa wastani (siku {{cycleDays}}). Thibitisha.",
+      "checkTitle": "Tafadhali angalia hii",
+      "confirmTitle": "Tafadhali thibitisha",
+      "cancel": "Ghairi",
+      "saveAnyway": "Andika hata hivyo",
+      "clearTitle": "Futa siku zote zilizoandikwa?",
+      "clearConfirm": "Futa",
+      "trackingPaused": "Ufuatiliaji wa hedhi umesimamishwa. Endelea ili kuandika siku.",
+      "resumeWhilePregnant": "Pregnancy Tracker bado ina ratiba hai. Endelea ufuatiliaji wa hedhi hata hivyo?",
+      "unusualCheck": "Hiyo inaonekana isiyo ya kawaida. Thibitisha umeingiza kwa usahihi.",
+      "dayFuture": "Tarehe hii iko siku zijazo. Thibitisha ulikusudia kuandika mapema.",
+      "dayFarPast": "Tarehe hii ilikuwa siku {{days}} zilizopita. Thibitisha inahusika na historia yako.",
+      "periodLong": "Hiyo itafanya kipindi hiki kiwe siku {{days}}. Thibitisha ni sahihi."
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "Uzito",
+      "blood_pressure": "Shinikizo la damu",
+      "blood_sugar": "Sukari ya damu",
+      "heart_rate": "Mapigo ya moyo",
+      "body_temperature": "Joto la mwili",
+      "height": "Urefu",
+      "oxygen_saturation": "Ujazo wa oksijeni",
+      "respiratory_rate": "Kiwango cha kupumua"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "ft / in",
+      "breaths_min": "pumzi/dak",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "Bila chakula",
+      "before_meal": "Kabla ya kula",
+      "two_hours_after_meal": "Saa 2 baada ya kula",
+      "random": "Nasibu"
+    },
+    "ui": {
+      "vital": "Kipimo muhimu",
+      "unit": "Kipimo",
+      "reading": "Kusoma",
+      "measurementType": "Hii ilipimwa lini?",
+      "notesPlaceholder": "k.m. baada ya matembezi ya asubuhi",
+      "latest": "Usomaji wa hivi karibuni",
+      "noReading": "Bado hakuna usomaji",
+      "diastolic": "Diastolic",
+      "feet": "Miguu",
+      "inches": "Inchi",
+      "valuePlaceholder": "Weka thamani",
+      "bpHint": "Weka systolic / diastolic kwa mmHg",
+      "notesOptional": "Maelezo (si lazima)",
+      "setupSugarHint": "Vipimo vya sukari vinahifadhiwa kwa mg/dL na kuonyeshwa kwa kipimo unachopendelea.",
+      "balance": "Picha ya papo hapo",
+      "recent": "Hivi karibuni",
+      "emptyHint": "Anza na shinikizo, mapigo ya moyo, au uzito — chochote unachopima zaidi.",
+      "systolic": "Systolic",
+      "setupIntro": "Weka vipimo unavyopenda mara moja ili uandikishaji uwe haraka na thabiti."
+    },
+    "validation": {
+      "useSuggestion": "Tumia {{value}}",
+      "unusualConfirm": "Usomaji huu si wa kawaida. Thibitisha kabla ya kuhifadhi.",
+      "bloodSugarUnusual": "Usomaji huu si wa kawaida. Thibitisha kabla ya kuhifadhi.",
+      "oxygenLow": "Kiwango hiki cha oksijeni ni cha chini kuliko kawaida. Thibitisha usomaji, au jaribu kupima tena.",
+      "trendWeight": "Uzito wako umebadilika sana tangu ulioweka mwisho ({{previous}} {{unit}}). Thibitisha ni sahihi.",
+      "trendBloodPressure": "Usomaji huu ni wa juu au chini sana kuliko ulioweka hapo awali ({{previous}}). Thibitisha kabla ya kuhifadhi.",
+      "trendOxygen": "Usomaji huu wa oksijeni unatofautiana na ulioweka mwisho ({{previous}}%). Thibitisha, au jaribu kupima tena.",
+      "trendGeneric": "Thamani hii inatofautiana sana na kipimo chako cha awali ({{previous}} {{unit}}). Thibitisha ni sahihi.",
+      "checkTitle": "Tafadhali angalia usomaji huu",
+      "confirmTitle": "Tafadhali thibitisha",
+      "cancel": "Ghairi",
+      "requiredReading": "Tafadhali weka usomaji kabla ya kuhifadhi.",
+      "bpDiastolicOrder": "Shinikizo la diastolic linapaswa kuwa chini ya systolic.",
+      "bloodSugarContextRequired": "Chagua lini sukari hii ilipimwa (bila kula, kabla ya kula, baada ya kula, au nasibu).",
+      "typoBloodSugar": "Ulikusudia {{suggested}}?",
+      "typoWeight": "Ulikusudia {{suggested}}?",
+      "typoTemperature": "Ulikusudia {{suggested}}°C?",
+      "saveAnyway": "Hifadhi hata hivyo",
+      "unusualCheck": "Thamani hili linaonekana lisilo la kawaida. Thibitisha umeingiza kwa usahihi.",
+      "bpUnusual": "Usomaji huu wa shinikizo la damu si wa kawaida. Thibitisha ni sahihi."
+    }
+  }
 }

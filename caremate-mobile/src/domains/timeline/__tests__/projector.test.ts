@@ -1,5 +1,10 @@
 import { projectMiniAppEvents } from '@/domains/timeline/projector';
-import { isOccurredOnInConsentWindow } from '@/domains/timeline/consent-window';
+import {
+  addCalendarDays,
+  isDateKey,
+  isOccurredOnInConsentWindow,
+  todayDateKey,
+} from '@/domains/timeline/consent-window';
 
 describe('projectMiniAppEvents', () => {
   it('maps vitals entries with a stable id and occurred_on from recordedAt', () => {
@@ -118,5 +123,31 @@ describe('isOccurredOnInConsentWindow', () => {
         status: 'inactive',
       }),
     ).toBe(false);
+    expect(
+      isOccurredOnInConsentWindow({
+        occurredOn: '2026-03-01',
+        periodStart: '  ',
+        periodEnd: '2026-03-31',
+        status: 'active',
+      }),
+    ).toBe(false);
+    expect(
+      isOccurredOnInConsentWindow({
+        occurredOn: '2026-03-31',
+        periodStart: '2026-01-01',
+        periodEnd: '2026-03-31',
+        status: 'active',
+      }),
+    ).toBe(true);
+  });
+});
+
+describe('consent-window date helpers', () => {
+  it('validates date keys and shifts calendar days', () => {
+    expect(isDateKey('2026-07-16')).toBe(true);
+    expect(isDateKey('2026-7-16')).toBe(false);
+    expect(addCalendarDays('2026-01-31', 1)).toBe('2026-02-01');
+    expect(addCalendarDays('2026-03-01', -1)).toBe('2026-02-28');
+    expect(todayDateKey(new Date(2026, 6, 16, 12, 0, 0))).toBe('2026-07-16');
   });
 });

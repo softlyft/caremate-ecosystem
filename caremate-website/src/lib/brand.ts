@@ -14,10 +14,17 @@ const paymentUrl = trimTrailingSlash(
   (import.meta.env.VITE_PAYMENT_URL as string | undefined)?.trim() ||
     'https://main.d1wcqa3tsdavz8.amplifyapp.com',
 );
+const carePortalUrl = trimTrailingSlash(
+  (import.meta.env.VITE_CARE_URL as string | undefined)?.trim() ||
+    'https://care.getcaremate.com',
+);
 
 export const SITE_URL = siteUrl;
 
 export const PAYMENT_URL = paymentUrl;
+
+/** Care Portal (provider / payer engagement). */
+export const CARE_PORTAL_URL = carePortalUrl;
 
 export const APP_STORE_URLS = {
   ios: 'https://apps.apple.com/app/caremate',
@@ -185,7 +192,7 @@ export const MINI_APPS = [
   },
 ] as const;
 
-/** CareMate Provider Portal — engagement channel for healthcare organizations. */
+/** CareMate Care Portal — engagement channel for providers and payers. */
 export const PROVIDER_CAPABILITIES = [
   {
     id: 'connections',

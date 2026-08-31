@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { PaginationBar } from '@/components/pagination-bar';
 import { canAssignRoles, canEditCatalog } from '@/constants/roles';
 import {
@@ -141,23 +142,14 @@ export default async function AdsPage({
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-border bg-white p-4">
-          <p className="text-xs uppercase tracking-wide text-muted">Impressions (7d)</p>
-          <p className="text-2xl font-semibold">{counts.impressions}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-white p-4">
-          <p className="text-xs uppercase tracking-wide text-muted">Clicks (7d)</p>
-          <p className="text-2xl font-semibold">{counts.clicks}</p>
-        </div>
+        <StatCard label="Impressions (7d)" value={counts.impressions} />
+        <StatCard label="Clicks (7d)" value={counts.clicks} />
         {Object.entries(counts.bySource).map(([source, stats]) => (
-          <div key={source} className="rounded-lg border border-border bg-white p-4">
-            <p className="text-xs uppercase tracking-wide text-muted">
-              {sourceLabels[source] ?? source} (7d)
-            </p>
-            <p className="text-lg font-semibold">
-              {stats.impressions} imp · {stats.clicks} clk
-            </p>
-          </div>
+          <StatCard
+            key={source}
+            label={`${sourceLabels[source] ?? source} (7d)`}
+            value={`${stats.impressions} imp · ${stats.clicks} clk`}
+          />
         ))}
       </div>
 

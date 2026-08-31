@@ -1,8 +1,8 @@
-# CareMate Provider Portal
+# CareMate Care Portal
 
-Patient engagement portal for provider organizations. **Not** an HMS/EHR.
+Care Portal for **providers** and **payers**. Provider surface remains a patient engagement channel (**not** an HMS/EHR). Payer surface is a separate stub workspace under `/payer/*`.
 
-Same Supabase project as the CareMate monorepo. Org catalog reuses `provider_organizations`; portal fields live in `provider_profiles`. Access requires a `provider_org_members` row.
+Same Supabase project as the CareMate monorepo. Package folder stays `caremate-provider-portal` (host `app.getcaremate.com`).
 
 **Docs:** [`docs/README.md`](./docs/README.md) — architecture, auth/claim, connections, data model, development, QA.
 
@@ -12,7 +12,7 @@ Same Supabase project as the CareMate monorepo. Org catalog reuses `provider_org
 cp .env.example .env.local
 # Fill NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 
-# Apply provider portal migrations (see docs/data-model.md), then:
+# Apply Care Portal migrations (see docs/data-model.md), then:
 npm run provider-portal:dev
 ```
 
@@ -22,11 +22,12 @@ Dev server: **http://localhost:4000**
 
 | Path | Purpose |
 |------|---------|
-| `/claim` | Claim unclaimed org by catalog email → verify code → set admin password (org becomes **verified**) |
-| `/login` | Sign in after claim |
-| `/app/*` | Dashboard, patients, connections, docs, messages, … |
+| `/claim` | Claim unclaimed provider or payer org by catalog email → OTP → admin password |
+| `/login` | Sign in after claim (routes to `/app` or `/payer` by membership) |
+| `/app/*` | Provider dashboard, patients, connections, docs, messages, … |
+| `/payer/*` | Payer stub dashboard, org profile, settings |
 
-No self-serve registration. Ops fallback:
+No self-serve registration. Ops fallback (providers):
 
 ```bash
 npm run bootstrap:member -w caremate-provider-portal -- user@example.com <organization-uuid> owner --create --password 'secret'
@@ -38,14 +39,11 @@ npm run bootstrap:member -w caremate-provider-portal -- user@example.com <organi
 |--------|-------------|
 | `dev` | `next dev -p 4000` |
 | `build` / `start` | Production build / serve |
-| `lint` / `typecheck` | ESLint / `tsc --noEmit` |
-| `bootstrap:member` | Seed `provider_org_members` (+ verified profile stub) |
+| `lint` / `typecheck` | Quality |
+| `bootstrap:member` | Seed provider membership |
 
-## Further reading
+## Related
 
-| Topic | Doc |
-|-------|-----|
-| Connections (bidirectional, rejection reason, verification gate) | [docs/connections.md](./docs/connections.md) |
-| Claim + RBAC | [docs/auth-claim.md](./docs/auth-claim.md) |
-| Schema / migrations / RPCs | [docs/data-model.md](./docs/data-model.md) |
-| Local setup | [docs/development.md](./docs/development.md) |
+- [Auth & claim](./docs/auth-claim.md)
+- [Data model](./docs/data-model.md)
+- [Architecture](./docs/architecture.md)

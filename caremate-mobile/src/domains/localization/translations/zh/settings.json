@@ -35,7 +35,8 @@
     "save": "保存位置",
     "saving": "保存中...",
     "searchPlaceholder": "搜索国家",
-    "searchEmpty": "没有匹配的国家。"
+    "searchEmpty": "没有匹配的国家。",
+    "selectPlaceholder": "选择国家/地区"
   },
   "family": {
     "title": "家庭",

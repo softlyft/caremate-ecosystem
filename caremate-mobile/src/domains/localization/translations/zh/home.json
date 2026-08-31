@@ -9,7 +9,8 @@
   "emergency": {
     "title": "急救档案",
     "body": "将血型、过敏信息和紧急联系人离线备好。",
-    "cta": "去设置"
+    "cta": "去设置",
+    "ctaUpdate": "更新"
   },
   "featuredArticles": {
     "title": "为您推荐",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "查看您附近的 CareMate 服务机构",
       "body": "开启定位即可发现您周围的医院、诊所和药店 — 全部在 CareMate 内。",
-      "cta": "开启定位"
+      "cta": "开启定位",
+      "blockedBody": "CareMate 的位置访问已被阻止。打开设置开启后返回此处。",
+      "openSettings": "打开设置"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "无法加载首页",
+    "message": "请检查网络连接并重试。"
+  },
+  "timeline": {
+    "label": "您的记录",
+    "title": "健康时间线",
+    "cta": "查看时间线",
+    "guestBody": "登录以在时间线中查看健康应用记录。",
+    "emptyBody": "生命体征、用药、怀孕、经期、免疫和体检记录将显示在此。",
+    "loading": "正在加载时间线...",
+    "loadFailedTitle": "无法加载时间线",
+    "loadFailedMessage": "请检查网络连接并重试。",
+    "screenSubtitle": "来自 CareMate 健康应用的记录。",
+    "rangeFrom": "从",
+    "rangeTo": "到",
+    "rangeEmpty": "此日期范围内无记录。请尝试其他起止日期。",
+    "lastThreeMonths": "最近 3 个月",
+    "jumpToMonth": "跳转到 {{month}}",
+    "today": "今天",
+    "yesterday": "昨天",
+    "kinds": {
+      "vital": "生命体征",
+      "med_dose": "剂量",
+      "pregnancy_log": "怀孕",
+      "tt_dose": "TT 剂量",
+      "period_day": "周期",
+      "vaccine": "疫苗",
+      "checkup": "体检"
+    }
+  },
+  "notifications": {
+    "loading": "正在加载通知…",
+    "loadFailed": "无法加载通知",
+    "emptyTitle": "已全部看完",
+    "emptyMessage": "家庭、提醒和账户活动更新将显示在此。",
+    "openHint": "打开通知",
+    "welcomeTitle": "欢迎使用 CareMate",
+    "welcomeBody": "快速导航指南：\n\n• 首页 — 紧急卡、附近护理、学习及快捷方式\n• 应用 — 用药、疫苗、体检、怀孕和经期追踪\n• 家庭 — 家庭资料及共享儿童护理\n• 个人 — Patient ID、设置和偏好\n\n此铃铛集中显示更新。按您的节奏探索 — CareMate 也支持离线。"
   }
 }

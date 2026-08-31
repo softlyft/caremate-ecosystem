@@ -46,10 +46,14 @@ Cloud-only (not mirrored to mobile SQLite). See [Provider Portal data model](../
 - `provider_org_members`
 - `provider_org_claims`
 - `patient_provider_connections`
+- `payer_organizations` / `payer_profiles` / `payer_org_members` / `payer_org_claims`
+- `payer_directory` (public view; no claim email)
+- `provider_payer_connections`
+- `patient_payer_connections` / `patient_payer_activities`
 - `consent_definitions`
 - `patient_provider_consents`
 - `patient_provider_activities`
-- `message_conversations` / `message_participants` / `message_messages` / `message_direct_pairs`
+- `message_conversations` / `message_participants` / `message_messages` / `message_direct_pairs` (Realtime publication: `20260827140000_messaging_realtime.sql`)
 - `provider_broadcasts` / `provider_broadcast_recipients` (legacy send audit)
 - `provider_documents`
 - `appointment_requests`
@@ -75,6 +79,8 @@ Current migrations cluster into these domains:
 | Profiles patient ID | `20260715120000_profiles_patient_id.sql` |
 | Providers ingest / FHIR / geo | `20260715130000_providers_ingest_fhir_ready.sql`, `20260715140000_provider_fhir_resources.sql`, `20260715180000_provider_resource_uuid_pks.sql`, `20260715190000_provider_organizations_unique_name.sql`, `20260715200000_nearby_providers_rpc.sql` |
 | Provider engagement portal | `20260719140000_provider_portal.sql` … `20260719170000_connection_rejection_and_verified.sql`, `20260719200000_patient_document_uploads.sql`, `20260724100000_provider_read_connected_profiles.sql`, `20260724120000`–`20260724170000` (messaging, practitioner profile, mark-as-staff, DMs, RLS fix), `20260802120000_connection_consent_scopes.sql`, `20260802130000_patient_provider_consents.sql` |
+| Payers + connection graph | `20260825120000_payer_organizations.sql` … `20260826180000_connection_graph_hardening.sql`, `20260827190000_payer_read_connected_patient_profiles.sql`, `20260828100000_payer_engagement_documents_messaging.sql` |
+| Private Care Team (provider org billing) | `20260827180000_provider_org_private_care_team.sql` |
 | Community Network | `20260721100000_community_portal_phase1.sql`, `20260721113000_community_join_patient_verification.sql`, `20260721124500_community_chapter_administrative_hierarchy.sql`, `20260721130000_community_administrative_options.sql` |
 | External news | `20260721180000_articles_external_news.sql` (`articles.first_seen_at`) |
 | User location history + name search | `20260721190000_user_location_samples_and_search.sql` |

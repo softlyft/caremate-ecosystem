@@ -74,6 +74,9 @@ Optional product ID overrides: `IAP_PRODUCT_PERSONAL_MONTHLY`, `IAP_PRODUCT_PERS
 |----------|---------|
 | `notify-family-email` | Mobile after family connection request / accept / decline (user JWT). Request → email + Expo push to receiver; accept/decline → Expo push to sender. |
 | `notify-message` | Provider portal after org message send, or mobile after direct message (user JWT). Org mode → “New message from {provider}”; `{ mode: 'direct' }` → “New message from {name}”. |
+| `notify-provider-connection` | Mobile or portal after patient ↔ provider connection lifecycle (user JWT). Provider-initiated request / accept / decline / cancel / disconnect → Expo push to patient when applicable; patient-initiated request → portal activity only. |
+| `notify-provider-document` | Provider portal after uploading a document for a connected patient (user JWT). Creates cloud inbox row + Expo push (“New document” / “{org} shared …”). |
+| `create-provider-org-checkout` | Care Portal after owner/admin starts Private Care Team upgrade (user JWT). Paystack NGN only; writes `provider_org_payments`. |
 | `send-billing-email` | Portal admin grants (service role) / internal |
 | `billing-renewal-reminders` | Daily cron / manual invoke (service role or `CRON_SECRET`) |
 | `send-provider-claim-otp` | Provider portal claim (service role) |

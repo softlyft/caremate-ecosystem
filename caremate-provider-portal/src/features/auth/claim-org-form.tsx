@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -11,12 +10,14 @@ import {
   startOrgClaimAction,
   verifyOrgClaimAction,
 } from '@/domains/claim/actions';
+import type { CareOrgKind } from '@/types/database';
 import { PASSWORD_MIN_LENGTH, PASSWORD_REQUIREMENTS_MESSAGE, meetsPasswordRequirements } from '@/lib/password';
 import { createClient } from '@/lib/supabase/browser';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
+import { TextLink } from '@/components/ui/text-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 
 type Step = 'email' | 'code' | 'password';
@@ -28,6 +29,7 @@ export function ClaimOrgForm() {
   const [step, setStep] = useState<Step>('email');
   const [loading, setLoading] = useState(false);
 
+  const [orgKind, setOrgKind] = useState<CareOrgKind>('provider');
   const [email, setEmail] = useState('');
   const [organizations, setOrganizations] = useState<OrgOption[]>([]);
   const [organizationId, setOrganizationId] = useState('');
@@ -44,6 +46,7 @@ export function ClaimOrgForm() {
       const result = await startOrgClaimAction({
         email,
         organizationId: organizationId || undefined,
+        orgKind,
       });
       if (!result.ok) {
         toast.error(result.error);
@@ -73,7 +76,7 @@ export function ClaimOrgForm() {
     }
     setLoading(true);
     try {
-      const result = await startOrgClaimAction({ email, organizationId });
+      const result = await startOrgClaimAction({ email, organizationId, orgKind });
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -94,7 +97,7 @@ export function ClaimOrgForm() {
     event.preventDefault();
     setLoading(true);
     try {
-      const result = await verifyOrgClaimAction({ claimId, code });
+      const result = await verifyOrgClaimAction({ claimId, code, orgKind });
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -122,6 +125,7 @@ export function ClaimOrgForm() {
         claimId,
         password,
         displayName: displayName.trim() || undefined,
+        orgKind,
       });
       if (!result.ok) {
         toast.error(result.error);
@@ -140,7 +144,7 @@ export function ClaimOrgForm() {
       }
 
       toast.success('Organization claimed — welcome');
-      router.replace('/app/dashboard');
+      router.replace(result.data.orgKind === 'payer' ? '/payer/dashboard' : '/app/dashboard');
       router.refresh();
     } finally {
       setLoading(false);
@@ -183,143 +187,162 @@ export function ClaimOrgForm() {
         </ol>
 
         {step === 'email' ? (
-          <form onSubmit={onSubmitEmail} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="claim-email">Organization contact email</Label>
-              <Input
-                id="claim-email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <p className="text-xs text-muted">
-                Must match an email already stored for your organization in CareMate (location or
-                organization contact).
-              </p>
-            </div>
-
-            {organizations.length > 1 ? (
-              <div className="space-y-2">
-                <Label htmlFor="claim-org">Organization</Label>
+          <form onSubmit={onSubmitEmail}>
+            <FormStack>
+              <FormField label="Care Org type" htmlFor="claim-org-kind">
                 <Select
-                  id="claim-org"
-                  value={organizationId}
-                  onChange={(e) => setOrganizationId(e.target.value)}
+                  id="claim-org-kind"
+                  value={orgKind}
+                  onChange={(e) => {
+                    setOrgKind(e.target.value === 'payer' ? 'payer' : 'provider');
+                    setOrganizations([]);
+                    setOrganizationId('');
+                  }}
                 >
-                  <option value="">Select organization…</option>
-                  {organizations.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name}
-                    </option>
-                  ))}
+                  <option value="provider">Provider</option>
+                  <option value="payer">Payer</option>
                 </Select>
-                <Button
-                  type="button"
-                  className="w-full"
-                  loading={loading}
-                  loadingLabel="Continuing…"
-                  onClick={onSelectOrgAndSend}
-                >
-                  Continue with selected organization
+              </FormField>
+
+              <FormField
+                label="Organization contact email"
+                htmlFor="claim-email"
+                hint={
+                  orgKind === 'payer'
+                    ? 'Must match the contact email SoftLyft stored on your payer catalog listing.'
+                    : 'Must match an email already stored for your organization in CareMate (location or organization contact).'
+                }
+              >
+                <Input
+                  id="claim-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormField>
+
+              {organizations.length > 1 ? (
+                <FormField label="Organization" htmlFor="claim-org">
+                  <Select
+                    id="claim-org"
+                    value={organizationId}
+                    onChange={(e) => setOrganizationId(e.target.value)}
+                  >
+                    <option value="">Select organization…</option>
+                    {organizations.map((org) => (
+                      <option key={org.id} value={org.id}>
+                        {org.name}
+                      </option>
+                    ))}
+                  </Select>
+                  <Button
+                    type="button"
+                    className="mt-2 w-full"
+                    loading={loading}
+                    loadingLabel="Continuing…"
+                    onClick={onSelectOrgAndSend}
+                  >
+                    Continue with selected organization
+                  </Button>
+                </FormField>
+              ) : (
+                <Button type="submit" className="w-full" loading={loading} loadingLabel="Looking up…">
+                  Continue
                 </Button>
-              </div>
-            ) : (
-              <Button type="submit" className="w-full" loading={loading} loadingLabel="Looking up…">
-                Continue
-              </Button>
-            )}
+              )}
+            </FormStack>
           </form>
         ) : null}
 
         {step === 'code' ? (
-          <form onSubmit={onVerifyCode} className="space-y-4">
-            <p className="text-sm text-muted">
-              Enter the verification code sent to{' '}
-              <span className="font-medium text-foreground">{email}</span>.
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="claim-code">Verification code</Label>
-              <Input
-                id="claim-code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                required
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full" loading={loading} loadingLabel="Verifying…">
-              Verify code
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              disabled={loading}
-              onClick={() => {
-                setStep('email');
-                setCode('');
-              }}
-            >
-              Start over
-            </Button>
+          <form onSubmit={onVerifyCode}>
+            <FormStack>
+              <p className="text-sm text-muted">
+                Enter the verification code sent to{' '}
+                <span className="font-medium text-foreground">{email}</span>.
+              </p>
+              <FormField label="Verification code" htmlFor="claim-code">
+                <Input
+                  id="claim-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+              </FormField>
+              <Button type="submit" className="w-full" loading={loading} loadingLabel="Verifying…">
+                Verify code
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                disabled={loading}
+                onClick={() => {
+                  setStep('email');
+                  setCode('');
+                }}
+              >
+                Start over
+              </Button>
+            </FormStack>
           </form>
         ) : null}
 
         {step === 'password' ? (
-          <form onSubmit={onSetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="display-name">Your name (optional)</Label>
-              <Input
-                id="display-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="claim-password">Admin password</Label>
-              <Input
-                id="claim-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={PASSWORD_MIN_LENGTH}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <p className="text-xs text-muted">{PASSWORD_REQUIREMENTS_MESSAGE}</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="claim-password-confirm">Confirm password</Label>
-              <Input
-                id="claim-password-confirm"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={PASSWORD_MIN_LENGTH}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              loading={loading}
-              loadingLabel="Creating admin…"
-            >
-              Create admin account & enter portal
-            </Button>
+          <form onSubmit={onSetPassword}>
+            <FormStack>
+              <FormField label="Your name (optional)" htmlFor="display-name">
+                <Input
+                  id="display-name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              </FormField>
+              <FormField
+                label="Admin password"
+                htmlFor="claim-password"
+                hint={PASSWORD_REQUIREMENTS_MESSAGE}
+              >
+                <Input
+                  id="claim-password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={PASSWORD_MIN_LENGTH}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FormField>
+              <FormField label="Confirm password" htmlFor="claim-password-confirm">
+                <Input
+                  id="claim-password-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={PASSWORD_MIN_LENGTH}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </FormField>
+              <Button
+                type="submit"
+                className="w-full"
+                loading={loading}
+                loadingLabel="Creating admin…"
+              >
+                Create admin account & enter portal
+              </Button>
+            </FormStack>
           </form>
         ) : null}
 
         <p className="text-center text-sm text-muted">
-          Already claimed?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
-            Sign in
-          </Link>
+          Already claimed? <TextLink href="/login">Sign in</TextLink>
         </p>
       </CardContent>
     </Card>

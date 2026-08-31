@@ -24,5 +24,14 @@
   "signIn": "Se connecter",
   "signOut": "Se déconnecter",
   "createAccount": "Créer un compte",
-  "notifications": "Notifications"
+  "notifications": "Notifications",
+  "ok": "OK",
+  "networkError": "Pas de connexion Internet. Vérifiez votre connexion et réessayez.",
+  "emailDeliveryError": "Impossible d'envoyer l'e-mail pour le moment. Réessayez dans quelques minutes.",
+  "loadFailed": "Impossible de charger cet écran",
+  "loadFailedMessage": "Vérifiez votre connexion et réessayez.",
+  "goBack": "Retour",
+  "clear": "Effacer",
+  "remove": "Supprimer",
+  "messages": "Messages"
 }

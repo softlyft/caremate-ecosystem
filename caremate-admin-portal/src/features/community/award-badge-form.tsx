@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 import { awardBadge, awardCertificate } from '@/domains/community/actions';
 import type { CommunityBadge, CommunityCertificate } from '@/types/community';
 import { Button } from '@/components/ui/button';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -71,48 +71,45 @@ export function AwardBadgeForm({
         <CardTitle>Award recognition</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="userId">User ID</Label>
-            <Input id="userId" placeholder="auth user UUID" {...register('userId')} />
-            {errors.userId ? (
-              <p className="text-xs text-danger">{errors.userId.message}</p>
-            ) : null}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="kind">Type</Label>
-              <Select id="kind" {...register('kind')}>
-                <option value="badge">Badge</option>
-                <option value="certificate">Certificate</option>
-              </Select>
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <FormField label="User ID" htmlFor="userId" error={errors.userId?.message}>
+              <Input id="userId" placeholder="auth user UUID" {...register('userId')} />
+            </FormField>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="Type" htmlFor="kind">
+                <Select id="kind" {...register('kind')}>
+                  <option value="badge">Badge</option>
+                  <option value="certificate">Certificate</option>
+                </Select>
+              </FormField>
+              <FormField
+                label={kind === 'badge' ? 'Badge' : 'Certificate'}
+                htmlFor="itemId"
+                error={errors.itemId?.message}
+              >
+                <Select id="itemId" {...register('itemId')}>
+                  {items.length === 0 ? (
+                    <option value="">No items available</option>
+                  ) : (
+                    items.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))
+                  )}
+                </Select>
+              </FormField>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="itemId">{kind === 'badge' ? 'Badge' : 'Certificate'}</Label>
-              <Select id="itemId" {...register('itemId')}>
-                {items.length === 0 ? (
-                  <option value="">No items available</option>
-                ) : (
-                  items.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))
-                )}
-              </Select>
-              {errors.itemId ? (
-                <p className="text-xs text-danger">{errors.itemId.message}</p>
-              ) : null}
-            </div>
-          </div>
-          <Button
-            type="submit"
-            disabled={items.length === 0}
-            loading={pending}
-            loadingLabel="Awarding…"
-          >
-            Award
-          </Button>
+            <Button
+              type="submit"
+              disabled={items.length === 0}
+              loading={pending}
+              loadingLabel="Awarding…"
+            >
+              Award
+            </Button>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

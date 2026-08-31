@@ -1,12 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { AppText } from '@/components/ui/AppText';
-import { Button, Input, SectionTitle } from '@/components/ui/form-controls';
+import {
+  Button,
+  FormField,
+  FormStack,
+  PasswordInput,
+  SectionTitle,
+  TextLink,
+} from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
@@ -26,15 +34,19 @@ export default function ResetPasswordScreen() {
   const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  const schema = z
-    .object({
-      password: passwordSchema(t('auth.password.requirements')),
-      confirmPassword: z.string().min(1, 'Confirm your password'),
-    })
-    .refine((values) => values.password === values.confirmPassword, {
-      message: 'Passwords do not match',
-      path: ['confirmPassword'],
-    });
+  const schema = useMemo(
+    () =>
+      z
+        .object({
+          password: passwordSchema(t('auth.password.requirements')),
+          confirmPassword: z.string().min(1, t('auth.validation.confirmPasswordRequired')),
+        })
+        .refine((values) => values.password === values.confirmPassword, {
+          message: t('auth.validation.passwordsMismatch'),
+          path: ['confirmPassword'],
+        }),
+    [t],
+  );
 
   const { control, handleSubmit, formState } = useForm<ResetPasswordForm>({
     resolver: zodResolver(schema),
@@ -53,79 +65,66 @@ export default function ResetPasswordScreen() {
         return;
       }
       await updatePassword(values.password);
-      Alert.alert('Password updated', 'You can now sign in with your new password.', [
+      Alert.alert(t('auth.reset.successTitle'), t('auth.reset.successMessage'), [
         {
-          text: 'Continue',
+          text: t('common.continue'),
           onPress: () => router.replace('/(app)/(tabs)'),
         },
       ]);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to update password';
-      Alert.alert('Update failed', message);
+      const message = error instanceof Error ? error.message : t('auth.reset.failedFallback');
+      Alert.alert(t('auth.reset.failedTitle'), message);
     }
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              secureTextEntry
-              placeholder={t('auth.reset.password')}
-              autoComplete="new-password"
-              textContentType="newPassword"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
+        <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
+        <FormStack style={styles.form}>
+          <FormField
+            error={formState.errors.password?.message}
+            hint={t('auth.password.requirements')}
+          >
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.reset.password')}
+                  autoComplete="new-password"
+                  textContentType="newPassword"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
-          )}
-        />
-        <AppText
-          variant="caption"
-          style={{ color: colors.textMuted, fontSize: 12, lineHeight: 17 }}
-        >
-          {t('auth.password.requirements')}
-        </AppText>
-        {formState.errors.password ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.password.message}
-          </AppText>
-        ) : null}
-        <Controller
-          control={control}
-          name="confirmPassword"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              secureTextEntry
-              placeholder={t('auth.reset.confirm')}
-              autoComplete="new-password"
-              textContentType="newPassword"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
+          </FormField>
+          <FormField error={formState.errors.confirmPassword?.message}>
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.reset.confirm')}
+                  autoComplete="new-password"
+                  textContentType="newPassword"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
-          )}
-        />
-        {formState.errors.confirmPassword ? (
-          <AppText variant="formError" color={colors.danger}>
-            {formState.errors.confirmPassword.message}
-          </AppText>
-        ) : null}
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.reset.submit')}
-          disabled={isLoading}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <Button
-          label={t('auth.forgot.back')}
-          variant="ghost"
-          onPress={() => router.replace('/(auth)/login')}
-        />
-      </View>
+          </FormField>
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.reset.submit')}
+            disabled={isLoading}
+            onPress={handleSubmit(onSubmit)}
+          />
+          <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+        </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }
@@ -137,6 +136,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   form: {
-    gap: spacing.md,
+    flex: 1,
   },
 });

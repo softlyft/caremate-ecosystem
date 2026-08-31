@@ -130,14 +130,16 @@ Registered in `src/app/(app)/_layout.tsx`. `headerBackButtonDisplayMode: 'minima
 
 ### Profile
 
-| Route | Title |
-|-------|-------|
+| Route | Title | Notes |
+|-------|-------|-------|
 | `/(app)/profile/edit` | Edit profile | FHIR-oriented fields + practitioner Yes/No |
-| `/(app)/profile/settings` | Settings |
-| `/(app)/profile/premium` | Premium |
-| `/(app)/profile/documents` | Patient uploads + documents shared by providers |
+| `/(app)/profile/settings` | Settings | |
+| `/(app)/profile/premium` | Premium | |
+| `/(app)/profile/documents` | Patient uploads + documents shared by providers | |
+| `/(app)/profile/insurance` | Health Insurance Directory | Search payers; inbound + connected (disconnect) |
+| `/(app)/profile/insurance/[id]` | Insurer detail | Connect (verified only); manage pending / disconnect |
 
-Me account menu includes **Connections** → `/(app)/providers/connections`, **Documents** → `/(app)/profile/documents`, and **Join our movement** → opens `https://getcaremate.com/ccn` (`WEBSITE_URLS.communityNetwork`; see [website CCN](../../caremate-website/README.md) and [Community Portal](../../caremate-community-portal/docs/README.md)). Provider connections docs: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md). Messaging: [Provider Portal messaging](../../caremate-provider-portal/docs/messaging.md).
+Me account menu includes **Connections** → `/(app)/providers/connections`, **Health Insurance Directory** → `/(app)/profile/insurance`, **Documents** → `/(app)/profile/documents`, and **Join our movement** → opens `https://getcaremate.com/ccn` (`WEBSITE_URLS.communityNetwork`; see [website CCN](../../caremate-website/README.md) and [Community Portal](../../caremate-community-portal/docs/README.md)). Provider / payer connections: [Provider Portal connections](../../caremate-provider-portal/docs/connections.md). Messaging: [Provider Portal messaging](../../caremate-provider-portal/docs/messaging.md).
 
 ### Family and setup
 

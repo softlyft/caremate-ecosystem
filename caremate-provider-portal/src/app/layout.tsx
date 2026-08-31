@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'CareMate Provider',
-    template: '%s · CareMate Provider',
+    default: 'CareMate Care Portal',
+    template: '%s · CareMate Care Portal',
   },
-  description: 'CareMate provider patient engagement portal',
+  description: 'CareMate Care Portal for providers and payers',
   icons: {
     icon: '/brand/caremate-icon.png',
     apple: '/brand/caremate-icon.png',

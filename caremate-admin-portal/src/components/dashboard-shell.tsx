@@ -21,6 +21,8 @@ import {
   Award,
   BarChart3,
   UsersRound,
+  Shield,
+  ShieldAlert,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/browser';
@@ -55,6 +57,7 @@ const NAV_GROUPS: {
       { href: '/dashboard/learn', label: 'Learn', icon: BookOpen },
       { href: '/dashboard/news', label: 'External News', icon: Newspaper },
       { href: '/dashboard/providers', label: 'Providers', icon: MapPin },
+      { href: '/dashboard/payers', label: 'Health Insurance', icon: Shield },
       { href: '/dashboard/tips', label: 'Health Tips', icon: Lightbulb },
     ],
   },
@@ -92,9 +95,24 @@ function growthItemsForRole(role: StaffRole): NavItem[] {
   }
   if (canManageBilling(role)) {
     items.push({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard });
+    items.push({
+      href: '/dashboard/provider-plans',
+      label: 'Provider plans',
+      icon: CreditCard,
+    });
+    items.push({
+      href: '/dashboard/payer-plans',
+      label: 'Payer plans',
+      icon: CreditCard,
+    });
   }
   if (canViewAuditLogs(role)) {
     items.push({ href: '/dashboard/audit', label: 'Audit logs', icon: ScrollText });
+    items.push({
+      href: '/dashboard/emergency-access',
+      label: 'Emergency QR access',
+      icon: ShieldAlert,
+    });
   }
   return items;
 }

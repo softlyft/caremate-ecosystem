@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "misali Greater Accra",
     "searchPlaceholder": "Nemo ƙasashe",
-    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike."
+    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike.",
+    "selectPlaceholder": "Zaɓi ƙasa"
   },
   "priorities": {
     "title": "Me ya fi muhimmanci?",
@@ -56,8 +57,10 @@
       "hint": "Mafi kyawun jeri ga asibitoci da clinic a kusa da kai"
     },
     "approximate": {
-      "title": "Kimani"
-    }
+      "title": "Kimani",
+      "hint": "Pin na fallback {{place}} — canza kowane lokaci"
+    },
+    "subtitle": "Yi amfani da GPS mai daidaito don mafi kyawun daidaitawa, ko ka ri pin na kusan don {{place}}."
   },
   "notifications": {
     "title": "Kasance a cikin labari",

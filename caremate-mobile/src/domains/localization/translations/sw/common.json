@@ -24,5 +24,14 @@
   "signIn": "Ingia",
   "signOut": "Toka",
   "createAccount": "Fungua akaunti",
-  "notifications": "Arifa"
+  "notifications": "Arifa",
+  "ok": "Sawa",
+  "networkError": "Hakuna muunganisho wa intaneti. Angalia muunganisho wako na ujaribu tena.",
+  "emailDeliveryError": "Hatukuweza kutuma barua pepe sasa. Jaribu tena baada ya dakika chache.",
+  "loadFailed": "Imeshindwa kupakia skrini hii",
+  "loadFailedMessage": "Angalia muunganisho wako na ujaribu tena.",
+  "goBack": "Rudi",
+  "clear": "Futa",
+  "remove": "Ondoa",
+  "messages": "Ujumbe"
 }

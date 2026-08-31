@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Wasifu wa dharura",
     "body": "Weka aina ya damu, mizio, na anwani za ICE tayari bila mtandao.",
-    "cta": "Sanidi"
+    "cta": "Sanidi",
+    "ctaUpdate": "Sasisha"
   },
   "featuredArticles": {
     "title": "Kwa ajili yako",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Ona watoa huduma wa CareMate karibu nawe",
       "body": "Washa huduma ya mahali ili kugundua hospitali, kliniki, na maduka ya dawa karibu nawe — yote ndani ya CareMate.",
-      "cta": "Washa mahali"
+      "cta": "Washa mahali",
+      "blockedBody": "Ufikiaji wa eneo umezuiwa kwa CareMate. Fungua Mipangilio ili kuwasha, kisha rudi hapa.",
+      "openSettings": "Fungua Mipangilio"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "Imeshindwa kupakia Nyumbani",
+    "message": "Angalia muunganisho wako na ujaribu tena."
+  },
+  "timeline": {
+    "label": "Rekodi zako",
+    "title": "Ratiba ya afya",
+    "cta": "Angalia ratiba",
+    "guestBody": "Ingia kuona rekodi kutoka programu zako za afya kwenye ratiba moja.",
+    "emptyBody": "Rekodi kutoka vipimo, dawa, ujauzito, hedhi, chanjo, na ukaguzi zitaonekana hapa.",
+    "loading": "Inapakia ratiba...",
+    "loadFailedTitle": "Imeshindwa kupakia ratiba",
+    "loadFailedMessage": "Angalia muunganisho wako na ujaribu tena.",
+    "screenSubtitle": "Rekodi kutoka programu zako za afya za CareMate.",
+    "rangeFrom": "Kutoka",
+    "rangeTo": "Hadi",
+    "rangeEmpty": "Hakuna rekodi katika masafa haya ya tarehe. Jaribu tarehe tofauti ya kuanza au kumaliza.",
+    "lastThreeMonths": "Miezi 3 iliyopita",
+    "jumpToMonth": "Nenda {{month}}",
+    "today": "Leo",
+    "yesterday": "Jana",
+    "kinds": {
+      "vital": "Kipimo muhimu",
+      "med_dose": "Kipimo",
+      "pregnancy_log": "Ujauzito",
+      "tt_dose": "Kipimo cha TT",
+      "period_day": "Mzunguko",
+      "vaccine": "Chanjo",
+      "checkup": "Ukaguzi"
+    }
+  },
+  "notifications": {
+    "loading": "Inapakia arifa…",
+    "loadFailed": "Imeshindwa kupakia arifa",
+    "emptyTitle": "Umeshafikia kila kitu",
+    "emptyMessage": "Masasisho kuhusu familia, vikumbusho, na shughuli za akaunti zitaonekana hapa.",
+    "openHint": "Fungua arifa",
+    "welcomeTitle": "Karibu CareMate",
+    "welcomeBody": "Hapa mwongozo mfupi wa kuzunguka:\n\n• Nyumbani — Kadi ya dharura, Huduma karibu, Jifunze, na njia za mkato\n• Apps — Dawa, chanjo, ukaguzi, ujauzito, na ufuatiliaji wa hedhi\n• Familia — Wasifu wa kaya na huduma ya watoto wa pamoja\n• Wasifu — Patient ID, mipangilio, na mapendeleo\n\nKengele hii hukusanya masasisho. Chunguza kwa kasi yako — CareMate inafanya kazi nje ya mtandao."
   }
 }

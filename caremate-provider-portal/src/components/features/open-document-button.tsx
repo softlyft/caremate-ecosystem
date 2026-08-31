@@ -5,7 +5,15 @@ import { toast } from 'sonner';
 import { openDocumentAction } from '@/domains/documents/actions';
 import { Button } from '@/components/ui/button';
 
-export function OpenDocumentButton({ documentId }: { documentId: string }) {
+type OpenDocumentAction = typeof openDocumentAction;
+
+export function OpenDocumentButton({
+  documentId,
+  openAction = openDocumentAction,
+}: {
+  documentId: string;
+  openAction?: OpenDocumentAction;
+}) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -17,7 +25,7 @@ export function OpenDocumentButton({ documentId }: { documentId: string }) {
       onClick={() => {
         startTransition(async () => {
           try {
-            const { url } = await openDocumentAction(documentId);
+            const { url } = await openAction(documentId);
             window.open(url, '_blank', 'noopener,noreferrer');
           } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Could not open document');

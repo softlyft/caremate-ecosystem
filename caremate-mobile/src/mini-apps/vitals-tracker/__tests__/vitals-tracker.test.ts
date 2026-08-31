@@ -17,6 +17,15 @@ import {
   detectTypoSuggestion,
   isValidVitalDraft,
 } from '@/mini-apps/vitals-tracker/validation';
+import {
+  localizeBloodSugarContext,
+  localizeBloodSugarContextOptions,
+  localizeUnitChip,
+  localizeVitalType,
+  localizeVitalTypeOptions,
+} from '@/mini-apps/vitals-tracker/localize';
+import { BLOOD_SUGAR_CONTEXTS, VITAL_TYPES } from '@/mini-apps/vitals-tracker/constants';
+import { identityTranslate } from '@/mini-apps/test-utils';
 
 describe('vitals-tracker/utils', () => {
   it('parses positive numbers and rejects invalid input', () => {
@@ -50,6 +59,14 @@ describe('vitals-tracker/utils', () => {
     ).toBe('120/80 mmHg');
     expect(
       formatVitalValue({
+        id: '1b',
+        type: 'blood_pressure',
+        recordedAt: '2026-07-18T10:00:00.000Z',
+        unit: 'mmHg',
+      }),
+    ).toBe('—');
+    expect(
+      formatVitalValue({
         id: '2',
         type: 'height',
         recordedAt: '2026-07-18T10:00:00.000Z',
@@ -58,6 +75,31 @@ describe('vitals-tracker/utils', () => {
         inches: 8,
       }),
     ).toBe(`5'8"`);
+    expect(
+      formatVitalValue(
+        {
+          id: '2b',
+          type: 'height',
+          recordedAt: '2026-07-18T10:00:00.000Z',
+          unit: 'cm',
+          value: 175.26,
+        },
+        {
+          blood_sugar: 'mg_dl',
+          body_temperature: 'c',
+          weight: 'kg',
+          height: 'ft',
+        },
+      ),
+    ).toBe(`5'9"`);
+    expect(
+      formatVitalValue({
+        id: '2c',
+        type: 'height',
+        recordedAt: '2026-07-18T10:00:00.000Z',
+        unit: 'cm',
+      }),
+    ).toBe('—');
     expect(
       formatVitalValue(
         {
@@ -75,7 +117,43 @@ describe('vitals-tracker/utils', () => {
         },
       ),
     ).toContain('lbs');
+    expect(
+      formatVitalValue(
+        {
+          id: '4',
+          type: 'blood_sugar',
+          recordedAt: '2026-07-18T10:00:00.000Z',
+          unit: 'mg_dl',
+          value: 90,
+        },
+        {
+          blood_sugar: 'mmol_l',
+          body_temperature: 'c',
+          weight: 'kg',
+          height: 'cm',
+        },
+      ),
+    ).toContain('mmol/L');
+    expect(
+      formatVitalValue(
+        {
+          id: '5',
+          type: 'body_temperature',
+          recordedAt: '2026-07-18T10:00:00.000Z',
+          unit: 'c',
+          value: 37,
+        },
+        {
+          blood_sugar: 'mg_dl',
+          body_temperature: 'f',
+          weight: 'kg',
+          height: 'cm',
+        },
+      ),
+    ).toContain('°F');
     expect(unitLabel('mmol_l')).toBe('mmol/L');
+    expect(unitLabel('percent')).toBe('%');
+    expect(unitLabel('breaths_min')).toBe('breaths/min');
   });
 
   it('picks latest and recent entries', () => {
@@ -245,6 +323,66 @@ describe('vitals-tracker/validation', () => {
       previousBp,
     );
     expect(bpJump.soft.some((s) => s.messageKey === 'trendBloodPressure')).toBe(true);
+
+    const previousHr = {
+      id: 'hr1',
+      type: 'heart_rate' as const,
+      recordedAt: '2026-07-17T10:00:00.000Z',
+      unit: 'bpm' as const,
+      value: 70,
+    };
+    expect(
+      assessVitalDraft({ type: 'heart_rate', unit: 'bpm', valueText: '130' }, previousHr).soft.some(
+        (s) => s.code === 'trend_large_change',
+      ),
+    ).toBe(true);
+
+    const previousSugar = {
+      id: 'bs1',
+      type: 'blood_sugar' as const,
+      recordedAt: '2026-07-17T10:00:00.000Z',
+      unit: 'mg_dl' as const,
+      value: 100,
+    };
+    expect(
+      assessVitalDraft(
+        {
+          type: 'blood_sugar',
+          unit: 'mg_dl',
+          valueText: '280',
+          bloodSugarContext: 'random',
+        },
+        previousSugar,
+      ).soft.some((s) => s.code === 'trend_large_change'),
+    ).toBe(true);
+
+    const previousTemp = {
+      id: 't1',
+      type: 'body_temperature' as const,
+      recordedAt: '2026-07-17T10:00:00.000Z',
+      unit: 'c' as const,
+      value: 36.5,
+    };
+    expect(
+      assessVitalDraft(
+        { type: 'body_temperature', unit: 'c', valueText: '39.5' },
+        previousTemp,
+      ).soft.some((s) => s.code === 'trend_large_change'),
+    ).toBe(true);
+
+    const previousO2 = {
+      id: 'o1',
+      type: 'oxygen_saturation' as const,
+      recordedAt: '2026-07-17T10:00:00.000Z',
+      unit: 'percent' as const,
+      value: 98,
+    };
+    expect(
+      assessVitalDraft(
+        { type: 'oxygen_saturation', unit: 'percent', valueText: '88' },
+        previousO2,
+      ).soft.some((s) => s.code === 'trend_large_change'),
+    ).toBe(true);
   });
 
   it('builds payloads for valid drafts and rejects oxygen > 100', () => {
@@ -288,12 +426,15 @@ describe('vitals-tracker/store', () => {
   it('adds entries and remembers unit prefs / setup', () => {
     const store = useVitalsTrackerStore.getState();
     store.setUnitPrefs({ blood_sugar: 'mg_dl', weight: 'lbs' });
-    expect(preferUnitForType('blood_sugar', useVitalsTrackerStore.getState().unitPrefs)).toBe(
-      'mg_dl',
-    );
-    expect(preferUnitForType('blood_pressure', useVitalsTrackerStore.getState().unitPrefs)).toBe(
-      'mmHg',
-    );
+    const prefs = useVitalsTrackerStore.getState().unitPrefs;
+    expect(preferUnitForType('blood_sugar', prefs)).toBe('mg_dl');
+    expect(preferUnitForType('blood_pressure', prefs)).toBe('mmHg');
+    expect(preferUnitForType('heart_rate', prefs)).toBe('bpm');
+    expect(preferUnitForType('body_temperature', prefs)).toBe('c');
+    expect(preferUnitForType('weight', prefs)).toBe('lbs');
+    expect(preferUnitForType('height', prefs)).toBe('cm');
+    expect(preferUnitForType('oxygen_saturation', prefs)).toBe('percent');
+    expect(preferUnitForType('respiratory_rate', prefs)).toBe('breaths_min');
 
     store.completeSetup({ body_temperature: 'f' });
     expect(useVitalsTrackerStore.getState().hasCompletedSetup).toBe(true);
@@ -309,5 +450,78 @@ describe('vitals-tracker/store', () => {
     expect(useVitalsTrackerStore.getState().entries).toHaveLength(1);
     useVitalsTrackerStore.getState().removeEntry(entry.id);
     expect(useVitalsTrackerStore.getState().entries).toHaveLength(0);
+  });
+
+  it('adds height in feet and clears all state', () => {
+    const entry = useVitalsTrackerStore.getState().addEntry({
+      type: 'height',
+      unit: 'ft',
+      feet: 5,
+      inches: 10,
+    });
+    expect(entry.unit).toBe('ft');
+    expect(useVitalsTrackerStore.getState().entries).toHaveLength(1);
+    useVitalsTrackerStore.getState().clearAll();
+    expect(useVitalsTrackerStore.getState().entries).toEqual([]);
+    expect(useVitalsTrackerStore.getState().hasCompletedSetup).toBe(false);
+  });
+});
+
+describe('vitals-tracker/localize', () => {
+  const t = identityTranslate;
+
+  it('localizes vital types and blood sugar contexts', () => {
+    expect(localizeVitalType('heart_rate', t)).toContain('types.heart_rate');
+    expect(localizeVitalTypeOptions(t)).toHaveLength(VITAL_TYPES.length);
+    expect(localizeBloodSugarContext('fasting', t)).toContain('bloodSugarContext.fasting');
+    expect(localizeBloodSugarContextOptions(t)).toHaveLength(BLOOD_SUGAR_CONTEXTS.length);
+  });
+
+  it('falls back to unit labels when translation keys are missing', () => {
+    const passthrough = (key: string) => key;
+    expect(localizeUnitChip('mmol_l', passthrough)).toBe('mmol/L');
+    expect(localizeUnitChip('mg_dl', (key) => `translated:${key}`)).toContain('translated:');
+  });
+});
+
+describe('vitals-tracker/validation extras', () => {
+  it('validates height in feet and soft respiratory trends', () => {
+    const height = assessVitalDraft({
+      type: 'height',
+      unit: 'ft',
+      feetText: '5',
+      inchesText: '9',
+    });
+    expect(height.hard).toBeNull();
+    expect(height.payload?.unit).toBe('cm');
+    expect(height.payload?.value).toBeCloseTo(175.26, 1);
+
+    const previousRr = {
+      id: 'rr1',
+      type: 'respiratory_rate' as const,
+      recordedAt: '2026-07-17T10:00:00.000Z',
+      unit: 'breaths_min' as const,
+      value: 16,
+    };
+    const jump = assessVitalDraft(
+      { type: 'respiratory_rate', unit: 'breaths_min', valueText: '40' },
+      previousRr,
+    );
+    expect(jump.hard).toBeNull();
+    expect(jump.soft.some((s) => s.code === 'trend_large_change')).toBe(true);
+  });
+
+  it('requires fields and soft-warns unusual blood sugar', () => {
+    expect(assessVitalDraft({ type: 'heart_rate', unit: 'bpm', valueText: '' }).hard?.code).toBe(
+      'required',
+    );
+    const sugar = assessVitalDraft({
+      type: 'blood_sugar',
+      unit: 'mg_dl',
+      valueText: '520',
+      bloodSugarContext: 'random',
+    });
+    expect(sugar.hard).toBeNull();
+    expect(sugar.soft.some((s) => s.code === 'soft_unusual')).toBe(true);
   });
 });

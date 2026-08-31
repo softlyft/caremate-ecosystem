@@ -29,7 +29,7 @@
       "description": "Di ntwam akyi, kyerɛw bosome nna, na hwɛ nkɔmhyɛ a ɛyɛ mmerɛ."
     }
   },
-  "signInRequired": "Hyɛn mu na sync nneɛma yi wɔ nneɛma so",
+  "signInRequired": "Sign in na wo sync tool yi wɔ devices so",
   "save": "Sie",
   "log": "Kyerɛw nkyerɛw",
   "setup": "Hyehyɛ",
@@ -164,7 +164,20 @@
       "refillDateOptional": "Refill da a ɛnyɛ ɔhyɛ — ka so bio na woapopa",
       "historySubtitle": "Doses a nnansa yi woakyerɛw",
       "historyEmpty": "Dose biara nni hɔ. Hyɛ sɛ woanom na woasi abakɔsɛm.",
-      "unknownMedicine": "Aduru a wonnim"
+      "unknownMedicine": "Aduru a wonnim",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "Treatment period",
+      "durationDays": "{{count}} da",
+      "treatmentEndedTitle": "Treatment atwam dedaw",
+      "treatmentPeriodHint": "Paw bere a wobɛfa medicine yi anaa ma ɛnkɔ so.",
+      "durationOngoing": "Ongoing",
+      "durationCustom": "Custom end",
+      "endDate": "Awie da",
+      "endBeforeStartTitle": "Awie da no ntɛm dodow",
+      "endBeforeStartMessage": "Paw end date a ɛyɛ anaa a edi start date no akyi.",
+      "clearRefillDate": "Pepa da",
+      "startsOngoing": "Starts {{date}} · ongoing",
+      "treatmentEndedMessage": "Treatment period no awie ansa na nnɛ. Paw end date a ɛreba, duration tenten, anaa mark medicine no sɛ ongoing."
     },
     "status": {
       "taken": "Woanom",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} wonyaee. Diyi bere a wobetumi.",
       "refillTitle": "Refill nnansa yi: {{name}}",
       "refillBody": "{{name}} reyɛ akyɛ anaa refill bere adu."
+    },
+    "validation": {
+      "undoTitle": "San dose yi?",
+      "undoMessage": "Eyi bɛma dose no sɛ wɔanfa. Sɛ stock wɔatwe a, wɔbɛsan de.",
+      "undoConfirm": "San",
+      "nameLong": "Dawa din din yi tenten paa. Confirm sɛ ɛyɛ nokware.",
+      "instructionsOtherEmpty": "Wo paw \"Other\" instructions nanso wo gyae details no hɔ. Confirm ansa na wo save.",
+      "asNeededMany": "Woatwerɛ {{count}} as-needed doses ma dawa yi nnɛ dedaw. Confirm ansa na wo fa bio.",
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Twa",
+      "requiredName": "Enter medicine name ansa na wo save.",
+      "requiredDosage": "Enter dosage (sɛ 500mg) ansa na wo save.",
+      "requiredStart": "Choose start date ansa na wo save.",
+      "childRequired": "Paw abofra bɛn medicine yi yɛ maa no.",
+      "slotTimesInvalid": "Paw bere a ɛfata ma dose biara wɔ clock picker so.",
+      "slotTimesDuplicate": "Dose biara hia bere foforo. Dose mmienu ntumi nkyɛ bere koro.",
+      "saveAnyway": "Save anyway",
+      "endBeforeStart": "End date nso sɛ start date anaa akyi no.",
+      "treatmentEnded": "Treatment period no awie ansa na nnɛ. Paw end date a ɛreba, duration tenten, anaa mark medicine no sɛ ongoing.",
+      "quantityInvalid": "Quantity left should be whole number (0 anaa more), anaa leave blank.",
+      "thresholdInvalid": "Refill reminder threshold nso yɛ whole number (0 anaa soro).",
+      "unusualCheck": "Eyi nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+      "dosageNoUnit": "Dosage yi yɛ number nkutoo. Wopɛ sɛ wodea unit (mg, ml, tablet…)?",
+      "slotsTooClose": "Dose times yi nni sene 2 hours. Confirm sɛ ɛyɛ deliberate.",
+      "courseLong": "Course yi tenten sene afe ({{days}} da). Confirm sɛ ɛyɛ nokware.",
+      "refillBeforeStart": "Refill date no edi treatment start date. Confirm sɛ ɛyɛ nokware.",
+      "quantityHigh": "Quantity ({{value}}) yi soro sene a ɛtaa yɛ. Confirm sɛ ɛyɛ nokware.",
+      "thresholdAboveQuantity": "Refill reminder no wɔ quantity a aka so. Confirm sɛ ɛyɛ deliberate.",
+      "logBeforeStart": "Date yi edi medicine start date. Confirm ansa na wo save.",
+      "logAfterEnd": "Date yi wɔ treatment end date akyi. Confirm ansa na wo save.",
+      "logFuture": "Date yi wɔ future. Confirm sɛ wopɛ sɛ wobɛlog ahead."
     }
   },
   "edit": "Sesa",
@@ -201,5 +246,789 @@
   "saveChanges": "Sie nsesae",
   "loading": "Ɛreloode…",
   "editProfile": "Sesa profile",
-  "signInRequiredTitle": "Ɛsɛ sɛ wokɔ mu"
+  "signInRequiredTitle": "Ɛsɛ sɛ wo sign in",
+  "vitalsTracker": {
+    "eyebrow": "Vitals",
+    "screenTitle": "Vitals",
+    "backToApps": "San kɔ Apps ho",
+    "close": "To",
+    "emptyTitle": "Wo vitals, wɔ hwɛ baako mu",
+    "emptySubtitle": "Log reading wɔ seconds mu — sɛ wo hwɛ account balance no.",
+    "titleWithData": "Latest vitals",
+    "subtitleWithData": "Fast open, easy update",
+    "logVital": "Log vital",
+    "logTitle": "Log vital",
+    "logSubtitle": "Paw measurement bi, fa value no, na save.",
+    "saveLog": "Save reading",
+    "setupTitle": "Paw wo units",
+    "setupSubtitle": "Paw sɛnea wode measure — wobɛtumi sesa akyiri.",
+    "setupCta": "Set up units",
+    "setupSave": "Save preferences",
+    "editUnits": "Sesa units no"
+  },
+  "periodTracker": {
+    "eyebrow": "Nnɛ",
+    "screenTitle": "Period Tracker",
+    "logTitle": "Log Period",
+    "backToApps": "San kɔ Apps ho",
+    "close": "To",
+    "emptyTitle": "Fi ase track wo cycle",
+    "emptySubtitle": "Log wo period a etwaam no na wo hu predictions",
+    "logPeriodDays": "Log Period Days",
+    "markPeriod": "Mark wo period",
+    "markPeriodSubtitle": "Bɔ wo nsa gu nnade a wo period no. Wobɛtumi paw nnade pii wɔ bosome mu."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Immunization",
+    "screenTitle": "Immunization Tracker",
+    "setupTitle": "Family mmofra",
+    "logTitle": "Log Vaccine",
+    "backToApps": "San kɔ Apps ho",
+    "close": "To",
+    "loading": "Loading mmofra fi wo family…",
+    "loadingLog": "Loading vaccine log…",
+    "emptyTitle": "Track immunizations",
+    "signInSubtitle": "Immunization tracking de fa mmofra fi wo CareMate family profile.",
+    "needsFamilySubtitle": "Bɔ wo family profile na fa mmofra a wɔn da a wɔwoo. Wɔbɛda vaccine schedule wɔ ha.",
+    "needsChildrenSubtitle": "Wo household nni mmofra a wɔwɔ da a wɔwoo. Fa mmofra ka Family ho na wo fi ase track vaccines.",
+    "childrenFromFamilyTitle": "Mmofra fi Family ba",
+    "childrenFromFamilySubtitle": "Wontumi nfa abofra ka ho ha. Set up wo family profile na fa mmofra a wɔn da a wɔwoo, na san bra Immunization Tracker.",
+    "logVaccine": "Log vaccine",
+    "saveVaccine": "Save vaccine",
+    "updateRecord": "Update record",
+    "noChildSelected": "Wɔn paw abofra biara",
+    "noChildSubtitle": "Fa mmofra ka wo Family profile ho ansa na wobɛtwerɛ vaccine."
+  },
+  "checkupPlanner": {
+    "eyebrow": "Checkup Planner",
+    "screenTitle": "Checkup Planner",
+    "setupTitle": "Set Up Planner",
+    "logTitle": "Log Checkup",
+    "backToApps": "San kɔ Apps ho",
+    "close": "To",
+    "emptyTitle": "Plan wo health checkups",
+    "emptySubtitle": "Fa wo da a wɔwoo, wo gender, ne region (optional) na wo hu recommended tests",
+    "setUpPlanner": "Set up planner",
+    "editProfile": "Sesa profile no",
+    "setupSave": "Save na hwɛ plan",
+    "setupSaveEdit": "Save changes",
+    "needSetup": "Set up wo checkup profile ansa."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Pregnancy",
+    "emptyTitle": "Track wo pregnancy journey",
+    "emptySubtitle": "Set wo due date anaa last period na wo fi ase",
+    "setUp": "Set up pregnancy",
+    "updateDueDate": "Update due date",
+    "logToday": "Log nnɛ",
+    "setupSave": "Save",
+    "saveLog": "Save log",
+    "screenTitle": "Pregnancy Tracker",
+    "setupTitle": "Set Up Pregnancy",
+    "logTitle": "Da biara a wɔde kyerɛw",
+    "ttTitle": "Log TT dose",
+    "birthTitle": "Awɔwo",
+    "backToApps": "San kɔ Apps ho",
+    "close": "To"
+  },
+  "reorderHint": "Sie card bi na fa sɛ wobɛsesa. Order wɔ device yi so.",
+  "reorderHintA11y": "Bɔ wo nsa mmienu na sie, na fa sɛ wobɛsesa",
+  "checkup": {
+    "cadence": {
+      "annual": "Afe biara",
+      "once": "Once (when due)",
+      "every-2-years": "Mfe biara 2",
+      "every-3-years": "Mfe biara 3",
+      "every-5-years": "Mfe biara 5"
+    },
+    "gender": {
+      "female": "Ɔbaa",
+      "male": "Barima",
+      "other": "Other / prefer not to say"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "Yearly visit ne clinician ma overall health review.",
+        "name": "General medical checkup"
+      },
+      "dental-checkup": {
+        "name": "Dental checkup",
+        "description": "Cleaning ne oral exam sɛnea wobɛhu cavities ne gum disease ntɛm."
+      },
+      "eye-exam": {
+        "name": "Eye / vision exam",
+        "description": "Hwɛ vision ne eye health; pɛpɛɛɛ sɛ wode glasses anaa diabetes."
+      },
+      "blood-pressure": {
+        "name": "Mogya pressure check",
+        "description": "Screen for hypertension — silent risk for heart disease and stroke."
+      },
+      "blood-sugar": {
+        "name": "Mogya sugar / diabetes screen",
+        "description": "Fasting glucose anaa HbA1c, sɛ wo wɔ family history anaa excess weight."
+      },
+      "cholesterol": {
+        "name": "Cholesterol / lipid panel",
+        "description": "Mogya test ma heart risk. Kasa frequency no ne wo clinician."
+      },
+      "weight-bmi": {
+        "name": "Weight & BMI review",
+        "description": "Track weight trends a ɛyɛ den ma wo annual checkup."
+      },
+      "flu-vaccine": {
+        "description": "Yearly flu shot ba a wɔwɔ na wɔka a ɛfata.",
+        "name": "Seasonal flu vaccination"
+      },
+      "cervical-screening": {
+        "name": "Cervical screening (Pap / HPV)",
+        "description": "Screen for cervical cancer. Follow local guidelines."
+      },
+      "mammogram": {
+        "name": "Mammogram",
+        "description": "Breast cancer screening. Start age te sɛnea guideline ne risk."
+      },
+      "prostate-discussion": {
+        "name": "Prostate health discussion",
+        "description": "Ka kyerɛ clinician fa PSA testing ne prostate symptoms."
+      },
+      "prostate-earlier": {
+        "name": "Earlier prostate discussion",
+        "description": "Kasa screening ntɛm sɛ wo firi Africa anaa wɔwɔ family history."
+      },
+      "colorectal-screening": {
+        "name": "Colorectal cancer screening",
+        "description": "Stool test anaa colonoscopy fi mid-adulthood — bisa option a ɛfata wo."
+      },
+      "skin-check": {
+        "name": "Skin check",
+        "description": "Review moles ne skin changes ne clinician."
+      },
+      "hearing-check": {
+        "name": "Hearing check",
+        "description": "Screen for age-related hearing loss."
+      },
+      "bone-density-women": {
+        "name": "Bone density (DEXA)",
+        "description": "Screen for osteoporosis risk after menopause / later adulthood."
+      },
+      "bone-density-men": {
+        "name": "Bone density (DEXA)",
+        "description": "Screen for osteoporosis risk in later adulthood."
+      },
+      "tetanus-booster": {
+        "description": "Si so dua sɛ tetanus boosters aba so — mpɛn pii mfe 10 biara.",
+        "name": "Tetanus booster review"
+      }
+    },
+    "status": {
+      "upcoming": "Reba",
+      "completed": "Awie",
+      "due": "Ɛsɛ",
+      "overdue": "Overdue"
+    },
+    "ui": {
+      "actionableOne": "{{count}} checkup ma {{year}}",
+      "actionableMany": "{{count}} checkups ma {{year}}",
+      "onTrack": "{{year}} checkups on track",
+      "yearPlan": "Wo {{year}} plan",
+      "thisYear": "Afe yi ({{year}})",
+      "ofTotal": "{{completed}} wɔ {{total}} mu",
+      "checklist": "{{year}} checklist",
+      "clearConfirmMessage": "Wo profile ne completion history bɛyiyi fi device yi so.",
+      "regionHint": "Wɔde di dwuma ma country-aware tips bi. Fa Global sɛ wo nni sure.",
+      "regionSelectPlaceholder": "Select a country",
+      "dob": "Da a wɔwoo",
+      "genderLabel": "Gender",
+      "updateLog": "Update log",
+      "setupIntro": "Yɛde wo date of birth, gender, ne region di suggest standard checkups. Region yɛ optional na ɛyɛ International by default.",
+      "ageLine": "Mfe {{age}} · {{gender}} · {{region}}",
+      "nextYear": "Afe a edi kan ({{year}})",
+      "done": "Awie",
+      "guidance": "Guidance nko — ka kyerɛ clinician ma wo personal advice.",
+      "emptyYear": "Checkups biara nni hɔ ma year yi wɔ wo profile mu.",
+      "doneDate": "Awie {{date}}",
+      "clearData": "Pepa planner data",
+      "clearConfirmTitle": "Pepa checkup planner?",
+      "regionOptional": "Man (a ɛpɛ)",
+      "regionSearchEmpty": "No countries match search no.",
+      "globalOption": "Global ({{code}})",
+      "notesPlaceholder": "Clinic din, results a wobɛto so…",
+      "markDone": "Mark done ma {{year}}",
+      "dobLabel": "Awoda: {{date}}",
+      "logIntro": "Log sɛ woayɛ checkup yi ma {{year}}. Wobetumi asan fi screen yi so akyiri.",
+      "dateCompleted": "Da a wiee",
+      "completedLabel": "Awie: {{date}}",
+      "notesOptional": "Notes (ɛnyɛ ɔhyɛ)",
+      "globalShort": "Global",
+      "tapToLog": "Tap na log",
+      "regionSearchPlaceholder": "Search countries",
+      "removeLog": "Remove log yi",
+      "tapDob": "Tap wo date of birth.",
+      "notFound": "Wɔannhu checkup no.",
+      "removeCompletion": "Remove completion"
+    },
+    "validation": {
+      "undoConfirm": "Yi",
+      "completedYearMismatch": "Woatwerɛ {{completedYear}}, nanso item yi yɛ {{planYear}} plan no de. Confirm sɛ ɛyɛ deliberate.",
+      "onceAlreadyLogged": "One-time checkup yi wɔatwerɛ dedaw ma {{year}}. Confirm sɛ wopɛ sɛ wobɛtwerɛ bio.",
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Twa",
+      "requiredGender": "Choose gender option ansa na wo save.",
+      "requiredDob": "Choose wo date of birth ansa na wo save.",
+      "dobFuture": "Awoda ntumi nni ba a ɛnnɛ.",
+      "ageYoung": "Wɔ mfe {{age}} mu, adult checkup kakra na ara. Confirm sɛ wo birth date no yɛ nokware.",
+      "completedFuture": "Wontumi nmark checkup no sɛ wɔayɛ no da a ɛreba. Paw nnɛ anaa da a atwam.",
+      "saveAnyway": "Save anyway",
+      "undoTitle": "Remove completion yi?",
+      "undoMessage": "Checkup yi bɛkyerɛ sɛ wɔanhyɛɛ no ma afe no bio.",
+      "invalidCheckup": "Wɔannhu checkup no. San kɔ na sɔ bio.",
+      "invalidYear": "Plan year no nhyehyɛe. Bue checkup no fi wo year checklist.",
+      "unusualCheck": "Eyi nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+      "completedBeforeDob": "Completion date ntumi nni ansa na wo date of birth.",
+      "ageHigh": "Date of birth yi bɛma woayɛ {{age}}. Confirm sɛ ɛyɛ nokware.",
+      "notesLong": "Notes yi tenten paa. Confirm ansa na wo save."
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Birth dose",
+        "description": "Protects against severe forms of tuberculosis."
+      },
+      "hep-b-birth": {
+        "name": "Hepatitis B",
+        "doseLabel": "Birth dose",
+        "description": "First dose wɔwoo anaa within 24 hours."
+      },
+      "opv-0": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 0",
+        "description": "Birth dose of oral polio vaccine."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 1",
+        "description": "Ɛkata diphtheria, tetanus, pertussis, hepatitis B, ne Hib."
+      },
+      "opv-1": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 1",
+        "description": "First routine polio dose."
+      },
+      "pcv-1": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dose 1",
+        "description": "Protects against pneumococcal disease."
+      },
+      "rota-1": {
+        "doseLabel": "Dose 1",
+        "name": "Rotavirus",
+        "description": "Protects against severe diarrhoea from rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 2",
+        "description": "Second pentavalent dose."
+      },
+      "opv-2": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 2",
+        "description": "Second routine polio dose."
+      },
+      "pcv-2": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dose 2",
+        "description": "Second pneumococcal dose."
+      },
+      "rota-2": {
+        "doseLabel": "Dose 2",
+        "name": "Rotavirus",
+        "description": "Second rotavirus dose."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 3",
+        "description": "Third pentavalent dose."
+      },
+      "opv-3": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dose 3",
+        "description": "Third routine polio dose."
+      },
+      "pcv-3": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dose 3",
+        "description": "Third pneumococcal dose."
+      },
+      "ipv": {
+        "name": "Polio (IPV)",
+        "doseLabel": "Booster",
+        "description": "Inactivated polio booster wɔ sɛbɛn 6."
+      },
+      "measles-1": {
+        "name": "Measles / MR",
+        "doseLabel": "Dose 1",
+        "description": "First measles-rubella dose wɔ sɛbɛn 9."
+      },
+      "yellow-fever": {
+        "name": "Yellow Fever",
+        "doseLabel": "Single dose",
+        "description": "Recommended in endemic regions from 9 months."
+      },
+      "measles-2": {
+        "name": "Measles / MR",
+        "doseLabel": "Dose 2",
+        "description": "Second measles-rubella dose wɔ sɛbɛn 15."
+      },
+      "vitamin-a": {
+        "name": "Vitamin A",
+        "doseLabel": "Supplement",
+        "description": "Routine vitamin A supplementation from 15 months."
+      }
+    },
+    "ui": {
+      "dob": "Da a wɔwoo",
+      "scheduleTitle": "Vaccine schedule",
+      "timeline": "Timeline",
+      "vaccineRecord": "Vaccine record",
+      "whereToGo": "Where to go",
+      "overdueVisit": "{{count}} vaccine overdue — schedule visit",
+      "overdueVisit_other": "{{count}} vaccines overdue — schedule visit",
+      "vaccinesCompleted": "{{completed}} wɔ {{total}} vaccines completed",
+      "children": "Mmofra",
+      "family": "Family",
+      "percentComplete": "{{percent}}% complete",
+      "daysOverdue": "{{count}} da overdue",
+      "daysOverdue_other": "{{count}} da overdue",
+      "vaccineRecordTitle": "Vaccine record",
+      "noChildSelected": "Wɔn paw abofra biara",
+      "vaccine": "Vaccine",
+      "selectedDate": "Wɔapaw: {{date}}",
+      "nextDue": "Next: {{name}} ({{dose}})",
+      "allUpToDate": "Vaccines a wɔhyɛe nyinaa adi current",
+      "attention": "Ɛhia sɛ wo hwɛ",
+      "alreadyLogged": "Wɔatwerɛ dedaw",
+      "administeredDate": "Da a wɔde maa no",
+      "optional": "Ɛnyɛ ɔhyɛ",
+      "notesPlaceholder": "Batch number, reactions, ne nea ho.",
+      "nextSteps": "Next steps",
+      "childrenFromFamilyCaption": "Mmofra fi wo Family profile.",
+      "details": "Nsɛm a ɛwɔ mu",
+      "age": "Mfe",
+      "nextUp": "Next up",
+      "dueToday": "Ɛsɛ nnɛ",
+      "dueInDays": "Ɛbɛba nnɛ {{count}}",
+      "dueInDays_other": "Ɛbɛba nnɛ {{count}}",
+      "givenOn": "Wɔde maa no {{date}}",
+      "dueOn": "Ɛsɛ {{date}}",
+      "logIntro": "Log bere a wɔde vaccine yi. Wobetumi update anaa remove record no akyiri.",
+      "alreadyLoggedPill": "Wɔatwerɛ dedaw",
+      "completedOn": "Awie: {{date}}",
+      "notes": "Notes",
+      "familySetupExplainer": "Family setup gyee date of birth ma abofra biara — neɛ na ɛma vaccine schedule no tumi.",
+      "selectChild": "Select abofra na hwɛ wo recommended vaccine schedule",
+      "providerOptional": "Provider / clinic",
+      "removeRecord": "Remove record",
+      "profile": "Profile",
+      "recommendedBy": "Recommended by {{date}}",
+      "select": "Select",
+      "tapAdministeredDate": "Tap date a wɔde vaccine yi"
+    },
+    "status": {
+      "upcoming": "Reba",
+      "completed": "Awie",
+      "overdue": "Overdue",
+      "due-soon": "Ɛreba"
+    },
+    "validation": {
+      "undoConfirm": "Yi",
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Twa",
+      "requiredProfile": "Paw abofra a wɔwoo no ansa na wobɛkyerɛ vaccine.",
+      "requiredAdministeredDate": "Choose date a wɔde vaccine yi.",
+      "administeredFuture": "Wontumi nkyerɛ dose a wɔawie no da a ɛreba. Paw nnɛ anaa da a atwam.",
+      "seriesOutOfOrder": "Dose bi a edi kan no wɔ series yi mu no nnyɛɛ ({{missing}}). Confirm ansa na wo save.",
+      "saveAnyway": "Save anyway",
+      "undoTitle": "Remove vaccine record yi?",
+      "undoMessage": "Dose yi bɛkyerɛ sɛ wɔanhyɛɛ no wɔ schedule no so bio.",
+      "invalidVaccine": "Wonhuu vaccine no. San kɔ na sɔ bio.",
+      "unusualCheck": "Eyi nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+      "administeredBeforeDob": "Administered date ntumi nni ansa na abofra no date of birth.",
+      "veryEarly": "Date yi yɛ {{days}} da kane recommended date ({{recommended}}). Confirm sɛ ɛyɛ nokware.",
+      "farFromRecommended": "Date yi yɛ {{days}} da fi recommended date ({{recommended}}). Confirm sɛ ɛyɛ nokware.",
+      "providerLong": "Provider name no tenten paa. Confirm ansa na wo save.",
+      "notesLong": "Notes yi tenten paa. Confirm ansa na wo save."
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "M'abrɛ",
+      "Unwell": "Yare",
+      "Happy": "Anigye",
+      "Calm": "Asomdwoe",
+      "Anxious": "Osuro",
+      "Excited": "Anigye"
+    },
+    "symptoms": {
+      "Nausea": "Nausea",
+      "Fatigue": "M'abrɛ",
+      "Back pain": "Akan mu",
+      "Cramping": "M'brɛ",
+      "Heartburn": "Heartburn",
+      "Headache": "Ti",
+      "Insomnia": "Insomnia",
+      "Food cravings": "Food cravings",
+      "Swelling": "Swelling"
+    },
+    "milestones": {
+      "8": {
+        "title": "First prenatal visit",
+        "description": "Schedule wo first check-up ne wo provider."
+      },
+      "12": {
+        "title": "Trimester a edi kan no awie",
+        "description": "Miscarriage risk drops significantly."
+      },
+      "20": {
+        "title": "Anatomy scan",
+        "description": "Mid-pregnancy ultrasound wɔ sɛbɛn 18–22."
+      },
+      "28": {
+        "description": "Baby reto ntɛm — home bere a wobɛtumi.",
+        "title": "Third trimester fi ase"
+      },
+      "36": {
+        "title": "Weekly check-ins",
+        "description": "Wo provider betumi pɛ sɛ wohu wo pii."
+      },
+      "40": {
+        "description": "Wo estimated delivery date.",
+        "title": "Due date"
+      }
+    },
+    "ui": {
+      "weekDay": "Week {{weeks}}, Da {{days}}",
+      "daysUntilDue": "{{count}} da kosi {{name}} due date",
+      "daysUntilDue_other": "{{count}} da kosi {{name}} due date",
+      "todayIsDue": "Neɛ {{name}} due date",
+      "daysPastDue": "{{count}} da past due date",
+      "daysPastDue_other": "{{count}} da past due date",
+      "timeline": "Timeline",
+      "percentComplete": "{{percent}}% complete",
+      "week0": "Week 0",
+      "week40": "Week 40",
+      "trimesterBar": {
+        "weekRange": "Wk {{from}}–{{to}}",
+        "now": "Week {{weeks}}",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "Log nnɛ",
+      "weekThisWeek": "Week {{week}} · Dapɛn yi",
+      "weekInDays": "Week {{week}} · Wɔ kwan {{count}} da mu",
+      "weekInDays_other": "Week {{week}} · Wɔ kwan {{count}} da mu",
+      "weekLabel": "Week {{week}}",
+      "weight": "Weight",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} kicks",
+      "postpartumTitle": "Woatwam wo due date",
+      "postpartumBody": "Wo estimated due date atwam. End pregnancy bere a woadi, anaa update due date sɛ wo provider ayɛ adjust.",
+      "dailyLog": "Daily log",
+      "howFeeling": "Wo ho sɛn?",
+      "howFeelingSubtitle": "Log how wo feel nnɛ. Eyi boa wo hu patterns over time.",
+      "babyKicks": "Baby kicks",
+      "notesPlaceholder": "Wo ho sɛn? Wɔwɔ nsɛm biara ma wo visit a ɛreba?",
+      "setTimelineSubtitle": "Paw sɛn wopɛ sɛ wobɛhyɛ wo pregnancy timeline. Wobɛtumi de wo period a edi anaa provider due date.",
+      "lastPeriod": "Last period",
+      "dueDate": "Due date",
+      "babyNickname": "Baby nickname",
+      "pickDate": "Paw da",
+      "estimatedDue": "Estimated due date",
+      "kicksLogged": "Kicks logged",
+      "comingUp": "Reba",
+      "milestonesTitle": "Milestones",
+      "journey": "Journey",
+      "estimatedFromLmp": "Wɔabɔ no fi wo last menstrual period",
+      "estimatedFromProvider": "Wɔ wo provider due date so",
+      "daily": "Da biara",
+      "mood": "Mood",
+      "noSymptomsToday": "Symptoms biara nni hɔ nnɛ",
+      "notes": "Notes",
+      "babyPlaceholder": "Baby",
+      "weightHint": "Optional. Enter wo weight wɔ kilograms.",
+      "endPregnancy": "To pregnancy",
+      "endPregnancyTitle": "To pregnancy yi?",
+      "endPregnancyConfirm": "To pregnancy",
+      "postpartumEyebrow": "Past due",
+      "pastPregnancies": "Past pregnancies",
+      "history": "Abakɔsɛm",
+      "pastPregnancySubtitle": "Ɛsɛ {{due}} · Awie {{ended}} · {{logs}} logs",
+      "archivedLogsEmpty": "Daily logs biara nni hɔ ma pregnancy yi.",
+      "setTimeline": "Set wo timeline",
+      "tapLmp": "Tap first day fi wo last menstrual period.",
+      "tapDue": "Tap wo estimated due date fi wo provider.",
+      "selectedDue": "Selected due date",
+      "progress": "Pregnancy progress",
+      "symptoms": "Symptoms",
+      "setupEyebrow": "Setup",
+      "tapKickHint": "Tap + bere a wo feel movement",
+      "logHistory": "Recent logs",
+      "recent": "Recent",
+      "endPregnancyMessage": "Eyi bɛ archive timeline ne daily logs, na resume Period Tracker sɛ wɔagyina mfi pregnancy. Wobɛtumi asan pregnancy foforo akyiri."
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} yɛ dapɛn yi.",
+      "milestoneSoonBody": "{{title}} wɔ kwan {{count}} da mu.",
+      "milestoneSoonBody_other": "{{title}} wɔ kwan {{count}} da mu.",
+      "dueSoonTitle": "{{name}} due date wɔ {{count}} da mu",
+      "dueSoonTitle_other": "{{name}} due date wɔ {{count}} da mu",
+      "dueSoonBody": "{{name}} estimated due date wɔ {{count}} da mu. Hwɛ wo pregnancy timeline.",
+      "dueSoonBody_other": "{{name}} estimated due date wɔ {{count}} da mu. Hwɛ wo pregnancy timeline.",
+      "dueTodayTitle": "Neɛ {{name}} due date",
+      "dueTodayBody": "{{name}} estimated due date yɛ nnɛ.",
+      "pastDueTitle": "{{count}} da past due date",
+      "pastDueTitle_other": "{{count}} da past due date",
+      "pastDueBody": "{{name}} estimated due date yɛ {{count}} da a atwam. Update timeline anaa end pregnancy bere a woadi.",
+      "pastDueBody_other": "{{name}} estimated due date yɛ {{count}} da a atwam. Update timeline anaa end pregnancy bere a woadi.",
+      "milestoneSoonTitle": "Reba: Dapɛn {{week}}",
+      "dailyNudgeTitle": "Log how you feel nnɛ",
+      "dailyNudgeBody": "Mood, symptom, anaa kick log kakra ma wo pregnancy history no ayɛ mfa.",
+      "ttDoseDueBody": "At least 4 weeks since TT1. Bisa wo clinic fa wo next tetanus (TT) dose.",
+      "ttDoseDueTitle": "TT2 betumi due"
+    },
+    "motherCare": {
+      "progress": "{{completed}} wɔ {{total}} doses logged",
+      "logSubtitle": "{{completed}} wɔ {{total}} doses a wɔatwerɛ dedaw. Paw da a wɔfaa shot no.",
+      "completeBody": "Woatwerɛ TT1 kosi TT5. Fa wo clinic card sɛ official record.",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "Eyi yɛ {{gap}} da nkutoo a edi dose no akyi (sɛnea ɛtaa yɛ de, twɛn kwan {{days}} da). Confirm ne wo clinic.",
+        "checkTitle": "Please check this",
+        "confirmTitle": "Please confirm",
+        "cancel": "Twa",
+        "requiredDate": "Choose date ansa na wo save.",
+        "ttFuture": "TT dose date ntumi nni ba a ɛnnɛ.",
+        "ttOutOfOrder": "Log doses in order. Next expected yɛ {{next}} (tried {{dose}}).",
+        "saveAnyway": "Save anyway",
+        "unusualCheck": "Eyi nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+        "ttBeforePrevious": "Date yi edi {{previous}} ({{previousDate}}). Confirm sɛ ɛyɛ nokware."
+      },
+      "eyebrow": "Mother care",
+      "nextDose": "Next: {{dose}}",
+      "notLogged": "Wɔnkyerɛw",
+      "logNext": "Log next TT",
+      "logTt1": "Log TT1",
+      "logTitle": "Log {{dose}}",
+      "pickDate": "Dose da",
+      "done": "Awie",
+      "disclaimer": "Educational tracking nko — di wo clinic schedule ne local guidance so.",
+      "title": "Tetanus (TT) protection",
+      "body": "TT shots bɔ wo ne wo newborn ho fi tetanus. Log doses fi wo antenatal card — eyi yɛ separate fi wo pregnancy week tracker.",
+      "complete": "TT1–TT5 logged",
+      "archivedTitle": "TT doses fi pregnancy yi",
+      "tapDate": "Tap da a wogye {{dose}}.",
+      "selectedDate": "Selected date",
+      "saveDose": "Save {{dose}}",
+      "completeTitle": "TT schedule complete"
+    },
+    "trimester": {
+      "1": "First trimester",
+      "2": "Second trimester",
+      "3": "Third trimester"
+    },
+    "validation": {
+      "lmpFuture": "Wo last period date ntumi nyina future.",
+      "dueInPast": "Due date yi aba {{days}} da a atwam. Confirm sɛ wo da so de di so.",
+      "nicknameLong": "Nickname yi tenten paa. Confirm sɛ ɛyɛ nokware.",
+      "overwriteTimeline": "Wore update wo pregnancy timeline. Daily logs ma pregnancy yi no bɛtena.",
+      "startNewAfterEnded": "Worefi pregnancy foforo a wɔatwam deɛ edi kan no. Wobɛbɔ timeline foforo ne daily log a ɛhunu.",
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Twa",
+      "requiredDate": "Choose date ansa na wo save.",
+      "emptyLog": "Biribiara nni hɔ nnɛ. Save empty log anyway?",
+      "setupBlockedPostpartum": "Finish postpartum mother care ansa, na wo betumi ayɛ pregnancy timeline foforo.",
+      "birthFuture": "Awoda awoɔ ntumi nni ba a ɛnnɛ.",
+      "saveAnyway": "Save anyway",
+      "unusualCheck": "Eyi nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+      "dueTooFar": "Due date yi da kwan dodo wɔ future mu. Check date no.",
+      "pastTerm": "Date yi kyerɛ sɛ wobɛtwam {{weeks}} weeks pregnant. Confirm sɛ ɛyɛ nokware.",
+      "willPausePeriod": "Saving pregnancy timeline bɛ pause Period Tracker predictions. Wo period history wɔ hɔ.",
+      "kicksHigh": "Kick count ({{count}}) yi soro paa ma da biara. Confirm sɛ ɛyɛ nokware.",
+      "notesLong": "Notes yi tenten paa. Confirm ansa na wo save.",
+      "weightUnusual": "Weight ({{value}} kg) ayɛ outside usual range ({{min}}–{{max}} kg). Confirm sɛ ɛyɛ nokware.",
+      "birthBeforeLmp": "Birth date no edi wo last period date. Confirm sɛ ɛyɛ nokware."
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "{{count}} da since birth",
+      "careTitle": "Wo recovery",
+      "careBody": "Bea yi ma wo postpartum care — home, ayare, ne clinic follow-up. Baby tracking wɔ hɔ fa.",
+      "pastDueHint": "Wo due date atwam. Sɛ woawo a, ka I've given birth na fi ase mother postpartum care. Sɛ wohia sɛ wo hide pregnancy yi, fa Close this pregnancy a ase.",
+      "iveGivenBirth": "Awɔwo",
+      "birthTitle": "Bɛn na wɔwoo?",
+      "birthSubtitle": "Yɛbɛswitch kɔ mother postpartum care. Wo TT doses wɔ screen yi so.",
+      "finishMessage": "Yɛbɛ archive pregnancy yi sɛ birth, clear pregnancy timeline, na resume Period Tracker sɛ wɔagyina. Wo TT doses wɔ hɔ.",
+      "closeMessage": "Yɛbɛ hide pregnancy timeline no. Mother-care records te sɛ TT shots wɔ hɔ, na Period Tracker betumi ayɛ bio. Fa bere a wohia — wo nni hɔ koraa.",
+      "closedPregnancyTitle": "Pregnancy",
+      "eyebrow": "Mother care",
+      "heroTitle": "Postpartum care",
+      "heroSubtitle": "Focus on wo recovery. Wo TT record wɔ ha.",
+      "daysSinceBirth": "Da {{count}} fi awoɔ",
+      "birthDateLabel": "Awoda",
+      "pickBirthDate": "Awoda",
+      "birthDisclaimer": "Educational tracking nko — di wo clinic postpartum advice so.",
+      "logMotherDay": "Log how you feel",
+      "finishPostpartum": "Finish postpartum care",
+      "finishTitle": "Finish postpartum care?",
+      "finishConfirm": "Wie",
+      "closeLink": "To pregnancy yi",
+      "closeTitle": "To pregnancy yi?",
+      "closeConfirm": "To pregnancy no",
+      "pastBirthSubtitle": "Wɔwoo wɔ {{born}} · {{logs}} logs",
+      "pastClosedSubtitle": "Wɔato {{ended}}",
+      "tapBirthDate": "Tap da a wowoo.",
+      "selectedBirthDate": "Selected date",
+      "startPostpartum": "Start postpartum care",
+      "notActive": "Set up active pregnancy timeline ansa na wo record birth."
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Wo next period betumi fi ase nnɛ",
+      "thisWeek": "Dapɛn yi",
+      "daysCount": "{{count}} da",
+      "daysSelected": "{{count}} da selected",
+      "daysSelected_other": "{{count}} da selected",
+      "pausedCardTitle": "Tracking agyina",
+      "pauseWhilePregnantBody": "Wobɛtumi agyina cycle predictions bere a wo wɔ pregnant. Wo history wɔ hɔ.",
+      "backToTracker": "San kɔ",
+      "cycleSummary": "Cycle summary",
+      "averageCycle": "Average cycle",
+      "decreaseAverageCycle": "Sua cycle length mu",
+      "increaseAverageCycle": "Increase average cycle length",
+      "periodLength": "Period length",
+      "loggedDays": "Logged days",
+      "dayOfCycle": "Da {{day}} wɔ wo cycle mu",
+      "dayPill": "Da {{day}}",
+      "daysUntilPeriod": "Da bɛyɛɛ {{count}} kosi wo period a ɛdi hɔ",
+      "daysUntilPeriod_other": "Da bɛyɛɛ {{count}} kosi wo period a ɛdi hɔ",
+      "calendar": "Calendar",
+      "loggedPeriod": "Logged period",
+      "predicted": "Predicted period",
+      "predictedWindow": "Next predicted period: {{range}}",
+      "fertile": "Fertile",
+      "ovulation": "Ovulation",
+      "pausedTitle": "Period tracking agyina",
+      "pausedSubtitle": "Predictions ne logging agyina.",
+      "pausedBecausePregnant": "Paused bere a wo wɔ pregnant. Wo logged history wɔ ha.",
+      "pausedPill": "Wogyinae",
+      "pausedCardBody": "Cycle predictions ne period logging wɔgyee. To so biara — anaa kɔ so wɔ Pregnancy Tracker.",
+      "pauseTracking": "Pause period tracking",
+      "openPregnancyTracker": "Open Pregnancy Tracker",
+      "resumeTracking": "Resume period tracking",
+      "pauseWhilePregnantTitle": "Wɔ wɔ pregnant?"
+    },
+    "validation": {
+      "clearMessage": "Eyi beyi period da bi wɔatwerɛ wɔ device yi so nyinaa. Predictions bɛreset kɔsi sɛ wobɛtwerɛ bio.",
+      "periodVsCycle": "Period length yi ({{periodDays}} da) yɛ tenten anaa tenten sene wo average cycle ({{cycleDays}} da). Confirm.",
+      "checkTitle": "Please check this",
+      "confirmTitle": "Please confirm",
+      "cancel": "Twa",
+      "saveAnyway": "Log anyway",
+      "clearTitle": "Pepa logged days nyinaa?",
+      "clearConfirm": "Pepa",
+      "trackingPaused": "Period tracking agyina. Resume tracking na log days.",
+      "resumeWhilePregnant": "Pregnancy Tracker wɔ active timeline. Resume period tracking anyway?",
+      "unusualCheck": "Eyi nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+      "dayFuture": "Date yi wɔ future. Confirm sɛ wopɛ sɛ wobɛlog ahead.",
+      "dayFarPast": "Date yi yɛ {{days}} da a atwam. Confirm sɛ ɛka wo history ho.",
+      "periodLong": "Eyi bɛma period yi yɛ {{days}} da tenten. Confirm sɛ ɛyɛ nokware."
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "Weight",
+      "blood_pressure": "Mogya pressure",
+      "blood_sugar": "Mogya sugar",
+      "heart_rate": "Heart rate",
+      "body_temperature": "Ahoɔden",
+      "height": "Height",
+      "oxygen_saturation": "Oxygen saturation",
+      "respiratory_rate": "Respiratory rate"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "ft / in",
+      "breaths_min": "breaths/min",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "Afunu",
+      "before_meal": "Ansa abɔ din",
+      "two_hours_after_meal": "Adeɛ 2 akyi abɔ din",
+      "random": "Random"
+    },
+    "ui": {
+      "vital": "Vital",
+      "unit": "Unit",
+      "reading": "Reading",
+      "measurementType": "Bɛn na wɔhwɛɛ eyi?",
+      "notesPlaceholder": "sɛ after morning walk",
+      "latest": "Latest readings",
+      "noReading": "Reading biara nni hɔ",
+      "diastolic": "Diastolic",
+      "feet": "Ananmu",
+      "inches": "Inches",
+      "valuePlaceholder": "Kyerɛ value",
+      "bpHint": "Kyerɛ systolic / diastolic wɔ mmHg mu",
+      "notesOptional": "Notes (ɛnyɛ ɔhyɛ)",
+      "setupSugarHint": "Mogya sugar readings wɔde sie wɔ mg/dL mu na wɔkyerɛ wɔ wo unit a wopɛ so.",
+      "balance": "Snapshot",
+      "recent": "Recent",
+      "emptyHint": "Start ne blood pressure, heart rate, anaa weight — nea wo measure paa.",
+      "systolic": "Systolic",
+      "setupIntro": "Set wo preferred units once na logging no ayɛ mmerɛ."
+    },
+    "validation": {
+      "useSuggestion": "Fa {{value}}",
+      "unusualConfirm": "Reading yi nhyehyɛe. Verify ansa na wo save.",
+      "bloodSugarUnusual": "Reading yi nhyehyɛe. Verify ansa na wo save.",
+      "oxygenLow": "Oxygen level yi sua sene a ɛtaa yɛ. Confirm reading no anaa sɔ hwɛ bio.",
+      "trendWeight": "Wo weight asesa fi wo last entry ({{previous}} {{unit}}). Confirm sɛ ɛyɛ nokware.",
+      "trendBloodPressure": "Reading yi yɛ soro anaa sua sene wo previous entry ({{previous}}). Confirm ansa na wo save.",
+      "trendOxygen": "Oxygen reading yi nhyehyɛe fi wo last entry ({{previous}}%). Confirm anaa sɔ hwɛ bio.",
+      "trendGeneric": "Value yi nhyehyɛe fi wo previous measurement ({{previous}} {{unit}}). Confirm sɛ ɛyɛ nokware.",
+      "checkTitle": "Please check reading no",
+      "confirmTitle": "Please confirm",
+      "cancel": "Twa",
+      "requiredReading": "Enter reading ansa na wo save.",
+      "bpDiastolicOrder": "Diastolic pressure nso yɛ sɛ ɛbɛyɛ sɛ ɛyɛ sɛ systolic no.",
+      "bloodSugarContextRequired": "Paw bere wɔwoo mogya sugar yi (fasting, ansa abɔ din, akyi abɔ din, anaa random).",
+      "typoBloodSugar": "Wo kyerɛ sɛ {{suggested}}?",
+      "typoWeight": "Wo kyerɛ sɛ {{suggested}}?",
+      "typoTemperature": "Wo kyerɛ sɛ {{suggested}}°C?",
+      "saveAnyway": "Save anyway",
+      "unusualCheck": "Value no nhyehyɛe. Hwɛ sɛ woakyerɛw no yiye.",
+      "bpUnusual": "Blood pressure reading yi nhyehyɛe. Confirm sɛ ɛyɛ nokware."
+    }
+  }
 }

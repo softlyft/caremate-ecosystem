@@ -36,7 +36,8 @@ Implementation spans:
 | `resendSignupEmail(email)` | Resends signup confirmation email |
 | `verifyRecoveryEmail(email, token)` | Verifies recovery OTP (`verifyOtp` type `recovery`), then marks password recovery pending |
 | `resendRecoveryEmail(email)` | Resends the password-reset email (same as requesting reset again) |
-| `signOut()` | Clears push for this device and session → guest. **Does not** clear mini-app stores or wipe SQLite / AsyncStorage (same email can return with local data intact). |
+| `signOut()` | Clears push for this device and **local** session → guest. **Does not** clear mini-app stores or wipe SQLite / AsyncStorage (same email can return with local data intact). |
+| `handleRemoteSessionEnd()` | Guest transition when Supabase emits `SIGNED_OUT` (e.g. another device signed in). Does not call cloud sign-out again. |
 | `deleteAccount()` | Cloud delete + wipe local account data + clear device account binding |
 | `markPasswordRecovery()` | Flags the recovery state after deep-link processing |
 | `clearPasswordRecovery()` | Clears recovery mode |
@@ -78,7 +79,7 @@ Supabase client (`lib/supabase.ts`) is configured to use this storage adapter.
 
 ## Sign-up / sign-in local bootstrap
 
-On successful `signUpWithEmail` **with a session** (confirmations off), or after `verifySignupEmailOtp` / `signInWithEmail`, the auth service:
+On successful `signUpWithEmail` **with a session** (confirmations off), or after `verifySignupEmailOtp` / `signInWithEmail` / `verifyRecoveryOtp`, the auth service first revokes other sessions (`signOut({ scope: 'others' })`), then:
 
 1. **Migrates guest local data** — copies/merges guest-scoped emergency profile, bookmarks, article reads, settings, profile fields, and family ownership onto the account (`migrateGuestLocalData`)
 2. **Hydrates emergency from cloud** (`hydrateEmergencyProfile`) — pulls the remote emergency row (gateway or Supabase) and **merges** into SQLite before any local shell is created:
@@ -115,6 +116,24 @@ Login and register call `confirmDeviceAccountForAuth` before talking to Supabase
 
 ---
 
+## One active session (one device per login)
+
+CareMate allows **one active Supabase session per account** on mobile:
+
+| Event | Behavior |
+|-------|----------|
+| Sign-in / signup OTP / recovery OTP | After the new session is created, call `signOut({ scope: 'others' })` so other devices’ refresh tokens are revoked |
+| Cold start / session restore | Does **not** revoke others (same phone reopening the app) |
+| Auth deep-link `setSession` / code exchange | Does **not** revoke others (avoids collateral with recovery/handoff flows) |
+| Explicit sign-out | `signOut({ scope: 'local' })` — ends this device only |
+| Other device after revoke | When its access JWT expires or refresh fails, Supabase emits `SIGNED_OUT` → `handleRemoteSessionEnd` → guest UI (local data kept for the bound email) |
+
+**Note:** Revoked sessions keep a valid **access** JWT until `jwt_expiry` (see `supabase/config.toml`, currently 1 hour). Cloud writes from the old device may succeed until then; refresh will fail afterward.
+
+This is separate from **device account binding** (one email per physical device for local PHI). Together: one account → one live cloud session; one device → one primary local email.
+
+---
+
 ## Auth screens
 
 ### Login (`(auth)/login.tsx`)
@@ -143,7 +162,8 @@ Login and register call `confirmDeviceAccountForAuth` before talking to Supabase
 ### Forgot password (`(auth)/forgot-password.tsx`)
 - Collects email and calls `authService.resetPassword` (`supabase.auth.resetPasswordForEmail`)
 - Navigates to verify-reset so the user can enter the 6-digit code from email (same pattern as signup OTP)
-- Deep-link `redirectTo` remains as a fallback for older email templates / Universal Links
+- `redirectTo` uses the public website `/auth/reset-password` (must be allowlisted in Supabase Auth). Recovery is OTP-in-app; Expo `exp://` deep links are not used for the send-code request
+- Deep-link handling remains as a fallback for older email templates / Universal Links
 
 ### Verify reset code (`(auth)/verify-reset.tsx`)
 - User enters the 6-digit OTP from the recovery email (`{{ .Token }}` in the template)

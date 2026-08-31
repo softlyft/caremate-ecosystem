@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { PageHeader, PageShell } from '@/components/page-header';
+import { TextLink } from '@/components/ui/text-link';
 import { requireProviderSession } from '@/lib/auth';
 import { listActivatableModules } from '@/domains/modules/catalog';
 import { getEnabledModules } from '@/domains/modules/repository';
@@ -14,53 +15,55 @@ export default async function ModulesSettingsPage() {
   const canManage = canManageOrg(session.activeRole);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href="/app/settings" className="text-sm text-primary hover:underline">
-          ← Settings
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-brand-navy">Modules</h1>
-        <p className="mt-1 text-sm text-muted">
-          Activate optional CareMate capabilities for this organization. Core engagement features
-          stay on by default.
-        </p>
-      </div>
+    <PageShell>
+      <TextLink href="/app/settings">← Settings</TextLink>
+      <PageHeader
+        title="Modules"
+        description="Activate optional CareMate capabilities for this organization. Core engagement features stay on by default."
+      />
 
       <Card>
         <CardHeader>
           <CardTitle>Optional modules</CardTitle>
           <CardDescription>
-            Only Laboratory is available to activate right now. More modules will appear here as
-            they ship.
+            Optional capabilities will appear here as they ship. Core engagement features stay on
+            by default.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {activatable.map((mod) => {
-            const on = enabled.has(mod.key);
-            return (
-              <div
-                key={mod.key}
-                className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-foreground">{mod.name}</p>
-                    <Badge variant={on ? 'success' : 'secondary'}>
-                      {on ? 'Active' : 'Off'}
-                    </Badge>
+          {activatable.length === 0 ? (
+            <p className="text-sm text-muted">
+              No optional modules are available to activate yet. Use Documents to share lab
+              results, prescriptions, and other files with connected patients.
+            </p>
+          ) : (
+            activatable.map((mod) => {
+              const on = enabled.has(mod.key);
+              return (
+                <div
+                  key={mod.key}
+                  className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">{mod.name}</p>
+                      <Badge variant={on ? 'success' : 'secondary'}>
+                        {on ? 'Active' : 'Off'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted">{mod.description}</p>
                   </div>
-                  <p className="text-sm text-muted">{mod.description}</p>
+                  {canManage ? (
+                    <ModuleToggleForm moduleKey={mod.key} enabled={on} />
+                  ) : (
+                    <p className="text-xs text-muted">Owner or administrator can change this.</p>
+                  )}
                 </div>
-                {canManage ? (
-                  <ModuleToggleForm moduleKey={mod.key} enabled={on} />
-                ) : (
-                  <p className="text-xs text-muted">Owner or administrator can change this.</p>
-                )}
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

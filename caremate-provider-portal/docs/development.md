@@ -3,8 +3,9 @@
 ## Prerequisites
 
 - Monorepo root install (`npm install` from repo root)
-- Supabase project with provider portal migrations applied
-- Catalog organizations (via ingest) with contact emails for claim
+- Supabase project with Care Portal migrations applied (provider + payer)
+- Catalog organizations (via ingest) with contact emails for provider claim
+- Optional: seed a `payer_organizations` row to exercise payer claim (see [auth-claim](./auth-claim.md))
 
 ## Env
 
@@ -26,6 +27,7 @@ Apply at least:
 2. `20260719150000_provider_org_claims.sql`
 3. `20260719160000_provider_connection_bidirectional.sql`
 4. `20260719170000_connection_rejection_and_verified.sql`
+5. `20260825120000_payer_organizations.sql` (payers)
 
 Then regenerate types when ready: `npm run db:types`.
 

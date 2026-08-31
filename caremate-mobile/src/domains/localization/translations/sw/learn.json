@@ -11,7 +11,8 @@
   "empty": {
     "title": "Hakuna makala zilizopatikana",
     "categoryTitle": "Hakuna makala za {{category}}",
-    "message": "Jaribu utafutaji au kategoria nyingine."
+    "message": "Jaribu utafutaji au kategoria nyingine.",
+    "newsTitle": "Hakuna habari kwa sasa"
   },
   "bookmarksTitle": "Alamisho",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "Makala haikupatikana",
     "message": "Huenda makala hii imeondolewa."
-  }
+  },
+  "reading": "Historia ya kusoma",
+  "readingShort": "Kusoma",
+  "readingBadge": "Kusoma",
+  "readBadge": "Imesoma",
+  "readingTab": "Kusoma",
+  "readTab": "Imesoma",
+  "loadingReading": "Inapakia historia ya kusoma...",
+  "loadingArticle": "Inapakia makala...",
+  "loadingBookmarks": "Inapakia alamisho...",
+  "loadingCategory": "Inapakia jamii...",
+  "category": "Jamii",
+  "categoryEmpty": "Hakuna makala katika jamii hii",
+  "readingEmpty": {
+    "title": "Hakuna kinachoendelea",
+    "message": "Fungua makala kuanza kufuatilia unachosoma."
+  },
+  "readEmpty": {
+    "title": "Bado hakuna makala yaliyomalizika",
+    "message": "Weka alama makala kama yamesomwa, au soge hadi mwisho unaposoma."
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} dakika kusoma",
+  "externalSource": "Chanzo cha nje",
+  "careMateGuide": "Mwongozo wa CareMate",
+  "shareArticle": "Shiriki makala",
+  "shareContinue": "Soma makala kamili:",
+  "readFull": "Soma makala kamili"
 }

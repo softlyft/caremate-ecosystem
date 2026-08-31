@@ -5,7 +5,8 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/form-controls';
+import { Button, DetailRow, FormActions } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { familyRepository, useFamilySetupStore } from '@/domains/family';
@@ -56,46 +57,50 @@ export default function FamilyReviewScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-    >
-      <AppText variant="sectionTitle">{t('family.review.heading')}</AppText>
-      <AppText variant="subtitle">{t('family.review.subtitle')}</AppText>
+    <Screen padded={false} tone="background">
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      >
+        <AppText variant="sectionTitle">{t('family.review.heading')}</AppText>
+        <AppText variant="subtitle">{t('family.review.subtitle')}</AppText>
 
-      <View style={styles.card}>
-        {draftChildren.length === 0 ? (
-          <AppText variant="body">{t('family.review.empty')}</AppText>
-        ) : (
-          draftChildren.map((child, index) => (
-            <View key={`${child.fullName}-${index}`} style={styles.row}>
-              <AppText variant="body">
-                {index + 1}. {child.fullName}
-              </AppText>
-              <AppText variant="caption" style={styles.muted}>
-                {t('family.review.childMeta', { dob: child.dateOfBirth, gender: child.gender })}
-              </AppText>
-            </View>
-          ))
-        )}
-        <Button
-          label={saving ? t('common.saving') : t('family.review.create')}
-          disabled={saving}
-          onPress={saveFamily}
-        />
-        <Button
-          label={t('family.review.back')}
-          variant="secondary"
-          disabled={saving}
-          onPress={() => router.back()}
-        />
-      </View>
-    </ScrollView>
+        <View style={styles.card}>
+          {draftChildren.length === 0 ? (
+            <AppText variant="body">{t('family.review.empty')}</AppText>
+          ) : (
+            draftChildren.map((child, index) => (
+              <DetailRow
+                key={`${child.fullName}-${index}`}
+                label={`${index + 1}. ${child.fullName}`}
+              >
+                <AppText variant="caption" style={styles.muted}>
+                  {t('family.review.childMeta', { dob: child.dateOfBirth, gender: child.gender })}
+                </AppText>
+              </DetailRow>
+            ))
+          )}
+          <FormActions style={styles.actions}>
+            <Button
+              label={saving ? t('common.saving') : t('family.review.create')}
+              disabled={saving}
+              onPress={saveFamily}
+            />
+            <Button
+              label={t('family.review.back')}
+              variant="secondary"
+              disabled={saving}
+              onPress={() => router.back()}
+            />
+          </FormActions>
+        </View>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.background },
+  flex: { flex: 1 },
   content: {
     padding: layoutSpacing.screenHorizontal,
     gap: spacing.md,
@@ -108,9 +113,8 @@ const styles = StyleSheet.create({
     padding: layoutSpacing.cardPadding,
     gap: spacing.sm,
   },
-  row: {
-    gap: 2,
-    paddingVertical: spacing.xs,
+  actions: {
+    marginTop: spacing.sm,
   },
   muted: {
     color: palette.textSecondary,

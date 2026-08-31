@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import {
   createLocationAction,
@@ -25,7 +25,6 @@ export function LocationForm({
 
   return (
     <form
-      className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -47,63 +46,61 @@ export function LocationForm({
         });
       }}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="name">Location name</Label>
-          <Input id="name" name="name" required defaultValue={location?.name ?? ''} />
+      <FormStack>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Location name" htmlFor="name" className="sm:col-span-2">
+            <Input id="name" name="name" required defaultValue={location?.name ?? ''} />
+          </FormField>
+          <FormField label="Status" htmlFor="status">
+            <Select id="status" name="status" defaultValue={location?.status ?? 'active'}>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </Select>
+          </FormField>
+          <FormField label="Phone" htmlFor="phone">
+            <Input id="phone" name="phone" defaultValue={location?.phone ?? ''} />
+          </FormField>
+          <FormField
+            label="Claim contact email"
+            htmlFor="email"
+            hint="Same org-wide email used for claim. Only SoftLyft can change it before verification."
+          >
+            <Input
+              id="email"
+              type="email"
+              readOnly
+              disabled
+              value={location?.email ?? ''}
+              placeholder="Set by CareMate admin / ingest"
+            />
+          </FormField>
+          <FormField label="Address" htmlFor="address" className="sm:col-span-2">
+            <Input id="address" name="address" defaultValue={location?.address ?? ''} />
+          </FormField>
+          <FormField label="Latitude" htmlFor="latitude">
+            <Input
+              id="latitude"
+              name="latitude"
+              inputMode="decimal"
+              defaultValue={location?.latitude ?? ''}
+            />
+          </FormField>
+          <FormField label="Longitude" htmlFor="longitude">
+            <Input
+              id="longitude"
+              name="longitude"
+              inputMode="decimal"
+              defaultValue={location?.longitude ?? ''}
+            />
+          </FormField>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
-          <Select id="status" name="status" defaultValue={location?.status ?? 'active'}>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" defaultValue={location?.phone ?? ''} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Claim contact email</Label>
-          <Input
-            id="email"
-            type="email"
-            readOnly
-            disabled
-            value={location?.email ?? ''}
-            placeholder="Set by CareMate admin / ingest"
-          />
-          <p className="text-xs text-muted">
-            Same org-wide email used for claim. Only SoftLyft can change it before verification.
-          </p>
-        </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="address">Address</Label>
-          <Input id="address" name="address" defaultValue={location?.address ?? ''} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="latitude">Latitude</Label>
-          <Input
-            id="latitude"
-            name="latitude"
-            inputMode="decimal"
-            defaultValue={location?.latitude ?? ''}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="longitude">Longitude</Label>
-          <Input
-            id="longitude"
-            name="longitude"
-            inputMode="decimal"
-            defaultValue={location?.longitude ?? ''}
-          />
-        </div>
-      </div>
 
-      <Button type="submit" loading={pending}>
-        {mode === 'create' ? 'Create location' : 'Save location'}
-      </Button>
+        <FormActions className="justify-start">
+          <Button type="submit" loading={pending}>
+            {mode === 'create' ? 'Create location' : 'Save location'}
+          </Button>
+        </FormActions>
+      </FormStack>
     </form>
   );
 }

@@ -1,32 +1,24 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Alert,
-  Dimensions,
-  FlatList,
-  Keyboard,
-  Platform,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Dimensions, FlatList, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '@/components/ui/form-controls';
+import { MessageComposer } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { useConversationMessages } from '@/domains/messaging/hooks';
 import {
   getConversation,
   markConversationRead,
+  patientMessageErrorKey,
   sendPatientReply,
   type MessageMessage,
 } from '@/domains/messaging/repository';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
-import { layoutSpacing, palette, radius, spacing, textColors } from '@/theme';
+import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 type ThreadItem =
   | { kind: 'day'; id: string; label: string }
@@ -279,10 +271,7 @@ export default function MessageThreadScreen() {
       await messagesQuery.refetch();
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
     } catch (error) {
-      Alert.alert(
-        t('messages.sendFailedTitle'),
-        error instanceof Error ? error.message : t('messages.sendFailedMessage'),
-      );
+      Alert.alert(t('messages.sendFailedTitle'), t(patientMessageErrorKey(error)));
     } finally {
       setSending(false);
     }
@@ -308,7 +297,7 @@ export default function MessageThreadScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <View style={styles.headerHint}>
         <AppText variant="caption" color="brand">
           {title}
@@ -346,45 +335,22 @@ export default function MessageThreadScreen() {
         }
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
       />
-      <View
-        style={[
-          styles.composer,
-          {
-            paddingBottom: composerPaddingBottom,
-            marginBottom: lift,
-          },
-        ]}
-      >
-        <TextInput
-          style={styles.input}
-          value={draft}
-          onChangeText={setDraft}
-          placeholder={t('messages.replyPlaceholder')}
-          placeholderTextColor={textColors.placeholder}
-          multiline
-          editable={!sending}
-          textAlignVertical="top"
-        />
-        <Button
-          style={[styles.sendButton, (!draft.trim() || sending) && styles.sendDisabled]}
-          onPress={() => void handleSend()}
-          disabled={!draft.trim() || sending}
-          variant="plain"
-        >
-          <AppText variant="seeAll" style={styles.sendLabel}>
-            {sending ? t('messages.sending') : t('messages.send')}
-          </AppText>
-        </Button>
-      </View>
-    </View>
+      <MessageComposer
+        value={draft}
+        onChangeText={setDraft}
+        onSend={() => void handleSend()}
+        placeholder={t('messages.replyPlaceholder')}
+        sending={sending}
+        sendLabel={t('messages.send')}
+        sendingLabel={t('messages.sending')}
+        paddingBottom={composerPaddingBottom}
+        marginBottom={lift}
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   headerHint: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingVertical: spacing.sm,
@@ -454,40 +420,5 @@ const styles = StyleSheet.create({
   },
   bubbleTimeTheirs: {
     color: palette.textSecondary,
-  },
-  composer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: spacing.sm,
-    paddingHorizontal: layoutSpacing.screenHorizontal,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: palette.divider,
-    backgroundColor: palette.background,
-  },
-  input: {
-    flex: 1,
-    minHeight: 42,
-    maxHeight: 120,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: palette.divider,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: palette.text,
-    backgroundColor: palette.surface,
-  },
-  sendButton: {
-    borderRadius: radius.full,
-    backgroundColor: palette.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  sendDisabled: {
-    opacity: 0.45,
-  },
-  sendLabel: {
-    color: '#fff',
   },
 });

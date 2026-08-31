@@ -3,10 +3,19 @@
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { FormActions } from '@/components/ui/form-field';
 import { Textarea } from '@/components/ui/textarea';
 import { replyOrgMessageAction } from '@/domains/messaging/actions';
 
-export function ThreadReplyForm({ conversationId }: { conversationId: string }) {
+type ReplyOrgMessageAction = typeof replyOrgMessageAction;
+
+export function ThreadReplyForm({
+  conversationId,
+  replyAction = replyOrgMessageAction,
+}: {
+  conversationId: string;
+  replyAction?: ReplyOrgMessageAction;
+}) {
   const [pending, startTransition] = useTransition();
   const [body, setBody] = useState('');
 
@@ -22,7 +31,7 @@ export function ThreadReplyForm({ conversationId }: { conversationId: string }) 
         formData.set('body', trimmed);
         startTransition(async () => {
           try {
-            await replyOrgMessageAction(formData);
+            await replyAction(formData);
             setBody('');
             toast.success('Reply sent');
           } catch (err) {
@@ -38,11 +47,11 @@ export function ThreadReplyForm({ conversationId }: { conversationId: string }) 
         rows={3}
         required
       />
-      <div className="flex justify-end">
+      <FormActions>
         <Button type="submit" loading={pending} loadingLabel="Sending…" disabled={!body.trim()}>
           Send reply
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

@@ -13,7 +13,10 @@
     "title": "Activa la ubicación para encontrar proveedores de CareMate cercanos",
     "message": "Necesitamos tu ubicación para mostrar proveedores de CareMate cerca de ti. Activa la ubicación, o busca un proveedor por nombre arriba.",
     "action": "Activar ubicación",
-    "enabling": "Activando…"
+    "enabling": "Activando…",
+    "openSettings": "Abrir Ajustes",
+    "blockedTitle": "El acceso a la ubicación está bloqueado",
+    "blockedMessage": "CareMate no puede volver a pedir la ubicación en este dispositivo. Abre Ajustes, activa la ubicación para CareMate y vuelve aquí."
   },
   "approximate": "Usando ubicación aproximada",
   "outsideArea": "Fuera de tu zona habitual — los resultados pueden ser limitados",
@@ -24,11 +27,55 @@
     "favorite": "Guardar favorito",
     "unfavorite": "Quitar favorito",
     "call": "Llamar",
-    "directions": "Indicaciones"
+    "directions": "Indicaciones",
+    "supportedPayers": "Supported insurers",
+    "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Proveedor",
+    "backToNearby": "Volver a Cercanos",
+    "verified": "Verificado",
+    "contact": "Contacto",
+    "address": "Dirección",
+    "phone": "Teléfono",
+    "email": "Correo electrónico",
+    "addressUnavailable": "Dirección no disponible",
+    "phoneUnavailable": "Teléfono no disponible",
+    "emailUnavailable": "Correo no disponible",
+    "distanceKm": "A {{distance}} km",
+    "openInMaps": "Abrir en Mapas",
+    "openInMapsHint": "Toca para abrir en tu app de mapas",
+    "connect": "Conectar con proveedor",
+    "connectHint": "Crea una solicitud de conexión. Si aceptan, se habilita la mensajería segura — puedes revocarla en cualquier momento. Los datos de emergencia y otros datos de salud permanecen privados hasta que los compartas.",
+    "connectPending": "Solicitud de conexión pendiente",
+    "connectPendingOutbound": "Esperando aprobación del proveedor",
+    "connectPendingInbound": "Este proveedor quiere conectar",
+    "connectApproved": "Conectado",
+    "connectRejected": "Conexión rechazada",
+    "connectUnavailable": "La conexión aún no está disponible para este listado",
+    "connectGuest": "Inicia sesión para conectar con proveedores",
+    "connectSuccessTitle": "Solicitud enviada",
+    "connectSuccessMessage": "El proveedor revisará tu solicitud de conexión. La mensajería estará disponible si acepta.",
+    "connectFailedTitle": "No se pudo enviar la solicitud",
+    "approveInbound": "Aprobar conexión",
+    "declineInbound": "Rechazar",
+    "approveSuccessTitle": "Conectado",
+    "approveSuccessMessage": "Estás conectado. La mensajería segura está activa — gestiónala en Conexiones en cualquier momento.",
+    "respondFailedTitle": "No se pudo actualizar la conexión",
+    "connectRejectedFinal": "Conexión rechazada",
+    "cancelRequest": "Cancelar solicitud",
+    "cancelRequestHint": "Retira tu solicitud de conexión pendiente.",
+    "cancelReasonLabel": "Motivo de cancelación",
+    "cancelReasonPlaceholder": "Indica al proveedor por qué cancelas",
+    "confirmCancelRequest": "Confirmar cancelación",
+    "cancelSuccessTitle": "Solicitud cancelada",
+    "cancelSuccessMessage": "Tu solicitud de conexión fue retirada.",
+    "cancelFailedTitle": "No se pudo cancelar la solicitud"
   },
   "map": {
     "loading": "Cargando mapa...",
-    "empty": "No hay ubicaciones disponibles en el mapa"
+    "empty": "No hay ubicaciones disponibles en el mapa",
+    "title": "Cercanos",
+    "subtitle": "Abre un proveedor para iniciar indicaciones en tu app de mapas."
   },
   "types": {
     "hospital": "Hospital",
@@ -56,7 +103,8 @@
   },
   "lastKnown": {
     "message": "La ubicación está desactivada. Mostrando proveedores de CareMate cerca de tu último lugar conocido.",
-    "action": "Activar"
+    "action": "Activar",
+    "openSettings": "Abrir Ajustes"
   },
   "connections": {
     "title": "Connections",
@@ -98,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Línea de tiempo de salud",
+        "description": "Registros de solo lectura de tus apps de salud para un rango de fechas que elijas. No es exportación de archivo. Revocable en cualquier momento."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -106,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Rango de fechas",
+    "timelineRangeHint": "Este proveedor solo puede ver registros ocurridos en este rango. No puede descargar ni exportar tus registros.",
+    "timelinePreset": "Últimos {{days}} días",
+    "timelineCustom": "Personalizado",
+    "timelineFrom": "Desde (AAAA-MM-DD)",
+    "timelineTo": "Hasta (AAAA-MM-DD)",
+    "timelineWindow": "{{from}} a {{to}}",
+    "outboundTitle": "Solicitudes enviadas",
+    "outboundCount": "{{count}} esperando al proveedor",
+    "outboundEmptySubtitle": "No hay solicitudes enviadas pendientes",
+    "outboundScreenTitle": "Solicitudes de conexión enviadas",
+    "outboundScreenSubtitle": "Solicitudes que enviaste a proveedores. Puedes cancelar mientras sigan pendientes.",
+    "outboundEmpty": "No tienes solicitudes enviadas pendientes.",
+    "outboundPendingLabel": "Esperando aprobación",
+    "disconnect": "Desconectar",
+    "disconnectHint": "Finaliza esta conexión. Puedes enviar una nueva solicitud más tarde.",
+    "disconnectConfirmTitle": "¿Desconectar del proveedor?",
+    "disconnectConfirmMessage": "Este proveedor ya no estará vinculado a tu cuenta CareMate.",
+    "disconnectConfirmAction": "Desconectar",
+    "disconnectReasonLabel": "Motivo (opcional)",
+    "disconnectReasonPlaceholder": "Indica al proveedor por qué te desconectas",
+    "disconnectSuccessTitle": "Desconectado",
+    "disconnectSuccessMessage": "Ya no estás conectado con este proveedor.",
+    "disconnectFailedTitle": "No se pudo desconectar"
+  },
+  "loadFailed": {
+    "title": "No se pudieron cargar los proveedores",
+    "message": "Comprueba tu conexión e inténtalo de nuevo."
+  },
+  "favorites": {
+    "openA11y": "Ver proveedores favoritos",
+    "loading": "Cargando favoritos...",
+    "emptyTitle": "Aún no hay favoritos",
+    "emptyMessage": "Guarda un proveedor desde su pantalla de detalle para encontrarlo aquí después.",
+    "emptyAction": "Explorar cercanos",
+    "loadFailed": {
+      "title": "No se pudieron cargar los favoritos",
+      "message": "Comprueba tu conexión e inténtalo de nuevo."
     }
+  },
+  "connectionRequests": {
+    "link": "Solicitudes de conexión",
+    "linkWithCount": "Solicitudes de conexión ({{count}})",
+    "title": "Solicitudes de conexión",
+    "subtitle": "Proveedores que quieren conectar contigo. Aprobar habilita mensajería segura (revocable después). Los datos de emergencia no se comparten hasta que des ese consentimiento.",
+    "loading": "Cargando solicitudes...",
+    "empty": "No hay solicitudes de conexión pendientes.",
+    "guest": "Inicia sesión para gestionar solicitudes de conexión con proveedores.",
+    "providerFallback": "Proveedor",
+    "noteLabel": "Nota del proveedor",
+    "approve": "Aprobar",
+    "decline": "Rechazar",
+    "approvedTitle": "Conectado",
+    "approvedMessage": "Estás conectado. La mensajería segura está activa — gestiona consentimientos en cualquier momento.",
+    "declinedTitle": "Rechazado",
+    "declinedMessage": "Rechazaste esta solicitud de conexión.",
+    "failedTitle": "No se pudo actualizar la solicitud",
+    "failedMessage": "Inténtalo de nuevo.",
+    "loadFailed": {
+      "title": "No se pudieron cargar las solicitudes",
+      "message": "Comprueba tu conexión e inténtalo de nuevo."
+    },
+    "reasonLabel": "Motivo del rechazo",
+    "reasonPlaceholder": "Indica al proveedor por qué rechazas",
+    "confirmDecline": "Confirmar rechazo"
   }
 }

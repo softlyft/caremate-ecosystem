@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
 import { getDeviceDefaults } from '@/domains/onboarding';
 import type { DeviceDefaults } from '@/domains/onboarding';
@@ -49,54 +50,55 @@ export default function SetupDoneScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.body}>
-        <AppText variant="caption" style={styles.eyebrow}>
-          {t('setup.done.eyebrow')}
-        </AppText>
-        <AppText variant="screenTitle" style={styles.title}>
-          {t('setup.done.title')}
-        </AppText>
-        <AppText variant="subtitle" style={styles.subtitle}>
-          {t('setup.done.subtitle')}
-        </AppText>
+    <Screen padded={false}>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.body}>
+          <AppText variant="caption" style={styles.eyebrow}>
+            {t('setup.done.eyebrow')}
+          </AppText>
+          <AppText variant="screenTitle" style={styles.title}>
+            {t('setup.done.title')}
+          </AppText>
+          <AppText variant="subtitle" style={styles.subtitle}>
+            {t('setup.done.subtitle')}
+          </AppText>
 
-        <View style={styles.card}>
-          {checks.map((item) => {
-            if (item.deferred === false) {
+          <View style={styles.card}>
+            {checks.map((item) => {
+              if (item.deferred === false) {
+                return null;
+              }
+              if (item.deferred === undefined || item.deferred === true) {
+                return (
+                  <View key={item.key} style={styles.checkRow}>
+                    <View style={[styles.dot, item.done ? styles.dotDone : styles.dotPending]} />
+                    <AppText variant="body" style={styles.checkLabel}>
+                      {item.label}
+                      {!item.done ? t('setup.done.finishLater') : ''}
+                    </AppText>
+                  </View>
+                );
+              }
               return null;
-            }
-            if (item.deferred === undefined || item.deferred === true) {
-              return (
-                <View key={item.key} style={styles.checkRow}>
-                  <View style={[styles.dot, item.done ? styles.dotDone : styles.dotPending]} />
-                  <AppText variant="body" style={styles.checkLabel}>
-                    {item.label}
-                    {!item.done ? t('setup.done.finishLater') : ''}
-                  </AppText>
-                </View>
-              );
-            }
-            return null;
-          })}
+            })}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.footer}>
-        <Button
-          label={t('setup.done.openHome')}
-          onPress={() => router.replace('/(app)/(tabs)')}
-          style={styles.primaryCta}
-        />
-      </View>
-    </SafeAreaView>
+        <View style={styles.footer}>
+          <Button
+            label={t('setup.done.openHome')}
+            onPress={() => router.replace('/(app)/(tabs)')}
+            style={styles.primaryCta}
+          />
+        </View>
+      </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: palette.surface,
   },
   body: {
     flex: 1,

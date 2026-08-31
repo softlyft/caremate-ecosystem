@@ -1,17 +1,12 @@
-import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import {
-  Users,
-  UserPlus,
-  FileText,
-  Megaphone,
-  Upload,
-  Send,
-} from 'lucide-react';
+import { Users, UserPlus, FileText, Megaphone, Upload, Send } from 'lucide-react';
 import { requireProviderSession } from '@/lib/auth';
 import { requireModule } from '@/domains/modules/guard';
 import { listRecentActivities } from '@/domains/activity/repository';
 import { getAnalyticsSnapshot } from '@/domains/analytics/repository';
+import { PageHeader, PageShell } from '@/components/page-header';
+import { DashboardMetricGrid } from '@/components/features/dashboard-metric-card';
+import { DashboardQuickActions } from '@/components/features/dashboard-quick-actions';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -24,39 +19,42 @@ export default async function DashboardPage() {
     listRecentActivities(orgId, 10),
   ]);
 
-  const cards = [
-    { label: 'Connected Patients', value: metrics.connectedPatients, icon: Users, href: '/app/patients' },
-    { label: 'Pending Requests', value: metrics.pendingRequests, icon: UserPlus, href: '/app/patients/requests' },
-    { label: 'Shared Documents', value: metrics.documentsShared, icon: FileText, href: '/app/documents' },
-    { label: 'Broadcasts Sent', value: metrics.broadcastsSent, icon: Megaphone, href: '/app/broadcasts' },
-  ];
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted">
-          Patient engagement overview for {session.activeOrganizationName}
-        </p>
-      </div>
+    <PageShell spacing="loose">
+      <PageHeader
+        title="Dashboard"
+        description={`Patient engagement overview for ${session.activeOrganizationName}`}
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ label, value, icon: Icon, href }) => (
-          <Link key={label} href={href}>
-            <Card className="transition-shadow hover:shadow-md">
-              <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold text-foreground">{value}</p>
-                  <p className="text-sm text-muted">{label}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <DashboardMetricGrid
+        columns="sm:grid-cols-2 lg:grid-cols-3"
+        metrics={[
+          {
+            label: 'Connected Patients',
+            value: metrics.connectedPatients,
+            icon: Users,
+            href: '/app/patients',
+          },
+          {
+            label: 'Pending Requests',
+            value: metrics.pendingRequests,
+            icon: UserPlus,
+            href: '/app/patients/requests',
+          },
+          {
+            label: 'Shared Documents',
+            value: metrics.documentsShared,
+            icon: FileText,
+            href: '/app/documents',
+          },
+          {
+            label: 'Broadcasts Sent',
+            value: metrics.broadcastsSent,
+            icon: Megaphone,
+            href: '/app/broadcasts',
+          },
+        ]}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -87,36 +85,14 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick actions</CardTitle>
-            <CardDescription>Common engagement tasks</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            <Link
-              href="/app/broadcasts"
-              className="inline-flex h-10 items-center justify-start gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark"
-            >
-              <Send className="h-4 w-4" />
-              Send broadcast
-            </Link>
-            <Link
-              href="/app/documents"
-              className="inline-flex h-10 items-center justify-start gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
-            >
-              <Upload className="h-4 w-4" />
-              Upload document
-            </Link>
-            <Link
-              href="/app/patients"
-              className="inline-flex h-10 items-center justify-start gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-surface-muted"
-            >
-              <Users className="h-4 w-4" />
-              View patients
-            </Link>
-          </CardContent>
-        </Card>
+        <DashboardQuickActions
+          actions={[
+            { label: 'Send broadcast', href: '/app/broadcasts', icon: Send, variant: 'primary' },
+            { label: 'Upload document', href: '/app/documents', icon: Upload },
+            { label: 'View patients', href: '/app/patients', icon: Users },
+          ]}
+        />
       </div>
-    </div>
+    </PageShell>
   );
 }

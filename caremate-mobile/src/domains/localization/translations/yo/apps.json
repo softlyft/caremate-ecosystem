@@ -29,7 +29,7 @@
       "description": "Tọpinpin àwọn ìyípo, ṣàkọsílẹ̀ ọjọ́ nǹkan oṣù, kí o sì rí àwọn àsọtẹ́lẹ̀ tó rọrùn."
     }
   },
-  "signInRequired": "Wọlé láti ṣàmúisọpọ̀ irinṣẹ́ yìí káàkiri àwọn ẹ̀rọ",
+  "signInRequired": "Wọle lati mu irinṣẹ yii ṣe afarayọ lori awọn ẹrọ",
   "save": "Fi pamọ́",
   "log": "Ṣàkọsílẹ̀",
   "setup": "Ṣètò",
@@ -164,7 +164,20 @@
       "refillDateOptional": "Ọjọ́ àtúntẹ̀ tí kò pọn dandan — tẹ̀ ẹ́ lẹ́ẹ̀kan sí i láti pa á rẹ́",
       "historySubtitle": "Àwọn ìwọ̀n àìpẹ́ tí o ṣàkọsílẹ̀",
       "historyEmpty": "Kò sí ìwọ̀n síbẹ̀. Samisi pé a ti mu láti kọ́ ìtàn.",
-      "unknownMedicine": "Òògùn tí a kò mọ̀"
+      "unknownMedicine": "Òògùn tí a kò mọ̀",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "Akoko iwọsan",
+      "durationDays": "{{count}} ọjọ",
+      "treatmentEndedTitle": "Iwọsan ti pari tẹlẹ",
+      "treatmentPeriodHint": "Yan bii o ṣe yoo mu oogun yii, tabi jẹ ki o tẹsiwaju.",
+      "durationOngoing": "Ti n lọ lọwọ",
+      "durationCustom": "Ipari aṣa",
+      "endDate": "Ọjọ ipari",
+      "endBeforeStartTitle": "Ọjọ ipari ni akoko akọkọ ju",
+      "endBeforeStartMessage": "Yan ọjọ ipari lori tabi lẹhin ọjọ ibẹrẹ.",
+      "clearRefillDate": "Paarẹ ọjọ",
+      "startsOngoing": "Bẹrẹ {{date}} · n lọ lọwọ",
+      "treatmentEndedMessage": "Akoko iwọsan yẹn pari ṣaaju loni. Yan ọjọ ipari ti o wa lẹhin, akoko gigun, tabi ṣe aami oogun gẹgẹbi ti n lọ lọwọ."
     },
     "status": {
       "taken": "A ti mu",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} ni a pàdánù. Ṣe àtúnṣe nígbà tí o bá lè.",
       "refillTitle": "Àtúntẹ̀ láìpẹ́: {{name}}",
       "refillBody": "{{name}} ń kéré tàbí ó yẹ fún àtúntẹ̀."
+    },
+    "validation": {
+      "undoTitle": "Da iṣẹju yii pada?",
+      "undoMessage": "Eyi yoo ṣe aami iṣẹju gẹgẹbi ti a ko mu. Ti stock ti dinku, a o pada si.",
+      "undoConfirm": "Da pada",
+      "nameLong": "Orukọ oogun yii jinna pupọ. Jọwọ jẹrisi pe o tọ.",
+      "instructionsOtherEmpty": "O yan awọn ilana \"Other\" ṣugbọn o fi awọn alaye ṣofo. Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "asNeededMany": "O ti kọ {{count}} awọn iṣẹju bi a nilo fun oogun yii loni. Jọwọ jẹrisi ṣaaju fifikun miiran.",
+      "checkTitle": "Jọwọ ṣayẹwo eyi",
+      "confirmTitle": "Jọwọ jẹrisi",
+      "cancel": "Fagilee",
+      "requiredName": "Jọwọ tẹ orukọ oogun ṣaaju fifipamọ.",
+      "requiredDosage": "Jọwọ tẹ iṣẹju (fun apẹẹrẹ 500mg) ṣaaju fifipamọ.",
+      "requiredStart": "Jọwọ yan ọjọ ibẹrẹ kan ṣaaju fifipamọ.",
+      "childRequired": "Yan iru ọmọ ti oogun yii jẹ fun.",
+      "slotTimesInvalid": "Yan akoko to dara fun ẹya kọọkan lilo aago picker.",
+      "slotTimesDuplicate": "Ẹya kọọkan nilo akoko ti o yatọ. Meji ko le lo akoko aago kan na.",
+      "saveAnyway": "Fi pamọ lọwọ",
+      "endBeforeStart": "Ọjọ ipari yẹ ki o jẹ lori tabi lẹhin ọjọ ibẹrẹ.",
+      "treatmentEnded": "Akoko iwọsan yẹn pari ṣaaju loni. Yan ọjọ ipari ti o wa lẹhin, akoko gigun, tabi ṣe aami oogun gẹgẹbi ti n lọ lọwọ.",
+      "quantityInvalid": "Iye ti o ku yẹ ki o jẹ nọmba kan (0 tabi ju), tabi fi ofo.",
+      "thresholdInvalid": "Ipele iránilétí atunṣe yẹ ki o jẹ nọmba pipe (0 tabi ju).",
+      "unusualCheck": "Eyi dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+      "dosageNoUnit": "Iṣẹju yii dabi nọmba nikan. Ṣe o fẹ fi ẹyọ kun (mg, ml, tabilẹti…)?",
+      "slotsTooClose": "Awọn akoko iṣẹju yii kere ju wakati 2 lọwọ. Jọwọ jẹrisi pe o jẹ ifẹ.",
+      "courseLong": "Iwọsan yii ju ọdun kan (ọjọ {{days}}). Jọwọ jẹrisi pe o tọ.",
+      "refillBeforeStart": "Ọjọ atunṣe wa ṣaaju ọjọ ibẹrẹ iwọsan. Jọwọ jẹrisi pe o tọ.",
+      "quantityHigh": "Iye ({{value}}) yii dabi ga ju. Jọwọ jẹrisi pe o tọ.",
+      "thresholdAboveQuantity": "Iránilétí atunṣe ti ṣeto ni ọwọ iye ti o ku. Jọwọ jẹrisi pe o jẹ ifẹ.",
+      "logBeforeStart": "Ọjọ yii wa ṣaaju ọjọ ibẹrẹ oogun. Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "logAfterEnd": "Ọjọ yii wa lẹhin ọjọ ipari iwọsan. Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "logFuture": "Ọjọ yii wa ni ọjọ iwaju. Jọwọ jẹrisi pe o fẹ kọ a ni iwaju."
     }
   },
   "edit": "Ṣàtúnṣe",
@@ -201,5 +246,789 @@
   "saveChanges": "Fi àyípadà pamọ́",
   "loading": "Ń kojọ…",
   "editProfile": "Ṣàtúnṣe profáìlì",
-  "signInRequiredTitle": "Wíwọlé pọn dandan"
+  "signInRequiredTitle": "A nilo wiwọle",
+  "vitalsTracker": {
+    "eyebrow": "Awọn iṣẹmi",
+    "screenTitle": "Awọn iṣẹmi",
+    "backToApps": "Pada si Awọn ohun elo",
+    "close": "Pa",
+    "emptyTitle": "Awọn iṣẹmi rẹ, ni iwoye kan",
+    "emptySubtitle": "Kọ kika ni aaya — bii ṣayẹwo iye akọọlẹ rẹ.",
+    "titleWithData": "Awọn iṣẹmi to kẹhin",
+    "subtitleWithData": "Yara lati ṣi, rọrun lati ṣe imudojuiwọn",
+    "logVital": "Kọ iṣẹmi",
+    "logTitle": "Kọ iṣẹmi",
+    "logSubtitle": "Yan iwọn kan, tẹ iye, ki o fi pamọ.",
+    "saveLog": "Fi kika pamọ",
+    "setupTitle": "Yan awọn iwo rẹ",
+    "setupSubtitle": "Yan bi o ṣe n ṣe iwọn deede — o le yi pada lẹhinna.",
+    "setupCta": "Ṣeto awọn iwo",
+    "setupSave": "Fi awọn ayanfẹ pamọ",
+    "editUnits": "Ṣatunkọ awọn iwo"
+  },
+  "periodTracker": {
+    "eyebrow": "Loni",
+    "screenTitle": "Olutọpa Akoko",
+    "logTitle": "Kọ akoko",
+    "backToApps": "Pada si Awọn ohun elo",
+    "close": "Pa",
+    "emptyTitle": "Bẹrẹ lati tọpa akoko rẹ",
+    "emptySubtitle": "Kọ akoko rẹ to kẹhin lati ri awọn asọtẹlẹ",
+    "logPeriodDays": "Kọ awọn ọjọ akoko",
+    "markPeriod": "Samọ akoko rẹ",
+    "markPeriodSubtitle": "Tẹ awọn ọjọ ti o wa ni akoko rẹ. O le yan ọjọ pupọ ni osu."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Ajẹsara",
+    "screenTitle": "Olutọpa Ajẹsara",
+    "setupTitle": "Awọn ọmọ ebi",
+    "logTitle": "Kọ ajẹsara",
+    "backToApps": "Pada si Awọn ohun elo",
+    "close": "Pa",
+    "loading": "N gba awọn ọmọ lati ebi rẹ…",
+    "loadingLog": "N gba iwe akọsilẹ ajẹsara…",
+    "emptyTitle": "Tọpa awọn ajẹsara",
+    "signInSubtitle": "Itọpa ajẹsara n lo awọn ọmọ lati profaili ebi CareMate rẹ.",
+    "needsFamilySubtitle": "Ṣẹda profaili ebi rẹ ki o fi awọn ọmọ kun pẹlu ọjọ ibi. Lẹhinna eto ajẹsara wọn yoo han nibi.",
+    "needsChildrenSubtitle": "Ile rẹ ko ni awọn ọmọ pẹlu ọjọ ibi sibẹsibẹ. Fi awọn ọmọ kun ni Ebi lati bẹrẹ titele ajẹsara.",
+    "childrenFromFamilyTitle": "Awọn ọmọ wa lati Ebi",
+    "childrenFromFamilySubtitle": "O ko le fi ọmọ kun nibi. Ṣeto profaili ebi rẹ ki o fi awọn ọmọ kun pẹlu ọjọ ibi, lẹhinna pada si Olutọpa Ajẹsara.",
+    "logVaccine": "Kọ ajẹsara",
+    "saveVaccine": "Fi ajẹsara pamọ",
+    "updateRecord": "Ṣe imudojuiwọn iwe akọsilẹ",
+    "noChildSelected": "Ko si ọmọ ti a yan",
+    "noChildSubtitle": "Fi awọn ọmọ kun si profaili Ebi rẹ ṣaaju kikọ awọn ajẹsara."
+  },
+  "checkupPlanner": {
+    "eyebrow": "Olupinnu Iwadi Ilera",
+    "screenTitle": "Olupinnu Iwadi Ilera",
+    "setupTitle": "Ṣeto Olupinnu",
+    "logTitle": "Kọ iwadi ilera",
+    "backToApps": "Pada si Awọn ohun elo",
+    "close": "Pa",
+    "emptyTitle": "Ṣeto awọn iwadi ilera rẹ",
+    "emptySubtitle": "Tẹ ọjọ ibi, akọ, ati agbegbe optional rẹ lati ri awọn idanwo ti a n ṣeduro",
+    "setUpPlanner": "Ṣeto olupinnu",
+    "editProfile": "Ṣatunkọ profaili",
+    "setupSave": "Fi pamọ ki o wo eto",
+    "setupSaveEdit": "Fi awọn ayipada pamọ",
+    "needSetup": "Ṣeto profaili iwadi ilera rẹ akọkọ."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Oyun",
+    "emptyTitle": "Tọpa irin ajo oyun rẹ",
+    "emptySubtitle": "Ṣeto ọjọ ibi tabi akoko rẹ to kẹhin lati bẹrẹ",
+    "setUp": "Ṣeto oyun",
+    "updateDueDate": "Ṣe imudojuiwọn ọjọ ibi",
+    "logToday": "Kọ loni",
+    "setupSave": "Fi pamọ",
+    "saveLog": "Fi iwe akọsilẹ pamọ",
+    "screenTitle": "Olutọpa Oyun",
+    "setupTitle": "Ṣeto Oyun",
+    "logTitle": "Iwe akọsilẹ ojoojumọ",
+    "ttTitle": "Kọ ẹya TT",
+    "birthTitle": "Mo bi",
+    "backToApps": "Pada si Awọn ohun elo",
+    "close": "Pa"
+  },
+  "reorderHint": "Di kaadi kan mu, lẹhinna fa lati tunto. Eto naa wa lori ẹrọ yii.",
+  "reorderHintA11y": "Tẹ ni igba meji ki o si di mu, lẹhinna fa lati tunto",
+  "checkup": {
+    "cadence": {
+      "annual": "Ni ọdọọdún kan",
+      "once": "Lẹẹkan (nigba ti o yẹ)",
+      "every-2-years": "Ni ọdọọdún 2",
+      "every-3-years": "Ni ọdọọdún 3",
+      "every-5-years": "Ni ọdọọdún 5"
+    },
+    "gender": {
+      "female": "Obinrin",
+      "male": "Okunrin",
+      "other": "Miiran / maṣe fẹ sọ"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "Abẹwo ọdun kan pẹlu onisegun fun atunwo ilera lapapọ.",
+        "name": "Iwadii ilera gbogbogbo"
+      },
+      "dental-checkup": {
+        "name": "Ayewo ehin",
+        "description": "Mimọ ati ayewo ẹnu lati mu awọn iho ati arun igba ṣaaju."
+      },
+      "eye-exam": {
+        "name": "Iwadii oju / iran",
+        "description": "Ṣayẹwo riran ati ilera oju; nigba mimọ si ti o ba wọ gilasi tabi ni diabetes."
+      },
+      "blood-pressure": {
+        "name": "Ayewo titẹ eje",
+        "description": "Ṣe ayẹwo eje didun — ewu ti ko gbọ ti o le fa arun ọkan ati stroke."
+      },
+      "blood-sugar": {
+        "name": "Ayewo suga eje / diabetes",
+        "description": "Suga ẹjẹ ajẹ tabi HbA1c, pataki pẹlu itan idile tabi iwuwo ju."
+      },
+      "cholesterol": {
+        "name": "Cholesterol / lipid panel",
+        "description": "Ayewo eje fun ewu ọkan. Jirọ akoko pẹlu onisegun rẹ."
+      },
+      "weight-bmi": {
+        "name": "Atunwo iwuwo ati BMI",
+        "description": "Tọpa awọn aṣa iwuwo ilera bi apakan ti iṣayẹwo ọdun rẹ."
+      },
+      "flu-vaccine": {
+        "description": "Ajẹsara flu ọdun nibiti o wa ati ti a ṣe asọtẹlẹ.",
+        "name": "Ajẹsara flu akoko"
+      },
+      "cervical-screening": {
+        "name": "Ayewo cervix (Pap / HPV)",
+        "description": "Ṣe ayẹwo arun cervical. Tẹle awọn ilana agbegbe fun akoko."
+      },
+      "mammogram": {
+        "name": "Mammogram",
+        "description": "Ayewo ara kanseri omu. Ọjọ ori ibẹrẹ yatọ da lori ilana ati ewu."
+      },
+      "prostate-discussion": {
+        "name": "Ijiroro ilera prostate",
+        "description": "Sọrọ pẹlu onisegun nipa idanwo PSA ati awọn ààmì prostate."
+      },
+      "prostate-earlier": {
+        "name": "Ijirọpọ prostate ni akoko akọkọ",
+        "description": "Ròyìjọ sọrọ lori ayewo ni akoko akọkọ ti o ba ni asa Afirika tabi itan idile."
+      },
+      "colorectal-screening": {
+        "name": "Ayewo kanseri colorectal",
+        "description": "Idanwo igbẹ tabi colonoscopy lati igba agbalagba — beere eyi ti o ba yẹ fun ọ."
+      },
+      "skin-check": {
+        "name": "Iwadii ara",
+        "description": "Ṣayẹwo awọn mole ati awọn ayipada ara pẹlu onisegun."
+      },
+      "hearing-check": {
+        "name": "Iwadii gbọ",
+        "description": "Ṣe ayẹwo padanu gbọ ti o jẹ mọ si ọjọ ori."
+      },
+      "bone-density-women": {
+        "name": "Iwuwo egungun (DEXA)",
+        "description": "Ṣe ayẹwo ewu osteoporosis lẹhin menopause / igba agbalagba."
+      },
+      "bone-density-men": {
+        "name": "Iwuwo egungun (DEXA)",
+        "description": "Ṣe ayẹwo ewu osteoporosis ni igba agbalagba."
+      },
+      "tetanus-booster": {
+        "description": "Jẹrisi pe awọn atilẹyin TT (ati ibatan) wa ni imudojuiwọn — nigba mimọ ni ọdọọdún 10.",
+        "name": "Atunwo atilẹyin tetanus"
+      }
+    },
+    "status": {
+      "upcoming": "Ti n bọ",
+      "completed": "Ti pari",
+      "due": "Ti yẹ",
+      "overdue": "Ti kọja"
+    },
+    "ui": {
+      "actionableOne": "{{count}} iṣayẹwo fun {{year}}",
+      "actionableMany": "{{count}} awọn iṣayẹwo fun {{year}}",
+      "onTrack": "Awọn iṣayẹwo {{year}} wa lori ọna",
+      "yearPlan": "Eto rẹ {{year}}",
+      "thisYear": "Ọdun yii ({{year}})",
+      "ofTotal": "{{completed}} ninu {{total}}",
+      "checklist": "Atokọ ayẹwo {{year}}",
+      "clearConfirmMessage": "Profaili rẹ ati itan pari yoo yọ kuro lori ẹrọ yii.",
+      "regionHint": "A lo fun awọn imọran kan ti o mọ orilẹ-ede. Fi Global sii ti o ko da daju.",
+      "regionSelectPlaceholder": "Yan orilẹ-ede kan",
+      "dob": "Ọjọ ibi",
+      "genderLabel": "Akọ",
+      "updateLog": "Imudojuiwọn iwe akọsilẹ",
+      "setupIntro": "A lo ọjọ ibi rẹ, akọ, ati agbegbe lati ṣe asọtẹlẹ awọn iṣayẹwo ti o wọpọ. Agbegbe jẹ aṣayan ati a dapọ si International.",
+      "ageLine": "Ọjọ ori {{age}} · {{gender}} · {{region}}",
+      "nextYear": "Ọdun ti o kan ({{year}})",
+      "done": "Ti pari",
+      "guidance": "Imọran nikan — sọrọ pẹlu onisegun fun imọran ti ara rẹ.",
+      "emptyYear": "Ko si awọn iṣayẹwo ti a ṣe atokọ fun ọdun yii pẹlu profaili rẹ lọwọlọwọ.",
+      "doneDate": "Ti pari {{date}}",
+      "clearData": "Paarẹ data olutọpa",
+      "clearConfirmTitle": "Paarẹ olutọpa iwadii?",
+      "regionOptional": "Orilẹ-ede (aayan)",
+      "regionSearchEmpty": "Ko si orilẹ-ede kan ti o ba wiwa naa mu.",
+      "globalOption": "Global ({{code}})",
+      "notesPlaceholder": "Orukọ ile iwosan, awọn abajade lati tẹle…",
+      "markDone": "Samisi pe o ti pari fun {{year}}",
+      "dobLabel": "Ọjọ ibi: {{date}}",
+      "logIntro": "Kọ pe o ti pari iṣayẹwo yii fun {{year}}. O le da pada lẹhin lati iboju yii.",
+      "dateCompleted": "Ọjọ ti a pari",
+      "completedLabel": "Ti pari: {{date}}",
+      "notesOptional": "Awọn akọsilẹ (aṣayan)",
+      "globalShort": "Global",
+      "tapToLog": "Tẹ lati kọ",
+      "regionSearchPlaceholder": "Wa awọn orilẹ-ede",
+      "removeLog": "Yọ iwe akọsilẹ yii",
+      "tapDob": "Tẹ ọjọ ibi rẹ.",
+      "notFound": "A ko ri iṣayẹwo naa.",
+      "removeCompletion": "Yọ pari"
+    },
+    "validation": {
+      "undoConfirm": "Yọ kuro",
+      "completedYearMismatch": "O kọ {{completedYear}}, ṣugbọn nkan yii jẹ fun eto {{planYear}}. Jọwọ jẹrisi pe o jẹ ifẹ.",
+      "onceAlreadyLogged": "Iṣayẹwo yii ti diẹ ti a ti kọ fun {{year}}. Jọwọ jẹrisi pe o fẹ kọ o lẹẹkan si.",
+      "checkTitle": "Jọwọ ṣayẹwo eyi",
+      "confirmTitle": "Jọwọ jẹrisi",
+      "cancel": "Fagilee",
+      "requiredGender": "Jọwọ yan aṣayan akọ kan ṣaaju fifipamọ.",
+      "requiredDob": "Jọwọ yan ọjọ ibi rẹ ṣaaju fifipamọ.",
+      "dobFuture": "Ọjọ ibi ko le wa ni ọjọ iwaju.",
+      "ageYoung": "Ni ọjọ ori {{age}}, awọn iwadii agbalagba kekere ni yoo han. Jọwọ jẹrisi pe ọjọ ibi yii tọ.",
+      "completedFuture": "A ko le ṣamiṣẹ iwadii pẹlu ọjọ iwaju. Yan loni tabi ọjọ ti o kọja.",
+      "saveAnyway": "Fi pamọ lọwọ",
+      "undoTitle": "Yọ pari yii?",
+      "undoMessage": "Iṣayẹwo yii yoo han bi a ko ṣe fun ọdun yẹn si.",
+      "invalidCheckup": "A ko ri iṣayẹwo naa. Pada ki o tun gbiyanju.",
+      "invalidYear": "Ọdun eto yẹn dabi aito. Jọwọ ṣii iṣayẹwo naa lati atokọ ayẹwo ọdun rẹ.",
+      "unusualCheck": "Eyi dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+      "completedBeforeDob": "Ọjọ pipari ko le wa ṣaaju ọjọ ibi rẹ.",
+      "ageHigh": "Ọjọ ibi yii yoo jẹ ki o jẹ {{age}}. Jọwọ jẹrisi pe o tọ.",
+      "notesLong": "Awọn akọsilẹ wọnyi jinna pupọ. Jọwọ jẹrisi ṣaaju fifipamọ."
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Ẹya ibi",
+        "description": "Dabobo awọn ọna ti o lewu ti tuberculosis."
+      },
+      "hep-b-birth": {
+        "name": "Hepatitis B",
+        "doseLabel": "Ẹya ibi",
+        "description": "Iṣẹju akọkọ fun ni ibimọ tabi laarin wakati 24."
+      },
+      "opv-0": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Ẹya 0",
+        "description": "Ẹya ibi ti ajẹsara OPV."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Ẹya 1",
+        "description": "Bo diphtheria, tetanus, pertussis, hepatitis B, ati Hib."
+      },
+      "opv-1": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Ẹya 1",
+        "description": "Iṣẹju polio akọkọ ti o wọpọ."
+      },
+      "pcv-1": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Ẹya 1",
+        "description": "Dabobo arun pneumococcal."
+      },
+      "rota-1": {
+        "doseLabel": "Ẹya 1",
+        "name": "Rotavirus",
+        "description": "Dabobo igbona ti o lewu lati rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Ẹya 2",
+        "description": "Iṣẹju pentavalent keji."
+      },
+      "opv-2": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Ẹya 2",
+        "description": "Iṣẹju polio keji ti o wọpọ."
+      },
+      "pcv-2": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Ẹya 2",
+        "description": "Iṣẹju pneumococcal keji."
+      },
+      "rota-2": {
+        "doseLabel": "Ẹya 2",
+        "name": "Rotavirus",
+        "description": "Iṣẹju rotavirus keji."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Ẹya 3",
+        "description": "Iṣẹju pentavalent kẹta."
+      },
+      "opv-3": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Ẹya 3",
+        "description": "Iṣẹju polio deede kẹta."
+      },
+      "pcv-3": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Ẹya 3",
+        "description": "Iṣẹju pneumococcal kẹta."
+      },
+      "ipv": {
+        "name": "Polio (IPV)",
+        "doseLabel": "Atilẹyin",
+        "description": "Atunṣe polio ti ko ṣiṣẹ ni ọsẹ 6."
+      },
+      "measles-1": {
+        "name": "Measles / MR",
+        "doseLabel": "Ẹya 1",
+        "description": "Iṣẹju measles-rubella akọkọ ni ọsẹ 9."
+      },
+      "yellow-fever": {
+        "name": "Yellow Fever",
+        "doseLabel": "Iṣẹju kan",
+        "description": "A ṣe asọtẹlẹ ni agbegbe endemic lati osu 9."
+      },
+      "measles-2": {
+        "name": "Measles / MR",
+        "doseLabel": "Ẹya 2",
+        "description": "Iṣẹju measles-rubella keji ni ọsẹ 15."
+      },
+      "vitamin-a": {
+        "name": "Vitamin A",
+        "doseLabel": "Atilẹyin",
+        "description": "Atilẹyin vitamin A ti o wọpọ lati osu 15."
+      }
+    },
+    "ui": {
+      "dob": "Ọjọ ibi",
+      "scheduleTitle": "Iṣeto ajẹsara",
+      "timeline": "Akoko aṣa",
+      "vaccineRecord": "Iwe ajẹsara",
+      "whereToGo": "Ibo lati lọ",
+      "overdueVisit": "{{count}} ajẹsara ti kọja — ṣeto abẹwo",
+      "overdueVisit_other": "{{count}} awọn ajẹsara ti kọja — ṣeto abẹwo",
+      "vaccinesCompleted": "{{completed}} ninu {{total}} awọn ajẹsara ti pari",
+      "children": "Awọn ọmọ",
+      "family": "Ebi",
+      "percentComplete": "{{percent}}% pari",
+      "daysOverdue": "{{count}} ọjọ ti kọja",
+      "daysOverdue_other": "{{count}} ọjọ ti kọja",
+      "vaccineRecordTitle": "Iwe ajẹsara",
+      "noChildSelected": "Ko si ọmọ ti a yan",
+      "vaccine": "Ajẹsara",
+      "selectedDate": "Ti yan: {{date}}",
+      "nextDue": "Ti o kan: {{name}} ({{dose}})",
+      "allUpToDate": "Gbogbo ajẹsara ti a ṣeto wa ni imudojuiwọn",
+      "attention": "A nilo akitiyan",
+      "alreadyLogged": "Ti kọ tẹlẹ",
+      "administeredDate": "Ọjọ ti a fun",
+      "optional": "Aṣayan",
+      "notesPlaceholder": "Nọmba batch, awọn idahun, ati bẹbẹ lọ.",
+      "nextSteps": "Awọn igbesẹ ti o kan",
+      "childrenFromFamilyCaption": "Awọn ọmọ wa lati profaili Ebi rẹ.",
+      "details": "Awọn alaye",
+      "age": "Ọjọ ori",
+      "nextUp": "Ti o kan",
+      "dueToday": "Ti yẹ loni",
+      "dueInDays": "Yoo de ni ọjọ {{count}}",
+      "dueInDays_other": "Yoo de ni ọjọ {{count}}",
+      "givenOn": "Fun ni {{date}}",
+      "dueOn": "Ti yẹ {{date}}",
+      "logIntro": "Kọ nigbati a fun ajẹsara yii. O le ṣe imudojuiwọn tabi yọ iwe kọ lẹhin.",
+      "alreadyLoggedPill": "Ti kọ tẹlẹ",
+      "completedOn": "Ti pari: {{date}}",
+      "notes": "Awọn akọsilẹ",
+      "familySetupExplainer": "Iṣeto idile gba ọjọ ibi fun ọmọ kọọkan — eyi ni o ṣe agbara iṣeto ajẹsara.",
+      "selectChild": "Yan ọmọ kan lati wo iṣeto ajẹsara ti a ṣe asọtẹlẹ fun un",
+      "providerOptional": "Olupese / kliniki",
+      "removeRecord": "Yọ iwe akọsilẹ",
+      "profile": "Profaili",
+      "recommendedBy": "A ṣe asọtẹlẹ fun {{date}}",
+      "select": "Yan",
+      "tapAdministeredDate": "Tẹ ọjọ ti a fun ajẹsara yii"
+    },
+    "status": {
+      "upcoming": "Ti n bọ",
+      "completed": "Ti pari",
+      "overdue": "Ti kọja",
+      "due-soon": "Yoo de laipe"
+    },
+    "validation": {
+      "undoConfirm": "Yọ kuro",
+      "checkTitle": "Jọwọ ṣayẹwo eyi",
+      "confirmTitle": "Jọwọ jẹrisi",
+      "cancel": "Fagilee",
+      "requiredProfile": "Yan ọmọ kan pẹlu ọjọ ibi ṣaaju kikọ ajẹsara.",
+      "requiredAdministeredDate": "Jọwọ yan ọjọ ti a fun ajẹsara yii.",
+      "administeredFuture": "A ko le kọ ẹya ti a pari pẹlu ọjọ iwaju. Yan loni tabi ọjọ ti o kọja.",
+      "seriesOutOfOrder": "Ẹya kan ti a kọja ninu ẹka yii ko ti kọ ({{missing}}). Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "saveAnyway": "Fi pamọ lọwọ",
+      "undoTitle": "Yọ iwe ajẹsara yii?",
+      "undoMessage": "Iṣẹju yii yoo han bi a ko fun lori iṣeto si.",
+      "invalidVaccine": "A ko ri ajẹsara yẹn. Pada ki o tun gbiyanju.",
+      "unusualCheck": "Eyi dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+      "administeredBeforeDob": "Ọjọ ti a fun ko le wa ṣaaju ọjọ ibi ọmọ naa.",
+      "veryEarly": "Ọjọ yii jẹ ọjọ {{days}} ṣaaju ọjọ ti a ṣe asọtẹlẹ ({{recommended}}). Jọwọ jẹrisi pe o tọ.",
+      "farFromRecommended": "Ọjọ yii jẹ ọjọ {{days}} lati ọjọ ti a ṣe asọtẹlẹ ({{recommended}}). Jọwọ jẹrisi pe o tọ.",
+      "providerLong": "Orukọ olutọju jinna pupọ. Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "notesLong": "Awọn akọsilẹ wọnyi jinna pupọ. Jọwọ jẹrisi ṣaaju fifipamọ."
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "Arun",
+      "Unwell": "Alaisan",
+      "Happy": "Aláyọ",
+      "Calm": "Idakẹjẹ",
+      "Anxious": "Ni iran",
+      "Excited": "Inu dun"
+    },
+    "symptoms": {
+      "Nausea": "Irora inu",
+      "Fatigue": "Arun",
+      "Back pain": "Iri ẹhin",
+      "Cramping": "Iri inu",
+      "Heartburn": "Ina inu",
+      "Headache": "Irora ori",
+      "Insomnia": "Aisun",
+      "Food cravings": "Ifẹ ounjẹ",
+      "Swelling": "Titobi"
+    },
+    "milestones": {
+      "8": {
+        "title": "Abẹwo akọkọ ti oyun",
+        "description": "Ṣeto iṣayẹwo akọkọ rẹ pẹlu olupese rẹ."
+      },
+      "12": {
+        "title": "Ipari akoko akọkọ",
+        "description": "Ewu ti o le fa ibi ti oyun naa dinku pupọ."
+      },
+      "20": {
+        "title": "Iwadii anatomi",
+        "description": "Ultrasound laarin ibimọ ni ọsẹ 18–22."
+      },
+      "28": {
+        "description": "Ọmọ n dagba ni kiakia — sinmi nigba ti o le.",
+        "title": "Igba kẹta bẹrẹ"
+      },
+      "36": {
+        "title": "Awọn iwadii ọsẹ",
+        "description": "Olutọju rẹ le fẹ ri ọ deede si."
+      },
+      "40": {
+        "description": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ rẹ.",
+        "title": "Ọjọ ti o yẹ"
+      }
+    },
+    "ui": {
+      "weekDay": "Ọsẹ {{weeks}}, Ọjọ {{days}}",
+      "daysUntilDue": "{{count}} ọjọ titi di ojoo ibi ti omo naa ti {{name}}",
+      "daysUntilDue_other": "{{count}} ọjọ titi di ojoo ibi ti omo naa ti {{name}}",
+      "todayIsDue": "Loni ni ojoo ibi ti omo naa ti {{name}}",
+      "daysPastDue": "{{count}} ọjọ lẹhin ojoo ibi ti omo naa",
+      "daysPastDue_other": "{{count}} ọjọ lẹhin ojoo ibi ti omo naa",
+      "timeline": "Akoko aṣa",
+      "percentComplete": "{{percent}}% pari",
+      "week0": "Ọsẹ 0",
+      "week40": "Ọsẹ 40",
+      "trimesterBar": {
+        "weekRange": "Ọsẹ {{from}}–{{to}}",
+        "now": "Ọsẹ {{weeks}}",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "Iwe akọsilẹ loni",
+      "weekThisWeek": "Ọsẹ {{week}} · Ose yii",
+      "weekInDays": "Ọsẹ {{week}} · Ni ọjọ {{count}}",
+      "weekInDays_other": "Ọsẹ {{week}} · Ni ọjọ {{count}}",
+      "weekLabel": "Ọsẹ {{week}}",
+      "weight": "Iwuwo",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} awọn gbigbe",
+      "postpartumTitle": "O ti kọja ojoo ibi ti omo naa rẹ",
+      "postpartumBody": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ rẹ ti kọja. Parí ibimọ nigba ti o ba setan, tabi ṣe imudojuiwọn ojoo ibi ti o ba ti ṣatunṣe nipasẹ olutọju rẹ.",
+      "dailyLog": "Akọsilẹ ojoojumọ",
+      "howFeeling": "Báwo ni o ṣe rí?",
+      "howFeelingSubtitle": "Kọ bí o ṣe rí loni. Eyi ran ọ lọwọ lati ri awọn aṣa lori akoko.",
+      "babyKicks": "Gbigbe ọmọ",
+      "notesPlaceholder": "Báwo ni o ṣe rí? Ṣe o ni ibeere fun abẹwo rẹ ti o kan?",
+      "setTimelineSubtitle": "Yan bi o fẹ ṣeto akoko ijọba rẹ. O le lo akoko rẹ ti o kẹhin tabi ọjọ ti o yẹ lati olupese rẹ.",
+      "lastPeriod": "Akoko ti tẹlẹ",
+      "dueDate": "Ọjọ ti o yẹ",
+      "babyNickname": "Orukọ idaraya ọmọ",
+      "pickDate": "Yan ọjọ kan",
+      "estimatedDue": "Ọjọ ti o yẹ ti a ṣe asọtẹlẹ",
+      "kicksLogged": "Awọn gbigbe ti a kọ",
+      "comingUp": "N bọ",
+      "milestonesTitle": "Awọn aṣa pataki",
+      "journey": "Irìn-àjò",
+      "estimatedFromLmp": "Ti a ṣe asọtẹlẹ lati akoko oyun rẹ ti tẹlẹ",
+      "estimatedFromProvider": "Da lori ọjọ ti o yẹ lati olupese rẹ",
+      "daily": "Ojoojumọ",
+      "mood": "Iṣọrọ",
+      "noSymptomsToday": "Ko si awọn àmì ti a kọ loni",
+      "notes": "Awọn akọsilẹ",
+      "babyPlaceholder": "Ọmọ",
+      "weightHint": "Aṣayan. Tẹ iwuwo rẹ ni kilogiramu.",
+      "endPregnancy": "Parí ijọba",
+      "endPregnancyTitle": "Parí ijọba yii?",
+      "endPregnancyConfirm": "Parí ijọba",
+      "postpartumEyebrow": "Ti kọja ọjọ",
+      "pastPregnancies": "Awọn ibimọ ti tẹlẹ",
+      "history": "Ìtàn",
+      "pastPregnancySubtitle": "Ti yẹ {{due}} · Ti pari {{ended}} · {{logs}} akọsilẹ",
+      "archivedLogsEmpty": "Ko si awọn iwe akọsilẹ ojoojumọ ti a fi pamọ fun ibimọ yii.",
+      "setTimeline": "Ṣeto akoko rẹ",
+      "tapLmp": "Tẹ ọjọ akọkọ ti oyun ti o kọjá rẹ.",
+      "tapDue": "Tẹ ojoo ibi ti a ṣe asọtẹlẹ lati olupese rẹ.",
+      "selectedDue": "Ojoo ibi ti a yan",
+      "progress": "Ilọsiwaju oyun",
+      "symptoms": "Àwọn ààmì",
+      "setupEyebrow": "Iṣeto",
+      "tapKickHint": "Tẹ + ni gbogbo igba ti o ba ni imọlara gbigbe",
+      "logHistory": "Awọn iwe akọsilẹ laipe",
+      "recent": "Laipe",
+      "endPregnancyMessage": "Eyi fi akoko ati awọn iwe akọsilẹ ojoojumọ pamọ, ki o si tun Period Tracker bẹrẹ ti o ba ti duro fun ibimọ. O le ṣeto ibimọ tuntun nigbamii."
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} jẹ ni ose yii.",
+      "milestoneSoonBody": "{{title}} wa ni ọjọ {{count}}.",
+      "milestoneSoonBody_other": "{{title}} wa ni ọjọ {{count}}.",
+      "dueSoonTitle": "Ojoo ibi ti omo naa ti {{name}} ni ọjọ {{count}}",
+      "dueSoonTitle_other": "Ojoo ibi ti omo naa ti {{name}} ni ọjọ {{count}}",
+      "dueSoonBody": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ ti {{name}} wa ni ọjọ {{count}}. Ṣayẹwo akoko ibimọ rẹ.",
+      "dueSoonBody_other": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ ti {{name}} wa ni ọjọ {{count}}. Ṣayẹwo akoko ibimọ rẹ.",
+      "dueTodayTitle": "Loni ni ojoo ibi ti omo naa ti {{name}}",
+      "dueTodayBody": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ ti {{name}} jẹ loni.",
+      "pastDueTitle": "{{count}} ọjọ lẹhin ojoo ibi ti omo naa",
+      "pastDueTitle_other": "{{count}} ọjọ lẹhin ojoo ibi ti omo naa",
+      "pastDueBody": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ ti {{name}} jẹ ọjọ {{count}} sẹhin. Ṣe imudojuiwọn akoko rẹ tabi parí ibimọ nigba ti o ba setan.",
+      "pastDueBody_other": "Ojoo ibi ti omo naa ti a ṣe asọtẹlẹ ti {{name}} jẹ ọjọ {{count}} sẹhin. Ṣe imudojuiwọn akoko rẹ tabi parí ibimọ nigba ti o ba setan.",
+      "milestoneSoonTitle": "N bọ: Ose {{week}}",
+      "dailyNudgeTitle": "Kọ bí o ṣe rí loni",
+      "dailyNudgeBody": "Akọsilẹ irú, àmì, tabi gbigbe ki itan ijọba rẹ wulo.",
+      "ttDoseDueBody": "O ti jẹ o kere ju ọsẹ 4 lati TT1. Beere kliniki rẹ nipa iṣẹju tetanus (TT) rẹ ti o kan.",
+      "ttDoseDueTitle": "TT2 le yẹ"
+    },
+    "motherCare": {
+      "progress": "{{completed}} ninu {{total}} awọn iṣẹju ti a kọ",
+      "logSubtitle": "{{completed}} ninu {{total}} awọn iṣẹju ti a ti kọ tẹlẹ. Yan ọjọ ti o gba iṣẹju yii.",
+      "completeBody": "O ti kọ TT1 si TT5. Fi kaadi kliniki rẹ pamọ bi iwe osise.",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "Eyi jẹ {{gap}} ọjọ nikan lẹhin iṣẹju ti tẹlẹ (a maa n duro ti {{days}} ọjọ). Jọwọ jẹrisi pẹlu kliniki rẹ.",
+        "checkTitle": "Jọwọ ṣayẹwo eyi",
+        "confirmTitle": "Jọwọ jẹrisi",
+        "cancel": "Fagilee",
+        "requiredDate": "Jọwọ yan ọjọ kan ṣaaju fifipamọ.",
+        "ttFuture": "Ọjọ ẹya TT ko le wa ni ọjọ iwaju.",
+        "ttOutOfOrder": "Kọ awọn iṣẹju ni ibere. Ti a nireti ti o kan jẹ {{next}} (o gbiyanju {{dose}}).",
+        "saveAnyway": "Fi pamọ lọwọ",
+        "unusualCheck": "Eyi dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+        "ttBeforePrevious": "Ọjọ yii wa ṣaaju {{previous}} ({{previousDate}}). Jọwọ jẹrisi pe o tọ."
+      },
+      "eyebrow": "Itọju iya",
+      "nextDose": "Ti o kan: {{dose}}",
+      "notLogged": "Ko ti kọ",
+      "logNext": "Kọ TT ti o kan",
+      "logTt1": "Kọ TT1",
+      "logTitle": "Kọ {{dose}}",
+      "pickDate": "Ọjọ ẹya",
+      "done": "Ti pari",
+      "disclaimer": "Itọpa ẹkọ nikan — tẹle eto ile iwosan rẹ ati ilana agbegbe.",
+      "title": "Aabo tetanus (TT)",
+      "body": "Awọn iṣẹju TT dabobo ọ ati ọmọ tuntun rẹ lati arun tetanus. Kọ awọn iṣẹju lati kaadi antenatal rẹ — eyi yatọ si atọpinpin ọsẹ oyun rẹ.",
+      "complete": "TT1–TT5 ti kọ",
+      "archivedTitle": "Awọn iṣẹju TT lati oyun yii",
+      "tapDate": "Tẹ ọjọ ti o gba {{dose}}.",
+      "selectedDate": "Ọjọ ti a yan",
+      "saveDose": "Fi {{dose}} pamọ",
+      "completeTitle": "Iṣeto TT pari"
+    },
+    "trimester": {
+      "1": "Trimesta akọkọ",
+      "2": "Trimesta keji",
+      "3": "Igba kẹta"
+    },
+    "validation": {
+      "lmpFuture": "Ojoo akoko rẹ ti tẹlẹ ko le wa ni ọjọ iwaju.",
+      "dueInPast": "Ojoo ibi ti omo naa yoo ti o wa {{days}} ọjọ sẹhin. Jọwọ jẹrisi pe o si fẹ lo o.",
+      "nicknameLong": "Orukọ idaraya yii jinna pupọ. Jọwọ jẹrisi pe o tọ.",
+      "overwriteTimeline": "O n ṣe imudojuiwọn akoko ibimọ rẹ. Awọn iwe akọsilẹ ojoojumọ fun ibimọ yii yoo wa.",
+      "startNewAfterEnded": "O n bẹrẹ ibimọ tuntun lẹhin ti o pari tẹlẹ. A o ṣẹda akoko tuntun ati iwe akọsilẹ ojoojumọ sofo.",
+      "checkTitle": "Jọwọ ṣayẹwo eyi",
+      "confirmTitle": "Jọwọ jẹrisi",
+      "cancel": "Fagilee",
+      "requiredDate": "Jọwọ yan ọjọ kan ṣaaju fifipamọ.",
+      "emptyLog": "Ko si nkankan ti a kun fun loni. Fi iwe akọsilẹ sofo pamọ lọna?",
+      "setupBlockedPostpartum": "Parí itọju iya lẹhin ibimọ ni akọkọ, lẹhinna o le ṣeto akoko ibimọ tuntun.",
+      "birthFuture": "Ọjọ ibi ko le wa ni ọjọ iwaju.",
+      "saveAnyway": "Fi pamọ lọwọ",
+      "unusualCheck": "Eyi dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+      "dueTooFar": "Ojoo ibi yii jinna ju ni ọjọ iwaju lati jẹ otitọ. Jọwọ ṣayẹwo ọjọ naa.",
+      "pastTerm": "Ọjọ yii ṣe alaye pe o le ti kọja ọsẹ ibimọ {{weeks}}. Jọwọ jẹrisi pe o tọ.",
+      "willPausePeriod": "Fifipamọ akoko ibimọ rẹ yoo da awọn asọtẹlẹ Period Tracker duro. Itan oyun rẹ wa ni a fi pamọ.",
+      "kicksHigh": "Iye tẹ naa ({{count}}) ga ju bi o se ye fun ọjọ kan. Jọwọ jẹrisi pe o tọ.",
+      "notesLong": "Awọn akọsilẹ wọnyi jinna pupọ. Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "weightUnusual": "Iwuwo ({{value}} kg) yii wa ni ita gbigba deede ({{min}}–{{max}} kg). Jọwọ jẹrisi pe o tọ.",
+      "birthBeforeLmp": "Ọjọ ibi yii wa ṣaaju ọjọ akoko rẹ ti tẹlẹ. Jọwọ jẹrisi pe o tọ."
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "{{count}} ọjọ lati ibimọ",
+      "careTitle": "Iwosan rẹ",
+      "careBody": "Aaye yii jẹ fun itọju lẹhin ibimọ rẹ — isinmi, iwosan, ati tẹle pẹlu kliniki rẹ. Titele ọmọ wa lọwọ.",
+      "pastDueHint": "Ojoo ibi ti omo naa rẹ ti kọja. Ti o ba ti bi ọmọ, tẹ Mo ti bi ọmọ lati bẹrẹ itọju lẹhin ibimọ iya. Ti o ba nilo lati fi ibimọ yii pamọ ni aṣọ, lo Pa ibimọ yii ni isalẹ.",
+      "iveGivenBirth": "Mo bi",
+      "birthTitle": "Nigbawo ni ibimọ?",
+      "birthSubtitle": "A o yipada si itọju lẹhin ibimọ iya. Awọn iṣẹju TT rẹ wa lori iboju yii.",
+      "finishMessage": "A o fi ibimọ yii pamọ bi ibimọ, pa akoko ibimọ rẹ, ki o si tun Period Tracker bẹrẹ ti o ba ti duro. Awọn iṣẹju TT rẹ wa ni a fi pamọ.",
+      "closeMessage": "A o fi akoko ibimọ pamọ. Awọn iwe itọju iya bii awọn iṣẹju TT wa ni a fi pamọ, ati Period Tracker le tun bẹrẹ. Mu akoko ti o nilo — o ko wa lọwọ.",
+      "closedPregnancyTitle": "Oyun",
+      "eyebrow": "Itọju iya",
+      "heroTitle": "Itọju lẹhin ibimọ",
+      "heroSubtitle": "Fi ara si iwosan rẹ. Iwe TT rẹ wa nibi.",
+      "daysSinceBirth": "Ọjọ {{count}} lati ibi",
+      "birthDateLabel": "Ọjọ ibi",
+      "pickBirthDate": "Ọjọ ibi",
+      "birthDisclaimer": "Itọpa ẹkọ nikan — tẹle imọran lẹhin ibimọ ti ile iwosan rẹ.",
+      "logMotherDay": "Kọ bí o ṣe rí",
+      "finishPostpartum": "Parí itọju lẹhin ibimọ",
+      "finishTitle": "Parí itọju lẹhin ibimọ?",
+      "finishConfirm": "Parí",
+      "closeLink": "Pa ijọba yii",
+      "closeTitle": "Pa ijọba yii?",
+      "closeConfirm": "Pa ijọba",
+      "pastBirthSubtitle": "Ti bi {{born}} · {{logs}} akọsilẹ",
+      "pastClosedSubtitle": "Ti pa {{ended}}",
+      "tapBirthDate": "Tẹ ọjọ ti o bi.",
+      "selectedBirthDate": "Ọjọ ti a yan",
+      "startPostpartum": "Bẹrẹ itọju lẹhin ibimọ",
+      "notActive": "Ṣeto akoko ibimọ ti n ṣiṣẹ ṣaaju kikọ ibimọ."
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Akoko rẹ ti nbọ le bẹrẹ loni",
+      "thisWeek": "Ose yii",
+      "daysCount": "{{count}} ọjọ",
+      "daysSelected": "{{count}} ọjọ ti a yan",
+      "daysSelected_other": "{{count}} awọn ọjọ ti a yan",
+      "pausedCardTitle": "Titẹle duro",
+      "pauseWhilePregnantBody": "O le duro awọn asọtẹlẹ iyipo nigba ti o ba ni oyun. Itan rẹ wa ni a fi pamọ.",
+      "backToTracker": "Pada",
+      "cycleSummary": "Akopọ akoko",
+      "averageCycle": "Iyipo apapọ",
+      "decreaseAverageCycle": "Din kika ipari akoko apapo",
+      "increaseAverageCycle": "Mu igba iyipo apapọ pọ si",
+      "periodLength": "Ipari akoko",
+      "loggedDays": "Awọn ọjọ ti a kọ",
+      "dayOfCycle": "Ọjọ {{day}} ti akoko rẹ",
+      "dayPill": "Ọjọ {{day}}",
+      "daysUntilPeriod": "Nipa ọjọ {{count}} si akoko rẹ ti o kan",
+      "daysUntilPeriod_other": "Nipa ọjọ {{count}} si akoko rẹ ti o kan",
+      "calendar": "Kalẹnda",
+      "loggedPeriod": "Akoko ti a kọ",
+      "predicted": "Akoko ti a ṣe asọtẹlẹ",
+      "predictedWindow": "Akoko ti a ṣe asọtẹlẹ ti o kan: {{range}}",
+      "fertile": "Ti mọlẹ",
+      "ovulation": "Imu omo",
+      "pausedTitle": "Titẹle akoko ti duro",
+      "pausedSubtitle": "Awọn asọtẹlẹ ati iwe akọsilẹ ti duro.",
+      "pausedBecausePregnant": "Ti duro nigba ti o ba ni oyun. Itan rẹ ti a kọ wa nibi.",
+      "pausedPill": "Dá dúró",
+      "pausedCardBody": "Awọn asọtẹlẹ akoko ati akọsilẹ akoko ti duro. Tun bẹrẹ nigbakugba — tabi tẹsiwaju ni Olutọpa Ijọba.",
+      "pauseTracking": "Da titẹle akoko duro",
+      "openPregnancyTracker": "Ṣii Titele Ibimọ",
+      "resumeTracking": "Tun bẹrẹ titepinpin oyun",
+      "pauseWhilePregnantTitle": "O ni oyun?"
+    },
+    "validation": {
+      "clearMessage": "Eyi yọ gbogbo ọjọ akoko ti a ti kọ lori ẹrọ yii. Awọn asọtẹlẹ yoo tun ṣe titun titi ti o ba tun kọ.",
+      "periodVsCycle": "Ipari akoko yii ({{periodDays}} ọjọ) jinna bi tabi ju iyipo rẹ ({{cycleDays}} ọjọ). Jọwọ jẹrisi.",
+      "checkTitle": "Jọwọ ṣayẹwo eyi",
+      "confirmTitle": "Jọwọ jẹrisi",
+      "cancel": "Fagilee",
+      "saveAnyway": "Kọ lọna",
+      "clearTitle": "Paarẹ gbogbo awọn ọjọ ti a kọ?",
+      "clearConfirm": "Paarẹ",
+      "trackingPaused": "Titẹle akoko ti duro. Tun bẹrẹ titẹle lati kọ awọn ọjọ.",
+      "resumeWhilePregnant": "Titele Ibimọ ni akoko ti n ṣiṣẹ. Tun bẹrẹ titẹle akoko lọna?",
+      "unusualCheck": "Eyi dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+      "dayFuture": "Ọjọ yii wa ni ọjọ iwaju. Jọwọ jẹrisi pe o fẹ kọ a ni iwaju.",
+      "dayFarPast": "Ọjọ yii jẹ ọjọ {{days}} sẹhin. Jọwọ jẹrisi pe o jọba si itan rẹ.",
+      "periodLong": "Eyi yoo jẹ ki akoko yii jẹ ọjọ {{days}} gigun. Jọwọ jẹrisi pe o tọ."
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "Iwuwo",
+      "blood_pressure": "Titẹ eje",
+      "blood_sugar": "Suga eje",
+      "heart_rate": "Iṣẹ ọkan",
+      "body_temperature": "Iwọn otutu ara",
+      "height": "Giga",
+      "oxygen_saturation": "Ipe oksijẹn",
+      "respiratory_rate": "Iye mi"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "ft / in",
+      "breaths_min": "mi igbe/iseju",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "Ajẹ",
+      "before_meal": "Ṣaaju ounjẹ",
+      "two_hours_after_meal": "Wakati awọn 2 lẹhin ounjẹ",
+      "random": "Laifọwọyi"
+    },
+    "ui": {
+      "vital": "Ami aye",
+      "unit": "Ẹyọ",
+      "reading": "Kika",
+      "measurementType": "Nigbawo ni a wọn eyi?",
+      "notesPlaceholder": "fún àpẹẹrẹ lẹhin irin aarọ",
+      "latest": "Awọn kika ti tẹlẹ",
+      "noReading": "Ko si kika sibẹ",
+      "diastolic": "Diastolic",
+      "feet": "Ẹsẹ",
+      "inches": "Inches",
+      "valuePlaceholder": "Tẹ iye",
+      "bpHint": "Tẹ systolic / diastolic ni mmHg",
+      "notesOptional": "Awọn akọsilẹ (aṣayan)",
+      "setupSugarHint": "Awọn ka suga eje wa ni mg/dL ati pe a ṣe afihan ni ẹya ti o fẹ.",
+      "balance": "Aworan akoko",
+      "recent": "Laipe",
+      "emptyHint": "Bẹrẹ pẹlu eje didun, ọkan, tabi iwuwo — ohunkohun ti o wọn julọ.",
+      "systolic": "Systolic",
+      "setupIntro": "Ṣeto awọn ẹyọ ti o fẹ lẹẹkan ki akọsilẹ duro ni iyara ati ibamu."
+    },
+    "validation": {
+      "useSuggestion": "Lo {{value}}",
+      "unusualConfirm": "Kika yii ṣe alailẹgbẹ. Jọwọ ṣayẹwo ṣaaju fifipamọ.",
+      "bloodSugarUnusual": "Kika yii ṣe alailẹgbẹ. Jọwọ ṣayẹwo ṣaaju fifipamọ.",
+      "oxygenLow": "Ipe oksijẹn yii kere ju ti tẹlẹ lọ. Jọwọ jẹrisi kika naa, tabi gbiyanju lati wọn si.",
+      "trendWeight": "Iwuwo rẹ ti yipada pupọ lati titẹ rẹ ti tẹlẹ ({{previous}} {{unit}}). Jọwọ jẹrisi pe o tọ.",
+      "trendBloodPressure": "Kika yii ga julọ tabi kere ju titẹ ti tẹlẹ rẹ ({{previous}}). Jọwọ jẹrisi ṣaaju fifipamọ.",
+      "trendOxygen": "Kika oksijẹn yii yatọ si titẹ ti tẹlẹ rẹ ({{previous}}%). Jọwọ jẹrisi, tabi gbiyanju lati wọn si.",
+      "trendGeneric": "Iye yii yatọ pupọ lati iwọn rẹ ti tẹlẹ ({{previous}} {{unit}}). Jọwọ jẹrisi pe o tọ.",
+      "checkTitle": "Jọwọ ṣayẹwo kika yii",
+      "confirmTitle": "Jọwọ jẹrisi",
+      "cancel": "Fagilee",
+      "requiredReading": "Jọwọ tẹ kika kan ṣaaju fifipamọ.",
+      "bpDiastolicOrder": "Titẹ diastolic yẹ ki o kere ju titẹ systolic lọ.",
+      "bloodSugarContextRequired": "Yan nigbati a ṣe iwọn suga eje yii (aṣẹ, ṣaaju ounjẹ, lẹhin ounjẹ, tabi laifọwọyi).",
+      "typoBloodSugar": "Ṣe o tumọ {{suggested}}?",
+      "typoWeight": "Ṣe o tumọ {{suggested}}?",
+      "typoTemperature": "Ṣe o tumọ {{suggested}}°C?",
+      "saveAnyway": "Fi pamọ lọwọ",
+      "unusualCheck": "Iye yẹn dabi aito. Jọwọ ṣayẹwo pe o ti tẹ a daradara.",
+      "bpUnusual": "Kika titẹ ẹjẹ yii dabi aito. Jọwọ jẹrisi pe o tọ."
+    }
+  }
 }

@@ -11,8 +11,8 @@ import type { ChapterType, CommunityChapter, CommunityCountry } from '@/types/co
 import { sanitizeAdministrativeHierarchy, sortedAdministrativeLevels } from '@/lib/community-geography';
 import { AdministrativeHierarchyFields } from '@/components/community/administrative-hierarchy-fields';
 import { Button } from '@/components/ui/button';
+import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -114,71 +114,70 @@ export function EditChapterForm({
         </Button>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor={`edit_name_${chapter.id}`}>Name</Label>
-              <Input id={`edit_name_${chapter.id}`} {...register('name')} />
-              {errors.name ? (
-                <p className="text-xs text-danger">{errors.name.message}</p>
-              ) : null}
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor={`edit_description_${chapter.id}`}>Description</Label>
-              <Textarea id={`edit_description_${chapter.id}`} rows={2} {...register('description')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`edit_type_${chapter.id}`}>Type</Label>
-              <Select id={`edit_type_${chapter.id}`} {...register('chapter_type')}>
-                {CHAPTER_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {CHAPTER_TYPE_LABELS[type]}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`edit_country_${chapter.id}`}>Country</Label>
-              <Select
-                id={`edit_country_${chapter.id}`}
-                value={countryCode}
-                onChange={(event) => {
-                  const nextCountry = event.target.value;
-                  setCountryCode(nextCountry);
-                  setValue('country_code', nextCountry, { shouldValidate: true });
-                  setAdministrativeHierarchy({});
-                }}
+        <form onSubmit={onSubmit}>
+          <FormStack>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                label="Name"
+                htmlFor={`edit_name_${chapter.id}`}
+                className="sm:col-span-2"
+                error={errors.name?.message}
               >
-                {countries.map((item) => (
-                  <option key={item.code} value={item.code}>
-                    {item.name} ({item.code})
-                  </option>
-                ))}
-              </Select>
+                <Input id={`edit_name_${chapter.id}`} {...register('name')} />
+              </FormField>
+              <FormField label="Description" htmlFor={`edit_description_${chapter.id}`} className="sm:col-span-2">
+                <Textarea id={`edit_description_${chapter.id}`} rows={2} {...register('description')} />
+              </FormField>
+              <FormField label="Type" htmlFor={`edit_type_${chapter.id}`}>
+                <Select id={`edit_type_${chapter.id}`} {...register('chapter_type')}>
+                  {CHAPTER_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {CHAPTER_TYPE_LABELS[type]}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Country" htmlFor={`edit_country_${chapter.id}`}>
+                <Select
+                  id={`edit_country_${chapter.id}`}
+                  value={countryCode}
+                  onChange={(event) => {
+                    const nextCountry = event.target.value;
+                    setCountryCode(nextCountry);
+                    setValue('country_code', nextCountry, { shouldValidate: true });
+                    setAdministrativeHierarchy({});
+                  }}
+                >
+                  {countries.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.name} ({item.code})
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <AdministrativeHierarchyFields
+                country={country}
+                value={administrativeHierarchy}
+                onChange={setAdministrativeHierarchy}
+                idPrefix={`edit_admin_${chapter.id}`}
+              />
+              <FormField label="Status" htmlFor={`edit_status_${chapter.id}`}>
+                <Select id={`edit_status_${chapter.id}`} {...register('status')}>
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="archived">Archived</option>
+                </Select>
+              </FormField>
             </div>
-            <AdministrativeHierarchyFields
-              country={country}
-              value={administrativeHierarchy}
-              onChange={setAdministrativeHierarchy}
-              idPrefix={`edit_admin_${chapter.id}`}
-            />
-            <div className="space-y-2">
-              <Label htmlFor={`edit_status_${chapter.id}`}>Status</Label>
-              <Select id={`edit_status_${chapter.id}`} {...register('status')}>
-                <option value="active">Active</option>
-                <option value="pending">Pending</option>
-                <option value="archived">Archived</option>
-              </Select>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" loading={pending} loadingLabel="Saving…">
-              Save changes
-            </Button>
-            <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
-              Cancel
-            </Button>
-          </div>
+            <FormActions className="justify-start">
+              <Button type="submit" loading={pending} loadingLabel="Saving…">
+                Save changes
+              </Button>
+              <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
+                Cancel
+              </Button>
+            </FormActions>
+          </FormStack>
         </form>
       </CardContent>
     </Card>

@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/form-controls';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/screen-states';
+import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { useTranslation } from '@/domains/localization';
@@ -61,19 +61,19 @@ export default function EmergencyViewScreen() {
   const profile = query.data;
   if (!profile) {
     return (
-      <View style={styles.screen}>
+      <Screen padded={false}>
         <EmptyState
           title={t('emergency.empty.title')}
           message={t('emergency.empty.message')}
           actionLabel={t('emergency.empty.cta')}
           onAction={() => router.push('/(app)/emergency/edit')}
         />
-      </View>
+      </Screen>
     );
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen padded={false}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
@@ -222,7 +222,7 @@ export default function EmergencyViewScreen() {
           </View>
         </AnimatedSection>
       </Animated.ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -256,10 +256,6 @@ function InfoRow({
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.surface,
-  },
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,

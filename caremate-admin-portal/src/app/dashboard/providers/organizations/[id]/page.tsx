@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { ButtonLink } from '@/components/ui/button-link';
+import { TextLink } from '@/components/ui/text-link';
 import { notFound } from 'next/navigation';
 
 import { emptyFhirBundle } from '@/domains/providers/fhir-bundle';
@@ -30,15 +31,7 @@ import { OrganizationForm } from '@/features/providers/organization-form';
 import { OrganizationContactEmailForm } from '@/features/providers/organization-contact-email-form';
 import { ArchiveOrganizationButton } from '@/features/providers/catalog-archive-buttons';
 import type { ProviderLocation } from '@/types/database';
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm text-foreground">{children}</dd>
-    </div>
-  );
-}
+import { DescriptionRow } from '@/components/ui/detail-row';
 
 export default async function OrganizationDetailPage({
   params,
@@ -108,12 +101,12 @@ export default async function OrganizationDetailPage({
           initialOpen={openFhir}
         />
         {canEdit ? <ArchiveOrganizationButton organizationId={organization.id} /> : null}
-        <Link
+        <TextLink
           href="/dashboard/providers?view=organizations"
-          className="text-sm text-muted hover:text-foreground"
+          className="text-muted hover:text-foreground"
         >
           Back to list
-        </Link>
+        </TextLink>
       </PageHeader>
 
       <Card>
@@ -125,23 +118,23 @@ export default async function OrganizationDetailPage({
             <OrganizationForm mode="edit" organization={organization} />
           ) : (
             <dl>
-              <Row label="Organization ID">
+              <DescriptionRow label="Organization ID">
                 <code className="break-all text-xs">{organization.id}</code>
-              </Row>
-              <Row label="Active">
+              </DescriptionRow>
+              <DescriptionRow label="Active">
                 <Badge variant="secondary">{organization.active ? 'Yes' : 'No'}</Badge>
-              </Row>
-              <Row label="Source">{organization.source ?? '—'}</Row>
-              <Row label="Last ingested">{organization.last_ingested_at ?? '—'}</Row>
+              </DescriptionRow>
+              <DescriptionRow label="Source">{organization.source ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Last ingested">{organization.last_ingested_at ?? '—'}</DescriptionRow>
             </dl>
           )}
           {canEdit ? (
             <dl className="mt-6 border-t border-border pt-4">
-              <Row label="Organization ID">
+              <DescriptionRow label="Organization ID">
                 <code className="break-all text-xs">{organization.id}</code>
-              </Row>
-              <Row label="Source">{organization.source ?? '—'}</Row>
-              <Row label="Last ingested">{organization.last_ingested_at ?? '—'}</Row>
+              </DescriptionRow>
+              <DescriptionRow label="Source">{organization.source ?? '—'}</DescriptionRow>
+              <DescriptionRow label="Last ingested">{organization.last_ingested_at ?? '—'}</DescriptionRow>
             </dl>
           ) : null}
           <div className="mt-6 border-t border-border pt-4">
@@ -159,12 +152,12 @@ export default async function OrganizationDetailPage({
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
           <CardTitle>Locations</CardTitle>
           {canEdit ? (
-            <Link
+            <ButtonLink
               href={`/dashboard/providers/organizations/${organization.id}/locations/new`}
-              className="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-white hover:opacity-90"
+              size="sm"
             >
               Add location
-            </Link>
+            </ButtonLink>
           ) : null}
         </CardHeader>
         <CardContent className="p-0">
@@ -196,12 +189,11 @@ export default async function OrganizationDetailPage({
                       {loc.address ?? '—'}
                     </TableCell>
                     <TableCell>
-                      <Link
+                      <TextLink
                         href={`/dashboard/providers/organizations/${organization.id}/locations/${loc.id}`}
-                        className="text-sm font-medium text-primary hover:underline"
                       >
                         Manage
-                      </Link>
+                      </TextLink>
                     </TableCell>
                   </TableRow>
                 ))

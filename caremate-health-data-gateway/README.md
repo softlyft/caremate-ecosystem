@@ -94,16 +94,16 @@ The same Nest app runs on Lambda via `@codegenie/serverless-express`.
 | Git event | GitHub Environment | CloudFormation stack | Lambda name |
 |-----------|--------------------|----------------------|-------------|
 | Merge / push to `main` | `development` | `caremate-health-data-gateway-development` | `caremate-health-data-gateway-development` |
-| Merge / push to `prod` | `prod` | `caremate-health-data-gateway-prod` | `caremate-health-data-gateway-prod` |
+| Merge / push to `prod` | `production` | `caremate-health-data-gateway-prod` | `caremate-health-data-gateway-prod` |
 
-Path filter: only changes under `caremate-health-data-gateway/**` (or the workflow file) trigger deploy. Manual run: Actions → **Gateway CD** → `workflow_dispatch` → pick `development` or `prod`.
+Path filter: only changes under `caremate-health-data-gateway/**` (or the workflow file) trigger deploy. Manual run: Actions → **Gateway CD** → `workflow_dispatch` → pick `development` or `production`.
 
 Before `sam deploy`, the workflow deletes the stack if it is stuck in `ROLLBACK_COMPLETE` / `CREATE_FAILED` (so you do not need a local AWS CLI).
 
 **One-time AWS + GitHub setup**
 
 1. IAM user with your custom SAM deploy policy + access key (use case: application running outside AWS).
-2. In GitHub → Settings → Environments, create **`development`** and **`prod`**.
+2. In GitHub → Settings → Environments, create **`development`** and **`production`** (same names as Supabase Deploy / mobile store jobs).
 3. Per environment, add **Environment secrets** (not only repository secrets — this job cannot see repo-level secrets):
    - `AWS_ACCESS_KEY_ID`
    - `AWS_SECRET_ACCESS_KEY`

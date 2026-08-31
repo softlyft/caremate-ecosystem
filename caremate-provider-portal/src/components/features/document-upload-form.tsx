@@ -5,15 +5,19 @@ import { useRef, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { FormField, FormStack } from '@/components/ui/form-field';
 import { DOCUMENT_TYPES, DOCUMENT_TYPE_LABELS } from '@/constants/document-types';
 import { uploadDocumentAction } from '@/domains/documents/actions';
 
+type UploadDocumentAction = typeof uploadDocumentAction;
+
 export function DocumentUploadForm({
   patients,
+  uploadAction = uploadDocumentAction,
 }: {
   patients: { id: string; label: string }[];
+  uploadAction?: UploadDocumentAction;
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,8 +36,7 @@ export function DocumentUploadForm({
         const formData = new FormData(form);
         startTransition(async () => {
           try {
-            await uploadDocumentAction(formData);
-            // Reset before refresh — revalidate/remount must not race a stale form node.
+            await uploadAction(formData);
             formRef.current?.reset();
             toast.success('Document uploaded');
             router.refresh();
@@ -43,44 +46,45 @@ export function DocumentUploadForm({
         });
       }}
     >
-      <div className="space-y-2">
-        <Label htmlFor="patient_id">Patient</Label>
-        <Select id="patient_id" name="patient_id" required defaultValue="">
-          <option value="" disabled>
-            Select connected patient
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
+      <FormStack>
+        <FormField label="Patient" htmlFor="patient_id">
+          <Select id="patient_id" name="patient_id" required defaultValue="">
+            <option value="" disabled>
+              Select connected patient
             </option>
-          ))}
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="document_type">Document type</Label>
-        <Select id="document_type" name="document_type" required defaultValue="prescription">
-          {DOCUMENT_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {DOCUMENT_TYPE_LABELS[t]}
-            </option>
-          ))}
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" required placeholder="e.g. CBC results" />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="file">File</Label>
-        <Input
-          id="file"
-          name="file"
-          type="file"
-          required
-          accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        />
-        <p className="text-xs text-muted">PDF, JPG, PNG, DOC, or DOCX — up to 3 MB.</p>
-      </div>
+            {patients.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+        <FormField label="Document type" htmlFor="document_type">
+          <Select id="document_type" name="document_type" required defaultValue="prescription">
+            {DOCUMENT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {DOCUMENT_TYPE_LABELS[t]}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+        <FormField label="Title" htmlFor="title">
+          <Input id="title" name="title" required placeholder="e.g. CBC results" />
+        </FormField>
+        <FormField
+          label="File"
+          htmlFor="file"
+          hint="PDF, JPG, PNG, DOC, or DOCX — up to 3 MB."
+        >
+          <Input
+            id="file"
+            name="file"
+            type="file"
+            required
+            accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          />
+        </FormField>
+      </FormStack>
       <Button
         type="submit"
         disabled={patients.length === 0}

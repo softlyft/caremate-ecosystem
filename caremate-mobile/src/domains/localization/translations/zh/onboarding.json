@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "例如：大阿克拉",
     "searchPlaceholder": "搜索国家",
-    "searchEmpty": "没有匹配的国家。"
+    "searchEmpty": "没有匹配的国家。",
+    "selectPlaceholder": "选择国家"
   },
   "priorities": {
     "title": "什么对您最重要？",
@@ -56,8 +57,10 @@
       "hint": "更好地为您附近的医院和诊所排序"
     },
     "approximate": {
-      "title": "大致"
-    }
+      "title": "大致",
+      "hint": "{{place}} 备用位置 — 可随时更改"
+    },
+    "subtitle": "使用精确 GPS 获得最佳匹配，或为 {{place}} 保留大致位置。"
   },
   "notifications": {
     "title": "保持关注",

@@ -224,10 +224,11 @@ export function GuidePage() {
 
         <h2 id="safety">Important to know</h2>
         <p className={styles.callout}>
-          <strong>CareMate is not a substitute for clinical care.</strong> Articles, tips, checkup
-          lists, and trackers are for education and personal organization. They do not diagnose,
-          prescribe, or replace emergency services. In a medical emergency, call your local
-          emergency number.
+          <strong>CareMate is not a substitute for clinical care.</strong> SoftLyft builds CareMate
+          for people across Africa (launching first in Nigeria) and makes it available worldwide for
+          personal use. Articles, tips, checkup lists, and trackers are for education and personal
+          organization. They do not diagnose, prescribe, or replace emergency services. In a medical
+          emergency, call your local emergency number.
         </p>
         <ul className={styles.list}>
           <li>
@@ -244,7 +245,7 @@ export function GuidePage() {
           </li>
         </ul>
 
-        <p className={styles.meta}>Last updated: July 18, 2026</p>
+        <p className={styles.meta}>Last updated: August 25, 2026</p>
         <p className={styles.back}>
           <Link to="/docs">← All docs</Link>
           {' · '}

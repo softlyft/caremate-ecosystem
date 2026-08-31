@@ -395,6 +395,18 @@ verify_jwt = false
 [functions.send-community-join-otp]
 verify_jwt = false
 
+[functions.notify-provider-connection]
+verify_jwt = true
+
+[functions.notify-provider-document]
+verify_jwt = true
+
+[functions.create-provider-org-checkout]
+verify_jwt = true
+
+[functions.create-payer-org-checkout]
+verify_jwt = true
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

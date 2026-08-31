@@ -1,11 +1,11 @@
 # Deploy Health Data Gateway Lambda.
-# - Push/merge to main  → GitHub Environment "development"  → stack caremate-health-data-gateway-development
-# - Push/merge to prod  → GitHub Environment "prod"         → stack caremate-health-data-gateway-prod
+# - Push/merge to main  → GitHub Environment "development" → stack caremate-health-data-gateway-development
+# - Push/merge to prod  → GitHub Environment "production"  → stack caremate-health-data-gateway-prod
 #
-# Create GitHub Environments named `development` and `prod`, each with secrets below.
+# Create GitHub Environments named `development` and `production`, each with secrets below.
 # Auth today: IAM user access keys (OIDC can replace this later).
 #
-# IMPORTANT: secrets must be on the GitHub Environment (`development` / `prod`),
+# IMPORTANT: secrets must be on the GitHub Environment (`development` / `production`),
 # not only at repository level — this job uses `environment:`.
 #
 # Secrets (per environment):
@@ -31,30 +31,62 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: Target environment
+        description: Target GitHub Environment (AWS stack is development or prod)
         required: true
         type: choice
         options:
           - development
-          - prod
+          - production
 
 concurrency:
-  group: gateway-cd-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
+  group: gateway-cd-${{ github.event_name == 'workflow_dispatch' && inputs.environment || github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
+  resolve:
+    name: Resolve target
+    runs-on: ubuntu-latest
+    outputs:
+      github_environment: ${{ steps.out.outputs.github_environment }}
+      deploy_env: ${{ steps.out.outputs.deploy_env }}
+    steps:
+      - name: Pick GitHub Environment + AWS stack suffix
+        id: out
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+            GH_ENV='${{ inputs.environment }}'
+          elif [ '${{ github.ref }}' = 'refs/heads/prod' ]; then
+            GH_ENV='production'
+          else
+            GH_ENV='development'
+          fi
+
+          # SAM template AllowedValues: development | prod
+          if [ "$GH_ENV" = 'production' ]; then
+            DEPLOY_ENV='prod'
+          else
+            DEPLOY_ENV='development'
+          fi
+
+          echo "github_environment=$GH_ENV" >> "$GITHUB_OUTPUT"
+          echo "deploy_env=$DEPLOY_ENV" >> "$GITHUB_OUTPUT"
+          echo "Resolved GitHub env=$GH_ENV AWS EnvironmentName=$DEPLOY_ENV"
+
   deploy:
-    name: Deploy · ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
+    name: Deploy · ${{ needs.resolve.outputs.github_environment }}
+    needs: resolve
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    environment: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
+    environment: ${{ needs.resolve.outputs.github_environment }}
     env:
-      DEPLOY_ENV: ${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
+      GITHUB_ENVIRONMENT: ${{ needs.resolve.outputs.github_environment }}
+      DEPLOY_ENV: ${{ needs.resolve.outputs.deploy_env }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-      STACK_NAME: caremate-health-data-gateway-${{ github.event.inputs.environment || (github.ref_name == 'prod' && 'prod' || 'development') }}
+      STACK_NAME: caremate-health-data-gateway-${{ needs.resolve.outputs.deploy_env }}
 
     steps:
       - name: Checkout
@@ -80,14 +112,14 @@ jobs:
           missing=0
           for name in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY SUPABASE_JWT_SECRET GATEWAY_MASTER_KEY; do
             if [ -z "${!name}" ]; then
-              echo "::error::Missing secret ${name} on GitHub Environment '${DEPLOY_ENV}'. Add it under Settings → Environments → ${DEPLOY_ENV} → Environment secrets (repo-level secrets are not visible to this job)."
+              echo "::error::Missing secret ${name} on GitHub Environment '${GITHUB_ENVIRONMENT}'. Add it under Settings → Environments → ${GITHUB_ENVIRONMENT} → Environment secrets (repo-level secrets are not visible to this job)."
               missing=1
             fi
           done
           if [ "$missing" -ne 0 ]; then
             exit 1
           fi
-          echo "All required environment secrets are present for ${DEPLOY_ENV}."
+          echo "All required environment secrets are present for ${GITHUB_ENVIRONMENT} (AWS stack ${STACK_NAME})."
 
       - name: Install dependencies
         run: npm ci
@@ -169,10 +201,12 @@ jobs:
             --query "Stacks[0].Outputs[?OutputKey=='ApiEndpoint'].OutputValue" \
             --output text)"
           {
-            echo "## Gateway ${DEPLOY_ENV}"
+            echo "## Gateway ${GITHUB_ENVIRONMENT}"
             echo ""
+            echo "- GitHub Environment: \`${GITHUB_ENVIRONMENT}\`"
+            echo "- AWS EnvironmentName: \`${DEPLOY_ENV}\`"
             echo "- Stack: \`${STACK_NAME}\`"
             echo "- Endpoint: \`${ENDPOINT}\`"
             echo "- Mobile: set \`EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL=${ENDPOINT}\`"
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "Deployed ${DEPLOY_ENV} → ${ENDPOINT}"
+          echo "Deployed ${GITHUB_ENVIRONMENT} → ${ENDPOINT}"
