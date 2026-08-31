@@ -344,7 +344,7 @@ export default function PregnancyTrackerScreen() {
         </MiniAppCard>
       ) : null}
 
-      {hasSetup ? (
+      {hasSetup || isPostpartum ? (
         <MiniAppCard
           index={cardIndex++}
           title={t('apps.pregnancy.ui.todaysLog')}
@@ -358,11 +358,13 @@ export default function PregnancyTrackerScreen() {
               trailing={<AppText variant="body">{localizeMood(todayLog.mood, t)}</AppText>}
             />
           ) : null}
-          <MiniAppRow
-            title={t('apps.pregnancy.ui.kicksLogged')}
-            soft={theme.backgroundColor}
-            trailing={<AppText variant="body">{todayLog?.kickCount ?? 0}</AppText>}
-          />
+          {!isPostpartum ? (
+            <MiniAppRow
+              title={t('apps.pregnancy.ui.kicksLogged')}
+              soft={theme.backgroundColor}
+              trailing={<AppText variant="body">{todayLog?.kickCount ?? 0}</AppText>}
+            />
+          ) : null}
           {todayLog?.weightKg != null ? (
             <MiniAppRow
               title={t('apps.pregnancy.ui.weight')}
@@ -386,7 +388,7 @@ export default function PregnancyTrackerScreen() {
         </MiniAppCard>
       ) : null}
 
-      {hasSetup && historyLogs.length > 0 ? (
+      {(hasSetup || isPostpartum) && historyLogs.length > 0 ? (
         <MiniAppCard
           index={cardIndex++}
           title={t('apps.pregnancy.ui.logHistory')}

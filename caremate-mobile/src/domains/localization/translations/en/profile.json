@@ -133,6 +133,7 @@
     "nationalIdInvalid": "Enter 5–32 letters or numbers (no spaces).",
     "phoneInvalid": "Enter a valid phone number (7–15 digits, optional leading +).",
     "nameRequired": "Full name is required.",
+    "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK). Keep it under 81 characters.",
     "saveFailed": "Couldn't save profile",
     "practitionerTitle": "Are you a health practitioner?",
     "practitionerHint": "Choose Yes if you work in a clinic, hospital, pharmacy, lab, or similar.",

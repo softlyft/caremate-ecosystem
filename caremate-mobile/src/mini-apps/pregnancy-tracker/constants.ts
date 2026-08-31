@@ -15,6 +15,22 @@ export const SYMPTOM_OPTIONS = [
   'Food cravings',
 ] as const;
 
+/** Recovery-focused options for mother postpartum daily logs (no pregnancy-only items). */
+export const POSTPARTUM_SYMPTOM_OPTIONS = [
+  'Fatigue',
+  'Afterpains',
+  'Bleeding',
+  'Perineal discomfort',
+  'Breast engorgement',
+  'Incision pain',
+  'Back pain',
+  'Headache',
+  'Constipation',
+  'Insomnia',
+  'Anxiety',
+  'Mood swings',
+] as const;
+
 export const MILESTONES = [
   {
     week: 8,

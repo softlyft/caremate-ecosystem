@@ -148,7 +148,8 @@
     "staffOrg": "Staff wɔ: {{name}}",
     "pendingOrg": "Pending: {{name}}",
     "awaitingStaff": "Retwɛn wo organization no mark wo sɛ staff.",
-    "unknownOrg": "Organization"
+    "unknownOrg": "Organization",
+    "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK). Keep it under 81 characters."
   },
   "connections": {
     "subtitle": "Connected providers ne connection requests",

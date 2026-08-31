@@ -681,7 +681,15 @@
       "Headache": "Maumivu ya kichwa",
       "Insomnia": "Usingizi hauji",
       "Food cravings": "Tamu la chakula",
-      "Swelling": "Uvimbe"
+      "Swelling": "Uvimbe",
+      "Afterpains": "Afterpains",
+      "Bleeding": "Bleeding",
+      "Perineal discomfort": "Perineal discomfort",
+      "Breast engorgement": "Breast engorgement",
+      "Incision pain": "Incision pain",
+      "Constipation": "Constipation",
+      "Anxiety": "Anxiety",
+      "Mood swings": "Mood swings"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "Gusa + kila unapohisi mwendo",
       "logHistory": "Rekodi za hivi karibuni",
       "recent": "Hivi karibuni",
-      "endPregnancyMessage": "Hii inahifadhi ratiba na rekodi za kila siku, kisha inaendelea na Period Tracker ikiwa ilikuwa imesimamishwa kwa ujauzito. Unaweza kusanidi ujauzito mpya baadaye."
+      "endPregnancyMessage": "Hii inahifadhi ratiba na rekodi za kila siku, kisha inaendelea na Period Tracker ikiwa ilikuwa imesimamishwa kwa ujauzito. Unaweza kusanidi ujauzito mpya baadaye.",
+      "howFeelingSubtitlePostpartum": "Log how recovery feels today. This helps you spot patterns as you heal."
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} ni wiki hii.",

@@ -16,6 +16,10 @@ import {
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import {
+  POSTPARTUM_SYMPTOM_OPTIONS,
+  SYMPTOM_OPTIONS,
+} from '@/mini-apps/pregnancy-tracker/constants';
+import {
   getTodayLog,
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
@@ -24,6 +28,7 @@ import {
 import {
   localizeMoodOptions,
   localizeSymptomOptions,
+  type PregnancyLogPhase,
 } from '@/mini-apps/pregnancy-tracker/localize';
 import {
   assessPregnancyLogDraft,
@@ -37,17 +42,26 @@ const APP_ID = 'pregnancy-tracker' as const;
 function PregnancyLogForm({
   todayKey,
   initialLog,
+  phase,
 }: {
   todayKey: string;
   initialLog: PregnancyDailyLog | undefined;
+  phase: PregnancyLogPhase;
 }) {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const upsertDailyLog = usePregnancyTrackerStore((state) => state.upsertDailyLog);
+  const isPostpartum = phase === 'postpartum';
+  const allowedSymptoms = useMemo(
+    () => new Set<string>(isPostpartum ? POSTPARTUM_SYMPTOM_OPTIONS : SYMPTOM_OPTIONS),
+    [isPostpartum],
+  );
 
   const [mood, setMood] = useState<string | undefined>(initialLog?.mood);
-  const [symptoms, setSymptoms] = useState<string[]>(initialLog?.symptoms ?? []);
-  const [kickCount, setKickCount] = useState(initialLog?.kickCount ?? 0);
+  const [symptoms, setSymptoms] = useState<string[]>(() =>
+    (initialLog?.symptoms ?? []).filter((item) => allowedSymptoms.has(item)),
+  );
+  const [kickCount, setKickCount] = useState(isPostpartum ? 0 : (initialLog?.kickCount ?? 0));
   const [notes, setNotes] = useState(initialLog?.notes ?? '');
   const [weightText, setWeightText] = useState(
     initialLog?.weightKg != null && Number.isFinite(initialLog.weightKg)
@@ -74,9 +88,10 @@ function PregnancyLogForm({
       dateKey: todayKey,
       mood,
       symptoms,
-      kickCount,
+      kickCount: isPostpartum ? 0 : kickCount,
       notes,
       weightKg: trimmedWeight.length > 0 ? weightKg : null,
+      journeyStatus: phase,
     });
 
     if (assessment.hard) {
@@ -116,16 +131,24 @@ function PregnancyLogForm({
     save();
   };
 
+  let cardIndex = 1;
+
   return (
     <MiniAppScreen>
       <MiniAppHero
         appId={APP_ID}
-        eyebrow={t('apps.pregnancy.ui.dailyLog')}
+        eyebrow={
+          isPostpartum ? t('apps.pregnancy.postnatal.eyebrow') : t('apps.pregnancy.ui.dailyLog')
+        }
         title={t('apps.pregnancy.ui.howFeeling')}
-        subtitle={t('apps.pregnancy.ui.howFeelingSubtitle')}
+        subtitle={
+          isPostpartum
+            ? t('apps.pregnancy.ui.howFeelingSubtitlePostpartum')
+            : t('apps.pregnancy.ui.howFeelingSubtitle')
+        }
       />
 
-      <MiniAppCard index={1} title={t('apps.pregnancy.ui.mood')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.pregnancy.ui.mood')} theme={theme}>
         <View style={styles.chipRow}>
           {localizeMoodOptions(t).map((option) => (
             <MiniAppChip
@@ -140,9 +163,9 @@ function PregnancyLogForm({
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={2} title={t('apps.pregnancy.ui.symptoms')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.pregnancy.ui.symptoms')} theme={theme}>
         <View style={styles.chipRow}>
-          {localizeSymptomOptions(t).map((option) => (
+          {localizeSymptomOptions(t, phase).map((option) => (
             <MiniAppChip
               key={option.id}
               label={option.label}
@@ -155,32 +178,34 @@ function PregnancyLogForm({
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={3} title={t('apps.pregnancy.ui.babyKicks')} theme={theme}>
-        <View style={styles.counterRow}>
-          <Button
-            style={[styles.counterButton, { borderColor: theme.color }]}
-            onPress={() => setKickCount((count) => Math.max(0, count - 1))}
-            variant="plain"
-          >
-            <Minus color={theme.color} size={18} />
-          </Button>
-          <AppText variant="screenTitle" style={{ color: theme.titleColor }}>
-            {kickCount}
+      {!isPostpartum ? (
+        <MiniAppCard index={cardIndex++} title={t('apps.pregnancy.ui.babyKicks')} theme={theme}>
+          <View style={styles.counterRow}>
+            <Button
+              style={[styles.counterButton, { borderColor: theme.color }]}
+              onPress={() => setKickCount((count) => Math.max(0, count - 1))}
+              variant="plain"
+            >
+              <Minus color={theme.color} size={18} />
+            </Button>
+            <AppText variant="screenTitle" style={{ color: theme.titleColor }}>
+              {kickCount}
+            </AppText>
+            <Button
+              style={[styles.counterButton, { borderColor: theme.color }]}
+              onPress={() => setKickCount((count) => count + 1)}
+              variant="plain"
+            >
+              <Plus color={theme.color} size={18} />
+            </Button>
+          </View>
+          <AppText variant="caption" style={styles.muted}>
+            {t('apps.pregnancy.ui.tapKickHint')}
           </AppText>
-          <Button
-            style={[styles.counterButton, { borderColor: theme.color }]}
-            onPress={() => setKickCount((count) => count + 1)}
-            variant="plain"
-          >
-            <Plus color={theme.color} size={18} />
-          </Button>
-        </View>
-        <AppText variant="caption" style={styles.muted}>
-          {t('apps.pregnancy.ui.tapKickHint')}
-        </AppText>
-      </MiniAppCard>
+        </MiniAppCard>
+      ) : null}
 
-      <MiniAppCard index={4} title={t('apps.pregnancy.ui.weight')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.pregnancy.ui.weight')} theme={theme}>
         <Input
           value={weightText}
           onChangeText={setWeightText}
@@ -192,7 +217,7 @@ function PregnancyLogForm({
         </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={5} title={t('apps.pregnancy.ui.notes')} theme={theme}>
+      <MiniAppCard index={cardIndex++} title={t('apps.pregnancy.ui.notes')} theme={theme}>
         <Input
           value={notes}
           onChangeText={setNotes}
@@ -207,7 +232,7 @@ function PregnancyLogForm({
         label={t('apps.pregnancyTracker.saveLog')}
         accent={theme.color}
         soft={theme.backgroundColor}
-        index={6}
+        index={cardIndex}
         onPress={commitLog}
       />
     </MiniAppScreen>
@@ -219,6 +244,8 @@ export default function PregnancyLogScreen() {
   const todayKey = useMemo(() => toDateKey(new Date()), []);
   const hydrated = usePregnancyTrackerHydrated();
   const existingLog = usePregnancyTrackerStore((state) => state.dailyLogs[todayKey]);
+  const status = usePregnancyTrackerStore((state) => state.status);
+  const phase: PregnancyLogPhase = status === 'postpartum' ? 'postpartum' : 'active';
 
   if (!hydrated) {
     return (
@@ -229,7 +256,7 @@ export default function PregnancyLogScreen() {
   }
 
   // Mount form only after hydrate so local state seeds from persisted log (no effect).
-  return <PregnancyLogForm todayKey={todayKey} initialLog={existingLog} />;
+  return <PregnancyLogForm todayKey={todayKey} initialLog={existingLog} phase={phase} />;
 }
 
 const styles = StyleSheet.create({

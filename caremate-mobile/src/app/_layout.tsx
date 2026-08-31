@@ -7,6 +7,7 @@ import '../../global.css';
 
 import { AppProviders } from '@/components/AppProviders';
 import { AuthDeepLinkHandler } from '@/components/AuthDeepLinkHandler';
+import { AuthSessionGuard } from '@/components/AuthSessionGuard';
 import { ArticleShareDeepLinkHandler } from '@/components/ArticleShareDeepLinkHandler';
 import { BillingDeepLinkHandler } from '@/components/BillingDeepLinkHandler';
 import { EmergencyShareDeepLinkHandler } from '@/components/EmergencyShareDeepLinkHandler';
@@ -48,6 +49,7 @@ function RootLayout() {
       <GluestackUIProvider mode="light">
         <AppProviders>
           <AuthDeepLinkHandler />
+          <AuthSessionGuard />
           <BillingDeepLinkHandler />
           <EmergencyShareDeepLinkHandler />
           <ArticleShareDeepLinkHandler />

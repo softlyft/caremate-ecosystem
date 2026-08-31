@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Bell, FileText, MapPin, Settings, Shield, Trash2, Users } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,8 +15,7 @@ import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { Switch } from '@/components/ui/switch';
 import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
 import { localizationService, useTranslation } from '@/domains/localization';
-import { setDeviceDefaults } from '@/domains/onboarding';
-import { clearPushRegistration, syncPushRegistration } from '@/domains/notifications/push';
+import { applyNotificationsEnabledPreference } from '@/domains/notifications/push';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
@@ -37,7 +36,6 @@ export default function SettingsScreen() {
   const deleteAccount = useAuthStore((state) => state.deleteAccount);
 
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
-  const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
@@ -61,15 +59,21 @@ export default function SettingsScreen() {
   const resolvedLanguage = localizationService.normalizeLanguage(countryCode, languageCode);
 
   async function updateNotifications(value: boolean) {
-    setNotificationsEnabled(value);
-    await Promise.all([
-      profileRepository.saveSettings(userId, { notificationsEnabled: value }),
-      setDeviceDefaults({ notificationsEnabled: value }),
-    ]);
-    if (value) {
-      void syncPushRegistration({ requestPermission: true });
-    } else {
-      void clearPushRegistration();
+    const result = await applyNotificationsEnabledPreference(value);
+    if (value && !result.applied) {
+      Alert.alert(
+        t('settings.notifications.permissionDeniedTitle'),
+        t('settings.notifications.permissionDeniedMessage'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('settings.notifications.openSystemSettings'),
+            onPress: () => {
+              void Linking.openSettings();
+            },
+          },
+        ],
+      );
     }
   }
 

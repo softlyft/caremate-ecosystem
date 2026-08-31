@@ -8,7 +8,7 @@ Workflow: [`.github/workflows/ios-testflight.yml`](../../.github/workflows/ios-t
 Bundle ID: `com.softlyft.caremate`  
 GitHub Environment: **`development`**
 
-Production App Store builds on `prod` are documented in [iOS App Store release](./ios-app-store-release.md).
+Production App Store builds on `prod` are documented in [iOS App Store release](./ios-app-store-release.md). **Do not** submit these `main` / TestFlight (dev) builds for App Store review — use the prod workflow and [recommended release flow](./ios-app-store-release.md#recommended-release-flow).
 
 ## Trigger
 

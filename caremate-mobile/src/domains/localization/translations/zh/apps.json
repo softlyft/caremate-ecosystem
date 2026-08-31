@@ -681,7 +681,15 @@
       "Headache": "头痛",
       "Insomnia": "失眠",
       "Food cravings": "食物渴望",
-      "Swelling": "肿胀"
+      "Swelling": "肿胀",
+      "Afterpains": "宫缩痛",
+      "Bleeding": "出血",
+      "Perineal discomfort": "会阴不适",
+      "Breast engorgement": "乳房胀痛",
+      "Incision pain": "切口疼痛",
+      "Constipation": "便秘",
+      "Anxiety": "焦虑",
+      "Mood swings": "情绪波动"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "每次感到胎动时点 +",
       "logHistory": "最近日志",
       "recent": "最近",
-      "endPregnancyMessage": "这将存档时间线和每日日志，并在因怀孕暂停时恢复 Period Tracker。您可稍后设置新的怀孕。"
+      "endPregnancyMessage": "这将存档时间线和每日日志，并在因怀孕暂停时恢复 Period Tracker。您可稍后设置新的怀孕。",
+      "howFeelingSubtitlePostpartum": "记录今天的恢复感受。这有助于你在愈合过程中发现规律。"
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} 在本周。",

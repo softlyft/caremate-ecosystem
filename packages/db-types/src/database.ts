@@ -3563,6 +3563,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_revoke_user_sessions: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       can_direct_message: {
         Args: { p_org_id: string; p_user_a: string; p_user_b: string }
         Returns: boolean

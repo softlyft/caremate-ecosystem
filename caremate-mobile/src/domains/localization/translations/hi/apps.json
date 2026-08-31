@@ -681,7 +681,15 @@
       "Headache": "सिरदर्द",
       "Insomnia": "अनिद्रा",
       "Food cravings": "भोजन की लालसा",
-      "Swelling": "सूजन"
+      "Swelling": "सूजन",
+      "Afterpains": "प्रसव के बाद दर्द",
+      "Bleeding": "रक्तस्राव",
+      "Perineal discomfort": "पेरिनियम असुविधा",
+      "Breast engorgement": "स्तन में सूजन",
+      "Incision pain": "चीरा दर्द",
+      "Constipation": "कब्ज",
+      "Anxiety": "चिंता",
+      "Mood swings": "मूड स्विंग्स"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "हर बार गति महसूस होने पर + टैप करें",
       "logHistory": "हाल की लॉग",
       "recent": "हाल का",
-      "endPregnancyMessage": "यह समयरेखा और दैनिक लॉग संग्रहित करेगा, और गर्भावस्था के लिए रोका हो तो Period Tracker फिर शुरू करेगा। बाद में नई गर्भावस्था सेट कर सकते हैं।"
+      "endPregnancyMessage": "यह समयरेखा और दैनिक लॉग संग्रहित करेगा, और गर्भावस्था के लिए रोका हो तो Period Tracker फिर शुरू करेगा। बाद में नई गर्भावस्था सेट कर सकते हैं।",
+      "howFeelingSubtitlePostpartum": "आज रिकवरी कैसी लग रही है, उसे लॉग करें। इससे ठीक होते समय पैटर्न देखने में मदद मिलती है।"
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} इस सप्ताह है।",

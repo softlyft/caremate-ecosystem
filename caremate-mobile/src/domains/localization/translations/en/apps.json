@@ -662,7 +662,15 @@
       "Swelling": "Swelling",
       "Headache": "Headache",
       "Insomnia": "Insomnia",
-      "Food cravings": "Food cravings"
+      "Food cravings": "Food cravings",
+      "Afterpains": "Afterpains",
+      "Bleeding": "Bleeding",
+      "Perineal discomfort": "Perineal discomfort",
+      "Breast engorgement": "Breast engorgement",
+      "Incision pain": "Incision pain",
+      "Constipation": "Constipation",
+      "Anxiety": "Anxiety",
+      "Mood swings": "Mood swings"
     },
     "milestones": {
       "8": {
@@ -694,6 +702,7 @@
       "dailyLog": "Daily log",
       "howFeeling": "How are you feeling?",
       "howFeelingSubtitle": "Log how you're feeling today. This helps you spot patterns over time.",
+      "howFeelingSubtitlePostpartum": "Log how recovery feels today. This helps you spot patterns as you heal.",
       "babyKicks": "Baby kicks",
       "notesPlaceholder": "How are you feeling? Any questions for your next visit?",
       "setTimeline": "Set your timeline",

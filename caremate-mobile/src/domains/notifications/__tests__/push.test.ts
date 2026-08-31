@@ -1,4 +1,5 @@
 import {
+  applyNotificationsEnabledPreference,
   clearPushRegistration,
   reconcilePushRegistrationWithOsPermission,
   syncPushRegistration,
@@ -12,6 +13,9 @@ const mockGetExpoPushTokenAsync = jest.fn();
 const mockSetNotificationChannelAsync = jest.fn();
 const mockUpsert = jest.fn();
 const mockDeleteEq = jest.fn();
+const mockSetNotificationsEnabled = jest.fn();
+const mockSetDeviceDefaults = jest.fn();
+const mockSaveSettings = jest.fn();
 
 jest.mock('expo-constants', () => ({
   __esModule: true,
@@ -32,6 +36,13 @@ jest.mock('expo-notifications', () => ({
   getExpoPushTokenAsync: (...args: unknown[]) => mockGetExpoPushTokenAsync(...args),
   setNotificationChannelAsync: (...args: unknown[]) => mockSetNotificationChannelAsync(...args),
   AndroidImportance: { DEFAULT: 3 },
+  IosAuthorizationStatus: {
+    NOT_DETERMINED: 0,
+    DENIED: 1,
+    AUTHORIZED: 2,
+    PROVISIONAL: 3,
+    EPHEMERAL: 4,
+  },
 }));
 
 jest.mock('react-native', () => ({
@@ -54,6 +65,16 @@ jest.mock('@/features/auth/store', () => ({
 jest.mock('@/domains/profile/store', () => ({
   useSettingsStore: {
     getState: jest.fn(),
+  },
+}));
+
+jest.mock('@/domains/onboarding/device-defaults', () => ({
+  setDeviceDefaults: (...args: unknown[]) => mockSetDeviceDefaults(...args),
+}));
+
+jest.mock('@/domains/profile/repository', () => ({
+  profileRepository: {
+    saveSettings: (...args: unknown[]) => mockSaveSettings(...args),
   },
 }));
 
@@ -86,6 +107,12 @@ describe('push registration', () => {
     mockGetPermissionsAsync.mockResolvedValue({ status: 'granted' });
     mockRequestPermissionsAsync.mockResolvedValue({ status: 'granted' });
     mockGetExpoPushTokenAsync.mockResolvedValue({ data: 'ExponentPushToken[test]' });
+    mockSetDeviceDefaults.mockResolvedValue({});
+    mockSaveSettings.mockResolvedValue(undefined);
+    mockSettingsGetState.mockReturnValue({
+      notificationsEnabled: true,
+      setNotificationsEnabled: mockSetNotificationsEnabled,
+    });
   });
 
   it('no-ops for guests', async () => {
@@ -94,7 +121,6 @@ describe('push registration', () => {
       isGuest: true,
       isAuthenticated: false,
     });
-    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
 
     await syncPushRegistration();
 
@@ -108,7 +134,10 @@ describe('push registration', () => {
       isGuest: false,
       isAuthenticated: true,
     });
-    mockSettingsGetState.mockReturnValue({ notificationsEnabled: false });
+    mockSettingsGetState.mockReturnValue({
+      notificationsEnabled: false,
+      setNotificationsEnabled: mockSetNotificationsEnabled,
+    });
 
     await syncPushRegistration();
 
@@ -122,7 +151,6 @@ describe('push registration', () => {
       isGuest: false,
       isAuthenticated: true,
     });
-    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
 
     await syncPushRegistration();
 
@@ -144,7 +172,6 @@ describe('push registration', () => {
       isGuest: false,
       isAuthenticated: true,
     });
-    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
     mockGetPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
     await syncPushRegistration();
@@ -160,7 +187,6 @@ describe('push registration', () => {
       isGuest: false,
       isAuthenticated: true,
     });
-    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
     mockGetPermissionsAsync.mockResolvedValue({ status: 'denied' });
     mockRequestPermissionsAsync.mockResolvedValue({ status: 'granted' });
 
@@ -182,18 +208,55 @@ describe('push registration', () => {
     expect(mockDeleteEq).toHaveBeenCalled();
   });
 
-  it('reconciles by clearing when OS permission was revoked', async () => {
+  it('reconciles by clearing token and turning preference off when OS permission was revoked', async () => {
     mockAuthGetState.mockReturnValue({
       user: { id: 'user-1' },
       isGuest: false,
       isAuthenticated: true,
     });
-    mockSettingsGetState.mockReturnValue({ notificationsEnabled: true });
     mockGetPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
     await reconcilePushRegistrationWithOsPermission();
 
     expect(mockUpsert).not.toHaveBeenCalled();
     expect(mockDeleteEq).toHaveBeenCalled();
+    expect(mockSetNotificationsEnabled).toHaveBeenCalledWith(false);
+    expect(mockSetDeviceDefaults).toHaveBeenCalledWith({ notificationsEnabled: false });
+    expect(mockSaveSettings).toHaveBeenCalledWith('user-1', { notificationsEnabled: false });
+  });
+
+  it('reverts enable preference when OS permission is denied', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockGetPermissionsAsync
+      .mockResolvedValueOnce({ status: 'denied', granted: false })
+      .mockResolvedValueOnce({ status: 'denied', granted: false });
+    mockRequestPermissionsAsync.mockResolvedValue({ status: 'denied', granted: false });
+
+    const result = await applyNotificationsEnabledPreference(true);
+
+    expect(result).toEqual({ applied: false, osGranted: false });
+    expect(mockSetNotificationsEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it('treats iOS provisional authorization as allowed (does not force toggle off)', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockGetPermissionsAsync.mockResolvedValue({
+      status: 'undetermined',
+      granted: false,
+      ios: { status: 3 }, // IosAuthorizationStatus.PROVISIONAL
+    });
+
+    await reconcilePushRegistrationWithOsPermission();
+
+    expect(mockSetNotificationsEnabled).not.toHaveBeenCalledWith(false);
+    expect(mockUpsert).toHaveBeenCalled();
   });
 });
