@@ -179,6 +179,13 @@ jobs:
           CI: 1
         run: npx expo prebuild --platform android --clean --no-install
 
+      - name: Ensure release signing in app/build.gradle
+        run: |
+          set -euo pipefail
+          chmod +x caremate-mobile/scripts/patch-android-release-signing.js
+          node caremate-mobile/scripts/patch-android-release-signing.js
+          grep -q 'CARE_MATE_UPLOAD_STORE_FILE' caremate-mobile/android/app/build.gradle
+
       - name: Write upload keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -203,11 +210,19 @@ jobs:
 
       - name: Build release AAB
         working-directory: caremate-mobile/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           chmod +x gradlew
           ./gradlew bundleRelease --no-daemon \
-            -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
+            -PreactNativeArchitectures=armeabi-v7a,arm64-v8a \
+            -PCARE_MATE_UPLOAD_STORE_FILE=upload-keystore.jks \
+            -PCARE_MATE_UPLOAD_STORE_PASSWORD="${ANDROID_KEYSTORE_PASSWORD}" \
+            -PCARE_MATE_UPLOAD_KEY_ALIAS="${ANDROID_KEY_ALIAS}" \
+            -PCARE_MATE_UPLOAD_KEY_PASSWORD="${ANDROID_KEY_PASSWORD}"
 
       - name: Stage AAB
         id: aab
@@ -225,6 +240,24 @@ jobs:
           ls -lh "artifacts/$NAME"
           echo "aab_path=artifacts/$NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Reject debug-signed AAB
+        run: |
+          set -euo pipefail
+          AAB="${{ steps.aab.outputs.aab_path }}"
+          # AABs are zips; signing certs live under META-INF.
+          CERT_FILE="$(unzip -l "$AAB" | awk '/META-INF\/.*\.(RSA|DSA|EC)$/ { print $4; exit }')"
+          if [ -z "${CERT_FILE:-}" ]; then
+            echo "::warning::No META-INF signing cert entry found in AAB; continuing (Play will still validate)."
+          else
+            CERT_INFO="$(unzip -p "$AAB" "$CERT_FILE" | keytool -printcert 2>/dev/null || true)"
+            echo "$CERT_INFO" | head -n 40
+            if echo "$CERT_INFO" | grep -qi 'CN=Android Debug'; then
+              echo "::error::AAB is signed with the Android debug keystore. Play rejects this."
+              echo "Ensure CARE_MATE_UPLOAD_* secrets are set and release signing was patched."
+              exit 1
+            fi
+          fi
+
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
@@ -233,6 +266,45 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Validate Play service account JSON
+        if: ${{ env.PLAY_UPLOAD != 'false' && env.PLAY_UPLOAD != false }}
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
+            echo "::error::PLAY_SERVICE_ACCOUNT_JSON is empty on GitHub Environment production."
+            exit 1
+          fi
+          # Detect common paste mistakes before the Play action's opaque error.
+          if ! node -e '
+            const raw = process.env.PLAY_SERVICE_ACCOUNT_JSON;
+            let parsed;
+            try { parsed = JSON.parse(raw); } catch (e) {
+              console.error("PLAY_SERVICE_ACCOUNT_JSON is not valid JSON:", e.message);
+              console.error("Paste the raw service-account key file contents (starts with {\"type\":\"service_account\"...}).");
+              console.error("Do not base64-encode it, and do not wrap the whole JSON in extra quotes.");
+              process.exit(1);
+            }
+            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+              console.error("PLAY_SERVICE_ACCOUNT_JSON must be a JSON object.");
+              process.exit(1);
+            }
+            if (typeof parsed.client_email !== "string" || !parsed.client_email.includes("@")) {
+              console.error("JSON is missing client_email. You likely pasted the wrong file or truncated JSON.");
+              console.error("Keys present:", Object.keys(parsed).join(", ") || "(none)");
+              process.exit(1);
+            }
+            if (parsed.type !== "service_account") {
+              console.error("Expected type=service_account, got:", parsed.type);
+              process.exit(1);
+            }
+            console.log("Play service account OK:", parsed.client_email);
+          '; then
+            echo "See caremate-mobile/docs/play-android-release.md#play-upload-required-to-publish-the-aab"
+            exit 1
+          fi
+
       - name: Upload to Play Console
         if: ${{ env.PLAY_UPLOAD != 'false' && env.PLAY_UPLOAD != false }}
         uses: r0adkll/upload-google-play@v1
@@ -240,7 +312,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.softlyft.caremate
           releaseFiles: ${{ steps.aab.outputs.aab_path }}
-          track: ${{ env.PLAY_TRACK }}
+          tracks: ${{ env.PLAY_TRACK }}
           status: ${{ env.PLAY_TRACK == 'production' && env.PLAY_PUBLISH_PRODUCTION != 'true' && env.PLAY_PUBLISH_PRODUCTION != true && 'draft' || 'completed' }}
           releaseName: ${{ format('{0} ({1})', env.VERSION_NAME, env.ANDROID_VERSION_CODE) }}
           changesNotSentForReview: true

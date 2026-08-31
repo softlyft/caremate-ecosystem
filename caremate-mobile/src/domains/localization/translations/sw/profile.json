@@ -148,7 +148,8 @@
     "staffOrg": "Mfanyakazi katika: {{name}}",
     "pendingOrg": "Inasubiri: {{name}}",
     "awaitingStaff": "Inasubiri shirika lako likuweka kama mfanyakazi.",
-    "unknownOrg": "Shirika"
+    "unknownOrg": "Shirika",
+    "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK). Keep it under 81 characters."
   },
   "connections": {
     "subtitle": "Watoa huduma waliounganishwa na maombi ya muunganisho",

@@ -24,7 +24,7 @@ import { adsRepository } from '@/domains/ads/repository';
 import { articleRepository } from '@/domains/articles/repository';
 import { hydrateAccountEntitlements } from '@/domains/billing/hydrate-entitlements';
 import { hydrateEmergencyProfile } from '@/domains/emergency/hydrate-emergency';
-import { syncPushRegistration } from '@/domains/notifications/push';
+import { reconcilePushRegistrationWithOsPermission } from '@/domains/notifications/push';
 import { providerRepository } from '@/domains/providers/repository';
 import { healthTipRepository } from '@/domains/tips/repository';
 import { queryClient } from '@/lib/query-client';
@@ -174,9 +174,8 @@ function BootstrapGate({ children }: PropsWithChildren) {
         // Optional.
       }
       if (cancelled) return;
-      // Prompt when in-app notifications are on — login alone previously skipped OS permission.
-      const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
-      void syncPushRegistration({ requestPermission: notificationsEnabled });
+      // Align toggle with OS permission; register only when both preference and OS allow.
+      void reconcilePushRegistrationWithOsPermission();
     })();
     return () => {
       cancelled = true;

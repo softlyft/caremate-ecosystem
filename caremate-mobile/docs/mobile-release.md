@@ -21,10 +21,12 @@ feature → PR → main → CI (format · lint · typecheck · test)  ← automa
 
 main → PR → prod → CI only (no store upload)
               └── you run store workflows manually
-                    ├── iOS App Store  → App Store Connect
-                    └── Android Play   → Play production track
+                    ├── iOS App Store  → ASC upload → optional TestFlight QA → Submit for Review
+                    └── Android Play   → internal (QA) → production draft → finish in Play Console
 ```
 
+- Android detail: [Play Android release](./play-android-release.md#recommended-release-flow)
+- iOS detail: [iOS App Store release](./ios-app-store-release.md#recommended-release-flow)
 ## Free plan + private repo
 
 GitHub **Required reviewers** on environments is **not available** on Free plans with private repos. Human approval is **manual workflow dispatch** instead:
@@ -32,7 +34,7 @@ GitHub **Required reviewers** on environments is **not available** on Free plans
 1. Merge to `main` → wait for **CI** to pass (automatic)
 2. **Actions → Mobile Main CD → Run workflow** (pick branch `main`) → that is your deploy approval
 
-The workflow checks that the **latest CI run on that branch succeeded** before building (unless you check **skip_ci_check** for emergencies).
+The workflow checks that the **latest CI run on that branch succeeded** before building (unless you check **skip_ci_check** for emergencies). It **rejects branch `prod`** — that path is APK/Slack + TestFlight with the **development** environment only.
 
 For **prod** store releases: merge to `prod` runs **CI only**. Deploy with **Actions → iOS App Store** / **Android Play** (pick branch `prod`) when you are ready.
 

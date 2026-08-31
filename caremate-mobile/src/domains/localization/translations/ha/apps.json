@@ -681,7 +681,15 @@
       "Headache": "Ciwon kai",
       "Insomnia": "Barci ba ya zuwa",
       "Food cravings": "Kishirwar abinci",
-      "Swelling": "Kumburi"
+      "Swelling": "Kumburi",
+      "Afterpains": "Afterpains",
+      "Bleeding": "Bleeding",
+      "Perineal discomfort": "Perineal discomfort",
+      "Breast engorgement": "Breast engorgement",
+      "Incision pain": "Incision pain",
+      "Constipation": "Constipation",
+      "Anxiety": "Anxiety",
+      "Mood swings": "Mood swings"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "Danna + duk lokacin da ka ji motsi",
       "logHistory": "Rubutun kwanan nan",
       "recent": "Kwanan nan",
-      "endPregnancyMessage": "Wannan yana adana tsarin lokaci da rubutun yau da kullum, sannan ya dawo da Period Tracker idan an dakatar da shi saboda ciki. Za ka iya saita sabon ciki daga baya."
+      "endPregnancyMessage": "Wannan yana adana tsarin lokaci da rubutun yau da kullum, sannan ya dawo da Period Tracker idan an dakatar da shi saboda ciki. Za ka iya saita sabon ciki daga baya.",
+      "howFeelingSubtitlePostpartum": "Log how recovery feels today. This helps you spot patterns as you heal."
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} a wannan mako.",

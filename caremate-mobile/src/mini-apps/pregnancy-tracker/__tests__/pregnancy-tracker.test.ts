@@ -1,6 +1,7 @@
 import {
   MILESTONES,
   MOOD_OPTIONS,
+  POSTPARTUM_SYMPTOM_OPTIONS,
   PREGNANCY_DAYS,
   SYMPTOM_OPTIONS,
 } from '@/mini-apps/pregnancy-tracker/constants';
@@ -120,6 +121,9 @@ describe('pregnancy-tracker/localize', () => {
     expect(localizeSymptom(SYMPTOM_OPTIONS[0], t)).toContain('Nausea');
     expect(localizeMoodOptions(t)).toHaveLength(MOOD_OPTIONS.length);
     expect(localizeSymptomOptions(t)).toHaveLength(SYMPTOM_OPTIONS.length);
+    expect(localizeSymptomOptions(t, 'postpartum')).toHaveLength(POSTPARTUM_SYMPTOM_OPTIONS.length);
+    expect(localizeSymptomOptions(t, 'postpartum').map((o) => o.id)).not.toContain('Food cravings');
+    expect(localizeSymptomOptions(t, 'postpartum').map((o) => o.id)).toContain('Afterpains');
   });
 
   it('localizes milestones and trimester keys', () => {
@@ -422,6 +426,20 @@ describe('pregnancy-tracker/validation', () => {
       notes: '  ',
     });
     expect(empty.soft.some((s) => s.code === 'soft_empty_log')).toBe(true);
+  });
+
+  it('uses postpartum recovery symptoms and clears kicks', () => {
+    const postpartum = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: ['Afterpains', 'Food cravings', 'Nausea'],
+      kickCount: 12,
+      notes: 'sore',
+      journeyStatus: 'postpartum',
+    });
+    expect(postpartum.hard).toBeNull();
+    expect(postpartum.payload?.kickCount).toBe(0);
+    expect(postpartum.payload?.symptoms).toEqual(['Afterpains']);
+    expect(postpartum.soft.some((s) => s.code === 'soft_kicks_high')).toBe(false);
   });
 
   it('soft-warns unusual weight and keeps valid weight in payload', () => {

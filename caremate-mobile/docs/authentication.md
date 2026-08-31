@@ -126,9 +126,9 @@ CareMate allows **one active Supabase session per account** on mobile:
 | Cold start / session restore | Does **not** revoke others (same phone reopening the app) |
 | Auth deep-link `setSession` / code exchange | Does **not** revoke others (avoids collateral with recovery/handoff flows) |
 | Explicit sign-out | `signOut({ scope: 'local' })` — ends this device only |
-| Other device after revoke | When its access JWT expires or refresh fails, Supabase emits `SIGNED_OUT` → `handleRemoteSessionEnd` → guest UI (local data kept for the bound email) |
+| Other device after revoke | `AuthSessionGuard` calls `refreshSession()` on resume and every ~45s in foreground. Revoked refresh tokens fail immediately → local sign-out → guest UI (local data kept for the bound email). `SIGNED_OUT` from auto-refresh is handled the same way. |
 
-**Note:** Revoked sessions keep a valid **access** JWT until `jwt_expiry` (see `supabase/config.toml`, currently 1 hour). Cloud writes from the old device may succeed until then; refresh will fail afterward.
+**Note:** Revoked sessions keep a valid **access** JWT until `jwt_expiry` (see `supabase/config.toml`) for raw API calls that never refresh. CareMate does not wait for that — the previous device revalidates via refresh as soon as the app is active again (or within the foreground interval).
 
 This is separate from **device account binding** (one email per physical device for local PHI). Together: one account → one live cloud session; one device → one primary local email.
 

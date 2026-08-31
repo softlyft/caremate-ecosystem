@@ -20,7 +20,10 @@
   },
   "notifications": {
     "title": "Ìfitónilétí",
-    "push": "Ìfitónilétí push"
+    "push": "Ìfitónilétí push",
+    "permissionDeniedTitle": "Notifications are off",
+    "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
+    "openSystemSettings": "Open Settings"
   },
   "location": {
     "title": "Ibùdó",

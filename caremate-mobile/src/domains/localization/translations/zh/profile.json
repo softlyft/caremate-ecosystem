@@ -148,7 +148,8 @@
     "staffOrg": "员工于：{{name}}",
     "pendingOrg": "待处理：{{name}}",
     "awaitingStaff": "等待机构将您标记为员工。",
-    "unknownOrg": "机构"
+    "unknownOrg": "机构",
+    "nameInvalid": "仅可使用字母（空格、连字符和撇号可以）。请控制在 81 个字符以内。"
   },
   "connections": {
     "subtitle": "已连接的提供者和连接请求",

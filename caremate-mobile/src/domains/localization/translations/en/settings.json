@@ -20,7 +20,10 @@
   },
   "notifications": {
     "title": "Notifications",
-    "push": "Push notifications"
+    "push": "Push notifications",
+    "permissionDeniedTitle": "Notifications are off",
+    "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
+    "openSystemSettings": "Open Settings"
   },
   "location": {
     "title": "Location",

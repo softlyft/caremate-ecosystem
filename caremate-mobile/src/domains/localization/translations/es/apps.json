@@ -681,7 +681,15 @@
       "Headache": "Dolor de cabeza",
       "Insomnia": "Insomnio",
       "Food cravings": "Antojos de comida",
-      "Swelling": "Hinchazón"
+      "Swelling": "Hinchazón",
+      "Afterpains": "Entuertos",
+      "Bleeding": "Sangrado",
+      "Perineal discomfort": "Molestia perineal",
+      "Breast engorgement": "Ingurgitación mamaria",
+      "Incision pain": "Dolor en la incisión",
+      "Constipation": "Estreñimiento",
+      "Anxiety": "Ansiedad",
+      "Mood swings": "Cambios de humor"
     },
     "milestones": {
       "8": {
@@ -779,7 +787,8 @@
       "tapKickHint": "Toca + cada vez que sientas movimiento",
       "logHistory": "Registros recientes",
       "recent": "Reciente",
-      "endPregnancyMessage": "Esto archiva la línea de tiempo y los registros diarios, y reanuda Period Tracker si estaba en pausa por el embarazo. Puedes configurar un nuevo embarazo más tarde."
+      "endPregnancyMessage": "Esto archiva la línea de tiempo y los registros diarios, y reanuda Period Tracker si estaba en pausa por el embarazo. Puedes configurar un nuevo embarazo más tarde.",
+      "howFeelingSubtitlePostpartum": "Registra cómo te sientes en la recuperación hoy. Te ayuda a ver patrones mientras sanas."
     },
     "alerts": {
       "milestoneSoonThisWeek": "{{title}} es esta semana.",

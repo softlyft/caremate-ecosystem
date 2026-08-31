@@ -11,6 +11,11 @@ export const ICE_PHONE_MAX_CHARS = ICE_PHONE_MAX_DIGITS + 1;
 
 /** Soft cap for first/last name fields (letters + limited punctuation). */
 export const PERSON_NAME_MAX_CHARS = 40;
+/**
+ * Full-name fields (edit profile) allow first + space + last at the per-part cap.
+ * Also blocks paste of chat logs / URLs from exploding the Me header layout.
+ */
+export const FULL_NAME_MAX_CHARS = PERSON_NAME_MAX_CHARS * 2 + 1;
 /** At least one letter after trim. */
 export const PERSON_NAME_MIN_CHARS = 1;
 
@@ -44,27 +49,43 @@ export function isValidIcePhone(value: string): boolean {
 
 /**
  * Allow letters (any script), combining marks, spaces, hyphen, apostrophe, and period.
- * Strips digits, emoji, and other symbols from paste/typing.
+ * Collapses whitespace (including line breaks) and strips digits, emoji, URLs, and symbols.
  */
-export function sanitizePersonNameInput(value: string): string {
+export function sanitizePersonNameInput(
+  value: string,
+  maxChars: number = PERSON_NAME_MAX_CHARS,
+): string {
   return value
     .replace(/[^\p{L}\p{M}\s'.-]/gu, '')
     .replace(/[.]{2,}/g, '.')
     .replace(/[-']{2,}/g, (match) => match[0] ?? '')
     .replace(/\s+/g, ' ')
-    .slice(0, PERSON_NAME_MAX_CHARS);
+    .slice(0, maxChars);
+}
+
+/** Sanitize a full display name (same charset, higher length cap). */
+export function sanitizeFullNameInput(value: string): string {
+  return sanitizePersonNameInput(value, FULL_NAME_MAX_CHARS);
 }
 
 /** True when the name has at least one letter and only allowed characters. */
-export function isValidPersonName(value: string): boolean {
+export function isValidPersonName(
+  value: string,
+  maxChars: number = PERSON_NAME_MAX_CHARS,
+): boolean {
   const trimmed = value.trim();
-  if (trimmed.length < PERSON_NAME_MIN_CHARS || trimmed.length > PERSON_NAME_MAX_CHARS) {
+  if (trimmed.length < PERSON_NAME_MIN_CHARS || trimmed.length > maxChars) {
     return false;
   }
   if (!/\p{L}/u.test(trimmed)) {
     return false;
   }
   return /^[\p{L}\p{M}\s'.-]+$/u.test(trimmed);
+}
+
+/** True when a full name is present and within the full-name charset/length rules. */
+export function isValidFullName(value: string): boolean {
+  return isValidPersonName(value, FULL_NAME_MAX_CHARS);
 }
 
 /** ICE contact is usable when name, valid phone, and relationship are all present. */

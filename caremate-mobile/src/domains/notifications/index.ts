@@ -11,6 +11,8 @@ export {
   markNotificationsRead,
 } from '@/domains/notifications/service';
 export {
+  allowsOsNotifications,
+  applyNotificationsEnabledPreference,
   clearPushRegistration,
   reconcilePushRegistrationWithOsPermission,
   syncPushRegistration,

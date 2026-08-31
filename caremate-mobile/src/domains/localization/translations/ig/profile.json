@@ -148,7 +148,8 @@
     "staffOrg": "Onye ọrụ na: {{name}}",
     "pendingOrg": "Na-echere: {{name}}",
     "awaitingStaff": "Na-echere ka nzukọ gị gosi gị dị ka onye ọrụ.",
-    "unknownOrg": "Nzukọ"
+    "unknownOrg": "Nzukọ",
+    "nameInvalid": "Use letters only (spaces, hyphens, and apostrophes are OK). Keep it under 81 characters."
   },
   "connections": {
     "subtitle": "Ndị na-enye ejikọtara na arịrịọ njikọ",

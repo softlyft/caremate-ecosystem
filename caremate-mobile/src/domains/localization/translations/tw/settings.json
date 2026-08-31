@@ -20,7 +20,10 @@
   },
   "notifications": {
     "title": "Amanneɛbɔ",
-    "push": "Push amanneɛbɔ"
+    "push": "Push amanneɛbɔ",
+    "permissionDeniedTitle": "Notifications are off",
+    "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
+    "openSystemSettings": "Open Settings"
   },
   "location": {
     "title": "Beaeɛ",
