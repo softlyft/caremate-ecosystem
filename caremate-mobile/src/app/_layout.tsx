@@ -25,8 +25,50 @@ SplashScreen.preventAutoHideAsync();
 initSentry();
 Appearance.setColorScheme('light');
 
-function RootLayout() {
+/** Must render under AppProviders → I18nProvider (do not call useTranslation in RootLayout). */
+function RootNavigator() {
   const { t } = useTranslation();
+
+  return (
+    <>
+      <AuthDeepLinkHandler />
+      <AuthSessionGuard />
+      <BillingDeepLinkHandler />
+      <EmergencyShareDeepLinkHandler />
+      <ArticleShareDeepLinkHandler />
+      <MessagePushDeepLinkHandler />
+      <PushPermissionReconciler />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerTintColor: '#111827',
+          contentStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="emergency-lock"
+          options={{ headerShown: false, title: t('nav.emergency') }}
+        />
+        <Stack.Screen
+          name="emergency/share/[token]"
+          options={{ headerShown: false, title: t('nav.emergencyShare') }}
+        />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="auth/reset-password"
+          options={{ headerShown: true, title: t('nav.newPassword'), presentation: 'card' }}
+        />
+        <Stack.Screen name="billing/success" options={{ headerShown: false }} />
+        <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />
+      </Stack>
+      <AppDialogHost />
+    </>
+  );
+}
+
+function RootLayout() {
   const { fontsLoaded } = useAppFonts();
   const isInitialized = useAuthStore((state) => state.isInitialized);
 
@@ -48,39 +90,7 @@ function RootLayout() {
     <ErrorBoundary>
       <GluestackUIProvider mode="light">
         <AppProviders>
-          <AuthDeepLinkHandler />
-          <AuthSessionGuard />
-          <BillingDeepLinkHandler />
-          <EmergencyShareDeepLinkHandler />
-          <ArticleShareDeepLinkHandler />
-          <MessagePushDeepLinkHandler />
-          <PushPermissionReconciler />
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: '#FFFFFF' },
-              headerTintColor: '#111827',
-              contentStyle: { backgroundColor: '#FFFFFF' },
-            }}
-          >
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="emergency-lock"
-              options={{ headerShown: false, title: t('nav.emergency') }}
-            />
-            <Stack.Screen
-              name="emergency/share/[token]"
-              options={{ headerShown: false, title: t('nav.emergencyShare') }}
-            />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(app)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="auth/reset-password"
-              options={{ headerShown: true, title: t('nav.newPassword'), presentation: 'card' }}
-            />
-            <Stack.Screen name="billing/success" options={{ headerShown: false }} />
-            <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />
-          </Stack>
-          <AppDialogHost />
+          <RootNavigator />
         </AppProviders>
       </GluestackUIProvider>
     </ErrorBoundary>
