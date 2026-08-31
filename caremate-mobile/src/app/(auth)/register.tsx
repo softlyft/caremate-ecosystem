@@ -151,149 +151,149 @@ export default function RegisterScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen padded={false} style={styles.container}>
-      <AuthBrandHeader>
-        <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
-      </AuthBrandHeader>
-      <FormStack style={styles.form}>
-        <View style={styles.nameRow}>
-          <FormField compact error={formState.errors.firstName?.message} style={styles.nameField}>
+        <AuthBrandHeader>
+          <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <View style={styles.nameRow}>
+            <FormField compact error={formState.errors.firstName?.message} style={styles.nameField}>
+              <Controller
+                control={control}
+                name="firstName"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    textContentType="givenName"
+                    maxLength={PERSON_NAME_MAX_CHARS}
+                    placeholder={t('auth.register.firstNamePlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <FormField compact error={formState.errors.lastName?.message} style={styles.nameField}>
+              <Controller
+                control={control}
+                name="lastName"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    textContentType="familyName"
+                    maxLength={PERSON_NAME_MAX_CHARS}
+                    placeholder={t('auth.register.lastNamePlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+          </View>
+          <FormField error={formState.errors.phone?.message}>
             <Controller
               control={control}
-              name="firstName"
+              name="phone"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  textContentType="givenName"
-                  maxLength={PERSON_NAME_MAX_CHARS}
-                  placeholder={t('auth.register.firstNamePlaceholder')}
+                  autoCapitalize="none"
+                  keyboardType="phone-pad"
+                  textContentType="telephoneNumber"
+                  autoComplete="tel"
+                  maxLength={ICE_PHONE_MAX_CHARS}
+                  placeholder={t('emergency.edit.contactPhone')}
                   onBlur={onBlur}
-                  onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                  onChangeText={(next) => onChange(sanitizePhoneInput(next))}
                   value={value}
                 />
               )}
             />
           </FormField>
-          <FormField compact error={formState.errors.lastName?.message} style={styles.nameField}>
+          <FormField error={formState.errors.email?.message}>
             <Controller
               control={control}
-              name="lastName"
+              name="email"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  textContentType="familyName"
-                  maxLength={PERSON_NAME_MAX_CHARS}
-                  placeholder={t('auth.register.lastNamePlaceholder')}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder={t('auth.register.email')}
                   onBlur={onBlur}
-                  onChangeText={(text) => onChange(sanitizePersonNameInput(text))}
+                  onChangeText={onChange}
                   value={value}
                 />
               )}
             />
           </FormField>
-        </View>
-        <FormField error={formState.errors.phone?.message}>
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                autoCapitalize="none"
-                keyboardType="phone-pad"
-                textContentType="telephoneNumber"
-                autoComplete="tel"
-                maxLength={ICE_PHONE_MAX_CHARS}
-                placeholder={t('emergency.edit.contactPhone')}
-                onBlur={onBlur}
-                onChangeText={(next) => onChange(sanitizePhoneInput(next))}
-                value={value}
-              />
-            )}
-          />
-        </FormField>
-        <FormField error={formState.errors.email?.message}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                autoCapitalize="none"
-                keyboardType="email-address"
-                placeholder={t('auth.register.email')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-        </FormField>
-        <FormField
-          error={formState.errors.password?.message}
-          hint={t('auth.password.requirements')}
-        >
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <PasswordInput
-                placeholder={t('auth.register.password')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-        </FormField>
-        <FormField error={formState.errors.acceptedLegal?.message}>
-          <Controller
-            control={control}
-            name="acceptedLegal"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.acceptRow}>
-                <Button
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: value }}
-                  accessibilityLabel={t('auth.register.acceptA11y')}
-                  onPress={() => onChange(!value)}
-                  hitSlop={8}
-                  style={[
-                    styles.checkbox,
-                    value ? styles.checkboxChecked : null,
-                    formState.errors.acceptedLegal ? styles.checkboxError : null,
-                  ]}
-                  variant="plain"
-                >
-                  {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
-                </Button>
-                <View style={styles.acceptCopy}>
-                  <AppText variant="caption" style={styles.acceptText}>
-                    {t('auth.register.acceptLead')}{' '}
-                  </AppText>
-                  <TextLink external href={LEGAL_URLS.terms} style={styles.acceptLink}>
-                    {t('settings.legal.terms')}
-                  </TextLink>
-                  <AppText variant="caption" style={styles.acceptText}>
-                    {' '}
-                    {t('auth.register.acceptAnd')}{' '}
-                  </AppText>
-                  <TextLink external href={LEGAL_URLS.privacy} style={styles.acceptLink}>
-                    {t('settings.legal.privacy')}
-                  </TextLink>
+          <FormField
+            error={formState.errors.password?.message}
+            hint={t('auth.password.requirements')}
+          >
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.register.password')}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
+          <FormField error={formState.errors.acceptedLegal?.message}>
+            <Controller
+              control={control}
+              name="acceptedLegal"
+              render={({ field: { onChange, value } }) => (
+                <View style={styles.acceptRow}>
+                  <Button
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: value }}
+                    accessibilityLabel={t('auth.register.acceptA11y')}
+                    onPress={() => onChange(!value)}
+                    hitSlop={8}
+                    style={[
+                      styles.checkbox,
+                      value ? styles.checkboxChecked : null,
+                      formState.errors.acceptedLegal ? styles.checkboxError : null,
+                    ]}
+                    variant="plain"
+                  >
+                    {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
+                  </Button>
+                  <View style={styles.acceptCopy}>
+                    <AppText variant="caption" style={styles.acceptText}>
+                      {t('auth.register.acceptLead')}{' '}
+                    </AppText>
+                    <TextLink external href={LEGAL_URLS.terms} style={styles.acceptLink}>
+                      {t('settings.legal.terms')}
+                    </TextLink>
+                    <AppText variant="caption" style={styles.acceptText}>
+                      {' '}
+                      {t('auth.register.acceptAnd')}{' '}
+                    </AppText>
+                    <TextLink external href={LEGAL_URLS.privacy} style={styles.acceptLink}>
+                      {t('settings.legal.privacy')}
+                    </TextLink>
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
+            />
+          </FormField>
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.register.submit')}
+            disabled={isLoading || !canSubmit}
+            onPress={handleSubmit(onSubmit)}
           />
-        </FormField>
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.register.submit')}
-          disabled={isLoading || !canSubmit}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <TextLink href="/(auth)/login">
-          {t('auth.register.hasAccount')} {t('auth.register.signIn')}
-        </TextLink>
-      </FormStack>
+          <TextLink href="/(auth)/login">
+            {t('auth.register.hasAccount')} {t('auth.register.signIn')}
+          </TextLink>
+        </FormStack>
       </Screen>
     </SafeAreaView>
   );

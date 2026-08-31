@@ -36,36 +36,36 @@ export default function SetupFamilyPromptScreen() {
 
   return (
     <Screen padded={false}>
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.body}>
-        <AppText variant="caption" style={styles.eyebrow}>
-          {t('profile.menu.family')}
-        </AppText>
-        <AppText variant="screenTitle" style={styles.title}>
-          {t('setup.familyPrompt.title')}
-        </AppText>
-        <AppText variant="subtitle" style={styles.subtitle}>
-          {t('setup.familyPrompt.subtitle')}
-        </AppText>
-      </View>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.body}>
+          <AppText variant="caption" style={styles.eyebrow}>
+            {t('profile.menu.family')}
+          </AppText>
+          <AppText variant="screenTitle" style={styles.title}>
+            {t('setup.familyPrompt.title')}
+          </AppText>
+          <AppText variant="subtitle" style={styles.subtitle}>
+            {t('setup.familyPrompt.subtitle')}
+          </AppText>
+        </View>
 
-      <View style={styles.footer}>
-        <Button
-          label={t('setup.familyPrompt.setup')}
-          style={styles.primaryCta}
-          loading={busy}
-          onPress={() => void startFamily()}
-        />
-        <Button
-          label={t('setup.familyPrompt.notNow')}
-          variant="secondary"
-          style={styles.secondaryCta}
-          disabled={busy}
-          onPress={() => void skip()}
-          textStyle={styles.secondaryLabel}
-        />
-      </View>
-    </SafeAreaView>
+        <View style={styles.footer}>
+          <Button
+            label={t('setup.familyPrompt.setup')}
+            style={styles.primaryCta}
+            loading={busy}
+            onPress={() => void startFamily()}
+          />
+          <Button
+            label={t('setup.familyPrompt.notNow')}
+            variant="secondary"
+            style={styles.secondaryCta}
+            disabled={busy}
+            onPress={() => void skip()}
+            textStyle={styles.secondaryLabel}
+          />
+        </View>
+      </SafeAreaView>
     </Screen>
   );
 }

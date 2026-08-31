@@ -82,28 +82,28 @@ export function MiniAppScreen({
   return (
     <MiniAppKeyboardContext.Provider value={keyboardApi}>
       <Screen padded={false}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
-      >
-        <ScrollView
-          ref={scrollRef}
-          style={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-          // Avoid stacking RN content insets on top of KeyboardAvoidingView + our bottom pad.
-          automaticallyAdjustKeyboardInsets={false}
-          contentInsetAdjustmentBehavior="never"
-          nestedScrollEnabled
-          scrollEventThrottle={16}
-          onScroll={onScroll}
-          contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
         >
-          {children}
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <ScrollView
+            ref={scrollRef}
+            style={styles.scroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            // Avoid stacking RN content insets on top of KeyboardAvoidingView + our bottom pad.
+            automaticallyAdjustKeyboardInsets={false}
+            contentInsetAdjustmentBehavior="never"
+            nestedScrollEnabled
+            scrollEventThrottle={16}
+            onScroll={onScroll}
+            contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+          >
+            {children}
+          </ScrollView>
+        </KeyboardAvoidingView>
       </Screen>
     </MiniAppKeyboardContext.Provider>
   );

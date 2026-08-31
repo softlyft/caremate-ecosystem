@@ -20,7 +20,10 @@ function flatten(obj, prefix = '') {
 
 const enFlat = flatten(JSON.parse(fs.readFileSync(path.join(transDir, 'en/apps.json'), 'utf8')));
 const localeFlat = Object.fromEntries(
-  locales.map((loc) => [loc, flatten(JSON.parse(fs.readFileSync(path.join(transDir, `${loc}/apps.json`), 'utf8')))])
+  locales.map((loc) => [
+    loc,
+    flatten(JSON.parse(fs.readFileSync(path.join(transDir, `${loc}/apps.json`), 'utf8'))),
+  ]),
 );
 
 function lookupLocale(en) {

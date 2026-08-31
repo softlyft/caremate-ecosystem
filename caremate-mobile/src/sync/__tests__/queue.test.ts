@@ -1,3 +1,12 @@
+import {
+  enqueueSyncOperation,
+  getSyncQueueSummary,
+  markSyncOperationComplete,
+  markSyncOperationFailed,
+  retryFailedSyncOperations,
+  subscribeToSyncQueue,
+} from '@/sync/queue';
+
 const mockInsert = jest.fn();
 const mockSelect = jest.fn();
 const mockUpdate = jest.fn();
@@ -22,15 +31,6 @@ jest.mock('@/sync/engine', () => ({
     requestSync: jest.fn(),
   },
 }));
-
-import {
-  enqueueSyncOperation,
-  getSyncQueueSummary,
-  markSyncOperationComplete,
-  markSyncOperationFailed,
-  retryFailedSyncOperations,
-  subscribeToSyncQueue,
-} from '@/sync/queue';
 
 describe('sync queue', () => {
   beforeEach(() => {

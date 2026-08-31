@@ -1,16 +1,5 @@
 [
-  [
-    "%",
-    "%",
-    "%",
-    "%",
-    "%",
-    "%",
-    "%",
-    "%",
-    "%",
-    "%"
-  ],
+  ["%", "%", "%", "%", "%", "%", "%", "%", "%", "%"],
   [
     "(paused)",
     "(en pause)",
@@ -251,18 +240,7 @@
     "下午",
     "दोपहर"
   ],
-  [
-    "Age",
-    "Âge",
-    "Edad",
-    "Ọjọ ori",
-    "Shekaru",
-    "Afọ",
-    "Umri",
-    "Mfe",
-    "年龄",
-    "उम्र"
-  ],
+  ["Age", "Âge", "Edad", "Ọjọ ori", "Shekaru", "Afọ", "Umri", "Mfe", "年龄", "उम्र"],
   [
     "Age {{age}} · {{gender}} · {{region}}",
     "Âge {{age}} · {{gender}} · {{region}}",
@@ -419,30 +397,8 @@
     "平均周期",
     "औसत चक्र"
   ],
-  [
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG",
-    "BCG"
-  ],
-  [
-    "Baby",
-    "Bébé",
-    "Bebé",
-    "Omo",
-    "Jaririn",
-    "Nwa n'aka",
-    "Mtoto mdogo",
-    "Abofra",
-    "宝宝",
-    "शिशु"
-  ],
+  ["BCG", "BCG", "BCG", "BCG", "BCG", "BCG", "BCG", "BCG", "BCG", "BCG"],
+  ["Baby", "Bébé", "Bebé", "Omo", "Jaririn", "Nwa n'aka", "Mtoto mdogo", "Abofra", "宝宝", "शिशु"],
   [
     "Baby is growing quickly — rest when you can.",
     "Le bébé grandit vite — reposez-vous quand vous le pouvez.",
@@ -791,18 +747,7 @@
     "检查视力和眼部健康；若戴眼镜或有糖尿病应更频繁。",
     "दृष्टि और आंखों की सेहत जांचें; चश्मा पहनने या मधुमेह होने पर अधिक बार।"
   ],
-  [
-    "Child",
-    "Enfant",
-    "Niño",
-    "Ọmọ",
-    "Yaro",
-    "Nwa",
-    "Mtoto",
-    "Abofra",
-    "儿童",
-    "बच्चा"
-  ],
+  ["Child", "Enfant", "Niño", "Ọmọ", "Yaro", "Nwa", "Mtoto", "Abofra", "儿童", "बच्चा"],
   [
     "Children come from your Family profile.",
     "Les enfants proviennent de votre profil Famille.",
@@ -911,18 +856,7 @@
     "清洁和口腔检查，及早发现龋齿和牙龈疾病。",
     "सफाई और मौखिक परीक्षण से दंत क्षय और मसूड़ों की बीमारी जल्दी पकड़ें।"
   ],
-  [
-    "Clear",
-    "Effacer",
-    "Borrar",
-    "Paarẹ",
-    "Share",
-    "Hichapụ",
-    "Futa",
-    "Pepa",
-    "清除",
-    "साफ़ करें"
-  ],
+  ["Clear", "Effacer", "Borrar", "Paarẹ", "Share", "Hichapụ", "Futa", "Pepa", "清除", "साफ़ करें"],
   [
     "Clear all logged days?",
     "Effacer tous les jours enregistrés ?",
@@ -1463,18 +1397,7 @@
     "剂量说明",
     "खुराक निर्देश"
   ],
-  [
-    "Dose",
-    "Dose",
-    "Dosis",
-    "Ẹya",
-    "Dozin",
-    "Dozi",
-    "Dozi",
-    "Dose",
-    "剂量",
-    "खुराक"
-  ],
+  ["Dose", "Dose", "Dosis", "Ẹya", "Dozin", "Dozi", "Dozi", "Dose", "剂量", "खुराक"],
   [
     "Dose 0",
     "Dose 0",

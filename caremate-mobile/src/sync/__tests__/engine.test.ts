@@ -2,6 +2,8 @@ import { InteractionManager } from 'react-native';
 
 import { SYNC_CONFIG } from '@/constants/config';
 
+import { syncEngine } from '@/sync/engine';
+
 const mockIsOnline = jest.fn();
 const mockWatchNetworkStatus = jest.fn();
 const mockGetPendingSyncOperations = jest.fn();
@@ -81,17 +83,17 @@ jest.mock('react-native', () => ({
   },
 }));
 
-import { syncEngine } from '@/sync/engine';
-
 describe('syncEngine', () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     await syncEngine.stop();
     jest.clearAllMocks();
-    (InteractionManager.runAfterInteractions as jest.Mock).mockImplementation((callback: () => void) => {
-      callback();
-      return { cancel: jest.fn() };
-    });
+    (InteractionManager.runAfterInteractions as jest.Mock).mockImplementation(
+      (callback: () => void) => {
+        callback();
+        return { cancel: jest.fn() };
+      },
+    );
 
     mockWatchNetworkStatus.mockResolvedValue(() => undefined);
     mockIsOnline.mockResolvedValue(true);

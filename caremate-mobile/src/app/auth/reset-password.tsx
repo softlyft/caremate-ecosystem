@@ -72,8 +72,7 @@ export default function ResetPasswordScreen() {
         },
       ]);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('auth.reset.failedFallback');
+      const message = error instanceof Error ? error.message : t('auth.reset.failedFallback');
       Alert.alert(t('auth.reset.failedTitle'), message);
     }
   }
@@ -81,50 +80,50 @@ export default function ResetPasswordScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen padded={false} style={styles.container}>
-      <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
-      <FormStack style={styles.form}>
-        <FormField
-          error={formState.errors.password?.message}
-          hint={t('auth.password.requirements')}
-        >
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <PasswordInput
-                placeholder={t('auth.reset.password')}
-                autoComplete="new-password"
-                textContentType="newPassword"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
+        <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
+        <FormStack style={styles.form}>
+          <FormField
+            error={formState.errors.password?.message}
+            hint={t('auth.password.requirements')}
+          >
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.reset.password')}
+                  autoComplete="new-password"
+                  textContentType="newPassword"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
+          <FormField error={formState.errors.confirmPassword?.message}>
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.reset.confirm')}
+                  autoComplete="new-password"
+                  textContentType="newPassword"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.reset.submit')}
+            disabled={isLoading}
+            onPress={handleSubmit(onSubmit)}
           />
-        </FormField>
-        <FormField error={formState.errors.confirmPassword?.message}>
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <PasswordInput
-                placeholder={t('auth.reset.confirm')}
-                autoComplete="new-password"
-                textContentType="newPassword"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-        </FormField>
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.reset.submit')}
-          disabled={isLoading}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
-      </FormStack>
+          <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+        </FormStack>
       </Screen>
     </SafeAreaView>
   );

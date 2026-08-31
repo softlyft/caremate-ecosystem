@@ -128,7 +128,10 @@ export default function SetupEmergencyEssentialsScreen() {
       return;
     }
     if (!isValidIcePhone(icePhone)) {
-      Alert.alert(t('emergency.setupWizard.iceContactTitle'), t('emergency.edit.contactPhoneInvalid'));
+      Alert.alert(
+        t('emergency.setupWizard.iceContactTitle'),
+        t('emergency.edit.contactPhoneInvalid'),
+      );
       return;
     }
 

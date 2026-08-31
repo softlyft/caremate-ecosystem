@@ -51,47 +51,47 @@ export default function SetupDoneScreen() {
 
   return (
     <Screen padded={false}>
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.body}>
-        <AppText variant="caption" style={styles.eyebrow}>
-          {t('setup.done.eyebrow')}
-        </AppText>
-        <AppText variant="screenTitle" style={styles.title}>
-          {t('setup.done.title')}
-        </AppText>
-        <AppText variant="subtitle" style={styles.subtitle}>
-          {t('setup.done.subtitle')}
-        </AppText>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.body}>
+          <AppText variant="caption" style={styles.eyebrow}>
+            {t('setup.done.eyebrow')}
+          </AppText>
+          <AppText variant="screenTitle" style={styles.title}>
+            {t('setup.done.title')}
+          </AppText>
+          <AppText variant="subtitle" style={styles.subtitle}>
+            {t('setup.done.subtitle')}
+          </AppText>
 
-        <View style={styles.card}>
-          {checks.map((item) => {
-            if (item.deferred === false) {
+          <View style={styles.card}>
+            {checks.map((item) => {
+              if (item.deferred === false) {
+                return null;
+              }
+              if (item.deferred === undefined || item.deferred === true) {
+                return (
+                  <View key={item.key} style={styles.checkRow}>
+                    <View style={[styles.dot, item.done ? styles.dotDone : styles.dotPending]} />
+                    <AppText variant="body" style={styles.checkLabel}>
+                      {item.label}
+                      {!item.done ? t('setup.done.finishLater') : ''}
+                    </AppText>
+                  </View>
+                );
+              }
               return null;
-            }
-            if (item.deferred === undefined || item.deferred === true) {
-              return (
-                <View key={item.key} style={styles.checkRow}>
-                  <View style={[styles.dot, item.done ? styles.dotDone : styles.dotPending]} />
-                  <AppText variant="body" style={styles.checkLabel}>
-                    {item.label}
-                    {!item.done ? t('setup.done.finishLater') : ''}
-                  </AppText>
-                </View>
-              );
-            }
-            return null;
-          })}
+            })}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.footer}>
-        <Button
-          label={t('setup.done.openHome')}
-          onPress={() => router.replace('/(app)/(tabs)')}
-          style={styles.primaryCta}
-        />
-      </View>
-    </SafeAreaView>
+        <View style={styles.footer}>
+          <Button
+            label={t('setup.done.openHome')}
+            onPress={() => router.replace('/(app)/(tabs)')}
+            style={styles.primaryCta}
+          />
+        </View>
+      </SafeAreaView>
     </Screen>
   );
 }

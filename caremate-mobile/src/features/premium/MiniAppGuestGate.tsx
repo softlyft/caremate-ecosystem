@@ -11,7 +11,11 @@ export function MiniAppGuestGate() {
   const { t } = useTranslation();
 
   return (
-    <Screen padded={false} tone="surface" style={{ justifyContent: 'center', paddingBottom: spacing.xl }}>
+    <Screen
+      padded={false}
+      tone="surface"
+      style={{ justifyContent: 'center', paddingBottom: spacing.xl }}
+    >
       <Card style={styles.card}>
         <AppText variant="screenTitle" style={styles.title}>
           {t('apps.signInRequiredTitle')}

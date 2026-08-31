@@ -155,21 +155,27 @@ async function main() {
   const enFamily = readJson('en/family.json');
   const enApps = readJson('en/apps.json');
 
-  writeJson('en/auth.json', deepMerge(enAuth, {
-    config: {
-      supabaseTitle: 'Supabase not configured',
-      supabaseMessage:
-        'Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to continue with cloud auth. Local data features still work offline.',
-    },
-  }));
-  writeJson('en/emergency.json', deepMerge(enEmergency, {
-    setupWizard: {
-      missingDetailsTitle: 'Missing details',
-      missingDetailsMessage: 'Select blood group and genotype to continue.',
-      iceContactTitle: 'ICE contact',
-      iceContactRequired: 'Add name, phone, and relationship for your first emergency contact.',
-    },
-  }));
+  writeJson(
+    'en/auth.json',
+    deepMerge(enAuth, {
+      config: {
+        supabaseTitle: 'Supabase not configured',
+        supabaseMessage:
+          'Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to continue with cloud auth. Local data features still work offline.',
+      },
+    }),
+  );
+  writeJson(
+    'en/emergency.json',
+    deepMerge(enEmergency, {
+      setupWizard: {
+        missingDetailsTitle: 'Missing details',
+        missingDetailsMessage: 'Select blood group and genotype to continue.',
+        iceContactTitle: 'ICE contact',
+        iceContactRequired: 'Add name, phone, and relationship for your first emergency contact.',
+      },
+    }),
+  );
 
   const report = [];
 
@@ -180,7 +186,10 @@ async function main() {
       ? readJson(`${locale}/profile.json`)
       : {};
     const profileOverlay = translateTree(enProfile, locale, PHRASES);
-    writeJson(`${locale}/profile.json`, mergeMissingKeys(enProfile, profileExisting, profileOverlay));
+    writeJson(
+      `${locale}/profile.json`,
+      mergeMissingKeys(enProfile, profileExisting, profileOverlay),
+    );
 
     const familyExisting = fs.existsSync(path.join(TRANS_DIR, `${locale}/family.json`))
       ? readJson(`${locale}/family.json`)

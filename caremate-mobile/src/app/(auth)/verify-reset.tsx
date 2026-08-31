@@ -132,11 +132,11 @@ export default function VerifyResetScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
         <Screen padded={false} style={styles.container}>
-        <SectionTitle
-          title={t('auth.verifyReset.title')}
-          subtitle={t('auth.verifyReset.missingEmail')}
-        />
-        <TextLink href="/(auth)/forgot-password">{t('auth.verifyReset.backToForgot')}</TextLink>
+          <SectionTitle
+            title={t('auth.verifyReset.title')}
+            subtitle={t('auth.verifyReset.missingEmail')}
+          />
+          <TextLink href="/(auth)/forgot-password">{t('auth.verifyReset.backToForgot')}</TextLink>
         </Screen>
       </SafeAreaView>
     );
@@ -145,59 +145,59 @@ export default function VerifyResetScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen padded={false} style={styles.container}>
-      <AuthBrandHeader>
-        <SectionTitle
-          title={t('auth.verifyReset.title')}
-          subtitle={t('auth.verifyReset.subtitle', { email })}
-        />
-      </AuthBrandHeader>
-      <FormStack style={styles.form}>
-        <FormField error={formState.errors.code?.message}>
-          <Controller
-            control={control}
-            name="code"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="number-pad"
-                textContentType="oneTimeCode"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder={t('auth.verifyReset.codePlaceholder')}
-                onBlur={onBlur}
-                onChangeText={(text) => {
-                  const digits = text.replace(/\D/g, '').slice(0, 6);
-                  onChange(digits);
-                  setValue('code', digits, { shouldValidate: true });
-                }}
-                value={value}
-              />
-            )}
+        <AuthBrandHeader>
+          <SectionTitle
+            title={t('auth.verifyReset.title')}
+            subtitle={t('auth.verifyReset.subtitle', { email })}
           />
-        </FormField>
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <FormField error={formState.errors.code?.message}>
+            <Controller
+              control={control}
+              name="code"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  textContentType="oneTimeCode"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder={t('auth.verifyReset.codePlaceholder')}
+                  onBlur={onBlur}
+                  onChangeText={(text) => {
+                    const digits = text.replace(/\D/g, '').slice(0, 6);
+                    onChange(digits);
+                    setValue('code', digits, { shouldValidate: true });
+                  }}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
 
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.verifyReset.submit')}
-          disabled={isLoading || !formState.isValid}
-          onPress={handleSubmit(onSubmit)}
-        />
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.verifyReset.submit')}
+            disabled={isLoading || !formState.isValid}
+            onPress={handleSubmit(onSubmit)}
+          />
 
-        <Button
-          label={
-            resendSeconds > 0
-              ? t('auth.verifyReset.resendIn', { seconds: resendSeconds })
-              : isResending
-                ? t('common.loading')
-                : t('auth.verifyReset.resend')
-          }
-          variant="secondary"
-          disabled={resendSeconds > 0 || isResending || isLoading}
-          onPress={() => void onResend()}
-        />
+          <Button
+            label={
+              resendSeconds > 0
+                ? t('auth.verifyReset.resendIn', { seconds: resendSeconds })
+                : isResending
+                  ? t('common.loading')
+                  : t('auth.verifyReset.resend')
+            }
+            variant="secondary"
+            disabled={resendSeconds > 0 || isResending || isLoading}
+            onPress={() => void onResend()}
+          />
 
-        <TextLink href="/(auth)/login">{t('auth.verifyReset.backToSignIn')}</TextLink>
-      </FormStack>
+          <TextLink href="/(auth)/login">{t('auth.verifyReset.backToSignIn')}</TextLink>
+        </FormStack>
       </Screen>
     </SafeAreaView>
   );

@@ -76,45 +76,45 @@ export default function ForgotPasswordScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen padded={false} style={styles.container}>
-      <SectionTitle title={t('auth.forgot.title')} subtitle={t('auth.forgot.subtitle')} />
-      <FormStack style={styles.form}>
-        <FormField error={formState.errors.email?.message}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                autoCapitalize="none"
-                keyboardType="email-address"
-                placeholder={t('auth.forgot.email')}
-                autoComplete="email"
-                textContentType="emailAddress"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
+        <SectionTitle title={t('auth.forgot.title')} subtitle={t('auth.forgot.subtitle')} />
+        <FormStack style={styles.form}>
+          <FormField error={formState.errors.email?.message}>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder={t('auth.forgot.email')}
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
+          <Button
+            label={isSubmitting ? t('common.loading') : t('auth.forgot.submit')}
+            disabled={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
           />
-        </FormField>
-        <Button
-          label={isSubmitting ? t('common.loading') : t('auth.forgot.submit')}
-          disabled={isSubmitting}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <Button
-          label={t('auth.forgot.alreadyHaveCode')}
-          variant="link"
-          disabled={isSubmitting}
-          onPress={handleSubmit((values) => {
-            const email = normalizeAccountEmail(values.email);
-            router.replace({
-              pathname: '/(auth)/verify-reset',
-              params: { email },
-            });
-          })}
-        />
-        <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
-      </FormStack>
+          <Button
+            label={t('auth.forgot.alreadyHaveCode')}
+            variant="link"
+            disabled={isSubmitting}
+            onPress={handleSubmit((values) => {
+              const email = normalizeAccountEmail(values.email);
+              router.replace({
+                pathname: '/(auth)/verify-reset',
+                params: { email },
+              });
+            })}
+          />
+          <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+        </FormStack>
       </Screen>
     </SafeAreaView>
   );
