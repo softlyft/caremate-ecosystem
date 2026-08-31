@@ -33,9 +33,11 @@ function ConversationRow({ item }: { item: MessageConversation }) {
   const badgePrefix =
     item.kind === 'direct'
       ? `${t('messages.directBadge')} · `
-      : item.org_side === 'payer'
-        ? `${t('messages.insurerBadge')} · `
-        : '';
+      : item.kind === 'care_coordination'
+        ? `${t('messages.coordinationBadge')} · `
+        : item.org_side === 'payer'
+          ? `${t('messages.insurerBadge')} · `
+          : '';
   return (
     <Button
       style={styles.row}

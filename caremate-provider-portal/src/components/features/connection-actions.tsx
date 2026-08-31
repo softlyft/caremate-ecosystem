@@ -9,6 +9,10 @@ import {
   providerPatientConnectionHandlers,
   type ConnectionActionHandlers,
 } from '@/lib/connection-action-handlers';
+import {
+  formatConnectionError,
+  type ConnectionErrorMapper,
+} from '@/lib/connection-error-format';
 
 export type ConnectionActionMode = 'inbound-pending' | 'outbound-pending' | 'approved';
 
@@ -16,12 +20,14 @@ export function ConnectionActions({
   connectionId,
   mode,
   handlers = providerPatientConnectionHandlers,
+  errorMapper = 'provider-patient',
   /** @deprecated Use `mode` instead. */
   showApprove = true,
 }: {
   connectionId: string;
   mode?: ConnectionActionMode;
   handlers?: ConnectionActionHandlers;
+  errorMapper?: ConnectionErrorMapper;
   /** Hide for outbound rows awaiting the other party. */
   showApprove?: boolean;
 }) {
@@ -73,7 +79,7 @@ export function ConnectionActions({
         setReason('');
       } catch (err) {
         toast.error(
-          handlers.formatError(err, `Failed to ${primaryLabel.toLowerCase()}`),
+          formatConnectionError(errorMapper, err, `Failed to ${primaryLabel.toLowerCase()}`),
         );
       } finally {
         setPendingAction(null);
@@ -99,7 +105,7 @@ export function ConnectionActions({
                   await handlers.approve(connectionId);
                   toast.success('Connection approved');
                 } catch (err) {
-                  toast.error(handlers.formatError(err, 'Failed to approve'));
+                  toast.error(formatConnectionError(errorMapper, err, 'Failed to approve'));
                 } finally {
                   setPendingAction(null);
                 }

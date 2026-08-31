@@ -11,7 +11,8 @@ import type { Json } from '@/types/database';
 
 export type PayerMessageConversation = {
   id: string;
-  kind: 'org_patient';
+  kind: 'org_patient' | 'care_coordination';
+  organization_id?: string | null;
   payer_organization_id: string | null;
   patient_user_id: string | null;
   subject: string | null;
@@ -36,6 +37,7 @@ export type PayerMessageMessage = {
 export type PayerInboxRow = PayerMessageConversation & {
   patient_name: string | null;
   patient_caremate_id: string | null;
+  partner_org_name: string | null;
   unread: boolean;
 };
 
@@ -53,8 +55,16 @@ async function enrichPayerInboxRows(
   const supabase = await db();
   const patientIds = rows.map((r) => r.patient_user_id).filter(Boolean) as string[];
   const conversationIds = rows.map((r) => r.id);
+  const providerPartnerIds = [
+    ...new Set(
+      rows
+        .filter((r) => r.kind === 'care_coordination')
+        .map((r) => r.organization_id)
+        .filter(Boolean) as string[],
+    ),
+  ];
 
-  const [{ data: profiles }, { data: participants }] = await Promise.all([
+  const [{ data: profiles }, { data: participants }, { data: providerPartners }] = await Promise.all([
     supabase.from('profiles').select('user_id, full_name, patient_id').in('user_id', patientIds),
     supabase
       .from('message_participants')
@@ -62,6 +72,9 @@ async function enrichPayerInboxRows(
       .eq('party_type', 'organization')
       .eq('payer_organization_id', payerOrganizationId)
       .in('conversation_id', conversationIds),
+    providerPartnerIds.length
+      ? supabase.from('provider_organizations').select('id, name').in('id', providerPartnerIds)
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
   ]);
 
   const profileByUser = new Map(
@@ -75,6 +88,9 @@ async function enrichPayerInboxRows(
       p.conversation_id,
       p.last_read_at,
     ]),
+  );
+  const providerNameById = new Map<string, string>(
+    (providerPartners ?? []).map((p: { id: string; name: string }) => [p.id, p.name]),
   );
 
   return rows.map((row) => {
@@ -91,6 +107,10 @@ async function enrichPayerInboxRows(
       ...row,
       patient_name: profile?.full_name ?? null,
       patient_caremate_id: profile?.patient_id ?? null,
+      partner_org_name:
+        row.kind === 'care_coordination' && row.organization_id
+          ? (providerNameById.get(row.organization_id) ?? null)
+          : null,
       unread,
     };
   });
@@ -109,7 +129,7 @@ export async function listPayerOrgConversations(
     .from('message_conversations')
     .select('*', { count: 'exact' })
     .eq('payer_organization_id', payerOrganizationId)
-    .eq('kind', 'org_patient')
+    .in('kind', ['org_patient', 'care_coordination'])
     .order('last_message_at', { ascending: false })
     .range(from, to);
 
@@ -127,7 +147,7 @@ export async function countPayerOrgConversations(payerOrganizationId: string): P
     .from('message_conversations')
     .select('id', { count: 'exact', head: true })
     .eq('payer_organization_id', payerOrganizationId)
-    .eq('kind', 'org_patient');
+    .in('kind', ['org_patient', 'care_coordination']);
   if (error) throw error;
   return count ?? 0;
 }
@@ -142,7 +162,7 @@ export async function getPayerOrgConversation(
     .select('*')
     .eq('id', conversationId)
     .eq('payer_organization_id', payerOrganizationId)
-    .eq('kind', 'org_patient')
+    .in('kind', ['org_patient', 'care_coordination'])
     .maybeSingle();
 
   if (error) throw error;
