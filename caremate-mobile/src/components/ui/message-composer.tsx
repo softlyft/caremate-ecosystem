@@ -32,22 +32,25 @@ export function MessageComposer({
 
   return (
     <View style={[styles.composer, { paddingBottom, marginBottom }, style]}>
-      <Input
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        multiline
-        editable={!sending}
-        textAlignVertical="top"
-        style={styles.input}
-      />
+      <View style={styles.inputWrap}>
+        <Input
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          multiline
+          editable={!sending}
+          textAlignVertical="top"
+          style={styles.input}
+        />
+      </View>
       <Button
         style={[styles.sendButton, !canSend && styles.sendDisabled]}
         onPress={onSend}
         disabled={!canSend}
         variant="plain"
+        accessibilityLabel={sending ? sendingLabel : sendLabel}
       >
-        <AppText variant="seeAll" style={styles.sendLabel}>
+        <AppText variant="seeAll" style={styles.sendLabel} numberOfLines={1}>
           {sending ? sendingLabel : sendLabel}
         </AppText>
       </Button>
@@ -66,16 +69,23 @@ const styles = StyleSheet.create({
     borderTopColor: palette.divider,
     backgroundColor: palette.background,
   },
-  input: {
+  inputWrap: {
     flex: 1,
+    minWidth: 0,
+  },
+  input: {
     minHeight: 42,
     maxHeight: 120,
   },
   sendButton: {
+    flexShrink: 0,
     borderRadius: radius.full,
     backgroundColor: palette.primary,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    minWidth: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sendDisabled: {
     opacity: 0.45,

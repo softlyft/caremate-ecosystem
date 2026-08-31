@@ -17,6 +17,7 @@ export function OrgConnectionActions({
       connectionId={connectionId}
       mode={mode}
       handlers={payerOrgConnectionHandlers(side)}
+      errorMapper="payer-org"
     />
   );
 }

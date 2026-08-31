@@ -111,25 +111,8 @@ export function glossyStackHeaderOptions({
     headerTintColor: accent,
     headerLeftContainerStyle: styles.headerLeftContainer,
     headerTitleContainerStyle: styles.headerTitleContainer,
-    headerLeft: () =>
-      Platform.OS === 'android' ? (
-        <View style={styles.headerLead}>
-          <GlossyBackButton
-            accent={accent}
-            soft={soft}
-            accessibilityLabel={backAccessibilityLabel}
-            modal={modal}
-            backFallbackHref={backFallbackHref}
-          />
-          <GlossyHeaderTitle
-            title={title}
-            accent={accent}
-            soft={soft}
-            titleColor={titleColor}
-            icon={icon}
-          />
-        </View>
-      ) : (
+    headerLeft: () => (
+      <View style={styles.headerLead}>
         <GlossyBackButton
           accent={accent}
           soft={soft}
@@ -137,11 +120,6 @@ export function glossyStackHeaderOptions({
           modal={modal}
           backFallbackHref={backFallbackHref}
         />
-      ),
-    headerTitle: () =>
-      Platform.OS === 'android' ? (
-        <View />
-      ) : (
         <GlossyHeaderTitle
           title={title}
           accent={accent}
@@ -149,7 +127,9 @@ export function glossyStackHeaderOptions({
           titleColor={titleColor}
           icon={icon}
         />
-      ),
+      </View>
+    ),
+    headerTitle: () => <View />,
   };
 }
 
@@ -181,31 +161,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  headerLeftContainer: Platform.select({
-    android: {
-      paddingRight: 0,
-      flexGrow: 1,
-      flexShrink: 0,
-      maxWidth: '100%',
-    },
-    default: {
-      paddingRight: 0,
-    },
-  }),
-  headerTitleContainer: Platform.select({
-    ios: {
-      left: 52,
-      right: 12,
-      marginLeft: 0,
-      paddingLeft: 0,
-    },
-    default: {
-      width: 0,
-      maxWidth: 0,
-      overflow: 'hidden',
-      opacity: 0,
-    },
-  }),
+  headerLeftContainer: {
+    paddingRight: 0,
+    flexGrow: 1,
+    flexShrink: 0,
+    maxWidth: '100%',
+  },
+  headerTitleContainer: {
+    width: 0,
+    maxWidth: 0,
+    overflow: 'hidden',
+    opacity: 0,
+  },
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -33,6 +33,14 @@
   "practitionerLabel": "Staff",
   "patientLabel": "Patient",
   "directBadge": "Direct",
+  "coordinationBadge": "Care team",
+  "addPayerToChat": "Add insurer to chat",
+  "addProviderToChat": "Add provider to chat",
+  "coordinationHint": "Starts a separate care team room with your provider and insurer. Your existing 1:1 chats stay unchanged.",
+  "coordinationNoCandidates": "No linked organizations available. Your provider and insurer must be connected, and you must be connected to both.",
+  "coordinationFailedTitle": "Couldn't start care team chat",
+  "coordinationLoadFailed": "We couldn't load eligible organizations. Try again.",
+  "coordinationStartFailed": "Check your connections and try again.",
   "today": "Today",
   "yesterday": "Yesterday"
 }

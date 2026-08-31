@@ -4,6 +4,7 @@ import { PaginationBar } from '@/components/pagination-bar';
 import { PageHeader, PageShell } from '@/components/page-header';
 import { ConnectionActions } from '@/components/features/connection-actions';
 import type { ConnectionActionHandlers } from '@/lib/connection-action-handlers';
+import type { ConnectionErrorMapper } from '@/lib/connection-error-format';
 import type { PaginatedResult } from '@/lib/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ export function OrgPatientConnectionRequestsPanel({
   hrefForInboundPage,
   hrefForOutboundPage,
   handlers,
+  errorMapper = 'provider-patient',
 }: {
   title: string;
   description: string;
@@ -49,6 +51,7 @@ export function OrgPatientConnectionRequestsPanel({
   hrefForInboundPage: (page: number) => string;
   hrefForOutboundPage: (page: number) => string;
   handlers: ConnectionActionHandlers;
+  errorMapper?: ConnectionErrorMapper;
 }) {
   return (
     <PageShell>
@@ -112,6 +115,7 @@ export function OrgPatientConnectionRequestsPanel({
                           connectionId={r.id}
                           mode="inbound-pending"
                           handlers={handlers}
+                          errorMapper={errorMapper}
                         />
                       ) : null}
                     </TableCell>
@@ -167,6 +171,7 @@ export function OrgPatientConnectionRequestsPanel({
                           connectionId={r.id}
                           mode="outbound-pending"
                           handlers={handlers}
+                          errorMapper={errorMapper}
                         />
                       ) : null}
                     </TableCell>

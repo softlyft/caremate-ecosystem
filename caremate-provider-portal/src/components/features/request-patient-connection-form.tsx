@@ -7,6 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField, formInlineGridClassName } from '@/components/ui/form-field';
 import { requestConnectionByCaremateIdAction } from '@/domains/connections/actions';
+import {
+  formatConnectionError,
+  type ConnectionErrorMapper,
+} from '@/lib/connection-error-format';
 
 type RequestPatientConnectionAction = typeof requestConnectionByCaremateIdAction;
 
@@ -14,12 +18,12 @@ export function RequestPatientConnectionForm({
   requestAction = requestConnectionByCaremateIdAction,
   noteFieldName = 'provider_note',
   notePlaceholder = 'e.g. Follow-up after walk-in visit',
-  formatError = (err, fallback) => (err instanceof Error ? err.message : fallback),
+  errorMapper = 'provider-patient',
 }: {
   requestAction?: RequestPatientConnectionAction;
   noteFieldName?: 'provider_note' | 'payer_note';
   notePlaceholder?: string;
-  formatError?: (err: unknown, fallback: string) => string;
+  errorMapper?: ConnectionErrorMapper;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -36,7 +40,7 @@ export function RequestPatientConnectionForm({
             toast.success('Connection request sent — waiting for the patient to approve');
             form.reset();
           } catch (err) {
-            toast.error(formatError(err, 'Failed to request connection'));
+            toast.error(formatConnectionError(errorMapper, err, 'Failed to request connection'));
           }
         });
       }}

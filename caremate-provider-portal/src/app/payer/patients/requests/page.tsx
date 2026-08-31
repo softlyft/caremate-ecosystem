@@ -1,7 +1,6 @@
 import { requirePayerSession } from '@/lib/auth';
 import { listPatientPayerConnectionsByStatus } from '@/domains/patient-payer-connections/repository';
 import { requestPatientConnectionByCaremateIdAction } from '@/domains/patient-payer-connections/actions';
-import { mapPatientPayerConnectionError } from '@/domains/patient-payer-connections/errors';
 import { parsePage } from '@/lib/pagination';
 import { dualPageRequestsHref } from '@/lib/care-portal-nav';
 import { RequestPatientConnectionForm } from '@/components/features/request-patient-connection-form';
@@ -66,7 +65,7 @@ export default async function PatientConnectionRequestsPage({
           requestAction={requestPatientConnectionByCaremateIdAction}
           noteFieldName="payer_note"
           notePlaceholder="e.g. Member onboarding"
-          formatError={mapPatientPayerConnectionError}
+          errorMapper="payer-patient"
         />
       }
       inbound={inbound}
@@ -84,6 +83,7 @@ export default async function PatientConnectionRequestsPage({
         })
       }
       handlers={payerPatientConnectionHandlers}
+      errorMapper="payer-patient"
     />
   );
 }

@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { ConnectionActions } from '@/components/features/connection-actions';
 import type { ConnectionActionHandlers } from '@/lib/connection-action-handlers';
+import type { ConnectionErrorMapper } from '@/lib/connection-error-format';
 
 export function PatientDetailHeader({
   fullName,
@@ -13,6 +14,7 @@ export function PatientDetailHeader({
   connectionId,
   canWrite,
   connectionHandlers,
+  connectionErrorMapper = 'provider-patient',
 }: {
   fullName: string;
   staffBadge?: boolean;
@@ -22,6 +24,7 @@ export function PatientDetailHeader({
   connectionId: string;
   canWrite: boolean;
   connectionHandlers?: ConnectionActionHandlers;
+  connectionErrorMapper?: ConnectionErrorMapper;
 }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -41,6 +44,7 @@ export function PatientDetailHeader({
           connectionId={connectionId}
           mode="approved"
           handlers={connectionHandlers}
+          errorMapper={connectionErrorMapper}
         />
       ) : null}
     </div>

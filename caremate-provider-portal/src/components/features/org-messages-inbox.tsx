@@ -18,8 +18,10 @@ import {
 
 export type OrgInboxConversation = {
   id: string;
+  kind?: 'org_patient' | 'direct' | 'care_coordination';
   patient_name: string | null;
   patient_caremate_id: string | null;
+  partner_org_name?: string | null;
   subject: string | null;
   last_message_preview: string | null;
   last_message_at: string | null;
@@ -96,6 +98,11 @@ export function OrgMessagesInbox({
                           {c.patient_name ?? 'Unknown'}
                         </Link>
                         <p className="text-xs text-muted">{c.patient_caremate_id ?? '—'}</p>
+                        {c.kind === 'care_coordination' ? (
+                          <Badge variant="secondary" className="mt-1">
+                            Care team{c.partner_org_name ? ` · ${c.partner_org_name}` : ''}
+                          </Badge>
+                        ) : null}
                         {c.unread ? (
                           <Badge variant="success" className="mt-1">
                             Unread
