@@ -7,7 +7,6 @@ import {
   BarChart3,
   Building2,
   Settings,
-  FlaskConical,
   Landmark,
 } from 'lucide-react';
 import type { CarePortalNavGroup } from '@/lib/care-portal-nav';
@@ -68,10 +67,6 @@ export const PROVIDER_NAV_GROUPS: CarePortalNavGroup[] = [
       { href: '/app/broadcasts', label: 'Messages', icon: Megaphone, module: 'messaging' },
       { href: '/app/analytics', label: 'Analytics', icon: BarChart3, module: 'analytics' },
     ],
-  },
-  {
-    label: 'Clinical',
-    items: [{ href: '/app/lab', label: 'Laboratory', icon: FlaskConical, module: 'laboratory' }],
   },
   {
     label: 'Organization',

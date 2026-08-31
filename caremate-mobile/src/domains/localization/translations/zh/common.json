@@ -24,5 +24,14 @@
   "signIn": "登录",
   "signOut": "退出登录",
   "createAccount": "创建账户",
-  "notifications": "通知"
+  "notifications": "通知",
+  "ok": "确定",
+  "networkError": "无网络连接。请检查连接后重试。",
+  "emailDeliveryError": "暂时无法发送邮件。请几分钟后再试。",
+  "loadFailed": "无法加载此页面",
+  "loadFailedMessage": "请检查网络连接后重试。",
+  "goBack": "返回",
+  "clear": "清除",
+  "remove": "移除",
+  "messages": "消息"
 }

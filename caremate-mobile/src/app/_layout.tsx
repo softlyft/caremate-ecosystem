@@ -15,6 +15,7 @@ import { MessagePushDeepLinkHandler } from '@/components/MessagePushDeepLinkHand
 import { PushPermissionReconciler } from '@/components/PushPermissionReconciler';
 import { AppDialogHost } from '@/components/ui/AppDialogHost';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
 import { useAppFonts } from '@/hooks/use-app-fonts';
 import { initSentry, Sentry } from '@/lib/monitoring/sentry';
@@ -24,6 +25,7 @@ initSentry();
 Appearance.setColorScheme('light');
 
 function RootLayout() {
+  const { t } = useTranslation();
   const { fontsLoaded } = useAppFonts();
   const isInitialized = useAuthStore((state) => state.isInitialized);
 
@@ -61,17 +63,17 @@ function RootLayout() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen
               name="emergency-lock"
-              options={{ headerShown: false, title: 'Emergency' }}
+              options={{ headerShown: false, title: t('nav.emergency') }}
             />
             <Stack.Screen
               name="emergency/share/[token]"
-              options={{ headerShown: false, title: 'Emergency share' }}
+              options={{ headerShown: false, title: t('nav.emergencyShare') }}
             />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(app)" options={{ headerShown: false }} />
             <Stack.Screen
               name="auth/reset-password"
-              options={{ headerShown: true, title: 'New password', presentation: 'card' }}
+              options={{ headerShown: true, title: t('nav.newPassword'), presentation: 'card' }}
             />
             <Stack.Screen name="billing/success" options={{ headerShown: false }} />
             <Stack.Screen name="billing/cancel" options={{ headerShown: false }} />

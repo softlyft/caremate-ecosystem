@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "已收到付款",
+    "confirming": "正在确认您的付款…",
+    "syncingPremium": "已收到付款。正在同步 Premium…",
+    "activated": "Premium 已激活。正在打开您的方案…",
+    "syncingStatus": "已收到付款。正在同步 Premium 状态…"
+  },
+  "cancel": {
+    "title": "结账已取消",
+    "subtitle": "正在返回 Premium…"
+  }
+}

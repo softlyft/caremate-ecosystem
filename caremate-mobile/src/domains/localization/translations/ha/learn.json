@@ -11,7 +11,8 @@
   "empty": {
     "title": "Ba a sami labari ba",
     "categoryTitle": "Babu labaran {{category}}",
-    "message": "Gwada wani bincike ko rukuni."
+    "message": "Gwada wani bincike ko rukuni.",
+    "newsTitle": "Babu labarai yanzu"
   },
   "bookmarksTitle": "Alamomi",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "Ba a sami labarin ba",
     "message": "Wataƙila an cire wannan labarin."
-  }
+  },
+  "reading": "Tarihin karatu",
+  "readingShort": "Karatu",
+  "readingBadge": "Karatu",
+  "readBadge": "An karanta",
+  "readingTab": "Karatu",
+  "readTab": "An karanta",
+  "loadingReading": "Ana loda tarihin karatu...",
+  "loadingArticle": "Ana loda labarin...",
+  "loadingBookmarks": "Ana loda alamomi...",
+  "loadingCategory": "Ana loda rukuni...",
+  "category": "Rukuni",
+  "categoryEmpty": "Babu labarai a wannan rukuni",
+  "readingEmpty": {
+    "title": "Babu abin da ke gudana",
+    "message": "Buɗe labari don fara bin abin da kake karantawa."
+  },
+  "readEmpty": {
+    "title": "Har yanzu babu labarai da aka gama",
+    "message": "Yi alamta labarai a matsayin an karanta, ko gungura zuwa ƙarshe yayin karatu."
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} minti karatu",
+  "externalSource": "Tushen waje",
+  "careMateGuide": "Jagorar CareMate",
+  "shareArticle": "Raba labari",
+  "shareContinue": "Karanta cikakken labari:",
+  "readFull": "Karanta cikakken labari"
 }

@@ -110,22 +110,28 @@ export default function SetupEmergencyEssentialsScreen() {
       return;
     }
     if (!bloodGroup || !genotype) {
-      Alert.alert('Missing details', 'Select blood group and genotype to continue.');
+      Alert.alert(
+        t('emergency.setupWizard.missingDetailsTitle'),
+        t('emergency.setupWizard.missingDetailsMessage'),
+      );
       return;
     }
     if (!iceName.trim() || !icePhone.trim() || !iceRelationship.trim()) {
       Alert.alert(
-        'ICE contact',
-        'Add name, phone, and relationship for your first emergency contact.',
+        t('emergency.setupWizard.iceContactTitle'),
+        t('emergency.setupWizard.iceContactRequired'),
       );
       return;
     }
     if (!isValidPersonName(iceName)) {
-      Alert.alert('ICE contact', t('emergency.edit.nameInvalid'));
+      Alert.alert(t('emergency.setupWizard.iceContactTitle'), t('emergency.edit.nameInvalid'));
       return;
     }
     if (!isValidIcePhone(icePhone)) {
-      Alert.alert('ICE contact', t('emergency.edit.contactPhoneInvalid'));
+      Alert.alert(
+        t('emergency.setupWizard.iceContactTitle'),
+        t('emergency.edit.contactPhoneInvalid'),
+      );
       return;
     }
 

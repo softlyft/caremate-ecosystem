@@ -1,35 +1,40 @@
-import { describe, expect, it } from 'vitest';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+
 import { mapPayerConnectionError } from './errors';
 
 describe('mapPayerConnectionError', () => {
   it('maps one-lifetime decline', () => {
-    expect(
+    assert.match(
       mapPayerConnectionError(
         new Error('A previous connection request was declined. Multiple requests are not allowed.'),
         'fallback',
       ),
-    ).toContain('declined');
+      /declined/i,
+    );
   });
 
   it('maps missing verified org', () => {
-    expect(
+    assert.match(
       mapPayerConnectionError(
         new Error('No verified payer found with that claim contact email'),
         'fallback',
       ),
-    ).toContain('No verified organization');
+      /No verified organization/,
+    );
   });
 
   it('maps self-approve block', () => {
-    expect(
+    assert.match(
       mapPayerConnectionError(
         new Error('Only the payer organization can approve this request'),
         'fallback',
       ),
-    ).toContain('other organization');
+      /other organization/,
+    );
   });
 
   it('falls back for unknown errors', () => {
-    expect(mapPayerConnectionError(new Error(''), 'fallback')).toBe('fallback');
+    assert.equal(mapPayerConnectionError(new Error(''), 'fallback'), 'fallback');
   });
 });

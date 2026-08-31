@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Perfil de emergencia",
     "body": "Ten listos el grupo sanguíneo, alergias y contactos ICE sin conexión.",
-    "cta": "Configurar"
+    "cta": "Configurar",
+    "ctaUpdate": "Actualizar"
   },
   "featuredArticles": {
     "title": "Para ti",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Ve proveedores de CareMate cerca de ti",
       "body": "Activa la ubicación para descubrir hospitales, clínicas y farmacias a tu alrededor — todo dentro de CareMate.",
-      "cta": "Activar ubicación"
+      "cta": "Activar ubicación",
+      "blockedBody": "El acceso a la ubicación está bloqueado para CareMate. Abre Ajustes para activarlo y vuelve aquí.",
+      "openSettings": "Abrir Ajustes"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "No se pudo cargar Inicio",
+    "message": "Comprueba tu conexión e inténtalo de nuevo."
+  },
+  "timeline": {
+    "label": "Tus registros",
+    "title": "Línea de tiempo de salud",
+    "cta": "Ver línea de tiempo",
+    "guestBody": "Inicia sesión para ver registros de tus apps de salud en una línea de tiempo.",
+    "emptyBody": "Los registros de signos vitales, medicación, embarazo, ciclo, inmunización y chequeos aparecerán aquí.",
+    "loading": "Cargando línea de tiempo...",
+    "loadFailedTitle": "No se pudo cargar la línea de tiempo",
+    "loadFailedMessage": "Comprueba tu conexión e inténtalo de nuevo.",
+    "screenSubtitle": "Registros de tus apps de salud CareMate.",
+    "rangeFrom": "Desde",
+    "rangeTo": "Hasta",
+    "rangeEmpty": "No hay registros en este rango de fechas. Prueba otra fecha de inicio o fin.",
+    "lastThreeMonths": "Últimos 3 meses",
+    "jumpToMonth": "Ir a {{month}}",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "kinds": {
+      "vital": "Signo vital",
+      "med_dose": "Dosis",
+      "pregnancy_log": "Embarazo",
+      "tt_dose": "Dosis TT",
+      "period_day": "Ciclo",
+      "vaccine": "Vacuna",
+      "checkup": "Chequeo"
+    }
+  },
+  "notifications": {
+    "loading": "Cargando notificaciones…",
+    "loadFailed": "No se pudieron cargar las notificaciones",
+    "emptyTitle": "Estás al día",
+    "emptyMessage": "Las novedades sobre familia, recordatorios y actividad de cuenta aparecerán aquí.",
+    "openHint": "Abrir notificaciones",
+    "welcomeTitle": "Bienvenido a CareMate",
+    "welcomeBody": "Aquí tienes una guía rápida:\n\n• Inicio — Tarjeta de emergencia, Atención cercana, Aprender y accesos\n• Apps — Medicación, vacunas, chequeos, embarazo y ciclo menstrual\n• Familia — Perfiles del hogar y cuidado compartido de niños\n• Perfil — Patient ID, ajustes y preferencias\n\nEsta campana reúne las novedades. Explora a tu ritmo — CareMate también funciona sin conexión."
   }
 }

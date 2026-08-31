@@ -1,0 +1,23 @@
+{
+  "placeholder": "Wá àwọn àkọlé, àwọn olùpese, àwọn irinṣẹ́…",
+  "clearA11y": "Pa wíwá rẹ́",
+  "loading": "Ń wá…",
+  "idle": {
+    "title": "Wá ní CareMate",
+    "message": "Wá àwọn àkọlé ilera, àwọn olùpese tó súnmọ́, àti àwọn irinṣẹ́ ilera."
+  },
+  "empty": {
+    "title": "Kò sí àbájáde",
+    "message": "Gbìyànjú ọ̀rọ̀ mìíràn tàbí ṣàyẹ̀wò àkọsílẹ̀."
+  },
+  "sections": {
+    "articles": "Àwọn àkọlé",
+    "nearby": "Tó súnmọ́",
+    "tools": "Àwọn irinṣẹ́"
+  },
+  "seeAllLearn": "Wo gbogbo ní Kọ",
+  "seeAllNearby": "Wo gbogbo ní Tó súnmọ́",
+  "hintArticles": "Àwọn àkọlé",
+  "hintNearby": "Tó súnmọ́",
+  "hintTools": "Àwọn irinṣẹ́"
+}

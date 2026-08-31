@@ -7,7 +7,11 @@ import {
   normalizeEmail,
   selectClaimableOrgs,
 } from '@/domains/claim/repository';
-import { resolveCareHomePath, sanitizePostLoginPath } from '@/lib/safe-redirect';
+import {
+  careKindFromPortalPath,
+  resolveCareHomePath,
+  sanitizePostLoginPath,
+} from '@/lib/safe-redirect';
 
 describe('claim helpers', () => {
   it('normalizes email', () => {
@@ -65,6 +69,15 @@ describe('sanitizePostLoginPath', () => {
     assert.equal(sanitizePostLoginPath('/login'), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('/app/../login'), '/app/dashboard');
     assert.equal(sanitizePostLoginPath('/claim'), '/app/dashboard');
+  });
+});
+
+describe('careKindFromPortalPath', () => {
+  it('maps sanitized portal paths to workspace kind', () => {
+    assert.equal(careKindFromPortalPath('/app/dashboard'), 'provider');
+    assert.equal(careKindFromPortalPath('/app/messages'), 'provider');
+    assert.equal(careKindFromPortalPath('/payer/dashboard'), 'payer');
+    assert.equal(careKindFromPortalPath('/payer/organization'), 'payer');
   });
 });
 

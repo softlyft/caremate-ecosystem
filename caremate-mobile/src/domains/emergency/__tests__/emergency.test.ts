@@ -23,17 +23,6 @@ import {
 } from '@/domains/emergency/validation';
 import type { EmergencyProfile } from '@/types';
 
-jest.mock('emergency-lock-widget', () => ({
-  updateAndroidEmergencyWidget: jest.fn(async () => undefined),
-}));
-
-jest.mock('@/widgets/EmergencyLockWidget', () => ({
-  __esModule: true,
-  default: {
-    updateSnapshot: jest.fn(),
-  },
-}));
-
 function makeProfile(overrides: Partial<EmergencyProfile> = {}): EmergencyProfile {
   return {
     id: 'ep-1',

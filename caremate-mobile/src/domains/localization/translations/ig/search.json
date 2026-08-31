@@ -1,0 +1,23 @@
+{
+  "placeholder": "Chọọ isiokwu, ndị na-enye, ngwaọrụ…",
+  "clearA11y": "Hichapụ ọchụchọ",
+  "loading": "Na-achọ…",
+  "idle": {
+    "title": "Chọọ na CareMate",
+    "message": "Chọta isiokwu ahụike, ndị na-enye nso, na ngwaọrụ ahụike."
+  },
+  "empty": {
+    "title": "Enweghị nsonaazụ",
+    "message": "Nwaa okwu ọzọ ma ọ bụ lelee ntinye aka."
+  },
+  "sections": {
+    "articles": "Isiokwu",
+    "nearby": "Nso",
+    "tools": "Ngwaọrụ"
+  },
+  "seeAllLearn": "Lee ha niile na Mụta",
+  "seeAllNearby": "Lee ha niile na Nso",
+  "hintArticles": "Isiokwu",
+  "hintNearby": "Nso",
+  "hintTools": "Ngwaọrụ"
+}

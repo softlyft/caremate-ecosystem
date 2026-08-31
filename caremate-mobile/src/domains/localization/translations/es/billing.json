@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "Pago recibido",
+    "confirming": "Confirmando tu pago…",
+    "syncingPremium": "Pago recibido. Sincronizando Premium…",
+    "activated": "Premium activado. Abriendo tu plan…",
+    "syncingStatus": "Pago recibido. Sincronizando estado Premium…"
+  },
+  "cancel": {
+    "title": "Pago cancelado",
+    "subtitle": "Volviendo a Premium…"
+  }
+}

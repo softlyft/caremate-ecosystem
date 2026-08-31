@@ -16,7 +16,12 @@
     "contacts": "Kọntaktị mberede",
     "hospital": "Ụlọ ọgwụ ọkacha mmasị",
     "insurance": "Onye na-enye mkpuchi",
-    "notes": "Ndetu"
+    "notes": "Ndetu",
+    "firstName": "Aha mbụ",
+    "lastName": "Aha ikpeazụ",
+    "allergiesPlaceholder": "Allergies (kewaa site na kọma)",
+    "medicationsPlaceholder": "Ọgwụ (kewaa site na kọma)",
+    "conditionsPlaceholder": "Ọrịa na-adịgide (kewaa site na kọma)"
   },
   "edit": {
     "title": "Dezie profaịlụ mberede",
@@ -29,17 +34,86 @@
     "nameInvalid": "Jiri mkpụrụedemede naanị (oghere, akara njikọ na apostrophe dị mma)",
     "editContact": "Dezie",
     "saveContact": "Chekwaa kọntaktị",
-    "cancelEdit": "Kagbuo"
+    "cancelEdit": "Kagbuo",
+    "hint": "Echekwara na mpụga mbụ. Nhazi na-eme n'azụ mgbe ị nọ n'ịntanetị.",
+    "loading": "Na-ebunye profailụ...",
+    "saveFailed": "Nchekwa dara ada",
+    "saveFailedMessage": "Enweghị ike ichekwa profailụ",
+    "phoneNumber": "Nọmba ekwentị",
+    "relationshipPlaceholder": "Mmekọrịta (dị ka Onye di, Nne/Nna)",
+    "noContactsYet": "Enweghị kọntaktị etinyere ugbu a.",
+    "remove": "Wepụ",
+    "contactRequired": "Aha, ekwentị, na mmekọrịta dị mkpa",
+    "contactAtLeastOne": "Tinye o kacha otu kọntaktị ICE tupu ịchekwa",
+    "contactDuplicate": "Kọntaktị ahụ nọ na ndepụta gị",
+    "firstNameRequired": "Aha mbụ dị mkpa",
+    "lastNameRequired": "Aha ikpeazụ dị mkpa",
+    "bloodGroupRequired": "Họrọ otu ọbara",
+    "genotypeRequired": "Họrọ genotype"
   },
   "qr": {
     "title": "QR mberede",
-    "empty": "Mepụta profaịlụ mberede mbụ"
+    "empty": "Mepụta profaịlụ mberede mbụ",
+    "loading": "Na-emeghe kaadị Patient ID...",
+    "redirectHint": "Koodu QR nọ n'azụ kaadị Patient ID gị na taabụ M."
   },
   "lock": {
     "title": "Kaadị mberede",
     "call": "Kpọọ ICE",
-    "help": "Gosi kaadị a ma ị nweghị ike ikwu okwu maka onwe gị."
+    "help": "Gosi kaadị a ma ị nweghị ike ikwu okwu maka onwe gị.",
+    "loading": "Na-ebunye...",
+    "badge": "CAREMATE",
+    "retiredTitle": "Ewepula widgets ihuenyo mkpọchi",
+    "retiredHelp": "Nkọwa gbalịa nọ na ngwa CareMate. Kesaa ha na kaadị QR Patient ID gị.",
+    "retiredBody": "Widgets ihuenyo mkpọchi na Ụlọ anaghịzi egosi ozi ahụike. Mepụta Patient ID na taabụ M — QR n'azụ na-emeghe CareMate maka ndị na-arụ ọrụ ahụike banyere.",
+    "openPatientId": "Mepee kaadị Patient ID",
+    "cardBadge": "EMERGENCY",
+    "callContact": "Kpọọ kọntaktị gbalịa",
+    "accessTitle": "Ịnweta ihuenyo mkpọchi",
+    "widgetIos": "Tinye widget CareMate \"Emergency Info\" na ihuenyo mkpọchi (pịgide ihuenyo mkpọchi → Customize → Tinye Widget).",
+    "widgetAndroid": "Tinye widget CareMate \"Emergency Info\" na ihuenyo Ụlọ gị (pịgide n'ụlọ → Widgets).",
+    "minimalFields": "Ogwe ndị a na-egosi: aha, otu ọbara, genotype, allergies, na kọntaktị ICE mbụ gị.",
+    "noProfile": "Enweghị profailụ gbalịa",
+    "noProfileMessage": "Mepee CareMate ma mepụta Profailụ Ahụike Gbalịa.",
+    "contactTitle": "Kọntaktị gbalịa",
+    "contactName": "Aha",
+    "noContact": "Enweghị kọntaktị ICE echekwara.",
+    "noneListed": "Enweghị ihe edepụtara",
+    "footnoteIos": "Jiri QR Patient ID gị kama widgets ihuenyo mkpọchi.",
+    "footnoteAndroid": "Jiri QR Patient ID gị kama widgets ihuenyo Ụlọ."
   },
   "widget": "Melite widget ihuenyo mkpọchi",
-  "preview": "Lee ihuenyo mkpọchi"
+  "preview": "Lee ihuenyo mkpọchi",
+  "setupWizard": {
+    "missingDetailsTitle": "Achọpụtaghị nkọwa",
+    "missingDetailsMessage": "Họrọ otu ọbara na genotype iji gaa n'ihu.",
+    "iceContactTitle": "Onye mkpọtụ ICE",
+    "iceContactRequired": "Tinye aha, ekwentị, na mmekọrịta maka onye mkpọtụ mbụ gị."
+  },
+  "loadFailed": {
+    "title": "Enweghị ike ibunye profailụ gbalịa",
+    "message": "Lelee njikọ gị ma nwaa ọzọ."
+  },
+  "profileEyebrow": "Profailụ gbalịa",
+  "healthDetails": "Nkọwa ahụike",
+  "noContacts": "Enweghị kọntaktị etinyere.",
+  "editProfile": "Dezie profailụ",
+  "showQr": "Kaadị Patient ID (QR)",
+  "share": {
+    "loading": "Na-ebunye kaadị gbalịa...",
+    "badge": "EMERGENCY SHARE",
+    "title": "Nkọwa gbalịa",
+    "help": "Ekesara site na CareMate Patient ID QR. Onye na-arụ ọrụ ahụike banyere naanị nwere ike ịlele nkọwa gbalịa na kọntaktị ICE.",
+    "noProfileYet": "CareMate ID a enweghị profailụ gbalịa ugbu a.",
+    "noneListed": "Enweghị ihe edepụtara",
+    "invalidTitle": "Njikọ QR na-ezighi ezi",
+    "invalidMessage": "Njikọ nkesa gbalịa a adịghị mma.",
+    "notFoundTitle": "Achọtaghị",
+    "notFoundMessage": "Enweghị nkesa gbalịa na-emekọrịta koodu a.",
+    "errorTitle": "Enweghị ike ibunye",
+    "errorMessage": "Lelee njikọ gị ma nwaa ọzọ.",
+    "practitionerRequiredTitle": "Ndị na-arụ ọrụ ahụike naanị",
+    "practitionerRequiredMessage": "Nkọwa gbalịa sitere na QR Patient ID dị naanị maka ndị na-arụ ọrụ ahụike banyere. Gbanye \"Abụ m onye na-arụ ọrụ ahụike\" na profailụ gị, wee nyochaa ọzọ.",
+    "openPractitionerSetting": "Mepee ntọala profailụ"
+  }
 }

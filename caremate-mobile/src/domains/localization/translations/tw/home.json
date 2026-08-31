@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Ahoyɛ profile",
     "body": "Ma mogya su, allergies, ne ICE nkitahodie nsi so a intanɛt nni hɔ.",
-    "cta": "Hyehyɛ"
+    "cta": "Hyehyɛ",
+    "ctaUpdate": "Update"
   },
   "featuredArticles": {
     "title": "Ma wo",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Hwɛ CareMate adwumayɛfoɔ a wɔbɛn wo",
       "body": "Sɔ baabi a wowɔ na hunu ayaresabea, clinic, ne aduru fie a atwa wo ho ahyia — ne nyinaa wɔ CareMate mu.",
-      "cta": "Sɔ baabi"
+      "cta": "Sɔ baabi",
+      "blockedBody": "Location access blocked for CareMate. Open Settings to turn on, then return here.",
+      "openSettings": "Open Settings"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "Antumi Home no load",
+    "message": "Hwɛ wo connection na san bio."
+  },
+  "timeline": {
+    "label": "Your records",
+    "title": "Health timeline",
+    "cta": "View timeline",
+    "guestBody": "Sign in to see logs from health apps in one timeline.",
+    "emptyBody": "Logs from vitals, medication, pregnancy, period, immunization, ne checkups bɛda ha.",
+    "loading": "Loading timeline...",
+    "loadFailedTitle": "Antumi timeline no load",
+    "loadFailedMessage": "Hwɛ wo connection na san bio.",
+    "screenSubtitle": "Logs from wo CareMate health apps.",
+    "rangeFrom": "From",
+    "rangeTo": "To",
+    "rangeEmpty": "No logs in date range. Try different start or end date.",
+    "lastThreeMonths": "Last 3 months",
+    "jumpToMonth": "Jump to {{month}}",
+    "today": "Nnɛ",
+    "yesterday": "Yesterday",
+    "kinds": {
+      "vital": "Vital",
+      "med_dose": "Dose",
+      "pregnancy_log": "Pregnancy",
+      "tt_dose": "TT dose",
+      "period_day": "Cycle",
+      "vaccine": "Vaccine",
+      "checkup": "Checkup"
+    }
+  },
+  "notifications": {
+    "loading": "Loading notifications…",
+    "loadFailed": "Antumi notifications no load",
+    "emptyTitle": "You're all caught up",
+    "emptyMessage": "Updates about family, reminders, account activity will show here.",
+    "openHint": "Open notifications",
+    "welcomeTitle": "Welcome to CareMate",
+    "welcomeBody": "Ɛyɛ guide kakraa:\n\n• Home — Emergency card, Nearby care, Learn, ne shortcuts\n• Apps — Medication, vaccines, checkups, pregnancy, ne period trackers\n• Family — Household profiles ne shared kids care\n• Profile — Patient ID, settings, ne preferences\n\nBell yi bo updates nyinaa baako. Hwɛ wo pace so — CareMate yɛ offline nso."
   }
 }

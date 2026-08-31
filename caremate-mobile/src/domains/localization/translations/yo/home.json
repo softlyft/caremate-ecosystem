@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Profáìlì pájáwìrì",
     "body": "Fi ẹ̀yà ẹ̀jẹ̀, àìlera sí nǹkan, àti àwọn olùbásọ̀rọ̀ ICE sílẹ̀ láìsí ayélujára.",
-    "cta": "Ṣètò"
+    "cta": "Ṣètò",
+    "ctaUpdate": "Imudojuiwọn"
   },
   "featuredArticles": {
     "title": "Fún ọ",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Wo àwọn olùpèsè CareMate tó súnmọ́ ọ",
       "body": "Tan ipò rẹ láti rí àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ — gbogbo rẹ̀ nínú CareMate.",
-      "cta": "Tan ipò"
+      "cta": "Tan ipò",
+      "blockedBody": "Iwọle si ibi ti di fun CareMate. Ṣii Eto lati tan an, ki o pada si ibi.",
+      "openSettings": "Ṣii Eto"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "Ko le koju Ile",
+    "message": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju."
+  },
+  "timeline": {
+    "label": "Awọn iwe akọsilẹ rẹ",
+    "title": "Akoko ilera",
+    "cta": "Wo akoko ilera",
+    "guestBody": "Wọle lati wo awọn iwe akọsilẹ lati awọn app ilera rẹ ni akoko kan.",
+    "emptyBody": "Awọn iwe akọsilẹ lati awọn ami aye, oogun, oyun, ikọ, ajẹsara, ati ayewo ara yoo han nibi.",
+    "loading": "N gbe akoko ilera...",
+    "loadFailedTitle": "Ko le koju akoko ilera",
+    "loadFailedMessage": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju.",
+    "screenSubtitle": "Awọn iwe akọsilẹ lati awọn app ilera CareMate rẹ.",
+    "rangeFrom": "Lati",
+    "rangeTo": "Si",
+    "rangeEmpty": "Ko si awọn iwe akọsilẹ ninu akoko ọjọ yii. Gbiyanju ọjọ ibẹrẹ tabi opin miiran.",
+    "lastThreeMonths": "Awọn oṣu 3 to kọja",
+    "jumpToMonth": "Lọ si {{month}}",
+    "today": "Loni",
+    "yesterday": "Anan",
+    "kinds": {
+      "vital": "Ami aye",
+      "med_dose": "Iye oogun",
+      "pregnancy_log": "Oyun",
+      "tt_dose": "Iye oogun TT",
+      "period_day": "Yiyi",
+      "vaccine": "Ajẹsara",
+      "checkup": "Ayewo ara"
+    }
+  },
+  "notifications": {
+    "loading": "N gbe awọn iwifunni…",
+    "loadFailed": "Ko le koju awọn iwifunni",
+    "emptyTitle": "O ti pari gbogbo rẹ",
+    "emptyMessage": "Awọn imudojuiwọn nipa ebi, iranti, ati iṣẹ akọọlẹ yoo han nibi.",
+    "openHint": "Ṣii awọn iwifunni",
+    "welcomeTitle": "Kaabo si CareMate",
+    "welcomeBody": "Eyi ni itọsọna kukuru lati rin:\n\n• Ile — Kaadi ajẹmọ, Itọju ni agbegbe, Kọ, ati awọn ọna kọja\n• Apps — Oogun, ajẹsara, ayewo ara, oyun, ati awọn tracker ikọ\n• Ebi — Awọn profaili ile ati itọju awọn ọmọ pinpin\n• Profaili — Patient ID, eto, ati awọn ayanfẹ\n\nAgogo yii gba awọn imudojuiwọn papọ. Ṣawari ni iwọn rẹ — CareMate n ṣiṣẹ laisi intanẹẹti."
   }
 }

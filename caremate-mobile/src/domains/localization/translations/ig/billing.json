@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "Anatara ụgwọ",
+    "confirming": "Na-ekwenye ụgwọ gị…",
+    "syncingPremium": "Anatara ụgwọ. Na-emekọ Premium…",
+    "activated": "Premium arụọla. Na-emepe atụmatụ gị…",
+    "syncingStatus": "Anatara ụgwọ. Na-emekọ ọnọdụ Premium…"
+  },
+  "cancel": {
+    "title": "Akagburu ịkwụ ụgwọ",
+    "subtitle": "Na-alaghachi na Premium…"
+  }
+}

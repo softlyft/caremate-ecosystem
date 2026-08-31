@@ -13,7 +13,10 @@
     "title": "Kunna wuri don neman masu bayarwa na CareMate kusa",
     "message": "Muna buƙatar wurinka don nuna masu bayarwa na CareMate kusa da kai. Kunna wuri, ko nemo mai bayarwa da suna a sama.",
     "action": "Kunna wuri",
-    "enabling": "Ana kunnawa…"
+    "enabling": "Ana kunnawa…",
+    "openSettings": "Buɗe Saituna",
+    "blockedTitle": "An katange samun wuri",
+    "blockedMessage": "CareMate ba zai iya neman wuri a wannan na'urar. Buɗe Saituna, kunna Wuri don CareMate, sannan ka dawo nan."
   },
   "approximate": "Ana amfani da kimanin wuri",
   "outsideArea": "A waje da yankinka na yau da kullum — sakamakon na iya zama ƙanƙane",
@@ -27,11 +30,52 @@
     "directions": "Hanyoyi",
     "supportedPayers": "Supported insurers",
     "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
-    "supportedPayersEmpty": "No connected insurers listed yet."
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Mai ba da sabis",
+    "backToNearby": "Komawa Nearby",
+    "verified": "An tabbatar",
+    "contact": "Tuntuɓi",
+    "address": "Adireshi",
+    "phone": "Waya",
+    "email": "Imel",
+    "addressUnavailable": "Adireshi ba samuwa ba",
+    "phoneUnavailable": "Waya ba samuwa ba",
+    "emailUnavailable": "Imel ba samuwa ba",
+    "distanceKm": "{{distance}} km nesa",
+    "openInMaps": "Buɗe a Taswira",
+    "openInMapsHint": "Danna don buɗe a app ɗin taswira",
+    "connect": "Haɗa da mai ba da sabis",
+    "connectHint": "Yana ƙirƙirar buƙatar haɗin kai. Idan sun karɓa, saƙon tsaro yana kunne — za ka iya soke shi kowane lokaci. Bayanan gaggawa da sauran bayanan lafiya suna sirri har ka raba su.",
+    "connectPending": "Buƙatar haɗin tana jira",
+    "connectPendingOutbound": "Ana jiran amincewar mai ba da sabis",
+    "connectPendingInbound": "Wannan mai ba da sabis yana son haɗawa",
+    "connectApproved": "An haɗa",
+    "connectRejected": "An ƙi haɗin kai",
+    "connectUnavailable": "Haɗin bai samuwa don wannan jerin ba tukuna",
+    "connectGuest": "Shiga don haɗawa da masu ba da sabis",
+    "connectSuccessTitle": "An aika bukata",
+    "connectSuccessMessage": "Mai ba da sabis zai duba buƙatarka. Saƙon zai samu idan ya karɓa.",
+    "connectFailedTitle": "Ba a iya aika bukata ba",
+    "approveInbound": "Amince haɗin kai",
+    "declineInbound": "Ƙi",
+    "approveSuccessTitle": "An haɗa",
+    "approveSuccessMessage": "An haɗe. Saƙon tsaro yana kunne — sarrafa shi a ƙarƙashin Haɗin kowane lokaci.",
+    "respondFailedTitle": "Ba a iya sabunta haɗin kai ba",
+    "connectRejectedFinal": "An ƙi haɗin kai",
+    "cancelRequest": "Soke bukata",
+    "cancelRequestHint": "Cire buƙatarka da ke jira.",
+    "cancelReasonLabel": "Dalilin soke",
+    "cancelReasonPlaceholder": "Fa mai ba da sabis san dalilin soke",
+    "confirmCancelRequest": "Tabbatar da soke",
+    "cancelSuccessTitle": "An soke bukata",
+    "cancelSuccessMessage": "An janye bukatar haɗin kai naka.",
+    "cancelFailedTitle": "Ba a iya soke bukata ba"
   },
   "map": {
     "loading": "Ana lodawa taswira...",
-    "empty": "Babu wuraren taswira"
+    "empty": "Babu wuraren taswira",
+    "title": "Kusa",
+    "subtitle": "Buɗe mai ba da sabis don fara hanyar a app ɗin taswira."
   },
   "types": {
     "hospital": "Asibiti",
@@ -59,7 +103,8 @@
   },
   "lastKnown": {
     "message": "Wuri yana kashe. Ana nuna masu bayarwa na CareMate kusa da wurin da aka sani na ƙarshe.",
-    "action": "Kunna"
+    "action": "Kunna",
+    "openSettings": "Buɗe Saituna"
   },
   "connections": {
     "title": "Connections",
@@ -101,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Jerin lokacin lafiya",
+        "description": "Rubutun karantawa kawai daga app ɗin lafiyarka don kewayon kwanaki da ka zaɓa. Ba fitar da fayil ba. Za a iya soke shi kowane lokaci."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -109,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Kewayon kwanaki",
+    "timelineRangeHint": "Wannan mai ba da sabis zai iya duba rubutun da suka faru a wannan kewayon kawai. Ba zai iya sauke ko fitar da bayananka ba.",
+    "timelinePreset": "Kwanaki {{days}} da suka gabata",
+    "timelineCustom": "Na musamman",
+    "timelineFrom": "Daga (YYYY-MM-DD)",
+    "timelineTo": "Zuwa (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} zuwa {{to}}",
+    "outboundTitle": "Buƙatun da aka aika",
+    "outboundCount": "{{count}} suna jiran mai ba da sabis",
+    "outboundEmptySubtitle": "Babu buƙatun da aka aika da ke jira",
+    "outboundScreenTitle": "Buƙatun haɗin da aka aika",
+    "outboundScreenSubtitle": "Buƙatun da ka aika zuwa masu ba da sabis. Za ka iya soke su yayin da suke jira.",
+    "outboundEmpty": "Ba ka da buƙatu da aka aika da ke jira.",
+    "outboundPendingLabel": "Ana jiran amincewa",
+    "disconnect": "Cire haɗin kai",
+    "disconnectHint": "Kare wannan haɗin. Za ka iya aika sabon buƙata daga baya.",
+    "disconnectConfirmTitle": "Cire haɗin daga mai ba da sabis?",
+    "disconnectConfirmMessage": "Wannan mai ba da sabis ba zai ƙara haɗe da asusunka na CareMate ba.",
+    "disconnectConfirmAction": "Cire haɗin kai",
+    "disconnectReasonLabel": "Dalili (na zaɓi)",
+    "disconnectReasonPlaceholder": "Fa mai ba da sabis san dalilin cire haɗin",
+    "disconnectSuccessTitle": "An cire haɗin kai",
+    "disconnectSuccessMessage": "Ba ka ƙara haɗe da wannan mai ba da sabis ba.",
+    "disconnectFailedTitle": "Ba a iya cire haɗin kai ba"
+  },
+  "loadFailed": {
+    "title": "Ba a iya loda masu ba da sabis ba",
+    "message": "Duba haɗin ka kuma sake gwadawa."
+  },
+  "favorites": {
+    "openA11y": "Duba masu ba da sabis da aka fi so",
+    "loading": "Ana loda abubuwan da aka fi so...",
+    "emptyTitle": "Har yanzu babu abubuwan da aka fi so",
+    "emptyMessage": "Ajiye mai ba da sabis daga allon bayanansa don samun shi a nan daga baya.",
+    "emptyAction": "Bincika kusa",
+    "loadFailed": {
+      "title": "Ba a iya loda abubuwan da aka fi so ba",
+      "message": "Duba haɗin ka kuma sake gwadawa."
     }
+  },
+  "connectionRequests": {
+    "link": "Bukatun haɗin kai",
+    "linkWithCount": "Buƙatun haɗin ({{count}})",
+    "title": "Bukatun haɗin kai",
+    "subtitle": "Masu ba da sabis da ke son haɗawa da ku. Amincewa yana kunna saƙon tsaro (za a iya soke shi daga baya). Bayanan gaggawa ba a raba su ba har ka ba da izinin.",
+    "loading": "Ana loda buƙatu...",
+    "empty": "Babu buƙatun haɗin da ke jira.",
+    "guest": "Shiga don sarrafa buƙatun haɗin mai ba da sabis.",
+    "providerFallback": "Mai ba da sabis",
+    "noteLabel": "Bayanin daga mai ba da sabis",
+    "approve": "Amince",
+    "decline": "Ƙi",
+    "approvedTitle": "An haɗa",
+    "approvedMessage": "An haɗe. Saƙon tsaro yana kunne — sarrafa izini kowane lokaci.",
+    "declinedTitle": "An ƙi",
+    "declinedMessage": "Ka ƙi wannan bukatar haɗin kai.",
+    "failedTitle": "Ba a iya sabunta buƙata ba",
+    "failedMessage": "Da fatan a sake gwadawa.",
+    "loadFailed": {
+      "title": "Ba a iya loda buƙatu ba",
+      "message": "Duba haɗin ka kuma sake gwadawa."
+    },
+    "reasonLabel": "Dalilin kin amincewa",
+    "reasonPlaceholder": "Fa mai ba da sabis san dalilin kin yarda",
+    "confirmDecline": "Tabbatar da kin amincewa"
   }
 }

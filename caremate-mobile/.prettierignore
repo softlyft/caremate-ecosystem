@@ -10,8 +10,6 @@ package-lock.json
 docs
 supabase
 assets
-modules/emergency-lock-widget/android
-modules/emergency-lock-widget/ios
 *.sql
 *.png
 *.jpg

@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "A gba owó rà",
+    "confirming": "Ń jẹ́rìísí ìsanwó rẹ…",
+    "syncingPremium": "A gba owó rà. Ń ṣàmúisọpọ̀ Premium…",
+    "activated": "Premium ti ṣiṣẹ́. Ń ṣí ètò rẹ…",
+    "syncingStatus": "A gba owó rà. Ń ṣàmúisọpọ̀ ipò Premium…"
+  },
+  "cancel": {
+    "title": "A fagilé ìsanwó",
+    "subtitle": "Ń padà sí Premium…"
+  }
+}

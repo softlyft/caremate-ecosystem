@@ -21,7 +21,8 @@
     },
     "statePlaceholder": "bíi Greater Accra",
     "searchPlaceholder": "Wá orílẹ̀-èdè",
-    "searchEmpty": "Kò sí orílẹ̀-èdè tó bá ìwádìí yìí mu."
+    "searchEmpty": "Kò sí orílẹ̀-èdè tó bá ìwádìí yìí mu.",
+    "selectPlaceholder": "Yan orilẹ-ede kan"
   },
   "priorities": {
     "title": "Kí ni ó ṣe pàtàkì jùlọ?",
@@ -56,8 +57,10 @@
       "hint": "Ìṣàtò tó dára jùlọ fún àwọn ilé-ìwòsàn àti ilé-ìtọ́jú ní àyíká rẹ"
     },
     "approximate": {
-      "title": "Tó fẹ́rẹ̀ẹ́"
-    }
+      "title": "Tó fẹ́rẹ̀ẹ́",
+      "hint": "Pin deede {{place}} — yi pada nigbakugba"
+    },
+    "subtitle": "Lo GPS deede fun awọn ibaramu to dara julọ, tabi jẹki pin isunmọ fun {{place}}."
   },
   "notifications": {
     "title": "Máa mọ̀ ohun tí ń ṣẹlẹ̀",

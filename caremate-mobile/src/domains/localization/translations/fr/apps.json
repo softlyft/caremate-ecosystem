@@ -29,7 +29,7 @@
       "description": "Suivez les cycles, notez les jours de règles et voyez des prévisions simples."
     }
   },
-  "signInRequired": "Connectez-vous pour synchroniser cet outil sur vos appareils",
+  "signInRequired": "Connectez-vous pour synchroniser cet outil entre appareils",
   "save": "Enregistrer",
   "log": "Ajouter une entrée",
   "setup": "Configurer",
@@ -164,7 +164,20 @@
       "refillDateOptional": "Date de renouvellement facultative — appuyer à nouveau pour effacer",
       "historySubtitle": "Prises récentes enregistrées",
       "historyEmpty": "Aucune prise encore. Marquez une dose pour créer l'historique.",
-      "unknownMedicine": "Médicament inconnu"
+      "unknownMedicine": "Médicament inconnu",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "Période de traitement",
+      "durationDays": "{{count}} jours",
+      "treatmentEndedTitle": "Traitement déjà terminé",
+      "treatmentPeriodHint": "Choisissez la durée de prise de ce médicament, ou laissez-le en cours.",
+      "durationOngoing": "En cours",
+      "durationCustom": "Fin personnalisée",
+      "endDate": "Date de fin",
+      "endBeforeStartTitle": "Date de fin trop tôt",
+      "endBeforeStartMessage": "Choisissez une date de fin égale ou postérieure à la date de début.",
+      "clearRefillDate": "Effacer la date",
+      "startsOngoing": "Débute le {{date}} · en cours",
+      "treatmentEndedMessage": "Cette période de traitement se termine avant aujourd'hui. Choisissez une date de fin ultérieure, une durée plus longue, ou marquez le médicament comme en cours."
     },
     "status": {
       "taken": "Pris",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} a été manquée. Rattrapez quand vous pouvez.",
       "refillTitle": "Renouveler bientôt : {{name}}",
       "refillBody": "{{name}} est bientôt épuisé ou à renouveler."
+    },
+    "validation": {
+      "undoTitle": "Annuler cette dose ?",
+      "undoMessage": "Cela marquera la dose comme non prise. Si le stock a été décompté, il sera restauré.",
+      "undoConfirm": "Annuler",
+      "nameLong": "Ce nom de médicament est assez long. Veuillez confirmer qu'il est correct.",
+      "instructionsOtherEmpty": "Vous avez choisi les instructions « Autre » mais laissé les détails vides. Veuillez confirmer avant d'enregistrer.",
+      "asNeededMany": "Vous avez déjà enregistré {{count}} doses au besoin pour ce médicament aujourd'hui. Veuillez confirmer avant d'en ajouter une autre.",
+      "checkTitle": "Veuillez vérifier ceci",
+      "confirmTitle": "Veuillez confirmer",
+      "cancel": "Annuler",
+      "requiredName": "Veuillez entrer le nom du médicament avant d'enregistrer.",
+      "requiredDosage": "Veuillez entrer le dosage (par exemple 500 mg) avant d'enregistrer.",
+      "requiredStart": "Veuillez choisir une date de début avant d'enregistrer.",
+      "childRequired": "Choisissez pour quel enfant ce médicament est destiné.",
+      "slotTimesInvalid": "Choisissez une heure valide pour chaque dose avec le sélecteur d'heure.",
+      "slotTimesDuplicate": "Chaque dose nécessite une heure différente. Deux doses ne peuvent pas avoir la même heure.",
+      "saveAnyway": "Enregistrer quand même",
+      "endBeforeStart": "La date de fin doit être égale ou postérieure à la date de début.",
+      "treatmentEnded": "Cette période de traitement se termine avant aujourd'hui. Choisissez une date de fin ultérieure, une durée plus longue, ou marquez le médicament comme en cours.",
+      "quantityInvalid": "La quantité restante doit être un nombre entier (0 ou plus), ou laissée vide.",
+      "thresholdInvalid": "Le seuil de rappel de renouvellement doit être un nombre entier (0 ou plus).",
+      "unusualCheck": "Cela semble inhabituel. Veuillez vérifier que vous l'avez saisi correctement.",
+      "dosageNoUnit": "Ce dosage ressemble à un nombre seul. Vouliez-vous inclure une unité (mg, ml, comprimé…) ?",
+      "slotsTooClose": "Ces horaires de dose sont espacés de moins de 2 heures. Veuillez confirmer que c'est intentionnel.",
+      "courseLong": "Ce traitement dure plus d'un an ({{days}} jours). Veuillez confirmer qu'il est correct.",
+      "refillBeforeStart": "La date de renouvellement est antérieure à la date de début du traitement. Veuillez confirmer qu'elle est correcte.",
+      "quantityHigh": "Cette quantité ({{value}}) semble inhabituellement élevée. Veuillez confirmer qu'elle est correcte.",
+      "thresholdAboveQuantity": "Le rappel de renouvellement est défini au-dessus de la quantité restante. Veuillez confirmer que c'est intentionnel.",
+      "logBeforeStart": "Cette date est antérieure à la date de début du médicament. Veuillez confirmer avant d'enregistrer.",
+      "logAfterEnd": "Cette date est postérieure à la date de fin du traitement. Veuillez confirmer avant d'enregistrer.",
+      "logFuture": "Cette date est dans le futur. Veuillez confirmer que vous vouliez l'enregistrer à l'avance."
     }
   },
   "edit": "Modifier",
@@ -201,5 +246,789 @@
   "saveChanges": "Enregistrer les modifications",
   "loading": "Chargement…",
   "editProfile": "Modifier le profil",
-  "signInRequiredTitle": "Connexion requise"
+  "signInRequiredTitle": "Connexion requise",
+  "vitalsTracker": {
+    "eyebrow": "Signes vitaux",
+    "screenTitle": "Signes vitaux",
+    "backToApps": "Retour aux applications",
+    "close": "Fermer",
+    "emptyTitle": "Vos signes vitaux en un coup d'œil",
+    "emptySubtitle": "Enregistrez une mesure en quelques secondes — comme consulter votre solde.",
+    "titleWithData": "Derniers signes vitaux",
+    "subtitleWithData": "Rapide à ouvrir, facile à mettre à jour",
+    "logVital": "Enregistrer un signe vital",
+    "logTitle": "Enregistrer un signe vital",
+    "logSubtitle": "Choisissez une mesure, entrez la valeur et enregistrez.",
+    "saveLog": "Enregistrer la mesure",
+    "setupTitle": "Choisissez vos unités",
+    "setupSubtitle": "Choisissez comment vous mesurez habituellement — vous pourrez changer plus tard.",
+    "setupCta": "Configurer les unités",
+    "setupSave": "Enregistrer les préférences",
+    "editUnits": "Modifier les unités"
+  },
+  "periodTracker": {
+    "eyebrow": "Aujourd'hui",
+    "screenTitle": "Suivi des règles",
+    "logTitle": "Enregistrer les règles",
+    "backToApps": "Retour aux applications",
+    "close": "Fermer",
+    "emptyTitle": "Commencez à suivre votre cycle",
+    "emptySubtitle": "Enregistrez vos dernières règles pour voir les prévisions",
+    "logPeriodDays": "Enregistrer les jours de règles",
+    "markPeriod": "Marquez vos règles",
+    "markPeriodSubtitle": "Appuyez sur les jours de vos règles. Vous pouvez en sélectionner plusieurs dans le mois."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Immunisation",
+    "screenTitle": "Suivi d'immunisation",
+    "setupTitle": "Enfants de la famille",
+    "logTitle": "Enregistrer un vaccin",
+    "backToApps": "Retour aux applications",
+    "close": "Fermer",
+    "loading": "Chargement des enfants de votre famille…",
+    "loadingLog": "Chargement du journal de vaccins…",
+    "emptyTitle": "Suivre les immunisations",
+    "signInSubtitle": "Le suivi d'immunisation utilise les enfants de votre profil Famille CareMate.",
+    "needsFamilySubtitle": "Créez votre profil Famille et ajoutez des enfants avec leur date de naissance. Le calendrier vaccinal apparaîtra ici.",
+    "needsChildrenSubtitle": "Votre foyer n'a pas encore d'enfants avec date de naissance. Ajoutez des enfants dans Famille pour commencer le suivi vaccinal.",
+    "childrenFromFamilyTitle": "Les enfants viennent de Famille",
+    "childrenFromFamilySubtitle": "Vous ne pouvez pas ajouter un enfant ici. Configurez votre profil Famille avec date de naissance, puis revenez au Suivi d'immunisation.",
+    "logVaccine": "Enregistrer un vaccin",
+    "saveVaccine": "Enregistrer le vaccin",
+    "updateRecord": "Mettre à jour l'enregistrement",
+    "noChildSelected": "Aucun enfant sélectionné",
+    "noChildSubtitle": "Ajoutez des enfants dans votre profil Famille avant d'enregistrer les vaccins."
+  },
+  "checkupPlanner": {
+    "eyebrow": "Planificateur de bilans",
+    "screenTitle": "Planificateur de bilans",
+    "setupTitle": "Configurer le planificateur",
+    "logTitle": "Enregistrer un bilan",
+    "backToApps": "Retour aux applications",
+    "close": "Fermer",
+    "emptyTitle": "Planifiez vos bilans de santé",
+    "emptySubtitle": "Entrez votre date de naissance, genre et région (optionnel) pour voir les tests recommandés",
+    "setUpPlanner": "Configurer le planificateur",
+    "editProfile": "Modifier le profil",
+    "setupSave": "Enregistrer et voir le plan",
+    "setupSaveEdit": "Enregistrer les modifications",
+    "needSetup": "Configurez d'abord votre profil de bilans."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Grossesse",
+    "emptyTitle": "Suivez votre parcours de grossesse",
+    "emptySubtitle": "Indiquez votre date d'accouchement ou dernières règles pour commencer",
+    "setUp": "Configurer la grossesse",
+    "updateDueDate": "Mettre à jour la date d'accouchement",
+    "logToday": "Enregistrer aujourd'hui",
+    "setupSave": "Enregistrer",
+    "saveLog": "Enregistrer le journal",
+    "screenTitle": "Suivi de grossesse",
+    "setupTitle": "Configurer la grossesse",
+    "logTitle": "Journal quotidien",
+    "ttTitle": "Enregistrer dose TT",
+    "birthTitle": "J'ai accouché",
+    "backToApps": "Retour aux applications",
+    "close": "Fermer"
+  },
+  "reorderHint": "Maintenez une carte, puis faites glisser pour réorganiser. L'ordre reste sur cet appareil.",
+  "reorderHintA11y": "Appuyez deux fois et maintenez, puis faites glisser pour réorganiser",
+  "checkup": {
+    "cadence": {
+      "annual": "Chaque année",
+      "once": "Une fois (quand dû)",
+      "every-2-years": "Tous les 2 ans",
+      "every-3-years": "Tous les 3 ans",
+      "every-5-years": "Tous les 5 ans"
+    },
+    "gender": {
+      "female": "Femme",
+      "male": "Homme",
+      "other": "Autre / préfère ne pas répondre"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "Visite annuelle chez un clinicien pour un bilan de santé global.",
+        "name": "Bilan médical général"
+      },
+      "dental-checkup": {
+        "name": "Contrôle dentaire",
+        "description": "Nettoyage et examen buccal pour détecter tôt caries et maladies des gencives."
+      },
+      "eye-exam": {
+        "name": "Examen oculaire / de la vue",
+        "description": "Vérifiez la vision et la santé oculaire ; plus souvent si vous portez des lunettes ou avez du diabète."
+      },
+      "blood-pressure": {
+        "name": "Contrôle de la tension",
+        "description": "Dépister l'hypertension — un risque silencieux pour le cœur et les AVC."
+      },
+      "blood-sugar": {
+        "name": "Dépistage glycémie / diabète",
+        "description": "Glycémie à jeun ou HbA1c, surtout en cas d'antécédents familiaux ou de surpoids."
+      },
+      "cholesterol": {
+        "name": "Cholestérol / bilan lipidique",
+        "description": "Analyse sanguine pour le risque cardiaque. Discutez de la fréquence avec votre clinicien."
+      },
+      "weight-bmi": {
+        "name": "Revue du poids et de l'IMC",
+        "description": "Suivez les tendances de poids saines dans le cadre de votre bilan annuel."
+      },
+      "flu-vaccine": {
+        "description": "Vaccin antigrippe annuel lorsque disponible et recommandé.",
+        "name": "Vaccination antigrippale saisonnière"
+      },
+      "cervical-screening": {
+        "name": "Dépistage cervical (Pap / HPV)",
+        "description": "Dépister le cancer du col de l'uterus. Suivez les recommandations locales pour l'intervalle."
+      },
+      "mammogram": {
+        "name": "Mammographie",
+        "description": "Dépistage du cancer du sein. L'âge de début varie selon les recommandations et le risque."
+      },
+      "prostate-discussion": {
+        "name": "Discussion sur la santé prostatique",
+        "description": "Parlez avec un professionnel de santé des tests PSA et des symptômes prostatiques."
+      },
+      "prostate-earlier": {
+        "name": "Discussion précoce sur la prostate",
+        "description": "Envisagez un dépistage plus précoce si vous avez des origines africaines ou des antécédents familiaux."
+      },
+      "colorectal-screening": {
+        "name": "Dépistage du cancer colorectal",
+        "description": "Test de selles ou coloscopie à partir de la mi-vie adulte — demandez quelle option vous convient."
+      },
+      "skin-check": {
+        "name": "Contrôle cutané",
+        "description": "Faites examiner les grains de beauté et changements cutanés par un professionnel de santé."
+      },
+      "hearing-check": {
+        "name": "Contrôle auditif",
+        "description": "Dépister la perte auditive liée à l'âge."
+      },
+      "bone-density-women": {
+        "name": "Densité osseuse (DEXA)",
+        "description": "Dépister le risque d'osteoporose après la ménopause / à l'âge adulte avancé."
+      },
+      "bone-density-men": {
+        "name": "Densité osseuse (DEXA)",
+        "description": "Dépister le risque d'osteoporose à l'âge adulte avancé."
+      },
+      "tetanus-booster": {
+        "description": "Confirmez que les rappels de tétanos (et associés) sont à jour — souvent tous les 10 ans.",
+        "name": "Revue du rappel tétanos"
+      }
+    },
+    "status": {
+      "upcoming": "À venir",
+      "completed": "Terminé",
+      "due": "Dû",
+      "overdue": "En retard"
+    },
+    "ui": {
+      "actionableOne": "{{count}} bilan pour {{year}}",
+      "actionableMany": "{{count}} bilans pour {{year}}",
+      "onTrack": "Bilans {{year}} en bonne voie",
+      "yearPlan": "Votre plan {{year}}",
+      "thisYear": "Cette année ({{year}})",
+      "ofTotal": "{{completed}} sur {{total}}",
+      "checklist": "Liste de contrôle {{year}}",
+      "clearConfirmMessage": "Votre profil et l'historique de complétion seront supprimés de cet appareil.",
+      "regionHint": "Utilisé pour quelques conseils selon le pays. Laissez Global si vous n'êtes pas sûr(e).",
+      "regionSelectPlaceholder": "Sélectionnez un pays",
+      "dob": "Date de naissance",
+      "genderLabel": "Genre",
+      "updateLog": "Mettre à jour le journal",
+      "setupIntro": "Nous utilisons votre date de naissance, votre sexe et votre région pour suggérer des bilans standard. La région est facultative et vaut International par défaut.",
+      "ageLine": "Âge {{age}} · {{gender}} · {{region}}",
+      "nextYear": "L'année prochaine ({{year}})",
+      "done": "Terminé",
+      "guidance": "Conseils indicatifs uniquement — parlez avec un professionnel de santé pour un avis personnalisé.",
+      "emptyYear": "Aucun bilan listé pour cette année avec votre profil actuel.",
+      "doneDate": "Terminé {{date}}",
+      "clearData": "Effacer les données du planificateur",
+      "clearConfirmTitle": "Effacer le planificateur d'examens ?",
+      "regionOptional": "Pays (facultatif)",
+      "regionSearchEmpty": "Aucun pays ne correspond à cette recherche.",
+      "globalOption": "Global ({{code}})",
+      "notesPlaceholder": "Nom de la clinique, résultats à suivre…",
+      "markDone": "Marquer comme fait pour {{year}}",
+      "dobLabel": "Date de naissance : {{date}}",
+      "logIntro": "Enregistrez que vous avez effectué ce bilan pour {{year}}. Vous pourrez annuler plus tard depuis cet écran.",
+      "dateCompleted": "Date de fin",
+      "completedLabel": "Terminé : {{date}}",
+      "notesOptional": "Notes (facultatif)",
+      "globalShort": "Global",
+      "tapToLog": "Appuyez pour enregistrer",
+      "regionSearchPlaceholder": "Rechercher des pays",
+      "removeLog": "Supprimer ce journal",
+      "tapDob": "Appuyez sur votre date de naissance.",
+      "notFound": "Ce bilan n'a pas été trouvé.",
+      "removeCompletion": "Supprimer l'achèvement"
+    },
+    "validation": {
+      "undoConfirm": "Retirer",
+      "completedYearMismatch": "Vous avez enregistré {{completedYear}}, mais cet élément concerne le plan {{planYear}}. Veuillez confirmer que c'est intentionnel.",
+      "onceAlreadyLogged": "Ce bilan ponctuel a déjà été enregistré pour {{year}}. Veuillez confirmer que vous voulez l'enregistrer à nouveau.",
+      "checkTitle": "Veuillez vérifier ceci",
+      "confirmTitle": "Veuillez confirmer",
+      "cancel": "Annuler",
+      "requiredGender": "Veuillez choisir une option de genre avant d'enregistrer.",
+      "requiredDob": "Veuillez choisir votre date de naissance avant d'enregistrer.",
+      "dobFuture": "La date de naissance ne peut pas être dans le futur.",
+      "ageYoung": "À {{age}} ans, peu d'examens adultes apparaîtront. Veuillez confirmer que cette date de naissance est correcte.",
+      "completedFuture": "Un examen ne peut pas être marqué comme fait avec une date future. Choisissez aujourd'hui ou une date antérieure.",
+      "saveAnyway": "Enregistrer quand même",
+      "undoTitle": "Supprimer cet achèvement ?",
+      "undoMessage": "Ce bilan apparaîtra à nouveau comme non effectué pour cette année.",
+      "invalidCheckup": "Ce bilan n'a pas été trouvé. Revenez en arrière et réessayez.",
+      "invalidYear": "Cette année de plan semble inhabituelle. Veuillez ouvrir le bilan depuis votre liste de contrôle annuelle.",
+      "unusualCheck": "Cela semble inhabituel. Veuillez vérifier que vous l'avez saisi correctement.",
+      "completedBeforeDob": "La date de complétion ne peut pas être antérieure à votre date de naissance.",
+      "ageHigh": "Cette date de naissance ferait de vous {{age}}. Veuillez confirmer qu'elle est correcte.",
+      "notesLong": "Ces notes sont assez longues. Veuillez confirmer avant d'enregistrer."
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Dose de naissance",
+        "description": "Protège contre les formes graves de tuberculose."
+      },
+      "hep-b-birth": {
+        "name": "Hépatite B",
+        "doseLabel": "Dose de naissance",
+        "description": "Première dose administrée à la naissance ou dans les 24 heures."
+      },
+      "opv-0": {
+        "name": "Polio (VPO)",
+        "doseLabel": "Dose 0",
+        "description": "Dose de naissance du vaccin antipoliomyélitique oral."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 1",
+        "description": "Couvre la diphtérie, le tétanos, la coqueluche, l'hépatite B et le Hib."
+      },
+      "opv-1": {
+        "name": "Polio (VPO)",
+        "doseLabel": "Dose 1",
+        "description": "Première dose de polio de routine."
+      },
+      "pcv-1": {
+        "name": "Pneumocoque (PCV)",
+        "doseLabel": "Dose 1",
+        "description": "Protège contre la maladie à pneumocoque."
+      },
+      "rota-1": {
+        "doseLabel": "Dose 1",
+        "name": "Rotavirus",
+        "description": "Protège contre la diarrhée sévère due au rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 2",
+        "description": "Deuxième dose pentavalente."
+      },
+      "opv-2": {
+        "name": "Polio (VPO)",
+        "doseLabel": "Dose 2",
+        "description": "Deuxième dose de polio de routine."
+      },
+      "pcv-2": {
+        "name": "Pneumocoque (PCV)",
+        "doseLabel": "Dose 2",
+        "description": "Deuxième dose pneumocoque."
+      },
+      "rota-2": {
+        "doseLabel": "Dose 2",
+        "name": "Rotavirus",
+        "description": "Deuxième dose rotavirus."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Dose 3",
+        "description": "Troisième dose pentavalente."
+      },
+      "opv-3": {
+        "name": "Polio (VPO)",
+        "doseLabel": "Dose 3",
+        "description": "Troisième dose de polio de routine."
+      },
+      "pcv-3": {
+        "name": "Pneumocoque (PCV)",
+        "doseLabel": "Dose 3",
+        "description": "Troisième dose pneumococcique."
+      },
+      "ipv": {
+        "name": "Polio (VPI)",
+        "doseLabel": "Rappel",
+        "description": "Rappel polio inactivé vers 6 mois."
+      },
+      "measles-1": {
+        "name": "Rougeole / RR",
+        "doseLabel": "Dose 1",
+        "description": "Première dose rougeole-rubéole vers 9 mois."
+      },
+      "yellow-fever": {
+        "name": "Fièvre jaune",
+        "doseLabel": "Dose unique",
+        "description": "Recommandé dans les régions endémiques à partir de 9 mois."
+      },
+      "measles-2": {
+        "name": "Rougeole / RR",
+        "doseLabel": "Dose 2",
+        "description": "Deuxième dose rougeole-rubéole vers 15 mois."
+      },
+      "vitamin-a": {
+        "name": "Vitamine A",
+        "doseLabel": "Supplément",
+        "description": "Supplémentation routinière en vitamine A à partir de 15 mois."
+      }
+    },
+    "ui": {
+      "dob": "Date de naissance",
+      "scheduleTitle": "Calendrier vaccinal",
+      "timeline": "Chronologie",
+      "vaccineRecord": "Carnet de vaccination",
+      "whereToGo": "Où aller",
+      "overdueVisit": "{{count}} vaccin en retard — planifiez une visite",
+      "overdueVisit_other": "{{count}} vaccins en retard — planifiez une visite",
+      "vaccinesCompleted": "{{completed}} sur {{total}} vaccins complétés",
+      "children": "Enfants",
+      "family": "Famille",
+      "percentComplete": "{{percent}}% terminé",
+      "daysOverdue": "{{count}} jour de retard",
+      "daysOverdue_other": "{{count}} jours de retard",
+      "vaccineRecordTitle": "Carnet de vaccination",
+      "noChildSelected": "Aucun enfant sélectionné",
+      "vaccine": "Vaccin",
+      "selectedDate": "Sélectionné : {{date}}",
+      "nextDue": "Suivant : {{name}} ({{dose}})",
+      "allUpToDate": "Tous les vaccins prévus sont à jour",
+      "attention": "Attention requise",
+      "alreadyLogged": "Déjà enregistré",
+      "administeredDate": "Date d'administration",
+      "optional": "Facultatif",
+      "notesPlaceholder": "Numéro de lot, réactions, etc.",
+      "nextSteps": "Prochaines étapes",
+      "childrenFromFamilyCaption": "Les enfants proviennent de votre profil Famille.",
+      "details": "Détails",
+      "age": "Âge",
+      "nextUp": "Ensuite",
+      "dueToday": "Dû aujourd'hui",
+      "dueInDays": "Dû dans {{count}} jour",
+      "dueInDays_other": "Dû dans {{count}} jours",
+      "givenOn": "Administré le {{date}}",
+      "dueOn": "Dû le {{date}}",
+      "logIntro": "Enregistrez la date de ce vaccin. Vous pourrez mettre à jour ou supprimer l'enregistrement plus tard.",
+      "alreadyLoggedPill": "Déjà enregistré",
+      "completedOn": "Terminé : {{date}}",
+      "notes": "Notes",
+      "familySetupExplainer": "La configuration Famille recueille la date de naissance de chaque enfant — c'est ce qui alimente le calendrier vaccinal.",
+      "selectChild": "Sélectionnez un enfant pour voir son calendrier vaccinal recommandé",
+      "providerOptional": "Prestataire / clinique",
+      "removeRecord": "Supprimer l'enregistrement",
+      "profile": "Profil",
+      "recommendedBy": "Recommandé d'ici le {{date}}",
+      "select": "Sélectionner",
+      "tapAdministeredDate": "Appuyez sur la date d'administration de ce vaccin"
+    },
+    "status": {
+      "upcoming": "À venir",
+      "completed": "Terminé",
+      "overdue": "En retard",
+      "due-soon": "Bientôt dû"
+    },
+    "validation": {
+      "undoConfirm": "Retirer",
+      "checkTitle": "Veuillez vérifier ceci",
+      "confirmTitle": "Veuillez confirmer",
+      "cancel": "Annuler",
+      "requiredProfile": "Choisissez un enfant avec une date de naissance avant d'enregistrer un vaccin.",
+      "requiredAdministeredDate": "Veuillez choisir la date d'administration de ce vaccin.",
+      "administeredFuture": "Une dose complétée ne peut pas être enregistrée avec une date future. Choisissez aujourd'hui ou une date antérieure.",
+      "seriesOutOfOrder": "Une dose antérieure de cette série n'est pas encore enregistrée ({{missing}}). Veuillez confirmer avant d'enregistrer.",
+      "saveAnyway": "Enregistrer quand même",
+      "undoTitle": "Supprimer cet enregistrement vaccinal ?",
+      "undoMessage": "Cette dose apparaîtra à nouveau comme non administrée sur le calendrier.",
+      "invalidVaccine": "Ce vaccin est introuvable. Revenez en arrière et réessayez.",
+      "unusualCheck": "Cela semble inhabituel. Veuillez vérifier que vous l'avez saisi correctement.",
+      "administeredBeforeDob": "La date d'administration ne peut pas être antérieure à la date de naissance de l'enfant.",
+      "veryEarly": "Cette date est {{days}} jours avant la date recommandée ({{recommended}}). Veuillez confirmer qu'elle est correcte.",
+      "farFromRecommended": "Cette date est à {{days}} jours de la date recommandée ({{recommended}}). Veuillez confirmer qu'elle est correcte.",
+      "providerLong": "Le nom du professionnel est assez long. Veuillez confirmer avant d'enregistrer.",
+      "notesLong": "Ces notes sont assez longues. Veuillez confirmer avant d'enregistrer."
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "Fatigué(e)",
+      "Unwell": "Malade",
+      "Happy": "Heureux(se)",
+      "Calm": "Calme",
+      "Anxious": "Anxieux(se)",
+      "Excited": "Excité(e)"
+    },
+    "symptoms": {
+      "Nausea": "Nausée",
+      "Fatigue": "Fatigue",
+      "Back pain": "Mal de dos",
+      "Cramping": "Crampes",
+      "Heartburn": "Brûlures d'estomac",
+      "Headache": "Mal de tête",
+      "Insomnia": "Insomnie",
+      "Food cravings": "Envies alimentaires",
+      "Swelling": "Gonflement"
+    },
+    "milestones": {
+      "8": {
+        "title": "Première visite prénatale",
+        "description": "Planifiez votre premier bilan avec votre prestataire."
+      },
+      "12": {
+        "title": "Fin du premier trimestre",
+        "description": "Le risque de fausse couche diminue significativement."
+      },
+      "20": {
+        "title": "Échographie morphologique",
+        "description": "Échographie de mi-grossesse vers 18–22 semaines."
+      },
+      "28": {
+        "description": "Le bébé grandit vite — reposez-vous quand vous le pouvez.",
+        "title": "Le troisième trimestre commence"
+      },
+      "36": {
+        "title": "Consultations hebdomadaires",
+        "description": "Votre professionnel de santé peut vouloir vous voir plus souvent."
+      },
+      "40": {
+        "description": "Votre date d'accouchement estimée.",
+        "title": "Date prévue"
+      }
+    },
+    "ui": {
+      "weekDay": "Semaine {{weeks}}, jour {{days}}",
+      "daysUntilDue": "{{count}} jour avant la date d'accouchement de {{name}}",
+      "daysUntilDue_other": "{{count}} jours avant la date d'accouchement de {{name}}",
+      "todayIsDue": "Aujourd'hui, c'est la date d'accouchement de {{name}}",
+      "daysPastDue": "{{count}} jour après la date d'accouchement",
+      "daysPastDue_other": "{{count}} jours après la date d'accouchement",
+      "timeline": "Chronologie",
+      "percentComplete": "{{percent}}% terminé",
+      "week0": "Semaine 0",
+      "week40": "Semaine 40",
+      "trimesterBar": {
+        "weekRange": "Sem. {{from}}–{{to}}",
+        "now": "Semaine {{weeks}}",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "Journal du jour",
+      "weekThisWeek": "Semaine {{week}} · Cette semaine",
+      "weekInDays": "Semaine {{week}} · Dans environ {{count}} jour",
+      "weekInDays_other": "Semaine {{week}} · Dans environ {{count}} jours",
+      "weekLabel": "Semaine {{week}}",
+      "weight": "Poids",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} coups",
+      "postpartumTitle": "Vous avez dépassé votre date d'accouchement",
+      "postpartumBody": "Votre date d'accouchement estimée est passée. Terminez la grossesse quand vous êtes prêt(e), ou mettez à jour la date si votre professionnel l'a ajustée.",
+      "dailyLog": "Journal quotidien",
+      "howFeeling": "Comment vous sentez-vous ?",
+      "howFeelingSubtitle": "Enregistrez ce que vous ressentez aujourd'hui. Cela vous aide à repérer des tendances au fil du temps.",
+      "babyKicks": "Coups de pied du bébé",
+      "notesPlaceholder": "Comment vous sentez-vous ? Des questions pour votre prochaine visite ?",
+      "setTimelineSubtitle": "Choisissez comment configurer votre calendrier de grossesse. Vous pouvez utiliser vos dernières règles ou une date prévue de votre professionnel.",
+      "lastPeriod": "Dernières règles",
+      "dueDate": "Date prévue",
+      "babyNickname": "Surnom du bébé",
+      "pickDate": "Choisir une date",
+      "estimatedDue": "Date prévue estimée",
+      "kicksLogged": "Coups enregistrés",
+      "comingUp": "À venir",
+      "milestonesTitle": "Étapes",
+      "journey": "Parcours",
+      "estimatedFromLmp": "Estimé à partir de vos dernières règles",
+      "estimatedFromProvider": "Basé sur la date prévue de votre professionnel",
+      "daily": "Quotidien",
+      "mood": "Humeur",
+      "noSymptomsToday": "Aucun symptôme enregistré aujourd'hui",
+      "notes": "Notes",
+      "babyPlaceholder": "Bébé",
+      "weightHint": "Facultatif. Entrez votre poids en kilogrammes.",
+      "endPregnancy": "Terminer la grossesse",
+      "endPregnancyTitle": "Terminer cette grossesse ?",
+      "endPregnancyConfirm": "Terminer la grossesse",
+      "postpartumEyebrow": "Date dépassée",
+      "pastPregnancies": "Grossesses passées",
+      "history": "Historique",
+      "pastPregnancySubtitle": "Dû {{due}} · Terminé {{ended}} · {{logs}} entrées",
+      "archivedLogsEmpty": "Aucun journal quotidien n'a été enregistré pour cette grossesse.",
+      "setTimeline": "Configurez votre chronologie",
+      "tapLmp": "Appuyez sur le premier jour de vos dernières règles.",
+      "tapDue": "Appuyez sur la date d'accouchement estimée de votre prestataire.",
+      "selectedDue": "Date d'accouchement sélectionnée",
+      "progress": "Progression de la grossesse",
+      "symptoms": "Symptômes",
+      "setupEyebrow": "Configuration",
+      "tapKickHint": "Appuyez sur + à chaque mouvement ressenti",
+      "logHistory": "Journaux récents",
+      "recent": "Récent",
+      "endPregnancyMessage": "Cela archive la chronologie et les journaux quotidiens, puis reprend Period Tracker si elle était en pause pour la grossesse. Vous pourrez configurer une nouvelle grossesse plus tard."
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} est cette semaine.",
+      "milestoneSoonBody": "{{title}} est dans environ {{count}} jour.",
+      "milestoneSoonBody_other": "{{title}} est dans environ {{count}} jours.",
+      "dueSoonTitle": "Date d'accouchement de {{name}} dans {{count}} jour",
+      "dueSoonTitle_other": "Date d'accouchement de {{name}} dans {{count}} jours",
+      "dueSoonBody": "La date d'accouchement estimée de {{name}} est dans {{count}} jour. Consultez votre chronologie de grossesse.",
+      "dueSoonBody_other": "La date d'accouchement estimée de {{name}} est dans {{count}} jours. Consultez votre chronologie de grossesse.",
+      "dueTodayTitle": "Aujourd'hui, c'est la date d'accouchement de {{name}}",
+      "dueTodayBody": "La date d'accouchement estimée de {{name}} est aujourd'hui.",
+      "pastDueTitle": "{{count}} jour après la date d'accouchement",
+      "pastDueTitle_other": "{{count}} jours après la date d'accouchement",
+      "pastDueBody": "La date d'accouchement estimée de {{name}} était il y a {{count}} jour. Mettez à jour votre chronologie ou terminez la grossesse quand vous êtes prêt(e).",
+      "pastDueBody_other": "La date d'accouchement estimée de {{name}} était il y a {{count}} jours. Mettez à jour votre chronologie ou terminez la grossesse quand vous êtes prêt(e).",
+      "milestoneSoonTitle": "À venir : Semaine {{week}}",
+      "dailyNudgeTitle": "Enregistrer ce que vous ressentez aujourd'hui",
+      "dailyNudgeBody": "Un bref journal d'humeur, de symptômes ou de coups de pied rend votre historique de grossesse utile.",
+      "ttDoseDueBody": "Au moins 4 semaines se sont écoulées depuis TT1. Demandez à votre clinique la prochaine dose de tétanos (TT).",
+      "ttDoseDueTitle": "TT2 peut être due"
+    },
+    "motherCare": {
+      "progress": "{{completed}} sur {{total}} doses enregistrées",
+      "logSubtitle": "{{completed}} sur {{total}} doses déjà enregistrées. Choisissez la date de cette injection.",
+      "completeBody": "Vous avez enregistré TT1 à TT5. Conservez la carte de votre clinique comme dossier officiel.",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "Il ne s'est écoulé que {{gap}} jours depuis la dose précédente (attendre environ {{days}} jours est habituel). Veuillez confirmer avec votre clinique.",
+        "checkTitle": "Veuillez vérifier ceci",
+        "confirmTitle": "Veuillez confirmer",
+        "cancel": "Annuler",
+        "requiredDate": "Veuillez choisir une date avant d'enregistrer.",
+        "ttFuture": "La date d'une dose de TT ne peut pas être dans le futur.",
+        "ttOutOfOrder": "Enregistrez les doses dans l'ordre. La prochaine attendue est {{next}} (vous avez essayé {{dose}}).",
+        "saveAnyway": "Enregistrer quand même",
+        "unusualCheck": "Cela semble inhabituel. Veuillez vérifier que vous l'avez saisi correctement.",
+        "ttBeforePrevious": "Cette date est antérieure à {{previous}} ({{previousDate}}). Veuillez confirmer qu'elle est correcte."
+      },
+      "eyebrow": "Soins maternels",
+      "nextDose": "Suivant : {{dose}}",
+      "notLogged": "Non enregistré",
+      "logNext": "Enregistrer la prochaine TT",
+      "logTt1": "Enregistrer TT1",
+      "logTitle": "Enregistrer {{dose}}",
+      "pickDate": "Date de dose",
+      "done": "Terminé",
+      "disclaimer": "Suivi éducatif uniquement — suivez le calendrier de votre clinique et les recommandations locales.",
+      "title": "Protection contre le tétanos (TT)",
+      "body": "Les doses TT vous protègent, vous et votre nouveau-né, contre le tétanos. Enregistrez les doses de votre carnet prénatal — c'est distinct du suivi hebdomadaire de grossesse.",
+      "complete": "TT1–TT5 enregistrés",
+      "archivedTitle": "Doses TT de cette grossesse",
+      "tapDate": "Appuyez sur le jour où vous avez reçu {{dose}}.",
+      "selectedDate": "Date sélectionnée",
+      "saveDose": "Enregistrer {{dose}}",
+      "completeTitle": "Calendrier TT terminé"
+    },
+    "trimester": {
+      "1": "Premier trimestre",
+      "2": "Deuxième trimestre",
+      "3": "Troisième trimestre"
+    },
+    "validation": {
+      "lmpFuture": "La date de vos dernières règles ne peut pas être dans le futur.",
+      "dueInPast": "Cette date d'accouchement est déjà passée de {{days}} jours. Veuillez confirmer que vous souhaitez toujours l'utiliser.",
+      "nicknameLong": "Ce surnom est assez long. Veuillez confirmer qu'il est correct.",
+      "overwriteTimeline": "Vous mettez à jour votre chronologie de grossesse. Les journaux quotidiens de cette grossesse seront conservés.",
+      "startNewAfterEnded": "Vous commencez une nouvelle grossesse après avoir terminé la précédente. Une nouvelle chronologie et un journal quotidien vide seront créés.",
+      "checkTitle": "Veuillez vérifier ceci",
+      "confirmTitle": "Veuillez confirmer",
+      "cancel": "Annuler",
+      "requiredDate": "Veuillez choisir une date avant d'enregistrer.",
+      "emptyLog": "Rien n'est rempli pour aujourd'hui. Enregistrer un journal vide quand même ?",
+      "setupBlockedPostpartum": "Terminez d'abord les soins post-partum maternels, puis vous pourrez configurer une nouvelle chronologie de grossesse.",
+      "birthFuture": "Une date de naissance ne peut pas être dans le futur.",
+      "saveAnyway": "Enregistrer quand même",
+      "unusualCheck": "Cela semble inhabituel. Veuillez vérifier que vous l'avez saisi correctement.",
+      "dueTooFar": "Cette date d'accouchement est trop loin dans le futur pour être réaliste. Veuillez vérifier la date.",
+      "pastTerm": "Cette date suggère que vous pourriez déjà être au-delà de {{weeks}} semaines de grossesse. Veuillez confirmer qu'elle est correcte.",
+      "willPausePeriod": "Enregistrer votre chronologie de grossesse mettra en pause les prévisions de Period Tracker. Votre historique de règles reste enregistré.",
+      "kicksHigh": "Ce nombre de coups ({{count}}) semble inhabituellement élevé pour une journée. Veuillez confirmer qu'il est correct.",
+      "notesLong": "Ces notes sont assez longues. Veuillez confirmer avant d'enregistrer.",
+      "weightUnusual": "Ce poids ({{value}} kg) est en dehors de la plage habituelle ({{min}}–{{max}} kg). Veuillez confirmer qu'il est correct.",
+      "birthBeforeLmp": "Cette date de naissance est antérieure à la date de vos dernières règles. Veuillez confirmer qu'elle est correcte."
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "{{count}} jours depuis la naissance",
+      "careTitle": "Votre rétablissement",
+      "careBody": "Cet espace est dédié à vos soins post-partum — repos, guérison et suivi avec votre clinique. Le suivi du bébé reste séparé.",
+      "pastDueHint": "Votre date d'accouchement est passée. Si vous avez accouché, appuyez sur J'ai accouché pour commencer les soins post-partum maternels. Si vous devez ranger cette grossesse discrètement, utilisez Fermer cette grossesse ci-dessous.",
+      "iveGivenBirth": "J'ai accouché",
+      "birthTitle": "Quand est né(e) le bébé ?",
+      "birthSubtitle": "Nous passerons aux soins post-partum maternels. Vos doses TT restent sur cet écran.",
+      "finishMessage": "Nous archiverons cette grossesse comme une naissance, effacerons la chronologie de grossesse et reprendrons Period Tracker si elle était en pause. Vos doses TT restent enregistrées.",
+      "closeMessage": "Nous rangerons la chronologie de grossesse. Les dossiers de soins maternels comme les doses TT restent enregistrés, et Period Tracker peut reprendre. Prenez le temps qu'il vous faut — vous n'êtes pas seul(e).",
+      "closedPregnancyTitle": "Grossesse",
+      "eyebrow": "Soins maternels",
+      "heroTitle": "Soins post-partum",
+      "heroSubtitle": "Concentrez-vous sur votre rétablissement. Votre dossier TT reste ici.",
+      "daysSinceBirth": "Jour {{count}} depuis la naissance",
+      "birthDateLabel": "Date de naissance",
+      "pickBirthDate": "Date de naissance",
+      "birthDisclaimer": "Suivi éducatif uniquement — suivez les conseils post-partum de votre clinique.",
+      "logMotherDay": "Enregistrer ce que vous ressentez",
+      "finishPostpartum": "Terminer les soins post-partum",
+      "finishTitle": "Terminer les soins post-partum ?",
+      "finishConfirm": "Terminer",
+      "closeLink": "Clore cette grossesse",
+      "closeTitle": "Clore cette grossesse ?",
+      "closeConfirm": "Clore la grossesse",
+      "pastBirthSubtitle": "Né(e) {{born}} · {{logs}} entrées",
+      "pastClosedSubtitle": "Clôturé {{ended}}",
+      "tapBirthDate": "Appuyez sur le jour de l'accouchement.",
+      "selectedBirthDate": "Date sélectionnée",
+      "startPostpartum": "Commencer les soins post-partum",
+      "notActive": "Configurez une chronologie de grossesse active avant d'enregistrer une naissance."
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Vos prochaines règles pourraient commencer aujourd'hui",
+      "thisWeek": "Cette semaine",
+      "daysCount": "{{count}} jours",
+      "daysSelected": "{{count}} jour sélectionné",
+      "daysSelected_other": "{{count}} jours sélectionnés",
+      "pausedCardTitle": "Suivi en pause",
+      "pauseWhilePregnantBody": "Vous pouvez mettre en pause les prévisions de cycle pendant votre grossesse. Votre historique reste enregistré.",
+      "backToTracker": "Retour",
+      "cycleSummary": "Résumé du cycle",
+      "averageCycle": "Cycle moyen",
+      "decreaseAverageCycle": "Diminuer la durée moyenne du cycle",
+      "increaseAverageCycle": "Augmenter la durée moyenne du cycle",
+      "periodLength": "Durée des règles",
+      "loggedDays": "Jours enregistrés",
+      "dayOfCycle": "Jour {{day}} de votre cycle",
+      "dayPill": "Jour {{day}}",
+      "daysUntilPeriod": "Environ {{count}} jour avant vos prochaines règles",
+      "daysUntilPeriod_other": "Environ {{count}} jours avant vos prochaines règles",
+      "calendar": "Calendrier",
+      "loggedPeriod": "Règles enregistrées",
+      "predicted": "Règles prévues",
+      "predictedWindow": "Prochaines règles prévues : {{range}}",
+      "fertile": "Fertile",
+      "ovulation": "Ovulation",
+      "pausedTitle": "Suivi des règles en pause",
+      "pausedSubtitle": "Les prévisions et l'enregistrement sont en pause.",
+      "pausedBecausePregnant": "En pause pendant votre grossesse. Votre historique enregistré reste ici.",
+      "pausedPill": "En pause",
+      "pausedCardBody": "Les prévisions de cycle et l'enregistrement des règles sont en pause. Reprenez à tout moment — ou continuez dans Suivi de grossesse.",
+      "pauseTracking": "Mettre en pause le suivi des règles",
+      "openPregnancyTracker": "Ouvrir Suivi de grossesse",
+      "resumeTracking": "Reprendre le suivi des règles",
+      "pauseWhilePregnantTitle": "Enceinte ?"
+    },
+    "validation": {
+      "clearMessage": "Cela supprime tous les jours de règles enregistrés sur cet appareil. Les prévisions seront réinitialisées jusqu'à votre prochain enregistrement.",
+      "periodVsCycle": "Cette durée de règles ({{periodDays}} jours) est aussi longue ou plus longue que votre cycle moyen ({{cycleDays}} jours). Veuillez confirmer.",
+      "checkTitle": "Veuillez vérifier ceci",
+      "confirmTitle": "Veuillez confirmer",
+      "cancel": "Annuler",
+      "saveAnyway": "Enregistrer quand même",
+      "clearTitle": "Effacer tous les jours enregistrés ?",
+      "clearConfirm": "Effacer",
+      "trackingPaused": "Le suivi des règles est en pause. Reprenez le suivi pour enregistrer des jours.",
+      "resumeWhilePregnant": "Suivi de grossesse a encore une chronologie active. Reprendre le suivi des règles quand même ?",
+      "unusualCheck": "Cela semble inhabituel. Veuillez vérifier que vous l'avez saisi correctement.",
+      "dayFuture": "Cette date est dans le futur. Veuillez confirmer que vous vouliez l'enregistrer à l'avance.",
+      "dayFarPast": "Cette date remonte à {{days}} jours. Veuillez confirmer qu'elle appartient à votre historique.",
+      "periodLong": "Cela rendrait cette période de {{days}} jours. Veuillez confirmer qu'elle est correcte."
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "Poids",
+      "blood_pressure": "Tension artérielle",
+      "blood_sugar": "Glycémie",
+      "heart_rate": "Fréquence cardiaque",
+      "body_temperature": "Température corporelle",
+      "height": "Taille",
+      "oxygen_saturation": "Saturation en oxygène",
+      "respiratory_rate": "Fréquence respiratoire"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "pi / po",
+      "breaths_min": "resp/min",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "À jeun",
+      "before_meal": "Avant le repas",
+      "two_hours_after_meal": "2 heures après le repas",
+      "random": "Aléatoire"
+    },
+    "ui": {
+      "vital": "Signe vital",
+      "unit": "Unité",
+      "reading": "Lecture",
+      "measurementType": "Quand a-t-on mesuré cela ?",
+      "notesPlaceholder": "p. ex. après la promenade du matin",
+      "latest": "Dernières mesures",
+      "noReading": "Aucune mesure pour l'instant",
+      "diastolic": "Diastolique",
+      "feet": "Pieds",
+      "inches": "Pouces",
+      "valuePlaceholder": "Saisir une valeur",
+      "bpHint": "Saisissez systolique / diastolique en mmHg",
+      "notesOptional": "Notes (facultatif)",
+      "setupSugarHint": "Les mesures de glycémie sont stockées en mg/dL et affichées dans votre unité préférée.",
+      "balance": "Instantané",
+      "recent": "Récent",
+      "emptyHint": "Commencez par la tension, le pouls ou le poids — ce que vous mesurez le plus.",
+      "systolic": "Systolique",
+      "setupIntro": "Définissez vos unités préférées une fois pour que l'enregistrement reste rapide et cohérent."
+    },
+    "validation": {
+      "useSuggestion": "Utiliser {{value}}",
+      "unusualConfirm": "Cette lecture est inhabituelle. Veuillez vérifier avant d'enregistrer.",
+      "bloodSugarUnusual": "Cette lecture est inhabituelle. Veuillez vérifier avant d'enregistrer.",
+      "oxygenLow": "Ce taux d'oxygène est plus bas que d'habitude. Veuillez confirmer la lecture ou mesurer à nouveau.",
+      "trendWeight": "Votre poids a changé significativement depuis votre dernière entrée ({{previous}} {{unit}}). Veuillez confirmer qu'il est correct.",
+      "trendBloodPressure": "Cette lecture est beaucoup plus haute ou plus basse que votre entrée précédente ({{previous}}). Veuillez confirmer avant d'enregistrer.",
+      "trendOxygen": "Cette lecture d'oxygène diffère de votre dernière entrée ({{previous}}%). Veuillez confirmer ou mesurer à nouveau.",
+      "trendGeneric": "Cette valeur diffère significativement de votre mesure précédente ({{previous}} {{unit}}). Veuillez confirmer qu'elle est correcte.",
+      "checkTitle": "Veuillez vérifier cette mesure",
+      "confirmTitle": "Veuillez confirmer",
+      "cancel": "Annuler",
+      "requiredReading": "Veuillez entrer une mesure avant d'enregistrer.",
+      "bpDiastolicOrder": "La pression diastolique doit être inférieure à la pression systolique.",
+      "bloodSugarContextRequired": "Choisissez quand cette glycémie a été mesurée (à jeun, avant repas, après repas ou aléatoire).",
+      "typoBloodSugar": "Vouliez-vous dire {{suggested}} ?",
+      "typoWeight": "Vouliez-vous dire {{suggested}} ?",
+      "typoTemperature": "Vouliez-vous dire {{suggested}}°C ?",
+      "saveAnyway": "Enregistrer quand même",
+      "unusualCheck": "Cette valeur semble inhabituelle. Veuillez vérifier que vous l'avez saisie correctement.",
+      "bpUnusual": "Cette lecture de tension artérielle est inhabituelle. Veuillez confirmer qu'elle est correcte."
+    }
+  }
 }

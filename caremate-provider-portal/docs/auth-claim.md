@@ -29,6 +29,8 @@ Returning staff sign in with email/password. Session is valid if the user has at
 | Payer only | `/payer/dashboard` |
 | Both (rare) | Cookie `care_active_kind` if set to `payer`, else provider |
 
+After sign-in, a server action reads `care_active_kind` (httpOnly) and membership tables, then sets the cookie to match the resolved destination.
+
 Active org cookies: `provider_active_org`, `payer_active_org`.
 
 Middleware protects `/app/*` with provider membership and `/payer/*` with payer membership.

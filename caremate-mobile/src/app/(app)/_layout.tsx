@@ -25,6 +25,7 @@ import {
 import { SyncStatusBanner } from '@/components/SyncStatusBanner';
 import { takePendingArticleShareId } from '@/domains/articles/share';
 import { takePendingEmergencyShareToken } from '@/domains/emergency/share';
+import { useTranslation } from '@/domains/localization';
 import { useAuthStore } from '@/features/auth/store';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { palette } from '@/theme';
@@ -51,6 +52,7 @@ const familyHeader = {
 } as const;
 
 export default function AppLayout() {
+  const { t } = useTranslation();
   const passwordRecoveryPending = useAuthStore((state) => state.passwordRecoveryPending);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isGuest = useIsGuest();
@@ -88,67 +90,67 @@ export default function AppLayout() {
           headerBackButtonDisplayMode: 'minimal',
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ title: 'Apps' }} />
-        <Stack.Screen name="search" options={{ headerShown: false, title: 'Search' }} />
+        <Stack.Screen name="(tabs)" options={{ title: t('nav.tabs') }} />
+        <Stack.Screen name="search" options={{ headerShown: false, title: t('nav.search') }} />
         <Stack.Screen
           name="timeline"
           options={glossyStackHeaderOptions({
-            title: 'Health timeline',
+            title: t('nav.timeline'),
             accent: '#4338CA',
             soft: '#EEF2FF',
             softEnd: '#F5F3FF',
             titleColor: '#4338CA',
             icon: CalendarClock,
-            backAccessibilityLabel: 'Back to Home',
+            backAccessibilityLabel: t('nav.backToHome'),
             backFallbackHref: '/(app)/(tabs)',
           })}
         />
         <Stack.Screen
           name="notifications/index"
           options={glossyStackHeaderOptions({
-            title: 'Notifications',
+            title: t('nav.notifications'),
             accent: '#4F46E5',
             soft: '#EEF2FF',
             softEnd: '#F5F3FF',
             titleColor: '#4338CA',
             icon: Bell,
-            backAccessibilityLabel: 'Back to Home',
+            backAccessibilityLabel: t('nav.backToHome'),
           })}
         />
         <Stack.Screen
           name="messages/index"
           options={glossyStackHeaderOptions({
-            title: 'Messages',
+            title: t('nav.messages'),
             accent: palette.primary,
             soft: palette.primaryLight,
             softEnd: '#F0FDFA',
             titleColor: palette.primaryDark,
             icon: MessageCircle,
-            backAccessibilityLabel: 'Back to Home',
+            backAccessibilityLabel: t('nav.backToHome'),
           })}
         />
         <Stack.Screen
           name="messages/new"
           options={glossyStackHeaderOptions({
-            title: 'New message',
+            title: t('nav.newMessage'),
             accent: palette.primary,
             soft: palette.primaryLight,
             softEnd: '#F0FDFA',
             titleColor: palette.primaryDark,
             icon: MessageCircle,
-            backAccessibilityLabel: 'Back to Messages',
+            backAccessibilityLabel: t('nav.backToMessages'),
           })}
         />
         <Stack.Screen
           name="messages/[id]"
           options={glossyStackHeaderOptions({
-            title: 'Conversation',
+            title: t('nav.conversation'),
             accent: palette.primary,
             soft: palette.primaryLight,
             softEnd: '#F0FDFA',
             titleColor: palette.primaryDark,
             icon: MessageCircle,
-            backAccessibilityLabel: 'Back to Messages',
+            backAccessibilityLabel: t('nav.backToMessages'),
           })}
         />
         <Stack.Screen name="setup/emergency" options={{ headerShown: false }} />
@@ -157,274 +159,280 @@ export default function AppLayout() {
         <Stack.Screen
           name="emergency/index"
           options={glossyStackHeaderOptions({
-            title: 'Emergency',
+            title: t('nav.emergency'),
             ...emergencyHeader,
             icon: ShieldPlus,
-            backAccessibilityLabel: 'Back to Profile',
+            backAccessibilityLabel: t('nav.backToProfile'),
           })}
         />
         <Stack.Screen
           name="emergency/edit"
           options={glossyStackHeaderOptions({
-            title: 'Edit profile',
+            title: t('nav.editProfile'),
             ...emergencyHeader,
             icon: UserRoundPen,
             modal: true,
-            backAccessibilityLabel: 'Close',
+            backAccessibilityLabel: t('nav.close'),
           })}
         />
         <Stack.Screen
           name="emergency/qr"
           options={glossyStackHeaderOptions({
-            title: 'Emergency QR',
+            title: t('nav.emergencyQr'),
             ...emergencyHeader,
             icon: QrCode,
             modal: true,
-            backAccessibilityLabel: 'Close',
+            backAccessibilityLabel: t('nav.close'),
           })}
         />
-        <Stack.Screen name="articles/[id]" options={learnArticleHeaderOptions('Article')} />
+        <Stack.Screen name="articles/[id]" options={learnArticleHeaderOptions(t('nav.article'))} />
         <Stack.Screen
           name="articles/category/[slug]"
-          options={learnArticleHeaderOptions('Category')}
+          options={learnArticleHeaderOptions(t('nav.category'))}
         />
-        <Stack.Screen name="articles/bookmarks" options={learnArticleHeaderOptions('Bookmarks')} />
-        <Stack.Screen name="articles/reading" options={learnArticleHeaderOptions('Reading')} />
+        <Stack.Screen
+          name="articles/bookmarks"
+          options={learnArticleHeaderOptions(t('nav.bookmarks'))}
+        />
+        <Stack.Screen
+          name="articles/reading"
+          options={learnArticleHeaderOptions(t('nav.reading'))}
+        />
         <Stack.Screen
           name="providers/[id]"
           options={glossyStackHeaderOptions({
-            title: 'Provider',
+            title: t('nav.provider'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: MapPinned,
-            backAccessibilityLabel: 'Back to Nearby',
+            backAccessibilityLabel: t('nav.backToNearby'),
             backFallbackHref: '/(app)/(tabs)/providers',
           })}
         />
         <Stack.Screen
           name="providers/map"
           options={glossyStackHeaderOptions({
-            title: 'Map',
+            title: t('nav.map'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: MapPinned,
-            backAccessibilityLabel: 'Back to Nearby',
+            backAccessibilityLabel: t('nav.backToNearby'),
             backFallbackHref: '/(app)/(tabs)/providers',
           })}
         />
         <Stack.Screen
           name="providers/favorites"
           options={glossyStackHeaderOptions({
-            title: 'Favorites',
+            title: t('nav.favorites'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: Heart,
-            backAccessibilityLabel: 'Back to Nearby',
+            backAccessibilityLabel: t('nav.backToNearby'),
             backFallbackHref: '/(app)/(tabs)/providers',
           })}
         />
         <Stack.Screen
           name="providers/connections/index"
           options={glossyStackHeaderOptions({
-            title: 'Connections',
+            title: t('nav.connections'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: Link2,
-            backAccessibilityLabel: 'Back to Me',
+            backAccessibilityLabel: t('nav.backToMe'),
             backFallbackHref: '/(app)/(tabs)/profile',
           })}
         />
         <Stack.Screen
           name="providers/connections/connected"
           options={glossyStackHeaderOptions({
-            title: 'Connected providers',
+            title: t('nav.connectedProviders'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: Link2,
-            backAccessibilityLabel: 'Back to Connections',
+            backAccessibilityLabel: t('nav.backToConnections'),
             backFallbackHref: '/(app)/providers/connections',
           })}
         />
         <Stack.Screen
           name="providers/connections/[connectionId]"
           options={glossyStackHeaderOptions({
-            title: 'Provider',
+            title: t('nav.provider'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: Link2,
-            backAccessibilityLabel: 'Back to connected providers',
+            backAccessibilityLabel: t('nav.backToConnectedProviders'),
             backFallbackHref: '/(app)/providers/connections/connected',
           })}
         />
         <Stack.Screen
           name="providers/connections/requests"
           options={glossyStackHeaderOptions({
-            title: 'Connection requests',
+            title: t('nav.connectionRequests'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: Link2,
-            backAccessibilityLabel: 'Back to Connections',
+            backAccessibilityLabel: t('nav.backToConnections'),
             backFallbackHref: '/(app)/providers/connections',
           })}
         />
         <Stack.Screen
           name="providers/connections/outbound"
           options={glossyStackHeaderOptions({
-            title: 'Sent requests',
+            title: t('nav.sentRequests'),
             accent: palette.brandBlue,
             soft: palette.brandBlueLight,
             softEnd: '#EFF6FF',
             titleColor: palette.brandBlue,
             icon: Link2,
-            backAccessibilityLabel: 'Back to Connections',
+            backAccessibilityLabel: t('nav.backToConnections'),
             backFallbackHref: '/(app)/providers/connections',
           })}
         />
         <Stack.Screen
           name="profile/edit"
           options={glossyStackHeaderOptions({
-            title: 'Edit profile',
+            title: t('nav.editProfile'),
             accent: palette.primary,
             soft: palette.primaryLight,
             softEnd: '#F0FDFA',
             titleColor: palette.primaryDark,
             icon: UserRoundPen,
-            backAccessibilityLabel: 'Back to Me',
+            backAccessibilityLabel: t('nav.backToMe'),
             backFallbackHref: '/(app)/(tabs)/profile',
           })}
         />
         <Stack.Screen
           name="profile/settings"
           options={glossyStackHeaderOptions({
-            title: 'Settings',
+            title: t('nav.settings'),
             accent: '#475569',
             soft: '#F1F5F9',
             softEnd: '#F8FAFC',
             titleColor: '#334155',
             icon: Settings,
-            backAccessibilityLabel: 'Back to Profile',
+            backAccessibilityLabel: t('nav.backToProfile'),
           })}
         />
         <Stack.Screen
           name="profile/documents"
           options={glossyStackHeaderOptions({
-            title: 'Documents',
+            title: t('nav.documents'),
             accent: palette.primary,
             soft: palette.primaryLight,
             softEnd: '#F0FDFA',
             titleColor: palette.primaryDark,
             icon: FileText,
-            backAccessibilityLabel: 'Back to Me',
+            backAccessibilityLabel: t('nav.backToMe'),
           })}
         />
         <Stack.Screen
           name="profile/insurance/index"
           options={glossyStackHeaderOptions({
-            title: 'Health Insurance',
+            title: t('nav.healthInsurance'),
             accent: '#4F46E5',
             soft: '#E0E7FF',
             softEnd: '#EEF2FF',
             titleColor: '#4F46E5',
             icon: Shield,
-            backAccessibilityLabel: 'Back to Me',
+            backAccessibilityLabel: t('nav.backToMe'),
           })}
         />
         <Stack.Screen
           name="profile/insurance/[id]"
           options={glossyStackHeaderOptions({
-            title: 'Insurance',
+            title: t('nav.insurance'),
             accent: '#4F46E5',
             soft: '#E0E7FF',
             softEnd: '#EEF2FF',
             titleColor: '#4F46E5',
             icon: Shield,
-            backAccessibilityLabel: 'Back to directory',
+            backAccessibilityLabel: t('nav.backToDirectory'),
           })}
         />
         <Stack.Screen
           name="profile/premium"
           options={glossyStackHeaderOptions({
-            title: 'Premium',
+            title: t('nav.premium'),
             ...premiumHeader,
             icon: Crown,
-            backAccessibilityLabel: 'Back to Profile',
+            backAccessibilityLabel: t('nav.backToProfile'),
           })}
         />
         <Stack.Screen
           name="family/index"
           options={glossyStackHeaderOptions({
-            title: 'Family',
+            title: t('nav.family'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back to Profile',
+            backAccessibilityLabel: t('nav.backToProfile'),
           })}
         />
         <Stack.Screen
           name="family/setup"
           options={glossyStackHeaderOptions({
-            title: 'Family setup',
+            title: t('nav.familySetup'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back',
+            backAccessibilityLabel: t('nav.back'),
           })}
         />
         <Stack.Screen
           name="family/kids-count"
           options={glossyStackHeaderOptions({
-            title: 'Kids',
+            title: t('nav.kids'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back',
+            backAccessibilityLabel: t('nav.back'),
           })}
         />
         <Stack.Screen
           name="family/child/[index]"
           options={glossyStackHeaderOptions({
-            title: 'Child profile',
+            title: t('nav.childProfile'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back',
+            backAccessibilityLabel: t('nav.back'),
           })}
         />
         <Stack.Screen
           name="family/child/edit/[id]"
           options={glossyStackHeaderOptions({
-            title: 'Edit child',
+            title: t('nav.editChild'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back to Family',
+            backAccessibilityLabel: t('nav.backToProfile'),
           })}
         />
         <Stack.Screen
           name="family/review"
           options={glossyStackHeaderOptions({
-            title: 'Review family',
+            title: t('nav.reviewFamily'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back',
+            backAccessibilityLabel: t('nav.back'),
           })}
         />
         <Stack.Screen
           name="family/requests"
           options={glossyStackHeaderOptions({
-            title: 'Requests',
+            title: t('nav.requests'),
             ...familyHeader,
             icon: Users,
-            backAccessibilityLabel: 'Back',
+            backAccessibilityLabel: t('nav.back'),
           })}
         />
 

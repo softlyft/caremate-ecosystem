@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 
 import type { EmergencyLockWidgetProps } from '@/widgets/emergency-lock-widget-types';
 import type { EmergencyContact, EmergencyProfile } from '@/types';
@@ -77,19 +76,8 @@ async function writeEmergencyLockSnapshot(snapshot: EmergencyLockSnapshot): Prom
   await AsyncStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot));
 }
 
-async function updateNativeWidget(snapshot: EmergencyLockSnapshot): Promise<void> {
-  if (Platform.OS !== 'android') {
-    return;
-  }
-
-  const { updatedAt: _updatedAt, ...props } = snapshot;
-
-  try {
-    const { updateAndroidEmergencyWidget } = await import('emergency-lock-widget');
-    await updateAndroidEmergencyWidget(props);
-  } catch {
-    // Native widget module only exists in a custom Android build.
-  }
+async function updateNativeWidget(_snapshot: EmergencyLockSnapshot): Promise<void> {
+  // Home/lock widgets retired — no native widget updates.
 }
 
 /**

@@ -24,5 +24,14 @@
   "signIn": "Wọlé",
   "signOut": "Jáde",
   "createAccount": "Ṣẹ̀dá àkọọ́lẹ̀",
-  "notifications": "Ìfitónilétí"
+  "notifications": "Ìfitónilétí",
+  "ok": "Ó DÁ BÉẸ̀",
+  "networkError": "Kò sí àsopọ̀ íntánẹ́tì. Ṣàyẹ̀wò àsopọ̀ rẹ kí o gbìyànjú lẹ́ẹ̀kan si.",
+  "emailDeliveryError": "A kò le fi ímeèlì ránṣẹ́ báyìí. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan si láìpẹ́.",
+  "loadFailed": "Kò le gbà áàbò yìí wọlé",
+  "loadFailedMessage": "Ṣàyẹ̀wò àsopọ̀ rẹ kí o gbìyànjú lẹ́ẹ̀kan si.",
+  "goBack": "Padà",
+  "clear": "Pa rẹ́",
+  "remove": "Yọ kúrò",
+  "messages": "Àwọn ìròyìn"
 }

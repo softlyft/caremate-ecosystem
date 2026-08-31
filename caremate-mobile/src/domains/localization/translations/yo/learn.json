@@ -11,7 +11,8 @@
   "empty": {
     "title": "A kò rí àpilẹ̀kọ kan",
     "categoryTitle": "Kò sí àpilẹ̀kọ {{category}}",
-    "message": "Gbìyànjú ìwárí mìíràn tàbí ẹ̀ka mìíràn."
+    "message": "Gbìyànjú ìwárí mìíràn tàbí ẹ̀ka mìíràn.",
+    "newsTitle": "Ko si iroyin bayi"
   },
   "bookmarksTitle": "Àwọn àmì-ìwé",
   "bookmarksEmpty": {
@@ -25,5 +26,32 @@
   "notFound": {
     "title": "A kò rí àpilẹ̀kọ náà",
     "message": "Ó ṣeé ṣe kí a ti yọ àpilẹ̀kọ yìí kúrò."
-  }
+  },
+  "reading": "Itan kika",
+  "readingShort": "Kika",
+  "readingBadge": "Kika",
+  "readBadge": "Ka",
+  "readingTab": "Kika",
+  "readTab": "Ka",
+  "loadingReading": "N gbe itan kika...",
+  "loadingArticle": "N gbe akọle...",
+  "loadingBookmarks": "N gbe awọn aami...",
+  "loadingCategory": "N gbe ẹka...",
+  "category": "Ẹka",
+  "categoryEmpty": "Ko si awọn akọle ninu ẹka yii",
+  "readingEmpty": {
+    "title": "Ko si nkan ti n lọ lọwọ",
+    "message": "Ṣii akọle kan lati bẹrẹ ṣiṣe akiyesi ohun ti o n ka."
+  },
+  "readEmpty": {
+    "title": "Ko si awọn akọle ti o pari sibẹ",
+    "message": "Samii awọn akọle bi ti a ti ka, tabi ṣe ayọ si opin nigbati o n ka."
+  },
+  "brand": "CareMate",
+  "minRead": "{{minutes}} iṣẹju kika",
+  "externalSource": "Orisun ti ita",
+  "careMateGuide": "Itọsọna CareMate",
+  "shareArticle": "Pin akọle",
+  "shareContinue": "Ka akọle kikun:",
+  "readFull": "Ka akọle kikun"
 }

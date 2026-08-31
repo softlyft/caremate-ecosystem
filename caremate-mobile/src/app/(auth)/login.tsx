@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
+import { useMemo } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
@@ -15,6 +16,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
@@ -27,18 +29,25 @@ import { isNetworkError, toUserFacingErrorMessage } from '@/lib/user-facing-erro
 import { useAppTheme } from '@/theme';
 import { spacing } from '@/theme/colors';
 
-const loginSchema = z.object({
-  email: z.email('Enter a valid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
+type LoginForm = {
+  email: string;
+  password: string;
+};
 
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { colors } = useAppTheme();
   const signIn = useAuthStore((state) => state.signIn);
   const isLoading = useAuthStore((state) => state.isLoading);
+
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z.email(t('auth.validation.emailInvalid')),
+        password: z.string().min(8, t('auth.validation.passwordMin')),
+      }),
+    [t],
+  );
 
   const { control, handleSubmit, formState } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -48,10 +57,7 @@ export default function LoginScreen() {
   async function onSubmit(values: LoginForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to continue with cloud auth. Local data features still work offline.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       const email = normalizeAccountEmail(values.email);
@@ -91,60 +97,62 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <AuthBrandHeader>
-        <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
-      </AuthBrandHeader>
-      <FormStack style={styles.form}>
-        <FormField error={formState.errors.email?.message}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                autoCapitalize="none"
-                keyboardType="email-address"
-                placeholder={t('auth.login.emailPlaceholder')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
+        <AuthBrandHeader>
+          <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <FormField error={formState.errors.email?.message}>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder={t('auth.login.emailPlaceholder')}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
+          <FormField error={formState.errors.password?.message}>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <PasswordInput
+                  placeholder={t('auth.login.passwordPlaceholder')}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
+          <TextLink href="/(auth)/forgot-password">{t('auth.login.forgot')}</TextLink>
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.login.submit')}
+            disabled={isLoading}
+            onPress={handleSubmit(onSubmit)}
           />
-        </FormField>
-        <FormField error={formState.errors.password?.message}>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <PasswordInput
-                placeholder={t('auth.login.passwordPlaceholder')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
+          <TextLink href="/(auth)/register">
+            {t('auth.login.noAccount')} {t('auth.login.register')}
+          </TextLink>
+          <Button
+            label={t('auth.login.continueGuest')}
+            variant="ghost"
+            onPress={() => {
+              void authService.setOnboardingComplete(true).then(() => {
+                router.replace('/(app)/(tabs)');
+              });
+            }}
           />
-        </FormField>
-        <TextLink href="/(auth)/forgot-password">{t('auth.login.forgot')}</TextLink>
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.login.submit')}
-          disabled={isLoading}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <TextLink href="/(auth)/register">
-          {t('auth.login.noAccount')} {t('auth.login.register')}
-        </TextLink>
-        <Button
-          label={t('auth.login.continueGuest')}
-          variant="ghost"
-          onPress={() => {
-            void authService.setOnboardingComplete(true).then(() => {
-              router.replace('/(app)/(tabs)');
-            });
-          }}
-        />
-      </FormStack>
+        </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }

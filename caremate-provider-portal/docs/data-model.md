@@ -22,8 +22,6 @@ Shared Supabase project. Provider portal tables are cloud-authoritative; the mob
 | `appointment_requests` | Appointment requests + portal-scheduled visits (`source`, `checked_in_at`) |
 | `provider_appointment_availability` | Weekly availability windows for portal scheduling |
 | `provider_org_modules` | Per-org module enable overrides (missing row = catalog default) |
-| `lab_test_definitions` | Org lab test catalog |
-| `lab_orders` / `lab_order_items` | Lab order workflow + results |
 | `payer_organizations` | Care network payer catalog (SoftLyft-seeded); claim contact `email` |
 | `payer_profiles` | Portal overlay for payers (`verification_status`, description, logo, …) |
 | `payer_org_members` | Payer staff membership (same roles as providers) |

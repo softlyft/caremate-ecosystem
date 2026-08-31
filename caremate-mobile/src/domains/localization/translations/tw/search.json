@@ -1,0 +1,23 @@
+{
+  "placeholder": "Hwehwɛ nsɛm, providers, nneɛma…",
+  "clearA11y": "Pepa hwehwɛ no",
+  "loading": "Ɛrehwehwɛ…",
+  "idle": {
+    "title": "Hwehwɛ CareMate",
+    "message": "Hwehwɛ nsɛm ahorow, providers a wɔn nyinaa hɔ, ne nneɛma a wɔde di dwuma wɔ ahɔden mu."
+  },
+  "empty": {
+    "title": "Nni biara",
+    "message": "Sɔ nsɛm foforo anaa hwɛ spelling no."
+  },
+  "sections": {
+    "articles": "Nsɛm",
+    "nearby": "Nkyɛn",
+    "tools": "Nneɛma"
+  },
+  "seeAllLearn": "Hwɛ nyinaa wɔ Sua mu",
+  "seeAllNearby": "Hwɛ nyinaa wɔ Nkyɛn mu",
+  "hintArticles": "Nsɛm",
+  "hintNearby": "Nkyɛn",
+  "hintTools": "Nneɛma"
+}

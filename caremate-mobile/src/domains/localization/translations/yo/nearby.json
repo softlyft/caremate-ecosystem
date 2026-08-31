@@ -13,7 +13,10 @@
     "title": "Tan ibùdó láti rí àwọn olùpèsè CareMate tòsí",
     "message": "A nílò ibùdó rẹ láti fi àwọn olùpèsè CareMate tòsí rẹ hàn. Tan ibùdó, tàbí wá olùpèsè nípasẹ̀ orúkọ lókè.",
     "action": "Tan ibùdó",
-    "enabling": "Ń tan…"
+    "enabling": "Ń tan…",
+    "openSettings": "Ṣii Eto",
+    "blockedTitle": "Iwọle si ibi ti di",
+    "blockedMessage": "CareMate ko le beere ibi lẹẹkansi lori ẹrọ yii. Ṣii Eto, tan Ibi fun CareMate, ki o pada si ibi."
   },
   "approximate": "Ń lo ibùdó tó fẹ́rẹ̀ẹ́",
   "outsideArea": "Ó wà níta agbègbè rẹ déédéé — èsì lè dínkù",
@@ -27,11 +30,52 @@
     "directions": "Ìtọ́sọ́nà",
     "supportedPayers": "Supported insurers",
     "supportedPayersHint": "Health insurance organizations connected with this provider on CareMate.",
-    "supportedPayersEmpty": "No connected insurers listed yet."
+    "supportedPayersEmpty": "No connected insurers listed yet.",
+    "provider": "Olupese",
+    "backToNearby": "Pada si Nearby",
+    "verified": "Ti jẹri",
+    "contact": "Olubasọrọ",
+    "address": "Adirẹsi",
+    "phone": "Foonu",
+    "email": "Imeeli",
+    "addressUnavailable": "Adirẹsi ko si",
+    "phoneUnavailable": "Foonu ko si",
+    "emailUnavailable": "Imeeli ko si",
+    "distanceKm": "{{distance}} km lọ",
+    "openInMaps": "Ṣii ni Maps",
+    "openInMapsHint": "Tẹ lati ṣii ninu app maapu rẹ",
+    "connect": "So pọ mọ olupese",
+    "connectHint": "Ṣẹda ibeere asopọ. Ti wọn ba gba, ifiranṣẹ aabo wa ni — o le mu un kuro nigbakugba. Data ajẹmọ ati data ilera miiran wa ni ikọkọ titi ti o pin wọn.",
+    "connectPending": "Ibeere asopọ ti nduro de",
+    "connectPendingOutbound": "Nduro de ifọwọsi olupese",
+    "connectPendingInbound": "Olupese yii fẹ so pọ",
+    "connectApproved": "Ti sopọ",
+    "connectRejected": "A kọ asopọ",
+    "connectUnavailable": "Asopọ ko si fun atokọ yii sibẹ",
+    "connectGuest": "Wọle lati so pọ mọ awọn olupese",
+    "connectSuccessTitle": "Ti fi ibeere ranṣẹ",
+    "connectSuccessMessage": "Olupese yoo ṣayẹwo ibeere asopọ rẹ. Ifiranṣẹ yoo wa ti wọn ba gba.",
+    "connectFailedTitle": "Ko le fi ibeere ranṣẹ",
+    "approveInbound": "Fọwọsi asopọ",
+    "declineInbound": "Kọ",
+    "approveSuccessTitle": "Ti sopọ",
+    "approveSuccessMessage": "O ti so pọ. Ifiranṣẹ aabo wa ni — ṣakoso rẹ labẹ Asopọ nigbakugba.",
+    "respondFailedTitle": "Ko le ṣe imudojuiwọn asopọ",
+    "connectRejectedFinal": "A kọ asopọ",
+    "cancelRequest": "Fagilee ibeere",
+    "cancelRequestHint": "Mu ibeere asopọ ti nduro de rẹ kuro.",
+    "cancelReasonLabel": "Idi fagilee",
+    "cancelReasonPlaceholder": "Sọ fun olupese idi ti o fi fagilee",
+    "confirmCancelRequest": "Jẹrisi fagilee",
+    "cancelSuccessTitle": "A fagilee ibeere",
+    "cancelSuccessMessage": "A yọ ibeere asopọ rẹ.",
+    "cancelFailedTitle": "Ko le fagilee ibeere"
   },
   "map": {
     "loading": "Ń ṣàkójọpọ̀ máàpù...",
-    "empty": "Kò sí ibùdó máàpù"
+    "empty": "Kò sí ibùdó máàpù",
+    "title": "Ni agbegbe",
+    "subtitle": "Ṣii olupese kan lati bẹrẹ itọsọna ninu app maapu ẹrọ rẹ."
   },
   "types": {
     "hospital": "Ilé-ìwòsàn",
@@ -59,7 +103,8 @@
   },
   "lastKnown": {
     "message": "Ibùdó ti pa. Ń fi àwọn olùpèsè CareMate hàn nítòsí ibi tí a mọ̀ kẹ́yìn.",
-    "action": "Tan"
+    "action": "Tan",
+    "openSettings": "Ṣii Eto"
   },
   "connections": {
     "title": "Connections",
@@ -101,6 +146,10 @@
       "messaging": {
         "title": "Secure messaging",
         "description": "Two-way messages between you and this provider organization."
+      },
+      "health_timeline": {
+        "title": "Akoko ilera",
+        "description": "Awọn iwe akọsilẹ kika nikan lati awọn app ilera rẹ fun akoko ọjọ ti o yan. Ko jẹ gbigbe faili jade. O le mu un kuro nigbakugba."
       }
     },
     "requestsTitle": "Provider connection requests",
@@ -109,6 +158,71 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
+    },
+    "timelineRangeLabel": "Akoko ọjọ",
+    "timelineRangeHint": "Olupese yii le wo awọn iwe akọsilẹ ti o ṣẹlẹ ni akoko yii nikan. Ko le danlọọd tabi gbe awọn iwe akọsilẹ rẹ jade.",
+    "timelinePreset": "Awọn ọjọ {{days}} to kọja",
+    "timelineCustom": "Aṣa",
+    "timelineFrom": "Lati (YYYY-MM-DD)",
+    "timelineTo": "Si (YYYY-MM-DD)",
+    "timelineWindow": "{{from}} si {{to}}",
+    "outboundTitle": "Awọn ibeere ti a fi ranṣẹ",
+    "outboundCount": "{{count}} nduro de olupese",
+    "outboundEmptySubtitle": "Ko si awọn ibeere ti a fi ranṣẹ ti nduro de",
+    "outboundScreenTitle": "Awọn ibeere asopọ ti a fi ranṣẹ",
+    "outboundScreenSubtitle": "Awọn ibeere ti o fi ranṣẹ si awọn olupese. O le fagilee nigbati wọn wa ni nduro de.",
+    "outboundEmpty": "O ko ni ibeere ti a fi ranṣẹ ti nduro de.",
+    "outboundPendingLabel": "Nduro de ifọwọsi",
+    "disconnect": "Ge asopọ",
+    "disconnectHint": "Parí asopọ yii. O le fi ibeere tuntun ranṣẹ ni ọjọ iwaju.",
+    "disconnectConfirmTitle": "Ge asopọ pẹlu olupese?",
+    "disconnectConfirmMessage": "Olupese yii ko ni wa so mọ akọọlẹ CareMate rẹ mọ.",
+    "disconnectConfirmAction": "Ge asopọ",
+    "disconnectReasonLabel": "Idi (aayan)",
+    "disconnectReasonPlaceholder": "Sọ fun olupese idi ti o fi ge asopọ",
+    "disconnectSuccessTitle": "Ti ge asopọ",
+    "disconnectSuccessMessage": "O ko ni wa so pọ mọ olupese yii mọ.",
+    "disconnectFailedTitle": "Ko le ge asopọ"
+  },
+  "loadFailed": {
+    "title": "Ko le koju awọn olupese",
+    "message": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju."
+  },
+  "favorites": {
+    "openA11y": "Wo awọn olupese ayanfẹ",
+    "loading": "N gbe awọn ayanfẹ...",
+    "emptyTitle": "Ko si ayanfẹ sibẹ",
+    "emptyMessage": "Fi olupese kan pamọ lati iboju alaye rẹ lati rii nibi ni ọjọ iwaju.",
+    "emptyAction": "Ṣawari ni agbegbe",
+    "loadFailed": {
+      "title": "Ko le koju awọn ayanfẹ",
+      "message": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju."
     }
+  },
+  "connectionRequests": {
+    "link": "Awọn ibeere asopọ",
+    "linkWithCount": "Awọn ibeere asopọ ({{count}})",
+    "title": "Awọn ibeere asopọ",
+    "subtitle": "Awọn olupese ti o fẹ so pọ mọ rẹ. Ifọwọsi mu ifiranṣẹ aabo ṣiṣẹ (o le mu un kuro lẹhinna). Data ajẹmọ ko pin titi ti o ba fun igbanilaaye naa.",
+    "loading": "N gba awọn ibeere...",
+    "empty": "Ko si awọn ibeere asopọ ti nduro de.",
+    "guest": "Wọle lati ṣakoso awọn ibeere asopọ olupese.",
+    "providerFallback": "Olupese",
+    "noteLabel": "Akọsilẹ lati olupese",
+    "approve": "Fọwọsi",
+    "decline": "Kọ",
+    "approvedTitle": "Ti sopọ",
+    "approvedMessage": "O ti so pọ. Ifiranṣẹ aabo wa ni — ṣakoso awọn igbanilaaye nigbakugba.",
+    "declinedTitle": "Ti kọ",
+    "declinedMessage": "O kọ ibeere asopọ yii.",
+    "failedTitle": "Ko le ṣe imudojuiwọn ibeere",
+    "failedMessage": "Jọwọ tun gbiyanju.",
+    "loadFailed": {
+      "title": "Ko le koju awọn ibeere",
+      "message": "Ṣayẹwo asopọ rẹ ki o tun gbiyanju."
+    },
+    "reasonLabel": "Idi kikọ",
+    "reasonPlaceholder": "Sọ fun olupese idi ti o fi kọ",
+    "confirmDecline": "Jẹrisi kikọ"
   }
 }

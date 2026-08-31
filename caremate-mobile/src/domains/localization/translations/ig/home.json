@@ -9,7 +9,8 @@
   "emergency": {
     "title": "Profaịlụ mberede",
     "body": "Debe ụdị ọbara, allergies, na kọntaktị ICE dị njikere na-enweghị ịntanetị.",
-    "cta": "Hazie"
+    "cta": "Hazie",
+    "ctaUpdate": "Melite"
   },
   "featuredArticles": {
     "title": "Maka gị",
@@ -25,7 +26,9 @@
     "locationNeeded": {
       "title": "Hụ ndị na-enye nlekọta CareMate dị gị nso",
       "body": "Gbanye ọnọdụ gị ka ị chọpụta ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị — ha niile n'ime CareMate.",
-      "cta": "Gbanye ọnọdụ"
+      "cta": "Gbanye ọnọdụ",
+      "blockedBody": "Enyere ohere ịnweta ebe mgbochi maka CareMate. Mepee Ntọala iji gbanye ya, wee laghachi ebe a.",
+      "openSettings": "Mepee Ntọala"
     }
   },
   "dailyTip": {
@@ -68,5 +71,45 @@
     "medical_equipment": "Equipment",
     "government_health": "Gov health",
     "ngo": "NGO"
+  },
+  "loadFailed": {
+    "title": "Enweghị ike ibunye Ụlọ",
+    "message": "Lelee njikọ gị ma nwaa ọzọ."
+  },
+  "timeline": {
+    "label": "Ndekọ gị",
+    "title": "Usoro oge ahụike",
+    "cta": "Lelee usoro oge",
+    "guestBody": "Banye iji lelee ndekọ sitere na ngwa ahụike gị na usoro oge otu.",
+    "emptyBody": "Ndekọ sitere na ndụ, ọgwụ, ime, ikpe, ọgwụ mgbochi, na nyocha ga-egosi ebe a.",
+    "loading": "Na-ebunye usoro oge...",
+    "loadFailedTitle": "Enweghị ike ibunye usoro oge",
+    "loadFailedMessage": "Lelee njikọ gị ma nwaa ọzọ.",
+    "screenSubtitle": "Ndekọ sitere na ngwa ahụike CareMate gị.",
+    "rangeFrom": "Site na",
+    "rangeTo": "Ru",
+    "rangeEmpty": "Enweghị ndekọ na ogbe oge a. Gbalịa ọbụbụla malite ma ọ bụ njedebe.",
+    "lastThreeMonths": "Ọnwa 3 gara aga",
+    "jumpToMonth": "Gaa na {{month}}",
+    "today": "Taa",
+    "yesterday": "Ụnyaahụ",
+    "kinds": {
+      "vital": "Akara ndụ",
+      "med_dose": "Oke",
+      "pregnancy_log": "Ime ime",
+      "tt_dose": "Oke TT",
+      "period_day": "Usoro",
+      "vaccine": "Ọgwụ mgbochi",
+      "checkup": "Nyocha"
+    }
+  },
+  "notifications": {
+    "loading": "Na-ebunye ọkwa…",
+    "loadFailed": "Enweghị ike ibunye ọkwa",
+    "emptyTitle": "Ị mechala ihe niile",
+    "emptyMessage": "Mmelite gbasara ezinụlọ, ihe ncheta, na ọrụ akaụntụ ga-egosi ebe a.",
+    "openHint": "Mepee ọkwa",
+    "welcomeTitle": "Nnọọ na CareMate",
+    "welcomeBody": "Nke a bụ ntuziaka ngwa ngwa:\n\n• Ụlọ — Kaadị gbalịa, Ndụmọdụ nso, Mụta, na ụzọ mkpirisi\n• Apps — Ọgwụ, ọgwụ mgbochi, nyocha, ime na usoro ikpe\n• Ezinaụlọ — Profailụ ezinụlọ na ndụmọdụ ụmụaka nkekọrịta\n• Profailụ — Patient ID, ntọala, na mmasị\n\nMgbe a na-anakọta mmelite niile ebe a. Chọgharịa n'ụzọ gị — CareMate na-arụ ọrụ offline."
   }
 }

@@ -14,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
@@ -76,10 +77,7 @@ export default function VerifyEmailScreen() {
   async function onSubmit(values: VerifyForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(
-          'Supabase not configured',
-          'Add your Supabase environment variables before verifying.',
-        );
+        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
@@ -132,68 +130,72 @@ export default function VerifyEmailScreen() {
 
   if (!email) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <SectionTitle title={t('auth.verify.title')} subtitle={t('auth.verify.missingEmail')} />
-        <TextLink href="/(auth)/register">{t('auth.verify.backToRegister')}</TextLink>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <Screen padded={false} style={styles.container}>
+          <SectionTitle title={t('auth.verify.title')} subtitle={t('auth.verify.missingEmail')} />
+          <TextLink href="/(auth)/register">{t('auth.verify.backToRegister')}</TextLink>
+        </Screen>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <AuthBrandHeader>
-        <SectionTitle
-          title={t('auth.verify.title')}
-          subtitle={t('auth.verify.subtitle', { email })}
-        />
-      </AuthBrandHeader>
-      <FormStack style={styles.form}>
-        <FormField error={formState.errors.code?.message}>
-          <Controller
-            control={control}
-            name="code"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="number-pad"
-                textContentType="oneTimeCode"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder={t('auth.verify.codePlaceholder')}
-                onBlur={onBlur}
-                onChangeText={(text) => {
-                  const digits = text.replace(/\D/g, '').slice(0, 6);
-                  onChange(digits);
-                  setValue('code', digits, { shouldValidate: true });
-                }}
-                value={value}
-              />
-            )}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <Screen padded={false} style={styles.container}>
+        <AuthBrandHeader>
+          <SectionTitle
+            title={t('auth.verify.title')}
+            subtitle={t('auth.verify.subtitle', { email })}
           />
-        </FormField>
+        </AuthBrandHeader>
+        <FormStack style={styles.form}>
+          <FormField error={formState.errors.code?.message}>
+            <Controller
+              control={control}
+              name="code"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  textContentType="oneTimeCode"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder={t('auth.verify.codePlaceholder')}
+                  onBlur={onBlur}
+                  onChangeText={(text) => {
+                    const digits = text.replace(/\D/g, '').slice(0, 6);
+                    onChange(digits);
+                    setValue('code', digits, { shouldValidate: true });
+                  }}
+                  value={value}
+                />
+              )}
+            />
+          </FormField>
 
-        <Button
-          label={isLoading ? t('common.loading') : t('auth.verify.submit')}
-          disabled={isLoading || !formState.isValid}
-          onPress={handleSubmit(onSubmit)}
-        />
+          <Button
+            label={isLoading ? t('common.loading') : t('auth.verify.submit')}
+            disabled={isLoading || !formState.isValid}
+            onPress={handleSubmit(onSubmit)}
+          />
 
-        <Button
-          label={
-            resendSeconds > 0
-              ? t('auth.verify.resendIn', { seconds: resendSeconds })
-              : isResending
-                ? t('common.loading')
-                : t('auth.verify.resend')
-          }
-          variant="secondary"
-          disabled={resendSeconds > 0 || isResending || isLoading}
-          onPress={() => void onResend()}
-        />
+          <Button
+            label={
+              resendSeconds > 0
+                ? t('auth.verify.resendIn', { seconds: resendSeconds })
+                : isResending
+                  ? t('common.loading')
+                  : t('auth.verify.resend')
+            }
+            variant="secondary"
+            disabled={resendSeconds > 0 || isResending || isLoading}
+            onPress={() => void onResend()}
+          />
 
-        <TextLink href="/(auth)/login">{t('auth.verify.backToSignIn')}</TextLink>
-      </FormStack>
+          <TextLink href="/(auth)/login">{t('auth.verify.backToSignIn')}</TextLink>
+        </FormStack>
+      </Screen>
     </SafeAreaView>
   );
 }

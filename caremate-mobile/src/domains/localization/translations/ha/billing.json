@@ -1,0 +1,13 @@
+{
+  "success": {
+    "title": "An karɓi biyan kuɗi",
+    "confirming": "Ana tabbatar da biyan kuɗin ku…",
+    "syncingPremium": "An karɓi biyan kuɗi. Ana daidaita Premium…",
+    "activated": "An kunna Premium. Ana buɗe shirin ku…",
+    "syncingStatus": "An karɓi biyan kuɗi. Ana daidaita matsayin Premium…"
+  },
+  "cancel": {
+    "title": "An soke biyan kuɗi",
+    "subtitle": "Komawa zuwa Premium…"
+  }
+}

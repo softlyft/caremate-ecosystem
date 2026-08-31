@@ -108,5 +108,11 @@
     "footnoteAndroid": "Use your Patient ID QR instead of home-screen widgets."
   },
   "widget": "Update lock-screen widget",
-  "preview": "Preview lock screen"
+  "preview": "Preview lock screen",
+  "setupWizard": {
+    "missingDetailsTitle": "Missing details",
+    "missingDetailsMessage": "Select blood group and genotype to continue.",
+    "iceContactTitle": "ICE contact",
+    "iceContactRequired": "Add name, phone, and relationship for your first emergency contact."
+  }
 }

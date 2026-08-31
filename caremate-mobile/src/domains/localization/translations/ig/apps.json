@@ -29,7 +29,7 @@
       "description": "Soro okirikiri, dekọọ ụbọchị nsọ, ma hụ amụma dị mfe."
     }
   },
-  "signInRequired": "Banye iji mekọrịta ngwaọrụ a n'ofe ngwaọrụ",
+  "signInRequired": "Banye iji mekọrịta ngwaọrụ a na ngwaọrụ",
   "save": "Chekwaa",
   "log": "Dekọọ ntinye",
   "setup": "Hazie",
@@ -164,7 +164,20 @@
       "refillDateOptional": "Ụbọchị nkeji ọzọ enweghị iwu — kpatụ ọzọ iji hichapụ",
       "historySubtitle": "Ọgwụ ndị na-adịbeghị anya ị dekọrọ",
       "historyEmpty": "Onweghị ọgwụ ma. Gosi aṅụrụla iji wuo akụkọ.",
-      "unknownMedicine": "Ọgwụ amaghị"
+      "unknownMedicine": "Ọgwụ amaghị",
+      "runsFromTo": "{{start}} – {{end}}",
+      "treatmentPeriod": "Oge ogwụgwọ",
+      "durationDays": "{{count}} ụbọchị",
+      "treatmentEndedTitle": "Ogwụgwọ agwụla",
+      "treatmentPeriodHint": "Họrọ ogologo oge ị ga-ewe ọgwụ a, ma ọ bụ hapụ ya ka na-aga n'ihu.",
+      "durationOngoing": "Na-aga n'ihu",
+      "durationCustom": "Ngụcha omenala",
+      "endDate": "Ụbọchị ngụcha",
+      "endBeforeStartTitle": "Ụbọchị ngụcha bụ n'oge na-adịghị anya",
+      "endBeforeStartMessage": "Họrọ ụbọchị ngwụcha na ma ọ bụ mgbe e bidoro.",
+      "clearRefillDate": "Hichapụ ụbọchị",
+      "startsOngoing": "Na-amalite {{date}} · na-aga n'ihu",
+      "treatmentEndedMessage": "Oge ogwụgwọ ahụ na-agwụ tupu taa. Họrọ ụbọchị njedebe n'ọdịnihu, oge ogologo, ma ọ bụ kaa ọgwụ ka ọ na-aga n'ihu."
     },
     "status": {
       "taken": "Aṅụrụla",
@@ -186,6 +199,38 @@
       "doseMissedBody": "{{name}} — {{slot}} furu efu. Mechie mgbe ị nwere ike.",
       "refillTitle": "Nkeji ọzọ n'oge na-adịghị anya: {{name}}",
       "refillBody": "{{name}} na-agwụ ma ọ bụ oge nkeji ọzọ eruola."
+    },
+    "validation": {
+      "undoTitle": "Weghachị dozi a?",
+      "undoMessage": "Nke a ga-akpọ dozi ka e wereghị ya. Ọ bụrụ na e belatala ngụkọta, a ga-eweghachi ya.",
+      "undoConfirm": "Weghachi",
+      "nameLong": "Aha ọgwụ a dị ogologo. Biko kwado na ọ ziri ezi.",
+      "instructionsOtherEmpty": "Ị họrọ ntuziaka \"Other\" mana ị hapụ nkọwa ghere oghe. Biko kwado tupu ịchekwa.",
+      "asNeededMany": "Ị edebanyela dozi {{count}} dị ka achọrọ maka ọgwụ a taa. Biko kwado tupu ịgbakwunye ọzọ.",
+      "checkTitle": "Biko nyochaa nke a",
+      "confirmTitle": "Biko kwado",
+      "cancel": "Kagbuo",
+      "requiredName": "Biko tinye aha ọgwụ tupu ịchekwa.",
+      "requiredDosage": "Biko tinye oke (dị ka 500mg) tupu ịchekwa.",
+      "requiredStart": "Biko họrọ ụbọchị mmalite tupu ịchekwa.",
+      "childRequired": "Họrọ nwa ọ bụla ọgwụ a bụ maka.",
+      "slotTimesInvalid": "Họrọ oge ziri ezi maka dozi ọ bụla site na clock picker.",
+      "slotTimesDuplicate": "Dozi ọ bụla chọrọ oge dị iche iche. Dozi abụọ enweghị ike ịnwe oge a ga aga.",
+      "saveAnyway": "Chekwa ka ọ dị",
+      "endBeforeStart": "Ụbọchị njedebe kwesịrị ịbụ n'ụbọchị mmalite ma ọ bụ mgbe e chara.",
+      "treatmentEnded": "Oge ogwụgwọ ahụ na-agwụ tupu taa. Họrọ ụbọchị njedebe n'ọdịnihu, oge ogologo, ma ọ bụ kaa ọgwụ ka ọ na-aga n'ihu.",
+      "quantityInvalid": "Ọnụọgụgụ fọdụrụ kwesịrị ịbụ nọmba zuru ezu (0 ma ọ bụ karịa), ma ọ bụ hapụ ya ghere oghe.",
+      "thresholdInvalid": "Oke ncheta ntụgharị kwesịrị ịbụ nọmba zuru ezu (0 ma ọ bụ karịa).",
+      "unusualCheck": "Nke a dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+      "dosageNoUnit": "Oke a dị ka nọmba naanị. Ị chọrọ tinye nkeji (mg, ml, tablet…)?",
+      "slotsTooClose": "Oge dozi ndị a dịkarịa ala awa 2 site na ibe. Biko kwado na ọ bụ n'ụzọ dị ume.",
+      "courseLong": "Ogwụgwọ a kariri otu afọ (ụbọchị {{days}}). Biko kwado na ọ ziri ezi.",
+      "refillBeforeStart": "Ụbọchị ntụgharị dị tupu ụbọchị mmalite ogwụgwọ. Biko kwado na ọ ziri ezi.",
+      "quantityHigh": "Ọnụọgụgụ ({{value}}) dị ka ọ dị elu. Biko kwado na ọ ziri ezi.",
+      "thresholdAboveQuantity": "Ncheta ntụgharị etinyere karịa ọnụọgụgụ fọdụrụ. Biko kwado na ọ bụ n'ụzọ dị ume.",
+      "logBeforeStart": "Ụbọchị a dị tupu ụbọchị mmalite ọgwụ. Biko kwado tupu ịchekwa.",
+      "logAfterEnd": "Ụbọchị a dị mgbe ogwụgwọ agwụla. Biko kwado tupu ịchekwa.",
+      "logFuture": "Ụbọchị a nọ n'ọdịnihu. Biko kwado na ị chọrọ ideba ya n'ihu."
     }
   },
   "edit": "Dezie",
@@ -201,5 +246,789 @@
   "saveChanges": "Chekwaa mgbanwe",
   "loading": "Na-ebugo…",
   "editProfile": "Dezie profaịlụ",
-  "signInRequiredTitle": "Ịbanye dị mkpa"
+  "signInRequiredTitle": "Achọrọ nbanye",
+  "vitalsTracker": {
+    "eyebrow": "Vitals",
+    "screenTitle": "Vitals",
+    "backToApps": "Laghachi na Apps",
+    "close": "Mechie",
+    "emptyTitle": "Vitals gị, n'oge otu",
+    "emptySubtitle": "Dekọ ngụọta n'ime sekọnd — dị ka ịlele balance gị.",
+    "titleWithData": "Vitals kacha ọhụrụ",
+    "subtitleWithData": "Ngwa ngwa imepe, dị mfe imelite",
+    "logVital": "Dekọ vital",
+    "logTitle": "Dekọ vital",
+    "logSubtitle": "Họrọ ịtụ, tinye uru, ma chekwaa.",
+    "saveLog": "Chekwaa ngụọta",
+    "setupTitle": "Họrọ ngalaba gị",
+    "setupSubtitle": "Họrọ ka ị na-achọpụta — ị nwere ike ịgbanwe mgbe emechaa.",
+    "setupCta": "Hazie ngalaba",
+    "setupSave": "Chekwaa mmasị",
+    "editUnits": "Dezie ngalaba"
+  },
+  "periodTracker": {
+    "eyebrow": "Taa",
+    "screenTitle": "Onye nsochịkọ Oge",
+    "logTitle": "Dekọ oge",
+    "backToApps": "Laghachi na Apps",
+    "close": "Mechie",
+    "emptyTitle": "Malite iso oge gị",
+    "emptySubtitle": "Dekọ oge gị ikpeazụ iji hụ amụma",
+    "logPeriodDays": "Dekọ ụbọchị oge",
+    "markPeriod": "Kaa oge gị",
+    "markPeriodSubtitle": "Kpatụ ụbọchị oge gị. Ị nwere ike ịhọrọ ụbọchị ọtụtụ na ọnwa."
+  },
+  "immunizationTracker": {
+    "eyebrow": "Ogwụ mgbochi",
+    "screenTitle": "Onye nsochịkọ Ogwụ Mgbochi",
+    "setupTitle": "Ụmụaka ezinụlọ",
+    "logTitle": "Dekọ ọgwụ mgbochi",
+    "backToApps": "Laghachi na Apps",
+    "close": "Mechie",
+    "loading": "Na-ebunye ụmọaka site na ezinụlọ…",
+    "loadingLog": "Na-ebunye ndekọ ọgwụ mgbochi…",
+    "emptyTitle": "Soro ogwụ mgbochi",
+    "signInSubtitle": "Nsochịkọ ogwụ mgbochi na-eji ụmọaka site na profailụ ezinụlọ CareMate gị.",
+    "needsFamilySubtitle": "Mepụta profailụ ezinụlọ gị ma tinye ụmụaka na ụbọchị ọmụmụ. Mgbe ahụ usoro ọgwụ mgbochi ga-egosi ebe a.",
+    "needsChildrenSubtitle": "Ezinụlọ gị enweghị ụmọaka nwere ụbọchị ọmụmụ ka. Tinye ụmọaka na Ezinaụlọ iji malite nsochịkọ ọgwụ mgbochi.",
+    "childrenFromFamilyTitle": "Ụmụaka na-abịa na Ezinaụlọ",
+    "childrenFromFamilySubtitle": "Ị enweghị ike itinye nwa ebe a. Hazie profailụ ezinụlọ gị ma tinye ụmọaka na ụbọchị ọmụmụ, laghachi na Onye nsochịkọ Ogwụ Mgbochi.",
+    "logVaccine": "Dekọ ọgwụ mgbochi",
+    "saveVaccine": "Chekwaa chanjo",
+    "updateRecord": "Melite ndekọ",
+    "noChildSelected": "Achọpụtaghị nwa",
+    "noChildSubtitle": "Tinye ụmụaka na profailụ Ezinaụlọ gị tupu ịdeba ọgwụ mgbochi."
+  },
+  "checkupPlanner": {
+    "eyebrow": "Onye nhazi nyocha ahụike",
+    "screenTitle": "Onye nhazi nyocha ahụike",
+    "setupTitle": "Hazie Onye nhazi",
+    "logTitle": "Dekọ nyocha ahụike",
+    "backToApps": "Laghachi na Apps",
+    "close": "Mechie",
+    "emptyTitle": "Hazie nyocha ahụike gị",
+    "emptySubtitle": "Tinye ụbọchị ọmụmụ, okike, na mpaghara optional gị iji hụ nyocha a kwadoro",
+    "setUpPlanner": "Hazie onye nhazi",
+    "editProfile": "Dezie profailụ",
+    "setupSave": "Chekwaa ma lelee atụmatụ",
+    "setupSaveEdit": "Chekwaa mgbanwe",
+    "needSetup": "Hazie profailụ nyocha gị mbụ."
+  },
+  "pregnancyTracker": {
+    "eyebrow": "Ime ime",
+    "emptyTitle": "Soro njem ime ime gị",
+    "emptySubtitle": "Hazie ụbọchị a mụrụ gị ma ọ bụ oge gị ikpeazụ iji malite",
+    "setUp": "Hazie ime ime",
+    "updateDueDate": "Melite ụbọchị a mụrụ",
+    "logToday": "Dekọ taa",
+    "setupSave": "Chekwaa",
+    "saveLog": "Chekwaa ndekọ",
+    "screenTitle": "Onye nsochịkọ Ime ime",
+    "setupTitle": "Hazie Ime ime",
+    "logTitle": "Ndekọ kwa ụbọchị",
+    "ttTitle": "Dekọ dozi TT",
+    "birthTitle": "Amụrụ m nwa",
+    "backToApps": "Laghachi na Apps",
+    "close": "Mechie"
+  },
+  "reorderHint": "Jide kaadị, wee dọkpụ ka ị hazie. Usoro nọ na ngwaọrụ a.",
+  "reorderHintA11y": "Kpatụ ugboro abụọ ma jide, wee dọkpụ ka ị hazie",
+  "checkup": {
+    "cadence": {
+      "annual": "Kwa afọ",
+      "once": "Otu oge (mgbe o kwesịrị)",
+      "every-2-years": "Kwa afọ 2",
+      "every-3-years": "Kwa afọ 3",
+      "every-5-years": "Kwa afọ 5"
+    },
+    "gender": {
+      "female": "Nwanyị",
+      "male": "Nwoke",
+      "other": "Ọzọ / achọghị ikwu"
+    },
+    "catalog": {
+      "general-checkup": {
+        "description": "Nleta afọ na onye na-elekọta ahụike maka nyocha ahụike zuru oke.",
+        "name": "Nyocha ahụike zuru oke"
+      },
+      "dental-checkup": {
+        "name": "Nyocha eze",
+        "description": "Ihicha na nyocha ọnụ iji chọpụta ụdị na ọrịa igba n'oge."
+      },
+      "eye-exam": {
+        "name": "Nyocha anya / nle anya",
+        "description": "Lelee anya na ahụike anya; ọtụtụ mgbe ma ọ bụrụ na ị na-eyi igwe anya ma ọ bụ nwere diabetes."
+      },
+      "blood-pressure": {
+        "name": "Nyocha ogologo ọbara",
+        "description": "Nyochaa mgbapụta ọbara — ihe ịtụnanya na-enweghị ụda maka ọrịa obi na stroke."
+      },
+      "blood-sugar": {
+        "name": "Nyocha shuga ọbara / diabetes",
+        "description": "Glucose agụụ ma ọ bụ HbA1c, kachasị na ndụmọdụ ezinụlọ ma ọ bụ ibu karịa."
+      },
+      "cholesterol": {
+        "name": "Cholesterol / lipid panel",
+        "description": "Nnyocha ọbara maka ihe ịma aka nke obi. Kparịta ụka na onye na-elekọta gị."
+      },
+      "weight-bmi": {
+        "name": "Nyocha ịdị arọ na BMI",
+        "description": "Sọrịa usoro ịdị arọ dị mma dị ka akụkụ nke nyocha afọ gị."
+      },
+      "flu-vaccine": {
+        "description": "Ogwụ mgbochi mmiri ozuzo kwa afọ ebe ọ dị na a kwadoro.",
+        "name": "Ogwụ mgbochi mmiri ozuzo oge"
+      },
+      "cervical-screening": {
+        "name": "Nyocha cervix (Pap / HPV)",
+        "description": "Nyochaa ọrịa cervical. Soro ntuziaka mpaghara maka ogologo oge."
+      },
+      "mammogram": {
+        "name": "Mammogram",
+        "description": "Nyocha kansa ara. Afọ mmalite dị iche iche dabere na ntuziaka na ihe ịma aka."
+      },
+      "prostate-discussion": {
+        "name": "Mkparịta ụka maka ahụike prostate",
+        "description": "Gwa onye na-elekọta ahụike maka nyocha PSA na mgbaàmà prostate."
+      },
+      "prostate-earlier": {
+        "name": "Mkparịta ụka maka prostate n'oge",
+        "description": "Tụgharịa ịkparịta ụka maka nyocha n'oge na-adịbeghị anya ma ọ bụrụ na ị bụ nke Africa ma ọ bụ nwere akụkọ ezinụlọ."
+      },
+      "colorectal-screening": {
+        "name": "Nyocha kansa colorectal",
+        "description": "Nnwale ọbara ma ọ bụ colonoscopy site na etiti ogologo ndụ — jụọ kedu nhọrọ dabara gị."
+      },
+      "skin-check": {
+        "name": "Nyocha anụ akụkụ",
+        "description": "Nyochaa mole na mgbanwe anụ akụkụ na onye na-elekọta ahụike."
+      },
+      "hearing-check": {
+        "name": "Nyocha ntị",
+        "description": "Nyochaa mfu nke ntị metụtara afọ."
+      },
+      "bone-density-women": {
+        "name": "Ogo egwuregwu (DEXA)",
+        "description": "Nyochaa ihe ịtụnanya osteoporosis mgbe menopause / ogologo ndụ gasịrị."
+      },
+      "bone-density-men": {
+        "name": "Ogo egwuregwu (DEXA)",
+        "description": "Nyochaa ihe ịtụnanya osteoporosis na ogologo ndụ gasịrị."
+      },
+      "tetanus-booster": {
+        "description": "Kwado na booster tetanus (na yana jikọ) dị ka ọ dị ugbu a — ọtụtụ mgbe kwa afọ 10.",
+        "name": "Nyocha booster tetanus"
+      }
+    },
+    "status": {
+      "upcoming": "Na-abịa",
+      "completed": "Emechara",
+      "due": "Kwesịrị",
+      "overdue": "Gafere"
+    },
+    "ui": {
+      "actionableOne": "{{count}} nyocha maka {{year}}",
+      "actionableMany": "{{count}} nyocha maka {{year}}",
+      "onTrack": "Nyocha {{year}} na-aga nke ọma",
+      "yearPlan": "Atụmatụ gị {{year}}",
+      "thisYear": "Afọ a ({{year}})",
+      "ofTotal": "{{completed}} n'ime {{total}}",
+      "checklist": "Ndepụta nlele {{year}}",
+      "clearConfirmMessage": "Profailụ gị na akụkọ ihe imecha ga-ewepụ na ngwaọrụ a.",
+      "regionHint": "E jiri ya maka ọtụtụ ndụmọdụ maka obodo. Hapụ Global ma ọ bụrụ na ị maghị.",
+      "regionSelectPlaceholder": "Họrọ obodo",
+      "dob": "Ụbọchị ọmụmụ",
+      "genderLabel": "Okike",
+      "updateLog": "Melite ndekọ",
+      "setupIntro": "Anyị na-eji ụbọchị ọmụmụ gị, okike, na mpaghara iji kwado nyocha ndị a na-ahụkarị. Mpaghara bụ nhọrọ na ọ dị International.",
+      "ageLine": "Afọ {{age}} · {{gender}} · {{region}}",
+      "nextYear": "Afọ na-abịa ({{year}})",
+      "done": "Emechara",
+      "guidance": "Na ndụmọdụ nụ — gwa onye na-elekọta ahụike maka ndụmọdụ onwe gị.",
+      "emptyYear": "Enweghị nyocha edepụtara maka afọ a na profaịlụ gị ugbu a.",
+      "doneDate": "Emechara {{date}}",
+      "clearData": "Hichapụ data onye nhazi",
+      "clearConfirmTitle": "Hichapụ onye nhazi nyocha?",
+      "regionOptional": "Obodo (nhọrọ)",
+      "regionSearchEmpty": "Enweghị obodo dabara na ọchụchọ ahụ.",
+      "globalOption": "Global ({{code}})",
+      "notesPlaceholder": "Aha ụlọ ahụike, nsonaazụ a ga-eso…",
+      "markDone": "Kaa ka emechara maka {{year}}",
+      "dobLabel": "Ụbọchị ọmụmụ: {{date}}",
+      "logIntro": "Dekọ na ị mechara nyocha a maka {{year}}. Ị nwere ike weghachi mgbe emechaa site na ihuenyo a.",
+      "dateCompleted": "Ụbọchị e mechara",
+      "completedLabel": "Emechara: {{date}}",
+      "notesOptional": "Ihe edeturu (nhọrọ)",
+      "globalShort": "Global",
+      "tapToLog": "Kpatu iji dekọ",
+      "regionSearchPlaceholder": "Chọọ mba",
+      "removeLog": "Wepụ ndekọ a",
+      "tapDob": "Kpatu ụbọchị ọmụmụ gị.",
+      "notFound": "Enyochaa ahụ achọtaghị.",
+      "removeCompletion": "Wepụ mmecha"
+    },
+    "validation": {
+      "undoConfirm": "Wepụ",
+      "completedYearMismatch": "Ị debanyere {{completedYear}}, mana ihe a bụ maka atụmatụ {{planYear}}. Biko kwado na ọ bụ n'ụzọ dị ume.",
+      "onceAlreadyLogged": "Enyocha otu oge a edebanyela maka {{year}}. Biko kwado na ị chọrọ ideba ya ọzọ.",
+      "checkTitle": "Biko nyochaa nke a",
+      "confirmTitle": "Biko kwado",
+      "cancel": "Kagbuo",
+      "requiredGender": "Biko họrọ nhọrọ okike tupu ịchekwa.",
+      "requiredDob": "Biko họrọ ụbọchị ọmụmụ gị tupu ịchekwa.",
+      "dobFuture": "Ụbọchị ọmụmụ enweghị ike ịbụ n'ọdịnihu.",
+      "ageYoung": "Na afọ {{age}}, obere nyocha ndị okenye ga-apụta. Biko kwado na ụbọchị ọmụmụ a ziri ezi.",
+      "completedFuture": "Enweghị ike ịmarka nyocha dị ka emechara na ụbọchị n'ọdịnihu. Họrọ taa ma ọ bụ ụbọchị gara aga.",
+      "saveAnyway": "Chekwa ka ọ dị",
+      "undoTitle": "Wepụ mmecha a?",
+      "undoMessage": "Nyocha a ga-egosi ka e meghị ya maka afọ ahụ ọzọ.",
+      "invalidCheckup": "Enyochaa ahụ achọtaghị. Laa azụ ma gbalịa ọzọ.",
+      "invalidYear": "Afọ atụmatụ ahụ dị ka ihe na-adịghị mma. Biko mepee nyocha ahụ site na ndepụta nlele afọ gị.",
+      "unusualCheck": "Nke a dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+      "completedBeforeDob": "Ụbọchị mmalite enweghị ike ịbụ tupu ụbọchị ọmụmụ gị.",
+      "ageHigh": "Ụbọchị ọmụmụ a ga-eme ka ị bụrụ {{age}}. Biko kwado na ọ ziri ezi.",
+      "notesLong": "Ihe ndekọ a dị ogologo. Biko kwado tupu ịchekwa."
+    }
+  },
+  "immunization": {
+    "schedule": {
+      "bcg": {
+        "name": "BCG",
+        "doseLabel": "Dozi ọmụmụ",
+        "description": "Na-eche mgbochi ụdị tuberculosis siri ike."
+      },
+      "hep-b-birth": {
+        "name": "Hepatitis B",
+        "doseLabel": "Dozi ọmụmụ",
+        "description": "E nyere dozi mbụ na ọmụmụ ma ọ bụ n'ime awa 24."
+      },
+      "opv-0": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 0",
+        "description": "Dozi ọmụmụ nke mgbochi OPV."
+      },
+      "penta-1": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozi 1",
+        "description": "Na-edekọ diphtheria, tetanus, pertussis, hepatitis B, na Hib."
+      },
+      "opv-1": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 1",
+        "description": "Dozi polio mbụ na-ahụkarị."
+      },
+      "pcv-1": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozi 1",
+        "description": "Na-eche mgbochi ọrịa pneumococcal."
+      },
+      "rota-1": {
+        "doseLabel": "Dozi 1",
+        "name": "Rotavirus",
+        "description": "Na-eche mgbochi mmiri ara siri ike site na rotavirus."
+      },
+      "penta-2": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi pentavalent nke abụọ."
+      },
+      "opv-2": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi polio nke abụọ na-ahụkarị."
+      },
+      "pcv-2": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi pneumococcal nke abụọ."
+      },
+      "rota-2": {
+        "doseLabel": "Dozi 2",
+        "name": "Rotavirus",
+        "description": "Dozi rotavirus nke abụọ."
+      },
+      "penta-3": {
+        "name": "Pentavalent",
+        "doseLabel": "Dozi 3",
+        "description": "Dozi pentavalent nke atọ."
+      },
+      "opv-3": {
+        "name": "Polio (OPV)",
+        "doseLabel": "Dozi 3",
+        "description": "Dozi polio kwa ụbọchị nke atọ."
+      },
+      "pcv-3": {
+        "name": "Pneumococcal (PCV)",
+        "doseLabel": "Dozi 3",
+        "description": "Dozi pneumococcal nke atọ."
+      },
+      "ipv": {
+        "name": "Polio (IPV)",
+        "doseLabel": "Booster",
+        "description": "Booster polio a kwụsịrị gburugburu ọnwa 6."
+      },
+      "measles-1": {
+        "name": "Measles / MR",
+        "doseLabel": "Dozi 1",
+        "description": "Dozi measles-rubella mbụ gburugburu ọnwa 9."
+      },
+      "yellow-fever": {
+        "name": "Yellow Fever",
+        "doseLabel": "Dozi otu",
+        "description": "A kwadoro na mpaghara endemic site na ọnwa 9."
+      },
+      "measles-2": {
+        "name": "Measles / MR",
+        "doseLabel": "Dozi 2",
+        "description": "Dozi measles-rubella nke abụọ gburugburu ọnwa 15."
+      },
+      "vitamin-a": {
+        "name": "Vitamin A",
+        "doseLabel": "Mgbakwunye",
+        "description": "Mgbakwunye vitamin A na-ahụkarị site na ọnwa 15."
+      }
+    },
+    "ui": {
+      "dob": "Ụbọchị ọmụmụ",
+      "scheduleTitle": "Usoro oge ọgwụ mgbochi",
+      "timeline": "Usoro oge",
+      "vaccineRecord": "Ndekọ ọgwụ mgbochi",
+      "whereToGo": "Ebe ị ga-aga",
+      "overdueVisit": "{{count}} ọgwụ mgbochi gafere — hazie nleta",
+      "overdueVisit_other": "{{count}} ọgwụ mgbochi gafere — hazie nleta",
+      "vaccinesCompleted": "{{completed}} n'ime {{total}} ọgwụ mgbochi emechara",
+      "children": "Ụmụaka",
+      "family": "Ezinụlọ",
+      "percentComplete": "{{percent}}% emechara",
+      "daysOverdue": "{{count}} ụbọchị gafere",
+      "daysOverdue_other": "{{count}} ụbọchị gafere",
+      "vaccineRecordTitle": "Ndekọ ọgwụ mgbochi",
+      "noChildSelected": "Achọpụtaghị nwa",
+      "vaccine": "Ọgwụ mgbochi",
+      "selectedDate": "A họrọla: {{date}}",
+      "nextDue": "Ọzọ: {{name}} ({{dose}})",
+      "allUpToDate": "A gosiri ọgwụ mgbochi niile emechara",
+      "attention": "Achọrọ ntinye aka",
+      "alreadyLogged": "E debanyela",
+      "administeredDate": "Ụbọchị e nyere",
+      "optional": "Nhọrọ",
+      "notesPlaceholder": "Nọmba batch, mmeghachi omume, na ndị ọzọ.",
+      "nextSteps": "Usoro na-abịa",
+      "childrenFromFamilyCaption": "Ụmọaka bị site na profailụ Ezinaụlọ gị.",
+      "details": "Nkọwa",
+      "age": "Afọ",
+      "nextUp": "Na-abịa",
+      "dueToday": "Kwesịrị taa",
+      "dueInDays": "Ga-abịa n'ụbọchị {{count}}",
+      "dueInDays_other": "Ga-abịa n'ụbọchị {{count}}",
+      "givenOn": "E nyere na {{date}}",
+      "dueOn": "Kwesịrị {{date}}",
+      "logIntro": "Dekọ mgbe e nyere ọgwụ mgbochi a. Ị nwere ike melite ma ọ bụ wepụ ndekọ mgbe emechaa.",
+      "alreadyLoggedPill": "E debanyela",
+      "completedOn": "Emechara: {{date}}",
+      "notes": "Ihe edeturu",
+      "familySetupExplainer": "Nhazi ezinụlọ na-anakọta ụbọchị ọmụmụ nke ọ bụla — nke a na-akwado usoro oge ọgwụ mgbochi.",
+      "selectChild": "Họrọ nwa iji hụ usoro oge ọgwụ mgbochi a kwadoro",
+      "providerOptional": "Onye na-enye / clinic",
+      "removeRecord": "Wepụ ndekọ",
+      "profile": "Profailụ",
+      "recommendedBy": "A kwadoro site na {{date}}",
+      "select": "Họrọ",
+      "tapAdministeredDate": "Kpatu ụbọchị e nyere ọgwụ mgbochi a"
+    },
+    "status": {
+      "upcoming": "Na-abịa",
+      "completed": "Emechara",
+      "overdue": "Gafere",
+      "due-soon": "Na-abịa n'oge na-adịghị anya"
+    },
+    "validation": {
+      "undoConfirm": "Wepụ",
+      "checkTitle": "Biko nyochaa nke a",
+      "confirmTitle": "Biko kwado",
+      "cancel": "Kagbuo",
+      "requiredProfile": "Họrọ nwa nwere ụbọchị ọmụmụ tupu ideba ọgwụ mgbochi.",
+      "requiredAdministeredDate": "Biko họrọ ụbọchị e nyere ọgwụ mgbochi a.",
+      "administeredFuture": "Enweghị ike ideba dozi e mechara na ụbọchị n'ọdịnihu. Họrọ taa ma ọ bụ ụbọchị gara aga.",
+      "seriesOutOfOrder": "Enwebeghị ka e debanye dozi gara aga na usoro a ({{missing}}). Biko kwado tupu ịchekwa.",
+      "saveAnyway": "Chekwa ka ọ dị",
+      "undoTitle": "Wepụ ndekọ ọgwụ mgbochi a?",
+      "undoMessage": "Dozi a ga-egosi ka e nyere ya na usoro oge ọzọ.",
+      "invalidVaccine": "Ahụghị ọgwụ mgbochi ahụ. Laa azụ ma nwaa ọzọ.",
+      "unusualCheck": "Nke a dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+      "administeredBeforeDob": "Ụbọchị e nyere enweghị ike ịbụ tupu ụbọchị ọmụmụ nwa ahụ.",
+      "veryEarly": "Ụbọchị a bụ ụbọchị {{days}} tupu ụbọchị a kwadoro ({{recommended}}). Biko kwado na ọ ziri ezi.",
+      "farFromRecommended": "Ụbọchị a dị ụbọchị {{days}} site na ụbọchị a kwadoro ({{recommended}}). Biko kwado na ọ ziri ezi.",
+      "providerLong": "Aha onye na-elekọta dị ogologo. Biko kwado tupu ịchekwa.",
+      "notesLong": "Ihe ndekọ a dị ogologo. Biko kwado tupu ịchekwa."
+    }
+  },
+  "pregnancy": {
+    "moods": {
+      "Tired": "Na arụ ọrụ",
+      "Unwell": "Adịghị mma",
+      "Happy": "Obi ụtọ",
+      "Calm": "Obi udo",
+      "Anxious": "Na-eche echiche",
+      "Excited": "Obi ụtọ"
+    },
+    "symptoms": {
+      "Nausea": "Mgbu afọ",
+      "Fatigue": "Ị na-arụ ọrụ",
+      "Back pain": "Mgbu azụ",
+      "Cramping": "Mgbu",
+      "Heartburn": "Inụ inụ",
+      "Headache": "Isi owuwa",
+      "Insomnia": "Enweghị ịra ụra",
+      "Food cravings": "Mmasị nri",
+      "Swelling": "Mgbu"
+    },
+    "milestones": {
+      "8": {
+        "title": "Nleta mbụ tupu ime ime",
+        "description": "Hazie nyocha mbụ gị na onye na-enye."
+      },
+      "12": {
+        "title": "Ngụcha trimester mbụ",
+        "description": "Ihe ịtụnanya imebi ime na-ewetụ obere."
+      },
+      "20": {
+        "title": "Nyocha anatomy",
+        "description": "Ultrasound etiti ime ime gburugburu izu 18–22."
+      },
+      "28": {
+        "description": "Nwa na-eto ngwa ngwa — zuru ike mgbe ị nwere ike.",
+        "title": "Oge nke atọ na-amalite"
+      },
+      "36": {
+        "title": "Nlele kwa izu",
+        "description": "Onye na-elekọta gị nwere ike chọọ ịhụ gị karịa."
+      },
+      "40": {
+        "description": "Ụbọchị a mmegharị gị e kere ekere.",
+        "title": "Ụbọchị a tụrụ anya"
+      }
+    },
+    "ui": {
+      "weekDay": "Izu {{weeks}}, Ụbọchị {{days}}",
+      "daysUntilDue": "{{count}} ụbọchị ruo ụbọchị a mmegharị nke {{name}}",
+      "daysUntilDue_other": "{{count}} ụbọchị ruo ụbọchị a mmegharị nke {{name}}",
+      "todayIsDue": "Taa bụ ụbọchị a mmegharị nke {{name}}",
+      "daysPastDue": "{{count}} ụbọchị gafere ụbọchị a mmegharị",
+      "daysPastDue_other": "{{count}} ụbọchị gafere ụbọchị a mmegharị",
+      "timeline": "Usoro oge",
+      "percentComplete": "{{percent}}% emechara",
+      "week0": "Izu 0",
+      "week40": "Izu 40",
+      "trimesterBar": {
+        "weekRange": "Izu {{from}}–{{to}}",
+        "now": "Izu {{weeks}}",
+        "t1": "T1",
+        "t2": "T2",
+        "t3": "T3"
+      },
+      "todaysLog": "Ndekọ taa",
+      "weekThisWeek": "Izu {{week}} · Izu a",
+      "weekInDays": "Izu {{week}} · Na ụbọchị {{count}}",
+      "weekInDays_other": "Izu {{week}} · Na ụbọchị {{count}}",
+      "weekLabel": "Izu {{week}}",
+      "weight": "Ibu",
+      "weightPlaceholder": "kg",
+      "weightValue": "{{value}} kg",
+      "kicksCount": "{{count}} mkpọtụ",
+      "postpartumTitle": "Ị gafere ụbọchị a mmegharị gị",
+      "postpartumBody": "Ụbọchị a mmegharị gị e kere ekere gafere. Mechie ime ime mgbe ị dị njikere, ma ọ bụ melite ụbọchị a mmegharị ọ bụrụ na onye na-elekọta gị hazigharị ya.",
+      "dailyLog": "Ndekọ kwa ụbọchị",
+      "howFeeling": "Kedu ka ị na-ahụ?",
+      "howFeelingSubtitle": "Dekọ ka ị na-ahụ taa. Nke a na-enyere gị aka ịhụ usoro ka oge na-aga.",
+      "babyKicks": "Mkpụkpụ nwa",
+      "notesPlaceholder": "Kedu ka ị na-ahụ? Ị nwere ajụjụ maka nleta gị na-abịa?",
+      "setTimelineSubtitle": "Họrọ otú ị chọrọ ịseta usoro ime gị. Ị nwere ike iji oge gị ikpeazụ ma ọ bụ ụbọchị a tụrụ anya site na onye na-enye gị.",
+      "lastPeriod": "Oge gara aga",
+      "dueDate": "Ụbọchị a tụrụ anya",
+      "babyNickname": "Aha aha nwa",
+      "pickDate": "Họrọ ụbọchị",
+      "estimatedDue": "Ụbọchị a tụrụ anya e kere",
+      "kicksLogged": "E depụtara mkpọtụ",
+      "comingUp": "Na-abịa",
+      "milestonesTitle": "Ihe dị mkpa",
+      "journey": "Njem",
+      "estimatedFromLmp": "E kere site na oge gị gara aga",
+      "estimatedFromProvider": "Dabere na ụbọchị a tụrụ anya site na onye na-enye gị",
+      "daily": "Kwa ụbọchị",
+      "mood": "Obi ihe",
+      "noSymptomsToday": "Enweghị mgbaàmà edebanyere taa",
+      "notes": "Ihe edeturu",
+      "babyPlaceholder": "Nwa",
+      "weightHint": "Nhọrọ. Tinye ibu gị na kilogram.",
+      "endPregnancy": "Mechie ime",
+      "endPregnancyTitle": "Mechie ime a?",
+      "endPregnancyConfirm": "Mechie ime",
+      "postpartumEyebrow": "Gafere ụbọchị",
+      "pastPregnancies": "Ime ime gara aga",
+      "history": "Akụkọ",
+      "pastPregnancySubtitle": "Kwesịrị {{due}} · Emechiela {{ended}} · {{logs}} ndekọ",
+      "archivedLogsEmpty": "Enweghị ndekọ kwa ụbọchị echekwara maka ime ime a.",
+      "setTimeline": "Hazie usoro oge gị",
+      "tapLmp": "Kpatu ụbọchị mbụ nke oge gị gara aga.",
+      "tapDue": "Kpatu ụbọchị a mmegharị kere site na onye na-enye gị.",
+      "selectedDue": "Ụbọchị a mmegharị ahọpụtara",
+      "progress": "Ọganihu ime ime",
+      "symptoms": "Mgbaàmà",
+      "setupEyebrow": "Nhazi",
+      "tapKickHint": "Kpatu + oge ọ bụla ị na-enwe mmegharị",
+      "logHistory": "Ndekọ na nso nso a",
+      "recent": "Na nso nso a",
+      "endPregnancyMessage": "Nke a na-edobe usoro oge na ndekọ kwa ụbọchị, ma maliteghachi Period Tracker ọ bụrụ na a kwụsịrị ya maka ime ime. Ị nwere ike hazie ime ime ọhụrụ ma emechaa."
+    },
+    "alerts": {
+      "milestoneSoonThisWeek": "{{title}} bụ izu a.",
+      "milestoneSoonBody": "{{title}} nọ na ụbọchị {{count}}.",
+      "milestoneSoonBody_other": "{{title}} nọ na ụbọchị {{count}}.",
+      "dueSoonTitle": "Ụbọchị a mmegharị nke {{name}} na ụbọchị {{count}}",
+      "dueSoonTitle_other": "Ụbọchị a mmegharị nke {{name}} na ụbọchị {{count}}",
+      "dueSoonBody": "Ụbọchị a mmegharị e kere ekere nke {{name}} nọ na ụbọchị {{count}}. Lelee usoro oge ime ime gị.",
+      "dueSoonBody_other": "Ụbọchị a mmegharị e kere ekere nke {{name}} nọ na ụbọchị {{count}}. Lelee usoro oge ime ime gị.",
+      "dueTodayTitle": "Taa bụ ụbọchị a mmegharị nke {{name}}",
+      "dueTodayBody": "Ụbọchị a mmegharị e kere ekere nke {{name}} bụ taa.",
+      "pastDueTitle": "{{count}} ụbọchị gafere ụbọchị a mmegharị",
+      "pastDueTitle_other": "{{count}} ụbọchị gafere ụbọchị a mmegharị",
+      "pastDueBody": "Ụbọchị a mmegharị e kere ekere nke {{name}} bụ ụbọchị {{count}} gara aga. Melite usoro oge gị ma ọ bụ mechie ime ime mgbe ị dị njikere.",
+      "pastDueBody_other": "Ụbọchị a mmegharị e kere ekere nke {{name}} bụ ụbọchị {{count}} gara aga. Melite usoro oge gị ma ọ bụ mechie ime ime mgbe ị dị njikere.",
+      "milestoneSoonTitle": "Na-abịa: Izu {{week}}",
+      "dailyNudgeTitle": "Dekọ ka ị na-ahụ taa",
+      "dailyNudgeBody": "Ideba obi ihe, ịrị ọrịa, ma ọ bụ mkpụkpụ na-eme ka akụkọ ime gị bara uru.",
+      "ttDoseDueBody": "O gafere izu 4 kemgbe TT1. Jụọ clinic gị maka dozi tetanus (TT) gị na-abịa.",
+      "ttDoseDueTitle": "TT2 nwere ike ịbụ oge ya"
+    },
+    "motherCare": {
+      "progress": "{{completed}} n'ime {{total}} dozi edebanyere",
+      "logSubtitle": "{{completed}} n'ime {{total}} dozi edebanyela. Họrọ ụbọchị ị natara nke a.",
+      "completeBody": "Ị edebanyela TT1 ruo TT5. Debe kaadị clinic gị dị ka ndekọ gọọmentị.",
+      "doses": {
+        "tt1": "TT1",
+        "tt2": "TT2",
+        "tt3": "TT3",
+        "tt4": "TT4",
+        "tt5": "TT5"
+      },
+      "validation": {
+        "ttIntervalShort": "O bu naanị ụbọchị {{gap}} mgbe e nyere dozi gara aga (Ị na-echekarị ogologo ụbọchị {{days}}). Biko kwado na clinic gị.",
+        "checkTitle": "Biko nyochaa nke a",
+        "confirmTitle": "Biko kwado",
+        "cancel": "Kagbuo",
+        "requiredDate": "Biko họrọ ụbọchị tupu ịchekwa.",
+        "ttFuture": "Ụbọchị dozi TT enweghị ike ịbụ n'ọdịnihu.",
+        "ttOutOfOrder": "Dekọ dozi n'usoro. Nke a na-atụ anya na-abịa bụ {{next}} (ị gbalịrị {{dose}}).",
+        "saveAnyway": "Chekwa ka ọ dị",
+        "unusualCheck": "Nke a dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+        "ttBeforePrevious": "Ụbọchị a dị tupu {{previous}} ({{previousDate}}). Biko kwado na ọ ziri ezi."
+      },
+      "eyebrow": "Nlekọta nne",
+      "nextDose": "Ọzọ: {{dose}}",
+      "notLogged": "Edebeghị",
+      "logNext": "Dekọ TT na-abịa",
+      "logTt1": "Dekọ TT1",
+      "logTitle": "Dekọ {{dose}}",
+      "pickDate": "Ụbọchị dozi",
+      "done": "Emechara",
+      "disclaimer": "Na-enyochi na-edu naanị — soro usoro ụlọ ahụike gị na ntuziaka mpaghara.",
+      "title": "Nchedo tetanus (TT)",
+      "body": "Ogwụ TT na-eche gị na nwa gị ọhụrụ mgbochi tetanus. Dekọ dozi site na kaadị antenatal gị — nke a dị iche na onye nsochịkọ izu ime ime gị.",
+      "complete": "Edebanyela TT1–TT5",
+      "archivedTitle": "Dozi TT site na ime ime a",
+      "tapDate": "Kpatu ụbọchị ị nwetara {{dose}}.",
+      "selectedDate": "Ụbọchị ahọpụtara",
+      "saveDose": "Chekwa {{dose}}",
+      "completeTitle": "Usoro TT emechara"
+    },
+    "trimester": {
+      "1": "Trimesta mbụ",
+      "2": "Trimesta nke abụọ",
+      "3": "Oge nke atọ"
+    },
+    "validation": {
+      "lmpFuture": "Ụbọchị oge gị gara aga enweghị ike ịbụ n'ọdịnihu.",
+      "dueInPast": "Ụbọchị a mmegharị a gafere {{days}} ụbọchị. Biko kwado na ị ka chọrọ iji ya.",
+      "nicknameLong": "Aha aha a dị ogologo. Biko kwado na ọ ziri ezi.",
+      "overwriteTimeline": "Ị na-emelite usoro oge ime ime gị. Ndekọ kwa ụbọchị maka ime ime a ga-edobe.",
+      "startNewAfterEnded": "Ị na-amalite ime ime ọhụrụ mgbe ị kwụsịrị nke gara aga. A ga-emepụta usoro oge ọhụrụ na ndekọ kwa ụbọchị efu.",
+      "checkTitle": "Biko nyochaa nke a",
+      "confirmTitle": "Biko kwado",
+      "cancel": "Kagbuo",
+      "requiredDate": "Biko họrọ ụbọchị tupu ịchekwa.",
+      "emptyLog": "Edebereghị ihe maka taa. Ị chọrọ ichekwaa ndekọ efu?",
+      "setupBlockedPostpartum": "Mechie nlekọta nne mgbe ị mụsịrị nwa mbụ, mgbe ahụ ị nwere ike ịhazie usoro oge ime ime ọhụrụ.",
+      "birthFuture": "Ụbọchị ọmụmụ enweghị ike ịbụ n'ọdịnihu.",
+      "saveAnyway": "Chekwa ka ọ dị",
+      "unusualCheck": "Nke a dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+      "dueTooFar": "Ụbọchị a mmegharị a dị anyị na ọdịnihu iji bụrụ eziokwu. Biko lelee ụbọchị ahụ.",
+      "pastTerm": "Ụbọchị a na-egosi na ị nwere ike ịgafeela izu ime ime {{weeks}}. Biko kwado na ọ ziri ezi.",
+      "willPausePeriod": "Ịchekwa usoro oge ime ime gị ga-akwụsị amụma Period Tracker. Akụkọ oge gị ka a chekwara.",
+      "kicksHigh": "Ọnụọgụgụ mkpịsị aka a ({{count}}) dị elu karịa nke a na-ahụkarị maka otu ụbọchị. Biko kwado na ọ ziri ezi.",
+      "notesLong": "Ihe ndekọ a dị ogologo. Biko kwado tupu ịchekwa.",
+      "weightUnusual": "Ibu ({{value}} kg) dị n'èzí oke nkịtị ({{min}}–{{max}} kg). Biko kwado na ọ ziri ezi.",
+      "birthBeforeLmp": "Ụbọchị ọmụmụ a dị tupu ụbọchị oge gị gara aga. Biko kwado na ọ ziri ezi."
+    },
+    "postnatal": {
+      "daysSinceBirth_other": "{{count}} ụbọchị kemgbe a mụsịrị nwa",
+      "careTitle": "Ịgwọ gị",
+      "careBody": "Ebe a bụ maka nlekọta gị mgbe ị mụsịrị nwa — ezuike, ịgwọ, na nlele na clinic gị. Nsochi nwa dị iche.",
+      "pastDueHint": "Ụbọchị a mmegharị gị gafere. Ọ bụrụ na ị mụsịla nwa, kpatụ Mụsịla m nwa iji malite nlekọta mgbe ị mụsịrị nwa. Ọ bụrụ na ị chọrọ ịchekwa ime ime a n'ụzọ dị nwayọ, jiri Mechie ime ime a n'okpuru.",
+      "iveGivenBirth": "Amụrụ m nwa",
+      "birthTitle": "Kedu mgbe a mụrụ nwa?",
+      "birthSubtitle": "Anyị ga-agbanwe gaa na nlekọta mgbe ị mụsịrị nwa. Dozi TT gị nọ na ihuenyo a.",
+      "finishMessage": "Anyị ga-edobe ime ime a dị ka ọmụmụ, hichapụ usoro oge ime ime, ma maliteghachi Period Tracker ọ bụrụ na a kwụsịrị ya. Dozi TT gị ka a chekwara.",
+      "closeMessage": "Anyị ga-edobe usoro oge ime ime. Ndekọ nlekọta nne dị ka dozi TT ka a chekwara, ma Period Tracker nwere ike ịmaliteghachi. Were oge ị chọrọ — ị nọghị onwe gị.",
+      "closedPregnancyTitle": "Ime ime",
+      "eyebrow": "Nlekọta nne",
+      "heroTitle": "Nlekọta mgbe ị mụsịrị nwa",
+      "heroSubtitle": "Lelee na ịgwọ gị. Ndekọ TT gị nọ ebe a.",
+      "daysSinceBirth": "Ụbọchị {{count}} site na ọmụmụ",
+      "birthDateLabel": "Ụbọchị ọmụmụ",
+      "pickBirthDate": "Ụbọchị ọmụmụ",
+      "birthDisclaimer": "Na-enyochi na-edu naanị — soro ndụmọdụ mgbe a mụsịrị nwa nke ụlọ ahụike gị.",
+      "logMotherDay": "Dekọ ka ị na-ahụ",
+      "finishPostpartum": "Mechie nlekọta mgbe ị mụsịrị nwa",
+      "finishTitle": "Mechie nlekọta mgbe ị mụsịrị nwa?",
+      "finishConfirm": "Mechie",
+      "closeLink": "Mechie ime a",
+      "closeTitle": "Mechie ime a?",
+      "closeConfirm": "Mechie ime",
+      "pastBirthSubtitle": "A mụrụ {{born}} · {{logs}} ndekọ",
+      "pastClosedSubtitle": "Emechiela {{ended}}",
+      "tapBirthDate": "Kpatu ụbọchị ị mụrụ nwa.",
+      "selectedBirthDate": "Ụbọchị ahọpụtara",
+      "startPostpartum": "Malite nlekọta mgbe ị mụsịrị nwa",
+      "notActive": "Hazie usoro oge ime ime na-arụ ọrụ tupu ideba ọmụmụ."
+    }
+  },
+  "period": {
+    "ui": {
+      "nextMayStartToday": "Oge gị na-abịa nwere ike ịmalite taa",
+      "thisWeek": "Izu a",
+      "daysCount": "{{count}} ụbọchị",
+      "daysSelected": "{{count}} ụbọchị ahọpụtara",
+      "daysSelected_other": "{{count}} ụbọchị ahọpụtara",
+      "pausedCardTitle": "Enyocha kwụsịrị",
+      "pauseWhilePregnantBody": "Ị nwere ike kwụsị amụma agafé mgbe ị dị ime. Akụkọ ihe mere gị ka a chekwara.",
+      "backToTracker": "Laghachi",
+      "cycleSummary": "Nchịkọta usoro oge",
+      "averageCycle": "Agafé nkezi",
+      "decreaseAverageCycle": "Belata ogologo usoro oge na-avrage",
+      "increaseAverageCycle": "Mee ogologo agafé nkezi ka buru ibu",
+      "periodLength": "Ogologo oge",
+      "loggedDays": "Ụbọchị edebanyere",
+      "dayOfCycle": "Ụbọchị {{day}} nke usoro gị",
+      "dayPill": "Ụbọchị {{day}}",
+      "daysUntilPeriod": "Ihe dị ka ụbọchị {{count}} ruo oge gị na-abịa",
+      "daysUntilPeriod_other": "Ihe dị ka ụbọchị {{count}} ruo oge gị na-abịa",
+      "calendar": "Kalenda",
+      "loggedPeriod": "Oge edebanyere",
+      "predicted": "Oge a na-atụ anya",
+      "predictedWindow": "Oge a na-atụ anya na-abịa: {{range}}",
+      "fertile": "Na-amụ nwa",
+      "ovulation": "Ovulation",
+      "pausedTitle": "Enyocha oge kwụsịrị",
+      "pausedSubtitle": "Amụma na ndekọ kwụsịrị.",
+      "pausedBecausePregnant": "Kwụsịrị mgbe ị dị ime. Akụkọ ihe mere gị edebanyere ka nọ ebe a.",
+      "pausedPill": "Kwụsịtụrụ",
+      "pausedCardBody": "Amụma usoro oge na ideba oge kwụsịrị. Maliteghachi oge ọ bụla — ma ọ bụ gaa n'ihu na Pregnancy Tracker.",
+      "pauseTracking": "Kwụsị nsochi oge",
+      "openPregnancyTracker": "Mepee Nsochi Ime Ime",
+      "resumeTracking": "Maliteghachi nsochi oge",
+      "pauseWhilePregnantTitle": "Ị dị ime?"
+    },
+    "validation": {
+      "clearMessage": "Nke a na-ewepụ ụbọchị oge a depụtara na ngwaọrụ a. Amụma ga-amaliteghachi ruo mgbe ị ga-edekọ ọzọ.",
+      "periodVsCycle": "Ogologo oge a (ụbọchị {{periodDays}}) dị ogologo ma ọ bụ karịa agafé gị (ụbọchị {{cycleDays}}). Biko kwado.",
+      "checkTitle": "Biko nyochaa nke a",
+      "confirmTitle": "Biko kwado",
+      "cancel": "Kagbuo",
+      "saveAnyway": "Dekọ ka ọ dị",
+      "clearTitle": "Hichapụ ụbọchị niile edebere?",
+      "clearConfirm": "Hichapụ",
+      "trackingPaused": "Enyocha oge kwụsịrị. Maliteghachi iji dekọ ụbọchị.",
+      "resumeWhilePregnant": "Nsochi Ime Ime ka enwe usoro oge na-arụ ọrụ. Maliteghachi nsochi oge ka ọ dị?",
+      "unusualCheck": "Nke a dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+      "dayFuture": "Ụbọchị a nọ n'ọdịnihu. Biko kwado na ị chọrọ ideba ya n'ihu.",
+      "dayFarPast": "Ụbọchị a bụ ụbọchị {{days}} gara aga. Biko kwado na ọ dị na akụkọ ihe mere gị.",
+      "periodLong": "Nke a ga-eme ka oge a bụrụ ụbọchị {{days}} ogologo. Biko kwado na ọ ziri ezi."
+    }
+  },
+  "vitals": {
+    "types": {
+      "weight": "Ibu",
+      "blood_pressure": "Ogologo ọbara",
+      "blood_sugar": "Shuga ọbara",
+      "heart_rate": "Ọnụ ọgụgụ obi",
+      "body_temperature": "Okpomọkụ ahụ",
+      "height": "Ogologo",
+      "oxygen_saturation": "Ogo oxygen",
+      "respiratory_rate": "Ọnụọgụgụ ikuku"
+    },
+    "units": {
+      "mmHg": "mmHg",
+      "mmol_l": "mmol/L",
+      "mg_dl": "mg/dL",
+      "bpm": "bpm",
+      "c": "°C",
+      "f": "°F",
+      "kg": "kg",
+      "lbs": "lbs",
+      "cm": "cm",
+      "ft": "ft / in",
+      "breaths_min": "anụnụ anụnụ/min",
+      "percent": "%"
+    },
+    "bloodSugarContext": {
+      "fasting": "Agụụ",
+      "before_meal": "Tupu nri",
+      "two_hours_after_meal": "O awọọla 2 mgbe e riri nri",
+      "random": "Na-enweghị usoro"
+    },
+    "ui": {
+      "vital": "Akara ndụ",
+      "unit": "Nkeji",
+      "reading": "Na-agụ",
+      "measurementType": "Kedu mgbe e tụrụ nke a?",
+      "notesPlaceholder": "dị ka mgbe ị gafere ụtụtụ",
+      "latest": "Ngụkọta kachasị",
+      "noReading": "Enweghị ngụkọta ugbu a",
+      "diastolic": "Diastolic",
+      "feet": "Ụkwụ",
+      "inches": "Inches",
+      "valuePlaceholder": "Tinye uru",
+      "bpHint": "Tinye systolic / diastolic na mmHg",
+      "notesOptional": "Ihe edeturu (nhọrọ)",
+      "setupSugarHint": "A na-echekwa ịgụ shuga ọbara na mg/dL ma gosipụta na yunitị ị họọrọ.",
+      "balance": "Foto nke oge ahụ",
+      "recent": "Na nso nso a",
+      "emptyHint": "Malite na mgbapụta ọbara, ọsọ obi, ma ọ bụ ibu — ihe ị na-atụ kachasị.",
+      "systolic": "Systolic",
+      "setupIntro": "Hazie nkeji ị chọrọ otu ugboro ka ndekọ na-aga ngwa ngwa na otu."
+    },
+    "validation": {
+      "useSuggestion": "Jiri {{value}}",
+      "unusualConfirm": "Ngụkọta a abụghị nke a na-ahụkarị. Biko nyochaa tupu ịchekwa.",
+      "bloodSugarUnusual": "Ngụkọta a abụghị nke a na-ahụkarị. Biko nyochaa tupu ịchekwa.",
+      "oxygenLow": "Ogo oxygen a dị ala karịa nke a na-ahụkarị. Biko kwado ngụkọta ahụ, ma ọ bụ gbalịa ịtụgharị ọzọ.",
+      "trendWeight": "Ibu gị agbanweela nke ukwuu site na ntinye gị gara aga ({{previous}} {{unit}}). Biko kwado na ọ ziri ezi.",
+      "trendBloodPressure": "Ngụkọta a dị elu ma ọ bụ dị ala karịa ntinye gị gara aga ({{previous}}). Biko kwado tupu ịchekwa.",
+      "trendOxygen": "Ngụkọta oxygen a dị iche na ntinye gị gara aga ({{previous}}%). Biko kwado, ma ọ bụ gbalịa ịtụgharị ọzọ.",
+      "trendGeneric": "Urụkpụrụ a dị iche na ngụkọta gị gara aga ({{previous}} {{unit}}). Biko kwado na ọ ziri ezi.",
+      "checkTitle": "Biko nyochaa ngụkọta a",
+      "confirmTitle": "Biko kwado",
+      "cancel": "Kagbuo",
+      "requiredReading": "Biko tinye ngụkọta tupu ịchekwa.",
+      "bpDiastolicOrder": "Ogologo diastolic kwesịrị ịdị ala karịa systolic.",
+      "bloodSugarContextRequired": "Họrọ mgbe a na-achọpụta shuga ọbara a (agụụ, tupu nri, mgbe e riri nri, ma ọ bụ na-enweghị usoro).",
+      "typoBloodSugar": "Ị chọrọ {{suggested}}?",
+      "typoWeight": "Ị chọrọ {{suggested}}?",
+      "typoTemperature": "Ị chọrọ {{suggested}}°C?",
+      "saveAnyway": "Chekwa ka ọ dị",
+      "unusualCheck": "Urụkpụrụ ahụ dị ka ihe na-adịghị mma. Biko nyochaa na ị tinyere ya nke ọma.",
+      "bpUnusual": "Ngụkọta ọbara a dị ka ihe na-adịghị mma. Biko kwado na ọ ziri ezi."
+    }
+  }
 }

@@ -34,7 +34,7 @@ export default async function SettingsPage() {
         <>
           <CardLink
             title="Modules"
-            description="Activate optional capabilities such as Laboratory for this organization"
+            description="Activate optional CareMate capabilities for this organization when they ship"
             href="/app/settings/modules"
             linkLabel="Manage modules →"
           />
