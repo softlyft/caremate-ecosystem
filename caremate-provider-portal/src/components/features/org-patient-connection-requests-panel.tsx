@@ -3,6 +3,10 @@ import type { ReactNode } from 'react';
 import { PaginationBar } from '@/components/pagination-bar';
 import { PageHeader, PageShell } from '@/components/page-header';
 import { ConnectionActions } from '@/components/features/connection-actions';
+import {
+  OrgPlanUsageBanner,
+  type OrgPlanLimitRow,
+} from '@/components/features/org-plan-usage-banner';
 import type { ConnectionActionHandlers } from '@/lib/connection-action-handlers';
 import type { ConnectionErrorMapper } from '@/lib/connection-error-format';
 import type { PaginatedResult } from '@/lib/pagination';
@@ -41,6 +45,10 @@ export function OrgPatientConnectionRequestsPanel({
   hrefForOutboundPage,
   handlers,
   errorMapper = 'provider-patient',
+  planUsageRows,
+  canApprovePatients = true,
+  canRequestPatients = true,
+  upgradeHref,
 }: {
   title: string;
   description: string;
@@ -52,10 +60,18 @@ export function OrgPatientConnectionRequestsPanel({
   hrefForOutboundPage: (page: number) => string;
   handlers: ConnectionActionHandlers;
   errorMapper?: ConnectionErrorMapper;
+  planUsageRows?: OrgPlanLimitRow[];
+  canApprovePatients?: boolean;
+  canRequestPatients?: boolean;
+  upgradeHref?: string;
 }) {
   return (
     <PageShell>
       <PageHeader title={title} description={description} />
+
+      {planUsageRows?.length ? (
+        <OrgPlanUsageBanner rows={planUsageRows} upgradeHref={upgradeHref} />
+      ) : null}
 
       {canWrite ? (
         <Card>
@@ -67,7 +83,13 @@ export function OrgPatientConnectionRequestsPanel({
               Enter the patient&apos;s 12-digit CareMate ID. No clinical data is shared — this only
               creates a connection record. The patient must approve in the CareMate app.
             </p>
-            {requestForm}
+            {!canRequestPatients ? (
+              <p className="text-sm text-orange-800">
+                Patient connection limit reached on your current plan.
+              </p>
+            ) : (
+              requestForm
+            )}
           </CardContent>
         </Card>
       ) : null}
@@ -116,6 +138,7 @@ export function OrgPatientConnectionRequestsPanel({
                           mode="inbound-pending"
                           handlers={handlers}
                           errorMapper={errorMapper}
+                          approveDisabled={!canApprovePatients}
                         />
                       ) : null}
                     </TableCell>

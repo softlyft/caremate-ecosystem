@@ -32,6 +32,7 @@ export function PayerPlanPriceEditor({
           amount_minor: Math.round(amountMajor * 100),
           support_team_seat_limit: Number(fd.get('support_team_seat_limit')),
           patient_connection_cap: Number(fd.get('patient_connection_cap')),
+          provider_connection_cap: Number(fd.get('provider_connection_cap')),
           voice_minutes_included: Number(fd.get('voice_minutes_included')),
           group_chat_enabled: fd.get('group_chat_enabled') === 'on',
           is_active: fd.get('is_active') === 'on',
@@ -47,17 +48,30 @@ export function PayerPlanPriceEditor({
         ) : null
       }
       renderExtraFields={(price, { canEdit: editable, pending }) => (
-        <FormField compact label="Support Team seats" htmlFor={`${price.id}-seats`}>
-          <Input
-            id={`${price.id}-seats`}
-            name="support_team_seat_limit"
-            type="number"
-            min="1"
-            defaultValue={price.support_team_seat_limit}
-            disabled={!editable || pending}
-            required
-          />
-        </FormField>
+        <>
+          <FormField compact label="Support Team seats" htmlFor={`${price.id}-seats`}>
+            <Input
+              id={`${price.id}-seats`}
+              name="support_team_seat_limit"
+              type="number"
+              min="1"
+              defaultValue={price.support_team_seat_limit}
+              disabled={!editable || pending}
+              required
+            />
+          </FormField>
+          <FormField compact label="Provider connections" htmlFor={`${price.id}-providers`}>
+            <Input
+              id={`${price.id}-providers`}
+              name="provider_connection_cap"
+              type="number"
+              min="1"
+              defaultValue={price.provider_connection_cap}
+              disabled={!editable || pending}
+              required
+            />
+          </FormField>
+        </>
       )}
       renderExtraCheckboxes={(price, { canEdit: editable, pending }) => (
         <label className="flex items-center gap-2 text-sm text-foreground">

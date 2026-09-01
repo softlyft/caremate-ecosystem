@@ -50,6 +50,7 @@ type OrgBillingTables = {
       paystack_plan_code: string | null;
       pct_seat_limit: number;
       patient_connection_cap: number;
+      payer_connection_cap: number;
       voice_minutes_included: number;
       video_minutes_included: number;
       is_active: boolean;
@@ -69,6 +70,7 @@ type OrgBillingTables = {
       status: string;
       pct_seat_limit: number;
       patient_connection_cap: number;
+      payer_connection_cap: number;
       voice_minutes_included: number;
       video_minutes_included: number;
       provider_customer_id: string | null;
@@ -94,6 +96,7 @@ type OrgBillingTables = {
       paystack_plan_code: string | null;
       support_team_seat_limit: number;
       patient_connection_cap: number;
+      provider_connection_cap: number;
       voice_minutes_included: number;
       group_chat_enabled: boolean;
       is_active: boolean;
@@ -113,6 +116,7 @@ type OrgBillingTables = {
       status: string;
       support_team_seat_limit: number;
       patient_connection_cap: number;
+      provider_connection_cap: number;
       voice_minutes_included: number;
       group_chat_enabled: boolean;
       provider_customer_id: string | null;
@@ -133,6 +137,14 @@ export type Database = Omit<BaseDatabase, 'public'> & {
   public: Omit<BaseDatabase['public'], 'Tables' | 'Functions'> & {
     Tables: BaseDatabase['public']['Tables'] & OrgBillingTables;
     Functions: BaseDatabase['public']['Functions'] & {
+      is_provider_org_claimed: {
+        Args: { p_org_id: string };
+        Returns: boolean;
+      };
+      is_payer_org_claimed: {
+        Args: { p_org_id: string };
+        Returns: boolean;
+      };
       admin_grant_provider_org_subscription: {
         Args: {
           p_organization_id: string;
@@ -140,6 +152,7 @@ export type Database = Omit<BaseDatabase, 'public'> & {
           p_billing_interval?: string;
           p_pct_seat_limit?: number;
           p_patient_connection_cap?: number;
+          p_payer_connection_cap?: number;
           p_voice_minutes_included?: number;
           p_video_minutes_included?: number;
           p_period_months?: number;
@@ -153,6 +166,7 @@ export type Database = Omit<BaseDatabase, 'public'> & {
           p_billing_interval?: string;
           p_support_team_seat_limit?: number;
           p_patient_connection_cap?: number;
+          p_provider_connection_cap?: number;
           p_voice_minutes_included?: number;
           p_group_chat_enabled?: boolean;
           p_period_months?: number;

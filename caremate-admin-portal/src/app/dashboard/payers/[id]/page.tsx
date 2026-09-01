@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { getPayerOrganization } from '@/domains/payers/repository';
 import { getPortalSession } from '@/lib/auth';
-import { canEditCatalog } from '@/constants/roles';
+import { canEditCatalog, canManageBilling } from '@/constants/roles';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { DescriptionRow } from '@/components/ui/detail-row';
 import { TextLink } from '@/components/ui/text-link';
 import { PayerOrganizationForm } from '@/features/payers/organization-form';
 import { ArchivePayerOrganizationButton } from '@/features/payers/archive-payer-button';
+import { PayerOrgPlanActivationSection } from '@/features/payer-plans/payer-org-plan-activation-section';
 
 export default async function PayerOrganizationDetailPage({
   params,
@@ -19,6 +20,7 @@ export default async function PayerOrganizationDetailPage({
   const { id } = await params;
   const session = await getPortalSession();
   const canEdit = canEditCatalog(session?.role);
+  const canActivatePlan = canManageBilling(session?.role);
 
   let organization;
   try {
@@ -62,6 +64,17 @@ export default async function PayerOrganizationDetailPage({
           )}
         </CardContent>
       </Card>
+
+      {canActivatePlan ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Care Portal plan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PayerOrgPlanActivationSection organizationId={organization.id} />
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

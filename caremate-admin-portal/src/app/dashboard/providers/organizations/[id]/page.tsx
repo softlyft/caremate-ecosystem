@@ -12,7 +12,7 @@ import {
   listLocationsForOrganizationPage,
 } from '@/domains/providers/repository';
 import { getPortalSession } from '@/lib/auth';
-import { canEditCatalog } from '@/constants/roles';
+import { canEditCatalog, canManageBilling } from '@/constants/roles';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -32,6 +32,7 @@ import { OrganizationContactEmailForm } from '@/features/providers/organization-
 import { ArchiveOrganizationButton } from '@/features/providers/catalog-archive-buttons';
 import type { ProviderLocation } from '@/types/database';
 import { DescriptionRow } from '@/components/ui/detail-row';
+import { ProviderOrgPlanActivationSection } from '@/features/provider-plans/provider-org-plan-activation-section';
 
 export default async function OrganizationDetailPage({
   params,
@@ -45,6 +46,7 @@ export default async function OrganizationDetailPage({
   const page = parsePage(pageParam);
   const session = await getPortalSession();
   const canEdit = canEditCatalog(session?.role);
+  const canActivatePlan = canManageBilling(session?.role);
 
   let organization;
   try {
@@ -147,6 +149,17 @@ export default async function OrganizationDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {canActivatePlan ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Care Portal plan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProviderOrgPlanActivationSection organizationId={organization.id} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">

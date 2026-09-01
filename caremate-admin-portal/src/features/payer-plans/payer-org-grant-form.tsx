@@ -1,14 +1,28 @@
 'use client';
 
-import { grantPayerOrgSubscription } from '@/domains/payer-plans/actions';
-import { OrgGrantForm } from '@/features/plans/org-grant-form';
+import {
+  grantPayerOrgSubscription,
+  lookupPayerOrgPlanActivation,
+} from '@/domains/payer-plans/actions';
+import { OrgPlanActivationForm } from '@/features/plans/org-plan-activation-form';
+import type { OrgPlanActivationLookup } from '@/features/plans/org-plan-activation-types';
 
-export function PayerOrgGrantForm() {
+export function PayerOrgGrantForm({
+  organizationId,
+  initialLookup,
+}: {
+  organizationId?: string;
+  initialLookup?: OrgPlanActivationLookup | null;
+} = {}) {
   return (
-    <OrgGrantForm
+    <OrgPlanActivationForm
       organizationIdLabel="Payer organization ID (UUID)"
-      successMessage="Payer org plan granted"
-      onGrant={grantPayerOrgSubscription}
+      initialOrganizationId={organizationId}
+      lockOrganizationId={Boolean(organizationId)}
+      initialLookup={initialLookup}
+      onLookup={lookupPayerOrgPlanActivation}
+      onActivate={grantPayerOrgSubscription}
+      successMessage="Payer plan activated"
     />
   );
 }

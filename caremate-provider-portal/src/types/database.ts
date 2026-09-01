@@ -756,6 +756,14 @@ type PortalFunctions = {
     Args: { p_org_id: string };
     Returns: number;
   };
+  provider_org_approved_payer_connection_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  provider_org_payer_connection_cap: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
   set_private_care_team_member: {
     Args: {
       p_organization_id: string;
@@ -784,6 +792,14 @@ type PortalFunctions = {
     Returns: number;
   };
   payer_org_approved_patient_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  payer_org_approved_provider_connection_count: {
+    Args: { p_org_id: string };
+    Returns: number;
+  };
+  payer_org_provider_connection_cap: {
     Args: { p_org_id: string };
     Returns: number;
   };

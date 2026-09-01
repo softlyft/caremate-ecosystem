@@ -17,12 +17,13 @@ export default async function PayerBillingSettingsPage({
   const website =
     process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, '') || 'https://www.getcaremate.com';
 
-  const { entitlements, supportTeamMemberCount, approvedPatientCount } = usage;
+  const { entitlements, supportTeamMemberCount, approvedPatientCount, approvedProviderConnectionCount } =
+    usage;
 
   return (
     <OrgBillingSettingsPanel
       title="Support Team billing"
-      description="Org Messages with connected patients stay free. Support Team seats gate 1:1 patient chat (text and voice — no video)."
+      description="Org Messages with connected patients stay free. Support Team seats gate 1:1 patient chat."
       paid={params.paid === '1'}
       canManage={canManage}
       websitePricingUrl={`${website}/payers/pricing`}
@@ -42,8 +43,9 @@ export default async function PayerBillingSettingsPage({
             Approved patients: <strong>{approvedPatientCount}</strong> /{' '}
             <strong>{entitlements.patient_connection_cap}</strong>
           </p>
-          <p className="text-muted">
-            Voice minutes included (future): {entitlements.voice_minutes_included}
+          <p>
+            Approved provider connections: <strong>{approvedProviderConnectionCount}</strong> /{' '}
+            <strong>{entitlements.provider_connection_cap}</strong>
           </p>
         </>
       }

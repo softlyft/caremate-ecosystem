@@ -84,22 +84,29 @@ export async function finalizeProviderOrgPayment(
       : null;
 
   // Load limits from price catalog when metadata incomplete
-  let pctSeatLimit = seatLimit ?? (row.plan_tier === 'pro' ? 20 : 5);
-  let patientConnectionCap = patientCap ?? (row.plan_tier === 'pro' ? 100 : 20);
-  let voiceMinutes = voice ?? (row.plan_tier === 'pro' ? 15000 : 6000);
-  let videoMinutes = video ?? (row.plan_tier === 'pro' ? 15000 : 6000);
+  let pctSeatLimit = seatLimit ?? (row.plan_tier === 'pro' ? 25 : 7);
+  let patientConnectionCap = patientCap ?? (row.plan_tier === 'pro' ? 200 : 50);
+  let payerConnectionCap =
+    typeof meta.payer_connection_cap === 'number'
+      ? meta.payer_connection_cap
+      : row.plan_tier === 'pro'
+        ? 75
+        : 25;
+  let voiceMinutes = voice ?? 0;
+  let videoMinutes = video ?? 0;
 
   if (row.plan_price_id) {
     const { data: price } = await service
       .from('provider_org_plan_prices')
       .select(
-        'pct_seat_limit, patient_connection_cap, voice_minutes_included, video_minutes_included',
+        'pct_seat_limit, patient_connection_cap, payer_connection_cap, voice_minutes_included, video_minutes_included',
       )
       .eq('id', row.plan_price_id)
       .maybeSingle();
     if (price) {
       pctSeatLimit = Number(price.pct_seat_limit) || pctSeatLimit;
       patientConnectionCap = Number(price.patient_connection_cap) || patientConnectionCap;
+      payerConnectionCap = Number(price.payer_connection_cap) || payerConnectionCap;
       voiceMinutes = Number(price.voice_minutes_included) || voiceMinutes;
       videoMinutes = Number(price.video_minutes_included) || videoMinutes;
     }
@@ -141,6 +148,7 @@ export async function finalizeProviderOrgPayment(
     status: 'active',
     pct_seat_limit: pctSeatLimit,
     patient_connection_cap: patientConnectionCap,
+    payer_connection_cap: payerConnectionCap,
     voice_minutes_included: voiceMinutes,
     video_minutes_included: videoMinutes,
     provider_customer_id: input.providerCustomerId ?? null,

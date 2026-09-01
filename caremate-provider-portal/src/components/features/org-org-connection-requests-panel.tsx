@@ -3,6 +3,10 @@ import { PageHeader, PageShell } from '@/components/page-header';
 import { format } from 'date-fns';
 import { PaginationBar } from '@/components/pagination-bar';
 import { OrgConnectionActions } from '@/components/features/org-connection-actions';
+import {
+  OrgPlanUsageBanner,
+  type OrgPlanLimitRow,
+} from '@/components/features/org-plan-usage-banner';
 import type { PaginatedResult } from '@/lib/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,6 +46,10 @@ export function OrgOrgConnectionRequestsPanel({
   emptyInboundMessage,
   emptyOutboundMessage,
   awaitingOutboundLabel,
+  planUsageRows,
+  canApprovePartners = true,
+  canRequestPartners = true,
+  upgradeHref,
 }: {
   title: string;
   description: string;
@@ -58,12 +66,20 @@ export function OrgOrgConnectionRequestsPanel({
   emptyInboundMessage: string;
   emptyOutboundMessage: string;
   awaitingOutboundLabel: string;
+  planUsageRows?: OrgPlanLimitRow[];
+  canApprovePartners?: boolean;
+  canRequestPartners?: boolean;
+  upgradeHref?: string;
 }) {
   const colSpan = showPhoneColumn ? 7 : 6;
 
   return (
     <PageShell>
       <PageHeader title={title} description={description} />
+
+      {planUsageRows?.length ? (
+        <OrgPlanUsageBanner rows={planUsageRows} upgradeHref={upgradeHref} />
+      ) : null}
 
       {canWrite ? (
         <Card>
@@ -72,7 +88,13 @@ export function OrgOrgConnectionRequestsPanel({
           </CardHeader>
           <CardContent>
             <p className="mb-4 text-sm text-muted">{requestFormDescription}</p>
-            {requestForm}
+            {!canRequestPartners ? (
+              <p className="text-sm text-orange-800">
+                {entityLabel} connection limit reached on your current plan.
+              </p>
+            ) : (
+              requestForm
+            )}
           </CardContent>
         </Card>
       ) : null}
@@ -118,6 +140,7 @@ export function OrgOrgConnectionRequestsPanel({
                           connectionId={r.id}
                           side={connectionSide}
                           mode="inbound-pending"
+                          approveDisabled={!canApprovePartners}
                         />
                       ) : null}
                     </TableCell>

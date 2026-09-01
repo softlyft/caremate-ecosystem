@@ -19,8 +19,8 @@ export default async function PayerPlanGrantsPage() {
   return (
     <div>
       <PageHeader
-        title="Payer plan grants"
-        description="Complimentary or Enterprise entitlements without Paystack (service-admin)."
+        title="Payer plan activation"
+        description="Activate paid entitlements for claimed payer orgs that pay outside Paystack (bank transfer, invoice, etc.)."
       />
 
       <PayerPlansNav current="grants" />
