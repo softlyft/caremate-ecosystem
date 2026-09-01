@@ -94,6 +94,8 @@ On successful `signUpWithEmail` **with a session** (confirmations off), or after
 4. **Hydrates mini-apps from cloud** (`hydrateMiniAppsFromRemote`) — pulls `mini_app_snapshots`, then writes into user-scoped AsyncStorage **only when local state is empty** (new device / clear-data), then rehydrates Zustand stores so vitals and other trackers are available before the user opens an app
 5. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
 
+After the auth store marks the user signed in, **`claimExclusiveNotificationDevice`** registers this device’s Expo push token and deletes any other `notification_devices` rows for that account (so the previous phone stops receiving remote medication/message push). If notifications are off or OS permission is missing, all remote tokens for the user are removed instead.
+
 Local stub / hydrate steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs `prepareLocalAccount` paths (including emergency + mini-app + entitlement hydrate) and triggers a full sync.
 
 After bootstrap succeeds, **`bindDeviceAccount`** stores `{ email, userId }` in SecureStore (`STORAGE_KEYS.deviceAccountBinding`) so sign-out can keep local data for that email.

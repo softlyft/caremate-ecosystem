@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
+import { useOrgPlanCatalog } from '@/hooks/use-org-plan-catalog';
 import { CARE_PORTAL_URL } from '@/lib/brand';
-import { PAYER_PLANS } from '@/lib/payer-pricing';
 import styles from './Pricing.module.css';
 
 export function PayerPricingPage() {
   const [searchParams] = useSearchParams();
   const paid = searchParams.get('paid') === '1';
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
+  const { plans, status } = useOrgPlanCatalog('payer');
 
   const claimUrl = `${CARE_PORTAL_URL}/claim?kind=payer`;
   const billingUrl = `${CARE_PORTAL_URL}/payer/settings/billing`;
@@ -22,8 +23,8 @@ export function PayerPricingPage() {
           <h1 id="payer-pricing-heading">Payer Support Team plans</h1>
           <p className={styles.lead}>
             Message connected patients from your organization inbox at no charge. Subscribe to
-            Support Team so designated staff can chat 1:1 with patients in CareMate — text and
-            voice only (no video). Billed in Naira via Paystack — separate from{' '}
+            Support Team so designated staff can chat 1:1 with patients in CareMate. Billed in Naira
+            via Paystack — separate from{' '}
             <Link to="/providers/pricing">provider Care Portal plans</Link> and{' '}
             <Link to="/pricing">patient Premium</Link>.
           </p>
@@ -51,9 +52,19 @@ export function PayerPricingPage() {
           <h2 id="plans-heading">Monthly or yearly</h2>
           <p className={styles.sectionLead}>
             Checkout runs in Care Portal after you claim or sign in as a payer organization owner or
-            administrator. Amounts below match the SoftLyft catalog defaults and may be updated by
-            SoftLyft.
+            administrator. Prices are loaded from the SoftLyft admin catalog (same source as
+            checkout). Seat, provider, and patient limits are shown as included with each plan.
           </p>
+          {status === 'loading' ? (
+            <p className={styles.sectionLead} role="status">
+              Loading current prices…
+            </p>
+          ) : null}
+          {status === 'error' ? (
+            <p className={styles.sectionLead} role="status">
+              Showing last-known prices. Refresh the page or contact SoftLyft if amounts look wrong.
+            </p>
+          ) : null}
         </div>
 
         <div className={styles.controls}>
@@ -76,7 +87,7 @@ export function PayerPricingPage() {
         </div>
 
         <div className={styles.planGrid}>
-          {PAYER_PLANS.map((plan) => {
+          {plans.map((plan) => {
             const price =
               billing === 'yearly' ? plan.yearlyDisplay : plan.monthlyDisplay;
             const href =
@@ -87,7 +98,7 @@ export function PayerPricingPage() {
                   : billingUrl;
             const ctaLabel =
               plan.cta === 'contact'
-                ? 'Contact SoftLyft'
+                ? 'Contact CareMate team'
                 : plan.cta === 'claim'
                   ? 'Start free'
                   : 'Upgrade in Care Portal';
@@ -109,12 +120,8 @@ export function PayerPricingPage() {
                 </p>
                 <ul className={styles.featureList}>
                   <li>{plan.seats}</li>
+                  <li>{plan.providers}</li>
                   <li>{plan.patients}</li>
-                  <li>{plan.chat}</li>
-                  <li>{plan.voice}</li>
-                  {plan.id === 'pro' || plan.id === 'enterprise' ? (
-                    <li>{plan.proFeatures}</li>
-                  ) : null}
                 </ul>
                 <a
                   className={plan.featured ? styles.ctaPrimary : styles.ctaSecondary}

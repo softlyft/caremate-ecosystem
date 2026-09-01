@@ -220,7 +220,7 @@ Full rules: [Provider Portal connections — Patient ↔ payer](../../caremate-p
 ### Current limitations
 
 - Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
-- Medication / checkup OS push reminders are not fully wired; **Messages** org/direct push via `notify-message` is shipped when the device is registered
+- Medication Assistant: local OS schedules at dose times + Expo push via `notify-medication` when alerts are evaluated; **Messages** org/direct push via `notify-message` when the device is registered
 - Hosted CareMate privacy/terms pages live in `caremate-website/` (deploy to `getcaremate.com` before store submission)
 - Premium tier detection, AdMob suppression, mini-app account gate, usage caps, blur paywalls, and family profile limits are enforced — see [Premium & plans](./premium-and-plans.md)
 

@@ -1,8 +1,7 @@
 import { router } from 'expo-router';
 import { LayoutGrid } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Platform, StyleSheet, View } from 'react-native';
 import DraggableFlatList, {
   type RenderItemParams,
   ScaleDecorator,
@@ -17,6 +16,7 @@ import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { loadMiniAppsOrder, saveMiniAppsOrder } from '@/mini-apps/_kit/order-preference';
 import { MINI_APPS, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
+import { iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
@@ -60,8 +60,7 @@ export default function AppsTabScreen() {
 
   return (
     <Screen padded={false} style={styles.flex}>
-      <GestureHandlerRootView style={styles.flex}>
-        <DraggableFlatList
+      <DraggableFlatList
           data={apps}
           keyExtractor={(item) => item.id}
           onDragEnd={({ data }) => {
@@ -69,10 +68,11 @@ export default function AppsTabScreen() {
             void saveMiniAppsOrder(data.map((app) => app.id));
           }}
           renderItem={renderItem}
-          activationDistance={12}
+          activationDistance={Platform.OS === 'ios' ? 16 : 12}
           containerStyle={styles.flex}
           contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
           showsVerticalScrollIndicator={false}
+          {...iosTabScrollProps}
           ListHeaderComponent={
             <View style={styles.header}>
               <AnimatedSection index={0}>
@@ -123,7 +123,6 @@ export default function AppsTabScreen() {
             </View>
           }
         />
-      </GestureHandlerRootView>
     </Screen>
   );
 }

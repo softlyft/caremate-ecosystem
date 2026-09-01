@@ -43,8 +43,15 @@ Tab bar styling:
 - Custom floating bar via `components/navigation/CareMateTabBar.tsx`
 - Headers hidden at tab level (stack screens provide their own headers)
 - Scene inset reserved through `TAB_BAR_SCENE_INSET`
-- **`detachInactiveScreens={false}`** and **`freezeOnBlur: false`** (test: smoother scroll on tab return; inactive tabs may use slightly more CPU) so Learn / Nearby / other tabs stay mounted when switching — no remount flash or replay of enter animations
+- **`detachInactiveScreens`** — `false` on Android (tabs stay mounted); **`true` on iOS** so inactive tab native scroll views release pan gestures (fixes dead scroll after tab switch on iOS)
+- **`freezeOnBlur: false`** so visited tabs stay interactive when returning
+- **`lazy: true`** — tabs you have not opened yet are not mounted (less JS work on first navigation)
+- **`TabMotionProvider`** — disables Reanimated enter animations inside tab screens (staggered `FadeInDown` was blocking scroll/gestures on tab return)
+- **Tab scrollables** — `TabScrollView` / `TabFlatList` use native RN `ScrollView`/`FlatList` on **iOS** and `react-native-gesture-handler` on Android; iOS gets `directionalLockEnabled`, `removeClippedSubviews: false`, etc.
+- **Gesture handler** — single `GestureHandlerRootView` at app root; nested root on Apps tab removed
+- **Apps tab (iOS)** — benefits from iOS `detachInactiveScreens` (DraggableFlatList remounts cleanly on tab return)
 - Learn and Nearby queries use longer `staleTime` and `refetchOnMount: false` so returning to a tab does not feel like a reload
+- Home catalog pull runs after `InteractionManager.runAfterInteractions` so it does not compete with tab transitions
 - Full-screen loaders only when there is **no cached data yet**
 
 Learn category filters update via `router.setParams` (including clearing to All) — avoid `router.replace` to the same tab (that remounts the screen).
@@ -59,7 +66,7 @@ Group: `(auth)` — header hidden.
 |-------|--------|---------|
 | `/(auth)/onboarding` | `onboarding/index.tsx` | Intro step |
 | `/(auth)/onboarding/country` | `country.tsx` | Country + language selection (required); searchable worldwide list; state/province not collected in UI yet |
-| `/(auth)/onboarding/priorities` | `priorities.tsx` | User priorities |
+| `/(auth)/onboarding/emergency-basics` | `emergency-basics.tsx` | Blood group, genotype, optional allergies (local emergency card) |
 | `/(auth)/onboarding/location` | `location.tsx` | Approximate location |
 | `/(auth)/onboarding/notifications` | `notifications.tsx` | Notifications preference |
 | `/(auth)/onboarding/next` | `next.tsx` | Transition step |

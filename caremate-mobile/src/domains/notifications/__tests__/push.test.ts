@@ -1,5 +1,6 @@
 import {
   applyNotificationsEnabledPreference,
+  claimExclusiveNotificationDevice,
   clearPushRegistration,
   reconcilePushRegistrationWithOsPermission,
   syncPushRegistration,
@@ -13,6 +14,7 @@ const mockGetExpoPushTokenAsync = jest.fn();
 const mockSetNotificationChannelAsync = jest.fn();
 const mockUpsert = jest.fn();
 const mockDeleteEq = jest.fn();
+const mockDeleteNeq = jest.fn();
 const mockSetNotificationsEnabled = jest.fn();
 const mockSetDeviceDefaults = jest.fn();
 const mockSaveSettings = jest.fn();
@@ -87,7 +89,13 @@ jest.mock('@/lib/supabase', () => ({
       return {
         upsert: (...args: unknown[]) => mockUpsert(...args),
         delete: () => ({
-          eq: (...args: unknown[]) => mockDeleteEq(...args),
+          eq: (...args: unknown[]) => {
+            mockDeleteEq(...args);
+            return {
+              eq: jest.fn().mockResolvedValue({ error: null }),
+              neq: (...neqArgs: unknown[]) => mockDeleteNeq(...neqArgs),
+            };
+          },
         }),
       };
     }),
@@ -100,9 +108,11 @@ const mockSettingsGetState = useSettingsStore.getState as jest.Mock;
 describe('push registration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockDeleteEq.mockReturnValue({
+    mockDeleteNeq.mockResolvedValue({ error: null });
+    mockDeleteEq.mockImplementation(() => ({
       eq: jest.fn().mockResolvedValue({ error: null }),
-    });
+      neq: mockDeleteNeq,
+    }));
     mockUpsert.mockResolvedValue({ error: null });
     mockGetPermissionsAsync.mockResolvedValue({ status: 'granted' });
     mockRequestPermissionsAsync.mockResolvedValue({ status: 'granted' });
@@ -164,6 +174,51 @@ describe('push registration', () => {
       }),
       { onConflict: 'expo_push_token' },
     );
+    expect(mockDeleteNeq).not.toHaveBeenCalled();
+  });
+
+  it('removes other registered devices when replaceOtherDevices is set', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+
+    await syncPushRegistration({ replaceOtherDevices: true });
+
+    expect(mockDeleteEq).toHaveBeenCalledWith('user_id', 'user-1');
+    expect(mockDeleteNeq).toHaveBeenCalledWith('expo_push_token', 'ExponentPushToken[test]');
+  });
+
+  it('claims exclusive notification device on sign-in and prunes stale tokens', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+
+    await claimExclusiveNotificationDevice();
+
+    expect(mockUpsert).toHaveBeenCalled();
+    expect(mockDeleteNeq).toHaveBeenCalledWith('expo_push_token', 'ExponentPushToken[test]');
+  });
+
+  it('removes all push devices when notifications are disabled during claim', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockSettingsGetState.mockReturnValue({
+      notificationsEnabled: false,
+      setNotificationsEnabled: mockSetNotificationsEnabled,
+    });
+
+    await claimExclusiveNotificationDevice();
+
+    expect(mockUpsert).not.toHaveBeenCalled();
+    expect(mockDeleteEq).toHaveBeenCalledWith('user_id', 'user-1');
+    expect(mockDeleteNeq).not.toHaveBeenCalled();
   });
 
   it('does not re-prompt when OS permission is already denied', async () => {
@@ -258,5 +313,6 @@ describe('push registration', () => {
 
     expect(mockSetNotificationsEnabled).not.toHaveBeenCalledWith(false);
     expect(mockUpsert).toHaveBeenCalled();
+    expect(mockDeleteNeq).toHaveBeenCalledWith('expo_push_token', 'ExponentPushToken[test]');
   });
 });

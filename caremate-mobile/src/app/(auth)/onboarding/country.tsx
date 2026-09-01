@@ -53,7 +53,7 @@ export default function OnboardingCountryScreen() {
           label={t('common.continue')}
           accent={theme.accent}
           disabled={!countryCode || !languageCode}
-          onPress={() => router.push('/(auth)/onboarding/priorities')}
+          onPress={() => router.push('/(auth)/onboarding/emergency-basics')}
         />
       }
     >

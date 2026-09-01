@@ -1,5 +1,10 @@
 /** Payer org Support Team plans (org billing — separate from provider PCT and consumer Premium). */
 
+import { orgPlanFallbackPrices } from '@/lib/ngn-pricing';
+
+const PAYER_BASIC_FALLBACK = orgPlanFallbackPrices(75_000);
+const PAYER_PRO_FALLBACK = orgPlanFallbackPrices(165_000);
+
 export type PayerPlanId = 'free' | 'basic' | 'pro' | 'enterprise';
 
 export type PayerPlan = {
@@ -10,26 +15,22 @@ export type PayerPlan = {
   monthlyDisplay: string;
   yearlyDisplay: string;
   seats: string;
+  providers: string;
   patients: string;
-  chat: string;
-  voice: string;
-  proFeatures: string;
   cta: 'claim' | 'upgrade' | 'contact';
 };
 
-/** Display prices match SoftLyft admin seed defaults (NGN). Catalog is source of truth at checkout. */
-export const PAYER_PLANS: readonly PayerPlan[] = [
+/** Static plan coverage; paid amounts are hydrated from `payer_org_plan_prices`. */
+export const PAYER_PLAN_SHELLS: readonly PayerPlan[] = [
   {
     id: 'free',
     name: 'Free',
     tagline: 'Org Messages with connected patients stay free forever.',
     monthlyDisplay: '₦0',
     yearlyDisplay: '₦0',
-    seats: '1 Support Team seat',
-    patients: '5 approved patients',
-    chat: 'Unlimited org chat + Support Team DMs',
-    voice: 'No voice calls',
-    proFeatures: '—',
+    seats: '2 support team seats (including admin)',
+    providers: '3 active provider connections',
+    patients: '7 active patient connections',
     cta: 'claim',
   },
   {
@@ -37,39 +38,36 @@ export const PAYER_PLANS: readonly PayerPlan[] = [
     name: 'Basic',
     tagline: 'Small payer teams supporting members directly.',
     featured: true,
-    monthlyDisplay: '₦12,000',
-    yearlyDisplay: '₦120,000',
-    seats: '5 Support Team seats',
-    patients: '20 approved patients',
-    chat: 'Unlimited text chat',
-    voice: '100h voice / month (coming soon)',
-    proFeatures: '—',
+    monthlyDisplay: PAYER_BASIC_FALLBACK.monthlyDisplay,
+    yearlyDisplay: PAYER_BASIC_FALLBACK.yearlyDisplay,
+    seats: 'Up to 7 support team seats (including admin)',
+    providers: '25 active provider connections',
+    patients: '100 active patient connections',
     cta: 'upgrade',
   },
   {
     id: 'pro',
     name: 'Pro',
     tagline: 'Coordinate care across patients, payers, and providers.',
-    monthlyDisplay: '₦38,000',
-    yearlyDisplay: '₦380,000',
-    seats: '20 Support Team seats',
-    patients: '100 approved patients',
-    chat: 'Unlimited text chat',
-    voice: '250h voice / month (coming soon)',
-    proFeatures: 'Group chat (patient + payer + provider); Workflows, Eligibility/Benefits, Claims (future)',
+    monthlyDisplay: PAYER_PRO_FALLBACK.monthlyDisplay,
+    yearlyDisplay: PAYER_PRO_FALLBACK.yearlyDisplay,
+    seats: 'Up to 25 support team seats (including admin)',
+    providers: '75 active provider connections',
+    patients: '250 active patient connections',
     cta: 'upgrade',
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    tagline: 'Custom seats, patients, and integrations.',
+    tagline: 'More than Pro — reach out to the CareMate team.',
     monthlyDisplay: 'Custom',
     yearlyDisplay: 'Custom',
-    seats: 'Custom seats',
-    patients: 'Custom patient caps',
-    chat: 'Unlimited chat',
-    voice: 'Custom voice allowance',
-    proFeatures: 'Full coordination suite + custom integrations',
+    seats: 'More than Pro',
+    providers: 'More than Pro',
+    patients: 'More than Pro',
     cta: 'contact',
   },
 ] as const;
+
+/** Offline fallback when the catalog cannot be loaded. */
+export const PAYER_PLANS = PAYER_PLAN_SHELLS;

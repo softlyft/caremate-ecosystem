@@ -64,6 +64,8 @@ Suggested Amplify app names:
 | `VITE_SITE_URL` | Production: `https://getcaremate.com`. Used for OG/canonical links and build-time sitemap. |
 | `VITE_PAYMENT_URL` | Checkout host baked in at **build** time. DEV: Amplify payment origin. Production: `https://payment.getcaremate.com`. |
 | `VITE_COMMUNITY_PORTAL_URL` | Community join links. |
+| `VITE_SUPABASE_URL` | Same Supabase project as mobile — loads provider/payer org plan prices on `/providers/pricing` and `/payers/pricing`. |
+| `VITE_SUPABASE_ANON_KEY` | Anon / publishable key (not service role). |
 
 Build also emits `robots.txt`, `sitemap.xml`, and `llms.txt` into the static output.
 ### Payment checkout (`caremate-payment-gateway`)

@@ -47,7 +47,7 @@ export default function OnboardingNotificationsScreen() {
   }));
 
   function handleSkip() {
-    setNotificationsEnabled(true);
+    setNotificationsEnabled(false);
     router.push('/(auth)/onboarding/next');
   }
 
@@ -57,6 +57,7 @@ export default function OnboardingNotificationsScreen() {
       title={t('onboarding.notifications.title')}
       subtitle={t('onboarding.notifications.subtitle')}
       onSkip={handleSkip}
+      skipLabel={t('common.skip')}
       hero={
         <View style={[styles.heroShell, shadow.card]}>
           <LinearGradientFill

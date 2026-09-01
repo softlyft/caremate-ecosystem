@@ -230,6 +230,7 @@ class SyncEngine {
           { usePregnancyTrackerStore },
           { useSettingsStore },
           { evaluateMedicationAlerts },
+          { syncMedicationScheduledNotifications },
           { evaluatePregnancyAlerts },
           { toDateKey },
         ] = await Promise.all([
@@ -237,11 +238,17 @@ class SyncEngine {
           import('@/mini-apps/pregnancy-tracker/store'),
           import('@/domains/profile/store'),
           import('@/mini-apps/medication-tracker/alerts'),
+          import('@/mini-apps/medication-tracker/scheduled-notifications'),
           import('@/mini-apps/pregnancy-tracker/alerts'),
           import('@/mini-apps/_kit/date-utils'),
         ]);
         const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
         const medState = useMedicationTrackerStore.getState();
+        await syncMedicationScheduledNotifications({
+          medications: medState.medications,
+          logs: medState.logs,
+          notificationsEnabled,
+        });
         await evaluateMedicationAlerts({
           userId,
           medications: medState.medications,

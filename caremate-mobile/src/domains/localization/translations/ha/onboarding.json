@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Kulawa da ke aiki ba tare da intanet ba",
-    "subtitle": "Saiti na ɗan gajeren lokaci don Kusa, labarai, da kayan aikin gaggawa su yi daidai tun ranar farko.",
-    "cta": "Mu tafi",
-    "foot": "Fara da zaɓar ƙasa da harshe.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Ƙasa + harshe",
-      "priorities": "Abubuwan da suka fi muhimmanci a gare ka",
-      "news": "Labaran lafiya na yanki",
-      "nearby": "Kulawa kusa"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "Jiha / lardi (na zaɓi)"
     },
     "statePlaceholder": "misali Greater Accra",
+    "selectPlaceholder": "Zaɓi ƙasa",
     "searchPlaceholder": "Nemo ƙasashe",
-    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike.",
-    "selectPlaceholder": "Zaɓi ƙasa"
+    "searchEmpty": "Babu ƙasa da ta dace da wannan bincike."
   },
-  "priorities": {
-    "title": "Me ya fi muhimmanci?",
-    "subtitle": "Taɓa abin da kake damuwa da shi — za mu daidaita matakai na zaɓi masu zuwa.",
-    "continueSelected": "Ci gaba · an zaɓi {{count}}",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "Gaggawa",
-      "description": "Katin lafiya ba tare da intanet ba don masu agajin farko"
-    },
-    "nearby": {
-      "label": "Kulawa kusa",
-      "description": "Asibitoci, clinic, da kantin magani a kusa da kai"
-    },
-    "family": {
-      "label": "Iyali / yara",
-      "description": "Bayanan gidaje da kula da yara tare"
-    },
-    "learn": {
-      "label": "Koyo",
-      "description": "Labaran lafiya da amincewa da shawarwari"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Nemo kulawa kusa",
+    "subtitle": "Yi amfani da GPS mai daidaito don mafi kyawun daidaitawa, ko ka ri pin na kusan don {{place}}.",
     "enable": "Kunna wuri",
     "checking": "Ana duba…",
     "approximateCta": "Yi amfani da kimanin wuri",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Kimani",
       "hint": "Pin na fallback {{place}} — canza kowane lokaci"
-    },
-    "subtitle": "Yi amfani da GPS mai daidaito don mafi kyawun daidaitawa, ko ka ri pin na kusan don {{place}}."
+    }
   },
   "notifications": {
     "title": "Kasance a cikin labari",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "Ka shirya",
-    "subtitle": "Bincika a matsayin baƙo, ko ƙirƙiri asusu don bayanan gaggawa da iyali su iya daidaitawa.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Ci gaba da bincike",
     "saving": "Ana ajiyewa…",
     "createAccount": "Ƙirƙiri asusu",
     "haveAccount": "Na riga na sami asusu",
-    "browseTitle": "Bincika cikin 'yanci",
-    "browseHint": "Labarai, Kusa, da ƙananan manhaja suna aiki a matsayin baƙo",
+    "onDeviceTitle": "Bincika cikin 'yanci",
+    "onDeviceHint": "Labarai, Kusa, da ƙananan manhaja suna aiki a matsayin baƙo",
     "syncTitle": "Ƙirƙiri don daidaitawa",
-    "syncHint": "Ƙirƙiri asusu kafin gaggawa ko iyali don bayanai kada su makale a wannan na'ura kawai"
+    "syncHint": "Ƙirƙiri asusu kafin gaggawa ko iyali don bayanai kada su makale a wannan na'ura kawai",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

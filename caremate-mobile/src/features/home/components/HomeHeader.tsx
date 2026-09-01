@@ -2,7 +2,6 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Bell, MessageCircle } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
@@ -38,7 +37,7 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
       <View style={styles.meshTop} />
       <View style={styles.meshAccent} />
 
-      <Animated.View entering={FadeIn.duration(400)} style={styles.topRow}>
+      <View style={styles.topRow}>
         <Image
           source={images.logoHeader}
           style={styles.logo}
@@ -65,13 +64,13 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
             {hasUnread ? <View style={styles.unreadDot} /> : null}
           </IconButton>
         </View>
-      </Animated.View>
+      </View>
 
-      <Animated.View entering={FadeInDown.delay(80).duration(500).springify()} style={styles.copy}>
+      <View style={styles.copy}>
         <AppText variant="heroGreeting">
           {greeting}
         </AppText>
-      </Animated.View>
+      </View>
     </View>
   );
 }

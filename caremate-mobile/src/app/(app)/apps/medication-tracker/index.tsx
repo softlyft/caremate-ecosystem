@@ -1,5 +1,5 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
@@ -28,6 +28,7 @@ import {
   type TranslateFn,
 } from '@/mini-apps/_kit';
 import { evaluateMedicationAlerts } from '@/mini-apps/medication-tracker/alerts';
+import { syncMedicationScheduledNotifications } from '@/mini-apps/medication-tracker/scheduled-notifications';
 import {
   buildMedicationAlertCopy,
   localizeDoseSlotLabel,
@@ -160,6 +161,18 @@ export default function MedicationTrackerScreen() {
   );
   const activeMedicationCount = countActiveMedications(medications);
   const canAddMoreMedications = canAddMedication(tier, activeMedicationCount);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    void syncMedicationScheduledNotifications({
+      medications,
+      logs,
+      notificationsEnabled,
+      copy: buildMedicationAlertCopy(t),
+    });
+  }, [hydrated, medications, logs, notificationsEnabled, t]);
 
   useFocusEffect(
     useCallback(() => {

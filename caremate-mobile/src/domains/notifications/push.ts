@@ -87,6 +87,51 @@ async function persistNotificationsEnabled(enabled: boolean): Promise<void> {
   }
 }
 
+async function removeOtherPushDevicesForUser(userId: string, keepToken: string): Promise<void> {
+  const { error } = await supabase
+    .from('notification_devices')
+    .delete()
+    .eq('user_id', userId)
+    .neq('expo_push_token', keepToken);
+
+  if (error && __DEV__) {
+    console.warn('removeOtherPushDevicesForUser failed', error.message);
+  }
+}
+
+async function removeAllPushDevicesForUser(userId: string): Promise<void> {
+  const { error } = await supabase.from('notification_devices').delete().eq('user_id', userId);
+
+  if (error && __DEV__) {
+    console.warn('removeAllPushDevicesForUser failed', error.message);
+  }
+}
+
+/**
+ * After interactive sign-in, register this device for push and revoke tokens on other devices.
+ * Accounts are device-bound — only the active device should receive remote reminders.
+ */
+export async function claimExclusiveNotificationDevice(): Promise<void> {
+  const { user, isGuest, isAuthenticated } = useAuthStore.getState();
+  if (!isAuthenticated || isGuest || !user?.id) {
+    return;
+  }
+
+  const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
+  if (!notificationsEnabled) {
+    await removeAllPushDevicesForUser(user.id);
+    return;
+  }
+
+  const token = await getCurrentExpoPushToken();
+  if (!token) {
+    await removeAllPushDevicesForUser(user.id);
+    return;
+  }
+
+  await syncPushRegistration({ replaceOtherDevices: true });
+}
+
 async function getCurrentExpoPushToken(options?: {
   /** When true, prompt the OS if permission is not already granted (settings toggle). */
   requestPermission?: boolean;
@@ -150,6 +195,8 @@ async function getCurrentExpoPushToken(options?: {
  */
 export async function syncPushRegistration(options?: {
   requestPermission?: boolean;
+  /** When true, delete other registered devices for this user after upsert. */
+  replaceOtherDevices?: boolean;
 }): Promise<void> {
   try {
     const { user, isGuest, isAuthenticated } = useAuthStore.getState();
@@ -189,6 +236,10 @@ export async function syncPushRegistration(options?: {
     if (error) {
       console.warn('syncPushRegistration upsert failed', error.message);
       return;
+    }
+
+    if (options?.replaceOtherDevices) {
+      await removeOtherPushDevicesForUser(user.id, token);
     }
 
     if (__DEV__) {
@@ -260,7 +311,7 @@ export async function reconcilePushRegistrationWithOsPermission(): Promise<void>
 
     if (allowsOsNotifications(settings)) {
       if (notificationsEnabled) {
-        await syncPushRegistration();
+        await syncPushRegistration({ replaceOtherDevices: true });
       }
       return;
     }
@@ -293,7 +344,7 @@ export async function applyNotificationsEnabledPreference(enabled: boolean): Pro
   }
 
   await persistNotificationsEnabled(true);
-  await syncPushRegistration({ requestPermission: true });
+  await syncPushRegistration({ requestPermission: true, replaceOtherDevices: true });
 
   const settings = await Notifications.getPermissionsAsync();
   if (allowsOsNotifications(settings)) {

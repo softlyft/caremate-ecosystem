@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "ऑफ़लाइन भी काम करने वाली देखभाल",
-    "subtitle": "एक छोटी सेटअप ताकि नज़दीक, समाचार और आपातकालीन टूल पहले दिन से सही लगें।",
-    "cta": "चलिए शुरू करें",
-    "foot": "देश और भाषा चुनकर शुरू करें।",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "देश + भाषा",
-      "priorities": "आपकी प्राथमिकताएँ",
-      "news": "स्थानीय स्वास्थ्य समाचार",
-      "nearby": "नज़दीकी देखभाल"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "राज्य / प्रांत (वैकल्पिक)"
     },
     "statePlaceholder": "उदा. ग्रेटर आक्रा",
+    "selectPlaceholder": "देश चुनें",
     "searchPlaceholder": "देश खोजें",
-    "searchEmpty": "कोई देश इस खोज से मेल नहीं खाता।",
-    "selectPlaceholder": "देश चुनें"
+    "searchEmpty": "कोई देश इस खोज से मेल नहीं खाता।"
   },
-  "priorities": {
-    "title": "सबसे ज़्यादा क्या मायने रखता है?",
-    "subtitle": "जो आपको चाहिए उसे टैप करें — हम अगले वैकल्पिक चरण उसी के अनुसार ढालेंगे।",
-    "continueSelected": "जारी रखें · {{count}} चयनित",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "आपातकाल",
-      "description": "प्रथम उत्तरदाताओं के लिए ऑफ़लाइन स्वास्थ्य कार्ड"
-    },
-    "nearby": {
-      "label": "नज़दीकी देखभाल",
-      "description": "आपके आसपास अस्पताल, क्लीनिक और फ़ार्मेसी"
-    },
-    "family": {
-      "label": "परिवार / बच्चे",
-      "description": "घर के प्रोफ़ाइल और बच्चों की साझा देखभाल"
-    },
-    "learn": {
-      "label": "जानें",
-      "description": "विश्वसनीय स्वास्थ्य लेख और सुझाव"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "नज़दीक देखभाल खोजें",
+    "subtitle": "सर्वोत्तम मिलान के लिए सटीक GPS उपयोग करें, या {{place}} के लिए अनुमानित पिन रखें।",
     "enable": "स्थान सक्षम करें",
     "checking": "जाँच हो रही है…",
     "approximateCta": "अनुमानित स्थान इस्तेमाल करें",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "अनुमानित",
       "hint": "{{place}} फ़ॉलबैक पिन — बाद में कभी भी बदलें"
-    },
-    "subtitle": "सर्वोत्तम मिलान के लिए सटीक GPS उपयोग करें, या {{place}} के लिए अनुमानित पिन रखें।"
+    }
   },
   "notifications": {
     "title": "अपडेट रहें",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "आप तैयार हैं",
-    "subtitle": "अतिथि के रूप में देखें, या आपातकाल और परिवार डेटा सिंक करने के लिए खाता बनाएँ।",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "देखना जारी रखें",
     "saving": "सहेजा जा रहा है…",
     "createAccount": "खाता बनाएँ",
     "haveAccount": "मेरा पहले से खाता है",
-    "browseTitle": "स्वतंत्र रूप से देखें",
-    "browseHint": "लेख, पास और मिनी-ऐप अतिथि के रूप में चलते हैं",
+    "onDeviceTitle": "स्वतंत्र रूप से देखें",
+    "onDeviceHint": "लेख, पास और मिनी-ऐप अतिथि के रूप में चलते हैं",
     "syncTitle": "सिंक के लिए बनाएँ",
-    "syncHint": "आपातकाल या परिवार से पहले खाता बनाएँ ताकि डेटा सिर्फ इस डिवाइस पर न रहे"
+    "syncHint": "आपातकाल या परिवार से पहले खाता बनाएँ ताकि डेटा सिर्फ इस डिवाइस पर न रहे",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

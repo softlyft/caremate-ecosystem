@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "离线也能用的健康关怀",
-    "subtitle": "简短设置，让附近、资讯和急救工具从第一天就符合您的需求。",
-    "cta": "开始吧",
-    "foot": "先选择国家和语言。",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "国家 + 语言",
-      "priorities": "您的优先事项",
-      "news": "本地健康资讯",
-      "nearby": "附近医疗服务"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "州 / 省（可选）"
     },
     "statePlaceholder": "例如：大阿克拉",
+    "selectPlaceholder": "选择国家",
     "searchPlaceholder": "搜索国家",
-    "searchEmpty": "没有匹配的国家。",
-    "selectPlaceholder": "选择国家"
+    "searchEmpty": "没有匹配的国家。"
   },
-  "priorities": {
-    "title": "什么对您最重要？",
-    "subtitle": "点选您关心的内容 — 我们将据此调整后续可选步骤。",
-    "continueSelected": "继续 · 已选 {{count}} 项",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "急救",
-      "description": "供急救人员使用的离线健康卡"
-    },
-    "nearby": {
-      "label": "附近医疗服务",
-      "description": "您周围的医院、诊所和药店"
-    },
-    "family": {
-      "label": "家庭 / 孩子",
-      "description": "家庭档案与共享的儿童护理"
-    },
-    "learn": {
-      "label": "学习",
-      "description": "可信的健康文章与建议"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "查找附近的医疗服务",
+    "subtitle": "使用精确 GPS 获得最佳匹配，或为 {{place}} 保留大致位置。",
     "enable": "启用定位",
     "checking": "检查中…",
     "approximateCta": "使用大致位置",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "大致",
       "hint": "{{place}} 备用位置 — 可随时更改"
-    },
-    "subtitle": "使用精确 GPS 获得最佳匹配，或为 {{place}} 保留大致位置。"
+    }
   },
   "notifications": {
     "title": "保持关注",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "一切就绪",
-    "subtitle": "可以游客身份探索，或创建账户以同步急救和家庭数据。",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "继续探索",
     "saving": "保存中…",
     "createAccount": "创建账户",
     "haveAccount": "我已有账户",
-    "browseTitle": "自由浏览",
-    "browseHint": "文章、附近和迷你应用可游客使用",
+    "onDeviceTitle": "自由浏览",
+    "onDeviceHint": "文章、附近和迷你应用可游客使用",
     "syncTitle": "创建以同步",
-    "syncHint": "先创建账户再设置急救或家庭，以免数据只留在本机"
+    "syncHint": "先创建账户再设置急救或家庭，以免数据只留在本机",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

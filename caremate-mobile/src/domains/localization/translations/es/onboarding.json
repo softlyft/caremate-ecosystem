@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Cuidados que funcionan sin conexión",
-    "subtitle": "Una breve configuración para que Cerca, las noticias y las herramientas de emergencia se sientan bien desde el primer día.",
-    "cta": "Vamos",
-    "foot": "Empieza eligiendo país e idioma.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "País + idioma",
-      "priorities": "Tus prioridades",
-      "news": "Noticias de salud locales",
-      "nearby": "Atención cercana"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "Estado / provincia (opcional)"
     },
     "statePlaceholder": "ej. Gran Accra",
+    "selectPlaceholder": "Selecciona un país",
     "searchPlaceholder": "Buscar países",
-    "searchEmpty": "Ningún país coincide con esa búsqueda.",
-    "selectPlaceholder": "Selecciona un país"
+    "searchEmpty": "Ningún país coincide con esa búsqueda."
   },
-  "priorities": {
-    "title": "¿Qué es lo más importante?",
-    "subtitle": "Toca lo que te importa — adaptaremos los siguientes pasos opcionales.",
-    "continueSelected": "Continuar · {{count}} seleccionado(s)",
-    "minSelectTitle": "Elige al menos uno",
-    "minSelectMessage": "Selecciona una prioridad para personalizar tu experiencia en CareMate.",
-    "emergency": {
-      "label": "Emergencia",
-      "description": "Tarjeta de salud sin conexión para primeros respondedores"
-    },
-    "nearby": {
-      "label": "Atención cercana",
-      "description": "Hospitales, clínicas y farmacias a tu alrededor"
-    },
-    "family": {
-      "label": "Familia / niños",
-      "description": "Perfiles del hogar y cuidados compartidos de niños"
-    },
-    "learn": {
-      "label": "Aprender",
-      "description": "Artículos y consejos de salud de confianza"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Encuentra atención cerca",
+    "subtitle": "Usa GPS preciso para mejores coincidencias, o mantén un pin aproximado para {{place}}.",
     "enable": "Activar ubicación",
     "checking": "Comprobando…",
     "approximateCta": "Usar ubicación aproximada",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Aproximada",
       "hint": "Pin de respaldo {{place}} — cámbialo cuando quieras"
-    },
-    "subtitle": "Usa GPS preciso para mejores coincidencias, o mantén un pin aproximado para {{place}}."
+    }
   },
   "notifications": {
     "title": "Mantente al día",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "Ya estás listo",
-    "subtitle": "Explora como invitado o crea una cuenta para sincronizar emergencia y familia.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Seguir explorando",
     "saving": "Guardando…",
     "createAccount": "Crear cuenta",
     "haveAccount": "Ya tengo una cuenta",
-    "browseTitle": "Explora libremente",
-    "browseHint": "Artículos, Cerca y mini-apps funcionan como invitado",
+    "onDeviceTitle": "Explora libremente",
+    "onDeviceHint": "Artículos, Cerca y mini-apps funcionan como invitado",
     "syncTitle": "Crea para sincronizar",
-    "syncHint": "Crea una cuenta antes de emergencia o familia para no perder datos"
+    "syncHint": "Crea una cuenta antes de emergencia o familia para no perder datos",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

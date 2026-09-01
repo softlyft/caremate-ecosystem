@@ -1,5 +1,5 @@
-export { ONBOARDING_PRIORITY_IDS, ONBOARDING_PRIORITIES, DEFAULT_DEVICE_DEFAULTS } from './types';
-export type { DeviceDefaults, LocationMode, OnboardingPriorityId } from './types';
+export { DEFAULT_DEVICE_DEFAULTS } from './types';
+export type { DeviceDefaults, LocationMode } from './types';
 export { getDeviceDefaults, setDeviceDefaults, updateDeviceDefaults } from './device-defaults';
 export { useOnboardingDraftStore } from './store';
 export {
@@ -10,5 +10,6 @@ export {
   markEmergencyEssentialsDone,
   markFamilyPromptDone,
   resolvePostSignupHref,
+  saveOnboardingEmergencyBasics,
 } from './service';
 export type { FinishSetupItem } from './service';

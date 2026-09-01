@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Linking, StyleSheet, Switch, View } from 'react-native';
+import { TabScrollView, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import {
   Bell,
   CircleCheck,
@@ -17,7 +18,6 @@ import {
   Users,
   UserRound,
 } from 'lucide-react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
@@ -117,10 +117,10 @@ export default function ProfileTabScreen() {
 
   return (
     <Screen padded={false}>
-      <Animated.ScrollView
-        entering={FadeIn.duration(300)}
+      <TabScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+        {...iosTabScrollProps}
       >
         <AnimatedSection index={0}>
           <View style={styles.hero}>
@@ -376,7 +376,7 @@ export default function ProfileTabScreen() {
             </Button>
           </AnimatedSection>
         ) : null}
-      </Animated.ScrollView>
+      </TabScrollView>
     </Screen>
   );
 }

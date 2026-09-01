@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Huduma inayofanya kazi bila mtandao",
-    "subtitle": "Usanidi mfupi ili Karibu, habari, na zana za dharura zihisi sawa tangu siku ya kwanza.",
-    "cta": "Twende",
-    "foot": "Anza kwa kuchagua nchi na lugha.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Nchi + lugha",
-      "priorities": "Vipaumbele vyako",
-      "news": "Habari za afya za eneo",
-      "nearby": "Huduma karibu"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "Jimbo / mkoa (hiari)"
     },
     "statePlaceholder": "mf. Greater Accra",
+    "selectPlaceholder": "Chagua nchi",
     "searchPlaceholder": "Tafuta nchi",
-    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo.",
-    "selectPlaceholder": "Chagua nchi"
+    "searchEmpty": "Hakuna nchi zinazolingana na utafutaji huo."
   },
-  "priorities": {
-    "title": "Nini muhimu zaidi?",
-    "subtitle": "Gusa unachojali — tutaweka hatua zinazofuata za hiari kulingana na hilo.",
-    "continueSelected": "Endelea · {{count}} zimechaguliwa",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "Dharura",
-      "description": "Kadi ya afya bila mtandao kwa wahudumu wa kwanza"
-    },
-    "nearby": {
-      "label": "Huduma karibu",
-      "description": "Hospitali, kliniki, na maduka ya dawa karibu nawe"
-    },
-    "family": {
-      "label": "Familia / watoto",
-      "description": "Wasifu wa kaya na huduma ya watoto iliyoshirikiwa"
-    },
-    "learn": {
-      "label": "Jifunze",
-      "description": "Makala za afya zinazoaminika na vidokezo"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Tafuta huduma karibu",
+    "subtitle": "Tumia GPS sahihi kwa mechi bora, au weka pini ya takriban kwa {{place}}.",
     "enable": "Washa eneo",
     "checking": "Inakagua…",
     "approximateCta": "Tumia eneo la takriban",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Takriban",
       "hint": "Pini ya akiba {{place}} — badilisha wakati wowote"
-    },
-    "subtitle": "Tumia GPS sahihi kwa mechi bora, au weka pini ya takriban kwa {{place}}."
+    }
   },
   "notifications": {
     "title": "Endelea kupata habari",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "Uko tayari",
-    "subtitle": "Chunguza kama mgeni, au fungua akaunti ili data ya dharura na familia iweze kusawazishwa.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Endelea kuchunguza",
     "saving": "Inahifadhi…",
     "createAccount": "Fungua akaunti",
     "haveAccount": "Nina akaunti tayari",
-    "browseTitle": "Vinjari kwa uhuru",
-    "browseHint": "Makala, Karibu, na programu ndogo hufanya kazi kama mgeni",
+    "onDeviceTitle": "Vinjari kwa uhuru",
+    "onDeviceHint": "Makala, Karibu, na programu ndogo hufanya kazi kama mgeni",
     "syncTitle": "Fungua ili kusawazisha",
-    "syncHint": "Fungua akaunti kabla ya dharura au familia ili data isibaki kwenye kifaa hiki pekee"
+    "syncHint": "Fungua akaunti kabla ya dharura au familia ili data isibaki kwenye kifaa hiki pekee",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

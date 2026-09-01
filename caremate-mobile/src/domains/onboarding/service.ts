@@ -1,6 +1,7 @@
 import type { Href } from 'expo-router';
 
 import { GUEST_USER_ID } from '@/constants/guest';
+import { emergencyRepository } from '@/domains/emergency/repository';
 import { ensureWelcomeInAppNotification } from '@/domains/notifications/service';
 import { authService } from '@/services/auth-service';
 import { localizationService } from '@/domains/localization';
@@ -23,9 +24,10 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
     languageCode,
     state: draft.state.trim() || null,
     locationMode: draft.locationMode ?? 'approximate',
-    priorities: draft.priorities,
     notificationsEnabled: draft.notificationsEnabled,
     locationSkipped: draft.locationSkipped,
+    emergencyBasicsStarted: draft.emergencyBasicsSaved,
+    wantsFamily: draft.wantsFamily,
   });
 
   useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
@@ -33,6 +35,8 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
   trackEvent(AnalyticsEvents.onboardingComplete, {
     country_code: defaults.countryCode,
     language_code: defaults.languageCode,
+    emergency_basics_started: defaults.emergencyBasicsStarted,
+    wants_family: defaults.wantsFamily,
   });
 
   const userId = useAuthStore.getState().user?.id ?? GUEST_USER_ID;
@@ -42,6 +46,32 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
   });
 
   return defaults;
+}
+
+/** Save blood group / genotype from onboarding step 3 to the local emergency profile. */
+export async function saveOnboardingEmergencyBasics(input: {
+  bloodGroup: string;
+  genotype: string;
+  allergies: string;
+}): Promise<void> {
+  const userId = useAuthStore.getState().user?.id ?? GUEST_USER_ID;
+  const existing = await emergencyRepository.findByUserId(userId);
+  await emergencyRepository.save(userId, {
+    fullName: existing?.fullName ?? '',
+    bloodGroup: input.bloodGroup,
+    genotype: input.genotype,
+    allergies: input.allergies
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+    emergencyContacts: existing?.emergencyContacts ?? [],
+    chronicConditions: existing?.chronicConditions ?? [],
+    currentMedications: existing?.currentMedications ?? [],
+    notes: existing?.notes ?? null,
+    preferredHospital: existing?.preferredHospital ?? null,
+    insuranceProvider: existing?.insuranceProvider ?? null,
+    photoUrl: existing?.photoUrl ?? null,
+  });
 }
 
 /** Copy device country/language defaults onto a freshly created profile. */
@@ -59,10 +89,10 @@ export async function applyDeviceDefaultsToProfile(userId: string): Promise<void
 }
 
 export function getPostSignupHref(defaults: DeviceDefaults): Href {
-  if (defaults.priorities.includes('emergency') && !defaults.emergencyEssentialsDone) {
+  if (!defaults.emergencyEssentialsDone) {
     return '/(app)/setup/emergency';
   }
-  if (defaults.priorities.includes('family') && !defaults.familyPromptDone) {
+  if (defaults.wantsFamily && !defaults.familyPromptDone) {
     return '/(app)/setup/family-prompt';
   }
   return '/(app)/setup/done';
@@ -109,7 +139,7 @@ export async function getFinishSetupItems(options: {
   }
 
   if (options.isGuest) {
-    if (defaults.priorities.includes('emergency')) {
+    if (!options.hasEmergencyEssentials) {
       items.push({
         id: 'account-emergency',
         titleKey: 'setup.finishItems.accountEmergency.title',
@@ -117,7 +147,7 @@ export async function getFinishSetupItems(options: {
         href: '/(auth)/register',
       });
     }
-    if (defaults.priorities.includes('family')) {
+    if (defaults.wantsFamily) {
       items.push({
         id: 'account-family',
         titleKey: 'setup.finishItems.accountFamily.title',
@@ -137,7 +167,7 @@ export async function getFinishSetupItems(options: {
     });
   }
 
-  if (defaults.priorities.includes('family') && !options.hasHousehold) {
+  if (defaults.wantsFamily && !options.hasHousehold) {
     items.push({
       id: 'family',
       titleKey: 'setup.finishItems.family.title',

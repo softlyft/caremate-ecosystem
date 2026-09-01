@@ -2,7 +2,8 @@ import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-quer
 import { router, useLocalSearchParams } from 'expo-router';
 import { Bookmark, BookOpen, CheckCheck } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { TabFlatList, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 import { SearchField } from '@/components/ui/search-field';
@@ -176,12 +177,13 @@ export default function ArticlesTabScreen() {
 
   return (
     <Screen padded={false}>
-      <FlatList
+      <TabFlatList
         data={visibleRest}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.4}
+        {...iosTabScrollProps}
         contentContainerStyle={[
           styles.list,
           { paddingTop: insets.top + spacing.sm },

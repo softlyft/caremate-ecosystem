@@ -1,19 +1,18 @@
 {
   "welcome": {
-    "title": "Care that works offline",
-    "subtitle": "A short setup so Nearby, news, and emergency tools feel right from day one.",
-    "cta": "Let's go",
-    "foot": "Start by choosing country and language.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Country + language",
-      "priorities": "Your priorities",
-      "news": "Local health news",
-      "nearby": "Nearby care"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
-    "title": "Your country and language",
-    "subtitle": "These drive local health content and personalization across CareMate.",
+    "title": "Where are you based?",
+    "subtitle": "We use this for local health news, Nearby catalog, and app language. You can change it in Settings.",
     "field": {
       "country": "Country",
       "language": "Language",
@@ -24,60 +23,48 @@
     "searchPlaceholder": "Search countries",
     "searchEmpty": "No countries match that search."
   },
-  "priorities": {
-    "title": "What matters most?",
-    "subtitle": "Tap what you care about — we'll tailor the next optional steps.",
-    "continueSelected": "Continue · {{count}} selected",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "Emergency",
-      "description": "Offline health card for first responders"
-    },
-    "nearby": {
-      "label": "Nearby care",
-      "description": "Hospitals, clinics, and pharmacies around you"
-    },
-    "family": {
-      "label": "Family / kids",
-      "description": "Household profiles and shared kids care"
-    },
-    "learn": {
-      "label": "Learn",
-      "description": "Trusted health articles and tips"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
-    "title": "Find care nearby",
-    "subtitle": "Use precise GPS for the best matches, or keep an approximate pin for {{place}}.",
-    "enable": "Enable location",
+    "title": "Show care near you",
+    "subtitle": "Nearby ranks hospitals and clinics by distance. You can still search by name without location.",
+    "enable": "Use my location",
     "checking": "Checking…",
-    "approximateCta": "Use approximate location",
+    "approximateCta": "Not now",
     "precise": {
       "title": "Precise",
       "hint": "Best ranking for hospitals and clinics around you"
     },
     "approximate": {
-      "title": "Approximate",
-      "hint": "{{place}} fallback pin — change anytime later"
+      "title": "Not now",
+      "hint": "Browse by name only until you turn on location in Nearby"
     }
   },
   "notifications": {
-    "title": "Stay in the loop",
-    "subtitle": "Save your preference now. Push delivery turns on when CareMate notifications are fully wired.",
+    "title": "Reminders & updates",
+    "subtitle": "Choose whether CareMate can send health reminders. You can change this anytime in Settings.",
     "healthReminders": "Health reminders",
     "healthRemindersHint": "Tips, checkup nudges, and important updates"
   },
   "next": {
-    "title": "You're ready",
-    "subtitle": "Explore as a guest, or create an account so emergency and family data can sync.",
-    "continueExploring": "Continue exploring",
+    "title": "You're all set",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
+    "continueExploring": "Go to Home",
     "saving": "Saving…",
-    "createAccount": "Create account",
-    "haveAccount": "I already have an account",
-    "browseTitle": "Browse freely",
-    "browseHint": "Articles, Nearby, and mini-apps work as a guest",
-    "syncTitle": "Create to sync",
-    "syncHint": "Account before emergency or family so data isn’t stuck on this device"
+    "createAccount": "Create account to sync",
+    "haveAccount": "Sign in",
+    "onDeviceTitle": "On this device",
+    "onDeviceHint": "Emergency card, articles, and Nearby search work offline.",
+    "syncTitle": "With an account",
+    "syncHint": "Sync emergency card, family, and messages across devices.",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

@@ -68,7 +68,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | OB-01 | P0 | Fresh install / onboarding incomplete | Launch app | Onboarding intro opens instead of dropping straight into tabs. |
-| OB-02 | P1 | Onboarding flow | Complete priorities, region, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
+| OB-02 | P1 | Onboarding flow | Complete country, emergency basics, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
 | OB-02b | P1 | Priorities step with nothing selected | Tap Continue | Soft toast asks for at least one priority; navigation is blocked until a choice is made (Skip still allowed). |
 | OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Copy reflects selected country; Nearby later uses that country’s capital approximate pin (state not collected in UI yet). |
 | OB-03b | P0 | Onboarding country step | Search/select Mexico, United States, Nigeria, then search Global | MX, US, and NG appear; Global does **not** appear in the country picker; MX offers English+Spanish; US English only; NG existing local languages. State field is not shown. |

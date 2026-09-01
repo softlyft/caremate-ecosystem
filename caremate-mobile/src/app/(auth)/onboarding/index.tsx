@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { BookOpen, Globe2, MapPinned, Sparkles } from 'lucide-react-native';
+import { Globe2, MapPinned, ShieldPlus } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -30,15 +30,14 @@ const PREVIEW_KEYS = [
     soft: '#E0F2FE',
   },
   {
-    icon: Sparkles,
-    key: 'onboarding.welcome.preview.priorities',
+    icon: ShieldPlus,
+    key: 'onboarding.welcome.preview.emergency',
     color: palette.brandPurple,
     soft: palette.purpleLight,
   },
-  { icon: BookOpen, key: 'onboarding.welcome.preview.news', color: '#0284C7', soft: '#E0F2FE' },
   {
     icon: MapPinned,
-    key: 'onboarding.welcome.preview.nearby',
+    key: 'onboarding.welcome.preview.discover',
     color: palette.brandBlue,
     soft: palette.brandBlueLight,
   },

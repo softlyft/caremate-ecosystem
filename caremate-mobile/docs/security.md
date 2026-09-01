@@ -112,7 +112,9 @@ and the Play signing SHA-256 before store launch.
 
 ## Push devices
 
-Registered Expo tokens are stored locally so sign-out deletes **only this device’s** `notification_devices` row (no “delete all devices for user” fallback).
+Accounts are device-bound: on interactive sign-in, `claimExclusiveNotificationDevice` registers this device and deletes other `notification_devices` rows for the user so the previous phone stops receiving remote push.
+
+Sign-out still deletes **only this device’s** token (no “delete all” fallback when the local token is missing).
 
 ---
 

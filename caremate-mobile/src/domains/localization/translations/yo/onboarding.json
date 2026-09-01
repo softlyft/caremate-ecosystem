@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Ìtọ́jú tí ó ń ṣiṣẹ́ láìsí ayélujára",
-    "subtitle": "Ìṣètò kúkúrú kan kí Tòsí, ìròyìn, àti irinṣẹ́ pájáwìrì lè dára láti ọjọ́ àkọ́kọ́.",
-    "cta": "Jẹ́ ká lọ",
-    "foot": "Bẹ̀rẹ̀ nípa yíyan orílẹ̀-èdè àti èdè.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Orílẹ̀-èdè + èdè",
-      "priorities": "Àwọn ohun tí ó ṣe pàtàkì fún ọ",
-      "news": "Ìròyìn ìlera àdúgbò",
-      "nearby": "Ìtọ́jú tòsí"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "Ìpínlẹ̀ / agbègbè (àyànfẹ́)"
     },
     "statePlaceholder": "bíi Greater Accra",
+    "selectPlaceholder": "Yan orilẹ-ede kan",
     "searchPlaceholder": "Wá orílẹ̀-èdè",
-    "searchEmpty": "Kò sí orílẹ̀-èdè tó bá ìwádìí yìí mu.",
-    "selectPlaceholder": "Yan orilẹ-ede kan"
+    "searchEmpty": "Kò sí orílẹ̀-èdè tó bá ìwádìí yìí mu."
   },
-  "priorities": {
-    "title": "Kí ni ó ṣe pàtàkì jùlọ?",
-    "subtitle": "Tẹ ohun tí o bìkítà nípa — a ó mú àwọn ìgbésẹ̀ tó kàn ṣe déédéé.",
-    "continueSelected": "Tẹ̀síwájú · {{count}} tí a yàn",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "Pájáwìrì",
-      "description": "Káàdì ìlera láìsí ayélujára fún àwọn olùrànlọ́wọ́ àkọ́kọ́"
-    },
-    "nearby": {
-      "label": "Ìtọ́jú tòsí",
-      "description": "Àwọn ilé-ìwòsàn, ilé-ìtọ́jú, àti ilé-òògùn tó wà ní àyíká rẹ"
-    },
-    "family": {
-      "label": "Ẹbí / àwọn ọmọ",
-      "description": "Àwọn profáìlì ilé àti ìtọ́jú ọmọ tí a pín"
-    },
-    "learn": {
-      "label": "Kọ́",
-      "description": "Àwọn àpilẹ̀kọ ìlera tí a gbẹ́kẹ̀lé àti ìmọ̀ràn"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Wá ìtọ́jú tòsí",
+    "subtitle": "Lo GPS deede fun awọn ibaramu to dara julọ, tabi jẹki pin isunmọ fun {{place}}.",
     "enable": "Mú ibùdó ṣiṣẹ́",
     "checking": "Ń ṣàyẹ̀wò…",
     "approximateCta": "Lo ibùdó tó fẹ́rẹ̀ẹ́",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Tó fẹ́rẹ̀ẹ́",
       "hint": "Pin deede {{place}} — yi pada nigbakugba"
-    },
-    "subtitle": "Lo GPS deede fun awọn ibaramu to dara julọ, tabi jẹki pin isunmọ fun {{place}}."
+    }
   },
   "notifications": {
     "title": "Máa mọ̀ ohun tí ń ṣẹlẹ̀",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "O ti ṣetan",
-    "subtitle": "Ṣàwárí gẹ́gẹ́ bí àlejò, tàbí ṣẹ̀dá àkọọ́lẹ̀ kí data pájáwìrì àti ẹbí lè ṣàmúisọpọ̀.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Tẹ̀síwájú láti ṣàwárí",
     "saving": "Ń fi pamọ́…",
     "createAccount": "Ṣẹ̀dá àkọọ́lẹ̀",
     "haveAccount": "Mo ti ní àkọọ́lẹ̀ tẹ́lẹ̀",
-    "browseTitle": "Máa wòó ní òminira",
-    "browseHint": "Àwọn àpilẹ̀kọ, Tòsí, àti àwọn áàpù kékeré ń ṣiṣẹ́ gẹ́gẹ́ bí àlejò",
+    "onDeviceTitle": "Máa wòó ní òminira",
+    "onDeviceHint": "Àwọn àpilẹ̀kọ, Tòsí, àti àwọn áàpù kékeré ń ṣiṣẹ́ gẹ́gẹ́ bí àlejò",
     "syncTitle": "Ṣẹ̀dá láti ṣàmúisọpọ̀",
-    "syncHint": "Ṣẹ̀dá àkọọ́lẹ̀ ṣáájú pájáwìrì tàbí ẹbí kí data má bàá dúró lórí ẹ̀rọ yìí nìkan"
+    "syncHint": "Ṣẹ̀dá àkọọ́lẹ̀ ṣáájú pájáwìrì tàbí ẹbí kí data má bàá dúró lórí ẹ̀rọ yìí nìkan",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }
