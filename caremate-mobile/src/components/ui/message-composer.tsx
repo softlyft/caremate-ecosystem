@@ -1,51 +1,83 @@
-import type { StyleProp, ViewStyle } from 'react-native';
+import { forwardRef, useImperativeHandle, useRef, type ComponentPropsWithRef } from 'react';
+import type { StyleProp, TextInput, ViewStyle } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { Button, Input } from '@/components/ui/form-controls';
+import { Button } from '@/components/ui/form-controls';
+import { Input, InputField } from '@/components/ui/input';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
-export function MessageComposer({
-  value,
-  onChangeText,
-  onSend,
-  placeholder,
-  sending = false,
-  sendLabel,
-  sendingLabel,
-  style,
-  paddingBottom,
-  marginBottom,
-}: {
-  value: string;
-  onChangeText: (text: string) => void;
-  onSend: () => void;
-  placeholder: string;
-  sending?: boolean;
-  sendLabel: string;
-  sendingLabel: string;
-  style?: StyleProp<ViewStyle>;
-  paddingBottom?: number;
-  marginBottom?: number;
-}) {
+export type MessageComposerHandle = {
+  focus: () => void;
+};
+
+export const MessageComposer = forwardRef<
+  MessageComposerHandle,
+  {
+    value: string;
+    onChangeText: (text: string) => void;
+    onSend: () => void;
+    placeholder: string;
+    sending?: boolean;
+    sendLabel: string;
+    sendingLabel: string;
+    style?: StyleProp<ViewStyle>;
+    paddingBottom?: number;
+    marginBottom?: number;
+  }
+>(function MessageComposer(
+  {
+    value,
+    onChangeText,
+    onSend,
+    placeholder,
+    sending = false,
+    sendLabel,
+    sendingLabel,
+    style,
+    paddingBottom,
+    marginBottom,
+  },
+  ref,
+) {
+  const inputRef = useRef<TextInput>(null);
   const canSend = value.trim().length > 0 && !sending;
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current?.focus();
+    },
+  }));
+
+  function handleSendPress() {
+    if (!canSend) return;
+    onSend();
+    // Tapping send moves focus to the button; refocus so the keyboard stays up for rapid replies.
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }
 
   return (
     <View style={[styles.composer, { paddingBottom, marginBottom }, style]}>
       <View style={styles.inputWrap}>
-        <Input
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          multiline
-          editable={!sending}
-          textAlignVertical="top"
-          style={styles.input}
-        />
+        <Input className="rounded-xl min-h-12 bg-secondary border-input">
+          <InputField
+            ref={inputRef as ComponentPropsWithRef<typeof InputField>['ref']}
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            multiline
+            blurOnSubmit={false}
+            textAlignVertical="top"
+            className="text-[15px] font-sans"
+            style={styles.input}
+          />
+        </Input>
       </View>
       <Button
         style={[styles.sendButton, !canSend && styles.sendDisabled]}
-        onPress={onSend}
+        onPress={handleSendPress}
         disabled={!canSend}
         variant="plain"
         accessibilityLabel={sending ? sendingLabel : sendLabel}
@@ -56,7 +88,9 @@ export function MessageComposer({
       </Button>
     </View>
   );
-}
+});
+
+MessageComposer.displayName = 'MessageComposer';
 
 const styles = StyleSheet.create({
   composer: {

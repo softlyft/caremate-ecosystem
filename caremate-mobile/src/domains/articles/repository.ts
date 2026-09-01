@@ -17,6 +17,7 @@ import {
   LEARN_CATEGORIES,
   orderLearnFeed,
   orderTrendingFeed,
+  shouldEvictExternalNewsFromDevice,
 } from '@/domains/articles/utils/evergreen-articles';
 import { INTERNATIONAL_COUNTRY_CODE } from '@/domains/localization/config';
 import { supabase } from '@/lib/supabase';
@@ -197,37 +198,29 @@ class ArticleRepository extends BaseRepository {
   }
 
   /**
-   * Soft-delete external news older than the retention window
-   * (see EXTERNAL_NEWS_RETENTION_DAYS / first_seen).
+   * Hard-delete external news outside the retention window (and any soft-deleted
+   * external rows). Also removes local bookmarks / read state for those articles.
    */
   async purgeStaleExternalNews(now = new Date()): Promise<void> {
     const db = getDatabase();
-    const rows = await db.select().from(articles).where(isNull(articles.deletedAt));
-    const timestamp = nowIso();
+    const rows = await db.select().from(articles);
 
     for (const row of rows) {
       const article = mapArticle(row);
-      if (!isExternalArticle(article)) {
+      if (!shouldEvictExternalNewsFromDevice(article, { deletedAt: row.deletedAt, now })) {
         continue;
       }
-      if (isWithinExternalNewsRetention(article, now)) {
-        continue;
-      }
-      await db
-        .update(articles)
-        .set({ deletedAt: timestamp, updatedAt: timestamp })
-        .where(eq(articles.id, article.id));
+      await this.hardDeleteExternalArticle(article.id);
     }
   }
 
   /**
-   * Soft-delete local external news that is no longer in the published remote set
+   * Hard-delete local external news that is no longer in the published remote set
    * (unpublished or removed server-side without a tombstone).
    */
   async reconcileExternalNews(remoteLiveIds: Set<string>): Promise<void> {
     const db = getDatabase();
-    const rows = await db.select().from(articles).where(isNull(articles.deletedAt));
-    const timestamp = nowIso();
+    const rows = await db.select().from(articles);
 
     for (const row of rows) {
       const article = mapArticle(row);
@@ -237,11 +230,15 @@ class ArticleRepository extends BaseRepository {
       if (remoteLiveIds.has(article.id)) {
         continue;
       }
-      await db
-        .update(articles)
-        .set({ deletedAt: timestamp, updatedAt: timestamp })
-        .where(eq(articles.id, article.id));
+      await this.hardDeleteExternalArticle(article.id);
     }
+  }
+
+  private async hardDeleteExternalArticle(articleId: string): Promise<void> {
+    const db = getDatabase();
+    await db.delete(bookmarks).where(eq(bookmarks.articleId, articleId));
+    await db.delete(articleReads).where(eq(articleReads.articleId, articleId));
+    await db.delete(articles).where(eq(articles.id, articleId));
   }
 
   async findByCategory(categoryId: string, userKey = 'guest', search?: string): Promise<Article[]> {
@@ -698,6 +695,12 @@ class ArticleRepository extends BaseRepository {
       );
 
       if (row.deleted_at) {
+        const isExternal = Boolean(row.source_url) || String(row.id).startsWith('currents-');
+        if (isExternal) {
+          await this.hardDeleteExternalArticle(row.id);
+          continue;
+        }
+
         await db
           .insert(articles)
           .values({

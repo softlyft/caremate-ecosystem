@@ -89,6 +89,42 @@ export function patientMessageErrorKey(error: unknown): string {
   return 'messages.sendFailedMessage';
 }
 
+export function careCoordinationErrorKey(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  if (/conversation not found/i.test(message)) {
+    return 'messages.coordinationConversationNotFound';
+  }
+  if (/not connected to this provider/i.test(message)) {
+    return 'messages.coordinationProviderNotConnected';
+  }
+  if (/not connected to this payer/i.test(message)) {
+    return 'messages.coordinationPayerNotConnected';
+  }
+  if (/not linked/i.test(message)) {
+    return 'messages.coordinationOrgsNotLinked';
+  }
+  if (/messaging consent required/i.test(message)) {
+    return 'messages.coordinationConsentRequired';
+  }
+  if (/not eligible/i.test(message)) {
+    return 'messages.coordinationNotEligible';
+  }
+  if (/does not exist|could not find the function/i.test(message)) {
+    return 'messages.coordinationNotAvailable';
+  }
+  return 'messages.coordinationStartFailed';
+}
+
+function parseJsonObject(data: unknown): Record<string, unknown> {
+  if (typeof data === 'string') {
+    return JSON.parse(data) as Record<string, unknown>;
+  }
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    return data as Record<string, unknown>;
+  }
+  throw new Error('Invalid response');
+}
+
 export async function listPatientConversations(userId: string): Promise<MessageConversation[]> {
   if (!config.isSupabaseConfigured) return [];
 
@@ -170,8 +206,13 @@ export async function listPatientConversations(userId: string): Promise<MessageC
     ),
   ];
 
-  const [{ data: orgs }, { data: payers }, { data: allParticipants }, { data: coordProviders }, { data: coordPayers }] =
-    await Promise.all([
+  const [
+    { data: orgs },
+    { data: payers },
+    { data: allParticipants },
+    { data: coordProviders },
+    { data: coordPayers },
+  ] = await Promise.all([
     providerOrgIds.length
       ? supabase.from('provider_organizations').select('id, name').in('id', providerOrgIds)
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),
@@ -375,6 +416,7 @@ export async function searchMessageableUsers(query: string): Promise<Messageable
 export async function startDirectConversation(input: {
   otherUserId: string;
   organizationId: string;
+  orgKind?: OrgSide;
   body?: string | null;
 }): Promise<{ conversationId: string; message: MessageMessage | null }> {
   if (!config.isSupabaseConfigured) {
@@ -384,6 +426,7 @@ export async function startDirectConversation(input: {
     p_other_user_id: input.otherUserId,
     p_organization_id: input.organizationId,
     p_body: input.body?.trim() || null,
+    p_org_kind: input.orgKind ?? 'provider',
   });
   if (error) throw error;
 
@@ -435,52 +478,18 @@ export async function startCareCoordinationConversation(input: {
     throw new Error('Supabase is not configured');
   }
 
-  const source = await db
-    .from('message_conversations')
-    .select('kind, organization_id, payer_organization_id, patient_user_id')
-    .eq('id', input.sourceConversationId)
-    .maybeSingle();
-
-  if (source.error) throw source.error;
-  const conv = source.data as {
-    kind: string;
-    organization_id: string | null;
-    payer_organization_id: string | null;
-  } | null;
-  if (!conv || conv.kind !== 'org_patient') {
-    throw new Error('Invalid source conversation');
-  }
-
-  let providerOrgId: string;
-  let payerOrgId: string;
-
-  if (conv.organization_id && !conv.payer_organization_id) {
-    providerOrgId = conv.organization_id;
-    if (input.candidate.org_kind !== 'payer') {
-      throw new Error('Invalid candidate');
-    }
-    payerOrgId = input.candidate.organization_id;
-  } else if (conv.payer_organization_id && !conv.organization_id) {
-    payerOrgId = conv.payer_organization_id;
-    if (input.candidate.org_kind !== 'provider') {
-      throw new Error('Invalid candidate');
-    }
-    providerOrgId = input.candidate.organization_id;
-  } else {
-    throw new Error('Invalid source conversation');
-  }
-
-  const { data, error } = await db.rpc('start_care_coordination_conversation', {
-    p_provider_organization_id: providerOrgId,
-    p_payer_organization_id: payerOrgId,
+  const { data, error } = await db.rpc('start_care_coordination_from_source', {
+    p_source_conversation_id: input.sourceConversationId,
+    p_other_organization_id: input.candidate.organization_id,
   });
   if (error) throw error;
 
-  const payload = data as { conversation_id?: string };
-  if (!payload.conversation_id) {
+  const payload = parseJsonObject(data);
+  const conversationId = payload.conversation_id;
+  if (typeof conversationId !== 'string' || !conversationId) {
     throw new Error('Could not start care coordination conversation');
   }
-  return payload.conversation_id;
+  return conversationId;
 }
 
 async function notifyDirectMessagePush(messageIds: string[]): Promise<void> {

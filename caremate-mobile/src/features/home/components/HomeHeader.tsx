@@ -2,7 +2,6 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Bell, MessageCircle } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
@@ -11,7 +10,6 @@ import { images } from '@/constants/assets';
 import { useTranslation } from '@/domains/localization';
 import { useUnreadMessageCount } from '@/domains/messaging/hooks';
 import { useUnreadNotificationCount } from '@/domains/notifications/hooks';
-import { getGreeting } from '@/features/home/constants';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
@@ -31,19 +29,14 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
   const hasUnread = (unreadQuery.data ?? 0) > 0;
   const hasUnreadMessages = !isGuest && (unreadMessagesQuery.data ?? 0) > 0;
   const name = firstName?.trim();
-  const greetingBase = getGreeting({
-    morning: t('home.greeting.morning'),
-    afternoon: t('home.greeting.afternoon'),
-    evening: t('home.greeting.evening'),
-  });
-  const greeting = name ? t('home.greetingNamed', { greeting: greetingBase, name }) : greetingBase;
+  const greeting = !isGuest && name ? t('home.greetingNamed', { name }) : t('home.greeting');
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
       <View style={styles.meshTop} />
       <View style={styles.meshAccent} />
 
-      <Animated.View entering={FadeIn.duration(400)} style={styles.topRow}>
+      <View style={styles.topRow}>
         <Image
           source={images.logoHeader}
           style={styles.logo}
@@ -70,13 +63,11 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
             {hasUnread ? <View style={styles.unreadDot} /> : null}
           </IconButton>
         </View>
-      </Animated.View>
+      </View>
 
-      <Animated.View entering={FadeInDown.delay(80).duration(500).springify()} style={styles.copy}>
-        <AppText variant="heroGreeting" style={styles.greeting}>
-          {`${greeting} 👋`}
-        </AppText>
-      </Animated.View>
+      <View style={styles.copy}>
+        <AppText variant="heroGreeting">{greeting}</AppText>
+      </View>
     </View>
   );
 }
@@ -126,11 +117,6 @@ const styles = StyleSheet.create({
   },
   copy: {
     zIndex: 1,
-  },
-  greeting: {
-    fontSize: 28,
-    lineHeight: 34,
-    letterSpacing: -0.6,
   },
   actions: {
     flexDirection: 'row',

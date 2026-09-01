@@ -68,7 +68,7 @@ Manual test suite for CareMate QA. Covers **core tabs**, **domains** (auth, prof
 | ID | P | Pre | Steps | Expected |
 |----|---|-----|-------|----------|
 | OB-01 | P0 | Fresh install / onboarding incomplete | Launch app | Onboarding intro opens instead of dropping straight into tabs. |
-| OB-02 | P1 | Onboarding flow | Complete priorities, region, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
+| OB-02 | P1 | Onboarding flow | Complete country, emergency basics, location, notifications, next | Flow advances through each step without dead-ends or crashes. |
 | OB-02b | P1 | Priorities step with nothing selected | Tap Continue | Soft toast asks for at least one priority; navigation is blocked until a choice is made (Skip still allowed). |
 | OB-03 | P1 | Onboarding with approximate mode / denied location | Continue through location step | Copy reflects selected country; Nearby later uses that country’s capital approximate pin (state not collected in UI yet). |
 | OB-03b | P0 | Onboarding country step | Search/select Mexico, United States, Nigeria, then search Global | MX, US, and NG appear; Global does **not** appear in the country picker; MX offers English+Spanish; US English only; NG existing local languages. State field is not shown. |
@@ -200,7 +200,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | ME-12 | P1 | Signed-in | Me → Premium | Premium screen opens and current plan state loads without crash. |
 | ME-13 | P1 | Guest | Me → Premium | Upgrade path prompts sign-in instead of attempting checkout anonymously. |
 | ME-14 | P0 | Any | Settings → Privacy policy / Terms | Opens SoftLyft legal URLs in the system browser. |
-| ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. |
+| ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. See [Account deletion](./account-deletion.md#qa-checklist). |
 | ME-16 | P1 | Guest | Settings account section | Delete account is hidden. |
 | ME-17 | P0 | Signed-in + provider shared a file | Me → Documents | List shows title, type, provider; tap opens document. |
 | ME-17b | P0 | Same; notifications enabled + push registered | After provider upload | Bell inbox shows “New document”; OS push when app backgrounded (if token registered). |

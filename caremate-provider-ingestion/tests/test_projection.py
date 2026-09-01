@@ -92,6 +92,7 @@ class TestProjection:
         row = rebuild_projection_for_location(writer, LOC_ID)  # type: ignore[arg-type]
         assert row is not None
         assert row["id"] == LOC_ID
+        assert row["name"] == "Lagos General — Main campus"
         assert row["type"] == "hospital"
         assert row["phone"] == "+234800"
         assert row["email"] == "info@example.com"

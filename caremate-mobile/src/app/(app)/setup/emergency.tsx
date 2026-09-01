@@ -60,6 +60,27 @@ export default function SetupEmergencyEssentialsScreen() {
   const busyRef = useRef(false);
 
   useEffect(() => {
+    let active = true;
+    void emergencyRepository.findByUserId(userId).then((profile) => {
+      if (!active || !profile) {
+        return;
+      }
+      if (profile.bloodGroup) {
+        setBloodGroup(profile.bloodGroup);
+      }
+      if (profile.genotype) {
+        setGenotype(profile.genotype);
+      }
+      if (profile.allergies.length) {
+        setAllergies(profile.allergies.join(', '));
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
     const showSub = Keyboard.addListener(showEvent, (event) => {
@@ -164,9 +185,7 @@ export default function SetupEmergencyEssentialsScreen() {
   // Extra scroll room so bottom ICE fields + Save can rise above the keyboard.
   // Applied on both platforms: Android adjustResize alone is not enough for late fields.
   const bottomPad =
-    keyboardHeight > 0
-      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
-      : spacing.xl;
+    keyboardHeight > 0 ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2 : spacing.xl;
   // SafeAreaView already applies the top inset; only offset for the in-layout skip row.
   const keyboardVerticalOffset = Platform.OS === 'ios' ? SETUP_HEADER_HEIGHT : 0;
 

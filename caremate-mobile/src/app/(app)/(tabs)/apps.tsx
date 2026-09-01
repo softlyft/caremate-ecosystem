@@ -1,8 +1,7 @@
 import { router } from 'expo-router';
 import { LayoutGrid } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Platform, StyleSheet, View } from 'react-native';
 import DraggableFlatList, {
   type RenderItemParams,
   ScaleDecorator,
@@ -17,6 +16,7 @@ import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { loadMiniAppsOrder, saveMiniAppsOrder } from '@/mini-apps/_kit/order-preference';
 import { MINI_APPS, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
+import { iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
@@ -60,70 +60,69 @@ export default function AppsTabScreen() {
 
   return (
     <Screen padded={false} style={styles.flex}>
-      <GestureHandlerRootView style={styles.flex}>
-        <DraggableFlatList
-          data={apps}
-          keyExtractor={(item) => item.id}
-          onDragEnd={({ data }) => {
-            setApps(data);
-            void saveMiniAppsOrder(data.map((app) => app.id));
-          }}
-          renderItem={renderItem}
-          activationDistance={12}
-          containerStyle={styles.flex}
-          contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <AnimatedSection index={0}>
-                <View style={styles.hero}>
-                  <View style={styles.meshTop} />
-                  <View style={styles.meshAccent} />
+      <DraggableFlatList
+        data={apps}
+        keyExtractor={(item) => item.id}
+        onDragEnd={({ data }) => {
+          setApps(data);
+          void saveMiniAppsOrder(data.map((app) => app.id));
+        }}
+        renderItem={renderItem}
+        activationDistance={Platform.OS === 'ios' ? 16 : 12}
+        containerStyle={styles.flex}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+        showsVerticalScrollIndicator={false}
+        {...iosTabScrollProps}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <AnimatedSection index={0}>
+              <View style={styles.hero}>
+                <View style={styles.meshTop} />
+                <View style={styles.meshAccent} />
 
-                  <View style={styles.heroBadge}>
-                    <LayoutGrid color={palette.primary} size={16} strokeWidth={2.25} />
-                    <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
-                      {t('apps.readyCount', { count: availableCount })}
-                    </AppText>
-                  </View>
+                <View style={styles.heroBadge}>
+                  <LayoutGrid color={palette.primary} size={16} strokeWidth={2.25} />
+                  <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
+                    {t('apps.readyCount', { count: availableCount })}
+                  </AppText>
+                </View>
 
-                  <AppText variant="screenTitle" style={styles.title}>
-                    {t('apps.title')}
+                <AppText variant="screenTitle" style={styles.title}>
+                  {t('apps.title')}
+                </AppText>
+                <AppText variant="subtitle" style={styles.subtitle}>
+                  {t('apps.subtitle')}
+                </AppText>
+                {orderReady ? (
+                  <AppText variant="caption" style={styles.reorderHint}>
+                    {t('apps.reorderHint')}
                   </AppText>
-                  <AppText variant="subtitle" style={styles.subtitle}>
-                    {t('apps.subtitle')}
+                ) : null}
+              </View>
+            </AnimatedSection>
+
+            {isGuest ? (
+              <AnimatedSection index={1}>
+                <View style={styles.guestBanner}>
+                  <AppText variant="cardTitle">{t('apps.signInRequiredTitle')}</AppText>
+                  <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
+                    {t('profile.premium.appsGuestBanner')}
                   </AppText>
-                  {orderReady ? (
-                    <AppText variant="caption" style={styles.reorderHint}>
-                      {t('apps.reorderHint')}
+                  <Button
+                    style={styles.guestCta}
+                    onPress={() => router.push('/(auth)/login')}
+                    variant="plain"
+                  >
+                    <AppText variant="caption" style={styles.guestCtaLabel}>
+                      {t('common.signIn')}
                     </AppText>
-                  ) : null}
+                  </Button>
                 </View>
               </AnimatedSection>
-
-              {isGuest ? (
-                <AnimatedSection index={1}>
-                  <View style={styles.guestBanner}>
-                    <AppText variant="cardTitle">{t('apps.signInRequiredTitle')}</AppText>
-                    <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
-                      {t('profile.premium.appsGuestBanner')}
-                    </AppText>
-                    <Button
-                      style={styles.guestCta}
-                      onPress={() => router.push('/(auth)/login')}
-                      variant="plain"
-                    >
-                      <AppText variant="caption" style={styles.guestCtaLabel}>
-                        {t('common.signIn')}
-                      </AppText>
-                    </Button>
-                  </View>
-                </AnimatedSection>
-              ) : null}
-            </View>
-          }
-        />
-      </GestureHandlerRootView>
+            ) : null}
+          </View>
+        }
+      />
     </Screen>
   );
 }

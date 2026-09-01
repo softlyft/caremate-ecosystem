@@ -140,7 +140,7 @@ Safety nets if the user never hits “reconnect while app open”:
 | Reconnect watcher | Drain queue |
 | Local midnight (app still open) | Drain queue |
 | Background task (~daily) | Best-effort while closed (OS schedule; not exact 12:00) |
-| Open-app interval (~1 min) | Extra open-app safety |
+| Open-app interval (~1 hour) | Extra open-app safety |
 
 Exact midnight with the process killed is **not** guaranteed by iOS/Android. Guaranteed catch-up = next successful online cycle (open, reconnect, or background when the OS allows).
 
@@ -205,20 +205,11 @@ runSyncCycle
 
 ### Entity handlers (registered)
 
-| `entity_type` | Domain / kit |
-|---------------|--------------|
-| `profiles` | `domains/profile` |
-| `settings` | `domains/profile` |
-| `emergency_profiles` | `domains/emergency` |
-| `providers` | `domains/providers` |
-| `articles` | `domains/articles` (pull-focused) |
-| `health_tips` | `domains/tips` (pull-only) |
-| `bookmarks` | `domains/articles` |
-| `article_reads` | `domains/articles` |
-| `notifications` | `domains/notifications` (signed-in only; guests local) |
-| `mini_app_snapshots` | `mini-apps/_kit` |
+Full push/pull matrix with Supabase table names and QA validation steps: **[Sync inventory](./SYNC_INVENTORY.md)**.
 
 Handlers are registered in `src/sync/register-default-handlers.ts` via `registerSyncHandler` (`src/sync/registry.ts`). New domains should **register**, not edit a hard-coded map inside `engine.ts`.
+
+**Manual sync:** Settings → **Sync now** (also resets exhausted queue retries). The former top-of-screen sync toast was removed.
 
 ---
 
@@ -241,7 +232,7 @@ Handlers are registered in `src/sync/register-default-handlers.ts` via `register
 | `maxRetries` | 5 | Stop retrying a queue row after N failures |
 | `retryDelayMs` | 2000 | Documented retry spacing (attempts stored on row) |
 | `writeDebounceMs` | 1500 | Coalesce rapid local writes |
-| `pullIntervalMs` | 60000 | Open-app interval safety net |
+| `pullIntervalMs` | 3600000 | Open-app interval safety net (1 hour) |
 
 ---
 

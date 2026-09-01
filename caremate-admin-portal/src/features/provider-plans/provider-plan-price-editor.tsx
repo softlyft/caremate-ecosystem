@@ -32,6 +32,7 @@ export function ProviderPlanPriceEditor({
           amount_minor: Math.round(amountMajor * 100),
           pct_seat_limit: Number(fd.get('pct_seat_limit')),
           patient_connection_cap: Number(fd.get('patient_connection_cap')),
+          payer_connection_cap: Number(fd.get('payer_connection_cap')),
           voice_minutes_included: Number(fd.get('voice_minutes_included')),
           video_minutes_included: Number(fd.get('video_minutes_included')),
           is_active: fd.get('is_active') === 'on',
@@ -47,6 +48,17 @@ export function ProviderPlanPriceEditor({
               type="number"
               min="1"
               defaultValue={price.pct_seat_limit}
+              disabled={!editable || pending}
+              required
+            />
+          </FormField>
+          <FormField compact label="Payer connections" htmlFor={`${price.id}-payers`}>
+            <Input
+              id={`${price.id}-payers`}
+              name="payer_connection_cap"
+              type="number"
+              min="1"
+              defaultValue={price.payer_connection_cap}
               disabled={!editable || pending}
               required
             />

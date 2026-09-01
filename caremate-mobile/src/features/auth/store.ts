@@ -120,6 +120,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       if (mapped) {
         trackEvent(AnalyticsEvents.signIn);
+        const { claimExclusiveNotificationDevice } = await import('@/domains/notifications/push');
+        await claimExclusiveNotificationDevice();
       }
     } finally {
       set({ isLoading: false });
@@ -147,6 +149,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       if (mapped) {
         trackEvent(AnalyticsEvents.signUp);
+        const { claimExclusiveNotificationDevice } = await import('@/domains/notifications/push');
+        await claimExclusiveNotificationDevice();
       }
       return {
         needsEmailVerification: false,
@@ -170,6 +174,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       if (mapped) {
         trackEvent(AnalyticsEvents.signUp);
+        const { claimExclusiveNotificationDevice } = await import('@/domains/notifications/push');
+        await claimExclusiveNotificationDevice();
       }
     } finally {
       set({ isLoading: false });

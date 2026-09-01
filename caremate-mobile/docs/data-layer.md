@@ -210,9 +210,9 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 | `findById(id)` | Single article |
 | `findTrending(limit, userKey?, countryCode?)` | Home mix: 1 evergreen + 2 INT + up to 2 country news from SQLite |
 | `getTrendingToday(limit, options)` | Offline-first trending (local only; passes `countryCode`) |
-| `pullFromRemote()` | Pull published catalog + external news from Supabase; reconcile unpublished external rows; purge external news older than 7 calendar days (`firstSeenAt`) |
-| `purgeStaleExternalNews()` | Soft-delete local external news outside the 7-day retention window |
-| `reconcileExternalNews(remoteLiveIds)` | Soft-delete local external news missing from the published remote set |
+| `pullFromRemote()` | Pull published catalog + external news from Supabase; reconcile unpublished external rows; **hard-delete** external news older than 7 calendar days (`firstSeenAt`) |
+| `purgeStaleExternalNews()` | **Hard-delete** stale / soft-deleted external news and related bookmarks / reads |
+| `reconcileExternalNews(remoteLiveIds)` | Hard-delete local external news missing from the published remote set |
 | `toggleBookmark(userId, articleId)` | Add/remove bookmark + sync queue |
 | `getBookmarks(userId)` | Bookmarked articles |
 | `isBookmarked(userId, articleId)` | Bookmark check |
@@ -236,7 +236,7 @@ Lock-screen snapshot (separate from SQLite): AsyncStorage keys via `domains/emer
 
 ## Sync engine (`src/sync/`)
 
-Full flows, diagrams, and failure behavior: **[SYNC_ENGINE.md](./SYNC_ENGINE.md)**.
+Full flows, diagrams, and failure behavior: **[SYNC_ENGINE.md](./SYNC_ENGINE.md)**. Push/pull inventory for DB validation: **[SYNC_INVENTORY.md](./SYNC_INVENTORY.md)**.
 
 ### Policy
 

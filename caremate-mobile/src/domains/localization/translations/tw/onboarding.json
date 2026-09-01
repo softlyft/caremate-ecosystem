@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Hwɛ a ɛyɛ adwuma a intanɛt nni hɔ",
-    "subtitle": "Nhyɛhyɛe tiawa bi na Bɛn, amanneɛ, ne ahoyɛ nsɛm nneɛma agye so fi da a edi kan.",
-    "cta": "Momma yɛnkɔ",
-    "foot": "Fi ase wɔ ɔman ne kasa a wopaw.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Ɔman + kasa",
-      "priorities": "Deɛ ɛho hia wo",
-      "news": "Mpɔtam apɔwmuden amanneɛ",
-      "nearby": "Hwɛ a ɛbɛn"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "Mantam / province (wopɛ a)"
     },
     "statePlaceholder": "sɛ Greater Accra",
+    "selectPlaceholder": "Select a country",
     "searchPlaceholder": "Hwehwɛ nman",
-    "searchEmpty": "Ɔman biara nni hɔ a ɛne nhwehwɛmu no hyia.",
-    "selectPlaceholder": "Select a country"
+    "searchEmpty": "Ɔman biara nni hɔ a ɛne nhwehwɛmu no hyia."
   },
-  "priorities": {
-    "title": "Deɛn na ɛho hia sen biara?",
-    "subtitle": "Mia deɛ wohwɛ ho — yɛbɛyɛ anammɔn a edi hɔ no sɛnea ɛsɛ.",
-    "continueSelected": "Toa so · {{count}} a wopaw",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "Ahoyɛ",
-      "description": "Apɔwmuden kaade a intanɛt nni so ma wɔn a wodi kan boa"
-    },
-    "nearby": {
-      "label": "Hwɛ a ɛbɛn",
-      "description": "Ayaresabea, clinic, ne aduru fie a ɛbɛn wo"
-    },
-    "family": {
-      "label": "Abusua / mma",
-      "description": "Ofie profile ne mma hwɛ a wɔkyɛ"
-    },
-    "learn": {
-      "label": "Sua",
-      "description": "Apɔwmuden nkyerɛkyerɛ a wotumi gye di ne afotu"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Hwehwɛ hwɛ a ɛbɛn",
+    "subtitle": "Use precise GPS for best matches, or keep approximate pin for {{place}}.",
     "enable": "Ma beaeɛ no nyɛ adwuma",
     "checking": "Ɛrehwehwɛ…",
     "approximateCta": "Fa beaeɛ a ɛbɛn di dwuma",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Ɛbɛn",
       "hint": "{{place}} fallback pin — change anytime later"
-    },
-    "subtitle": "Use precise GPS for best matches, or keep approximate pin for {{place}}."
+    }
   },
   "notifications": {
     "title": "Tena amanneɛ mu",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "Wo ayɛ krado",
-    "subtitle": "Hwehwɛ sɛ ɔhɔho, anaasɛ yɛ akawnt na ahoyɛ ne abusua data betumi async.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Toa so hwehwɛ",
     "saving": "Ɛresie…",
     "createAccount": "Yɛ akawnt",
     "haveAccount": "Mewɔ akawnt dedaw",
-    "browseTitle": "Hwehwɛ freɛ",
-    "browseHint": "Nkyerɛkyerɛ, Bɛn, ne app ketewa yɛ adwuma sɛ ɔhɔho",
+    "onDeviceTitle": "Hwehwɛ freɛ",
+    "onDeviceHint": "Nkyerɛkyerɛ, Bɛn, ne app ketewa yɛ adwuma sɛ ɔhɔho",
     "syncTitle": "Yɛ akawnt na sync",
-    "syncHint": "Yɛ akawnt ansa na ahoyɛ anaa abusua na data anka wɔ nneɛma yi so nko"
+    "syncHint": "Yɛ akawnt ansa na ahoyɛ anaa abusua na data anka wɔ nneɛma yi so nko",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

@@ -1,6 +1,6 @@
 {
   "title": "Health Insurance Directory",
-  "subtitle": "Browse insurers and HMOs in the CareMate catalog.",
+  "subtitle": "Browse insurers you are not linked with yet. Connected insurers are managed under Me → Connections.",
   "loading": "Loading insurance directory…",
   "count": "{{count}} listed",
   "searchPlaceholder": "Search by name or address",
@@ -75,6 +75,12 @@
     "connectedSectionTitle": "Your connected insurers",
     "connectedSectionSubtitle": "Insurers linked to your CareMate account. Disconnect anytime.",
     "connectedEmpty": "You are not connected to any insurers yet.",
-    "connectedSince": "Connected {{date}}"
+    "connectedSince": "Connected {{date}}",
+    "loadingConnection": "Checking your connection…",
+    "manageInConnectionsHint": "Linked insurers and pending requests are managed under Me → Connections.",
+    "openConnections": "Open Connections",
+    "alreadyConnected": "You are already connected with this insurer. Manage the link under Connections.",
+    "alreadyPending": "A connection request with this insurer is already pending. Check Connections for status.",
+    "requestBlocked": "You cannot send another request to this insurer right now."
   }
 }

@@ -7,10 +7,12 @@ export function OrgConnectionActions({
   connectionId,
   side,
   mode,
+  approveDisabled = false,
 }: {
   connectionId: string;
   side: 'provider' | 'payer';
   mode: ConnectionActionMode;
+  approveDisabled?: boolean;
 }) {
   return (
     <ConnectionActions
@@ -18,6 +20,7 @@ export function OrgConnectionActions({
       mode={mode}
       handlers={payerOrgConnectionHandlers(side)}
       errorMapper="payer-org"
+      approveDisabled={approveDisabled}
     />
   );
 }

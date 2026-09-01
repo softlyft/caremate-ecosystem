@@ -99,7 +99,7 @@ export const STATIC_PAGE_SEO: Record<string, Omit<PageSeo, 'path'>> = {
   '/payers/pricing': {
     title: titleWithBrand('Payer Support Team plans'),
     description:
-      'Support Team for health insurers and payers — Free, Basic, Pro, and Enterprise. Text and voice chat; Pro adds group coordination. Paystack NGN.',
+      'Support Team for health insurers and payers — Free, Basic, Pro, and Enterprise. Secure messaging and coordination; Pro adds group chat. Paystack NGN.',
   },
   '/providers': {
     title: titleWithBrand('For healthcare providers'),

@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "Maakye",
-    "afternoon": "Maaha",
-    "evening": "Maadwo"
-  },
-  "greetingNamed": "{{greeting}}, {{name}}",
+  "greeting": "Agoo",
+  "greetingNamed": "Agoo, {{name}}",
   "tagline": "Wo apɔwmuden akwantuo, wɔahyehyɛ no fɛfɛɛfɛ",
   "emergency": {
     "title": "Ahoyɛ profile",

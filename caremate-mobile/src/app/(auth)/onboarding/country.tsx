@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { Globe2 } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -53,7 +53,7 @@ export default function OnboardingCountryScreen() {
           label={t('common.continue')}
           accent={theme.accent}
           disabled={!countryCode || !languageCode}
-          onPress={() => router.push('/(auth)/onboarding/priorities')}
+          onPress={() => router.push('/(auth)/onboarding/emergency-basics' as Href)}
         />
       }
     >

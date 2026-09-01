@@ -1,6 +1,9 @@
+import { GUEST_USER_ID } from '@/constants/guest';
 import { createInAppNotification } from '@/domains/notifications/service';
 import type { NotificationSeverity } from '@/domains/notifications/types';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
+import { sendMedicationPushAlerts } from '@/mini-apps/medication-tracker/push-alerts';
+import { MEDICATION_TRACKER_PATH } from '@/mini-apps/medication-tracker/scheduled-notifications';
 import {
   buildDaySlots,
   needsRefill,
@@ -124,11 +127,23 @@ export async function evaluateMedicationAlerts(params: {
         entityType: 'medication',
         entityId: candidate.entityId,
         dedupeKey: candidate.dedupeKey,
+        data: {
+          path: MEDICATION_TRACKER_PATH,
+          medicationId: candidate.entityId,
+        },
       });
       written += 1;
     } catch {
       // Inbox must never break medication flows.
     }
   }
+
+  if (params.userId !== GUEST_USER_ID && candidates.length > 0) {
+    await sendMedicationPushAlerts({
+      userId: params.userId,
+      alerts: candidates,
+    });
+  }
+
   return written;
 }

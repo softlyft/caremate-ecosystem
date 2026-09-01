@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "Barka da safiya",
-    "afternoon": "Barka da rana",
-    "evening": "Barka da yamma"
-  },
-  "greetingNamed": "{{greeting}}, {{name}}",
+  "greeting": "Sannu",
+  "greetingNamed": "Sannu, {{name}}",
   "tagline": "Tafiyar lafiyarka, an tsara ta kyau",
   "emergency": {
     "title": "Bayanin gaggawa",

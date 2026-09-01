@@ -1,47 +1,73 @@
 import { create } from 'zustand';
 
-import type { LocationMode, OnboardingPriorityId } from './types';
+import type { LocationMode } from './types';
 
 interface OnboardingDraftState {
-  priorities: OnboardingPriorityId[];
   countryCode: string | null;
   languageCode: string | null;
   state: string;
+  bloodGroup: string;
+  genotype: string;
+  allergies: string;
+  emergencyBasicsSaved: boolean;
+  emergencyBasicsSkipped: boolean;
   locationMode: LocationMode | null;
   notificationsEnabled: boolean;
   locationSkipped: boolean;
-  togglePriority: (id: OnboardingPriorityId) => void;
+  wantsFamily: boolean;
   setCountry: (countryCode: string) => void;
   setLanguage: (languageCode: string) => void;
   setState: (state: string) => void;
+  setEmergencyBasics: (input: { bloodGroup: string; genotype: string; allergies: string }) => void;
+  markEmergencyBasicsSaved: () => void;
+  skipEmergencyBasics: () => void;
   setLocationMode: (mode: LocationMode) => void;
   skipLocation: () => void;
   setNotificationsEnabled: (enabled: boolean) => void;
+  setWantsFamily: (wantsFamily: boolean) => void;
   reset: () => void;
 }
 
 const initial = {
-  priorities: [] as OnboardingPriorityId[],
   countryCode: null as string | null,
   languageCode: null as string | null,
   state: '',
+  bloodGroup: '',
+  genotype: '',
+  allergies: '',
+  emergencyBasicsSaved: false,
+  emergencyBasicsSkipped: false,
   locationMode: null as LocationMode | null,
   notificationsEnabled: true,
   locationSkipped: false,
+  wantsFamily: false,
 };
 
-export const useOnboardingDraftStore = create<OnboardingDraftState>((set, get) => ({
+export const useOnboardingDraftStore = create<OnboardingDraftState>((set) => ({
   ...initial,
-
-  togglePriority: (id) => {
-    const current = get().priorities;
-    const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
-    set({ priorities: next });
-  },
 
   setCountry: (countryCode) => set({ countryCode }),
   setLanguage: (languageCode) => set({ languageCode }),
   setState: (state) => set({ state }),
+
+  setEmergencyBasics: (input) =>
+    set({
+      bloodGroup: input.bloodGroup,
+      genotype: input.genotype,
+      allergies: input.allergies,
+    }),
+
+  markEmergencyBasicsSaved: () =>
+    set({
+      emergencyBasicsSaved: true,
+      emergencyBasicsSkipped: false,
+    }),
+
+  skipEmergencyBasics: () =>
+    set({
+      emergencyBasicsSkipped: true,
+      emergencyBasicsSaved: false,
+    }),
 
   setLocationMode: (mode) =>
     set({
@@ -57,5 +83,7 @@ export const useOnboardingDraftStore = create<OnboardingDraftState>((set, get) =
 
   setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
 
-  reset: () => set({ ...initial, priorities: [] }),
+  setWantsFamily: (wantsFamily) => set({ wantsFamily }),
+
+  reset: () => set({ ...initial }),
 }));

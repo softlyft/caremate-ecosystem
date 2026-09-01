@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "Ẹ káàárọ̀",
-    "afternoon": "Ẹ káàsán",
-    "evening": "Ẹ káalẹ́"
-  },
-  "greetingNamed": "{{greeting}}, {{name}}",
+  "greeting": "Báwo",
+  "greetingNamed": "Báwo, {{name}}",
   "tagline": "Ìrìnàjò ìlera rẹ, tí a ṣètò dáradára",
   "emergency": {
     "title": "Profáìlì pájáwìrì",

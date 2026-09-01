@@ -1,10 +1,19 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Dimensions, FlatList, Keyboard, Platform, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Dimensions,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
-import { MessageComposer } from '@/components/ui/form-controls';
+import { MessageComposer, type MessageComposerHandle } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
@@ -21,6 +30,9 @@ import {
 } from '@/domains/messaging/repository';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
+
+/** Native stack header height; used for KeyboardAvoidingView offset on iOS. */
+const STACK_HEADER_HEIGHT = 56;
 
 type ThreadItem =
   | { kind: 'day'; id: string; label: string }
@@ -150,8 +162,6 @@ function useKeyboardLift() {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   useEffect(() => {
-    const bottomInset = insets.bottom;
-
     const recompute = (keyboardHeight: number) => {
       keyboardHeightRef.current = keyboardHeight;
       const windowHeight = Dimensions.get('window').height;
@@ -167,7 +177,8 @@ function useKeyboardLift() {
       setKeyboardOpen(true);
 
       if (Platform.OS === 'ios') {
-        setLift(Math.max(keyboardHeight - bottomInset, 0));
+        // iOS uses KeyboardAvoidingView; keep lift at 0 to avoid double-adjustment.
+        setLift(0);
         return;
       }
 
@@ -203,9 +214,11 @@ function useKeyboardLift() {
 
 export default function MessageThreadScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
   const listRef = useRef<FlatList<ThreadItem>>(null);
+  const composerRef = useRef<MessageComposerHandle>(null);
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   const conversationId = Array.isArray(rawId) ? rawId[0] : rawId;
   const messagesQuery = useConversationMessages(conversationId ?? '');
@@ -214,6 +227,8 @@ export default function MessageThreadScreen() {
   const [title, setTitle] = useState(t('messages.threadTitle'));
   const [threadConversation, setThreadConversation] = useState<MessageConversation | null>(null);
   const { lift, composerPaddingBottom, keyboardOpen } = useKeyboardLift();
+  const isIOS = Platform.OS === 'ios';
+  const keyboardVerticalOffset = isIOS ? insets.top + STACK_HEADER_HEIGHT : 0;
   const todayLabel = t('messages.today');
   const yesterdayLabel = t('messages.yesterday');
 
@@ -263,7 +278,7 @@ export default function MessageThreadScreen() {
       Platform.OS === 'ios' ? 80 : 120,
     );
     return () => clearTimeout(timer);
-  }, [keyboardOpen, lift]);
+  }, [keyboardOpen]);
 
   async function handleSend() {
     const body = draft.trim();
@@ -278,6 +293,7 @@ export default function MessageThreadScreen() {
       Alert.alert(t('messages.sendFailedTitle'), t(patientMessageErrorKey(error)));
     } finally {
       setSending(false);
+      composerRef.current?.focus();
     }
   }
 
@@ -300,13 +316,15 @@ export default function MessageThreadScreen() {
     );
   }
 
-  return (
-    <Screen padded={false}>
+  const threadBody = (
+    <>
       <View style={styles.headerHint}>
         <AppText variant="caption" color="brand">
           {title}
         </AppText>
-        {threadConversation ? <AddCareCoordinationButton conversation={threadConversation} /> : null}
+        {threadConversation ? (
+          <AddCareCoordinationButton conversation={threadConversation} />
+        ) : null}
       </View>
       <FlatList
         ref={listRef}
@@ -314,7 +332,8 @@ export default function MessageThreadScreen() {
         keyExtractor={(item) => item.id}
         style={styles.listFlex}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        keyboardDismissMode={isIOS ? 'interactive' : 'on-drag'}
+        automaticallyAdjustKeyboardInsets={!isIOS}
         contentContainerStyle={[
           styles.list,
           messages.length === 0 ? styles.listEmpty : null,
@@ -341,6 +360,7 @@ export default function MessageThreadScreen() {
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
       />
       <MessageComposer
+        ref={composerRef}
         value={draft}
         onChangeText={setDraft}
         onSend={() => void handleSend()}
@@ -349,13 +369,32 @@ export default function MessageThreadScreen() {
         sendLabel={t('messages.send')}
         sendingLabel={t('messages.sending')}
         paddingBottom={composerPaddingBottom}
-        marginBottom={lift}
+        marginBottom={isIOS ? 0 : lift}
       />
+    </>
+  );
+
+  return (
+    <Screen padded={false} style={styles.flex}>
+      {isIOS ? (
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior="padding"
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          {threadBody}
+        </KeyboardAvoidingView>
+      ) : (
+        threadBody
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   headerHint: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingVertical: spacing.sm,

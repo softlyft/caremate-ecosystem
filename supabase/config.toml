@@ -401,6 +401,9 @@ verify_jwt = true
 [functions.notify-provider-document]
 verify_jwt = true
 
+[functions.notify-medication]
+verify_jwt = true
+
 [functions.create-provider-org-checkout]
 verify_jwt = true
 

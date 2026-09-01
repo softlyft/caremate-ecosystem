@@ -13,6 +13,7 @@ export type PayerOrgPlanPrice = {
   paystack_plan_code: string | null;
   support_team_seat_limit: number;
   patient_connection_cap: number;
+  provider_connection_cap: number;
   voice_minutes_included: number;
   group_chat_enabled: boolean;
   is_active: boolean;
@@ -30,6 +31,7 @@ export type PayerOrgSubscription = {
   status: string;
   support_team_seat_limit: number;
   patient_connection_cap: number;
+  provider_connection_cap: number;
   voice_minutes_included: number;
   group_chat_enabled: boolean;
   provider_customer_id: string | null;

@@ -6,6 +6,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
+import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
 import { Button, ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -237,6 +238,8 @@ export default function ConnectedProviderDetailScreen() {
             </AppText>
           ) : null}
         </View>
+
+        <OrgCareTeamSection orgKind="provider" orgId={connection.organizationId} enabled />
 
         <View style={[styles.card, shadow.soft]}>
           <View style={styles.sectionHeader}>

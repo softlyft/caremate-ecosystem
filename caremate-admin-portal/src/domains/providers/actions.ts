@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requirePortalSession } from '@/lib/auth';
 import { canEditCatalog } from '@/constants/roles';
-import { PROVIDER_TYPES } from '@/constants/content';
+import { PROVIDER_TYPES, ORGANIZATION_CATALOG_TYPES } from '@/constants/content';
 import { writeAuditEvent } from '@/lib/audit';
 import { AUDIT_ACTION, AUDIT_ENTITY } from '@/lib/audit-catalog';
 import { createClient } from '@/lib/supabase/server';
@@ -152,6 +152,10 @@ export async function archiveProvider(id: string) {
 const organizationSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   active: z.enum(['true', 'false']).default('true'),
+  type: z
+    .union([z.enum(ORGANIZATION_CATALOG_TYPES), z.literal('')])
+    .optional()
+    .transform((value) => (value ? value : undefined)),
 });
 
 const locationSchema = z.object({
@@ -193,10 +197,12 @@ export async function createOrganizationAction(formData: FormData) {
   const parsed = organizationSchema.parse({
     name: formData.get('name'),
     active: formData.get('active') || 'true',
+    type: String(formData.get('type') ?? ''),
   });
   const org = await createOrganization({
     name: parsed.name,
     active: parsed.active === 'true',
+    type: parsed.type ?? null,
   });
   await writeAuditEvent({
     action: AUDIT_ACTION.createProviderOrganization,
@@ -216,10 +222,12 @@ export async function updateOrganizationAction(organizationId: string, formData:
   const parsed = organizationSchema.parse({
     name: formData.get('name'),
     active: formData.get('active') || 'true',
+    type: String(formData.get('type') ?? ''),
   });
   await updateOrganization(organizationId, {
     name: parsed.name,
     active: parsed.active === 'true',
+    type: parsed.type ?? null,
   });
   await rebuildProjectionsForOrganization(organizationId);
   await writeAuditEvent({

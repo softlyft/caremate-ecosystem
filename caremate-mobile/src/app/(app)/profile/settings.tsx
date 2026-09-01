@@ -1,8 +1,17 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Bell, FileText, MapPin, Settings, Shield, Trash2, Users } from 'lucide-react-native';
-import { useState, type ReactNode } from 'react';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import {
+  Bell,
+  FileText,
+  MapPin,
+  RefreshCw,
+  Settings,
+  Shield,
+  Trash2,
+  Users,
+} from 'lucide-react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ActivityIndicator, Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +29,9 @@ import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { useAuthStore } from '@/features/auth/store';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import { useNetworkStatus } from '@/hooks/use-network-status';
+import { syncEngine } from '@/sync/engine';
+import { retryFailedSyncOperations } from '@/sync/queue';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = '#475569';
@@ -51,6 +63,13 @@ export default function SettingsScreen() {
   const [stateDraft, setStateDraft] = useState<string | undefined>(undefined);
   const [savingLocation, setSavingLocation] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const { online } = useNetworkStatus();
+
+  useEffect(() => {
+    void syncEngine.getLastSyncAt().then(setLastSyncAt);
+  }, []);
 
   const countryCode = countryDraft !== undefined ? countryDraft : remoteCountryCode;
   const languageCode = languageDraft !== undefined ? languageDraft : remoteLanguageCode;
@@ -74,6 +93,30 @@ export default function SettingsScreen() {
           },
         ],
       );
+    }
+  }
+
+  async function handleSyncNow() {
+    if (!online || syncing) {
+      return;
+    }
+
+    setSyncing(true);
+    try {
+      await retryFailedSyncOperations();
+      await syncEngine.runSyncCycle({ reason: 'manual-settings' });
+      setLastSyncAt(await syncEngine.getLastSyncAt());
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.articles }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trendingArticles }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.connections }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile }),
+      ]);
+    } catch {
+      Alert.alert(t('settings.sync.syncFailed'));
+    } finally {
+      setSyncing(false);
     }
   }
 
@@ -217,6 +260,33 @@ export default function SettingsScreen() {
           </View>
         </AnimatedSection>
 
+        <AnimatedSection index={3}>
+          <View style={[styles.card, shadow.soft]}>
+            <SectionLabel icon={RefreshCw} title={t('settings.sync.title')} />
+            <AppText variant="caption" style={styles.muted}>
+              {!online ? t('settings.sync.offline') : formatLastSyncLabel(lastSyncAt, t)}
+            </AppText>
+            <AppText variant="caption" style={styles.muted}>
+              {t('settings.sync.hint')}
+            </AppText>
+            <Button
+              style={[styles.secondaryCta, !online || syncing ? styles.ctaDisabled : null]}
+              disabled={!online || syncing}
+              onPress={() => void handleSyncNow()}
+              variant="plain"
+            >
+              {syncing ? (
+                <ActivityIndicator color={ACCENT} size="small" />
+              ) : (
+                <RefreshCw color={ACCENT} size={16} strokeWidth={2.25} />
+              )}
+              <AppText variant="button" style={styles.secondaryCtaLabel}>
+                {syncing ? t('settings.sync.syncing') : t('settings.sync.syncNow')}
+              </AppText>
+            </Button>
+          </View>
+        </AnimatedSection>
+
         <AnimatedSection index={4}>
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={MapPin} title={t('settings.location.title')} />
@@ -307,7 +377,7 @@ export default function SettingsScreen() {
           </View>
         </AnimatedSection>
 
-        <AnimatedSection index={5}>
+        <AnimatedSection index={6}>
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={Shield} title={t('settings.legal.title')} />
             <View style={styles.legalRow}>
@@ -335,7 +405,7 @@ export default function SettingsScreen() {
         </AnimatedSection>
 
         {!isGuest ? (
-          <AnimatedSection index={6}>
+          <AnimatedSection index={7}>
             <View style={[styles.card, shadow.soft]}>
               <SectionLabel icon={Trash2} title={t('settings.account.title')} />
               <AppText variant="caption" style={styles.muted}>
@@ -358,6 +428,43 @@ export default function SettingsScreen() {
       </Animated.ScrollView>
     </Screen>
   );
+}
+
+function formatLastSyncLabel(
+  iso: string | null,
+  t: (key: string, options?: Record<string, string | number>) => string,
+): string {
+  if (!iso) {
+    return t('settings.sync.neverSynced');
+  }
+
+  const created = new Date(iso).getTime();
+  if (Number.isNaN(created)) {
+    return t('settings.sync.neverSynced');
+  }
+
+  const deltaSec = Math.max(0, Math.floor((Date.now() - created) / 1000));
+  if (deltaSec < 60) {
+    return t('settings.sync.lastSyncedJustNow');
+  }
+  if (deltaSec < 3600) {
+    return t('settings.sync.lastSyncedMinutes', { count: Math.floor(deltaSec / 60) });
+  }
+  if (deltaSec < 86_400) {
+    return t('settings.sync.lastSyncedHours', { count: Math.floor(deltaSec / 3600) });
+  }
+  const days = Math.floor(deltaSec / 86_400);
+  if (days < 7) {
+    return t('settings.sync.lastSyncedDays', { count: days });
+  }
+
+  return t('settings.sync.lastSyncedDate', {
+    date: new Date(iso).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  });
 }
 
 function SectionLabel({ icon: Icon, title }: { icon: typeof Settings; title: string }) {

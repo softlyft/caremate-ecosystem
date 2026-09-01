@@ -22,7 +22,7 @@ export default async function ProviderPlansPage() {
     <div>
       <PageHeader
         title="Provider plans"
-        description="Private Care Team catalog for Care Portal (Basic / Pro · monthly / yearly · Paystack NGN). Separate from patient Premium."
+        description="Private Care Team catalog for Care Portal (Basic / Pro · monthly / yearly with 10% annual discount · Paystack NGN). Separate from patient Premium."
       />
 
       <ProviderPlansNav current="prices" />

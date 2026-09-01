@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Des soins qui fonctionnent hors ligne",
-    "subtitle": "Une courte configuration pour que Proximité, l'actualité et les outils d'urgence soient adaptés dès le premier jour.",
-    "cta": "C'est parti",
-    "foot": "Commencez par choisir le pays et la langue.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Pays + langue",
-      "priorities": "Vos priorités",
-      "news": "Actualités santé locales",
-      "nearby": "Soins à proximité"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "État / province (facultatif)"
     },
     "statePlaceholder": "ex. Grand Accra",
+    "selectPlaceholder": "Sélectionnez un pays",
     "searchPlaceholder": "Rechercher des pays",
-    "searchEmpty": "Aucun pays ne correspond à cette recherche.",
-    "selectPlaceholder": "Sélectionnez un pays"
+    "searchEmpty": "Aucun pays ne correspond à cette recherche."
   },
-  "priorities": {
-    "title": "Qu'est-ce qui compte le plus ?",
-    "subtitle": "Touchez ce qui vous intéresse — nous adapterons les prochaines étapes facultatives.",
-    "continueSelected": "Continuer · {{count}} sélectionné(s)",
-    "minSelectTitle": "Choisissez-en au moins un",
-    "minSelectMessage": "Sélectionnez une priorité pour personnaliser votre expérience CareMate.",
-    "emergency": {
-      "label": "Urgence",
-      "description": "Carte santé hors ligne pour les secours"
-    },
-    "nearby": {
-      "label": "Soins à proximité",
-      "description": "Hôpitaux, cliniques et pharmacies autour de vous"
-    },
-    "family": {
-      "label": "Famille / enfants",
-      "description": "Profils du foyer et soins partagés pour les enfants"
-    },
-    "learn": {
-      "label": "Apprendre",
-      "description": "Articles et conseils santé de confiance"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Trouver des soins près de vous",
+    "subtitle": "Utilisez le GPS précis pour les meilleures correspondances, ou gardez une épingle approximative pour {{place}}.",
     "enable": "Activer la localisation",
     "checking": "Vérification…",
     "approximateCta": "Utiliser une localisation approximative",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Approximative",
       "hint": "Épingle de secours {{place}} — modifiable à tout moment"
-    },
-    "subtitle": "Utilisez le GPS précis pour les meilleures correspondances, ou gardez une épingle approximative pour {{place}}."
+    }
   },
   "notifications": {
     "title": "Restez informé",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "Vous êtes prêt",
-    "subtitle": "Explorez en tant qu'invité, ou créez un compte pour synchroniser urgence et famille.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Continuer à explorer",
     "saving": "Enregistrement…",
     "createAccount": "Créer un compte",
     "haveAccount": "J'ai déjà un compte",
-    "browseTitle": "Parcourir librement",
-    "browseHint": "Articles, À proximité et mini-apps fonctionnent en invité",
+    "onDeviceTitle": "Parcourir librement",
+    "onDeviceHint": "Articles, À proximité et mini-apps fonctionnent en invité",
     "syncTitle": "Créer pour synchroniser",
-    "syncHint": "Créez un compte avant urgence ou famille pour ne pas perdre vos données"
+    "syncHint": "Créez un compte avant urgence ou famille pour ne pas perdre vos données",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

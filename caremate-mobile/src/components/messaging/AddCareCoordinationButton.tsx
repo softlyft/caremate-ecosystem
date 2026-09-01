@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { Users } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import {
+  careCoordinationErrorKey,
   listCareCoordinationCandidates,
   startCareCoordinationConversation,
   type CareCoordinationCandidate,
@@ -14,11 +15,7 @@ import {
 } from '@/domains/messaging/repository';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
-export function AddCareCoordinationButton({
-  conversation,
-}: {
-  conversation: MessageConversation;
-}) {
+export function AddCareCoordinationButton({ conversation }: { conversation: MessageConversation }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -43,11 +40,6 @@ export function AddCareCoordinationButton({
     }
   }, [conversation.id, t]);
 
-  useEffect(() => {
-    if (!open) return;
-    void loadCandidates();
-  }, [open, loadCandidates]);
-
   if (conversation.kind !== 'org_patient') {
     return null;
   }
@@ -56,7 +48,10 @@ export function AddCareCoordinationButton({
     <>
       <Button
         style={styles.button}
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          setOpen(true);
+          void loadCandidates();
+        }}
         accessibilityRole="button"
         accessibilityLabel={addLabel}
         variant="plain"
@@ -99,10 +94,10 @@ export function AddCareCoordinationButton({
                       });
                       setOpen(false);
                       router.replace(`/(app)/messages/${nextId}`);
-                    } catch {
+                    } catch (error) {
                       Alert.alert(
                         t('messages.coordinationFailedTitle'),
-                        t('messages.coordinationStartFailed'),
+                        t(careCoordinationErrorKey(error)),
                       );
                     } finally {
                       setStarting(false);

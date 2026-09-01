@@ -1,6 +1,7 @@
 import { requireProviderSession } from '@/lib/auth';
 import { requireModule } from '@/domains/modules/guard';
 import { listProviderPayerConnectionsByStatus } from '@/domains/payer-connections/repository';
+import { getProviderOrgPlanUsage } from '@/domains/billing/repository';
 import { parsePage } from '@/lib/pagination';
 import { dualPageRequestsHref } from '@/lib/care-portal-nav';
 import { RequestOrgConnectionForm } from '@/components/features/request-org-connection-form';
@@ -50,6 +51,7 @@ export default async function PayerConnectionRequestsPage({
 }) {
   await requireModule('payers');
   const session = await requireProviderSession();
+  const usage = await getProviderOrgPlanUsage(session.activeOrganizationId);
   const { page: pageParam, outboundPage: outboundPageParam } = await searchParams;
   const page = parsePage(pageParam);
   const outboundPage = parsePage(outboundPageParam);
@@ -65,6 +67,9 @@ export default async function PayerConnectionRequestsPage({
     }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
+  const { entitlements, approvedPayerConnectionCount } = usage;
+  const canApprovePartners = approvedPayerConnectionCount < entitlements.payer_connection_cap;
+  const canRequestPartners = canApprovePartners;
 
   const inbound = { ...inboundRaw, rows: inboundRaw.rows.map(mapInboundRow) };
   const outbound = { ...outboundRaw, rows: outboundRaw.rows.map(mapOutboundRow) };
@@ -101,6 +106,16 @@ export default async function PayerConnectionRequestsPage({
       emptyInboundMessage="No payer requests waiting for approval."
       emptyOutboundMessage="No outbound requests waiting on payers."
       awaitingOutboundLabel="Awaiting payer"
+      planUsageRows={[
+        {
+          label: 'Approved payer connections',
+          used: approvedPayerConnectionCount,
+          limit: entitlements.payer_connection_cap,
+        },
+      ]}
+      canApprovePartners={canApprovePartners}
+      canRequestPartners={canRequestPartners}
+      upgradeHref="/app/settings/billing"
     />
     </>
   );

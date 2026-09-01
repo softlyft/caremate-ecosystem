@@ -13,6 +13,7 @@ export type ProviderOrgPlanPrice = {
   paystack_plan_code: string | null;
   pct_seat_limit: number;
   patient_connection_cap: number;
+  payer_connection_cap: number;
   voice_minutes_included: number;
   video_minutes_included: number;
   is_active: boolean;
@@ -30,6 +31,7 @@ export type ProviderOrgSubscription = {
   status: string;
   pct_seat_limit: number;
   patient_connection_cap: number;
+  payer_connection_cap: number;
   voice_minutes_included: number;
   video_minutes_included: number;
   provider_customer_id: string | null;

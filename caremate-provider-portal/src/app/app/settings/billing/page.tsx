@@ -15,7 +15,8 @@ export default async function ProviderBillingSettingsPage({
   const website =
     process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, '') || 'https://www.getcaremate.com';
 
-  const { entitlements, pctMemberCount, approvedPatientCount } = usage;
+  const { entitlements, pctMemberCount, approvedPatientCount, approvedPayerConnectionCount } =
+    usage;
 
   return (
     <OrgBillingSettingsPanel
@@ -29,16 +30,16 @@ export default async function ProviderBillingSettingsPage({
       usageRows={
         <>
           <p>
-            Private Care Team seats: <strong>{pctMemberCount}</strong> /{' '}
+            Care team seats: <strong>{pctMemberCount}</strong> /{' '}
             <strong>{entitlements.pct_seat_limit}</strong>
           </p>
           <p>
             Approved patients: <strong>{approvedPatientCount}</strong> /{' '}
             <strong>{entitlements.patient_connection_cap}</strong>
           </p>
-          <p className="text-muted">
-            Voice / video minutes included (future): {entitlements.voice_minutes_included} /{' '}
-            {entitlements.video_minutes_included}
+          <p>
+            Approved payer connections: <strong>{approvedPayerConnectionCount}</strong> /{' '}
+            <strong>{entitlements.payer_connection_cap}</strong>
           </p>
         </>
       }

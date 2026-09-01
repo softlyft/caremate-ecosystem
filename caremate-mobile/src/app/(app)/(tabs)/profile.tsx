@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Linking, StyleSheet, Switch, View } from 'react-native';
+import { TabScrollView, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import {
   Bell,
   CircleCheck,
@@ -17,7 +18,6 @@ import {
   Users,
   UserRound,
 } from 'lucide-react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
@@ -37,7 +37,6 @@ import { sanitizeFullNameInput } from '@/domains/emergency/validation';
 import { PatientIdCard } from '@/features/profile/PatientIdCard';
 import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
-import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 import { useAccountDisplayName } from '@/hooks/use-account-display-name';
@@ -53,8 +52,7 @@ export default function ProfileTabScreen() {
   const signOut = useAuthStore((state) => state.signOut);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const { fullName, profileQuery } = useAccountDisplayName();
-  const displayName =
-    sanitizeFullNameInput(fullName ?? '') || t('profile.patientId.fallbackName');
+  const displayName = sanitizeFullNameInput(fullName ?? '') || t('profile.patientId.fallbackName');
 
   // Canonical ['billing','premium'] cache — flat PremiumState only (see usePremiumState).
   const premiumQuery = usePremiumState();
@@ -117,10 +115,10 @@ export default function ProfileTabScreen() {
 
   return (
     <Screen padded={false}>
-      <Animated.ScrollView
-        entering={FadeIn.duration(300)}
+      <TabScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+        {...iosTabScrollProps}
       >
         <AnimatedSection index={0}>
           <View style={styles.hero}>
@@ -376,7 +374,7 @@ export default function ProfileTabScreen() {
             </Button>
           </AnimatedSection>
         ) : null}
-      </Animated.ScrollView>
+      </TabScrollView>
     </Screen>
   );
 }

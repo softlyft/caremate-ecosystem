@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation, type Href } from 'expo-router';
 import { Globe, Link2, Mail, MapPin, Phone, Shield } from 'lucide-react-native';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
@@ -12,7 +13,10 @@ import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
-import { payerConnectionService } from '@/domains/payers/connection-service';
+import {
+  payerConnectionService,
+  payerConnectionErrorKey,
+} from '@/domains/payers/connection-service';
 import { payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
@@ -25,7 +29,8 @@ const THEME = {
 
 export default function InsuranceOrgDetailScreen() {
   const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: rawId } = useLocalSearchParams<{ id: string }>();
+  const payerOrganizationId = Array.isArray(rawId) ? rawId[0] : (rawId ?? '');
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const isGuest = useIsGuest();
@@ -33,29 +38,55 @@ export default function InsuranceOrgDetailScreen() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
-  const [disconnecting, setDisconnecting] = useState(false);
-  const [disconnectReason, setDisconnectReason] = useState('');
 
   const query = useQuery({
-    queryKey: [...QUERY_KEYS.payers, id],
-    queryFn: () => payerRepository.findById(id),
-    enabled: Boolean(id),
+    queryKey: [...QUERY_KEYS.payers, payerOrganizationId],
+    queryFn: () => payerRepository.findById(payerOrganizationId),
+    enabled: Boolean(payerOrganizationId),
+  });
+
+  const approvedConnectionsQuery = useQuery({
+    queryKey: [...QUERY_KEYS.payerConnections, 'approved'],
+    queryFn: () => payerConnectionService.listApproved(),
+    enabled: !isGuest,
   });
 
   const payerVerifiedQuery = useQuery({
-    queryKey: [...QUERY_KEYS.payerConnections, 'verified', id],
-    queryFn: () => payerConnectionService.isOrganizationVerified(id),
-    enabled: Boolean(id) && !isGuest,
+    queryKey: [...QUERY_KEYS.payerConnections, 'verified', payerOrganizationId],
+    queryFn: () => payerConnectionService.isOrganizationVerified(payerOrganizationId),
+    enabled: Boolean(payerOrganizationId) && !isGuest,
   });
 
   const connectionQuery = useQuery({
-    queryKey: [...QUERY_KEYS.payerConnections, id],
-    queryFn: () => payerConnectionService.getConnectionForPayerOrganization(id),
-    enabled: Boolean(id) && !isGuest,
+    queryKey: [...QUERY_KEYS.payerConnections, 'by-org', payerOrganizationId],
+    queryFn: () => payerConnectionService.getConnectionForPayerOrganization(payerOrganizationId),
+    enabled: Boolean(payerOrganizationId) && !isGuest,
   });
 
+  const connection = useMemo(() => {
+    if (connectionQuery.data) {
+      return connectionQuery.data;
+    }
+    return (
+      approvedConnectionsQuery.data?.find(
+        (item) => item.payerOrganizationId === payerOrganizationId,
+      ) ?? null
+    );
+  }, [approvedConnectionsQuery.data, connectionQuery.data, payerOrganizationId]);
+
+  const connectionResolved =
+    isGuest ||
+    !payerOrganizationId ||
+    (!connectionQuery.isPending &&
+      (connectionQuery.isSuccess || connectionQuery.isError || approvedConnectionsQuery.isSuccess));
+
   const connectMutation = useMutation({
-    mutationFn: () => payerConnectionService.requestConnection({ payerOrganizationId: id }),
+    mutationFn: () => {
+      if (connection && (connection.status === 'approved' || connection.status === 'pending')) {
+        throw new Error('A connection request is already pending');
+      }
+      return payerConnectionService.requestConnection({ payerOrganizationId });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       Alert.alert(
@@ -64,10 +95,7 @@ export default function InsuranceOrgDetailScreen() {
       );
     },
     onError: (error) => {
-      Alert.alert(
-        t('insurance.connections.connectFailedTitle'),
-        error instanceof Error ? error.message : t('insurance.connections.connectFailedTitle'),
-      );
+      Alert.alert(t('insurance.connections.connectFailedTitle'), t(payerConnectionErrorKey(error)));
     },
   });
 
@@ -119,26 +147,6 @@ export default function InsuranceOrgDetailScreen() {
     },
   });
 
-  const disconnectMutation = useMutation({
-    mutationFn: () =>
-      payerConnectionService.disconnectConnection(connectionQuery.data!.id, disconnectReason),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
-      setDisconnecting(false);
-      setDisconnectReason('');
-      Alert.alert(
-        t('insurance.connections.disconnectSuccessTitle'),
-        t('insurance.connections.disconnectSuccessMessage'),
-      );
-    },
-    onError: (error) => {
-      Alert.alert(
-        t('insurance.connections.disconnectFailedTitle'),
-        error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
-      );
-    },
-  });
-
   useLayoutEffect(() => {
     navigation.setOptions(
       glossyStackHeaderOptions({
@@ -181,10 +189,9 @@ export default function InsuranceOrgDetailScreen() {
   }
 
   const payer = query.data;
-  const connection = connectionQuery.data;
   const payerVerified = payerVerifiedQuery.data === true;
-  // Mirror providers: Connect only for verified (claimed) payers; keep card if a connection already exists.
-  const showConnectCard = !isGuest && (Boolean(connection) || payerVerified);
+  const showConnectCard =
+    !isGuest && Boolean(payerOrganizationId) && (Boolean(connection) || payerVerified);
   const websiteUrl = payer.website?.trim()
     ? payer.website.startsWith('http')
       ? payer.website
@@ -236,56 +243,20 @@ export default function InsuranceOrgDetailScreen() {
                   >
                     {t('insurance.connections.connectApproved')}
                   </AppText>
-                  {disconnecting ? (
-                    <>
-                      <FormField>
-                        <Input
-                          value={disconnectReason}
-                          onChangeText={setDisconnectReason}
-                          placeholder={t('insurance.connections.disconnectReasonPlaceholder')}
-                          multiline
-                          editable={!disconnectMutation.isPending}
-                          style={styles.reasonInput}
-                        />
-                      </FormField>
-                      <FormActions style={styles.connectRow}>
-                        <Button
-                          style={styles.secondaryCta}
-                          disabled={disconnectMutation.isPending}
-                          onPress={() => {
-                            setDisconnecting(false);
-                            setDisconnectReason('');
-                          }}
-                          variant="plain"
-                        >
-                          <AppText variant="button" style={{ color: THEME.accent }}>
-                            {t('common.cancel')}
-                          </AppText>
-                        </Button>
-                        <Button
-                          style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
-                          disabled={disconnectMutation.isPending}
-                          onPress={() => disconnectMutation.mutate()}
-                          variant="plain"
-                        >
-                          <AppText variant="button" style={styles.primaryCtaLabel}>
-                            {t('insurance.connections.disconnectConfirmAction')}
-                          </AppText>
-                        </Button>
-                      </FormActions>
-                    </>
-                  ) : (
-                    <Button
-                      style={styles.secondaryCta}
-                      disabled={disconnectMutation.isPending}
-                      onPress={() => setDisconnecting(true)}
-                      variant="plain"
-                    >
-                      <AppText variant="button" style={{ color: THEME.accent }}>
-                        {t('insurance.connections.disconnect')}
-                      </AppText>
-                    </Button>
-                  )}
+                  <AppText variant="caption" style={styles.connectHint}>
+                    {t('insurance.connections.manageInConnectionsHint')}
+                  </AppText>
+                  <Button
+                    style={styles.secondaryCta}
+                    onPress={() =>
+                      router.push(`/(app)/providers/connections/payers/${connection.id}` as Href)
+                    }
+                    variant="plain"
+                  >
+                    <AppText variant="button" style={{ color: THEME.accent }}>
+                      {t('insurance.connections.openConnections')}
+                    </AppText>
+                  </Button>
                 </View>
               ) : connection?.status === 'rejected' ? (
                 <View style={styles.connectBlock}>
@@ -427,6 +398,10 @@ export default function InsuranceOrgDetailScreen() {
                     </Button>
                   )}
                 </View>
+              ) : !connectionResolved ? (
+                <AppText variant="body" style={styles.connectHint}>
+                  {t('insurance.connections.loadingConnection')}
+                </AppText>
               ) : (
                 <View style={styles.connectBlock}>
                   <AppText variant="caption" style={styles.connectHint}>
@@ -434,7 +409,7 @@ export default function InsuranceOrgDetailScreen() {
                   </AppText>
                   <Button
                     style={[styles.primaryCta, { backgroundColor: THEME.accent }]}
-                    disabled={connectMutation.isPending || connectionQuery.isLoading}
+                    disabled={connectMutation.isPending}
                     onPress={() => connectMutation.mutate()}
                     variant="plain"
                   >
@@ -446,6 +421,12 @@ export default function InsuranceOrgDetailScreen() {
                 </View>
               )}
             </View>
+          </AnimatedSection>
+        ) : null}
+
+        {connection?.status === 'approved' && payerOrganizationId ? (
+          <AnimatedSection index={1.5}>
+            <OrgCareTeamSection orgKind="payer" orgId={payerOrganizationId} enabled />
           </AnimatedSection>
         ) : null}
 

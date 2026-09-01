@@ -94,7 +94,7 @@ and the Play signing SHA-256 before store launch.
 | One active session | After interactive login, `signOut({ scope: 'others' })` revokes other devices; `SIGNED_OUT` → guest on the kicked device |
 | Sign-out | Clear push token for **this device**, then Supabase `signOut({ scope: 'local' })` — **keep** SQLite + persisted mini-app keys for the bound email (do not call mini-app `clearAll()`; persist would wipe local data) |
 | Account switch (different email) | User confirms → `wipeLocalAccountData` + clear binding, then auth continues |
-| Account delete | Same wipe + clear binding + server `delete-account` (JWT-validated) |
+| Account delete | Same wipe + clear binding + server `delete-account` (JWT-validated) — [Account deletion](./account-deletion.md) |
 | Guest push | No Expo token upload |
 | Sync push | Skipped while guest |
 | Family lookup | Masked name / email / phone; no DOB; ≤30 lookups / hour / caller |
@@ -112,7 +112,9 @@ and the Play signing SHA-256 before store launch.
 
 ## Push devices
 
-Registered Expo tokens are stored locally so sign-out deletes **only this device’s** `notification_devices` row (no “delete all devices for user” fallback).
+Accounts are device-bound: on interactive sign-in, `claimExclusiveNotificationDevice` registers this device and deletes other `notification_devices` rows for the user so the previous phone stops receiving remote push.
+
+Sign-out still deletes **only this device’s** token (no “delete all” fallback when the local token is missing).
 
 ---
 
@@ -147,6 +149,7 @@ Registered Expo tokens are stored locally so sign-out deletes **only this device
 ## Related
 
 - [Authentication](./authentication.md)
+- [Account deletion](./account-deletion.md) — cloud cascade + local wipe matrix
 - [Data Layer](./data-layer.md) — SQLCipher client details
 - [Configuration](./configuration.md) — env / Edge secrets
 - [Notifications](./notifications.md) — push token rules

@@ -2,18 +2,40 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/config';
 
-import {
-  DEFAULT_DEVICE_DEFAULTS,
-  type DeviceDefaults,
-  type LocationMode,
-  type OnboardingPriorityId,
-} from './types';
+import { DEFAULT_DEVICE_DEFAULTS, type DeviceDefaults, type LocationMode } from './types';
 
-function normalizeDefaults(raw: Partial<DeviceDefaults> | null | undefined): DeviceDefaults {
+type LegacyDeviceDefaults = Partial<DeviceDefaults> & {
+  priorities?: string[];
+};
+
+function migrateLegacyDefaults(raw: LegacyDeviceDefaults): Partial<DeviceDefaults> {
+  const { priorities, ...rest } = raw;
+  const patch: Partial<DeviceDefaults> = { ...rest };
+
+  if (Array.isArray(priorities)) {
+    if (patch.wantsFamily == null && priorities.includes('family')) {
+      patch.wantsFamily = true;
+    }
+    if (patch.emergencyBasicsStarted == null && priorities.includes('emergency')) {
+      patch.emergencyBasicsStarted = false;
+    }
+  }
+
+  return patch;
+}
+
+function normalizeDefaults(raw: LegacyDeviceDefaults | null | undefined): DeviceDefaults {
+  const migrated = raw ? migrateLegacyDefaults(raw) : {};
   return {
     ...DEFAULT_DEVICE_DEFAULTS,
-    ...raw,
-    priorities: Array.isArray(raw?.priorities) ? raw.priorities : [],
+    ...migrated,
+    emergencyBasicsStarted: Boolean(migrated.emergencyBasicsStarted),
+    wantsFamily: Boolean(migrated.wantsFamily),
+    emergencyEssentialsDone: Boolean(migrated.emergencyEssentialsDone),
+    familyPromptDone: Boolean(migrated.familyPromptDone),
+    locationSkipped: Boolean(migrated.locationSkipped),
+    notificationsEnabled:
+      migrated.notificationsEnabled ?? DEFAULT_DEVICE_DEFAULTS.notificationsEnabled,
   };
 }
 
@@ -23,7 +45,7 @@ export async function getDeviceDefaults(): Promise<DeviceDefaults> {
     if (!raw) {
       return { ...DEFAULT_DEVICE_DEFAULTS };
     }
-    return normalizeDefaults(JSON.parse(raw) as Partial<DeviceDefaults>);
+    return normalizeDefaults(JSON.parse(raw) as LegacyDeviceDefaults);
   } catch {
     return { ...DEFAULT_DEVICE_DEFAULTS };
   }
@@ -45,4 +67,4 @@ export async function updateDeviceDefaults(
   return next;
 }
 
-export type { DeviceDefaults, LocationMode, OnboardingPriorityId };
+export type { DeviceDefaults, LocationMode };

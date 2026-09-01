@@ -11,6 +11,10 @@ import {
   createOrganizationAction,
   updateOrganizationAction,
 } from '@/domains/providers/actions';
+import {
+  ORGANIZATION_CATALOG_TYPES,
+  ORGANIZATION_CATALOG_TYPE_LABELS,
+} from '@/constants/content';
 import type { ProviderOrganization } from '@/types/database';
 
 export function OrganizationForm({
@@ -59,6 +63,20 @@ export function OrganizationForm({
             >
               <option value="true">Yes</option>
               <option value="false">No</option>
+            </Select>
+          </FormField>
+          <FormField
+            label="Facility type"
+            htmlFor="type"
+            hint="Optional. Powers Nearby name search and type chips (e.g. Dental Clinic)."
+          >
+            <Select id="type" name="type" defaultValue={organization?.type ?? ''}>
+              <option value="">Not set</option>
+              {ORGANIZATION_CATALOG_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {ORGANIZATION_CATALOG_TYPE_LABELS[type]}
+                </option>
+              ))}
             </Select>
           </FormField>
         </div>

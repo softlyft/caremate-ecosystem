@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Compass, PartyPopper, UserPlus } from 'lucide-react-native';
+import { PartyPopper, Smartphone, UserPlus, Users } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -9,11 +9,12 @@ import Animated, {
   withDelay,
   withSpring,
 } from 'react-native-reanimated';
+import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
-import { completePhaseA } from '@/domains/onboarding';
+import { completePhaseA, useOnboardingDraftStore } from '@/domains/onboarding';
 import {
   OnboardingPrimaryButton,
   OnboardingSecondaryButton,
@@ -26,6 +27,9 @@ const theme = ONBOARDING_STEP_THEMES[5];
 
 export default function OnboardingNextScreen() {
   const { t } = useTranslation();
+  const emergencyBasicsSaved = useOnboardingDraftStore((s) => s.emergencyBasicsSaved);
+  const wantsFamily = useOnboardingDraftStore((s) => s.wantsFamily);
+  const setWantsFamily = useOnboardingDraftStore((s) => s.setWantsFamily);
   const [busy, setBusy] = useState(false);
   const burst = useSharedValue(0.85);
 
@@ -36,6 +40,10 @@ export default function OnboardingNextScreen() {
   const burstStyle = useAnimatedStyle(() => ({
     transform: [{ scale: burst.value }],
   }));
+
+  const subtitle = emergencyBasicsSaved
+    ? t('onboarding.next.subtitleWithEmergency')
+    : t('onboarding.next.subtitleWithoutEmergency');
 
   async function finishAndGo(href: '/(app)/(tabs)' | '/(auth)/register' | '/(auth)/login') {
     setBusy(true);
@@ -51,7 +59,7 @@ export default function OnboardingNextScreen() {
     <OnboardingShell
       step={5}
       title={t('onboarding.next.title')}
-      subtitle={t('onboarding.next.subtitle')}
+      subtitle={subtitle}
       showBack
       hero={
         <Animated.View style={[styles.heroShell, shadow.card, burstStyle]}>
@@ -97,6 +105,44 @@ export default function OnboardingNextScreen() {
       }
     >
       <Animated.View entering={FadeInDown.delay(140).duration(480)} style={styles.cards}>
+        <View style={styles.familyBlock}>
+          <AppText variant="body" style={styles.familyPrompt}>
+            {t('onboarding.next.familyPrompt')}
+          </AppText>
+          <View style={styles.familyRow}>
+            <Button
+              style={[
+                styles.familyChip,
+                wantsFamily && { backgroundColor: theme.soft, borderColor: theme.accent },
+              ]}
+              onPress={() => setWantsFamily(true)}
+              disabled={busy}
+              variant="plain"
+            >
+              <Users color={wantsFamily ? theme.accent : palette.textSecondary} size={16} />
+              <AppText
+                variant="caption"
+                style={[styles.familyChipLabel, wantsFamily && { color: theme.accent }]}
+              >
+                {t('onboarding.next.familyYes')}
+              </AppText>
+            </Button>
+            <Button
+              style={[
+                styles.familyChip,
+                !wantsFamily && { backgroundColor: palette.surface, borderColor: palette.divider },
+              ]}
+              onPress={() => setWantsFamily(false)}
+              disabled={busy}
+              variant="plain"
+            >
+              <AppText variant="caption" style={styles.familyChipLabel}>
+                {t('onboarding.next.familyNo')}
+              </AppText>
+            </Button>
+          </View>
+        </View>
+
         <View
           style={[
             styles.infoCard,
@@ -104,14 +150,14 @@ export default function OnboardingNextScreen() {
           ]}
         >
           <View style={styles.infoIcon}>
-            <Compass color={theme.accent} size={18} />
+            <Smartphone color={theme.accent} size={18} />
           </View>
           <View style={styles.infoCopy}>
             <AppText variant="cardTitle" style={{ color: theme.title }}>
-              {t('onboarding.next.browseTitle')}
+              {t('onboarding.next.onDeviceTitle')}
             </AppText>
             <AppText variant="caption" style={styles.infoHint}>
-              {t('onboarding.next.browseHint')}
+              {t('onboarding.next.onDeviceHint')}
             </AppText>
           </View>
         </View>
@@ -168,6 +214,34 @@ const styles = StyleSheet.create({
   },
   cards: {
     gap: spacing.sm,
+  },
+  familyBlock: {
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  familyPrompt: {
+    fontFamily: fontFamily.semiBold,
+    color: palette.text,
+  },
+  familyRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  familyChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderRadius: radius.full,
+    borderWidth: 1.5,
+    borderColor: palette.divider,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+  },
+  familyChipLabel: {
+    fontFamily: fontFamily.semiBold,
+    color: palette.textSecondary,
   },
   infoCard: {
     flexDirection: 'row',

@@ -1,4 +1,10 @@
 import type { Json } from '@/types/database';
+import {
+  ORGANIZATION_CATALOG_TYPE_LABELS,
+  type OrganizationCatalogType,
+} from '@/constants/content';
+
+const PROVIDER_TYPE_SYSTEM = 'https://getcaremate.com/fhir/CodeSystem/provider-type';
 
 export function organizationReference(orgId: string): Json {
   return { reference: `Organization/${orgId}` };
@@ -12,13 +18,24 @@ export function buildOrganizationResource(input: {
   id: string;
   name: string;
   active: boolean;
+  type?: OrganizationCatalogType | null;
 }): Json {
-  return {
+  const resource: Record<string, unknown> = {
     resourceType: 'Organization',
     id: input.id,
     active: input.active,
     name: input.name,
   };
+  if (input.type) {
+    const label = ORGANIZATION_CATALOG_TYPE_LABELS[input.type];
+    resource.type = [
+      {
+        coding: [{ system: PROVIDER_TYPE_SYSTEM, code: input.type, display: label }],
+        text: label,
+      },
+    ];
+  }
+  return resource as Json;
 }
 
 export function buildLocationResource(input: {

@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import '../../global.css';
 
@@ -88,11 +89,13 @@ function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <GluestackUIProvider mode="light">
-        <AppProviders>
-          <RootNavigator />
-        </AppProviders>
-      </GluestackUIProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <GluestackUIProvider mode="light">
+          <AppProviders>
+            <RootNavigator />
+          </AppProviders>
+        </GluestackUIProvider>
+      </GestureHandlerRootView>
     </ErrorBoundary>
   );
 }

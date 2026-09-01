@@ -94,6 +94,8 @@ On successful `signUpWithEmail` **with a session** (confirmations off), or after
 4. **Hydrates mini-apps from cloud** (`hydrateMiniAppsFromRemote`) — pulls `mini_app_snapshots`, then writes into user-scoped AsyncStorage **only when local state is empty** (new device / clear-data), then rehydrates Zustand stores so vitals and other trackers are available before the user opens an app
 5. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
 
+After the auth store marks the user signed in, **`claimExclusiveNotificationDevice`** registers this device’s Expo push token and deletes any other `notification_devices` rows for that account (so the previous phone stops receiving remote medication/message push). If notifications are off or OS permission is missing, all remote tokens for the user are removed instead.
+
 Local stub / hydrate steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs `prepareLocalAccount` paths (including emergency + mini-app + entitlement hydrate) and triggers a full sync.
 
 After bootstrap succeeds, **`bindDeviceAccount`** stores `{ email, userId }` in SecureStore (`STORAGE_KEYS.deviceAccountBinding`) so sign-out can keep local data for that email.
@@ -110,7 +112,7 @@ CareMate keeps **one primary account email per device** for local PHI continuity
 | Sign-out | Clear session + push token only; **keep** SQLite rows and user-scoped AsyncStorage (including mini-apps). Do **not** call mini-app `clearAll()` on sign-out — persist would overwrite local data with empty state. |
 | Same email signs back in | No wipe — emergency profile and other local data remain |
 | Different email tries sign-in / sign-up | Alert with masked previous email; **Proceed** wipes previous local account then continues; **Cancel** aborts |
-| Account delete | Wipe local data + clear device binding |
+| Account delete | Wipe local data + clear device binding — see [Account deletion](./account-deletion.md) |
 
 Login and register call `confirmDeviceAccountForAuth` before talking to Supabase. Recovery OTP (`verify-reset`) uses the same gate.
 
@@ -221,6 +223,7 @@ The app then routes into post-auth setup screens under `/(app)/setup/*` as neede
 
 ## Related docs
 
+- [Account deletion](./account-deletion.md) — edge function, cascade tables, local wipe, QA
 - [Data Layer](./data-layer.md) — how user_id scopes local data
 - [Core Features — Profile](./features.md#profile-me-tab)
 - [Configuration](./configuration.md) — Supabase env vars

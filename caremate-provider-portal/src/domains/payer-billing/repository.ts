@@ -5,6 +5,7 @@ export type PayerOrgEntitlements = {
   billing_interval: 'monthly' | 'yearly' | null;
   support_team_seat_limit: number;
   patient_connection_cap: number;
+  provider_connection_cap: number;
   voice_minutes_included: number;
   group_chat_enabled: boolean;
   status: string;
@@ -16,13 +17,15 @@ export type PayerOrgPlanUsage = {
   entitlements: PayerOrgEntitlements;
   supportTeamMemberCount: number;
   approvedPatientCount: number;
+  approvedProviderConnectionCount: number;
 };
 
 const FREE: PayerOrgEntitlements = {
   plan_tier: 'free',
   billing_interval: null,
-  support_team_seat_limit: 1,
-  patient_connection_cap: 5,
+  support_team_seat_limit: 2,
+  patient_connection_cap: 7,
+  provider_connection_cap: 3,
   voice_minutes_included: 0,
   group_chat_enabled: false,
   status: 'active',
@@ -45,9 +48,10 @@ export async function getPayerOrgPlanUsage(
     ...((entitlementsRaw ?? {}) as Partial<PayerOrgEntitlements>),
   } as PayerOrgEntitlements;
 
-  const [{ data: teamCount }, { data: patientCount }] = await Promise.all([
+  const [{ data: teamCount }, { data: patientCount }, { data: providerCount }] = await Promise.all([
     supabase.rpc('payer_org_support_team_member_count', { p_org_id: organizationId }),
     supabase.rpc('payer_org_approved_patient_count', { p_org_id: organizationId }),
+    supabase.rpc('payer_org_approved_provider_connection_count', { p_org_id: organizationId }),
   ]);
 
   return {
@@ -56,6 +60,8 @@ export async function getPayerOrgPlanUsage(
       typeof teamCount === 'number' ? teamCount : Number(teamCount ?? 0),
     approvedPatientCount:
       typeof patientCount === 'number' ? patientCount : Number(patientCount ?? 0),
+    approvedProviderConnectionCount:
+      typeof providerCount === 'number' ? providerCount : Number(providerCount ?? 0),
   };
 }
 

@@ -72,22 +72,29 @@ export async function finalizePayerOrgPayment(
   const groupChat =
     typeof meta.group_chat_enabled === 'boolean' ? meta.group_chat_enabled : null;
 
-  let supportTeamSeatLimit = seatLimit ?? (row.plan_tier === 'pro' ? 20 : 5);
-  let patientConnectionCap = patientCap ?? (row.plan_tier === 'pro' ? 100 : 20);
-  let voiceMinutes = voice ?? (row.plan_tier === 'pro' ? 15000 : 6000);
+  let supportTeamSeatLimit = seatLimit ?? (row.plan_tier === 'pro' ? 25 : 7);
+  let patientConnectionCap = patientCap ?? (row.plan_tier === 'pro' ? 250 : 100);
+  let providerConnectionCap =
+    typeof meta.provider_connection_cap === 'number'
+      ? meta.provider_connection_cap
+      : row.plan_tier === 'pro'
+        ? 75
+        : 25;
+  let voiceMinutes = voice ?? 0;
   let groupChatEnabled = groupChat ?? row.plan_tier === 'pro';
 
   if (row.plan_price_id) {
     const { data: price } = await service
       .from('payer_org_plan_prices')
       .select(
-        'support_team_seat_limit, patient_connection_cap, voice_minutes_included, group_chat_enabled',
+        'support_team_seat_limit, patient_connection_cap, provider_connection_cap, voice_minutes_included, group_chat_enabled',
       )
       .eq('id', row.plan_price_id)
       .maybeSingle();
     if (price) {
       supportTeamSeatLimit = Number(price.support_team_seat_limit) || supportTeamSeatLimit;
       patientConnectionCap = Number(price.patient_connection_cap) || patientConnectionCap;
+      providerConnectionCap = Number(price.provider_connection_cap) || providerConnectionCap;
       voiceMinutes = Number(price.voice_minutes_included) || voiceMinutes;
       groupChatEnabled = Boolean(price.group_chat_enabled);
     }
@@ -128,6 +135,7 @@ export async function finalizePayerOrgPayment(
     status: 'active',
     support_team_seat_limit: supportTeamSeatLimit,
     patient_connection_cap: patientConnectionCap,
+    provider_connection_cap: providerConnectionCap,
     voice_minutes_included: voiceMinutes,
     group_chat_enabled: groupChatEnabled,
     provider_customer_id: input.providerCustomerId ?? null,

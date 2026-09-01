@@ -16,10 +16,10 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Read why we chose Expo / SQLite / Supabase / etc. | [ADRs](./adr/README.md) |
 | Find where code lives | [Project Structure](./project-structure.md) |
 | Understand screens and routes | [Navigation & Routes](./navigation.md) |
-| Work on auth, guest mode, biometrics | [Authentication](./authentication.md) · [Security](./security.md) |
+| Work on auth, guest mode, biometrics | [Authentication](./authentication.md) · [Security](./security.md) · [Account deletion](./account-deletion.md) |
 | Understand Free vs Premium plans & mini-app limits | [Premium & plans](./premium-and-plans.md) |
 | Set up kids / spouse household | [Family profiles](./family-profiles.md) · plan limits in [Premium & plans](./premium-and-plans.md) |
-| Work on SQLite, repositories, sync | [Data Layer](./data-layer.md) · [Sync Engine](./SYNC_ENGINE.md) · [Supabase alignment](./supabase-alignment.md) |
+| Work on SQLite, repositories, sync | [Data Layer](./data-layer.md) · [Sync Engine](./SYNC_ENGINE.md) · [Sync inventory](./SYNC_INVENTORY.md) · [Supabase alignment](./supabase-alignment.md) |
 | Understand encryption, wipe, deep links, checkout handoff | [Security](./security.md) |
 | Work on UI, fonts, theming | [UI & Theme](./ui-and-theme.md) |
 | Work on mini-apps (Medication, Checkup, Immunization, Pregnancy, Period) | [Mini-Apps](./mini-apps.md) · [Contract](./mini-app-contract.md) |
@@ -50,6 +50,7 @@ docs/
 ├── project-structure.md   Folder layout and conventions
 ├── navigation.md          Expo Router routes and tab structure
 ├── authentication.md      Auth, guest mode, sessions, biometrics
+├── account-deletion.md    Mobile delete-account edge function + local wipe (QA)
 ├── security.md            At-rest encryption, wipe, deep links, checkout handoff
 ├── premium-and-plans.md   Free / Standard / Family Premium matrix (spec)
 ├── family-profiles.md     Household, kids, spouse connection

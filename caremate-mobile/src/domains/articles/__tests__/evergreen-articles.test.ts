@@ -9,6 +9,7 @@ import {
   isWithinExternalNewsRetention,
   mergeNewsRegions,
   orderTrendingFeed,
+  shouldEvictExternalNewsFromDevice,
 } from '@/domains/articles/utils/evergreen-articles';
 
 function makeArticle(partial: Partial<Article> & Pick<Article, 'id' | 'title'>): Article {
@@ -194,6 +195,32 @@ describe('external news retention', () => {
     });
     expect(getFirstSeenAt(article)).toBe('2026-07-19T01:00:00.000Z');
     expect(getCalendarDaysAgo(getFirstSeenAt(article)!, now)).toBe(2);
+  });
+
+  it('evicts stale or soft-deleted external news from device storage', () => {
+    const fresh = makeArticle({
+      id: 'currents-fresh',
+      title: 'Fresh currents',
+      sourceUrl: 'https://example.com/f',
+      attributes: { firstSeenAt: '2026-07-21T08:00:00.000Z' },
+    });
+    const stale = makeArticle({
+      id: 'currents-stale',
+      title: 'Stale currents',
+      sourceUrl: 'https://example.com/s',
+      attributes: { firstSeenAt: '2026-07-14T08:00:00.000Z' },
+    });
+    const evergreen = makeArticle({ id: 'evergreen-1', title: 'Guide' });
+
+    expect(shouldEvictExternalNewsFromDevice(fresh, { now })).toBe(false);
+    expect(shouldEvictExternalNewsFromDevice(stale, { now })).toBe(true);
+    expect(
+      shouldEvictExternalNewsFromDevice(fresh, {
+        now,
+        deletedAt: '2026-07-21T10:00:00.000Z',
+      }),
+    ).toBe(true);
+    expect(shouldEvictExternalNewsFromDevice(evergreen, { now })).toBe(false);
   });
 });
 
