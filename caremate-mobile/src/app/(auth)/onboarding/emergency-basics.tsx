@@ -5,21 +5,17 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
-import { AppText } from '@/components/ui/AppText';
 import { ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
 import { BLOOD_GROUPS, GENOTYPES } from '@/domains/emergency/constants';
 import { useTranslation } from '@/domains/localization';
-import {
-  saveOnboardingEmergencyBasics,
-  useOnboardingDraftStore,
-} from '@/domains/onboarding';
+import { saveOnboardingEmergencyBasics, useOnboardingDraftStore } from '@/domains/onboarding';
 import {
   OnboardingPrimaryButton,
   OnboardingSecondaryButton,
   OnboardingShell,
 } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
-import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
+import { radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[2];
 const CHIP_ACCENT = theme.accent;

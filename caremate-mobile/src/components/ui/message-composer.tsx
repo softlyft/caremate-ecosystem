@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef, type ComponentPropsWithRef } from 'react';
 import type { StyleProp, TextInput, ViewStyle } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 
@@ -63,7 +63,7 @@ export const MessageComposer = forwardRef<
       <View style={styles.inputWrap}>
         <Input className="rounded-xl min-h-12 bg-secondary border-input">
           <InputField
-            ref={inputRef}
+            ref={inputRef as ComponentPropsWithRef<typeof InputField>['ref']}
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}

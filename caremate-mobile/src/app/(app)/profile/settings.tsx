@@ -1,6 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Bell, FileText, MapPin, RefreshCw, Settings, Shield, Trash2, Users } from 'lucide-react-native';
+import {
+  Bell,
+  FileText,
+  MapPin,
+  RefreshCw,
+  Settings,
+  Shield,
+  Trash2,
+  Users,
+} from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Alert, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -95,7 +104,7 @@ export default function SettingsScreen() {
     setSyncing(true);
     try {
       await retryFailedSyncOperations();
-      await syncEngine.runSyncCycle({ reason: 'manual-settings', immediate: true });
+      await syncEngine.runSyncCycle({ reason: 'manual-settings' });
       setLastSyncAt(await syncEngine.getLastSyncAt());
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.articles }),
@@ -255,18 +264,13 @@ export default function SettingsScreen() {
           <View style={[styles.card, shadow.soft]}>
             <SectionLabel icon={RefreshCw} title={t('settings.sync.title')} />
             <AppText variant="caption" style={styles.muted}>
-              {!online
-                ? t('settings.sync.offline')
-                : formatLastSyncLabel(lastSyncAt, t)}
+              {!online ? t('settings.sync.offline') : formatLastSyncLabel(lastSyncAt, t)}
             </AppText>
             <AppText variant="caption" style={styles.muted}>
               {t('settings.sync.hint')}
             </AppText>
             <Button
-              style={[
-                styles.secondaryCta,
-                !online || syncing ? styles.ctaDisabled : null,
-              ]}
+              style={[styles.secondaryCta, !online || syncing ? styles.ctaDisabled : null]}
               disabled={!online || syncing}
               onPress={() => void handleSyncNow()}
               variant="plain"

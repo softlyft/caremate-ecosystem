@@ -17,6 +17,7 @@ import {
   buildProviderFhirBundle,
   type ProviderFhirBundle,
 } from '@/domains/providers/fhir-bundle';
+import type { OrganizationCatalogType } from '@/constants/content';
 import {
   buildHealthcareServiceResource,
   buildLocationResource,
@@ -261,7 +262,7 @@ function nowIso() {
 export type OrganizationWriteInput = {
   name: string;
   active: boolean;
-  type?: string | null;
+  type?: OrganizationCatalogType | null;
 };
 
 export async function createOrganization(

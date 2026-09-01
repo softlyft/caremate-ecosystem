@@ -9,6 +9,10 @@ export function yearlyFromMonthly(monthlyNaira: number, discountPercent = 10): n
   return Math.round(monthlyNaira * 12 * (1 - discountPercent / 100));
 }
 
+export const ORG_PLAN_YEARLY_DISCOUNT_PERCENT = 10;
+
+export const ORG_PLAN_YEARLY_DISCOUNT_LABEL = 'Save 10% on yearly billing';
+
 export function orgPlanFallbackPrices(monthlyNaira: number): {
   monthlyDisplay: string;
   yearlyDisplay: string;

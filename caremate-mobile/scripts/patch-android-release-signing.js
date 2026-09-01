@@ -7,13 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const gradlePath = path.resolve(
-  __dirname,
-  '..',
-  'android',
-  'app',
-  'build.gradle',
-);
+const gradlePath = path.resolve(__dirname, '..', 'android', 'app', 'build.gradle');
 
 if (!fs.existsSync(gradlePath)) {
   console.error(`Missing ${gradlePath}. Run expo prebuild first.`);

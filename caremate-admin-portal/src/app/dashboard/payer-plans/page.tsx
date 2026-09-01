@@ -22,7 +22,7 @@ export default async function PayerPlansPage() {
     <div>
       <PageHeader
         title="Payer plans"
-        description="Support Team catalog for payer orgs (Basic / Pro · monthly / yearly · Paystack NGN). Separate from provider Private Care Team and patient Premium."
+        description="Support Team catalog for payer orgs (Basic / Pro · monthly / yearly with 10% annual discount · Paystack NGN). Separate from provider Private Care Team and patient Premium."
       />
 
       <PayerPlansNav current="prices" />

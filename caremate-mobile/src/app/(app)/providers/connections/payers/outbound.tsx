@@ -162,7 +162,9 @@ export default function PayerOutboundRequestsScreen() {
 
                 <Button
                   style={styles.link}
-                  onPress={() => router.push(`/(app)/profile/insurance/${item.payerOrganizationId}` as Href)}
+                  onPress={() =>
+                    router.push(`/(app)/profile/insurance/${item.payerOrganizationId}` as Href)
+                  }
                   variant="plain"
                 >
                   <AppText variant="caption" style={styles.linkLabel}>

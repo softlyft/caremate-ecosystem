@@ -13,7 +13,10 @@ import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
-import { payerConnectionService, payerConnectionErrorKey } from '@/domains/payers/connection-service';
+import {
+  payerConnectionService,
+  payerConnectionErrorKey,
+} from '@/domains/payers/connection-service';
 import { payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
@@ -27,7 +30,7 @@ const THEME = {
 export default function InsuranceOrgDetailScreen() {
   const { t } = useTranslation();
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
-  const payerOrganizationId = Array.isArray(rawId) ? rawId[0] : rawId ?? '';
+  const payerOrganizationId = Array.isArray(rawId) ? rawId[0] : (rawId ?? '');
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const isGuest = useIsGuest();
@@ -92,10 +95,7 @@ export default function InsuranceOrgDetailScreen() {
       );
     },
     onError: (error) => {
-      Alert.alert(
-        t('insurance.connections.connectFailedTitle'),
-        t(payerConnectionErrorKey(error)),
-      );
+      Alert.alert(t('insurance.connections.connectFailedTitle'), t(payerConnectionErrorKey(error)));
     },
   });
 

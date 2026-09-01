@@ -35,7 +35,7 @@ export function buildOrganizationResource(input: {
       },
     ];
   }
-  return resource;
+  return resource as Json;
 }
 
 export function buildLocationResource(input: {

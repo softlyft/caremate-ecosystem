@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { CareCoordinationStaffPanel } from '@/components/features/care-coordination-staff-panel';
 import { ThreadReplyForm } from '@/components/features/thread-reply-form';
 import { replyOrgMessageAction } from '@/domains/messaging/actions';
@@ -68,10 +68,11 @@ export function OrgMessageThread({
   replyAction?: ReplyOrgMessageAction;
 }) {
   const [messages, setMessages] = useState(initialMessages);
-
-  useEffect(() => {
+  const [prevInitialMessages, setPrevInitialMessages] = useState(initialMessages);
+  if (initialMessages !== prevInitialMessages) {
+    setPrevInitialMessages(initialMessages);
     setMessages(initialMessages);
-  }, [initialMessages]);
+  }
 
   const refreshMessages = useCallback(async () => {
     try {

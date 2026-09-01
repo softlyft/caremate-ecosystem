@@ -170,9 +170,12 @@ export function OrgPlanActivationForm({
             disabled={activatePending || !canActivate}
           >
             <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
+            <option value="yearly">Yearly (10% off vs monthly)</option>
           </Select>
         </FormField>
+        <p className="text-xs text-muted">
+          Yearly catalog prices are 10% below 12× the monthly rate for the same tier.
+        </p>
         <FormField label="Period (months)" htmlFor="period_months">
           <Input
             id="period_months"

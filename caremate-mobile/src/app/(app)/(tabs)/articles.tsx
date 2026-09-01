@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-quer
 import { router, useLocalSearchParams } from 'expo-router';
 import { Bookmark, BookOpen, CheckCheck } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { TabFlatList, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';

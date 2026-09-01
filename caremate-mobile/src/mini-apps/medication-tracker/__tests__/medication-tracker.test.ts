@@ -352,9 +352,9 @@ describe('medication-tracker/scheduled-notifications', () => {
 
     expect(planned.some((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')).toBe(true);
     expect(planned.some((item) => item.identifier === 'med:missed:med-1:2026-07-17:0')).toBe(true);
-    expect(planned.find((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')!.triggerAt).toEqual(
-      new Date(2026, 6, 17, 8, 0),
-    );
+    expect(
+      planned.find((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')!.triggerAt,
+    ).toEqual(new Date(2026, 6, 17, 8, 0));
   });
 
   it('skips taken doses and as-needed medicines', () => {

@@ -15,7 +15,7 @@ function isFatalAuthError(error: { message?: string; status?: number } | null): 
   return (
     message.includes('refresh token') ||
     message.includes('invalid jwt') ||
-    message.includes('session') && message.includes('not found') ||
+    (message.includes('session') && message.includes('not found')) ||
     message.includes('banned') ||
     message.includes('user not found') ||
     message.includes('does not exist')

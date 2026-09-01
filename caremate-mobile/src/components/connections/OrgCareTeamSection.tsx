@@ -7,10 +7,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
-import {
-  listConnectedOrgCareTeam,
-  type OrgCareTeamKind,
-} from '@/domains/connections/care-team';
+import { listConnectedOrgCareTeam, type OrgCareTeamKind } from '@/domains/connections/care-team';
 import { startDirectConversation } from '@/domains/messaging/repository';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -55,9 +52,7 @@ export function OrgCareTeamSection({
     return null;
   }
 
-  const title = isProvider
-    ? t('nearby.careTeam.providerTitle')
-    : t('nearby.careTeam.payerTitle');
+  const title = isProvider ? t('nearby.careTeam.providerTitle') : t('nearby.careTeam.payerTitle');
   const subtitle = isProvider
     ? t('nearby.careTeam.providerSubtitle')
     : t('nearby.careTeam.payerSubtitle');

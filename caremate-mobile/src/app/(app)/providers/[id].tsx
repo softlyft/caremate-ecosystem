@@ -464,7 +464,10 @@ export default function ProviderDetailScreen() {
               </AppText>
               {connection?.status === 'approved' ? (
                 <View style={styles.connectBlock}>
-                  <AppText variant="body" style={[styles.connectStatus, { color: palette.primary }]}>
+                  <AppText
+                    variant="body"
+                    style={[styles.connectStatus, { color: palette.primary }]}
+                  >
                     {t('nearby.detail.connectApproved')}
                   </AppText>
                   <Button

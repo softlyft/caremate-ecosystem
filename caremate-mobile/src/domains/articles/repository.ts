@@ -695,8 +695,7 @@ class ArticleRepository extends BaseRepository {
       );
 
       if (row.deleted_at) {
-        const isExternal =
-          Boolean(row.source_url) || String(row.id).startsWith('currents-');
+        const isExternal = Boolean(row.source_url) || String(row.id).startsWith('currents-');
         if (isExternal) {
           await this.hardDeleteExternalArticle(row.id);
           continue;
