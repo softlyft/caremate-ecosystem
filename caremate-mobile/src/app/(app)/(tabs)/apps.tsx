@@ -16,7 +16,7 @@ import { useTranslation } from '@/domains/localization';
 import { MiniAppCard } from '@/mini-apps/_kit/MiniAppCard';
 import { loadMiniAppsOrder, saveMiniAppsOrder } from '@/mini-apps/_kit/order-preference';
 import { MINI_APPS, type MiniAppDefinition } from '@/mini-apps/_kit/registry';
-import { iosTabScrollProps } from '@/components/navigation/tab-scroll';
+import { iosTabScrollProps, tabContentPaddingTop } from '@/components/navigation/tab-scroll';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
@@ -70,7 +70,7 @@ export default function AppsTabScreen() {
         renderItem={renderItem}
         activationDistance={Platform.OS === 'ios' ? 16 : 12}
         containerStyle={styles.flex}
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+        contentContainerStyle={[styles.content, { paddingTop: tabContentPaddingTop(insets.top) }]}
         showsVerticalScrollIndicator={false}
         {...iosTabScrollProps}
         ListHeaderComponent={
