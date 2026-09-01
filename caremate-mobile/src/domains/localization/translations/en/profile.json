@@ -148,8 +148,8 @@
     "unknownOrg": "Organization"
   },
   "connections": {
-    "subtitle": "Connected providers and connection requests",
-    "guestSubtitle": "Sign in to manage provider connections"
+    "subtitle": "Manage provider and insurer connections",
+    "guestSubtitle": "Sign in to manage your connections"
   },
   "documents": {
     "menuSubtitle": "Your files and shared documents",

@@ -14,6 +14,10 @@
   "favorites": "Favorites",
   "connections": "Connections",
   "connectedProviders": "Connected providers",
+  "connectedPayers": "Connected insurers",
+  "payerConnectionRequests": "Insurer requests",
+  "payerSentRequests": "Sent insurer requests",
+  "connectedInsurer": "Insurer",
   "connectionRequests": "Connection requests",
   "sentRequests": "Sent requests",
   "settings": "Settings",
@@ -41,6 +45,7 @@
   "backToNearby": "Back to Nearby",
   "backToConnections": "Back to Connections",
   "backToConnectedProviders": "Back to connected providers",
+  "backToConnectedPayers": "Back to connected insurers",
   "backToDirectory": "Back to directory",
   "close": "Close",
   "back": "Back"

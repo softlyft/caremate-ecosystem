@@ -149,8 +149,10 @@
   },
   "connections": {
     "title": "Connections",
-    "subtitle": "Providers you are linked with in CareMate",
-    "guest": "Sign in to manage provider connections.",
+    "subtitle": "Providers and insurers you are linked with in CareMate",
+    "guest": "Sign in to manage your connections.",
+    "providersSectionTitle": "Providers",
+    "payersSectionTitle": "Insurers",
     "connectedTitle": "Connected providers",
     "connectedSubtitle": "Open a provider to view details and manage consent.",
     "connectedEmpty": "You are not connected to any providers yet.",
@@ -223,6 +225,42 @@
     "loadFailed": {
       "title": "Couldn't load connections",
       "message": "Check your connection and try again."
-    }
+    },
+    "connectedPayersTitle": "Connected insurers",
+    "connectedPayersSubtitle": "Open an insurer to view details, support team, or disconnect.",
+    "connectedPayersEmpty": "You are not connected to any insurers yet.",
+    "connectedPayersLoading": "Loading connected insurers...",
+    "connectedPayersCount": "{{count}} connected",
+    "payerRequestsTitle": "Insurer connection requests",
+    "payerRequestsSubtitle": "Insurers who want to connect with you on CareMate.",
+    "payerRequestsCount": "{{count}} waiting for your review",
+    "payerRequestsEmptySubtitle": "No pending insurer requests",
+    "payerRequestsLoading": "Loading insurer requests...",
+    "payerOutboundTitle": "Sent insurer requests",
+    "payerOutboundCount": "{{count}} waiting for insurer",
+    "payerOutboundEmptySubtitle": "No pending sent insurer requests",
+    "payerOutboundScreenTitle": "Sent insurer requests",
+    "payerOutboundScreenSubtitle": "Requests you sent to insurers. You can cancel while they are still pending.",
+    "payerOutboundEmpty": "You have no pending sent insurer requests.",
+    "payerOutboundLoading": "Loading sent insurer requests...",
+    "payerDetailLoading": "Loading insurer connection...",
+    "payerNotConnectedTitle": "Not connected",
+    "payerNotConnectedMessage": "This insurer connection is no longer approved.",
+    "payerDisconnectHint": "End this connection. You can send a new request later.",
+    "viewOrg": "View insurer profile",
+    "viewOrgProfile": "View insurer profile"
+  },
+  "careTeam": {
+    "providerTitle": "Private Care Team",
+    "providerSubtitle": "Staff at this clinic who are available for direct chat.",
+    "payerTitle": "Support Team",
+    "payerSubtitle": "Staff at this insurer who support connected patients.",
+    "empty": "No team members are listed yet. Your organization may add staff later.",
+    "loading": "Loading team...",
+    "loadFailed": "Couldn't load team members.",
+    "message": "Message",
+    "messageFailedTitle": "Couldn't start chat",
+    "messageFailedMessage": "Please try again.",
+    "manageConnection": "Manage connection"
   }
 }

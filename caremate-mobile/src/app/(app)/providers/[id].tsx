@@ -18,6 +18,7 @@ import Animated from 'react-native-reanimated';
 import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
+import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
@@ -462,9 +463,25 @@ export default function ProviderDetailScreen() {
                 {t('nearby.detail.connect')}
               </AppText>
               {connection?.status === 'approved' ? (
-                <AppText variant="body" style={[styles.connectStatus, { color: palette.primary }]}>
-                  {t('nearby.detail.connectApproved')}
-                </AppText>
+                <View style={styles.connectBlock}>
+                  <AppText variant="body" style={[styles.connectStatus, { color: palette.primary }]}>
+                    {t('nearby.detail.connectApproved')}
+                  </AppText>
+                  <Button
+                    style={[
+                      styles.secondaryCta,
+                      { backgroundColor: theme.soft, borderColor: theme.accent },
+                    ]}
+                    onPress={() =>
+                      router.push(`/(app)/providers/connections/${connection.id}` as Href)
+                    }
+                    variant="plain"
+                  >
+                    <AppText variant="button" style={{ color: theme.accent }}>
+                      {t('nearby.careTeam.manageConnection')}
+                    </AppText>
+                  </Button>
+                </View>
               ) : connection?.status === 'rejected' ? (
                 <View style={styles.connectBlock}>
                   <AppText variant="body" style={styles.connectStatus}>
@@ -663,7 +680,13 @@ export default function ProviderDetailScreen() {
           </AnimatedSection>
         ) : null}
 
-        <AnimatedSection index={5}>
+        {connection?.status === 'approved' && organizationId ? (
+          <AnimatedSection index={5}>
+            <OrgCareTeamSection orgKind="provider" orgId={organizationId} enabled />
+          </AnimatedSection>
+        ) : null}
+
+        <AnimatedSection index={6}>
           <View style={styles.actions}>
             <Button
               style={[

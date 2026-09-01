@@ -303,6 +303,58 @@ export default function AppLayout() {
           })}
         />
         <Stack.Screen
+          name="providers/connections/payers/connected"
+          options={glossyStackHeaderOptions({
+            title: t('nav.connectedPayers'),
+            accent: '#4F46E5',
+            soft: '#E0E7FF',
+            softEnd: '#EEF2FF',
+            titleColor: '#4338CA',
+            icon: Shield,
+            backAccessibilityLabel: t('nav.backToConnections'),
+            backFallbackHref: '/(app)/providers/connections',
+          })}
+        />
+        <Stack.Screen
+          name="providers/connections/payers/[connectionId]"
+          options={glossyStackHeaderOptions({
+            title: t('nav.connectedInsurer'),
+            accent: '#4F46E5',
+            soft: '#E0E7FF',
+            softEnd: '#EEF2FF',
+            titleColor: '#4338CA',
+            icon: Shield,
+            backAccessibilityLabel: t('nav.backToConnectedPayers'),
+            backFallbackHref: '/(app)/providers/connections/payers/connected',
+          })}
+        />
+        <Stack.Screen
+          name="providers/connections/payers/requests"
+          options={glossyStackHeaderOptions({
+            title: t('nav.payerConnectionRequests'),
+            accent: '#4F46E5',
+            soft: '#E0E7FF',
+            softEnd: '#EEF2FF',
+            titleColor: '#4338CA',
+            icon: Shield,
+            backAccessibilityLabel: t('nav.backToConnections'),
+            backFallbackHref: '/(app)/providers/connections',
+          })}
+        />
+        <Stack.Screen
+          name="providers/connections/payers/outbound"
+          options={glossyStackHeaderOptions({
+            title: t('nav.payerSentRequests'),
+            accent: '#4F46E5',
+            soft: '#E0E7FF',
+            softEnd: '#EEF2FF',
+            titleColor: '#4338CA',
+            icon: Shield,
+            backAccessibilityLabel: t('nav.backToConnections'),
+            backFallbackHref: '/(app)/providers/connections',
+          })}
+        />
+        <Stack.Screen
           name="profile/edit"
           options={glossyStackHeaderOptions({
             title: t('nav.editProfile'),
