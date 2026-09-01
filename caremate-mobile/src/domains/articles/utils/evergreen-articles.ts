@@ -73,6 +73,20 @@ export function isWithinExternalNewsRetention(
   return daysAgo >= 0 && daysAgo < maxDays;
 }
 
+/** True when a local external news row should be removed from device storage. */
+export function shouldEvictExternalNewsFromDevice(
+  article: Article,
+  options: { deletedAt?: string | null; now?: Date } = {},
+): boolean {
+  if (!isExternalArticle(article)) {
+    return false;
+  }
+  if (options.deletedAt) {
+    return true;
+  }
+  return !isWithinExternalNewsRetention(article, options.now);
+}
+
 /**
  * Regions an external news row was fetched for.
  * Legacy untagged rows are treated as INT so older caches still fill the international slots.

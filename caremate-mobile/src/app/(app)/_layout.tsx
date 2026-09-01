@@ -22,7 +22,6 @@ import {
   glossyStackHeaderOptions,
   learnArticleHeaderOptions,
 } from '@/components/navigation/glossyStackHeader';
-import { SyncStatusBanner } from '@/components/SyncStatusBanner';
 import { takePendingArticleShareId } from '@/domains/articles/share';
 import { takePendingEmergencyShareToken } from '@/domains/emergency/share';
 import { useTranslation } from '@/domains/localization';
@@ -491,8 +490,6 @@ export default function AppLayout() {
         {/* Nested navigator owns mini-app headers — see apps/_layout.tsx */}
         <Stack.Screen name="apps" options={{ headerShown: false }} />
       </Stack>
-      {/* Overlay after Stack so it paints on top without shifting layout */}
-      <SyncStatusBanner />
     </View>
   );
 }

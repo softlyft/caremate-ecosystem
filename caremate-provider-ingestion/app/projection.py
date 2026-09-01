@@ -29,14 +29,22 @@ def provider_row_for_location(
     location_id = str(loc["id"])
     org_resource = (org or {}).get("resource") or {}
     provider_type = "clinic"
-    if services and services[0].get("service_type"):
+    org_type = (org or {}).get("type")
+    if isinstance(org_type, str) and org_type.strip():
+        provider_type = org_type.strip()
+    elif services and services[0].get("service_type"):
         provider_type = services[0]["service_type"]
     elif org_resource:
         provider_type = provider_type_from_CodeableConcept(org_resource.get("type")) or "clinic"
 
     phone = loc.get("phone") or (org and _org_phone(org))
     email = loc.get("email") or (org and _org_email(org))
-    name = loc.get("name") or (org or {}).get("name") or "Unknown provider"
+    org_name = (org or {}).get("name") or ""
+    loc_name = (loc.get("name") or "").strip()
+    if org_name.strip() and loc_name and loc_name.casefold() != org_name.strip().casefold():
+        name = f"{org_name.strip()} — {loc_name}"
+    else:
+        name = org_name.strip() or loc_name or "Unknown provider"
     now = _now()
     hs_ids = [s["id"] for s in services]
     return {

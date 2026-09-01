@@ -102,6 +102,8 @@ Mobile confirmation and recovery use **Supabase Auth** templates (`supabase/temp
 
 `delete-account` requires the caller's `Authorization` bearer JWT. It best-effort cancels active Stripe/Paystack subscriptions, then deletes `auth.users` (cloud rows cascade). The mobile client wipes that user's local SQLite rows + mini-app snapshots and returns to guest.
 
+Full matrix (cascade tables, local wipe, QA checklist, admin disable vs delete): [caremate-mobile/docs/account-deletion.md](../../caremate-mobile/docs/account-deletion.md).
+
 ## Local serve
 
 ```bash

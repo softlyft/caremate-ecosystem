@@ -161,7 +161,7 @@ Home header Bell
 
 | Action | In-app | Push | Email | Notes |
 |--------|:------:|:----:|:-----:|-------|
-| Pending / failed sync banner | ✅ | — | — | Existing sync status UX |
+| Pending / failed sync — **Settings → Sync now** | ✅ | — | — | Retries queue + full pull; top toast removed |
 | Exhausted retries on important data | ✅ | ⚪ (Self) | — | Emergency / mini-app data |
 
 ---

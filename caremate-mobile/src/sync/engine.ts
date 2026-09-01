@@ -373,6 +373,16 @@ class SyncEngine {
 
     await db.insert(syncMetadata).values({ key, value, updatedAt: timestamp });
   }
+
+  async getLastSyncAt(): Promise<string | null> {
+    const db = getDatabase();
+    const [row] = await db
+      .select()
+      .from(syncMetadata)
+      .where(eq(syncMetadata.key, 'last_sync_at'))
+      .limit(1);
+    return row?.value ?? null;
+  }
 }
 
 export const syncEngine = new SyncEngine();

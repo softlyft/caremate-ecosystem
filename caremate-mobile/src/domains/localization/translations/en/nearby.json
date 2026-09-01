@@ -1,6 +1,6 @@
 {
   "title": "Nearby",
-  "subtitle": "Find CareMate providers near you",
+  "subtitle": "Search by name and type, or enable location for distance ranking",
   "nearbyCount": "{{count}} nearby",
   "searchCount": "{{count}} matches",
   "searchPlaceholder": "Search CareMate providers by name",

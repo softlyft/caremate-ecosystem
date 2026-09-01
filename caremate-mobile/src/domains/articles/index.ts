@@ -46,6 +46,7 @@ export {
   isEvergreenArticle,
   isExternalArticle,
   isWithinExternalNewsRetention,
+  shouldEvictExternalNewsFromDevice,
   LEARN_CATEGORIES,
   mergeNewsRegions,
   orderLearnFeed,
