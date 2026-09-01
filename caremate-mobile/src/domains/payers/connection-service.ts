@@ -39,6 +39,24 @@ export function isInactivePayerConnectionStatus(status: PayerConnectionStatus): 
   return status === 'cancelled' || status === 'disconnected';
 }
 
+export function isActivePayerConnectionStatus(status: PayerConnectionStatus): boolean {
+  return status === 'pending' || status === 'approved';
+}
+
+export function payerConnectionErrorKey(error: unknown): string {
+  const message = error instanceof Error ? error.message.toLowerCase() : '';
+  if (message.includes('already connected')) {
+    return 'insurance.connections.alreadyConnected';
+  }
+  if (message.includes('already pending')) {
+    return 'insurance.connections.alreadyPending';
+  }
+  if (message.includes('declined') || message.includes('not allowed')) {
+    return 'insurance.connections.requestBlocked';
+  }
+  return 'insurance.connections.failedMessage';
+}
+
 function mapRow(
   row: RemotePayerConnectionRow,
   payerName: string | null = null,
@@ -99,9 +117,17 @@ class PayerConnectionService {
   async getConnectionForPayerOrganization(
     payerOrganizationId: string,
   ): Promise<PatientPayerConnection | null> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.id) {
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('patient_payer_connections')
       .select('*')
+      .eq('patient_id', user.id)
       .eq('payer_organization_id', payerOrganizationId)
       .maybeSingle();
 
@@ -150,6 +176,81 @@ class PayerConnectionService {
     }
 
     return mapRows((data ?? []) as RemotePayerConnectionRow[]);
+  }
+
+  async listOutboundPending(): Promise<PatientPayerConnection[]> {
+    const { data, error } = await supabase
+      .from('patient_payer_connections')
+      .select('*')
+      .eq('status', 'pending')
+      .eq('initiated_by', 'patient')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return mapRows((data ?? []) as RemotePayerConnectionRow[]);
+  }
+
+  /** Pending or approved links — one row per patient/org (DB unique constraint). */
+  async listActive(): Promise<PatientPayerConnection[]> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.id) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('patient_payer_connections')
+      .select('*')
+      .eq('patient_id', user.id)
+      .in('status', ['pending', 'approved'])
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return mapRows((data ?? []) as RemotePayerConnectionRow[]);
+  }
+
+  async countInboundPending(): Promise<number> {
+    const { count, error } = await supabase
+      .from('patient_payer_connections')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .eq('initiated_by', 'payer');
+
+    if (error) {
+      throw error;
+    }
+
+    return count ?? 0;
+  }
+
+  async getConnectionById(connectionId: string): Promise<PatientPayerConnection | null> {
+    const { data, error } = await supabase
+      .from('patient_payer_connections')
+      .select('*')
+      .eq('id', connectionId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+    if (!data) {
+      return null;
+    }
+
+    const row = data as RemotePayerConnectionRow;
+    if (isInactivePayerConnectionStatus(row.status)) {
+      return null;
+    }
+
+    const names = await loadPayerNames([row.payer_organization_id]);
+    return mapRow(row, names.get(row.payer_organization_id) ?? null);
   }
 
   async requestConnection(params: {

@@ -41,6 +41,13 @@
   "coordinationFailedTitle": "Couldn't start care team chat",
   "coordinationLoadFailed": "We couldn't load eligible organizations. Try again.",
   "coordinationStartFailed": "Check your connections and try again.",
+  "coordinationConversationNotFound": "This conversation could not be found. Go back to Messages and open the thread again.",
+  "coordinationProviderNotConnected": "You are not connected to this provider.",
+  "coordinationPayerNotConnected": "You are not connected to this insurer.",
+  "coordinationOrgsNotLinked": "Your provider and insurer must be linked before you can start a care team chat.",
+  "coordinationConsentRequired": "Turn on secure messaging with this clinic in your connection settings, then try again.",
+  "coordinationNotEligible": "This organization cannot be added to a care team chat right now.",
+  "coordinationNotAvailable": "Care team chat is not available yet. Update the app or try again later.",
   "today": "Today",
   "yesterday": "Yesterday"
 }

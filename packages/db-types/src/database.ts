@@ -3687,6 +3687,15 @@ export type Database = {
           payer_organization_id: string
         }[]
       }
+      list_connected_org_care_team: {
+        Args: { p_org_kind: string; p_org_id: string }
+        Returns: {
+          can_message: boolean
+          display_name: string
+          position: string | null
+          user_id: string
+        }[]
+      }
       payer_org_role: { Args: { p_org_id: string }; Returns: string }
       is_staff: { Args: never; Returns: boolean }
       jwt_role: { Args: never; Returns: string }
@@ -4210,6 +4219,7 @@ export type Database = {
       start_direct_conversation: {
         Args: {
           p_body?: string
+          p_org_kind?: string
           p_organization_id: string
           p_other_user_id: string
         }

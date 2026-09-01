@@ -315,4 +315,3 @@ jobs:
           tracks: ${{ env.PLAY_TRACK }}
           status: ${{ env.PLAY_TRACK == 'production' && env.PLAY_PUBLISH_PRODUCTION != 'true' && env.PLAY_PUBLISH_PRODUCTION != true && 'draft' || 'completed' }}
           releaseName: ${{ format('{0} ({1})', env.VERSION_NAME, env.ANDROID_VERSION_CODE) }}
-          changesNotSentForReview: true
