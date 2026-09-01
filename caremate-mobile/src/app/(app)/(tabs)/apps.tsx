@@ -61,68 +61,68 @@ export default function AppsTabScreen() {
   return (
     <Screen padded={false} style={styles.flex}>
       <DraggableFlatList
-          data={apps}
-          keyExtractor={(item) => item.id}
-          onDragEnd={({ data }) => {
-            setApps(data);
-            void saveMiniAppsOrder(data.map((app) => app.id));
-          }}
-          renderItem={renderItem}
-          activationDistance={Platform.OS === 'ios' ? 16 : 12}
-          containerStyle={styles.flex}
-          contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
-          showsVerticalScrollIndicator={false}
-          {...iosTabScrollProps}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <AnimatedSection index={0}>
-                <View style={styles.hero}>
-                  <View style={styles.meshTop} />
-                  <View style={styles.meshAccent} />
+        data={apps}
+        keyExtractor={(item) => item.id}
+        onDragEnd={({ data }) => {
+          setApps(data);
+          void saveMiniAppsOrder(data.map((app) => app.id));
+        }}
+        renderItem={renderItem}
+        activationDistance={Platform.OS === 'ios' ? 16 : 12}
+        containerStyle={styles.flex}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
+        showsVerticalScrollIndicator={false}
+        {...iosTabScrollProps}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <AnimatedSection index={0}>
+              <View style={styles.hero}>
+                <View style={styles.meshTop} />
+                <View style={styles.meshAccent} />
 
-                  <View style={styles.heroBadge}>
-                    <LayoutGrid color={palette.primary} size={16} strokeWidth={2.25} />
-                    <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
-                      {t('apps.readyCount', { count: availableCount })}
-                    </AppText>
-                  </View>
+                <View style={styles.heroBadge}>
+                  <LayoutGrid color={palette.primary} size={16} strokeWidth={2.25} />
+                  <AppText variant="caption" color="brand" style={styles.heroBadgeLabel}>
+                    {t('apps.readyCount', { count: availableCount })}
+                  </AppText>
+                </View>
 
-                  <AppText variant="screenTitle" style={styles.title}>
-                    {t('apps.title')}
+                <AppText variant="screenTitle" style={styles.title}>
+                  {t('apps.title')}
+                </AppText>
+                <AppText variant="subtitle" style={styles.subtitle}>
+                  {t('apps.subtitle')}
+                </AppText>
+                {orderReady ? (
+                  <AppText variant="caption" style={styles.reorderHint}>
+                    {t('apps.reorderHint')}
                   </AppText>
-                  <AppText variant="subtitle" style={styles.subtitle}>
-                    {t('apps.subtitle')}
+                ) : null}
+              </View>
+            </AnimatedSection>
+
+            {isGuest ? (
+              <AnimatedSection index={1}>
+                <View style={styles.guestBanner}>
+                  <AppText variant="cardTitle">{t('apps.signInRequiredTitle')}</AppText>
+                  <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
+                    {t('profile.premium.appsGuestBanner')}
                   </AppText>
-                  {orderReady ? (
-                    <AppText variant="caption" style={styles.reorderHint}>
-                      {t('apps.reorderHint')}
+                  <Button
+                    style={styles.guestCta}
+                    onPress={() => router.push('/(auth)/login')}
+                    variant="plain"
+                  >
+                    <AppText variant="caption" style={styles.guestCtaLabel}>
+                      {t('common.signIn')}
                     </AppText>
-                  ) : null}
+                  </Button>
                 </View>
               </AnimatedSection>
-
-              {isGuest ? (
-                <AnimatedSection index={1}>
-                  <View style={styles.guestBanner}>
-                    <AppText variant="cardTitle">{t('apps.signInRequiredTitle')}</AppText>
-                    <AppText variant="quickActionSubtitle" style={styles.guestBannerText}>
-                      {t('profile.premium.appsGuestBanner')}
-                    </AppText>
-                    <Button
-                      style={styles.guestCta}
-                      onPress={() => router.push('/(auth)/login')}
-                      variant="plain"
-                    >
-                      <AppText variant="caption" style={styles.guestCtaLabel}>
-                        {t('common.signIn')}
-                      </AppText>
-                    </Button>
-                  </View>
-                </AnimatedSection>
-              ) : null}
-            </View>
-          }
-        />
+            ) : null}
+          </View>
+        }
+      />
     </Screen>
   );
 }

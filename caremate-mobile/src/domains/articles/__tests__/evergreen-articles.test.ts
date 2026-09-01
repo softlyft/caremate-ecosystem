@@ -200,11 +200,13 @@ describe('external news retention', () => {
   it('evicts stale or soft-deleted external news from device storage', () => {
     const fresh = makeArticle({
       id: 'currents-fresh',
+      title: 'Fresh currents',
       sourceUrl: 'https://example.com/f',
       attributes: { firstSeenAt: '2026-07-21T08:00:00.000Z' },
     });
     const stale = makeArticle({
       id: 'currents-stale',
+      title: 'Stale currents',
       sourceUrl: 'https://example.com/s',
       attributes: { firstSeenAt: '2026-07-14T08:00:00.000Z' },
     });

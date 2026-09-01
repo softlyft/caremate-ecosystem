@@ -29,8 +29,7 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
   const hasUnread = (unreadQuery.data ?? 0) > 0;
   const hasUnreadMessages = !isGuest && (unreadMessagesQuery.data ?? 0) > 0;
   const name = firstName?.trim();
-  const greeting =
-    !isGuest && name ? t('home.greetingNamed', { name }) : t('home.greeting');
+  const greeting = !isGuest && name ? t('home.greetingNamed', { name }) : t('home.greeting');
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
@@ -67,9 +66,7 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
       </View>
 
       <View style={styles.copy}>
-        <AppText variant="heroGreeting">
-          {greeting}
-        </AppText>
+        <AppText variant="heroGreeting">{greeting}</AppText>
       </View>
     </View>
   );

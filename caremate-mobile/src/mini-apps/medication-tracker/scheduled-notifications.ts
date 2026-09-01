@@ -45,9 +45,7 @@ function hasDoseLog(
 ): boolean {
   return logs.some(
     (log) =>
-      log.medicationId === medicationId &&
-      log.dateKey === dateKey &&
-      log.slotIndex === slotIndex,
+      log.medicationId === medicationId && log.dateKey === dateKey && log.slotIndex === slotIndex,
   );
 }
 
@@ -169,7 +167,9 @@ export async function syncMedicationScheduledNotifications(params: {
         .map((item) => item.identifier)
         .filter((identifier) => identifier.startsWith(MEDICATION_NOTIFICATION_PREFIX));
       await Promise.all(
-        medicationIds.map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier)),
+        medicationIds.map((identifier) =>
+          Notifications.cancelScheduledNotificationAsync(identifier),
+        ),
       );
     } catch {
       // Best-effort cleanup.

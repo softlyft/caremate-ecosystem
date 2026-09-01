@@ -239,11 +239,7 @@ export default function ConnectedProviderDetailScreen() {
           ) : null}
         </View>
 
-        <OrgCareTeamSection
-          orgKind="provider"
-          orgId={connection.organizationId}
-          enabled
-        />
+        <OrgCareTeamSection orgKind="provider" orgId={connection.organizationId} enabled />
 
         <View style={[styles.card, shadow.soft]}>
           <View style={styles.sectionHeader}>

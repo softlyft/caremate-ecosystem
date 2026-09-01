@@ -37,7 +37,6 @@ import { sanitizeFullNameInput } from '@/domains/emergency/validation';
 import { PatientIdCard } from '@/features/profile/PatientIdCard';
 import { ProfileCard, ProfileMenuRow } from '@/features/profile/ProfileMenuRow';
 import { useAuthStore } from '@/features/auth/store';
-import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
 import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 import { useAccountDisplayName } from '@/hooks/use-account-display-name';
@@ -53,8 +52,7 @@ export default function ProfileTabScreen() {
   const signOut = useAuthStore((state) => state.signOut);
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const { fullName, profileQuery } = useAccountDisplayName();
-  const displayName =
-    sanitizeFullNameInput(fullName ?? '') || t('profile.patientId.fallbackName');
+  const displayName = sanitizeFullNameInput(fullName ?? '') || t('profile.patientId.fallbackName');
 
   // Canonical ['billing','premium'] cache — flat PremiumState only (see usePremiumState).
   const premiumQuery = usePremiumState();

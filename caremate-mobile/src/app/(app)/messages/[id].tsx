@@ -162,8 +162,6 @@ function useKeyboardLift() {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   useEffect(() => {
-    const bottomInset = insets.bottom;
-
     const recompute = (keyboardHeight: number) => {
       keyboardHeightRef.current = keyboardHeight;
       const windowHeight = Dimensions.get('window').height;
@@ -324,7 +322,9 @@ export default function MessageThreadScreen() {
         <AppText variant="caption" color="brand">
           {title}
         </AppText>
-        {threadConversation ? <AddCareCoordinationButton conversation={threadConversation} /> : null}
+        {threadConversation ? (
+          <AddCareCoordinationButton conversation={threadConversation} />
+        ) : null}
       </View>
       <FlatList
         ref={listRef}

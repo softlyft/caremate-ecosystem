@@ -34,7 +34,8 @@ function normalizeDefaults(raw: LegacyDeviceDefaults | null | undefined): Device
     emergencyEssentialsDone: Boolean(migrated.emergencyEssentialsDone),
     familyPromptDone: Boolean(migrated.familyPromptDone),
     locationSkipped: Boolean(migrated.locationSkipped),
-    notificationsEnabled: migrated.notificationsEnabled ?? DEFAULT_DEVICE_DEFAULTS.notificationsEnabled,
+    notificationsEnabled:
+      migrated.notificationsEnabled ?? DEFAULT_DEVICE_DEFAULTS.notificationsEnabled,
   };
 }
 

@@ -32,8 +32,7 @@ export default function ConnectedPayerDetailScreen() {
   });
 
   const disconnectMutation = useMutation({
-    mutationFn: () =>
-      payerConnectionService.disconnectConnection(connectionId, disconnectReason),
+    mutationFn: () => payerConnectionService.disconnectConnection(connectionId, disconnectReason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       setDisconnecting(false);
@@ -119,11 +118,7 @@ export default function ConnectedPayerDetailScreen() {
           </Button>
         </View>
 
-        <OrgCareTeamSection
-          orgKind="payer"
-          orgId={connection.payerOrganizationId}
-          enabled
-        />
+        <OrgCareTeamSection orgKind="payer" orgId={connection.payerOrganizationId} enabled />
 
         <View style={[styles.card, shadow.soft]}>
           <AppText variant="body" style={styles.disconnectHint}>
@@ -166,7 +161,11 @@ export default function ConnectedPayerDetailScreen() {
               </View>
             </>
           ) : (
-            <Button style={styles.dangerOutline} onPress={() => setDisconnecting(true)} variant="plain">
+            <Button
+              style={styles.dangerOutline}
+              onPress={() => setDisconnecting(true)}
+              variant="plain"
+            >
               <Unlink color={palette.danger} size={18} />
               <AppText variant="button" style={styles.dangerOutlineLabel}>
                 {t('insurance.connections.disconnect')}

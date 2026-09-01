@@ -206,8 +206,13 @@ export async function listPatientConversations(userId: string): Promise<MessageC
     ),
   ];
 
-  const [{ data: orgs }, { data: payers }, { data: allParticipants }, { data: coordProviders }, { data: coordPayers }] =
-    await Promise.all([
+  const [
+    { data: orgs },
+    { data: payers },
+    { data: allParticipants },
+    { data: coordProviders },
+    { data: coordPayers },
+  ] = await Promise.all([
     providerOrgIds.length
       ? supabase.from('provider_organizations').select('id, name').in('id', providerOrgIds)
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),

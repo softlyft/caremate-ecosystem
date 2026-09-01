@@ -1,12 +1,5 @@
-import { Platform } from 'react-native';
-import {
-  FlatList as RNFlatList,
-  ScrollView as RNScrollView,
-} from 'react-native';
-import {
-  FlatList as GHFlatList,
-  ScrollView as GHScrollView,
-} from 'react-native-gesture-handler';
+import { Platform, FlatList as RNFlatList, ScrollView as RNScrollView } from 'react-native';
+import { FlatList as GHFlatList, ScrollView as GHScrollView } from 'react-native-gesture-handler';
 
 /**
  * Tab screens: use native RN scrollables on iOS (UIScrollView re-attaches pan gestures

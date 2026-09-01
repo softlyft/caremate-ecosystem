@@ -185,9 +185,7 @@ export default function SetupEmergencyEssentialsScreen() {
   // Extra scroll room so bottom ICE fields + Save can rise above the keyboard.
   // Applied on both platforms: Android adjustResize alone is not enough for late fields.
   const bottomPad =
-    keyboardHeight > 0
-      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
-      : spacing.xl;
+    keyboardHeight > 0 ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2 : spacing.xl;
   // SafeAreaView already applies the top inset; only offset for the in-layout skip row.
   const keyboardVerticalOffset = Platform.OS === 'ios' ? SETUP_HEADER_HEIGHT : 0;
 
