@@ -41,7 +41,7 @@ export const SYNC_CONFIG = {
   maxRetries: 5,
   retryDelayMs: 2000,
   /** Safety-net interval while app is open (not the primary trigger). */
-  pullIntervalMs: 60_000,
+  pullIntervalMs: 60 * 60 * 1000,
   /** Coalesce bursts of local writes into one push when online. */
   writeDebounceMs: 1_500,
 } as const;

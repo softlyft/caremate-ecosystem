@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 ORG_COLUMNS = [
     "id",
     "name",
+    "type",
     "active",
     "resource",
     "source",

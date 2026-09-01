@@ -261,6 +261,7 @@ function nowIso() {
 export type OrganizationWriteInput = {
   name: string;
   active: boolean;
+  type?: string | null;
 };
 
 export async function createOrganization(
@@ -273,6 +274,7 @@ export async function createOrganization(
     id,
     name: input.name,
     active: input.active,
+    type: input.type ?? null,
   });
 
   const { data, error } = await supabase
@@ -280,6 +282,7 @@ export async function createOrganization(
     .insert({
       id,
       name: input.name.trim(),
+      type: input.type ?? null,
       active: input.active,
       resource,
       source: SOURCE,
@@ -303,12 +306,14 @@ export async function updateOrganization(
     id: organizationId,
     name: input.name,
     active: input.active,
+    type: input.type ?? null,
   });
 
   const { data, error } = await supabase
     .from('provider_organizations')
     .update({
       name: input.name.trim(),
+      type: input.type ?? null,
       active: input.active,
       resource,
       source: SOURCE,

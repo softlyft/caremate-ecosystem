@@ -35,7 +35,22 @@ Current mobile provider behavior is:
 
 Bundled seed rows are not used at runtime. `AppProviders` purges legacy bundled/demo provider rows during bootstrap. Nearby availability comes only from the Supabase RPC (or the last cached geo page); an empty RPC/cache result is shown as empty state in the UI.
 
-## Geo strategy (Nearby coordinates)
+## Discovery model (name + type first, geo optional)
+
+| Mode | Requires user GPS? | Requires pin lat/lng? | RPC |
+|------|--------------------|------------------------|-----|
+| **Name / type search** (Nearby search box, global search) | No | No | `search_providers_by_name` |
+| **Geo nearby browse** (empty search + location on) | Yes | Yes (for ranking in radius) | `nearby_providers` |
+
+Every active catalog **location** should have a row in `providers` (the search pin), rebuilt from org + location via `rebuild_provider_projection_for_location`. Coordinates on that row are **optional** — without them the provider still appears in name search when `name` and `type` are set; with them it also ranks in geo Nearby.
+
+The search pin **name** prefers the **organization name** (branch appended only when the location label differs, e.g. `Smile Dental Clinic — LEKKI`).
+
+**Type** resolution order: healthcare service `service_type` → **`provider_organizations.type`** (7 Nearby chips, set in admin) → `provider_profiles.organization_type` (7 only) → `'clinic'`.
+
+Admin portal: optional **Facility type** on each organization (`caremate-admin-portal` org form). Ingest can also populate `provider_organizations.type` from FHIR Organization coding when it matches the 7 catalog types.
+
+Geo strategy (optional enhancement when coordinates exist):
 
 Nearby ranking needs a lat/lng for `nearby_providers`. Coordinates come from `resolveNearbyCoords()` in `domains/providers/location.ts`.
 

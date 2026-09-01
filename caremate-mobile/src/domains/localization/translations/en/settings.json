@@ -25,6 +25,20 @@
     "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
     "openSystemSettings": "Open Settings"
   },
+  "sync": {
+    "title": "Sync",
+    "hint": "CareMate works offline. Sync pulls the latest articles, connections, and account data when you're online.",
+    "offline": "Offline — showing saved data",
+    "neverSynced": "Not synced yet on this device",
+    "lastSyncedJustNow": "Last synced just now",
+    "lastSyncedMinutes": "Last synced {{count}} min ago",
+    "lastSyncedHours": "Last synced {{count}} hr ago",
+    "lastSyncedDays": "Last synced {{count}} days ago",
+    "lastSyncedDate": "Last synced {{date}}",
+    "syncNow": "Sync now",
+    "syncing": "Syncing…",
+    "syncFailed": "Sync failed. Check your connection and try again."
+  },
   "location": {
     "title": "Location",
     "guestHint": "Sign in to set your country and language. Guests use onboarding selections.",

@@ -110,7 +110,7 @@ CareMate keeps **one primary account email per device** for local PHI continuity
 | Sign-out | Clear session + push token only; **keep** SQLite rows and user-scoped AsyncStorage (including mini-apps). Do **not** call mini-app `clearAll()` on sign-out — persist would overwrite local data with empty state. |
 | Same email signs back in | No wipe — emergency profile and other local data remain |
 | Different email tries sign-in / sign-up | Alert with masked previous email; **Proceed** wipes previous local account then continues; **Cancel** aborts |
-| Account delete | Wipe local data + clear device binding |
+| Account delete | Wipe local data + clear device binding — see [Account deletion](./account-deletion.md) |
 
 Login and register call `confirmDeviceAccountForAuth` before talking to Supabase. Recovery OTP (`verify-reset`) uses the same gate.
 
@@ -221,6 +221,7 @@ The app then routes into post-auth setup screens under `/(app)/setup/*` as neede
 
 ## Related docs
 
+- [Account deletion](./account-deletion.md) — edge function, cascade tables, local wipe, QA
 - [Data Layer](./data-layer.md) — how user_id scopes local data
 - [Core Features — Profile](./features.md#profile-me-tab)
 - [Configuration](./configuration.md) — Supabase env vars

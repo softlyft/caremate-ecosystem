@@ -7,7 +7,7 @@ create or replace function public.list_connected_org_care_team(
 returns table (
   user_id uuid,
   display_name text,
-  position text,
+  "position" text,
   can_message boolean
 )
 language plpgsql

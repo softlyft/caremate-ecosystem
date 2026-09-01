@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
-import { MessageComposer } from '@/components/ui/form-controls';
+import { MessageComposer, type MessageComposerHandle } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
@@ -220,6 +220,7 @@ export default function MessageThreadScreen() {
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
   const listRef = useRef<FlatList<ThreadItem>>(null);
+  const composerRef = useRef<MessageComposerHandle>(null);
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   const conversationId = Array.isArray(rawId) ? rawId[0] : rawId;
   const messagesQuery = useConversationMessages(conversationId ?? '');
@@ -294,6 +295,7 @@ export default function MessageThreadScreen() {
       Alert.alert(t('messages.sendFailedTitle'), t(patientMessageErrorKey(error)));
     } finally {
       setSending(false);
+      composerRef.current?.focus();
     }
   }
 
@@ -358,6 +360,7 @@ export default function MessageThreadScreen() {
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
       />
       <MessageComposer
+        ref={composerRef}
         value={draft}
         onChangeText={setDraft}
         onSend={() => void handleSend()}

@@ -200,7 +200,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | ME-12 | P1 | Signed-in | Me → Premium | Premium screen opens and current plan state loads without crash. |
 | ME-13 | P1 | Guest | Me → Premium | Upgrade path prompts sign-in instead of attempting checkout anonymously. |
 | ME-14 | P0 | Any | Settings → Privacy policy / Terms | Opens SoftLyft legal URLs in the system browser. |
-| ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. |
+| ME-15 | P0 | Signed-in | Settings → Delete account → confirm | Account removed; app returns to guest; cannot sign in with old credentials. See [Account deletion](./account-deletion.md#qa-checklist). |
 | ME-16 | P1 | Guest | Settings account section | Delete account is hidden. |
 | ME-17 | P0 | Signed-in + provider shared a file | Me → Documents | List shows title, type, provider; tap opens document. |
 | ME-17b | P0 | Same; notifications enabled + push registered | After provider upload | Bell inbox shows “New document”; OS push when app backgrounded (if token registered). |

@@ -215,7 +215,7 @@ Full rules: [Provider Portal connections — Patient ↔ payer](../../caremate-p
 - Notifications preference (gates Expo push token registration for Messages and other product push)
 - Region and location-related profile fields
 - Privacy policy and terms of service links (`LEGAL_URLS`)
-- In-app account deletion (signed-in; cloud erase + local wipe)
+- In-app account deletion (signed-in; cloud erase + local wipe) — [Account deletion](./account-deletion.md)
 
 ### Current limitations
 

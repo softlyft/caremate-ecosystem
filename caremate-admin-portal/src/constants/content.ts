@@ -59,3 +59,26 @@ export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
   government_health: 'Government Health Services',
   ngo: 'NGO',
 };
+
+/** Nearby chip types — optional on provider_organizations and admin org form. */
+export const ORGANIZATION_CATALOG_TYPES = [
+  'hospital',
+  'clinic',
+  'pharmacy',
+  'laboratory',
+  'imaging_centre',
+  'dentist',
+  'eye_care',
+] as const;
+
+export type OrganizationCatalogType = (typeof ORGANIZATION_CATALOG_TYPES)[number];
+
+export const ORGANIZATION_CATALOG_TYPE_LABELS: Record<OrganizationCatalogType, string> = {
+  hospital: PROVIDER_TYPE_LABELS.hospital,
+  clinic: PROVIDER_TYPE_LABELS.clinic,
+  pharmacy: PROVIDER_TYPE_LABELS.pharmacy,
+  laboratory: PROVIDER_TYPE_LABELS.laboratory,
+  imaging_centre: PROVIDER_TYPE_LABELS.imaging_centre,
+  dentist: PROVIDER_TYPE_LABELS.dentist,
+  eye_care: PROVIDER_TYPE_LABELS.eye_care,
+};

@@ -15,6 +15,28 @@ from app.excel_json import (
     telecom_value,
 )
 
+ORG_CATALOG_TYPES = frozenset(
+    {
+        "hospital",
+        "clinic",
+        "pharmacy",
+        "laboratory",
+        "imaging_centre",
+        "dentist",
+        "eye_care",
+    }
+)
+
+
+def _organization_catalog_type(resource: dict[str, Any]) -> str | None:
+    explicit = resource.get("type")
+    if isinstance(explicit, str) and explicit.strip() in ORG_CATALOG_TYPES:
+        return explicit.strip()
+    parsed = provider_type_from_CodeableConcept(explicit)
+    if parsed in ORG_CATALOG_TYPES:
+        return parsed
+    return None
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -44,6 +66,7 @@ def map_organization_row(row: dict[str, Any], *, source: str) -> dict[str, Any]:
     return {
         "id": update_id,
         "name": name,
+        "type": _organization_catalog_type(resource),
         "active": resource["active"],
         "resource": resource,
         "source": source,
