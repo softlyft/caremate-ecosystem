@@ -23,8 +23,8 @@ export function PayerPricingPage() {
           <h1 id="payer-pricing-heading">Payer Support Team plans</h1>
           <p className={styles.lead}>
             Message connected patients from your organization inbox at no charge. Subscribe to
-            Support Team so designated staff can chat 1:1 with patients in CareMate — text and
-            voice only (no video). Billed in Naira via Paystack — separate from{' '}
+            Support Team so designated staff can chat 1:1 with patients in CareMate. Billed in Naira
+            via Paystack — separate from{' '}
             <Link to="/providers/pricing">provider Care Portal plans</Link> and{' '}
             <Link to="/pricing">patient Premium</Link>.
           </p>
