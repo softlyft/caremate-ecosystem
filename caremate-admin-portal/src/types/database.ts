@@ -137,6 +137,14 @@ export type Database = Omit<BaseDatabase, 'public'> & {
   public: Omit<BaseDatabase['public'], 'Tables' | 'Functions'> & {
     Tables: BaseDatabase['public']['Tables'] & OrgBillingTables;
     Functions: BaseDatabase['public']['Functions'] & {
+      is_provider_org_claimed: {
+        Args: { p_org_id: string };
+        Returns: boolean;
+      };
+      is_payer_org_claimed: {
+        Args: { p_org_id: string };
+        Returns: boolean;
+      };
       admin_grant_provider_org_subscription: {
         Args: {
           p_organization_id: string;

@@ -5,11 +5,36 @@ import { createClient } from '@/lib/supabase/server';
 import { requirePortalSession } from '@/lib/auth';
 import { canManageBilling } from '@/constants/roles';
 import { writeAuditEvent } from '@/lib/audit';
+import {
+  getPayerOrgPlanActivationContext,
+  type PayerOrgPlanActivationContext,
+} from '@/domains/payer-plans/repository';
+import type { OrgPlanActivationLookup } from '@/features/plans/org-plan-activation-types';
 
 async function requireBillingAdmin() {
   const session = await requirePortalSession();
   if (!canManageBilling(session.role)) throw new Error('Forbidden');
   return session;
+}
+
+function toActivationLookup(ctx: PayerOrgPlanActivationContext): OrgPlanActivationLookup {
+  return {
+    found: ctx.found,
+    organizationId: ctx.organizationId,
+    organizationName: ctx.organizationName,
+    claimed: ctx.claimed,
+    activePlanTier: ctx.activeSubscription?.plan_tier ?? null,
+    activePlanProvider: ctx.activeSubscription?.provider ?? null,
+    activePeriodEnd: ctx.activeSubscription?.current_period_end ?? null,
+  };
+}
+
+export async function lookupPayerOrgPlanActivation(
+  organizationId: string,
+): Promise<OrgPlanActivationLookup> {
+  await requireBillingAdmin();
+  const ctx = await getPayerOrgPlanActivationContext(organizationId);
+  return toActivationLookup(ctx);
 }
 
 export async function updatePayerOrgPlanPrice(input: {
@@ -77,10 +102,17 @@ export async function grantPayerOrgSubscription(input: {
   periodMonths?: number;
   supportTeamSeatLimit?: number | null;
   patientConnectionCap?: number | null;
+  providerConnectionCap?: number | null;
 }) {
   await requireBillingAdmin();
   const orgId = input.organizationId.trim();
   if (!orgId) throw new Error('Organization ID is required');
+
+  const activation = await getPayerOrgPlanActivationContext(orgId);
+  if (!activation.found) throw new Error('Payer organization not found');
+  if (!activation.claimed) {
+    throw new Error('Organization must be claimed before a plan can be activated');
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('admin_grant_payer_org_subscription', {
@@ -89,6 +121,7 @@ export async function grantPayerOrgSubscription(input: {
     p_billing_interval: input.billingInterval ?? 'yearly',
     p_support_team_seat_limit: input.supportTeamSeatLimit ?? undefined,
     p_patient_connection_cap: input.patientConnectionCap ?? undefined,
+    p_provider_connection_cap: input.providerConnectionCap ?? undefined,
     p_period_months: input.periodMonths ?? 12,
   });
 
@@ -108,4 +141,5 @@ export async function grantPayerOrgSubscription(input: {
 
   revalidatePath('/dashboard/payer-plans');
   revalidatePath('/dashboard/payer-plans/grants');
+  revalidatePath(`/dashboard/payers/${orgId}`);
 }
