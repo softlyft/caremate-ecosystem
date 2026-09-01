@@ -49,7 +49,7 @@ export function OrgPlanCheckoutButtons({
           disabled={pending}
           onClick={() => checkout('basic', 'yearly')}
         >
-          Basic yearly
+          Basic yearly (10% off)
         </Button>
         <Button
           type="button"
@@ -66,11 +66,11 @@ export function OrgPlanCheckoutButtons({
           disabled={pending}
           onClick={() => checkout('pro', 'yearly')}
         >
-          Pro yearly
+          Pro yearly (10% off)
         </Button>
       </div>
       <p className="text-xs text-muted">
-        Paystack checkout (NGN). Compare plans on the{' '}
+        Paystack checkout (NGN). Yearly plans are 10% off vs 12× monthly. Compare plans on the{' '}
         <TextLink href={websitePricingUrl} external>
           marketing site
         </TextLink>

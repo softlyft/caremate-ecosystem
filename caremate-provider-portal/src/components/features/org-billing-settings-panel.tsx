@@ -71,7 +71,7 @@ export function OrgBillingSettingsPanel({
         <Card>
           <CardHeader>
             <CardTitle>Upgrade with Paystack</CardTitle>
-            <CardDescription>Basic and Pro · monthly or yearly · NGN only</CardDescription>
+            <CardDescription>Basic and Pro · monthly or yearly (10% off yearly) · NGN only</CardDescription>
           </CardHeader>
           <CardContent>
             <OrgPlanCheckoutButtons

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { useOrgPlanCatalog } from '@/hooks/use-org-plan-catalog';
+import { ORG_PLAN_YEARLY_DISCOUNT_LABEL } from '@/lib/ngn-pricing';
 import { CARE_PORTAL_URL } from '@/lib/brand';
 import styles from './Pricing.module.css';
 
@@ -53,7 +54,8 @@ export function PayerPricingPage() {
           <p className={styles.sectionLead}>
             Checkout runs in Care Portal after you claim or sign in as a payer organization owner or
             administrator. Prices are loaded from the SoftLyft admin catalog (same source as
-            checkout). Seat, provider, and patient limits are shown as included with each plan.
+            checkout). Seat, provider, and patient limits are shown as included with each plan.{' '}
+            {ORG_PLAN_YEARLY_DISCOUNT_LABEL}.
           </p>
           {status === 'loading' ? (
             <p className={styles.sectionLead} role="status">
@@ -81,7 +83,7 @@ export function PayerPricingPage() {
               className={billing === 'yearly' ? styles.toggleActive : undefined}
               onClick={() => setBilling('yearly')}
             >
-              Yearly
+              Yearly · save 10%
             </button>
           </div>
         </div>
@@ -118,6 +120,9 @@ export function PayerPricingPage() {
                     </span>
                   ) : null}
                 </p>
+                {billing === 'yearly' && plan.id !== 'enterprise' && plan.id !== 'free' ? (
+                  <p className={styles.planNote}>10% off vs paying monthly for 12 months</p>
+                ) : null}
                 <ul className={styles.featureList}>
                   <li>{plan.seats}</li>
                   <li>{plan.providers}</li>

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 
 const INTERVAL_LABEL: Record<string, string> = {
   monthly: 'Monthly',
-  yearly: 'Yearly',
+  yearly: 'Yearly (10% off)',
 };
 
 function formatNgn(amountMinor: number) {
@@ -88,6 +88,12 @@ export function OrgPlanPriceEditor<T extends OrgPlanPriceBase>({
               {INTERVAL_LABEL[price.billing_interval] ?? price.billing_interval}
               <span className="mx-1.5 text-border">·</span>
               {formatNgn(price.amount_minor)}
+              {price.billing_interval === 'yearly' ? (
+                <>
+                  <span className="mx-1.5 text-border">·</span>
+                  10% off vs 12× monthly
+                </>
+              ) : null}
               <span className="mx-1.5 text-border">·</span>
               Paystack
               {renderSummaryNote?.(price)}
