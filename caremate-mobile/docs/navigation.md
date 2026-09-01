@@ -43,7 +43,7 @@ Tab bar styling:
 - Custom floating bar via `components/navigation/CareMateTabBar.tsx`
 - Headers hidden at tab level (stack screens provide their own headers)
 - Scene inset reserved through `TAB_BAR_SCENE_INSET`
-- **`detachInactiveScreens={false}`** and **`freezeOnBlur: true`** so Learn / Nearby / other tabs stay mounted when switching — no remount flash or replay of enter animations
+- **`detachInactiveScreens={false}`** and **`freezeOnBlur: false`** (test: smoother scroll on tab return; inactive tabs may use slightly more CPU) so Learn / Nearby / other tabs stay mounted when switching — no remount flash or replay of enter animations
 - Learn and Nearby queries use longer `staleTime` and `refetchOnMount: false` so returning to a tab does not feel like a reload
 - Full-screen loaders only when there is **no cached data yet**
 

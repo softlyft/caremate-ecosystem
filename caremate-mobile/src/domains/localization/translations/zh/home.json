@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "早上好",
-    "afternoon": "下午好",
-    "evening": "晚上好"
-  },
-  "greetingNamed": "{{greeting}}，{{name}}",
+  "greeting": "你好",
+  "greetingNamed": "你好，{{name}}",
   "tagline": "您的健康之旅，清晰有序",
   "emergency": {
     "title": "急救档案",

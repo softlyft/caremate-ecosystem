@@ -1,4 +1,3 @@
-import { getGreeting } from '@/features/home/constants';
 import {
   getDailyHealthTip,
   getHealthTipsForCategory,
@@ -13,22 +12,6 @@ jest.mock('@/domains/tips/repository', () => ({
     findActiveByCategory: (...args: unknown[]) => mockFindActiveByCategory(...args),
   },
 }));
-
-describe('getGreeting', () => {
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it('returns morning, afternoon, and evening greetings', () => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-07-17T08:00:00'));
-    expect(getGreeting()).toBe('Good Morning');
-    jest.setSystemTime(new Date('2026-07-17T14:00:00'));
-    expect(getGreeting({ afternoon: 'Buenas tardes' })).toBe('Buenas tardes');
-    jest.setSystemTime(new Date('2026-07-17T20:00:00'));
-    expect(getGreeting()).toBe('Good Evening');
-  });
-});
 
 describe('daily health tip', () => {
   beforeEach(() => {

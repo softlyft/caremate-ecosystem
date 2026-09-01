@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "Bonjour",
-    "afternoon": "Bon après-midi",
-    "evening": "Bonsoir"
-  },
-  "greetingNamed": "{{greeting}}, {{name}}",
+  "greeting": "Bonjour",
+  "greetingNamed": "Bonjour, {{name}}",
   "tagline": "Votre parcours santé, clairement organisé",
   "emergency": {
     "title": "Profil d'urgence",

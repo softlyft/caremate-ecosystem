@@ -13,19 +13,6 @@ export {
   type HealthCategoryId,
 } from '@/domains/articles/categories';
 
-type GreetingLabels = {
-  morning: string;
-  afternoon: string;
-  evening: string;
-};
-
-export function getGreeting(labels?: Partial<GreetingLabels>): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return labels?.morning ?? 'Good Morning';
-  if (hour < 17) return labels?.afternoon ?? 'Good Afternoon';
-  return labels?.evening ?? 'Good Evening';
-}
-
 export const PROVIDER_TYPE_FILTERS = [
   { type: 'hospital' as const, color: '#DBEAFE' },
   { type: 'clinic' as const, color: '#FFEDD5' },

@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "Ụtụtụ ọma",
-    "afternoon": "Ehihie ọma",
-    "evening": "Mgbede ọma"
-  },
-  "greetingNamed": "{{greeting}}, {{name}}",
+  "greeting": "Ndewo",
+  "greetingNamed": "Ndewo, {{name}}",
   "tagline": "Njem ahụike gị, ahaziri nke ọma",
   "emergency": {
     "title": "Profaịlụ mberede",

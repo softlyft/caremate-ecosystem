@@ -12,7 +12,7 @@ export default function TabsLayout() {
       detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        freezeOnBlur: true,
+        freezeOnBlur: false,
         sceneStyle: {
           paddingBottom: TAB_BAR_SCENE_INSET,
         },
