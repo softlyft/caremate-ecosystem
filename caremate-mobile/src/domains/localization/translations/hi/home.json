@@ -1,10 +1,6 @@
 {
-  "greeting": {
-    "morning": "सुप्रभात",
-    "afternoon": "नमस्कार",
-    "evening": "शुभ संध्या"
-  },
-  "greetingNamed": "{{greeting}}, {{name}}",
+  "greeting": "नमस्ते",
+  "greetingNamed": "नमस्ते, {{name}}",
   "tagline": "आपकी स्वास्थ्य यात्रा, सुव्यवस्थित",
   "emergency": {
     "title": "आपातकालीन प्रोफ़ाइल",

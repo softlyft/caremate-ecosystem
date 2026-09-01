@@ -11,7 +11,6 @@ import { images } from '@/constants/assets';
 import { useTranslation } from '@/domains/localization';
 import { useUnreadMessageCount } from '@/domains/messaging/hooks';
 import { useUnreadNotificationCount } from '@/domains/notifications/hooks';
-import { getGreeting } from '@/features/home/constants';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, spacing } from '@/theme';
 
@@ -31,12 +30,8 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
   const hasUnread = (unreadQuery.data ?? 0) > 0;
   const hasUnreadMessages = !isGuest && (unreadMessagesQuery.data ?? 0) > 0;
   const name = firstName?.trim();
-  const greetingBase = getGreeting({
-    morning: t('home.greeting.morning'),
-    afternoon: t('home.greeting.afternoon'),
-    evening: t('home.greeting.evening'),
-  });
-  const greeting = name ? t('home.greetingNamed', { greeting: greetingBase, name }) : greetingBase;
+  const greeting =
+    !isGuest && name ? t('home.greetingNamed', { name }) : t('home.greeting');
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
@@ -73,8 +68,8 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(80).duration(500).springify()} style={styles.copy}>
-        <AppText variant="heroGreeting" style={styles.greeting}>
-          {`${greeting} 👋`}
+        <AppText variant="heroGreeting">
+          {greeting}
         </AppText>
       </Animated.View>
     </View>
@@ -126,11 +121,6 @@ const styles = StyleSheet.create({
   },
   copy: {
     zIndex: 1,
-  },
-  greeting: {
-    fontSize: 28,
-    lineHeight: 34,
-    letterSpacing: -0.6,
   },
   actions: {
     flexDirection: 'row',
