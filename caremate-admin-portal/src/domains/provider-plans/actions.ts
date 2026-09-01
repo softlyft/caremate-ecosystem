@@ -17,6 +17,7 @@ export async function updateProviderOrgPlanPrice(input: {
   amount_minor: number;
   pct_seat_limit: number;
   patient_connection_cap: number;
+  payer_connection_cap: number;
   voice_minutes_included: number;
   video_minutes_included: number;
   is_active?: boolean;
@@ -32,6 +33,9 @@ export async function updateProviderOrgPlanPrice(input: {
   if (!Number.isFinite(input.patient_connection_cap) || input.patient_connection_cap < 1) {
     throw new Error('Invalid patient cap');
   }
+  if (!Number.isFinite(input.payer_connection_cap) || input.payer_connection_cap < 1) {
+    throw new Error('Invalid payer connection cap');
+  }
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -40,6 +44,7 @@ export async function updateProviderOrgPlanPrice(input: {
       amount_minor: Math.round(input.amount_minor),
       pct_seat_limit: Math.round(input.pct_seat_limit),
       patient_connection_cap: Math.round(input.patient_connection_cap),
+      payer_connection_cap: Math.round(input.payer_connection_cap),
       voice_minutes_included: Math.max(0, Math.round(input.voice_minutes_included)),
       video_minutes_included: Math.max(0, Math.round(input.video_minutes_included)),
       is_active: input.is_active ?? true,
@@ -58,6 +63,7 @@ export async function updateProviderOrgPlanPrice(input: {
       amount_minor: input.amount_minor,
       pct_seat_limit: input.pct_seat_limit,
       patient_connection_cap: input.patient_connection_cap,
+      payer_connection_cap: input.payer_connection_cap,
     },
   });
 

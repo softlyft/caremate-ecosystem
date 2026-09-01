@@ -5,6 +5,7 @@ export type ProviderOrgEntitlements = {
   billing_interval: 'monthly' | 'yearly' | null;
   pct_seat_limit: number;
   patient_connection_cap: number;
+  payer_connection_cap: number;
   voice_minutes_included: number;
   video_minutes_included: number;
   status: string;
@@ -16,13 +17,15 @@ export type ProviderOrgPlanUsage = {
   entitlements: ProviderOrgEntitlements;
   pctMemberCount: number;
   approvedPatientCount: number;
+  approvedPayerConnectionCount: number;
 };
 
 const FREE: ProviderOrgEntitlements = {
   plan_tier: 'free',
   billing_interval: null,
-  pct_seat_limit: 1,
-  patient_connection_cap: 5,
+  pct_seat_limit: 2,
+  patient_connection_cap: 20,
+  payer_connection_cap: 3,
   voice_minutes_included: 0,
   video_minutes_included: 0,
   status: 'active',
@@ -45,9 +48,10 @@ export async function getProviderOrgPlanUsage(
     ...((entitlementsRaw ?? {}) as Partial<ProviderOrgEntitlements>),
   } as ProviderOrgEntitlements;
 
-  const [{ data: pctCount }, { data: patientCount }] = await Promise.all([
+  const [{ data: pctCount }, { data: patientCount }, { data: payerCount }] = await Promise.all([
     supabase.rpc('provider_org_pct_member_count', { p_org_id: organizationId }),
     supabase.rpc('provider_org_approved_patient_count', { p_org_id: organizationId }),
+    supabase.rpc('provider_org_approved_payer_connection_count', { p_org_id: organizationId }),
   ]);
 
   return {
@@ -55,6 +59,8 @@ export async function getProviderOrgPlanUsage(
     pctMemberCount: typeof pctCount === 'number' ? pctCount : Number(pctCount ?? 0),
     approvedPatientCount:
       typeof patientCount === 'number' ? patientCount : Number(patientCount ?? 0),
+    approvedPayerConnectionCount:
+      typeof payerCount === 'number' ? payerCount : Number(payerCount ?? 0),
   };
 }
 

@@ -1,6 +1,7 @@
 import { requireProviderSession } from '@/lib/auth';
 import { requireModule } from '@/domains/modules/guard';
 import { listConnectionsByStatus } from '@/domains/connections/repository';
+import { getProviderOrgPlanUsage } from '@/domains/billing/repository';
 import { parsePage } from '@/lib/pagination';
 import { dualPageRequestsHref } from '@/lib/care-portal-nav';
 import { RequestPatientConnectionForm } from '@/components/features/request-patient-connection-form';
@@ -34,6 +35,7 @@ export default async function ConnectionRequestsPage({
 }) {
   await requireModule('patients');
   const session = await requireProviderSession();
+  const usage = await getProviderOrgPlanUsage(session.activeOrganizationId);
   const { page: pageParam, outboundPage: outboundPageParam } = await searchParams;
   const page = parsePage(pageParam);
   const outboundPage = parsePage(outboundPageParam);
@@ -49,6 +51,9 @@ export default async function ConnectionRequestsPage({
     }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
+  const { entitlements, approvedPatientCount } = usage;
+  const canApprovePatients = approvedPatientCount < entitlements.patient_connection_cap;
+  const canRequestPatients = canApprovePatients;
 
   const inbound = { ...inboundRaw, rows: inboundRaw.rows.map((r) => mapRow(r, null)) };
   const outbound = {
@@ -77,6 +82,16 @@ export default async function ConnectionRequestsPage({
         })
       }
       handlers={providerPatientConnectionHandlers}
+      planUsageRows={[
+        {
+          label: 'Approved patients',
+          used: approvedPatientCount,
+          limit: entitlements.patient_connection_cap,
+        },
+      ]}
+      canApprovePatients={canApprovePatients}
+      canRequestPatients={canRequestPatients}
+      upgradeHref="/app/settings/billing"
     />
   );
 }

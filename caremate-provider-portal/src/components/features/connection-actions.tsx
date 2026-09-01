@@ -21,8 +21,8 @@ export function ConnectionActions({
   mode,
   handlers = providerPatientConnectionHandlers,
   errorMapper = 'provider-patient',
-  /** @deprecated Use `mode` instead. */
   showApprove = true,
+  approveDisabled = false,
 }: {
   connectionId: string;
   mode?: ConnectionActionMode;
@@ -30,9 +30,10 @@ export function ConnectionActions({
   errorMapper?: ConnectionErrorMapper;
   /** Hide for outbound rows awaiting the other party. */
   showApprove?: boolean;
+  approveDisabled?: boolean;
 }) {
   const resolvedMode: ConnectionActionMode =
-    mode ?? (showApprove ? 'inbound-pending' : 'outbound-pending');
+    mode ?? (showApprove !== false ? 'inbound-pending' : 'outbound-pending');
 
   const [pending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<
@@ -95,7 +96,7 @@ export function ConnectionActions({
         {resolvedMode === 'inbound-pending' ? (
           <Button
             size="sm"
-            disabled={pending || reasonOpen}
+            disabled={pending || reasonOpen || approveDisabled}
             loading={pendingAction === 'approve'}
             loadingLabel="Approving…"
             onClick={() =>

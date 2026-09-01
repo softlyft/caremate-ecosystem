@@ -1,5 +1,6 @@
 import { requirePayerSession } from '@/lib/auth';
 import { listPatientPayerConnectionsByStatus } from '@/domains/patient-payer-connections/repository';
+import { getPayerOrgPlanUsage } from '@/domains/payer-billing/repository';
 import { requestPatientConnectionByCaremateIdAction } from '@/domains/patient-payer-connections/actions';
 import { parsePage } from '@/lib/pagination';
 import { dualPageRequestsHref } from '@/lib/care-portal-nav';
@@ -33,6 +34,7 @@ export default async function PatientConnectionRequestsPage({
   searchParams: Promise<{ page?: string; outboundPage?: string }>;
 }) {
   const session = await requirePayerSession();
+  const usage = await getPayerOrgPlanUsage(session.activeOrganizationId);
   const { page: pageParam, outboundPage: outboundPageParam } = await searchParams;
   const page = parsePage(pageParam);
   const outboundPage = parsePage(outboundPageParam);
@@ -48,6 +50,9 @@ export default async function PatientConnectionRequestsPage({
     }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
+  const { entitlements, approvedPatientCount } = usage;
+  const canApprovePatients = approvedPatientCount < entitlements.patient_connection_cap;
+  const canRequestPatients = canApprovePatients;
 
   const inbound = { ...inboundRaw, rows: inboundRaw.rows.map((r) => mapRow(r, null)) };
   const outbound = {
@@ -84,6 +89,16 @@ export default async function PatientConnectionRequestsPage({
       }
       handlers={payerPatientConnectionHandlers}
       errorMapper="payer-patient"
+      planUsageRows={[
+        {
+          label: 'Approved patients',
+          used: approvedPatientCount,
+          limit: entitlements.patient_connection_cap,
+        },
+      ]}
+      canApprovePatients={canApprovePatients}
+      canRequestPatients={canRequestPatients}
+      upgradeHref="/payer/settings/billing"
     />
   );
 }

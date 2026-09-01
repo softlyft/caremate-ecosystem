@@ -1,5 +1,6 @@
 import { requirePayerSession } from '@/lib/auth';
 import { listPayerProviderConnectionsByStatus } from '@/domains/payer-connections/repository';
+import { getPayerOrgPlanUsage } from '@/domains/payer-billing/repository';
 import { requestProviderConnectionByEmailAction } from '@/domains/payer-connections/actions';
 import { parsePage } from '@/lib/pagination';
 import { dualPageRequestsHref } from '@/lib/care-portal-nav';
@@ -49,6 +50,7 @@ export default async function ProviderConnectionRequestsPage({
   searchParams: Promise<{ page?: string; outboundPage?: string }>;
 }) {
   const session = await requirePayerSession();
+  const usage = await getPayerOrgPlanUsage(session.activeOrganizationId);
   const { page: pageParam, outboundPage: outboundPageParam } = await searchParams;
   const page = parsePage(pageParam);
   const outboundPage = parsePage(outboundPageParam);
@@ -64,6 +66,9 @@ export default async function ProviderConnectionRequestsPage({
     }),
   ]);
   const canWrite = canWriteOrg(session.activeRole);
+  const { entitlements, approvedProviderConnectionCount } = usage;
+  const canApprovePartners = approvedProviderConnectionCount < entitlements.provider_connection_cap;
+  const canRequestPartners = canApprovePartners;
 
   const inbound = { ...inboundRaw, rows: inboundRaw.rows.map(mapInboundRow) };
   const outbound = { ...outboundRaw, rows: outboundRaw.rows.map(mapOutboundRow) };
@@ -108,6 +113,16 @@ export default async function ProviderConnectionRequestsPage({
       emptyInboundMessage="No provider requests waiting for approval."
       emptyOutboundMessage="No outbound requests waiting on providers."
       awaitingOutboundLabel="Awaiting provider"
+      planUsageRows={[
+        {
+          label: 'Approved provider connections',
+          used: approvedProviderConnectionCount,
+          limit: entitlements.provider_connection_cap,
+        },
+      ]}
+      canApprovePartners={canApprovePartners}
+      canRequestPartners={canRequestPartners}
+      upgradeHref="/payer/settings/billing"
     />
     </>
   );
