@@ -1,14 +1,13 @@
 {
   "welcome": {
-    "title": "Nlekọta na-arụ ọrụ na-enweghị ịntanetị",
-    "subtitle": "Nhazi dị mkpirikpi ka Nso, akụkọ, na ngwaọrụ mberede dị mma site n'ụbọchị mbụ.",
-    "cta": "Ka anyị gaa",
-    "foot": "Malite site n'ịhọrọ obodo na asụsụ.",
+    "title": "Your health, even without signal",
+    "subtitle": "About 2 minutes. Set country, optional emergency basics, and you're in — no account required.",
+    "cta": "Get started",
+    "foot": "You can add more anytime under Me.",
     "preview": {
-      "countryLanguage": "Obodo + asụsụ",
-      "priorities": "Ihe dị gị mkpa",
-      "news": "Akụkọ ahụike mpaghara",
-      "nearby": "Nlekọta nso"
+      "countryLanguage": "Country & language",
+      "emergency": "Emergency card (offline)",
+      "discover": "Nearby & Learn"
     }
   },
   "country": {
@@ -20,35 +19,20 @@
       "state": "Steeti / mpaghara (nhọrọ)"
     },
     "statePlaceholder": "dịka Greater Accra",
+    "selectPlaceholder": "Họrọ obodo",
     "searchPlaceholder": "Chọọ mba",
-    "searchEmpty": "Enweghị mba dabara n'ọchịchọ a.",
-    "selectPlaceholder": "Họrọ obodo"
+    "searchEmpty": "Enweghị mba dabara n'ọchịchọ a."
   },
-  "priorities": {
-    "title": "Gịnị ka dị mkpa nke ọma?",
-    "subtitle": "Pịa ihe ị na-eche banyere ya — anyị ga-eme ka usoro nhọrọ na-esote dabara.",
-    "continueSelected": "Gaa n'ihu · ahọpụtara {{count}}",
-    "minSelectTitle": "Pick at least one",
-    "minSelectMessage": "Choose a priority so we can personalize your CareMate experience.",
-    "emergency": {
-      "label": "Mberede",
-      "description": "Kaadị ahụike na-enweghị ịntanetị maka ndị na-enyere aka mbụ"
-    },
-    "nearby": {
-      "label": "Nlekọta nso",
-      "description": "Ụlọ ọgwụ, ụlọ ọgwụ nta, na ụlọ ahịa ọgwụ gburugburu gị"
-    },
-    "family": {
-      "label": "Ezinụlọ / ụmụaka",
-      "description": "Profaịlụ ezinụlọ na nlekọta ụmụaka ekekọrịtara"
-    },
-    "learn": {
-      "label": "Mụta",
-      "description": "Edemede ahụike a tụkwasịrị obi na ndụmọdụ"
-    }
+  "emergencyBasics": {
+    "title": "Start your emergency card",
+    "subtitle": "Blood type and genotype help in an emergency. Saved on this device — works offline. Add contacts later.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "allergiesHint": "Optional — separate with commas"
   },
   "location": {
     "title": "Chọta nlekọta nso",
+    "subtitle": "Jiri GPS ziri ezi maka nke kacha mma, ma ọ bụ debe pin nke dị nso maka {{place}}.",
     "enable": "Mee ka ebe rụọ ọrụ",
     "checking": "Na-enyocha…",
     "approximateCta": "Jiri ebe dị nso",
@@ -59,8 +43,7 @@
     "approximate": {
       "title": "Dị nso",
       "hint": "Pin fallback {{place}} — gbanwee mgbe ọ bụla"
-    },
-    "subtitle": "Jiri GPS ziri ezi maka nke kacha mma, ma ọ bụ debe pin nke dị nso maka {{place}}."
+    }
   },
   "notifications": {
     "title": "Nọrọ na ozi",
@@ -70,14 +53,18 @@
   },
   "next": {
     "title": "Ị dị njikere",
-    "subtitle": "Chọgharịa dịka ọbịa, ma ọ bụ mepụta akaụntụ ka data mberede na ezinụlọ nwee ike imekọrịta.",
+    "subtitleWithEmergency": "Your emergency card has started. Add contacts anytime from Home.",
+    "subtitleWithoutEmergency": "Add emergency details anytime from Home.",
     "continueExploring": "Gaa n'ihu ịchọgharịa",
     "saving": "Na-echekwa…",
     "createAccount": "Mepụta akaụntụ",
     "haveAccount": "Enwere m akaụntụ",
-    "browseTitle": "Chọgharịa n'efu",
-    "browseHint": "Edemede, Nso, na obere ngwa na-arụ ọrụ dịka ọbịa",
+    "onDeviceTitle": "Chọgharịa n'efu",
+    "onDeviceHint": "Edemede, Nso, na obere ngwa na-arụ ọrụ dịka ọbịa",
     "syncTitle": "Mepụta iji mekọrịta",
-    "syncHint": "Mepụta akaụntụ tupu mberede ma ọ bụ ezinụlọ ka data ghara ịnọ n'anwụ naanị na ngwaọrụ a"
+    "syncHint": "Mepụta akaụntụ tupu mberede ma ọ bụ ezinụlọ ka data ghara ịnọ n'anwụ naanị na ngwaọrụ a",
+    "familyPrompt": "Planning to track family health?",
+    "familyYes": "Yes",
+    "familyNo": "Not now"
   }
 }

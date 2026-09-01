@@ -4,6 +4,7 @@ import {
   type MedicationFrequency,
 } from '@/mini-apps/medication-tracker/constants';
 import { collectMedicationAlerts } from '@/mini-apps/medication-tracker/alerts';
+import { collectMedicationScheduledNotifications } from '@/mini-apps/medication-tracker/scheduled-notifications';
 import { resolveMedicationFamilyKidsSource } from '@/mini-apps/medication-tracker/family-source';
 import {
   buildMedicationAlertCopy,
@@ -337,6 +338,46 @@ describe('medication-tracker/alerts', () => {
         .map((item) => item.dedupeKey)
         .sort(),
     );
+  });
+});
+
+describe('medication-tracker/scheduled-notifications', () => {
+  it('plans upcoming dose and missed reminders from slot times', () => {
+    const now = new Date(2026, 6, 17, 7, 30);
+    const planned = collectMedicationScheduledNotifications({
+      medications: [med({ slotTimes: ['08:00', '20:00'] })],
+      logs: [],
+      now,
+    });
+
+    expect(planned.some((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')).toBe(true);
+    expect(planned.some((item) => item.identifier === 'med:missed:med-1:2026-07-17:0')).toBe(true);
+    expect(planned.find((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')!.triggerAt).toEqual(
+      new Date(2026, 6, 17, 8, 0),
+    );
+  });
+
+  it('skips taken doses and as-needed medicines', () => {
+    const now = new Date(2026, 6, 17, 7, 30);
+    const planned = collectMedicationScheduledNotifications({
+      medications: [
+        med({ frequency: 'once-daily', slotTimes: ['08:00'] }),
+        med({ id: 'med-prn', frequency: 'as-needed', slotTimes: [] }),
+      ],
+      logs: [
+        {
+          id: 'log-1',
+          medicationId: 'med-1',
+          dateKey: '2026-07-17',
+          slotIndex: 0,
+          takenAt: now.toISOString(),
+        },
+      ],
+      now,
+    });
+
+    expect(planned.some((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')).toBe(false);
+    expect(planned.some((item) => item.medicationId === 'med-prn')).toBe(false);
   });
 });
 

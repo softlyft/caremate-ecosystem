@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Heart, MapPinned } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, FlatList, ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, ScrollView, StyleSheet, View } from 'react-native';
+import { TabFlatList, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 import { applyAppStateChange, createAppBackgroundGate } from '@/sync/app-state';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
@@ -169,11 +170,12 @@ export default function ProvidersTabScreen() {
 
   return (
     <Screen padded={false}>
-      <FlatList
+      <TabFlatList
         data={providers}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        {...iosTabScrollProps}
         contentContainerStyle={[
           styles.list,
           { paddingTop: insets.top + spacing.sm },

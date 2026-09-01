@@ -13,6 +13,7 @@ export {
 export {
   allowsOsNotifications,
   applyNotificationsEnabledPreference,
+  claimExclusiveNotificationDevice,
   clearPushRegistration,
   reconcilePushRegistrationWithOsPermission,
   syncPushRegistration,

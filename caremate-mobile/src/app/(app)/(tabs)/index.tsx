@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, InteractionManager } from 'react-native';
+import { TabScrollView, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 
 import { applyAppStateChange, createAppBackgroundGate } from '@/sync/app-state';
-import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -52,12 +52,17 @@ export default function HomeScreen() {
         userKey,
       }),
     enabled: localizationReady,
+    staleTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const coordsQuery = useQuery({
     queryKey: [...QUERY_KEYS.providers, 'coords'],
     queryFn: resolveNearbyCoords,
     staleTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const providersQuery = useQuery({
@@ -83,6 +88,9 @@ export default function HomeScreen() {
       return result.providers;
     },
     enabled: coordsQuery.isSuccess || coordsQuery.isError,
+    staleTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const [locationRequestPending, setLocationRequestPending] = useState(false);
@@ -112,6 +120,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     let cancelled = false;
+    let interactionTask: { cancel: () => void } | null = null;
 
     async function refreshCatalog() {
       try {
@@ -125,11 +134,14 @@ export default function HomeScreen() {
     }
 
     if (localizationReady) {
-      void refreshCatalog();
+      interactionTask = InteractionManager.runAfterInteractions(() => {
+        void refreshCatalog();
+      });
     }
 
     return () => {
       cancelled = true;
+      interactionTask?.cancel();
     };
   }, [localizationReady, queryClient]);
 
@@ -162,10 +174,10 @@ export default function HomeScreen() {
 
   return (
     <Screen padded={false}>
-      <Animated.ScrollView
-        entering={FadeIn.duration(300)}
+      <TabScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
+        {...iosTabScrollProps}
       >
         <AnimatedSection index={0}>
           <HomeHeader firstName={firstName} />
@@ -228,7 +240,7 @@ export default function HomeScreen() {
         <AnimatedSection index={9}>
           <EmergencyBanner />
         </AnimatedSection>
-      </Animated.ScrollView>
+      </TabScrollView>
     </Screen>
   );
 }

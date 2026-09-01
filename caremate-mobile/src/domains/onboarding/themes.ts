@@ -1,5 +1,4 @@
 import { palette } from '@/theme';
-import type { OnboardingPriorityId } from './types';
 
 export type OnboardingStepTheme = {
   accent: string;
@@ -19,7 +18,7 @@ export const ONBOARDING_STEP_THEMES: OnboardingStepTheme[] = [
     blob: '#99F6E4',
   },
   {
-    // Region — sky
+    // Country & language — sky
     accent: '#0284C7',
     soft: '#E0F2FE',
     softEnd: '#F0F9FF',
@@ -27,7 +26,7 @@ export const ONBOARDING_STEP_THEMES: OnboardingStepTheme[] = [
     blob: '#7DD3FC',
   },
   {
-    // Priorities — violet wash
+    // Emergency basics — violet
     accent: palette.brandPurple,
     soft: palette.purpleLight,
     softEnd: '#F5F3FF',
@@ -59,29 +58,3 @@ export const ONBOARDING_STEP_THEMES: OnboardingStepTheme[] = [
     blob: '#6EE7B7',
   },
 ];
-
-export const PRIORITY_VISUALS: Record<
-  OnboardingPriorityId,
-  { accent: string; soft: string; softEnd: string }
-> = {
-  emergency: {
-    accent: palette.brandPurple,
-    soft: palette.purpleLight,
-    softEnd: '#F5F3FF',
-  },
-  nearby: {
-    accent: palette.brandBlue,
-    soft: palette.brandBlueLight,
-    softEnd: '#EFF6FF',
-  },
-  family: {
-    accent: '#DB2777',
-    soft: '#FCE7F3',
-    softEnd: '#FDF2F8',
-  },
-  learn: {
-    accent: palette.primary,
-    soft: palette.primaryLight,
-    softEnd: '#F0FDFA',
-  },
-};

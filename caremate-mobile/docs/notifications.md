@@ -2,7 +2,7 @@
 
 [← Back to index](./README.md)
 
-> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message` + **provider connection** via `notify-provider-connection` + **provider document shared** via `notify-provider-document`). Quiet hours and category prefs still pending.  
+> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message` + **provider connection** via `notify-provider-connection` + **provider document shared** via `notify-provider-document` + **Medication Assistant** via local scheduled OS notifications + `notify-medication`). Quiet hours and category prefs still pending.  
 > Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push.
 
 ## Decisions (locked)
@@ -75,6 +75,7 @@ Home header Bell
 - `notify-message` — org / direct message push (+ cloud inbox row)
 - `notify-provider-connection` — patient ↔ provider lifecycle push (+ cloud inbox row)
 - `notify-provider-document` — provider shared a document → patient in-app + push
+- `notify-medication` — dose due / missed / refill → patient in-app + Expo push (idempotent dedupe keys)
 - Quiet hours / med-checkup OS pushes still later
 
 - Unread badge / dot on the bell when any `read_at IS NULL`.
@@ -172,9 +173,9 @@ Home header Bell
 
 | Action | In-app | Push | Email | Notes |
 |--------|:------:|:----:|:-----:|-------|
-| Dose due | ✅ | ❌ (MVP) | — | Inbox only until push ships; dedupe `med:dose:{id}:{date}:{slot}` |
-| Dose missed | ✅ | ❌ (MVP) | — | After ~60 min grace; dedupe `med:missed:…` |
-| Refill due | ✅ | ❌ (MVP) | — | Quantity threshold or refill due date; dedupe `med:refill:…` |
+| Dose due | ✅ | ✅ | — | Local OS schedule at slot time + Expo push via `notify-medication`; dedupe `med:dose:{id}:{date}:{slot}` |
+| Dose missed | ✅ | ✅ | — | Local OS schedule at slot + 60 min grace + Expo push; dedupe `med:missed:…` |
+| Refill due | ✅ | ✅ | — | Local OS schedule on refill due date + Expo push; dedupe `med:refill:…` |
 | Dose logged / undone | — | — | — | No inbox card for log/undo in MVP |
 | Medicine added / paused | — | — | — | |
 

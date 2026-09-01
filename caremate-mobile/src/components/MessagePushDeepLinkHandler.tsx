@@ -1,8 +1,9 @@
 import * as Notifications from 'expo-notifications';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
 import { config } from '@/constants/env';
+import { MEDICATION_TRACKER_PATH } from '@/mini-apps/medication-tracker/push-alerts';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -29,6 +30,18 @@ function openConversation(conversationId: string) {
   router.push(`/(app)/messages/${conversationId}`);
 }
 
+function extractMedicationPath(data: Record<string, unknown> | undefined): Href | null {
+  if (!data) return null;
+  if (data.domain === 'medication') {
+    const path = data.path;
+    if (typeof path === 'string' && path.trim()) {
+      return path.trim() as Href;
+    }
+    return MEDICATION_TRACKER_PATH;
+  }
+  return null;
+}
+
 /**
  * Opens org message push taps (provider or payer) on the matching thread.
  */
@@ -44,6 +57,11 @@ export function MessagePushDeepLinkHandler() {
       if (!response) return;
       const data = response.notification.request.content.data as
         Record<string, unknown> | undefined;
+      const medicationPath = extractMedicationPath(data);
+      if (medicationPath) {
+        router.push(medicationPath);
+        return;
+      }
       const conversationId = extractConversationId(data);
       if (conversationId) {
         openConversation(conversationId);

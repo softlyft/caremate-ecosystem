@@ -60,6 +60,27 @@ export default function SetupEmergencyEssentialsScreen() {
   const busyRef = useRef(false);
 
   useEffect(() => {
+    let active = true;
+    void emergencyRepository.findByUserId(userId).then((profile) => {
+      if (!active || !profile) {
+        return;
+      }
+      if (profile.bloodGroup) {
+        setBloodGroup(profile.bloodGroup);
+      }
+      if (profile.genotype) {
+        setGenotype(profile.genotype);
+      }
+      if (profile.allergies.length) {
+        setAllergies(profile.allergies.join(', '));
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
     const showSub = Keyboard.addListener(showEvent, (event) => {

@@ -78,7 +78,7 @@ export default function OnboardingLocationScreen() {
     <OnboardingShell
       step={3}
       title={t('onboarding.location.title')}
-      subtitle={t('onboarding.location.subtitle', { place: placeLabel })}
+      subtitle={t('onboarding.location.subtitle')}
       onSkip={useApproximate}
       busy={busy}
       hero={

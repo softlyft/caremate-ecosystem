@@ -39,13 +39,13 @@ export default function SetupDoneScreen() {
       key: 'emergency',
       label: t('setup.done.checks.emergency'),
       done: Boolean(defaults?.emergencyEssentialsDone),
-      deferred: defaults?.priorities.includes('emergency'),
+      deferred: Boolean(defaults?.emergencyBasicsStarted),
     },
     {
       key: 'family',
       label: t('setup.done.checks.family'),
       done: Boolean(defaults?.familyPromptDone),
-      deferred: defaults?.priorities.includes('family'),
+      deferred: Boolean(defaults?.wantsFamily),
     },
   ];
 

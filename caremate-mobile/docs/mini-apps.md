@@ -114,7 +114,7 @@ Country list for Checkup Planner comes from `localizationService.listCountryOpti
 | `activeMedicationId` | Last selected medicine |
 | `logs` | Dose logs (`id`, `medicationId`, `dateKey`, `slotIndex`, `notes?`, `takenAt?`) |
 
-Hooks: `useMedicationTrackerStore`, `useMedicationTrackerHydrated`. Alerts: `evaluateMedicationAlerts` → in-app inbox only.
+Hooks: `useMedicationTrackerStore`, `useMedicationTrackerHydrated`. Alerts: `evaluateMedicationAlerts` → in-app inbox + `notify-medication` Expo push; `syncMedicationScheduledNotifications` → local OS schedules at dose times.
 
 ### Frequencies
 
