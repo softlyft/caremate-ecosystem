@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Bookmark, BookOpen, CheckCheck } from 'lucide-react-native';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { TabFlatList, iosTabScrollProps } from '@/components/navigation/tab-scroll';
+import { TabFlatList, iosTabScrollProps, tabContentPaddingTop } from '@/components/navigation/tab-scroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 import { SearchField } from '@/components/ui/search-field';
@@ -186,7 +186,7 @@ export default function ArticlesTabScreen() {
         {...iosTabScrollProps}
         contentContainerStyle={[
           styles.list,
-          { paddingTop: insets.top + spacing.sm },
+          { paddingTop: tabContentPaddingTop(insets.top) },
           articles.length === 0 ? styles.listFill : null,
         ]}
         ListHeaderComponent={

@@ -1,6 +1,16 @@
 import { router } from 'expo-router';
 import type { PropsWithChildren, ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -9,19 +19,24 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useEffect } from 'react';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { Screen } from '@/components/ui/screen-states';
+import {
+  MiniAppKeyboardContext,
+  useScheduleFocusedInputScroll,
+} from '@/hooks/use-keyboard-aware-scroll';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 import { ONBOARDING_STEP_THEMES } from './themes';
 import { useTranslation } from '@/domains/localization';
 
 const TOTAL_PHASE_A_STEPS = 6;
+/** Top bar row inside the safe area (back / progress / skip). */
+const ONBOARDING_TOP_BAR_HEIGHT = 52;
 
 type OnboardingShellProps = PropsWithChildren<{
   step: number;
@@ -49,6 +64,12 @@ export function OnboardingShell({
   hero,
 }: OnboardingShellProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
   const theme = ONBOARDING_STEP_THEMES[step] ?? ONBOARDING_STEP_THEMES[0];
   const progress = useSharedValue((step + 1) / TOTAL_PHASE_A_STEPS);
 
@@ -59,9 +80,38 @@ export function OnboardingShell({
     });
   }, [progress, step]);
 
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
+      setKeyboardHeight(event.endCoordinates.height);
+      keyboardApi.scheduleScrollIntoView();
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardApi]);
+
   const progressStyle = useAnimatedStyle(() => ({
     width: `${progress.value * 100}%`,
   }));
+
+  // Extra scroll room so bottom fields (e.g. allergies) can rise above the keyboard + footer.
+  const bottomPad =
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
+      : spacing.lg;
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? ONBOARDING_TOP_BAR_HEIGHT : 0;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
 
   return (
     <Screen padded={false} tone="surface">
@@ -127,49 +177,63 @@ export function OnboardingShell({
           )}
         </View>
 
-        <Animated.ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoid}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
         >
-          <Animated.View entering={FadeIn.duration(400)}>
-            <AppText variant="caption" style={[styles.eyebrow, { color: theme.accent }]}>
-              {t('common.stepOf', { current: step + 1, total: TOTAL_PHASE_A_STEPS })}
-            </AppText>
-          </Animated.View>
+          <MiniAppKeyboardContext.Provider value={keyboardApi}>
+            <ScrollView
+              ref={scrollRef}
+              style={styles.scroll}
+              contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPad }]}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+              automaticallyAdjustKeyboardInsets={false}
+              contentInsetAdjustmentBehavior="never"
+              scrollEventThrottle={16}
+              onScroll={onScroll}
+            >
+              <Animated.View entering={FadeIn.duration(400)}>
+                <AppText variant="caption" style={[styles.eyebrow, { color: theme.accent }]}>
+                  {t('common.stepOf', { current: step + 1, total: TOTAL_PHASE_A_STEPS })}
+                </AppText>
+              </Animated.View>
 
-          {hero ? (
-            <Animated.View entering={FadeInDown.delay(40).duration(520).springify().damping(18)}>
-              {hero}
-            </Animated.View>
-          ) : null}
+              {hero ? (
+                <Animated.View entering={FadeInDown.delay(40).duration(520).springify().damping(18)}>
+                  {hero}
+                </Animated.View>
+              ) : null}
 
-          <Animated.View entering={FadeInDown.delay(80).duration(520).springify().damping(18)}>
-            <AppText variant="screenTitle" style={[styles.title, { color: theme.title }]}>
-              {title}
-            </AppText>
-            <AppText variant="subtitle" style={styles.subtitle}>
-              {subtitle}
-            </AppText>
-          </Animated.View>
+              <Animated.View entering={FadeInDown.delay(80).duration(520).springify().damping(18)}>
+                <AppText variant="screenTitle" style={[styles.title, { color: theme.title }]}>
+                  {title}
+                </AppText>
+                <AppText variant="subtitle" style={styles.subtitle}>
+                  {subtitle}
+                </AppText>
+              </Animated.View>
 
-          <Animated.View
-            entering={FadeInUp.delay(140).duration(540).springify().damping(18)}
-            style={styles.content}
-          >
-            {children}
-          </Animated.View>
-        </Animated.ScrollView>
+              <Animated.View
+                entering={FadeInUp.delay(140).duration(540).springify().damping(18)}
+                style={styles.content}
+              >
+                {children}
+              </Animated.View>
+            </ScrollView>
 
-        {footer ? (
-          <Animated.View
-            entering={FadeInUp.delay(180).duration(480).springify().damping(20)}
-            style={styles.footer}
-          >
-            {footer}
-          </Animated.View>
-        ) : null}
+            {footer ? (
+              <Animated.View
+                entering={FadeInUp.delay(180).duration(480).springify().damping(20)}
+                style={styles.footer}
+              >
+                {footer}
+              </Animated.View>
+            ) : null}
+          </MiniAppKeyboardContext.Provider>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </Screen>
   );
@@ -255,6 +319,9 @@ const styles = StyleSheet.create({
     left: -60,
   },
   safe: {
+    flex: 1,
+  },
+  keyboardAvoid: {
     flex: 1,
   },
   topBar: {

@@ -12,6 +12,7 @@ import { useUnreadMessageCount } from '@/domains/messaging/hooks';
 import { useUnreadNotificationCount } from '@/domains/notifications/hooks';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, spacing } from '@/theme';
+import { tabContentPaddingTop } from '@/components/navigation/tab-scroll';
 
 const LOGO_ASPECT = 1774 / 887;
 const LOGO_HEIGHT = 44;
@@ -32,7 +33,7 @@ export function HomeHeader({ firstName }: HomeHeaderProps) {
   const greeting = !isGuest && name ? t('home.greetingNamed', { name }) : t('home.greeting');
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
+    <View style={[styles.container, { paddingTop: tabContentPaddingTop(insets.top) }]}>
       <View style={styles.meshTop} />
       <View style={styles.meshAccent} />
 
