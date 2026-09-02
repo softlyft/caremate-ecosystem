@@ -7,6 +7,8 @@ export type OrgCareTeamMember = {
   displayName: string;
   position: string | null;
   canMessage: boolean;
+  /** Owner/admin open the org inbox thread (same as Care Portal Messages). */
+  messageViaOrgInbox: boolean;
 };
 
 type RemoteCareTeamRow = {
@@ -14,6 +16,7 @@ type RemoteCareTeamRow = {
   display_name: string;
   position: string | null;
   can_message: boolean;
+  message_via_org_inbox?: boolean;
 };
 
 function mapRow(row: RemoteCareTeamRow): OrgCareTeamMember {
@@ -22,6 +25,7 @@ function mapRow(row: RemoteCareTeamRow): OrgCareTeamMember {
     displayName: row.display_name,
     position: row.position,
     canMessage: row.can_message,
+    messageViaOrgInbox: row.message_via_org_inbox ?? false,
   };
 }
 

@@ -1,4 +1,7 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { toRpcError } from '@/lib/rpc-error';
+import { logConnectionAction } from '@/domains/connections/debug-log';
 import {
   DEFAULT_PAGE_SIZE,
   emptyPage,
@@ -44,6 +47,37 @@ async function notifyProviderConnection(
   }
 }
 
+async function loadOrgConnection(
+  organizationId: string,
+  connectionId: string,
+): Promise<
+  Pick<PatientProviderConnection, 'id' | 'status' | 'organization_id' | 'patient_id' | 'initiated_by'>
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('patient_provider_connections')
+    .select('id, status, organization_id, patient_id, initiated_by')
+    .eq('id', connectionId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data || data.organization_id !== organizationId) {
+    throw new Error('Connection not found for this organization.');
+  }
+  return data;
+}
+
+function assertPendingConnection(
+  connection: Pick<PatientProviderConnection, 'status'>,
+): void {
+  if (connection.status === 'approved') {
+    throw new Error('Connection already approved');
+  }
+  if (connection.status !== 'pending') {
+    throw new Error('Only pending connections can be responded to');
+  }
+}
+
 export async function listConnectionsByStatus(
   organizationId: string,
   status: PatientProviderConnection['status'],
@@ -53,6 +87,7 @@ export async function listConnectionsByStatus(
     initiatedBy?: PatientProviderConnection['initiated_by'];
   },
 ): Promise<PaginatedResult<ConnectionWithProfile>> {
+  noStore();
   const supabase = await createClient();
   const page = parsePage(options?.page);
   const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
@@ -114,22 +149,51 @@ export async function countConnections(
 }
 
 export async function approveConnection(
-  _organizationId: string,
+  organizationId: string,
   connectionId: string,
   providerNote?: string | null,
 ): Promise<void> {
+  const connection = await loadOrgConnection(organizationId, connectionId);
+  logConnectionAction('approve', {
+    phase: 'precheck',
+    connectionId,
+    organizationId,
+    status: connection.status,
+    patientId: connection.patient_id,
+    initiatedBy: connection.initiated_by,
+  });
+  assertPendingConnection(connection);
+
   const supabase = await createClient();
-  const { error } = await supabase.rpc('respond_patient_provider_connection', {
+  const { data, error } = await supabase.rpc('respond_patient_provider_connection', {
     p_connection_id: connectionId,
     p_accept: true,
     p_note: providerNote ?? undefined,
   });
-  if (error) throw error;
+  if (error) {
+    logConnectionAction('approve', {
+      phase: 'rpc_error',
+      connectionId,
+      organizationId,
+      precheckStatus: connection.status,
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    throw toRpcError(error, 'Failed to approve connection');
+  }
+  logConnectionAction('approve', {
+    phase: 'success',
+    connectionId,
+    organizationId,
+    resultStatus: (data as PatientProviderConnection | null)?.status ?? null,
+  });
   await notifyProviderConnection(supabase, connectionId, 'accepted');
 }
 
 export async function rejectConnection(
-  _organizationId: string,
+  organizationId: string,
   connectionId: string,
   rejectionReason: string,
 ): Promise<void> {
@@ -138,18 +202,21 @@ export async function rejectConnection(
     throw new Error('A rejection reason is required');
   }
 
+  const connection = await loadOrgConnection(organizationId, connectionId);
+  assertPendingConnection(connection);
+
   const supabase = await createClient();
   const { error } = await supabase.rpc('respond_patient_provider_connection', {
     p_connection_id: connectionId,
     p_accept: false,
     p_rejection_reason: reason,
   });
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to reject connection');
   await notifyProviderConnection(supabase, connectionId, 'declined');
 }
 
 export async function cancelPendingConnection(
-  _organizationId: string,
+  organizationId: string,
   connectionId: string,
   reason: string,
 ): Promise<void> {
@@ -158,12 +225,15 @@ export async function cancelPendingConnection(
     throw new Error('A cancellation reason is required');
   }
 
+  const connection = await loadOrgConnection(organizationId, connectionId);
+  assertPendingConnection(connection);
+
   const supabase = await createClient();
   const { error } = await supabase.rpc('cancel_pending_patient_provider_connection', {
     p_connection_id: connectionId,
     p_reason: trimmed,
   });
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to cancel connection');
   await notifyProviderConnection(supabase, connectionId, 'cancelled');
 }
 
@@ -177,7 +247,7 @@ export async function disconnectConnection(
     p_connection_id: connectionId,
     p_reason: reason?.trim() || undefined,
   });
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to disconnect');
   await notifyProviderConnection(supabase, connectionId, 'disconnected');
 }
 
@@ -193,7 +263,7 @@ export async function requestConnectionByCaremateId(
     p_provider_note: providerNote ?? undefined,
   });
 
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to request connection');
   const connection = data as PatientProviderConnection;
   await notifyProviderConnection(supabase, connection.id, 'request');
   return connection;

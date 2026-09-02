@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ export function ConnectionActions({
   const resolvedMode: ConnectionActionMode =
     mode ?? (showApprove !== false ? 'inbound-pending' : 'outbound-pending');
 
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<
     'approve' | 'reject' | 'cancel' | 'disconnect' | null
@@ -78,10 +80,14 @@ export function ConnectionActions({
         }
         setReasonOpen(false);
         setReason('');
+        refreshList();
       } catch (err) {
         toast.error(
           formatConnectionError(errorMapper, err, `Failed to ${primaryLabel.toLowerCase()}`),
         );
+        if (shouldRefreshAfterConnectionError(err)) {
+          refreshList();
+        }
       } finally {
         setPendingAction(null);
       }
@@ -89,6 +95,20 @@ export function ConnectionActions({
   }
 
   const reasonFieldId = `connection-reason-${connectionId}`;
+
+  function refreshList() {
+    router.refresh();
+  }
+
+  function shouldRefreshAfterConnectionError(err: unknown): boolean {
+    const message = formatConnectionError(errorMapper, err, '').toLowerCase();
+    return (
+      message.includes('already approved') ||
+      message.includes('already processed') ||
+      message.includes('already connected') ||
+      message.includes('no longer pending')
+    );
+  }
 
   return (
     <div className="flex min-w-[12rem] flex-col items-end gap-2">
@@ -105,8 +125,12 @@ export function ConnectionActions({
                 try {
                   await handlers.approve(connectionId);
                   toast.success('Connection approved');
+                  refreshList();
                 } catch (err) {
                   toast.error(formatConnectionError(errorMapper, err, 'Failed to approve'));
+                  if (shouldRefreshAfterConnectionError(err)) {
+                    refreshList();
+                  }
                 } finally {
                   setPendingAction(null);
                 }

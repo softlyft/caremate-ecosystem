@@ -47,7 +47,7 @@ Tab bar styling:
 - **`freezeOnBlur: false`** so visited tabs stay interactive when returning
 - **`lazy: true`** — tabs you have not opened yet are not mounted (less JS work on first navigation)
 - **`TabMotionProvider`** — disables Reanimated enter animations inside tab screens (staggered `FadeInDown` was blocking scroll/gestures on tab return)
-- **Tab scrollables** — `TabScrollView` / `TabFlatList` use native RN `ScrollView`/`FlatList` on **iOS** and `react-native-gesture-handler` on Android; iOS gets `directionalLockEnabled`, `removeClippedSubviews: false`, etc.
+- **Tab scrollables** — `TabScrollView` / `TabFlatList` use native RN `ScrollView`/`FlatList` on **iOS** and `react-native-gesture-handler` on Android; iOS gets `directionalLockEnabled`, `removeClippedSubviews: false`, `contentInsetAdjustmentBehavior: 'automatic'`, etc. Use `tabContentPaddingTop(insets.top)` for list/header top padding (iOS automatic insets already include safe area — do not add `insets.top` again).
 - **Gesture handler** — single `GestureHandlerRootView` at app root; nested root on Apps tab removed
 - **Apps tab (iOS)** — benefits from iOS `detachInactiveScreens` (DraggableFlatList remounts cleanly on tab return)
 - Learn and Nearby queries use longer `staleTime` and `refetchOnMount: false` so returning to a tab does not feel like a reload

@@ -12,6 +12,8 @@ import {
 import { payerPatientConnectionHandlers } from '@/lib/connection-action-handlers';
 import { canWriteOrg } from '@/constants/roles';
 
+export const dynamic = 'force-dynamic';
+
 const BASE_PATH = '/payer/patients/requests';
 
 function mapRow(

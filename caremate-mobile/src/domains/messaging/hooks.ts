@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 
 import { QUERY_KEYS } from '@/constants/config';
 import { config } from '@/constants/env';
-import { listMessages, listPatientConversations } from '@/domains/messaging/repository';
+import { useTranslation } from '@/domains/localization';
+import { listPatientConversations } from '@/domains/messaging/repository';
+import { loadConversationThread } from '@/domains/messaging/sender-display';
 import { useMessagingRealtime } from '@/domains/messaging/realtime';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 
@@ -50,14 +52,25 @@ export function useUnreadMessageCount() {
 export function useConversationMessages(conversationId: string) {
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const { t } = useTranslation();
   useMessagingRealtime({
     userId,
     conversationId,
     enabled: Boolean(userId) && Boolean(conversationId) && !isGuest && config.isSupabaseConfigured,
   });
   return useQuery({
-    queryKey: [...QUERY_KEYS.messages, 'thread', conversationId],
-    queryFn: () => listMessages(conversationId),
+    queryKey: [...QUERY_KEYS.messages, 'thread', conversationId, userId],
+    queryFn: () =>
+      loadConversationThread(conversationId, userId, {
+        insurer: t('messages.senderRoleInsurer'),
+        provider: t('messages.senderRoleProvider'),
+        participant: t('messages.senderRoleParticipant'),
+        careTeam: t('messages.senderRoleCareTeam'),
+        you: t('messages.senderYou'),
+        unknownUser: t('messages.unknownUser'),
+        insurerFallback: t('messages.insurerFallback'),
+        providerFallback: t('messages.providerFallback'),
+      }),
     enabled: Boolean(conversationId) && !isGuest && config.isSupabaseConfigured,
     staleTime: THREAD_STALE_MS,
     refetchInterval: THREAD_REFETCH_MS,

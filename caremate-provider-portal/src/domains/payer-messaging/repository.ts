@@ -7,6 +7,10 @@ import {
   parsePage,
   type PaginatedResult,
 } from '@/lib/pagination';
+import {
+  gatewayRequest,
+  isHealthDataGatewayConfigured,
+} from '@/lib/health-data-gateway';
 import type { Json } from '@/types/database';
 
 export type PayerMessageConversation = {
@@ -27,6 +31,7 @@ export type PayerMessageMessage = {
   conversation_id: string;
   sender_party_type: 'user' | 'organization';
   sender_user_id: string | null;
+  sender_organization_id?: string | null;
   sender_payer_organization_id: string | null;
   body: string;
   subject: string | null;
@@ -176,6 +181,17 @@ export async function listPayerConversationMessages(
   payerOrganizationId: string,
   conversationId: string,
 ): Promise<PayerMessageMessage[]> {
+  const gatewayRows = await gatewayRequest<PayerMessageMessage[]>(
+    'GET',
+    `/v1/messages/conversations/${conversationId}`,
+  );
+  if (gatewayRows) {
+    return gatewayRows;
+  }
+  if (isHealthDataGatewayConfigured()) {
+    return [];
+  }
+
   const supabase = await db();
   const { data: conversation, error: convError } = await supabase
     .from('message_conversations')

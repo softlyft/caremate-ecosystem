@@ -10,6 +10,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { config } from '@/constants/env';
 import { useTranslation } from '@/domains/localization';
 import {
+  formatDirectMessageStartAlert,
   searchMessageableUsers,
   startDirectConversation,
   type MessageableUser,
@@ -42,10 +43,7 @@ export default function NewMessageScreen() {
       });
       router.replace(`/(app)/messages/${conversationId}`);
     } catch (error) {
-      Alert.alert(
-        t('messages.startFailedTitle'),
-        error instanceof Error ? error.message : t('messages.startFailedMessage'),
-      );
+      Alert.alert(t('messages.startFailedTitle'), formatDirectMessageStartAlert(error, t));
     } finally {
       setStartingId(null);
     }
