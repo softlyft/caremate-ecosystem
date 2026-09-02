@@ -12,11 +12,18 @@ export class MessagesController {
   listConversations(
     @CurrentUser() user: AuthUser,
     @Query('organizationId') organizationId?: string,
+    @Query('payerOrganizationId') payerOrganizationId?: string,
   ) {
     if (organizationId) {
       return this.messagesService.listOrgConversations(
         user.userId,
         organizationId,
+      );
+    }
+    if (payerOrganizationId) {
+      return this.messagesService.listPayerOrgConversations(
+        user.userId,
+        payerOrganizationId,
       );
     }
     return this.messagesService.listConversations(user.userId);

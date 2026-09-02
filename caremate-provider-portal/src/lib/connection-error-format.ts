@@ -1,4 +1,5 @@
 import { mapPatientPayerConnectionError } from '@/domains/patient-payer-connections/errors';
+import { mapProviderPatientConnectionError } from '@/domains/connections/errors';
 import { mapPayerConnectionError } from '@/domains/payer-connections/errors';
 
 /** Serializable key for client-side connection error copy (do not pass functions from RSC). */
@@ -15,6 +16,6 @@ export function formatConnectionError(
     case 'payer-org':
       return mapPayerConnectionError(err, fallback);
     default:
-      return err instanceof Error ? err.message : fallback;
+      return mapProviderPatientConnectionError(err, fallback);
   }
 }

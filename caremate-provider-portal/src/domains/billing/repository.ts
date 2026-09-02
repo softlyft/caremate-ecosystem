@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { positiveLimit, rpcCount } from '@/lib/rpc-error';
 
 export type ProviderOrgEntitlements = {
   plan_tier: 'free' | 'basic' | 'pro' | 'enterprise';
@@ -32,6 +33,34 @@ const FREE: ProviderOrgEntitlements = {
   subscription_id: null,
 };
 
+function coerceProviderEntitlements(raw: unknown): ProviderOrgEntitlements {
+  const row =
+    raw && typeof raw === 'object' && !Array.isArray(raw)
+      ? (raw as Partial<ProviderOrgEntitlements>)
+      : {};
+
+  return {
+    ...FREE,
+    ...row,
+    plan_tier: row.plan_tier ?? FREE.plan_tier,
+    billing_interval: row.billing_interval ?? FREE.billing_interval,
+    status: row.status ?? FREE.status,
+    subscription_id: row.subscription_id ?? FREE.subscription_id,
+    current_period_end: row.current_period_end ?? FREE.current_period_end,
+    pct_seat_limit: positiveLimit(row.pct_seat_limit, FREE.pct_seat_limit),
+    patient_connection_cap: positiveLimit(row.patient_connection_cap, FREE.patient_connection_cap),
+    payer_connection_cap: positiveLimit(row.payer_connection_cap, FREE.payer_connection_cap),
+    voice_minutes_included: Math.max(
+      0,
+      positiveLimit(row.voice_minutes_included, FREE.voice_minutes_included),
+    ),
+    video_minutes_included: Math.max(
+      0,
+      positiveLimit(row.video_minutes_included, FREE.video_minutes_included),
+    ),
+  };
+}
+
 export async function getProviderOrgPlanUsage(
   organizationId: string,
 ): Promise<ProviderOrgPlanUsage> {
@@ -41,26 +70,34 @@ export async function getProviderOrgPlanUsage(
     'provider_org_entitlements',
     { p_org_id: organizationId },
   );
-  if (entError) throw entError;
 
-  const entitlements = {
-    ...FREE,
-    ...((entitlementsRaw ?? {}) as Partial<ProviderOrgEntitlements>),
-  } as ProviderOrgEntitlements;
+  const entitlements = entError
+    ? FREE
+    : coerceProviderEntitlements(entitlementsRaw);
 
-  const [{ data: pctCount }, { data: patientCount }, { data: payerCount }] = await Promise.all([
+  const [
+    { data: pctCount, error: pctError },
+    { data: patientCount, error: patientError },
+    { data: payerCount, error: payerError },
+  ] = await Promise.all([
     supabase.rpc('provider_org_pct_member_count', { p_org_id: organizationId }),
     supabase.rpc('provider_org_approved_patient_count', { p_org_id: organizationId }),
     supabase.rpc('provider_org_approved_payer_connection_count', { p_org_id: organizationId }),
   ]);
 
+  if (process.env.NODE_ENV === 'development') {
+    for (const error of [entError, pctError, patientError, payerError]) {
+      if (error) {
+        console.warn('[getProviderOrgPlanUsage] RPC fallback:', error.message);
+      }
+    }
+  }
+
   return {
     entitlements,
-    pctMemberCount: typeof pctCount === 'number' ? pctCount : Number(pctCount ?? 0),
-    approvedPatientCount:
-      typeof patientCount === 'number' ? patientCount : Number(patientCount ?? 0),
-    approvedPayerConnectionCount:
-      typeof payerCount === 'number' ? payerCount : Number(payerCount ?? 0),
+    pctMemberCount: pctError ? 0 : rpcCount(pctCount),
+    approvedPatientCount: patientError ? 0 : rpcCount(patientCount),
+    approvedPayerConnectionCount: payerError ? 0 : rpcCount(payerCount),
   };
 }
 

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/form-controls';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import {
+  careCoordinationErrorDetail,
   careCoordinationErrorKey,
   listCareCoordinationCandidates,
   startCareCoordinationConversation,
@@ -95,9 +96,10 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
                       setOpen(false);
                       router.replace(`/(app)/messages/${nextId}`);
                     } catch (error) {
+                      const detail = careCoordinationErrorDetail(error);
                       Alert.alert(
                         t('messages.coordinationFailedTitle'),
-                        t(careCoordinationErrorKey(error)),
+                        detail ?? t(careCoordinationErrorKey(error)),
                       );
                     } finally {
                       setStarting(false);

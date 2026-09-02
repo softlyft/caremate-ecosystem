@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireWriteAccess } from '@/lib/auth';
+import { logConnectionAction } from '@/domains/connections/debug-log';
 import {
   approveConnection,
   cancelPendingConnection,
@@ -11,15 +12,33 @@ import {
 } from '@/domains/connections/repository';
 
 function revalidateConnectionPaths() {
-  revalidatePath('/app/patients', 'layout');
+  revalidatePath('/app/patients');
   revalidatePath('/app/patients/requests');
   revalidatePath('/app/dashboard');
 }
 
 export async function approveConnectionAction(connectionId: string, providerNote?: string) {
   const session = await requireWriteAccess();
-  await approveConnection(session.activeOrganizationId, connectionId, providerNote);
-  revalidateConnectionPaths();
+  logConnectionAction('approve', {
+    phase: 'action_start',
+    connectionId,
+    organizationId: session.activeOrganizationId,
+    userId: session.user.id,
+    role: session.activeRole,
+  });
+  try {
+    await approveConnection(session.activeOrganizationId, connectionId, providerNote);
+    revalidateConnectionPaths();
+  } catch (err) {
+    logConnectionAction('approve', {
+      phase: 'action_error',
+      connectionId,
+      organizationId: session.activeOrganizationId,
+      userId: session.user.id,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    throw err;
+  }
 }
 
 export async function rejectConnectionAction(connectionId: string, rejectionReason: string) {

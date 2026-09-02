@@ -13,8 +13,9 @@ import { PostMessageDto, SealMessagesDto } from './dto/messages.dto';
 
 type ConversationRow = {
   id: string;
-  kind: 'org_patient' | 'direct';
+  kind: 'org_patient' | 'direct' | 'care_coordination';
   organization_id: string | null;
+  payer_organization_id: string | null;
   patient_user_id: string | null;
   subject: string | null;
   last_message_at: string | null;
@@ -87,7 +88,7 @@ export class MessagesService {
       .from('message_conversations')
       .select('*')
       .eq('organization_id', organizationId)
-      .eq('kind', 'org_patient')
+      .in('kind', ['org_patient', 'care_coordination'])
       .order('last_message_at', { ascending: false });
 
     if (listResult.error) {
@@ -97,9 +98,44 @@ export class MessagesService {
     const rows = (listResult.data ?? []) as ConversationRow[];
     const allowed: ConversationRow[] = [];
     for (const row of rows) {
+      if (row.kind === 'care_coordination') {
+        allowed.push(row);
+        continue;
+      }
       if (
         row.patient_user_id &&
         (await this.hasMessagingConsent(organizationId, row.patient_user_id))
+      ) {
+        allowed.push(row);
+      }
+    }
+    return Promise.all(allowed.map((row) => this.decryptConversation(row)));
+  }
+
+  async listPayerOrgConversations(authUserId: string, payerOrganizationId: string) {
+    await this.requirePayerOrgMember(authUserId, payerOrganizationId);
+
+    const listResult = await this.supabase.admin
+      .from('message_conversations')
+      .select('*')
+      .eq('payer_organization_id', payerOrganizationId)
+      .in('kind', ['org_patient', 'care_coordination'])
+      .order('last_message_at', { ascending: false });
+
+    if (listResult.error) {
+      throw new InternalServerErrorException(listResult.error.message);
+    }
+
+    const rows = (listResult.data ?? []) as ConversationRow[];
+    const allowed: ConversationRow[] = [];
+    for (const row of rows) {
+      if (row.kind === 'care_coordination') {
+        allowed.push(row);
+        continue;
+      }
+      if (
+        row.patient_user_id &&
+        (await this.hasPayerPatientConnection(payerOrganizationId, row.patient_user_id))
       ) {
         allowed.push(row);
       }
@@ -113,7 +149,7 @@ export class MessagesService {
     const listResult = await this.supabase.admin
       .from('message_messages')
       .select(
-        'id, conversation_id, sender_party_type, sender_user_id, sender_organization_id, body, subject, phi_key_user_id, phi_encrypted_at, created_at, metadata',
+        'id, conversation_id, sender_party_type, sender_user_id, sender_organization_id, sender_payer_organization_id, body, subject, phi_key_user_id, phi_encrypted_at, created_at, metadata',
       )
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
@@ -143,6 +179,20 @@ export class MessagesService {
       );
       if (!allowed) {
         throw new ForbiddenException('Messaging consent required');
+      }
+    }
+
+    if (
+      conversation.kind === 'org_patient' &&
+      conversation.payer_organization_id &&
+      conversation.patient_user_id
+    ) {
+      const allowed = await this.hasPayerPatientConnection(
+        conversation.payer_organization_id,
+        conversation.patient_user_id,
+      );
+      if (!allowed) {
+        throw new ForbiddenException('Not connected to this payer');
       }
     }
 
@@ -371,7 +421,40 @@ export class MessagesService {
       return conversation;
     }
 
+    if (conversation.payer_organization_id) {
+      await this.requirePayerOrgMember(authUserId, conversation.payer_organization_id);
+      if (
+        conversation.kind === 'org_patient' &&
+        conversation.patient_user_id &&
+        !(await this.hasPayerPatientConnection(
+          conversation.payer_organization_id,
+          conversation.patient_user_id,
+        ))
+      ) {
+        throw new ForbiddenException('Not connected to this payer');
+      }
+      return conversation;
+    }
+
     throw new ForbiddenException('Not allowed to access this conversation');
+  }
+
+  private async hasPayerPatientConnection(
+    payerOrganizationId: string,
+    patientId: string,
+  ): Promise<boolean> {
+    const result = await this.supabase.admin
+      .from('patient_payer_connections')
+      .select('id, status')
+      .eq('payer_organization_id', payerOrganizationId)
+      .eq('patient_id', patientId)
+      .eq('status', 'approved')
+      .maybeSingle();
+
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    return Boolean(result.data);
   }
 
   private async hasMessagingConsent(
@@ -407,6 +490,23 @@ export class MessagesService {
     }
     if (!memberResult.data) {
       throw new ForbiddenException('Not a member of this organization');
+    }
+  }
+
+  private async requirePayerOrgMember(authUserId: string, payerOrganizationId: string) {
+    const memberResult = await this.supabase.admin
+      .from('payer_org_members')
+      .select('id')
+      .eq('organization_id', payerOrganizationId)
+      .eq('user_id', authUserId)
+      .is('deleted_at', null)
+      .maybeSingle();
+
+    if (memberResult.error) {
+      throw new InternalServerErrorException(memberResult.error.message);
+    }
+    if (!memberResult.data) {
+      throw new ForbiddenException('Not a member of this payer organization');
     }
   }
 }
