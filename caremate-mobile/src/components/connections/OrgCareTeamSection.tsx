@@ -13,7 +13,10 @@ import {
   type OrgCareTeamMember,
 } from '@/domains/connections/care-team';
 import { formatCareTeamMessageAlert } from '@/domains/messaging/errors';
-import { openOrgPatientConversation, startDirectConversation } from '@/domains/messaging/repository';
+import {
+  openOrgPatientConversation,
+  startDirectConversation,
+} from '@/domains/messaging/repository';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 async function openCareTeamMessage(input: {

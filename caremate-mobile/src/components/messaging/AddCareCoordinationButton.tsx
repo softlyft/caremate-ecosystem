@@ -34,10 +34,7 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
       const rows = await listCareCoordinationCandidates(conversation.id);
       setCandidates(rows);
     } catch (error) {
-      Alert.alert(
-        t('messages.coordinationFailedTitle'),
-        formatCareCoordinationLoadAlert(error, t),
-      );
+      Alert.alert(t('messages.coordinationFailedTitle'), formatCareCoordinationLoadAlert(error, t));
       setOpen(false);
     } finally {
       setLoading(false);

@@ -43,10 +43,7 @@ export default function NewMessageScreen() {
       });
       router.replace(`/(app)/messages/${conversationId}`);
     } catch (error) {
-      Alert.alert(
-        t('messages.startFailedTitle'),
-        formatDirectMessageStartAlert(error, t),
-      );
+      Alert.alert(t('messages.startFailedTitle'), formatDirectMessageStartAlert(error, t));
     } finally {
       setStartingId(null);
     }
