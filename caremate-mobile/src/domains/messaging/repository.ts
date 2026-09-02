@@ -1,5 +1,9 @@
 import { config } from '@/constants/env';
 import {
+  requireRpcConversationId,
+  throwIfRpcError,
+} from '@/domains/messaging/errors';
+import {
   fetchConversationsViaGateway,
   fetchMessagesViaGateway,
   isHealthDataGatewayConfigured,
@@ -7,6 +11,7 @@ import {
   scrubEncryptedText,
   sealMessagesViaGateway,
 } from '@/domains/health-data-gateway';
+import { extractErrorMessage } from '@/lib/user-facing-error';
 import { supabase } from '@/lib/supabase';
 
 /** Untyped access until messaging RPCs are fully reflected in `@caremate/db-types`. */
@@ -77,9 +82,9 @@ function conversationTitle(row: MessageConversation): string {
   return row.organization_name?.trim() || 'Provider';
 }
 
-/** Map Supabase RPC errors to user-facing copy keys (caller supplies i18n). */
+/** @deprecated Use helpers from `@/domains/messaging/errors` in UI code. */
 export function patientMessageErrorKey(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error ?? '');
+  const message = extractErrorMessage(error);
   if (/not connected to this payer/i.test(message)) {
     return 'messages.payerNotConnected';
   }
@@ -89,54 +94,14 @@ export function patientMessageErrorKey(error: unknown): string {
   return 'messages.sendFailedMessage';
 }
 
-export function careCoordinationErrorKey(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error ?? '');
-  const lower = message.toLowerCase();
-  if (/conversation not found/i.test(message)) {
-    return 'messages.coordinationConversationNotFound';
-  }
-  if (/not connected to this provider/i.test(message)) {
-    return 'messages.coordinationProviderNotConnected';
-  }
-  if (/not connected to this payer/i.test(message)) {
-    return 'messages.coordinationPayerNotConnected';
-  }
-  if (/not linked/i.test(message)) {
-    return 'messages.coordinationOrgsNotLinked';
-  }
-  if (/messaging consent required/i.test(message)) {
-    return 'messages.coordinationConsentRequired';
-  }
-  if (/not eligible/i.test(message)) {
-    return 'messages.coordinationNotEligible';
-  }
-  if (/invalid source conversation/i.test(message)) {
-    return 'messages.coordinationConversationNotFound';
-  }
-  if (/could not open care coordination|could not start care coordination/i.test(message)) {
-    return 'messages.coordinationStartFailed';
-  }
-  if (/duplicate key|unique constraint|23505/i.test(lower)) {
-    return 'messages.coordinationStartFailed';
-  }
-  if (/does not exist|could not find the function/i.test(message)) {
-    return 'messages.coordinationNotAvailable';
-  }
-  return 'messages.coordinationStartFailed';
-}
-
-export function careCoordinationErrorDetail(error: unknown): string | null {
-  const message = error instanceof Error ? error.message : String(error ?? '');
-  const trimmed = message.trim();
-  if (!trimmed || trimmed === 'Could not start care coordination conversation') {
-    return null;
-  }
-  const key = careCoordinationErrorKey(error);
-  if (key !== 'messages.coordinationStartFailed') {
-    return null;
-  }
-  return trimmed;
-}
+export {
+  careCoordinationErrorKey,
+  formatCareCoordinationAlert,
+  formatCareCoordinationLoadAlert,
+  formatCareTeamMessageAlert,
+  formatDirectMessageStartAlert,
+  formatOrgInboxMessageAlert,
+} from '@/domains/messaging/errors';
 
 function parseJsonObject(data: unknown): Record<string, unknown> {
   if (typeof data === 'string') {
@@ -436,6 +401,25 @@ export async function searchMessageableUsers(query: string): Promise<Messageable
   return (data ?? []) as MessageableUser[];
 }
 
+export async function openOrgPatientConversation(input: {
+  organizationId: string;
+  orgKind: OrgSide;
+}): Promise<{ conversationId: string }> {
+  if (!config.isSupabaseConfigured) {
+    throw new Error('Supabase is not configured');
+  }
+
+  const { data, error } = await db.rpc('open_patient_org_conversation', {
+    p_org_kind: input.orgKind,
+    p_org_id: input.organizationId,
+  });
+  throwIfRpcError(error, 'Could not open organization conversation');
+
+  const payload = parseJsonObject(data);
+  const conversationId = requireRpcConversationId(payload, 'open_patient_org_conversation');
+  return { conversationId };
+}
+
 export async function startDirectConversation(input: {
   otherUserId: string;
   organizationId: string;
@@ -451,7 +435,7 @@ export async function startDirectConversation(input: {
     p_body: input.body?.trim() || null,
     p_org_kind: input.orgKind ?? 'provider',
   });
-  if (error) throw error;
+  throwIfRpcError(error, 'Could not start direct conversation');
 
   const payload = data as {
     conversation_id: string;
@@ -489,7 +473,7 @@ export async function listCareCoordinationCandidates(
   const { data, error } = await db.rpc('list_care_coordination_candidates', {
     p_source_conversation_id: sourceConversationId,
   });
-  if (error) throw error;
+  throwIfRpcError(error, 'Could not load care coordination candidates');
   return (data ?? []) as CareCoordinationCandidate[];
 }
 
@@ -505,14 +489,10 @@ export async function startCareCoordinationConversation(input: {
     p_source_conversation_id: input.sourceConversationId,
     p_other_organization_id: input.candidate.organization_id,
   });
-  if (error) throw error;
+  throwIfRpcError(error, 'Could not start care coordination conversation');
 
   const payload = parseJsonObject(data);
-  const conversationId = payload.conversation_id;
-  if (typeof conversationId !== 'string' || !conversationId) {
-    throw new Error('Could not start care coordination conversation');
-  }
-  return conversationId;
+  return requireRpcConversationId(payload, 'start_care_coordination_from_source');
 }
 
 async function notifyDirectMessagePush(messageIds: string[]): Promise<void> {

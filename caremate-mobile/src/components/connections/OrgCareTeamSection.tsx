@@ -7,9 +7,33 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
-import { listConnectedOrgCareTeam, type OrgCareTeamKind } from '@/domains/connections/care-team';
-import { startDirectConversation } from '@/domains/messaging/repository';
+import {
+  listConnectedOrgCareTeam,
+  type OrgCareTeamKind,
+  type OrgCareTeamMember,
+} from '@/domains/connections/care-team';
+import { formatCareTeamMessageAlert } from '@/domains/messaging/errors';
+import { openOrgPatientConversation, startDirectConversation } from '@/domains/messaging/repository';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
+
+async function openCareTeamMessage(input: {
+  orgKind: OrgCareTeamKind;
+  orgId: string;
+  member: OrgCareTeamMember;
+}): Promise<{ conversationId: string }> {
+  if (input.member.messageViaOrgInbox) {
+    return openOrgPatientConversation({
+      organizationId: input.orgId,
+      orgKind: input.orgKind,
+    });
+  }
+
+  return startDirectConversation({
+    otherUserId: input.member.userId,
+    organizationId: input.orgId,
+    orgKind: input.orgKind,
+  });
+}
 
 export function OrgCareTeamSection({
   orgKind,
@@ -31,19 +55,14 @@ export function OrgCareTeamSection({
   });
 
   const messageMutation = useMutation({
-    mutationFn: (memberUserId: string) =>
-      startDirectConversation({
-        otherUserId: memberUserId,
-        organizationId: orgId,
-        orgKind,
-      }),
+    mutationFn: (member: OrgCareTeamMember) => openCareTeamMessage({ orgKind, orgId, member }),
     onSuccess: ({ conversationId }) => {
       router.push(`/(app)/messages/${conversationId}` as Href);
     },
-    onError: (error) => {
+    onError: (error, member) => {
       Alert.alert(
         t('nearby.careTeam.messageFailedTitle'),
-        error instanceof Error ? error.message : t('nearby.careTeam.messageFailedMessage'),
+        formatCareTeamMessageAlert(error, member.messageViaOrgInbox, t),
       );
     },
   });
@@ -99,7 +118,7 @@ export function OrgCareTeamSection({
                 <Button
                   style={styles.messageButton}
                   disabled={messageMutation.isPending}
-                  onPress={() => messageMutation.mutate(member.userId)}
+                  onPress={() => messageMutation.mutate(member)}
                   variant="plain"
                 >
                   <MessageCircle color={palette.primary} size={16} />
