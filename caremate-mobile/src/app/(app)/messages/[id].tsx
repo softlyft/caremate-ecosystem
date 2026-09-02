@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { MessageCircle } from 'lucide-react-native';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -13,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
+import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { MessageComposer, type MessageComposerHandle } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -21,12 +23,14 @@ import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { useConversationMessages } from '@/domains/messaging/hooks';
 import {
-  getConversation,
+  conversationHeaderTitle,
+  isGroupConversation,
+  type ThreadMessage,
+} from '@/domains/messaging/sender-display';
+import {
   markConversationRead,
   patientMessageErrorKey,
   sendPatientReply,
-  type MessageConversation,
-  type MessageMessage,
 } from '@/domains/messaging/repository';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
@@ -36,7 +40,7 @@ const STACK_HEADER_HEIGHT = 56;
 
 type ThreadItem =
   | { kind: 'day'; id: string; label: string }
-  | { kind: 'message'; id: string; message: MessageMessage };
+  | { kind: 'message'; id: string; message: ThreadMessage };
 
 function sameLocalDay(a: Date, b: Date): boolean {
   return (
@@ -86,7 +90,7 @@ function formatDayLabel(iso: string, todayLabel: string, yesterdayLabel: string)
 }
 
 function buildThreadItems(
-  messages: MessageMessage[],
+  messages: ThreadMessage[],
   todayLabel: string,
   yesterdayLabel: string,
 ): ThreadItem[] {
@@ -124,26 +128,50 @@ function DaySeparator({ label }: { label: string }) {
   );
 }
 
-function Bubble({ message, mine }: { message: MessageMessage; mine: boolean }) {
+function MessageRow({
+  message,
+  mine,
+  showSender,
+}: {
+  message: ThreadMessage;
+  mine: boolean;
+  showSender: boolean;
+}) {
   const timeLabel = formatMessageTime(message.created_at);
+  const sender = message.senderDisplay;
+
   return (
-    <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleTheirs]}>
-      {message.subject ? (
-        <AppText variant="caption" style={styles.bubbleSubject}>
-          {message.subject}
-        </AppText>
+    <View style={[styles.messageRow, mine ? styles.messageRowMine : styles.messageRowTheirs]}>
+      {showSender && sender && !mine ? (
+        <View style={styles.senderMeta}>
+          <AppText variant="caption" style={styles.senderName}>
+            {sender.name}
+          </AppText>
+          {sender.roleLabel ? (
+            <AppText variant="caption" style={styles.senderRole}>
+              ({sender.roleLabel})
+            </AppText>
+          ) : null}
+        </View>
       ) : null}
-      <AppText variant="body" style={mine ? styles.bubbleTextMine : styles.bubbleTextTheirs}>
-        {message.body}
-      </AppText>
-      {timeLabel ? (
-        <AppText
-          variant="caption"
-          style={[styles.bubbleTime, mine ? styles.bubbleTimeMine : styles.bubbleTimeTheirs]}
-        >
-          {timeLabel}
+      <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleTheirs]}>
+        {!showSender && message.subject ? (
+          <AppText variant="caption" style={styles.bubbleSubject}>
+            {message.subject}
+          </AppText>
+        ) : null}
+        <AppText variant="body" style={mine ? styles.bubbleTextMine : styles.bubbleTextTheirs}>
+          {message.body}
         </AppText>
-      ) : null}
+        {timeLabel ? (
+          <AppText
+            variant="caption"
+            style={[styles.bubbleTime, mine ? styles.bubbleTimeMine : styles.bubbleTimeTheirs]}
+          >
+            {timeLabel}
+          </AppText>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -214,6 +242,7 @@ function useKeyboardLift() {
 
 export default function MessageThreadScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
@@ -221,31 +250,48 @@ export default function MessageThreadScreen() {
   const composerRef = useRef<MessageComposerHandle>(null);
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   const conversationId = Array.isArray(rawId) ? rawId[0] : rawId;
-  const messagesQuery = useConversationMessages(conversationId ?? '');
+  const threadQuery = useConversationMessages(conversationId ?? '');
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const [title, setTitle] = useState(t('messages.threadTitle'));
-  const [threadConversation, setThreadConversation] = useState<MessageConversation | null>(null);
+  const threadConversation = threadQuery.data?.conversation ?? null;
+  const isGroupChat = isGroupConversation(threadConversation);
   const { lift, composerPaddingBottom, keyboardOpen } = useKeyboardLift();
   const isIOS = Platform.OS === 'ios';
   const keyboardVerticalOffset = isIOS ? insets.top + STACK_HEADER_HEIGHT : 0;
   const todayLabel = t('messages.today');
   const yesterdayLabel = t('messages.yesterday');
 
+  const headerTitle = conversationHeaderTitle(threadConversation, {
+    directFallback: t('messages.directBadge'),
+    coordinationFallback: t('messages.coordinationBadge'),
+    providerFallback: t('messages.providerFallback'),
+    insurerFallback: t('messages.insurerFallback'),
+    threadFallback: t('messages.threadTitle'),
+  });
+
+  useLayoutEffect(() => {
+    navigation.setOptions(
+      glossyStackHeaderOptions({
+        title: headerTitle,
+        accent: palette.primary,
+        soft: palette.primaryLight,
+        softEnd: '#F0FDFA',
+        titleColor: palette.primaryDark,
+        icon: MessageCircle,
+        backAccessibilityLabel: t('nav.backToMessages'),
+      }),
+    );
+  }, [navigation, headerTitle, t]);
+
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId || !threadConversation) return;
     let active = true;
     void (async () => {
       try {
-        const conversation = await getConversation(conversationId, userId);
-        if (active && conversation) {
-          setThreadConversation(conversation);
-          setTitle(
-            conversation.title ?? conversation.organization_name ?? t('messages.threadTitle'),
-          );
-        }
         await markConversationRead(conversationId, userId);
-        await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
+        if (active) {
+          await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
+        }
       } catch {
         // best-effort
       }
@@ -253,9 +299,9 @@ export default function MessageThreadScreen() {
     return () => {
       active = false;
     };
-  }, [conversationId, userId, queryClient, t]);
+  }, [conversationId, threadConversation, userId, queryClient]);
 
-  const messages = useMemo(() => messagesQuery.data ?? [], [messagesQuery.data]);
+  const messages = useMemo(() => threadQuery.data?.messages ?? [], [threadQuery.data?.messages]);
   const threadItems = useMemo(
     () => buildThreadItems(messages, todayLabel, yesterdayLabel),
     [messages, todayLabel, yesterdayLabel],
@@ -287,7 +333,7 @@ export default function MessageThreadScreen() {
     try {
       await sendPatientReply(conversationId, body);
       setDraft('');
-      await messagesQuery.refetch();
+      await threadQuery.refetch();
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
     } catch (error) {
       Alert.alert(t('messages.sendFailedTitle'), t(patientMessageErrorKey(error)));
@@ -301,31 +347,28 @@ export default function MessageThreadScreen() {
     return <EmptyState title={t('messages.missingThread')} />;
   }
 
-  if (messagesQuery.isLoading) {
+  if (threadQuery.isLoading) {
     return <LoadingState title={t('messages.loading')} />;
   }
 
-  if (messagesQuery.isError) {
+  if (threadQuery.isError) {
     return (
       <ErrorState
         title={t('messages.loadFailed')}
         message={t('common.loadFailedMessage')}
         actionLabel={t('common.retry')}
-        onAction={() => void messagesQuery.refetch()}
+        onAction={() => void threadQuery.refetch()}
       />
     );
   }
 
   const threadBody = (
     <>
-      <View style={styles.headerHint}>
-        <AppText variant="caption" color="brand">
-          {title}
-        </AppText>
-        {threadConversation ? (
+      {threadConversation?.kind === 'org_patient' ? (
+        <View style={styles.headerActions}>
           <AddCareCoordinationButton conversation={threadConversation} />
-        ) : null}
-      </View>
+        </View>
+      ) : null}
       <FlatList
         ref={listRef}
         data={threadItems}
@@ -349,11 +392,12 @@ export default function MessageThreadScreen() {
           item.kind === 'day' ? (
             <DaySeparator label={item.label} />
           ) : (
-            <Bubble
+            <MessageRow
               message={item.message}
               mine={
                 item.message.sender_party_type === 'user' && item.message.sender_user_id === userId
               }
+              showSender={isGroupChat}
             />
           )
         }
@@ -395,9 +439,32 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  headerHint: {
+  headerActions: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
+  },
+  messageRow: {
+    marginVertical: 4,
+    maxWidth: '88%',
+  },
+  messageRowMine: {
+    alignSelf: 'flex-end',
+  },
+  messageRowTheirs: {
+    alignSelf: 'flex-start',
+  },
+  senderMeta: {
+    marginBottom: 4,
+    gap: 2,
+  },
+  senderName: {
+    color: palette.text,
+    fontWeight: '600',
+  },
+  senderRole: {
+    color: palette.textSecondary,
+    textTransform: 'lowercase',
   },
   listFlex: {
     flex: 1,
@@ -426,18 +493,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   bubble: {
-    maxWidth: '82%',
     borderRadius: radius.lg,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    marginVertical: 4,
   },
   bubbleMine: {
-    alignSelf: 'flex-end',
     backgroundColor: palette.primary,
   },
   bubbleTheirs: {
-    alignSelf: 'flex-start',
     backgroundColor: palette.background,
     borderWidth: 1,
     borderColor: palette.divider,

@@ -48,6 +48,11 @@
   "coordinationConsentRequired": "Turn on secure messaging with this clinic in your connection settings, then try again.",
   "coordinationNotEligible": "This organization cannot be added to a care team chat right now.",
   "coordinationNotAvailable": "Care team chat is not available yet. Update the app or try again later.",
+  "senderRoleInsurer": "insurer",
+  "senderRoleProvider": "provider",
+  "senderRoleParticipant": "participant",
+  "senderRoleCareTeam": "care team",
+  "senderYou": "You",
   "today": "Today",
   "yesterday": "Yesterday"
 }

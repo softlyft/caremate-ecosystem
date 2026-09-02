@@ -1,8 +1,6 @@
 import { config } from '@/constants/env';
-import {
-  requireRpcConversationId,
-  throwIfRpcError,
-} from '@/domains/messaging/errors';
+import { buildConversationTitle } from '@/domains/messaging/conversation-display';
+import { requireRpcConversationId, throwIfRpcError } from '@/domains/messaging/errors';
 import {
   fetchConversationsViaGateway,
   fetchMessagesViaGateway,
@@ -65,22 +63,6 @@ type ConversationRow = Omit<
   MessageConversation,
   'organization_name' | 'peer_user_id' | 'peer_name' | 'title' | 'unread'
 >;
-
-function conversationTitle(row: MessageConversation): string {
-  if (row.kind === 'direct') {
-    return row.peer_name?.trim() || 'Direct message';
-  }
-  if (row.kind === 'care_coordination') {
-    const provider = row.coordination_provider_name?.trim();
-    const payer = row.coordination_payer_name?.trim();
-    if (provider && payer) return `${provider} + ${payer}`;
-    return provider || payer || 'Care coordination';
-  }
-  if (row.payer_organization_id || row.org_side === 'payer') {
-    return row.organization_name?.trim() || 'Insurer';
-  }
-  return row.organization_name?.trim() || 'Provider';
-}
 
 /** @deprecated Use helpers from `@/domains/messaging/errors` in UI code. */
 export function patientMessageErrorKey(error: unknown): string {
@@ -301,7 +283,7 @@ export async function listPatientConversations(userId: string): Promise<MessageC
       peer_name: peerUserId ? (peerNameById.get(peerUserId) ?? null) : null,
       unread,
     };
-    enriched.title = conversationTitle(enriched);
+    enriched.title = buildConversationTitle(enriched);
     return enriched;
   });
 }

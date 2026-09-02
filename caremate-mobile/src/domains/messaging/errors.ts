@@ -11,7 +11,10 @@ export function normalizeRpcError(error: unknown, fallback: string): Error {
   return new Error(fallback);
 }
 
-export function throwIfRpcError(error: unknown, fallback: string): asserts error is null | undefined {
+export function throwIfRpcError(
+  error: unknown,
+  fallback: string,
+): asserts error is null | undefined {
   if (error) {
     throw normalizeRpcError(error, fallback);
   }
@@ -52,6 +55,9 @@ export function careCoordinationErrorKey(error: unknown): string {
     return 'messages.coordinationNotEligible';
   }
   if (/does not exist|could not find the function|42883/i.test(lower)) {
+    return 'messages.coordinationNotAvailable';
+  }
+  if (/message_conversations_kind_check|message_conversations_kind_shape/i.test(lower)) {
     return 'messages.coordinationNotAvailable';
   }
   if (/no approved recipients with messaging consent/i.test(message)) {

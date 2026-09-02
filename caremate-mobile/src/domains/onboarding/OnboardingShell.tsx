@@ -104,9 +104,7 @@ export function OnboardingShell({
 
   // Extra scroll room so bottom fields (e.g. allergies) can rise above the keyboard + footer.
   const bottomPad =
-    keyboardHeight > 0
-      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
-      : spacing.lg;
+    keyboardHeight > 0 ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2 : spacing.lg;
   const keyboardVerticalOffset = Platform.OS === 'ios' ? ONBOARDING_TOP_BAR_HEIGHT : 0;
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
@@ -202,7 +200,9 @@ export function OnboardingShell({
               </Animated.View>
 
               {hero ? (
-                <Animated.View entering={FadeInDown.delay(40).duration(520).springify().damping(18)}>
+                <Animated.View
+                  entering={FadeInDown.delay(40).duration(520).springify().damping(18)}
+                >
                   {hero}
                 </Animated.View>
               ) : null}

@@ -2,7 +2,11 @@ import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Linking, StyleSheet, Switch, View } from 'react-native';
-import { TabScrollView, iosTabScrollProps, tabContentPaddingTop } from '@/components/navigation/tab-scroll';
+import {
+  TabScrollView,
+  iosTabScrollProps,
+  tabContentPaddingTop,
+} from '@/components/navigation/tab-scroll';
 import {
   Bell,
   CircleCheck,
