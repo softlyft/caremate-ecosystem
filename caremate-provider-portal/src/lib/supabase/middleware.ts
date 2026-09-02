@@ -69,7 +69,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (isAuthRoute && user && hasAnyMembership) {
+  // Server Actions POST to the current page (e.g. post-login redirect on /login).
+  // Redirecting those requests breaks the action protocol → browser "Failed to fetch".
+  const isServerAction = request.headers.has('next-action');
+
+  if (isAuthRoute && user && hasAnyMembership && !isServerAction) {
     const url = request.nextUrl.clone();
     const kindCookie = request.cookies.get('care_active_kind')?.value;
     if (hasProviderMembership && hasPayerMembership) {

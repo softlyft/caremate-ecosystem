@@ -91,6 +91,7 @@ export function patientMessageErrorKey(error: unknown): string {
 
 export function careCoordinationErrorKey(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error ?? '');
+  const lower = message.toLowerCase();
   if (/conversation not found/i.test(message)) {
     return 'messages.coordinationConversationNotFound';
   }
@@ -109,10 +110,32 @@ export function careCoordinationErrorKey(error: unknown): string {
   if (/not eligible/i.test(message)) {
     return 'messages.coordinationNotEligible';
   }
+  if (/invalid source conversation/i.test(message)) {
+    return 'messages.coordinationConversationNotFound';
+  }
+  if (/could not open care coordination|could not start care coordination/i.test(message)) {
+    return 'messages.coordinationStartFailed';
+  }
+  if (/duplicate key|unique constraint|23505/i.test(lower)) {
+    return 'messages.coordinationStartFailed';
+  }
   if (/does not exist|could not find the function/i.test(message)) {
     return 'messages.coordinationNotAvailable';
   }
   return 'messages.coordinationStartFailed';
+}
+
+export function careCoordinationErrorDetail(error: unknown): string | null {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  const trimmed = message.trim();
+  if (!trimmed || trimmed === 'Could not start care coordination conversation') {
+    return null;
+  }
+  const key = careCoordinationErrorKey(error);
+  if (key !== 'messages.coordinationStartFailed') {
+    return null;
+  }
+  return trimmed;
 }
 
 function parseJsonObject(data: unknown): Record<string, unknown> {
