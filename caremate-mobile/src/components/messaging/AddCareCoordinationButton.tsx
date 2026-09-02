@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/form-controls';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
 import {
-  careCoordinationErrorDetail,
-  careCoordinationErrorKey,
+  formatCareCoordinationAlert,
+  formatCareCoordinationLoadAlert,
   listCareCoordinationCandidates,
   startCareCoordinationConversation,
   type CareCoordinationCandidate,
@@ -33,8 +33,11 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
     try {
       const rows = await listCareCoordinationCandidates(conversation.id);
       setCandidates(rows);
-    } catch {
-      Alert.alert(t('messages.coordinationFailedTitle'), t('messages.coordinationLoadFailed'));
+    } catch (error) {
+      Alert.alert(
+        t('messages.coordinationFailedTitle'),
+        formatCareCoordinationLoadAlert(error, t),
+      );
       setOpen(false);
     } finally {
       setLoading(false);
@@ -96,10 +99,9 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
                       setOpen(false);
                       router.replace(`/(app)/messages/${nextId}`);
                     } catch (error) {
-                      const detail = careCoordinationErrorDetail(error);
                       Alert.alert(
                         t('messages.coordinationFailedTitle'),
-                        detail ?? t(careCoordinationErrorKey(error)),
+                        formatCareCoordinationAlert(error, t),
                       );
                     } finally {
                       setStarting(false);
