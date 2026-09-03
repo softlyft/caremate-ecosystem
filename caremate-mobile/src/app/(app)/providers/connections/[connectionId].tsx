@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
 import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
-import { Button, ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
+import { Button, ChoiceChip, FormField, Input } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -20,6 +20,7 @@ import {
   type ConnectionConsentDefinition,
 } from '@/domains/providers/connection-consents';
 import { providerConnectionService } from '@/domains/providers/connection-service';
+import { TimelineDatePicker } from '@/features/timeline/TimelineDatePicker';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
@@ -375,31 +376,42 @@ export default function ConnectedProviderDetailScreen() {
                 <ChoiceChip
                   label={t('nearby.connections.timelineCustom')}
                   selected={rangePreset === 'custom'}
-                  onPress={() => setRangePreset('custom')}
+                  onPress={() => {
+                    setRangePreset('custom');
+                    if (!isDateKey(periodStart) || !isDateKey(periodEnd)) {
+                      const end = todayDateKey();
+                      setPeriodEnd(end);
+                      setPeriodStart(addCalendarDays(end, -29));
+                    }
+                  }}
                   disabled={busy}
                 />
               </View>
               {rangePreset === 'custom' ? (
-                <FormStack style={styles.dateFields}>
-                  <FormField label={t('nearby.connections.timelineFrom')}>
-                    <Input
-                      placeholder={t('nearby.connections.timelineFrom')}
+                <View style={styles.dateFields}>
+                  <View style={styles.dateRow}>
+                    <TimelineDatePicker
+                      label={t('nearby.connections.timelineFrom')}
                       value={periodStart}
-                      onChangeText={setPeriodStart}
-                      autoCapitalize="none"
-                      autoCorrect={false}
+                      onChange={(next) => {
+                        setPeriodStart(next);
+                        if (isDateKey(periodEnd) && next > periodEnd) {
+                          setPeriodEnd(next);
+                        }
+                      }}
                     />
-                  </FormField>
-                  <FormField label={t('nearby.connections.timelineTo')}>
-                    <Input
-                      placeholder={t('nearby.connections.timelineTo')}
+                    <TimelineDatePicker
+                      label={t('nearby.connections.timelineTo')}
                       value={periodEnd}
-                      onChangeText={setPeriodEnd}
-                      autoCapitalize="none"
-                      autoCorrect={false}
+                      onChange={(next) => {
+                        setPeriodEnd(next);
+                        if (isDateKey(periodStart) && next < periodStart) {
+                          setPeriodStart(next);
+                        }
+                      }}
                     />
-                  </FormField>
-                </FormStack>
+                  </View>
+                </View>
               ) : (
                 <AppText variant="caption" style={styles.meta}>
                   {periodStart && periodEnd
@@ -569,6 +581,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   dateFields: {
+    gap: spacing.sm,
+  },
+  dateRow: {
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   pressed: {

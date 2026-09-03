@@ -1,5 +1,6 @@
 import { APP_NAME, APP_STORE_URLS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
+import { assertNotFamilySelfInvite } from '@/domains/family/invite-guards';
 import type { FamilyConnectionRequest, FamilyLookupUser } from '@/domains/family/types';
 import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { supabase } from '@/lib/supabase';
@@ -81,6 +82,11 @@ class FamilyConnectionService {
     emailOrPhone: string;
     matchedUser: FamilyLookupUser;
   }): Promise<{ request: FamilyConnectionRequest }> {
+    assertNotFamilySelfInvite({
+      fromUserId: params.fromUserId,
+      matchedUser: params.matchedUser,
+    });
+
     const { email, phone } = normalizeQuery(params.emailOrPhone);
     const timestamp = nowIso();
 

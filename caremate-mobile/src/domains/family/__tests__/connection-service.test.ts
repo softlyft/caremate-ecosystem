@@ -82,6 +82,30 @@ describe('familyConnectionService', () => {
     await expect(familyConnectionService.lookupUser('   ')).rejects.toThrow(/email or phone/i);
   });
 
+  it('rejects inviting yourself before calling the create RPC', async () => {
+    await expect(
+      familyConnectionService.requestConnection({
+        householdId: 'hh-1',
+        fromUserId: 'u1',
+        fromName: 'Ada',
+        emailOrPhone: 'me@example.com',
+        matchedUser: {
+          userId: 'u1',
+          fullName: 'Ada',
+          email: 'me@example.com',
+          phone: null,
+          dateOfBirth: null,
+          countryCode: null,
+          state: null,
+          avatarUrl: null,
+        },
+      }),
+    ).rejects.toThrow(/cannot connect to yourself/i);
+
+    expect(mockRpc).not.toHaveBeenCalled();
+    expect(mockSaveConnectionRequestLocal).not.toHaveBeenCalled();
+  });
+
   it('throws when RPC fails (owner/seat rules are server-enforced)', async () => {
     mockRpc.mockResolvedValue({
       data: null,

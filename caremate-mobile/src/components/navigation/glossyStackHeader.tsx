@@ -1,6 +1,6 @@
 import { usePathname, type Href } from 'expo-router';
 import { BookOpen, ChevronLeft, X, type LucideIcon } from 'lucide-react-native';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -70,14 +70,19 @@ function GlossyHeaderTitle({
   titleColor: string;
   icon?: LucideIcon;
 }) {
+  const { width: windowWidth } = useWindowDimensions();
+  // Leave room for back pill + system trailing chrome on iOS.
+  const titleMaxWidth = Math.max(160, windowWidth - 96);
+
   return (
-    <View style={styles.titleWrap}>
+    <View style={[styles.titleWrap, { maxWidth: titleMaxWidth }]}>
       <View style={[styles.titleIcon, { backgroundColor: soft, borderColor: `${accent}28` }]}>
         <Icon color={accent} size={14} strokeWidth={2.4} />
       </View>
       <AppText
         variant="cardTitle"
         numberOfLines={1}
+        ellipsizeMode="tail"
         style={[styles.titleText, { color: titleColor }]}
       >
         {title}
@@ -86,7 +91,14 @@ function GlossyHeaderTitle({
   );
 }
 
-/** Shared glossy header used by Learn article screens (and reusable elsewhere). */
+/**
+ * Shared glossy header used by Learn article screens (and reusable elsewhere).
+ *
+ * Important (iOS native-stack): keep the back control in `headerLeft` and the
+ * title in `headerTitle`. Stuffing both into `headerLeft` while zeroing the
+ * title slot intermittently collapses the left cluster and leaves a blank bar
+ * (sometimes with a lone ellipsis from the truncated native title).
+ */
 export function glossyStackHeaderOptions({
   title,
   accent = palette.primary,
@@ -103,6 +115,7 @@ export function glossyStackHeaderOptions({
     title,
     headerShadowVisible: false,
     headerBackVisible: false,
+    headerBackTitleVisible: false,
     headerTitleAlign: 'left' as const,
     ...(modal ? { presentation: 'modal' as const } : {}),
     headerStyle: {
@@ -112,24 +125,23 @@ export function glossyStackHeaderOptions({
     headerLeftContainerStyle: styles.headerLeftContainer,
     headerTitleContainerStyle: styles.headerTitleContainer,
     headerLeft: () => (
-      <View style={styles.headerLead}>
-        <GlossyBackButton
-          accent={accent}
-          soft={soft}
-          accessibilityLabel={backAccessibilityLabel}
-          modal={modal}
-          backFallbackHref={backFallbackHref}
-        />
-        <GlossyHeaderTitle
-          title={title}
-          accent={accent}
-          soft={soft}
-          titleColor={titleColor}
-          icon={icon}
-        />
-      </View>
+      <GlossyBackButton
+        accent={accent}
+        soft={soft}
+        accessibilityLabel={backAccessibilityLabel}
+        modal={modal}
+        backFallbackHref={backFallbackHref}
+      />
     ),
-    headerTitle: () => <View />,
+    headerTitle: () => (
+      <GlossyHeaderTitle
+        title={title}
+        accent={accent}
+        soft={soft}
+        titleColor={titleColor}
+        icon={icon}
+      />
+    ),
   };
 }
 
@@ -156,28 +168,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginLeft: Platform.OS === 'ios' ? 4 : 0,
   },
-  headerLead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   headerLeftContainer: {
-    paddingRight: 0,
-    flexGrow: 1,
-    flexShrink: 0,
-    maxWidth: '100%',
+    paddingRight: 4,
   },
   headerTitleContainer: {
-    width: 0,
-    maxWidth: 0,
-    overflow: 'hidden',
-    opacity: 0,
+    marginLeft: Platform.OS === 'ios' ? 4 : 0,
   },
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    maxWidth: '88%',
   },
   titleIcon: {
     width: 28,
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    flexShrink: 0,
   },
   titleText: {
     fontFamily: fontFamily.semiBold,

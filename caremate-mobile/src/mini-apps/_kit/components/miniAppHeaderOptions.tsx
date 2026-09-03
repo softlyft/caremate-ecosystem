@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { ChevronLeft, X } from 'lucide-react-native';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -61,15 +61,18 @@ function MiniAppHeaderTitle({
 }) {
   const theme = getMiniAppTheme(appId);
   const Icon = theme.icon;
+  const { width: windowWidth } = useWindowDimensions();
+  const titleMaxWidth = Math.max(160, windowWidth - 96);
 
   return (
-    <View style={styles.titleWrap}>
+    <View style={[styles.titleWrap, { maxWidth: titleMaxWidth }]}>
       <View style={[styles.titleIcon, { backgroundColor: soft, borderColor: `${accent}28` }]}>
         <Icon color={accent} size={14} strokeWidth={2.4} />
       </View>
       <AppText
         variant="cardTitle"
         numberOfLines={1}
+        ellipsizeMode="tail"
         style={[styles.titleText, { color: theme.titleColor }]}
       >
         {title}
@@ -81,6 +84,8 @@ function MiniAppHeaderTitle({
 /**
  * Glossy stack header options for mini-app screens.
  * Soft tinted bar, pill back control, icon + title.
+ *
+ * Keep back in `headerLeft` and title in `headerTitle` — see glossyStackHeader.
  */
 export function miniAppHeaderOptions({
   appId,
@@ -95,6 +100,7 @@ export function miniAppHeaderOptions({
     title,
     headerShadowVisible: false,
     headerBackVisible: false,
+    headerBackTitleVisible: false,
     headerTitleAlign: 'left' as const,
     ...(modal ? { presentation: 'modal' as const } : {}),
     headerStyle: {
@@ -104,22 +110,21 @@ export function miniAppHeaderOptions({
     headerLeftContainerStyle: styles.headerLeftContainer,
     headerTitleContainerStyle: styles.headerTitleContainer,
     headerLeft: () => (
-      <View style={styles.headerLead}>
-        <MiniAppBackButton
-          accent={theme.color}
-          soft={theme.backgroundColor}
-          modal={modal}
-          accessibilityLabel={backAccessibilityLabel}
-        />
-        <MiniAppHeaderTitle
-          appId={appId}
-          title={title}
-          accent={theme.color}
-          soft={theme.backgroundColor}
-        />
-      </View>
+      <MiniAppBackButton
+        accent={theme.color}
+        soft={theme.backgroundColor}
+        modal={modal}
+        accessibilityLabel={backAccessibilityLabel}
+      />
     ),
-    headerTitle: () => <View />,
+    headerTitle: () => (
+      <MiniAppHeaderTitle
+        appId={appId}
+        title={title}
+        accent={theme.color}
+        soft={theme.backgroundColor}
+      />
+    ),
   };
 }
 
@@ -133,28 +138,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginLeft: Platform.OS === 'ios' ? 4 : 0,
   },
-  headerLead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   headerLeftContainer: {
-    paddingRight: 0,
-    flexGrow: 1,
-    flexShrink: 0,
-    maxWidth: '100%',
+    paddingRight: 4,
   },
   headerTitleContainer: {
-    width: 0,
-    maxWidth: 0,
-    overflow: 'hidden',
-    opacity: 0,
+    marginLeft: Platform.OS === 'ios' ? 4 : 0,
   },
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    maxWidth: '88%',
   },
   titleIcon: {
     width: 28,
@@ -163,6 +156,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    flexShrink: 0,
   },
   titleText: {
     fontFamily: fontFamily.semiBold,

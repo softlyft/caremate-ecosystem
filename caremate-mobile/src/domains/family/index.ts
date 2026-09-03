@@ -3,6 +3,12 @@ export {
   familyConnectionService,
   buildSpouseInviteMessage,
 } from '@/domains/family/connection-service';
+export {
+  assertNotFamilySelfInvite,
+  familyConnectionErrorKey,
+  isFamilySelfInvite,
+  CANNOT_INVITE_SELF_MESSAGE,
+} from '@/domains/family/invite-guards';
 export { useFamilySetupStore } from '@/domains/family/store';
 export {
   createChildProfileSchema,
