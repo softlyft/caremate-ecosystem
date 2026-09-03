@@ -16,8 +16,10 @@ import { QUERY_KEYS } from '@/constants/config';
 import {
   FAMILY_GENDERS,
   buildSpouseInviteMessage,
+  familyConnectionErrorKey,
   familyConnectionService,
   familyRepository,
+  isFamilySelfInvite,
   validateChildNameAndDob,
 } from '@/domains/family';
 import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
@@ -33,6 +35,8 @@ import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
+import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = palette.brandBlue;
@@ -43,6 +47,19 @@ const TITLE = palette.brandBlue;
 function formatDob(value: string | null): string {
   if (!value) return '—';
   return value;
+}
+
+function formatDobLabel(dateKey: string): string {
+  return parseDateKey(dateKey).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function initialAddChildDobMonth(): Date {
+  const today = new Date();
+  return new Date(today.getFullYear() - 3, today.getMonth(), 1);
 }
 
 export default function FamilyHubScreen() {
@@ -87,7 +104,10 @@ export default function FamilyHubScreen() {
 
   const [childName, setChildName] = useState('');
   const [childDob, setChildDob] = useState('');
+  const [childDobMonthRef, setChildDobMonthRef] = useState(initialAddChildDobMonth);
   const [childGender, setChildGender] = useState<FamilyMemberGender>('prefer_not_to_say');
+  const todayKey = useMemo(() => toDateKey(new Date()), []);
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
@@ -112,8 +132,30 @@ export default function FamilyHubScreen() {
     setNotFound(false);
     setInviteCopied(false);
     try {
+      const profile = profileQuery.data ?? (await profileRepository.findByUserId(userId));
+      if (
+        isFamilySelfInvite({
+          fromUserId: userId,
+          lookupQuery: lookup,
+          ownEmail: profile?.email,
+          ownPhone: profile?.phone,
+        })
+      ) {
+        Alert.alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
+        return;
+      }
+
       const user = await familyConnectionService.lookupUser(lookup);
       if (user) {
+        if (
+          isFamilySelfInvite({
+            fromUserId: userId,
+            matchedUser: user,
+          })
+        ) {
+          Alert.alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
+          return;
+        }
         setMatched(user);
       } else {
         setNotFound(true);
@@ -138,6 +180,18 @@ export default function FamilyHubScreen() {
       Alert.alert(t('family.spousePremiumTitle'), t('family.inviteSeatsFull'));
       return;
     }
+    if (
+      isFamilySelfInvite({
+        fromUserId: userId,
+        matchedUser: matched,
+        lookupQuery: lookup,
+        ownEmail: profileQuery.data?.email,
+        ownPhone: profileQuery.data?.phone,
+      })
+    ) {
+      Alert.alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
+      return;
+    }
     setBusy(true);
     try {
       const profile = await profileRepository.findByUserId(userId);
@@ -153,8 +207,7 @@ export default function FamilyHubScreen() {
       setLookup('');
       await refreshAll();
     } catch (error) {
-      const message = error instanceof Error ? error.message : t('family.connectionFailedMessage');
-      Alert.alert(t('family.connectionFailed'), message);
+      Alert.alert(t('family.connectionFailed'), t(familyConnectionErrorKey(error)));
     } finally {
       setBusy(false);
     }
@@ -236,6 +289,7 @@ export default function FamilyHubScreen() {
       });
       setChildName('');
       setChildDob('');
+      setChildDobMonthRef(initialAddChildDobMonth());
       setChildGender('prefer_not_to_say');
       await refreshAll();
     } catch (error) {
@@ -548,18 +602,57 @@ export default function FamilyHubScreen() {
               />
             ) : (
               <>
-                <FormField label={t('family.addAnotherChild')}>
+                <AppText variant="body" style={styles.memberName}>
+                  {t('family.addAnotherChild')}
+                </AppText>
+                <FormField label={t('family.child.name')}>
                   <Input
                     placeholder={t('family.child.name')}
                     value={childName}
                     onChangeText={setChildName}
+                    autoCapitalize="words"
                   />
-                  <Input
-                    placeholder={t('family.dobPlaceholder')}
-                    value={childDob}
-                    onChangeText={setChildDob}
-                    autoCapitalize="none"
+                </FormField>
+                <FormField label={t('family.child.dob')} hint={t('family.child.dobHint')}>
+                  <MonthCalendarNavigator
+                    accentColor={ACCENT}
+                    monthRef={childDobMonthRef}
+                    onMonthChange={setChildDobMonthRef}
+                    maximumYear={currentYear}
                   />
+                  <MonthCalendarGrid
+                    monthRef={childDobMonthRef}
+                    interactive
+                    accentColor={ACCENT}
+                    onDayPress={(dayKey) => {
+                      if (dayKey > todayKey) return;
+                      setChildDob(dayKey);
+                    }}
+                    getDayState={(dayKey) => ({
+                      selected: dayKey === childDob,
+                      today: dayKey === todayKey,
+                      disabled: dayKey > todayKey,
+                    })}
+                  />
+                  {childDob ? (
+                    <View style={styles.dobSelectedRow}>
+                      <AppText variant="body">
+                        {t('family.child.dobSelected', { date: formatDobLabel(childDob) })}
+                      </AppText>
+                      <Button
+                        accessibilityRole="button"
+                        onPress={() => setChildDob('')}
+                        hitSlop={8}
+                        variant="plain"
+                      >
+                        <AppText variant="caption" color="brand">
+                          {t('common.clear')}
+                        </AppText>
+                      </Button>
+                    </View>
+                  ) : null}
+                </FormField>
+                <FormField label={t('family.child.gender')}>
                   <View style={styles.chipRow}>
                     {FAMILY_GENDERS.map((g) => (
                       <ChoiceChip
@@ -917,6 +1010,12 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  dobSelectedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: spacing.sm,
   },
   foundCard: {

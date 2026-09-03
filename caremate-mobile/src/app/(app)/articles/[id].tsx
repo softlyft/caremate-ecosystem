@@ -59,11 +59,9 @@ export default function ArticleDetailScreen() {
   const didAutoComplete = useRef(false);
 
   useLayoutEffect(() => {
-    const shortTitle = article?.title
-      ? article.title.length > 28
-        ? `${article.title.slice(0, 28).trim()}…`
-        : article.title
-      : t('learn.article');
+    // Let the header Text ellipsize; avoid baking "…" into the string (looks like a
+    // blank/broken header when the custom title slot fails to lay out on iOS).
+    const shortTitle = article?.title?.trim() || t('learn.article');
     navigation.setOptions(learnArticleHeaderOptions(shortTitle));
   }, [article?.title, navigation, t]);
 
