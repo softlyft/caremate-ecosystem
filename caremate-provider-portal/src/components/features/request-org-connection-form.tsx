@@ -7,12 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField, formInlineGridClassName } from '@/components/ui/form-field';
 import { requestPayerConnectionByEmailAction } from '@/domains/payer-connections/actions';
-import {
-  formatConnectionError,
-  type ConnectionErrorMapper,
-} from '@/lib/connection-error-format';
+import type { ActionResult } from '@/lib/action-result';
 
-type RequestOrgConnectionAction = typeof requestPayerConnectionByEmailAction;
+type RequestOrgConnectionAction = (formData: FormData) => Promise<ActionResult>;
 
 export function RequestOrgConnectionForm({
   requestAction = requestPayerConnectionByEmailAction,
@@ -21,7 +18,6 @@ export function RequestOrgConnectionForm({
   noteFieldName = 'provider_note',
   notePlaceholder = 'e.g. Network participation request',
   successMessage = 'Connection request sent — waiting for the payer to approve',
-  errorMapper = 'payer-org',
 }: {
   requestAction?: RequestOrgConnectionAction;
   emailLabel?: string;
@@ -29,7 +25,6 @@ export function RequestOrgConnectionForm({
   noteFieldName?: 'provider_note' | 'payer_note';
   notePlaceholder?: string;
   successMessage?: string;
-  errorMapper?: ConnectionErrorMapper;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -42,11 +37,15 @@ export function RequestOrgConnectionForm({
         const formData = new FormData(form);
         startTransition(async () => {
           try {
-            await requestAction(formData);
+            const result = await requestAction(formData);
+            if (!result.ok) {
+              toast.error(result.error);
+              return;
+            }
             toast.success(successMessage);
             form.reset();
-          } catch (err) {
-            toast.error(formatConnectionError(errorMapper, err, 'Failed to request connection'));
+          } catch {
+            toast.error('Failed to request connection');
           }
         });
       }}

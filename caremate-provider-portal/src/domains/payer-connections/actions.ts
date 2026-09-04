@@ -12,6 +12,8 @@ import {
   requestPayerProviderConnectionByEmail,
   requestProviderPayerConnectionByEmail,
 } from '@/domains/payer-connections/repository';
+import { mapPayerConnectionError } from '@/domains/payer-connections/errors';
+import { actionFail, actionOk, type ActionResult } from '@/lib/action-result';
 
 function revalidateProviderPaths() {
   revalidatePath('/app/payers', 'layout');
@@ -51,21 +53,28 @@ export async function rejectPayerConnectionAsProviderAction(
   revalidateProviderPaths();
 }
 
-export async function requestPayerConnectionByEmailAction(formData: FormData) {
-  const session = await requireWriteAccess();
-  const claimEmail = String(formData.get('claim_email') ?? '').trim();
-  const providerNote = String(formData.get('provider_note') ?? '').trim() || null;
+export async function requestPayerConnectionByEmailAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const session = await requireWriteAccess();
+    const claimEmail = String(formData.get('claim_email') ?? '').trim();
+    const providerNote = String(formData.get('provider_note') ?? '').trim() || null;
 
-  if (!claimEmail) {
-    throw new Error('Payer claim email is required');
+    if (!claimEmail) {
+      return actionFail('Payer claim email is required');
+    }
+
+    await requestProviderPayerConnectionByEmail(
+      session.activeOrganizationId,
+      claimEmail,
+      providerNote,
+    );
+    revalidateProviderPaths();
+    return actionOk();
+  } catch (err) {
+    return actionFail(mapPayerConnectionError(err, 'Failed to request connection'));
   }
-
-  await requestProviderPayerConnectionByEmail(
-    session.activeOrganizationId,
-    claimEmail,
-    providerNote,
-  );
-  revalidateProviderPaths();
 }
 
 export async function approveProviderConnectionAsPayerAction(
@@ -94,21 +103,28 @@ export async function rejectProviderConnectionAsPayerAction(
   revalidatePayerPaths();
 }
 
-export async function requestProviderConnectionByEmailAction(formData: FormData) {
-  const session = await requirePayerWriteAccess();
-  const claimEmail = String(formData.get('claim_email') ?? '').trim();
-  const payerNote = String(formData.get('payer_note') ?? '').trim() || null;
+export async function requestProviderConnectionByEmailAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const session = await requirePayerWriteAccess();
+    const claimEmail = String(formData.get('claim_email') ?? '').trim();
+    const payerNote = String(formData.get('payer_note') ?? '').trim() || null;
 
-  if (!claimEmail) {
-    throw new Error('Provider claim email is required');
+    if (!claimEmail) {
+      return actionFail('Provider claim email is required');
+    }
+
+    await requestPayerProviderConnectionByEmail(
+      session.activeOrganizationId,
+      claimEmail,
+      payerNote,
+    );
+    revalidatePayerPaths();
+    return actionOk();
+  } catch (err) {
+    return actionFail(mapPayerConnectionError(err, 'Failed to request connection'));
   }
-
-  await requestPayerProviderConnectionByEmail(
-    session.activeOrganizationId,
-    claimEmail,
-    payerNote,
-  );
-  revalidatePayerPaths();
 }
 
 export async function cancelPayerConnectionAsProviderAction(connectionId: string, reason: string) {

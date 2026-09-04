@@ -10,6 +10,8 @@ import {
   rejectConnection,
   requestConnectionByCaremateId,
 } from '@/domains/connections/repository';
+import { mapProviderPatientConnectionError } from '@/domains/connections/errors';
+import { actionFail, actionOk, type ActionResult } from '@/lib/action-result';
 
 function revalidateConnectionPaths() {
   revalidatePath('/app/patients');
@@ -59,15 +61,22 @@ export async function disconnectConnectionAction(connectionId: string, reason?: 
   revalidateConnectionPaths();
 }
 
-export async function requestConnectionByCaremateIdAction(formData: FormData) {
-  const session = await requireWriteAccess();
-  const caremateId = String(formData.get('caremate_id') ?? '').trim();
-  const providerNote = String(formData.get('provider_note') ?? '').trim() || null;
+export async function requestConnectionByCaremateIdAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const session = await requireWriteAccess();
+    const caremateId = String(formData.get('caremate_id') ?? '').trim();
+    const providerNote = String(formData.get('provider_note') ?? '').trim() || null;
 
-  if (!caremateId) {
-    throw new Error('CareMate ID is required');
+    if (!caremateId) {
+      return actionFail('CareMate ID is required');
+    }
+
+    await requestConnectionByCaremateId(session.activeOrganizationId, caremateId, providerNote);
+    revalidateConnectionPaths();
+    return actionOk();
+  } catch (err) {
+    return actionFail(mapProviderPatientConnectionError(err, 'Failed to request connection'));
   }
-
-  await requestConnectionByCaremateId(session.activeOrganizationId, caremateId, providerNote);
-  revalidateConnectionPaths();
 }

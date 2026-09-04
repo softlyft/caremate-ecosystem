@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { toRpcError } from '@/lib/rpc-error';
 import {
   DEFAULT_PAGE_SIZE,
   emptyPage,
@@ -265,7 +266,7 @@ export async function requestProviderPayerConnectionByEmail(
     p_provider_note: providerNote ?? undefined,
   });
 
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to request connection');
   return data as ProviderPayerConnection;
 }
 
@@ -284,7 +285,7 @@ export async function cancelPendingProviderPayerConnection(
     p_connection_id: connectionId,
     p_reason: trimmed,
   });
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to cancel connection');
 }
 
 export async function disconnectProviderPayerConnection(
@@ -297,7 +298,7 @@ export async function disconnectProviderPayerConnection(
     p_connection_id: connectionId,
     p_reason: reason?.trim() || undefined,
   });
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to disconnect');
 }
 
 export async function requestPayerProviderConnectionByEmail(
@@ -312,6 +313,6 @@ export async function requestPayerProviderConnectionByEmail(
     p_payer_note: payerNote ?? undefined,
   });
 
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to request connection');
   return data as ProviderPayerConnection;
 }

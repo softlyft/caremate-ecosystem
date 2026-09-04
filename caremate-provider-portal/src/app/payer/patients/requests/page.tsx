@@ -72,7 +72,6 @@ export default async function PatientConnectionRequestsPage({
           requestAction={requestPatientConnectionByCaremateIdAction}
           noteFieldName="payer_note"
           notePlaceholder="e.g. Member onboarding"
-          errorMapper="payer-patient"
         />
       }
       inbound={inbound}

@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import type { Href } from 'expo-router';
+import { Check } from 'lucide-react-native';
 import { Controller, useForm } from 'react-hook-form';
-import { useMemo } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
+import { AppText } from '@/components/ui/AppText';
 import {
   Button,
   FormField,
@@ -20,6 +22,10 @@ import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
+import {
+  getRememberedLoginEmail,
+  setRememberedLoginEmail,
+} from '@/domains/auth/remember-login';
 import { continueAfterAuth } from '@/domains/emergency/continue-after-auth';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';
@@ -27,11 +33,12 @@ import { useAuthStore } from '@/features/auth/store';
 import { authService } from '@/services/auth-service';
 import { isNetworkError, toUserFacingErrorMessage } from '@/lib/user-facing-error';
 import { useAppTheme } from '@/theme';
-import { spacing } from '@/theme/colors';
+import { palette, radius, spacing } from '@/theme/colors';
 
 type LoginForm = {
   email: string;
   password: string;
+  rememberMe: boolean;
 };
 
 export default function LoginScreen() {
@@ -45,14 +52,27 @@ export default function LoginScreen() {
       z.object({
         email: z.email(t('auth.validation.emailInvalid')),
         password: z.string().min(8, t('auth.validation.passwordMin')),
+        rememberMe: z.boolean(),
       }),
     [t],
   );
 
-  const { control, handleSubmit, formState } = useForm<LoginForm>({
+  const { control, handleSubmit, formState, reset } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: '', password: '', rememberMe: false },
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const remembered = await getRememberedLoginEmail();
+      if (cancelled || !remembered) return;
+      reset({ email: remembered, password: '', rememberMe: true });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [reset]);
 
   async function onSubmit(values: LoginForm) {
     try {
@@ -71,6 +91,7 @@ export default function LoginScreen() {
         return;
       }
       await signIn(email, values.password);
+      await setRememberedLoginEmail(email, values.rememberMe);
       await continueAfterAuth();
     } catch (error) {
       const message = toUserFacingErrorMessage(
@@ -133,7 +154,38 @@ export default function LoginScreen() {
               )}
             />
           </FormField>
-          <TextLink href="/(auth)/forgot-password">{t('auth.login.forgot')}</TextLink>
+          <Controller
+            control={control}
+            name="rememberMe"
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.rememberRow}>
+                <Button
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: value }}
+                  accessibilityLabel={t('auth.login.rememberMeA11y')}
+                  onPress={() => onChange(!value)}
+                  hitSlop={8}
+                  style={[styles.checkbox, value ? styles.checkboxChecked : null]}
+                  variant="plain"
+                >
+                  {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
+                </Button>
+                <Button
+                  accessibilityRole="button"
+                  onPress={() => onChange(!value)}
+                  style={styles.rememberLabelButton}
+                  variant="plain"
+                >
+                  <AppText variant="caption" style={styles.rememberLabel}>
+                    {t('auth.login.rememberMe')}
+                  </AppText>
+                </Button>
+                <TextLink href="/(auth)/forgot-password" style={styles.forgotLink}>
+                  {t('auth.login.forgot')}
+                </TextLink>
+              </View>
+            )}
+          />
           <Button
             label={isLoading ? t('common.loading') : t('auth.login.submit')}
             disabled={isLoading}
@@ -165,5 +217,37 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  rememberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minHeight: 28,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    borderWidth: 1.5,
+    borderColor: palette.divider,
+    backgroundColor: palette.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: palette.primary,
+    borderColor: palette.primary,
+  },
+  rememberLabelButton: {
+    flexShrink: 1,
+    paddingVertical: 2,
+  },
+  rememberLabel: {
+    color: palette.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  forgotLink: {
+    marginLeft: 'auto',
   },
 });

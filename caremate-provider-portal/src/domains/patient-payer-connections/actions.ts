@@ -9,6 +9,8 @@ import {
   rejectPatientPayerConnectionAsPayer,
   requestPatientPayerConnectionByCaremateId,
 } from '@/domains/patient-payer-connections/repository';
+import { mapPatientPayerConnectionError } from '@/domains/patient-payer-connections/errors';
+import { actionFail, actionOk, type ActionResult } from '@/lib/action-result';
 
 function revalidatePatientPayerPaths() {
   revalidatePath('/payer/patients', 'layout');
@@ -65,19 +67,26 @@ export async function disconnectPatientConnectionAsPayerAction(
   revalidatePatientPayerPaths();
 }
 
-export async function requestPatientConnectionByCaremateIdAction(formData: FormData) {
-  const session = await requirePayerWriteAccess();
-  const caremateId = String(formData.get('caremate_id') ?? '').trim();
-  const payerNote = String(formData.get('payer_note') ?? '').trim() || null;
+export async function requestPatientConnectionByCaremateIdAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const session = await requirePayerWriteAccess();
+    const caremateId = String(formData.get('caremate_id') ?? '').trim();
+    const payerNote = String(formData.get('payer_note') ?? '').trim() || null;
 
-  if (!caremateId) {
-    throw new Error('CareMate ID is required');
+    if (!caremateId) {
+      return actionFail('CareMate ID is required');
+    }
+
+    await requestPatientPayerConnectionByCaremateId(
+      session.activeOrganizationId,
+      caremateId,
+      payerNote,
+    );
+    revalidatePatientPayerPaths();
+    return actionOk();
+  } catch (err) {
+    return actionFail(mapPatientPayerConnectionError(err, 'Failed to request connection'));
   }
-
-  await requestPatientPayerConnectionByCaremateId(
-    session.activeOrganizationId,
-    caremateId,
-    payerNote,
-  );
-  revalidatePatientPayerPaths();
 }

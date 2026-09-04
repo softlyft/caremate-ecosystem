@@ -22,6 +22,13 @@ const MONTHS = Array.from({ length: 12 }, (_, month) =>
   new Date(2024, month, 1).toLocaleDateString(undefined, { month: 'short' }),
 );
 
+const MONTH_OPTION_HEIGHT = 52;
+const MONTH_GRID_GAP = spacing.sm;
+const MONTH_GRID_ROWS = 4;
+/** Exact height for 4 month rows so Nov/Dec are never clipped by flex shrink. */
+const MONTH_GRID_HEIGHT =
+  MONTH_GRID_ROWS * MONTH_OPTION_HEIGHT + (MONTH_GRID_ROWS - 1) * MONTH_GRID_GAP;
+
 function startOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
@@ -74,9 +81,9 @@ export function MonthCalendarNavigator({
     month: 'long',
     year: 'numeric',
   });
-  // Gesture / 3-button nav bars vary by device; keep the bottom month row clear of them.
-  const sheetBottomPadding = spacing.lg + Math.max(insets.bottom, spacing.sm);
-  const sheetMaxHeight = Math.min(height * 0.72, 520) + Math.max(insets.bottom, 0);
+  // Keep Nov/Dec (bottom row) clear of gesture / 3-button nav bars.
+  const sheetBottomPadding = spacing.lg + Math.max(insets.bottom, spacing.md);
+  const sheetMaxHeight = Math.min(height * 0.85, 560);
 
   const changeMonthBy = (offset: number) => {
     if (offset > 0 && !canGoNext) {
@@ -344,10 +351,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.42)',
   },
   sheet: {
-    minHeight: 410,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
-    gap: spacing.lg,
+    gap: spacing.md,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     backgroundColor: palette.background,
@@ -372,14 +378,16 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface,
   },
   pickerBody: {
-    flex: 1,
-    minHeight: 300,
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.md,
+    height: MONTH_GRID_HEIGHT,
   },
   yearList: {
     width: 82,
+    height: MONTH_GRID_HEIGHT,
     flexGrow: 0,
+    flexShrink: 0,
     borderRadius: radius.lg,
     backgroundColor: palette.surface,
   },
@@ -394,13 +402,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignContent: 'flex-start',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
+    gap: MONTH_GRID_GAP,
+    height: MONTH_GRID_HEIGHT,
   },
   monthOption: {
-    width: '30%',
-    minWidth: 68,
-    height: 56,
-    flexGrow: 1,
+    width: '31%',
+    height: MONTH_OPTION_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
