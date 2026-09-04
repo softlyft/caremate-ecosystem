@@ -12,6 +12,13 @@ export type SendPushNotificationInput = {
   entityType?: string | null;
   entityId?: string | null;
   data?: Record<string, unknown>;
+  /**
+   * When false, still records a notification for push dedupe/delivery audit, but
+   * marks it read and tags data.inbox=false so clients should not show it in the
+   * bell inbox (e.g. messaging — Messages screen is the durable record).
+   * Default true.
+   */
+  createInboxRow?: boolean;
 };
 
 export type SendPushNotificationResult = {
@@ -37,6 +44,11 @@ export async function sendExpoPushNotification(
 ): Promise<SendPushNotificationResult> {
   const service = input.service;
   const severity = input.severity ?? 'info';
+  const createInboxRow = input.createInboxRow !== false;
+  const data = {
+    ...(input.data ?? {}),
+    ...(createInboxRow ? {} : { inbox: false }),
+  };
 
   let notificationId: string | null = null;
 
@@ -61,8 +73,10 @@ export async function sendExpoPushNotification(
         severity,
         entity_type: input.entityType ?? null,
         entity_id: input.entityId ?? null,
-        data: input.data ?? {},
+        data,
         dedupe_key: input.dedupeKey,
+        // Push-only: avoid unread badge on the bell inbox.
+        ...(createInboxRow ? {} : { read_at: new Date().toISOString() }),
       })
       .select('id')
       .single();
@@ -159,7 +173,7 @@ export async function sendExpoPushNotification(
     data: {
       domain: input.domain,
       eventType: input.eventType,
-      ...(input.data ?? {}),
+      ...data,
     },
   }));
 

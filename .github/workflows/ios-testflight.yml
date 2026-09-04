@@ -246,8 +246,23 @@ jobs:
           /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "$PLIST"
           /usr/libexec/PlistBuddy -c 'Add :signingStyle string manual' "$PLIST"
           /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' "$PLIST"
-          INFO_PLIST="$(find ios -path '*/Info.plist' -not -path '*/Pods/*' -not -path '*/Tests/*' | head -1)"
-          BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$INFO_PLIST")"
+          # Info.plist keeps CFBundleIdentifier as $(PRODUCT_BUNDLE_IDENTIFIER); resolve the real id.
+          BUNDLE_ID="$(
+            npx expo config --type public --json 2>/dev/null \
+              | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{try{const j=JSON.parse(s);process.stdout.write(String(j.ios?.bundleIdentifier||''))}catch{process.stdout.write('')}})"
+          )"
+          if [ -z "$BUNDLE_ID" ] || [[ "$BUNDLE_ID" == *'$('* ]]; then
+            BUNDLE_ID="$(
+              grep -E 'PRODUCT_BUNDLE_IDENTIFIER = [^;]+;' ios/*.xcodeproj/project.pbxproj ios/*/*.xcodeproj/project.pbxproj 2>/dev/null \
+                | head -1 \
+                | sed -E 's/.*PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);.*/\1/' \
+                | tr -d ' "'
+            )"
+          fi
+          if [ -z "$BUNDLE_ID" ] || [[ "$BUNDLE_ID" == *'$('* ]]; then
+            echo "Could not resolve iOS bundle identifier for ExportOptions.plist"
+            exit 1
+          fi
           echo "Exporting with bundle ID: $BUNDLE_ID"
           /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:${BUNDLE_ID} string ${PROFILE_NAME}" "$PLIST"
 
