@@ -2,7 +2,7 @@
 
 Family is a shared **household** for kids and adult connections. Each adult keeps their own account data (profile, emergency card, settings, mini-apps).
 
-**Plan limits** (children + invited adults): [Premium & plans](./premium-and-plans.md#family-profiles-by-plan). Free and Standard Premium allow **one child**; Family Premium allows **additional children** and up to **3 invited adults** (owner not counted).
+**Plan limits** (children + invited adults): [Premium & plans](./premium-and-plans.md#family-profiles-by-plan). **Free:** 1 child. **Standard Premium:** up to 3 children. **Family Premium:** up to **6 children** total in the household (shared across adults, including kids an invited adult brings) and up to **3 invited adults** (owner not counted).
 
 ## Flows
 

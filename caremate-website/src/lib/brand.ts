@@ -2,22 +2,26 @@ function trimTrailingSlash(value: string): string {
   return value.replace(/\/$/, '');
 }
 
-const siteUrl = trimTrailingSlash(
-  (import.meta.env.VITE_SITE_URL as string | undefined)?.trim() ||
-    'https://getcaremate.com',
-);
-const communityPortalUrl = trimTrailingSlash(
-  (import.meta.env.VITE_COMMUNITY_PORTAL_URL as string | undefined)?.trim() ||
-    'https://main.d2tlpjx9a9kklb.amplifyapp.com',
-);
-const paymentUrl = trimTrailingSlash(
-  (import.meta.env.VITE_PAYMENT_URL as string | undefined)?.trim() ||
-    'https://main.d1wcqa3tsdavz8.amplifyapp.com',
-);
-const carePortalUrl = trimTrailingSlash(
-  (import.meta.env.VITE_CARE_URL as string | undefined)?.trim() ||
-    'https://care.getcaremate.com',
-);
+function requireEnvUrl(name: 'VITE_SITE_URL' | 'VITE_COMMUNITY_PORTAL_URL' | 'VITE_PAYMENT_URL' | 'VITE_CARE_URL'): string {
+  const raw = (import.meta.env[name] as string | undefined)?.trim() ?? '';
+  if (!raw) {
+    throw new Error(
+      `${name} is required. Set it in Amplify env vars or .env.local (see .env.example).`,
+    );
+  }
+  try {
+    // Reject relative / malformed values early so join links never silently break.
+    void new URL(raw);
+  } catch {
+    throw new Error(`${name} must be an absolute URL (got "${raw}").`);
+  }
+  return trimTrailingSlash(raw);
+}
+
+const siteUrl = requireEnvUrl('VITE_SITE_URL');
+const communityPortalUrl = requireEnvUrl('VITE_COMMUNITY_PORTAL_URL');
+const paymentUrl = requireEnvUrl('VITE_PAYMENT_URL');
+const carePortalUrl = requireEnvUrl('VITE_CARE_URL');
 
 export const SITE_URL = siteUrl;
 

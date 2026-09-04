@@ -81,8 +81,10 @@ describe('billing entitlements', () => {
   it('limits family children and adult invites by tier', () => {
     expect(canAddChild('free', 0)).toBe(true);
     expect(canAddChild('free', 1)).toBe(false);
-    expect(canAddChild('personal', 1)).toBe(false);
-    expect(canAddChild('family', 3)).toBe(true);
+    expect(canAddChild('personal', 2)).toBe(true);
+    expect(canAddChild('personal', 3)).toBe(false);
+    expect(canAddChild('family', 5)).toBe(true);
+    expect(canAddChild('family', 6)).toBe(false);
     expect(canConnectSpouse('free')).toBe(false);
     expect(canConnectSpouse('personal')).toBe(false);
     expect(canConnectSpouse('family')).toBe(true);

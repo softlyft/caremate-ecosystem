@@ -61,6 +61,10 @@ function productionIntentFilters(
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const base = (appJson.expo ?? config) as ExpoConfig;
+  const appVariant = (process.env.APP_VARIANT ?? '').trim();
+  const isDev = appVariant === 'development';
+  const variantSuffix = isDev ? '.dev' : '';
+  const variantLabel = isDev ? ' (Dev)' : '';
   const isProductionAppEnv =
     (process.env.EXPO_PUBLIC_APP_ENV ?? process.env.APP_ENV ?? '').trim() === 'production';
   const androidAppId = isProductionAppEnv
@@ -128,10 +132,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   const { associatedDomains: _associatedDomains, ...iosWithoutAssociatedDomains } = base.ios ?? {};
   const { intentFilters: _intentFilters, ...androidWithoutIntentFilters } = base.android ?? {};
 
+  const baseBundleId = base.ios?.bundleIdentifier ?? 'com.softlyft.caremate';
+  const basePackage = base.android?.package ?? 'com.softlyft.caremate';
+
   return {
     ...base,
+    name: `${base.name ?? 'CareMate'}${variantLabel}`,
+    scheme: isDev ? 'caremate-dev' : base.scheme,
     ios: {
       ...iosWithoutAssociatedDomains,
+      bundleIdentifier: `${baseBundleId}${variantSuffix}`,
       ...(appleTeamId ? { appleTeamId } : {}),
       // Associated domains require a signing team even for Simulator builds.
       // Keep them production-only so local `expo run:ios` works unsigned.
@@ -141,6 +151,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       ...androidWithoutIntentFilters,
+      package: `${basePackage}${variantSuffix}`,
       versionCode: androidVersionCode(base),
       ...(isProductionAppEnv
         ? { intentFilters: productionIntentFilters(base.android?.intentFilters) }

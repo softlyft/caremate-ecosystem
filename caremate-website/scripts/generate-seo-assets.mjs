@@ -10,11 +10,12 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const publicDir = join(root, 'public');
-const siteUrl = (
-  process.env.VITE_SITE_URL?.trim() ||
-  process.env.SITE_URL?.trim() ||
-  'https://getcaremate.com'
-).replace(/\/$/, '');
+const siteUrlRaw = process.env.VITE_SITE_URL?.trim() || process.env.SITE_URL?.trim() || '';
+if (!siteUrlRaw) {
+  console.error('VITE_SITE_URL (or SITE_URL) is required to generate SEO assets.');
+  process.exit(1);
+}
+const siteUrl = siteUrlRaw.replace(/\/$/, '');
 
 const LEGACY_CATEGORY_ID_MAP = {
   heart: 'conditions',

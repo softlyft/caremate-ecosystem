@@ -13,7 +13,7 @@ export function RefundsPage() {
           plans (CareMate Premium and CareMate Family). SoftLyft builds CareMate for Africa and is
           launching first in Nigeria; paid plans may be purchased by users elsewhere where checkout
           or app-store billing is available. This policy applies to purchases made through
-          CareMate&apos;s hosted checkout (Paystack for Naira, Stripe for international USD where
+          CareMate&apos;s hosted checkout (Paystack for Naira or USD where
           offered) and through Apple or Google billing in the CareMate app unless a different flow
           is shown at purchase.
         </p>

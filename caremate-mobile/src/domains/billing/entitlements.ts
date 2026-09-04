@@ -10,8 +10,17 @@ export const FREE_CHECKUP_VISIBLE_COUNT = 2;
 /** Immunization schedule visible through this age in weeks on Free (~2 months). */
 export const FREE_IMMUNIZATION_MAX_WEEKS = 8;
 
-/** Child profiles allowed on Free and Standard Premium. */
+/** Child profiles allowed on Free. */
 export const FREE_FAMILY_CHILD_LIMIT = 1;
+
+/** Child profiles allowed on Standard Premium. */
+export const STANDARD_FAMILY_CHILD_LIMIT = 3;
+
+/**
+ * Child profiles allowed on Family Premium — household total shared across
+ * all adults (including children an invited adult brings).
+ */
+export const FAMILY_FAMILY_CHILD_LIMIT = 6;
 
 /** Invited adults (excl. owner) allowed on Family Premium. */
 export const FAMILY_ADULT_INVITE_LIMIT = 3;
@@ -109,14 +118,17 @@ export function isImmunizationScheduleItemUnlocked(
 }
 
 export function canAddChild(tier: PremiumTier, currentChildCount: number): boolean {
-  if (hasFamilyPlan(tier)) {
-    return true;
-  }
-  return currentChildCount < FREE_FAMILY_CHILD_LIMIT;
+  return currentChildCount < maxChildrenForTier(tier);
 }
 
 export function maxChildrenForTier(tier: PremiumTier): number {
-  return hasFamilyPlan(tier) ? 12 : FREE_FAMILY_CHILD_LIMIT;
+  if (hasFamilyPlan(tier)) {
+    return FAMILY_FAMILY_CHILD_LIMIT;
+  }
+  if (isPremiumTier(tier)) {
+    return STANDARD_FAMILY_CHILD_LIMIT;
+  }
+  return FREE_FAMILY_CHILD_LIMIT;
 }
 
 /** Plan gate only — Family Premium required to invite adults. */

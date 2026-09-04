@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { listChapterRequestsPage } from '@/domains/community/repository';
 import { ChapterRequestActions } from '@/features/community/chapter-request-actions';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -28,6 +29,18 @@ export default async function CommunityChapterRequestsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Chapter requests"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   const { page: pageParam } = await searchParams;
   const page = parsePage(pageParam);
 

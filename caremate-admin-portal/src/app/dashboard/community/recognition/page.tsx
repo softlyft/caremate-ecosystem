@@ -1,6 +1,7 @@
 import { listBadges, listBadgesPage, listCertificates, listCertificatesPage } from '@/domains/community/repository';
 import { AwardBadgeForm } from '@/features/community/award-badge-form';
 import { CreateBadgeForm } from '@/features/community/create-badge-form';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -29,6 +30,18 @@ export default async function CommunityRecognitionPage({
 }: {
   searchParams: Promise<{ badgesPage?: string; certsPage?: string }>;
 }) {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Recognition"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   const { badgesPage: badgesPageParam, certsPage: certsPageParam } = await searchParams;
   const badgesPage = parsePage(badgesPageParam);
   const certsPage = parsePage(certsPageParam);

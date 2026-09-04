@@ -76,7 +76,7 @@ export function SecurityPage() {
         <h2>Payments</h2>
         <p>
           Premium checkout opens in a secure web flow or through Apple / Google billing. Card and
-          wallet details are handled by our payment partners (for example Paystack or Stripe) or the
+          wallet details are handled by our payment partners (for example Paystack) or the
           app stores. CareMate does not store your full card number on our servers.
         </p>
 

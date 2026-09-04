@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
@@ -9,7 +9,11 @@ import { useNotificationsInbox } from '@/domains/notifications/hooks';
 import { markNotificationsRead } from '@/domains/notifications/service';
 import { NotificationCard } from '@/features/notifications/NotificationCard';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
-import { layoutSpacing, spacing } from '@/theme';
+import { layoutSpacing, palette, spacing } from '@/theme';
+
+function NotificationDivider() {
+  return <View style={styles.divider} />;
+}
 
 export default function NotificationsScreen() {
   const { t } = useTranslation();
@@ -67,13 +71,14 @@ export default function NotificationsScreen() {
   return (
     <Screen
       padded={false}
-      style={{ paddingBottom: insets.bottom + spacing.md, backgroundColor: '#F8FAFF' }}
+      style={{ paddingBottom: insets.bottom + spacing.md, backgroundColor: palette.background }}
     >
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={NotificationDivider}
         renderItem={({ item }) => <NotificationCard notification={item} />}
       />
     </Screen>
@@ -83,8 +88,12 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.xl,
-    gap: spacing.sm,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: palette.divider,
+    marginLeft: 32 + spacing.sm,
   },
 });

@@ -91,15 +91,23 @@ describe('auth deep link', () => {
     expect(setSession).toHaveBeenCalledWith({ access_token: 'at', refresh_token: 'rt' });
   });
 
-  it('sets session from query tokens', async () => {
-    const exchangeCodeForSession = jest.fn();
-    const setSession = jest.fn().mockResolvedValue(undefined);
+  it('rejects non-recovery hash/query tokens (no session planting)', async () => {
+    const setSession = jest.fn();
     await expect(
       handleAuthCallbackUrl(
         'caremate://auth/callback?access_token=at&refresh_token=rt&type=session',
-        { exchangeCodeForSession, setSession },
+        { exchangeCodeForSession: jest.fn(), setSession },
       ),
-    ).resolves.toBe('session');
+    ).resolves.toBeNull();
+    expect(setSession).not.toHaveBeenCalled();
+
+    await expect(
+      handleAuthCallbackUrl('caremate://auth/callback#access_token=at&refresh_token=rt', {
+        exchangeCodeForSession: jest.fn(),
+        setSession,
+      }),
+    ).resolves.toBeNull();
+    expect(setSession).not.toHaveBeenCalled();
   });
 
   it('returns null when no usable tokens are present', async () => {

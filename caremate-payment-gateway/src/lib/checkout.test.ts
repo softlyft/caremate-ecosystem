@@ -105,6 +105,7 @@ describe('return URL allowlist', () => {
     expect(isAllowedAppReturnUrl('https://pay.getcaremate.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('https://pay-dev.getcaremate.com/success')).toBe(true);
     expect(isAllowedAppReturnUrl('https://main.d1wcqa3tsdavz8.amplifyapp.com/success')).toBe(true);
+    expect(isAllowedAppReturnUrl('https://evil.amplifyapp.com/success')).toBe(false);
     expect(isAppDeepLinkReturn('caremate://billing/success')).toBe(true);
     expect(isAppDeepLinkReturn('https://www.getcaremate.com/pricing')).toBe(false);
     expect(parseCheckoutSource('website')).toBe('website');
@@ -158,7 +159,7 @@ describe('checkout labels and providers', () => {
     expect(intervalLabel('yearly')).toBe('Yearly');
     expect(intervalLabel('monthly')).toBe('Monthly');
     expect(providerForCurrency('NGN')).toBe('paystack');
-    expect(providerForCurrency('USD')).toBe('stripe');
+    expect(providerForCurrency('USD')).toBe('paystack');
   });
 
   it('formats minor units as currency', () => {

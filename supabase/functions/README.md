@@ -42,11 +42,15 @@ Only the active `EMAIL_PROVIDER` is used; you can keep other credentials set for
 
 ```bash
 supabase secrets set \
-  STRIPE_SECRET_KEY=sk_test_... \
-  STRIPE_WEBHOOK_SECRET=whsec_... \
   PAYSTACK_SECRET_KEY=sk_test_... \
+  # Optional legacy only (verify in-flight Stripe sessions / old webhook):
+  # STRIPE_SECRET_KEY=sk_test_... \
+  # STRIPE_WEBHOOK_SECRET=whsec_... \
   EXPO_ACCESS_TOKEN=...
 ```
+
+Web Premium checkout (NGN + USD) uses **Paystack only**. Mobile Premium uses Apple / Google IAP.
+`STRIPE_*` is only needed to finalize leftover Stripe payments or the legacy `billing-webhook-stripe` endpoint.
 
 `EXPO_ACCESS_TOKEN` is **optional**. When set, Edge Functions send it as `Authorization: Bearer …` to the Expo Push API.
 

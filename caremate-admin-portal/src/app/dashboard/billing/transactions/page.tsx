@@ -58,7 +58,7 @@ export default async function BillingTransactionsPage({
     <div>
       <PageHeader
         title="Billing"
-        description="Paystack, Stripe, Apple, and Google charges recorded in the payments ledger."
+        description="Paystack, Apple, and Google charges recorded in the payments ledger."
       />
 
       <BillingNav current="transactions" />

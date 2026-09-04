@@ -14,6 +14,15 @@ import {
 } from '../_shared/email.ts';
 import { createServiceClient } from '../_shared/supabase.ts';
 
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 async function verifyPaystackSignature(
   payload: string,
   signatureHeader: string | null,
@@ -32,7 +41,7 @@ async function verifyPaystackSignature(
   const digest = Array.from(new Uint8Array(signed))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
-  return digest === signatureHeader;
+  return timingSafeEqualHex(digest, signatureHeader);
 }
 
 function isProviderOrgCharge(reference: string, meta: Record<string, unknown>): boolean {

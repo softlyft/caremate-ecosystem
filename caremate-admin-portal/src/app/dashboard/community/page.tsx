@@ -7,6 +7,7 @@ import {
   Users,
 } from 'lucide-react';
 import { getCommunityStats } from '@/domains/community/repository';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NavCard } from '@/components/ui/nav-card';
@@ -58,6 +59,18 @@ const LINKS = [
 ] as const;
 
 export default async function CommunityOverviewPage() {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Community"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   let stats;
   try {
     stats = await getCommunityStats();

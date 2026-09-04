@@ -67,7 +67,7 @@ describe('billing utils', () => {
         billingInterval: 'monthly',
         currency: 'USD',
         householdId: 'hh-1',
-        provider: 'stripe',
+        provider: 'paystack',
       }),
     );
   });

@@ -110,7 +110,7 @@ export type CareOrgKind = 'provider' | 'payer';
 
 export type ProviderAuthOtpSend = {
   id: string;
-  kind: 'claim' | 'password_reset' | 'payer_claim';
+  kind: 'claim' | 'password_reset' | 'payer_claim' | 'community_join';
   email: string;
   ip_hash: string | null;
   created_at: string;
@@ -593,7 +593,7 @@ type PortalTables = {
     Row: ProviderAuthOtpSend;
     Insert: {
       id?: string;
-      kind: 'claim' | 'password_reset' | 'payer_claim';
+      kind: 'claim' | 'password_reset' | 'payer_claim' | 'community_join';
       email: string;
       ip_hash?: string | null;
       created_at?: string;

@@ -158,9 +158,7 @@ export function CheckoutPage() {
   if (needsSignIn || !session) {
     return (
       <Shell>
-        <div className="badge">
-          {providerForCurrency(params.currency) === 'paystack' ? 'Paystack · NGN' : 'Stripe · USD'}
-        </div>
+        <div className="badge">Paystack · {params.currency}</div>
         <h1>Sign in to pay</h1>
         <p className="lead">
           Use the same email and password as the CareMate app. New accounts are created in the app
@@ -187,11 +185,13 @@ export function CheckoutPage() {
 
   return (
     <Shell>
-      <div className="badge">{provider === 'paystack' ? 'Paystack · NGN' : 'Stripe · USD'}</div>
+      <div className="badge">
+        {provider === 'paystack' ? 'Paystack' : provider} · {params.currency}
+      </div>
       <h1>Confirm your plan</h1>
       <p className="lead">
-        You&apos;ll complete payment with {provider === 'paystack' ? 'Paystack' : 'Stripe'}. Premium
-        unlocks on the same CareMate account in the app.
+        You&apos;ll complete payment with Paystack. Premium unlocks on the same CareMate account in
+        the app.
       </p>
 
       <dl className="summary">
@@ -228,7 +228,7 @@ export function CheckoutPage() {
       {error ? <p className="error">{error}</p> : null}
 
       <button className="primary" type="button" disabled={paying} onClick={() => void pay(params)}>
-        {paying ? 'Redirecting…' : `Pay with ${provider === 'paystack' ? 'Paystack' : 'Stripe'}`}
+        {paying ? 'Redirecting…' : 'Pay with Paystack'}
       </button>
 
       <button
