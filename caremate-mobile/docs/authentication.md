@@ -140,6 +140,7 @@ This is separate from **device account binding** (one email per physical device 
 
 ### Login (`(auth)/login.tsx`)
 - Email + password form (React Hook Form + Zod)
+- **Remember me** checkbox — stores the email on-device for prefill (never the password); session persistence is unchanged via SecureStore
 - Forgot password link
 - Continue as guest
 - If Supabase env is missing, the screen surfaces configuration messaging rather than a demo sign-in path

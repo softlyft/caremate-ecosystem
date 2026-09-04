@@ -1,13 +1,15 @@
+import { extractErrorMessage } from '@/lib/rpc-error';
+
 /** Map Postgres/RPC errors from patient↔payer connection flows to UI copy. */
 export function mapPatientPayerConnectionError(err: unknown, fallback: string): string {
-  const message = err instanceof Error ? err.message : String(err ?? '');
+  const message = extractErrorMessage(err, fallback);
   const lower = message.toLowerCase();
 
   if (lower.includes('previously') && lower.includes('declined')) {
     return 'A previous connection request was declined. Multiple requests are not allowed.';
   }
   if (lower.includes('already pending')) {
-    return 'A connection request is already pending.';
+    return 'A connection request to this patient is already pending.';
   }
   if (lower.includes('already connected')) {
     return 'You are already connected with this patient.';
