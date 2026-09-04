@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { listEventsPage } from '@/domains/community/repository';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -27,6 +28,18 @@ export default async function CommunityEventsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Events"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   const { page: pageParam } = await searchParams;
   const page = parsePage(pageParam);
 

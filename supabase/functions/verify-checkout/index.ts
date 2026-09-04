@@ -252,43 +252,47 @@ Deno.serve(async (req) => {
       return respondAfterFinalize(service, result);
     }
 
-    // Stripe
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeKey) {
-      return jsonResponse({ error: 'Stripe is not configured' }, 500);
-    }
+    // Legacy Stripe Checkout sessions (pre Paystack-USD cutover). New checkouts are Paystack-only.
+    if (payment.provider === 'stripe') {
+      const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+      if (!stripeKey) {
+        return jsonResponse({ error: 'Legacy Stripe payment cannot be verified' }, 500);
+      }
 
-    const sessionRes = await fetch(
-      `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(String(payment.provider_reference))}`,
-      { headers: { Authorization: `Bearer ${stripeKey}` } },
-    );
-    const session = await sessionRes.json();
-    if (!sessionRes.ok) {
-      return jsonResponse(
-        { error: session?.error?.message ?? 'Stripe session lookup failed' },
-        502,
+      const sessionRes = await fetch(
+        `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(String(payment.provider_reference))}`,
+        { headers: { Authorization: `Bearer ${stripeKey}` } },
       );
-    }
+      const session = await sessionRes.json();
+      if (!sessionRes.ok) {
+        return jsonResponse(
+          { error: session?.error?.message ?? 'Stripe session lookup failed' },
+          502,
+        );
+      }
 
-    if (session.payment_status !== 'paid' && session.status !== 'complete') {
-      return jsonResponse({
-        status: session.payment_status ?? session.status ?? 'pending',
-        payment_id: payment.id,
-        message: 'Payment not successful yet',
+      if (session.payment_status !== 'paid' && session.status !== 'complete') {
+        return jsonResponse({
+          status: session.payment_status ?? session.status ?? 'pending',
+          payment_id: payment.id,
+          message: 'Payment not successful yet',
+        });
+      }
+
+      const result = await finalizeSuccessfulPayment(service, {
+        paymentId: String(payment.id),
+        providerReference: session.id as string,
+        provider: 'stripe',
+        providerTransactionId: session.payment_intent ?? null,
+        providerCustomerId: session.customer ?? null,
+        providerSubscriptionId: session.subscription ?? null,
+        amountMinor: typeof session.amount_total === 'number' ? session.amount_total : null,
       });
+
+      return respondAfterFinalize(service, result);
     }
 
-    const result = await finalizeSuccessfulPayment(service, {
-      paymentId: String(payment.id),
-      providerReference: session.id as string,
-      provider: 'stripe',
-      providerTransactionId: session.payment_intent ?? null,
-      providerCustomerId: session.customer ?? null,
-      providerSubscriptionId: session.subscription ?? null,
-      amountMinor: typeof session.amount_total === 'number' ? session.amount_total : null,
-    });
-
-    return respondAfterFinalize(service, result);
+    return jsonResponse({ error: `Unsupported payment provider: ${payment.provider}` }, 400);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unexpected error';
     return jsonResponse({ error: message }, 500);

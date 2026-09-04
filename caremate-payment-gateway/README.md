@@ -4,7 +4,7 @@ Lightweight Vite + React checkout host for CareMate Premium.
 
 Website and community send visitors here with plan parameters. They sign in with an **existing**
 CareMate email/password (or a mobile `#handoff=` session). This app calls `create-checkout`,
-sends the user to Paystack (NGN) or Stripe (USD), then verifies the charge on `/success`.
+sends the user to Paystack (NGN or USD), then verifies the charge on `/success`.
 
 Store apps buy Premium through Apple / Google, not this host.
 
@@ -24,7 +24,7 @@ npm run payment:dev
 |-------|----------|-------|
 | `plan_type` | yes | `personal` \| `family` |
 | `billing_interval` | yes | `monthly` \| `yearly` |
-| `currency` | yes | `NGN` (Paystack) \| `USD` (Stripe) |
+| `currency` | yes | `NGN` \| `USD` (both via Paystack) |
 | `source` | no | `website` \| `community` \| omitted (app / handoff) |
 | `household_id` | family | Optional; `create-checkout` looks up `family_members` if omitted |
 | `patient_id` | no | Display only; loaded from profile if omitted |
@@ -46,7 +46,7 @@ Amplify / localhost https). See [`docs/security.md`](../docs/security.md).
 ## Flow
 
 1. Website `/pricing`, community Subscribe, or (legacy) mobile handoff opens this app
-2. User signs in if needed → confirms plan → Paystack / Stripe
+2. User signs in if needed → confirms plan → Paystack
 3. Provider returns to `/success?reference=…` or `/cancel`
 4. `/success` calls `verify-checkout` (webhooks also finalize)
 5. App returns: deep-link into CareMate. Web returns: stay on success and tell the user to open the app

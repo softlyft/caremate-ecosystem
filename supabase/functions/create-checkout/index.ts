@@ -1,5 +1,6 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { assertHouseholdMembership } from '../_shared/household.ts';
+import { initializePaystackTransaction } from '../_shared/paystack.ts';
 import { assertAllowedReturnUrls } from '../_shared/return-url.ts';
 import { createServiceClient, createUserClient, periodEndIso } from '../_shared/supabase.ts';
 
@@ -41,6 +42,9 @@ Deno.serve(async (req) => {
     if (!plan_type || !billing_interval || !currency || !success_url || !cancel_url) {
       return jsonResponse({ error: 'Missing required fields' }, 400);
     }
+    if (currency !== 'NGN' && currency !== 'USD') {
+      return jsonResponse({ error: 'Invalid currency (NGN | USD)' }, 400);
+    }
 
     try {
       assertAllowedReturnUrls(success_url, cancel_url);
@@ -76,14 +80,14 @@ Deno.serve(async (req) => {
 
     // Block duplicate active entitlement of the same plan type.
     {
-      let activeQuery = service
+      const { data: already } = await service
         .from('subscriptions')
         .select('id')
         .eq('user_id', user.id)
         .eq('plan_type', plan_type)
         .in('status', ['active', 'trialing'])
-        .limit(1);
-      const { data: already } = await activeQuery.maybeSingle();
+        .limit(1)
+        .maybeSingle();
       if (already) {
         return jsonResponse(
           { error: 'You already have an active subscription for this plan.' },
@@ -133,6 +137,13 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Price not found or inactive' }, 404);
     }
 
+    if (price.provider !== 'paystack') {
+      return jsonResponse(
+        { error: 'Web checkout is Paystack-only. Update the catalog price provider.' },
+        500,
+      );
+    }
+
     // Payment row first — subscription is created only after charge succeeds.
     const paymentId = crypto.randomUUID();
     const providerReference = `cm_${paymentId.replace(/-/g, '').slice(0, 24)}`;
@@ -145,7 +156,7 @@ Deno.serve(async (req) => {
       plan_type,
       billing_interval,
       currency,
-      provider: price.provider,
+      provider: 'paystack',
       amount_minor: price.amount_minor,
       status: 'pending',
       provider_reference: providerReference,
@@ -162,139 +173,39 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: insertError.message }, 500);
     }
 
-    if (price.provider === 'paystack') {
-      const secret = Deno.env.get('PAYSTACK_SECRET_KEY');
-      if (!secret) {
-        return jsonResponse({ error: 'Paystack is not configured' }, 500);
-      }
-
-      const paystackRes = await fetch('https://api.paystack.co/transaction/initialize', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${secret}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: user.email,
-          amount: price.amount_minor,
-          currency: 'NGN',
-          reference: providerReference,
-          callback_url: success_url,
-          metadata: {
-            payment_id: paymentId,
-            user_id: user.id,
-            plan_type,
-            billing_interval,
-            household_id: householdId ?? '',
-            cancel_url,
-          },
-        }),
-      });
-
-      const paystackJson = await paystackRes.json();
-      if (!paystackRes.ok || !paystackJson?.status) {
-        await service
-          .from('payments')
-          .update({
-            status: 'failed',
-            failure_reason: paystackJson?.message ?? 'Paystack initialize failed',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', paymentId);
-        return jsonResponse(
-          { error: paystackJson?.message ?? 'Paystack initialize failed' },
-          502,
-        );
-      }
-
-      return jsonResponse({
-        url: paystackJson.data.authorization_url as string,
+    const paystack = await initializePaystackTransaction({
+      email: user.email,
+      amountMinor: price.amount_minor,
+      currency,
+      reference: providerReference,
+      callbackUrl: success_url,
+      metadata: {
         payment_id: paymentId,
-        provider: 'paystack',
-        reference: providerReference,
-      });
-    }
-
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeKey) {
-      return jsonResponse({ error: 'Stripe is not configured' }, 500);
-    }
-
-    const params = new URLSearchParams();
-    params.set('mode', 'subscription');
-    params.set('success_url', success_url);
-    params.set('cancel_url', cancel_url);
-    params.set('client_reference_id', paymentId);
-    params.set('customer_email', user.email ?? '');
-    params.set('line_items[0][price_data][currency]', 'usd');
-    params.set('line_items[0][price_data][unit_amount]', String(price.amount_minor));
-    params.set(
-      'line_items[0][price_data][product_data][name]',
-      `CareMate Premium ${plan_type} (${billing_interval})`,
-    );
-    params.set(
-      'line_items[0][price_data][recurring][interval]',
-      billing_interval === 'yearly' ? 'year' : 'month',
-    );
-    params.set('line_items[0][quantity]', '1');
-    params.set('metadata[payment_id]', paymentId);
-    params.set('metadata[user_id]', user.id);
-    params.set('metadata[plan_type]', plan_type);
-    params.set('metadata[billing_interval]', billing_interval);
-    params.set('metadata[provider_ref]', providerReference);
-    if (householdId) {
-      params.set('metadata[household_id]', householdId);
-    }
-    params.set('subscription_data[metadata][payment_id]', paymentId);
-    params.set('subscription_data[metadata][user_id]', user.id);
-    params.set('subscription_data[metadata][plan_type]', plan_type);
-    params.set('subscription_data[metadata][billing_interval]', billing_interval);
-    if (householdId) {
-      params.set('subscription_data[metadata][household_id]', householdId);
-    }
-
-    if (!user.email) {
-      params.delete('customer_email');
-    }
-
-    const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${stripeKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        user_id: user.id,
+        plan_type,
+        billing_interval,
+        household_id: householdId ?? '',
+        cancel_url,
       },
-      body: params,
     });
 
-    const stripeJson = await stripeRes.json();
-    if (!stripeRes.ok || !stripeJson?.url) {
+    if (!paystack.ok) {
       await service
         .from('payments')
         .update({
           status: 'failed',
-          failure_reason: stripeJson?.error?.message ?? 'Stripe checkout failed',
+          failure_reason: paystack.message,
           updated_at: new Date().toISOString(),
         })
         .eq('id', paymentId);
-      return jsonResponse(
-        { error: stripeJson?.error?.message ?? 'Stripe checkout failed' },
-        502,
-      );
+      return jsonResponse({ error: paystack.message }, 502);
     }
 
-    await service
-      .from('payments')
-      .update({
-        provider_reference: stripeJson.id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', paymentId);
-
     return jsonResponse({
-      url: stripeJson.url as string,
+      url: paystack.authorizationUrl,
       payment_id: paymentId,
-      provider: 'stripe',
-      reference: stripeJson.id as string,
+      provider: 'paystack',
+      reference: providerReference,
       preview_period_end: periodEndIso(billing_interval),
     });
   } catch (err) {

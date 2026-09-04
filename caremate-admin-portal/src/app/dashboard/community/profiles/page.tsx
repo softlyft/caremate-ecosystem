@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { listProfilesPage } from '@/domains/community/repository';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -26,6 +27,18 @@ export default async function CommunityProfilesPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Profiles"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   const { page: pageParam } = await searchParams;
   const page = parsePage(pageParam);
 

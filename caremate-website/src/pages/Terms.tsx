@@ -125,7 +125,7 @@ export function TermsPage() {
         <p>
           Paid CareMate plans (for example Premium or Family) are offered according to current
           pricing (see <Link to="/pricing">Pricing</Link>). You may subscribe via SoftLyft&apos;s
-          hosted checkout (for example Paystack in Naira or Stripe in USD, where offered) or through
+          hosted checkout (Paystack for Naira or USD, where offered) or through
           Apple App Store / Google Play billing in the mobile apps. Fees, renewals, taxes, and
           cancellations follow the flow shown at purchase. Refunds are described in our{' '}
           <Link to="/refunds">Refund policy</Link>. Store purchases are also subject to Apple&apos;s

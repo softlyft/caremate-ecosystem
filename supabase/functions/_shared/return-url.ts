@@ -2,12 +2,7 @@
  * Allow only CareMate app deep links and payment-gateway return pages for Stripe/Paystack redirects.
  * Rejects javascript:, data:, and arbitrary https origins (open redirect).
  */
-const ALLOWED_HTTPS_HOST_SUFFIXES = [
-  'getcaremate.com',
-  'localhost',
-  '127.0.0.1',
-  'amplifyapp.com',
-];
+import { isAllowedHttpsHostname } from './allowed-hosts.ts';
 
 export function isAllowedAppReturnUrl(raw: string): boolean {
   const value = raw.trim();
@@ -42,10 +37,7 @@ export function isAllowedAppReturnUrl(raw: string): boolean {
         return false;
       }
       const host = url.hostname.toLowerCase();
-      const hostOk = ALLOWED_HTTPS_HOST_SUFFIXES.some(
-        (suffix) => host === suffix || host.endsWith(`.${suffix}`),
-      );
-      if (!hostOk) return false;
+      if (!isAllowedHttpsHostname(host)) return false;
 
       // Hosted checkout pages used as Stripe/Paystack callbacks, or https app links.
       const path = url.pathname.replace(/\/+$/, '') || '/';

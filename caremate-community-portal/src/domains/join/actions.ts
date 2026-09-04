@@ -4,6 +4,8 @@ import { createHash, randomBytes, randomInt } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import { POINT_VALUES } from '@/constants/points';
+import { assertOtpSendAllowed, recordOtpSend } from '@/lib/otp-rate-limit';
+import { getRequestIpHash } from '@/lib/request-ip';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { CommunityChapter } from '@/types/database';
 
@@ -63,6 +65,12 @@ async function getVerifiedUserId(): Promise<{
 export async function startPatientVerificationAction(formData: FormData) {
   const patientId = patientIdSchema.parse(formData.get('patient_id'));
   const admin = createAdminClient();
+  const ipHash = await getRequestIpHash();
+  // Throttle lookups even when the Patient ID is unknown (anti-enumeration).
+  const throttleKey = `patient:${patientId}@join.caremate.local`;
+
+  await assertOtpSendAllowed({ kind: 'community_join', email: throttleKey, ipHash });
+  await recordOtpSend({ kind: 'community_join', email: throttleKey, ipHash });
 
   const { data: profile, error: profileError } = await admin
     .from('profiles')
@@ -71,19 +79,38 @@ export async function startPatientVerificationAction(formData: FormData) {
     .maybeSingle();
 
   if (profileError) throw profileError;
+
+  // Soften enumeration: same success-shaped response when the Patient ID is unknown.
   if (!profile) {
-    throw new Error('No registered CareMate account matches that Patient ID');
+    return {
+      verificationId: '00000000-0000-0000-0000-000000000000',
+      maskedEmail: 'yo**@email.com',
+      expiresAt: new Date(Date.now() + VERIFICATION_TTL_MINUTES * 60_000).toISOString(),
+    };
   }
 
   const { data: authResult, error: authError } = await admin.auth.admin.getUserById(
     profile.user_id,
   );
   if (authError || !authResult.user) {
-    throw new Error('No registered CareMate account matches that Patient ID');
+    return {
+      verificationId: '00000000-0000-0000-0000-000000000000',
+      maskedEmail: 'yo**@email.com',
+      expiresAt: new Date(Date.now() + VERIFICATION_TTL_MINUTES * 60_000).toISOString(),
+    };
   }
 
   const email = profile.email || authResult.user.email;
-  if (!email) throw new Error('Your CareMate account does not have a registered email');
+  if (!email) {
+    return {
+      verificationId: '00000000-0000-0000-0000-000000000000',
+      maskedEmail: 'yo**@email.com',
+      expiresAt: new Date(Date.now() + VERIFICATION_TTL_MINUTES * 60_000).toISOString(),
+    };
+  }
+
+  // Additional per-email throttle (real mailbox).
+  await assertOtpSendAllowed({ kind: 'community_join', email, ipHash });
 
   const code = String(randomInt(100000, 1000000));
   const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MINUTES * 60_000).toISOString();
@@ -112,6 +139,8 @@ export async function startPatientVerificationAction(formData: FormData) {
         : (mail.error ?? 'Could not send verification email. Try again later.'),
     );
   }
+
+  await recordOtpSend({ kind: 'community_join', email, ipHash });
 
   return {
     verificationId: verification.id,

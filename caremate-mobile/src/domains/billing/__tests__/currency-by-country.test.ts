@@ -26,6 +26,6 @@ describe('billingCurrencyForCountry', () => {
 
   it('maps currency to the matching gateway', () => {
     expect(billingProviderForCurrency('NGN')).toBe('paystack');
-    expect(billingProviderForCurrency('USD')).toBe('stripe');
+    expect(billingProviderForCurrency('USD')).toBe('paystack');
   });
 });

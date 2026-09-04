@@ -7,7 +7,7 @@ export type PriceRow = {
   billing_interval: BillingInterval;
   currency: BillingCurrency;
   amount_minor: number;
-  provider: 'paystack' | 'stripe';
+  provider: 'paystack';
   is_active: boolean;
 };
 

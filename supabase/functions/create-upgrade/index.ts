@@ -1,5 +1,6 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { finalizeSuccessfulPayment } from '../_shared/billing.ts';
+import { initializePaystackTransaction } from '../_shared/paystack.ts';
 import { assertAllowedReturnUrls } from '../_shared/return-url.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
 import { buildFamilyUpgradeQuote } from '../_shared/upgrade.ts';
@@ -61,6 +62,13 @@ Deno.serve(async (req) => {
       householdId: body.household_id,
     });
 
+    if (quote.provider !== 'paystack') {
+      return jsonResponse(
+        { error: 'Web upgrade checkout is Paystack-only. Update the Family catalog price.' },
+        500,
+      );
+    }
+
     const paymentId = crypto.randomUUID();
     const providerReference = `cm_up_${paymentId.replace(/-/g, '').slice(0, 20)}`;
     const now = new Date().toISOString();
@@ -72,7 +80,7 @@ Deno.serve(async (req) => {
       plan_type: 'family',
       billing_interval: quote.billingInterval,
       currency: quote.currency,
-      provider: quote.provider,
+      provider: 'paystack',
       amount_minor: quote.chargeMinor,
       status: 'pending',
       provider_reference: providerReference,
@@ -102,7 +110,7 @@ Deno.serve(async (req) => {
       const result = await finalizeSuccessfulPayment(service, {
         paymentId,
         providerReference,
-        provider: quote.provider,
+        provider: 'paystack',
         amountMinor: 0,
       });
       return jsonResponse({
@@ -115,126 +123,41 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (quote.provider === 'paystack') {
-      const secret = Deno.env.get('PAYSTACK_SECRET_KEY');
-      if (!secret) {
-        return jsonResponse({ error: 'Paystack is not configured' }, 500);
-      }
-
-      const paystackRes = await fetch('https://api.paystack.co/transaction/initialize', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${secret}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: user.email,
-          amount: quote.chargeMinor,
-          currency: 'NGN',
-          reference: providerReference,
-          callback_url: body.success_url,
-          metadata: {
-            payment_id: paymentId,
-            user_id: user.id,
-            intent: 'upgrade',
-            plan_type: 'family',
-            billing_interval: quote.billingInterval,
-            household_id: quote.householdId,
-            upgrade_from_subscription_id: quote.fromSubscriptionId,
-            cancel_url: body.cancel_url,
-          },
-        }),
-      });
-
-      const paystackJson = await paystackRes.json();
-      if (!paystackRes.ok || !paystackJson?.status) {
-        await service
-          .from('payments')
-          .update({
-            status: 'failed',
-            failure_reason: paystackJson?.message ?? 'Paystack initialize failed',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', paymentId);
-        return jsonResponse(
-          { error: paystackJson?.message ?? 'Paystack initialize failed' },
-          502,
-        );
-      }
-
-      return jsonResponse({
-        url: paystackJson.data.authorization_url as string,
+    const paystack = await initializePaystackTransaction({
+      email: user.email,
+      amountMinor: quote.chargeMinor,
+      currency: quote.currency,
+      reference: providerReference,
+      callbackUrl: body.success_url,
+      metadata: {
         payment_id: paymentId,
-        provider: 'paystack',
-        reference: providerReference,
-        charge_minor: quote.chargeMinor,
-        quote,
-        activated: false,
-      });
-    }
-
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeKey) {
-      return jsonResponse({ error: 'Stripe is not configured' }, 500);
-    }
-
-    const params = new URLSearchParams();
-    params.set('mode', 'payment');
-    params.set('success_url', body.success_url);
-    params.set('cancel_url', body.cancel_url);
-    params.set('client_reference_id', paymentId);
-    if (user.email) params.set('customer_email', user.email);
-    params.set('line_items[0][price_data][currency]', 'usd');
-    params.set('line_items[0][price_data][unit_amount]', String(quote.chargeMinor));
-    params.set(
-      'line_items[0][price_data][product_data][name]',
-      `CareMate Family upgrade (${quote.billingInterval})`,
-    );
-    params.set('line_items[0][quantity]', '1');
-    params.set('metadata[payment_id]', paymentId);
-    params.set('metadata[intent]', 'upgrade');
-    params.set('metadata[user_id]', user.id);
-    params.set('metadata[upgrade_from_subscription_id]', quote.fromSubscriptionId);
-    params.set('metadata[household_id]', quote.householdId);
-
-    const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${stripeKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        user_id: user.id,
+        intent: 'upgrade',
+        plan_type: 'family',
+        billing_interval: quote.billingInterval,
+        household_id: quote.householdId,
+        upgrade_from_subscription_id: quote.fromSubscriptionId,
+        cancel_url: body.cancel_url,
       },
-      body: params,
     });
 
-    const stripeJson = await stripeRes.json();
-    if (!stripeRes.ok || !stripeJson?.url) {
+    if (!paystack.ok) {
       await service
         .from('payments')
         .update({
           status: 'failed',
-          failure_reason: stripeJson?.error?.message ?? 'Stripe checkout failed',
+          failure_reason: paystack.message,
           updated_at: new Date().toISOString(),
         })
         .eq('id', paymentId);
-      return jsonResponse(
-        { error: stripeJson?.error?.message ?? 'Stripe checkout failed' },
-        502,
-      );
+      return jsonResponse({ error: paystack.message }, 502);
     }
 
-    await service
-      .from('payments')
-      .update({
-        provider_reference: stripeJson.id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', paymentId);
-
     return jsonResponse({
-      url: stripeJson.url as string,
+      url: paystack.authorizationUrl,
       payment_id: paymentId,
-      provider: 'stripe',
-      reference: stripeJson.id as string,
+      provider: 'paystack',
+      reference: providerReference,
       charge_minor: quote.chargeMinor,
       quote,
       activated: false,

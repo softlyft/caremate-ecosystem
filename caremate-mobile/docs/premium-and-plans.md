@@ -47,7 +47,7 @@ When a guest creates an account, existing guest-local data migrates per [Authent
 | Patient account + sync | Yes | Yes | Yes |
 | Core: Learn, Nearby, Emergency | Full | Full | Full |
 | Mini-apps | Free-tier limits (below) | Unlocked limits + ad-free on pregnancy/period | Same as Standard + expanded family |
-| **Child profiles in household** | **1 child max** | **1 child max** | **Multiple children** |
+| **Child profiles in household** | **1 child max** | **Up to 3 children** | **Up to 6 children** (household total, shared across adults) |
 | **Spouse connection** | No | No | Up to 3 invited adults (owner-only) |
 | AdMob banners | Shown per slot mode (free/guest) | **No AdMob** (existing Premium rule) | **No AdMob** |
 | House / sponsored catalog ads | Per portal slot mode | Per slot mode (pregnancy/period ad-free — see below) | Same as Standard |
@@ -120,13 +120,14 @@ All mini-apps require a **signed-in patient account**. Limits below apply after 
 | Capability | Free | Standard Premium | Family Premium |
 |------------|------|------------------|----------------|
 | Create household / parent setup | Yes | Yes | Yes |
-| Add **one child** | Yes | Yes | Yes |
-| Add **additional children** | No — upgrade to Family | No — upgrade to Family | Yes |
+| Add children | **1 child max** | **Up to 3 children** | **Up to 6 children** (household total) |
 | Connect **spouse** to household | No | No | Yes (up to 3 invited adults) |
 | Spouse sees shared children / household data | — | — | Yes (when connected) |
 | Invite / remove members | — | — | **Owner only** |
 
-Immunization and Medication trackers consume family members from the household. Free + Standard users managing more than one child requires Family Premium.
+Immunization and Medication trackers consume family members from the household. Child limits are **household totals**: on Family Premium, children an invited adult brings count toward the shared cap of 6.
+
+Free users who need more than one child upgrade to Standard (up to 3) or Family (up to 6). Standard users who need more than three upgrade to Family.
 
 ---
 
@@ -154,7 +155,7 @@ First launch → Guest
                  → Upgrade → Standard or Family Premium
 ```
 
-Premium in the app: `/(app)/profile/premium` → **StoreKit / Play Billing** only (`expo-iap`). Receipts are verified by `verify-store-purchase`, which writes the same `subscriptions` row shape as Paystack/Stripe webhooks. Website and community checkout still use Paystack (NGN) / Stripe (USD) on the hosted payment app; those entitlements also unlock the app. Portal admins manage catalog prices at `/dashboard/billing` ([Portal billing](../../caremate-admin-portal/docs/billing.md)).
+Premium in the app: `/(app)/profile/premium` → **StoreKit / Play Billing** only (`expo-iap`). Receipts are verified by `verify-store-purchase`, which writes the same `subscriptions` row shape as Paystack webhooks. Website and community checkout use **Paystack for both NGN and USD** on the hosted payment app; those entitlements also unlock the app. Portal admins manage catalog prices at `/dashboard/billing` ([Portal billing](../../caremate-admin-portal/docs/billing.md)).
 
 ### Checkout currency by country
 
@@ -165,7 +166,7 @@ Premium in the app: `/(app)/profile/premium` → **StoreKit / Play Billing** onl
 | Country | Currency | Gateway |
 |---------|----------|---------|
 | Nigeria (`NG`) | NGN | Paystack |
-| All others (incl. Global / unset) | USD | Stripe |
+| All others (incl. Global / unset) | USD | Paystack |
 
 Overrides live in `caremate-mobile/src/domains/billing/currency-by-country.ts` (`BILLING_CURRENCY_BY_COUNTRY` + `DEFAULT_BILLING_CURRENCY`) for web/community routing. Catalog must still have an active `subscription_prices` row for that currency.
 
@@ -219,8 +220,8 @@ Use this when wiring code; items are **open** unless marked done.
 | Checkup blur (2 this year; next year all) | Checkup planner UI | Done |
 | Immunization blur (first 2 months) | Immunization UI | Done |
 | Pregnancy/period ad-free on Premium | `resolveAdForSlot` + `shouldSuppressAdForUser` | Done |
-| Family: 1 child on Free/Standard | Family setup + hub | Done |
-| Family: up to 3 adult invites + extra children on Family | Family hub + RPC seat/owner gates | Done |
+| Family: 1 / 3 / 6 children (Free / Standard / Family) | Family setup + hub | Done |
+| Family: up to 3 adult invites on Family | Family hub + RPC seat/owner gates | Done |
 | Paywall / upgrade CTAs | `UpgradePrompt`, `PremiumLockedOverlay` | Done |
 | Standard → Family upgrade (credit + new period) | `quote-upgrade` / `create-upgrade` + Premium screen | Done |
 | QA cases | [QA Test Cases](./qa-test-cases.md) § Premium | Ready to run |

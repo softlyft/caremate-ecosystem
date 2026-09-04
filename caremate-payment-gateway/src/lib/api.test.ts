@@ -39,7 +39,7 @@ describe('payment api', () => {
         billing_interval: 'monthly',
         currency: 'USD',
         amount_minor: 999,
-        provider: 'stripe',
+        provider: 'paystack',
         is_active: true,
       },
       error: null,
@@ -78,7 +78,7 @@ describe('payment api', () => {
     invoke.mockResolvedValue({
       data: {
         url: 'https://pay.example/checkout',
-        provider: 'stripe',
+        provider: 'paystack',
         payment_id: 'pay-1',
         reference: 'ref-1',
       },
@@ -94,7 +94,7 @@ describe('payment api', () => {
         successUrl: 'caremate://ok',
         cancelUrl: 'caremate://cancel',
       }),
-    ).resolves.toMatchObject({ url: 'https://pay.example/checkout', provider: 'stripe' });
+    ).resolves.toMatchObject({ url: 'https://pay.example/checkout', provider: 'paystack' });
 
     expect(
       invoke,

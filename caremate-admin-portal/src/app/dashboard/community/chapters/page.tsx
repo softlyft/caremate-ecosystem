@@ -1,6 +1,7 @@
 import { listChaptersPage, listCountries } from '@/domains/community/repository';
 import { CreateChapterForm } from '@/features/community/create-chapter-form';
 import { ChaptersTable } from '@/features/community/chapters-table';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { emptyPage, parsePage, type PaginatedResult } from '@/lib/pagination';
 import { PageHeader } from '@/components/page-header';
 import { PaginationBar } from '@/components/pagination-bar';
@@ -18,6 +19,18 @@ export default async function CommunityChaptersPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Chapters"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   const { page: pageParam } = await searchParams;
   const page = parsePage(pageParam);
 

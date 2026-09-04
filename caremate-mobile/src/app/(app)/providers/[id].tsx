@@ -185,11 +185,7 @@ export default function ProviderDetailScreen() {
   const Icon = theme.icon;
 
   useLayoutEffect(() => {
-    const shortTitle = provider?.name
-      ? provider.name.length > 26
-        ? `${provider.name.slice(0, 26).trim()}…`
-        : provider.name
-      : t('nearby.detail.provider');
+    const shortTitle = provider?.name?.trim() || t('nearby.detail.provider');
 
     navigation.setOptions(
       glossyStackHeaderOptions({

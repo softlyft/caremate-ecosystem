@@ -11,10 +11,12 @@ export { isLocalEntitlementActive } from '@/domains/billing/period';
 
 export {
   FAMILY_ADULT_INVITE_LIMIT,
+  FAMILY_FAMILY_CHILD_LIMIT,
   FREE_CHECKUP_VISIBLE_COUNT,
   FREE_FAMILY_CHILD_LIMIT,
   FREE_IMMUNIZATION_MAX_WEEKS,
   FREE_MEDICATION_LIMIT,
+  STANDARD_FAMILY_CHILD_LIMIT,
   canActivateMedication,
   canAddChild,
   canAddMedication,
