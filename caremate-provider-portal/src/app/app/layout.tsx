@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getProviderSession } from '@/lib/auth';
 import { getEnabledModules } from '@/domains/modules/repository';
+import { getProviderNavBadges } from '@/lib/nav-badges';
 import { AppShell } from '@/components/app-shell';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -9,7 +10,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect('/login');
   }
 
-  const enabled = await getEnabledModules(session.activeOrganizationId);
+  const [enabled, navBadges] = await Promise.all([
+    getEnabledModules(session.activeOrganizationId),
+    getProviderNavBadges(session.activeOrganizationId),
+  ]);
 
   return (
     <AppShell
@@ -17,6 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       role={session.activeRole}
       organizationName={session.activeOrganizationName}
       enabledModules={[...enabled]}
+      navBadges={navBadges}
     >
       {children}
     </AppShell>

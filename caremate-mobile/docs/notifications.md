@@ -72,7 +72,7 @@ Home header Bell
 - `expo-notifications` + `notification_devices` (RLS own rows)
 - Mobile `syncPushRegistration` / `clearPushRegistration` (guests skip; prefs off clears token)
 - Edge `_shared/push.ts` → Expo Push API; `notify-family-email` sends request push (+ SES) to receiver and accept/decline push to sender
-- `notify-message` — org / direct message push (+ cloud inbox row)
+- `notify-message` — org / direct message **push only** (Messages tab is the durable record; no bell inbox row)
 - `notify-provider-connection` — patient ↔ provider lifecycle push (+ cloud inbox row)
 - `notify-provider-document` — provider shared a document → patient in-app + push
 - `notify-medication` — dose due / missed / refill → patient in-app + Expo push (idempotent dedupe keys)
@@ -154,8 +154,8 @@ Home header Bell
 | Appointment at provider (future) | ✅ | ✅ (Self) | ⚪ | |
 | Provider connection request / accept / decline / cancel / disconnect | ✅ | ✅ (Patient when applicable) | — | Edge `notify-provider-connection` |
 | Provider shared a document | ✅ | ✅ (Patient) | — | Edge `notify-provider-document`; dedupe `providers:document_uploaded:{id}`; hint path `/profile/documents` |
-| Org / clinic message | Messages inbox | ✅ (Self) | — | Edge `notify-message` (org mode); deep link `/messages/{id}` |
-| Direct message (practitioner chat) | Messages inbox | ✅ (Self) | — | Edge `notify-message` (`mode: 'direct'`) |
+| Org / clinic message | Messages inbox | ✅ (Self) | — | Edge `notify-message` (org mode); push only — no bell card; deep link `/messages/{id}` |
+| Direct message (practitioner chat) | Messages inbox | ✅ (Self) | — | Edge `notify-message` (`mode: 'direct'`); push only — no bell card |
 | Notifications bell inbox | ✅ | — | — | Separate from Messages (family, meds tips, documents, etc.) |
 
 ### Sync / reliability

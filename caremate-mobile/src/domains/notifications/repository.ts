@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, ne, sql } from 'drizzle-orm';
 
 import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase } from '@/database/client';
@@ -18,6 +18,16 @@ type NotificationSyncPayload = InAppNotification & {
   syncStatus?: string;
   deletedAt?: string | null;
 };
+
+/** Messaging uses the Messages tab + OS push; keep it out of the bell inbox. */
+function isBellInboxNotification(item: {
+  domain: string;
+  data?: Record<string, unknown> | null;
+}): boolean {
+  if (item.domain === 'messaging') return false;
+  if (item.data && item.data.inbox === false) return false;
+  return true;
+}
 
 function mapNotification(row: NotificationRow): InAppNotification {
   return {
@@ -56,10 +66,16 @@ class NotificationRepository extends BaseRepository {
     const rows = await db
       .select()
       .from(notifications)
-      .where(and(eq(notifications.userId, userId), isNull(notifications.deletedAt)))
+      .where(
+        and(
+          eq(notifications.userId, userId),
+          isNull(notifications.deletedAt),
+          ne(notifications.domain, 'messaging'),
+        ),
+      )
       .orderBy(desc(notifications.createdAt))
       .limit(limit);
-    return rows.map(mapNotification);
+    return rows.map(mapNotification).filter(isBellInboxNotification);
   }
 
   async countUnread(userId: string): Promise<number> {
@@ -72,6 +88,7 @@ class NotificationRepository extends BaseRepository {
           eq(notifications.userId, userId),
           isNull(notifications.deletedAt),
           isNull(notifications.readAt),
+          ne(notifications.domain, 'messaging'),
         ),
       );
     return Number(row?.count ?? 0);
@@ -391,6 +408,15 @@ class NotificationRepository extends BaseRepository {
     const db = getDatabase();
 
     for (const remote of data) {
+      const remoteDomain = typeof remote.domain === 'string' ? remote.domain : '';
+      const remoteData =
+        remote.data && typeof remote.data === 'object' && !Array.isArray(remote.data)
+          ? (remote.data as Record<string, unknown>)
+          : {};
+      if (!isBellInboxNotification({ domain: remoteDomain, data: remoteData })) {
+        continue;
+      }
+
       const remoteId = String(remote.id);
       const dedupeKey =
         typeof remote.dedupe_key === 'string' && remote.dedupe_key.trim()

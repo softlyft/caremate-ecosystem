@@ -15,8 +15,14 @@ import {
   isCarePortalNavItemActive,
   type CarePortalNavGroup,
 } from '@/lib/care-portal-nav';
+import type { CarePortalNavBadges } from '@/lib/nav-badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
+function formatNavBadgeCount(count: number): string {
+  if (count > 99) return '99+';
+  return String(count);
+}
 
 export function CarePortalShell({
   children,
@@ -26,6 +32,7 @@ export function CarePortalShell({
   workspaceSubtitle,
   navGroups,
   enabledModules,
+  navBadges,
 }: {
   children: React.ReactNode;
   email: string;
@@ -34,6 +41,8 @@ export function CarePortalShell({
   workspaceSubtitle: string;
   navGroups: CarePortalNavGroup[];
   enabledModules?: ProviderModuleKey[];
+  /** Inbound pending counts keyed by nav href. */
+  navBadges?: CarePortalNavBadges;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -84,6 +93,7 @@ export function CarePortalShell({
               </p>
               {group.items.map(({ href, label, icon: Icon, ...item }) => {
                 const active = isCarePortalNavItemActive(pathname, { href, label, icon: Icon, ...item });
+                const badgeCount = navBadges?.[href] ?? 0;
                 return (
                   <Link
                     key={href}
@@ -103,11 +113,19 @@ export function CarePortalShell({
                     />
                     <Icon
                       className={cn(
-                        'h-4 w-4 transition-colors',
+                        'h-4 w-4 shrink-0 transition-colors',
                         active ? 'text-primary' : 'text-muted group-hover:text-foreground',
                       )}
                     />
-                    {label}
+                    <span className="min-w-0 flex-1 truncate">{label}</span>
+                    {badgeCount > 0 ? (
+                      <span
+                        className="ml-auto inline-flex min-w-[1.25rem] shrink-0 items-center justify-center rounded-full bg-warning px-1.5 py-0.5 text-[0.65rem] font-semibold leading-none text-white"
+                        aria-label={`${badgeCount} pending`}
+                      >
+                        {formatNavBadgeCount(badgeCount)}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}
