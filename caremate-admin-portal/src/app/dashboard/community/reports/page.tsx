@@ -1,8 +1,21 @@
 import { getCommunityStats } from '@/domains/community/repository';
+import { getCommunityManageSession } from '@/lib/community-access';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function CommunityReportsPage() {
+  const session = await getCommunityManageSession();
+  if (!session) {
+    return (
+      <div>
+        <PageHeader
+          title="Community reports"
+          description="You do not have permission to manage community."
+        />
+      </div>
+    );
+  }
+
   let stats;
   try {
     stats = await getCommunityStats();

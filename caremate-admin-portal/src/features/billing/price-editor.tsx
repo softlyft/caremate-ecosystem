@@ -43,7 +43,7 @@ function groupByCurrency(prices: SubscriptionPrice[]): CurrencyGroup[] {
     groups.push({
       currency,
       provider,
-      providerLabel: provider === 'paystack' ? 'Paystack' : 'Stripe',
+      providerLabel: provider === 'paystack' ? 'Paystack' : provider,
       prices: list,
     });
   }
@@ -116,27 +116,17 @@ function PriceRow({
       </FormField>
 
       <FormField
-        label={price.provider === 'stripe' ? 'Stripe price ID' : 'Paystack plan code'}
-        htmlFor={price.provider === 'stripe' ? `${price.id}-stripe` : `${price.id}-paystack`}
+        label="Paystack plan code"
+        htmlFor={`${price.id}-paystack`}
         compact
       >
-        {price.provider === 'stripe' ? (
-          <Input
-            id={`${price.id}-stripe`}
-            name="stripe_price_id"
-            defaultValue={price.stripe_price_id ?? ''}
-            disabled={!canEdit || pending}
-            placeholder="Optional · price_…"
-          />
-        ) : (
-          <Input
-            id={`${price.id}-paystack`}
-            name="paystack_plan_code"
-            defaultValue={price.paystack_plan_code ?? ''}
-            disabled={!canEdit || pending}
-            placeholder="Optional · PLN_…"
-          />
-        )}
+        <Input
+          id={`${price.id}-paystack`}
+          name="paystack_plan_code"
+          defaultValue={price.paystack_plan_code ?? ''}
+          disabled={!canEdit || pending}
+          placeholder="Optional · PLN_…"
+        />
       </FormField>
 
       <div className="flex flex-wrap items-center gap-3 sm:justify-end">
@@ -189,9 +179,8 @@ export function PriceEditor({ prices, canEdit }: { prices: SubscriptionPrice[]; 
             <Badge variant="secondary">{group.currency}</Badge>
             <Badge>{group.providerLabel}</Badge>
             <p className="w-full text-xs text-muted sm:ml-auto sm:w-auto">
-              {group.currency === 'NGN'
-                ? 'Checkout uses Paystack for NGN prices.'
-                : 'Checkout uses Stripe for USD prices.'}
+              Checkout uses Paystack for {group.currency} prices. Mobile Premium uses Apple / Google
+              store billing.
             </p>
           </header>
 
@@ -210,7 +199,6 @@ export function PriceEditor({ prices, canEdit }: { prices: SubscriptionPrice[]; 
                         id: price.id,
                         amount_minor: Math.round(amountMajor * 100),
                         is_active: form.get('is_active') === 'on',
-                        stripe_price_id: String(form.get('stripe_price_id') || '') || null,
                         paystack_plan_code:
                           String(form.get('paystack_plan_code') || '') || null,
                       });

@@ -79,7 +79,7 @@ Vite bakes these in at **build** time — set them in Amplify **before** deploy 
 | `VITE_WEBSITE_URL` | Marketing site origin (default returns for `source=website`) |
 | `VITE_COMMUNITY_PORTAL_URL` | Community origin (default returns for `source=community`) |
 
-Paystack / Stripe **secrets** stay on Supabase Edge Functions (`create-checkout`, webhooks) — not in this Amplify app.
+Paystack **secrets** stay on Supabase Edge Functions (`create-checkout`, webhooks) — not in this Amplify app.
 
 After the payment domain is live, point the mobile app’s hosted checkout base URL at it (see CareMate billing / env config for the payment host).
 

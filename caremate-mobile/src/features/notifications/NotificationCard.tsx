@@ -1,14 +1,11 @@
 import { Bell, BellRing } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import type { InAppNotification } from '@/domains/notifications/types';
-import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
+import { fontFamily, palette, radius, spacing } from '@/theme';
 
 const ACCENT = '#4F46E5';
-const ACCENT_SOFT = '#EEF2FF';
-const ACCENT_MID = '#C7D2FE';
 
 function formatRelativeTime(iso: string): string {
   const created = new Date(iso).getTime();
@@ -41,7 +38,7 @@ type NotificationCardProps = {
   notification: InAppNotification;
 };
 
-/** Read-only inbox card — title + body only (no CTA). */
+/** Compact inbox row — title + body + time (no CTA). */
 export function NotificationCard({ notification }: NotificationCardProps) {
   const unread = !notification.readAt;
   const Icon = unread ? BellRing : Bell;
@@ -49,126 +46,101 @@ export function NotificationCard({ notification }: NotificationCardProps) {
   return (
     <View
       accessibilityRole="text"
-      style={[styles.card, shadow.soft, unread ? styles.cardUnread : styles.cardRead]}
+      style={[styles.row, unread ? styles.rowUnread : null]}
     >
-      <LinearGradientFill
-        colors={
-          unread
-            ? [
-                { offset: '0%', color: ACCENT_SOFT },
-                { offset: '55%', color: '#F5F3FF' },
-                { offset: '100%', color: '#FFFFFF' },
-              ]
-            : [
-                { offset: '0%', color: '#F8FAFC' },
-                { offset: '100%', color: '#FFFFFF' },
-              ]
-        }
-        angle={128}
-        style={styles.gradient}
-      >
-        {unread ? <View style={styles.accentBar} /> : null}
+      <View style={[styles.iconBadge, unread ? styles.iconUnread : styles.iconRead]}>
+        <Icon color={unread ? ACCENT : '#64748B'} size={16} strokeWidth={2.2} />
+      </View>
 
-        <View style={styles.row}>
-          <View
-            style={[
-              styles.iconBadge,
-              unread ? { backgroundColor: ACCENT_MID } : { backgroundColor: '#F1F5F9' },
-            ]}
+      <View style={styles.copy}>
+        <View style={styles.header}>
+          <AppText
+            variant="body"
+            style={[styles.title, unread ? styles.titleUnread : null]}
+            numberOfLines={1}
           >
-            <Icon color={unread ? ACCENT : '#64748B'} size={18} strokeWidth={2.2} />
-          </View>
-
-          <View style={styles.copy}>
-            <View style={styles.header}>
-              <AppText variant="cardTitle" style={styles.title} numberOfLines={2}>
-                {notification.title}
-              </AppText>
-              {unread ? <View style={styles.dot} /> : null}
-            </View>
-            <AppText variant="quickActionSubtitle" style={styles.body}>
-              {notification.body}
-            </AppText>
-            <AppText variant="caption" style={[styles.time, unread ? styles.timeUnread : null]}>
-              {formatRelativeTime(notification.createdAt)}
-            </AppText>
-          </View>
+            {notification.title}
+          </AppText>
+          <AppText variant="caption" style={[styles.time, unread ? styles.timeUnread : null]}>
+            {formatRelativeTime(notification.createdAt)}
+          </AppText>
         </View>
-      </LinearGradientFill>
+        <AppText variant="caption" style={styles.body} numberOfLines={2}>
+          {notification.body}
+        </AppText>
+      </View>
+
+      {unread ? <View style={styles.dot} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: radius.xxl,
-    overflow: 'hidden',
-    borderWidth: 1,
-    backgroundColor: palette.background,
-  },
-  cardUnread: {
-    borderColor: 'rgba(79, 70, 229, 0.28)',
-  },
-  cardRead: {
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-  },
-  gradient: {
-    padding: spacing.md,
-  },
-  accentBar: {
-    position: 'absolute',
-    left: 0,
-    top: 14,
-    bottom: 14,
-    width: 4,
-    borderTopRightRadius: 4,
-    borderBottomRightRadius: 4,
-    backgroundColor: ACCENT,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.xs,
+  },
+  rowUnread: {
+    backgroundColor: 'rgba(79, 70, 229, 0.04)',
+    marginHorizontal: -spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
   },
   iconBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.lg,
+    width: 32,
+    height: 32,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 1,
+  },
+  iconUnread: {
+    backgroundColor: '#E0E7FF',
+  },
+  iconRead: {
+    backgroundColor: '#F1F5F9',
   },
   copy: {
     flex: 1,
-    gap: spacing.xs,
+    gap: 2,
+    minWidth: 0,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   title: {
     flex: 1,
     color: palette.text,
-    letterSpacing: -0.2,
+    fontFamily: fontFamily.medium,
+    letterSpacing: -0.1,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginTop: 6,
-    backgroundColor: ACCENT,
+  titleUnread: {
+    fontFamily: fontFamily.semiBold,
+    color: palette.text,
   },
   body: {
     color: palette.textSecondary,
-    lineHeight: 22,
+    lineHeight: 18,
   },
   time: {
-    marginTop: 2,
     color: palette.textSecondary,
     fontFamily: fontFamily.medium,
+    flexShrink: 0,
   },
   timeUnread: {
     color: '#6366F1',
     fontFamily: fontFamily.semiBold,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    marginTop: 7,
+    backgroundColor: ACCENT,
   },
 });

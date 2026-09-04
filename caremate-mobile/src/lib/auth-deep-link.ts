@@ -114,19 +114,19 @@ export async function handleAuthCallbackUrl(
     return 'recovery';
   }
 
+  // Implicit-flow tokens: only accept password-recovery (never plant arbitrary sessions).
   const hash = normalized.includes('#') ? normalized.split('#')[1] : '';
   if (hash) {
     const params = new URLSearchParams(hash);
     const access_token = params.get('access_token');
     const refresh_token = params.get('refresh_token');
     const type = params.get('type');
-    if (access_token && refresh_token) {
+    if (access_token && refresh_token && type === 'recovery') {
       await options.setSession({ access_token, refresh_token });
-      return type === 'recovery' ? 'recovery' : 'session';
+      return 'recovery';
     }
   }
 
-  // Some clients put tokens in query string instead of hash
   const accessQuery = parsed.queryParams?.access_token;
   const refreshQuery = parsed.queryParams?.refresh_token;
   const access_token = typeof accessQuery === 'string' ? accessQuery : null;
@@ -134,9 +134,9 @@ export async function handleAuthCallbackUrl(
   const typeParam = parsed.queryParams?.type;
   const type = typeof typeParam === 'string' ? typeParam : null;
 
-  if (access_token && refresh_token) {
+  if (access_token && refresh_token && type === 'recovery') {
     await options.setSession({ access_token, refresh_token });
-    return type === 'recovery' ? 'recovery' : 'session';
+    return 'recovery';
   }
 
   return null;

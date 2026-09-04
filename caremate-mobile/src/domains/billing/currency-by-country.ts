@@ -13,18 +13,18 @@ export const DEFAULT_BILLING_CURRENCY: BillingCurrency = 'USD';
  * Per-country billing currency overrides (ISO 3166-1 alpha-2).
  *
  * Examples:
- * - Move Nigeria to Stripe USD: delete or comment out `NG: 'NGN'`
- * - Charge Ghana in NGN later: add `GH: 'NGN'` (only if catalog + gateway support it)
+ * - Charge only USD worldwide: delete or comment out `NG: 'NGN'`
+ * - Charge Ghana in NGN later: add `GH: 'NGN'` (only if catalog + Paystack support it)
  */
 export const BILLING_CURRENCY_BY_COUNTRY: Readonly<Record<string, BillingCurrency>> = {
   NG: 'NGN',
 };
 
-/** Currency → web gateway. Catalog rows must match (NGN+paystack, USD+stripe). Store IAP uses apple/google. */
-type WebBillingProvider = Exclude<BillingProvider, 'admin' | 'apple' | 'google'>;
+/** Currency → web gateway. Catalog rows must match (NGN/USD + paystack). Store IAP uses apple/google. */
+type WebBillingProvider = Exclude<BillingProvider, 'admin' | 'apple' | 'google' | 'stripe'>;
 const PROVIDER_BY_CURRENCY: Readonly<Record<BillingCurrency, WebBillingProvider>> = {
   NGN: 'paystack',
-  USD: 'stripe',
+  USD: 'paystack',
 };
 
 /**

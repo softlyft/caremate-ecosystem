@@ -251,7 +251,7 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | PM-03 | P1 | Signed-in, household exists | Choose Family plan | Family plan selection is allowed and checkout path can start. |
 | PM-04 | P1 | Signed-in, iOS or Android | Choose Personal plan and tap subscribe | Opens StoreKit / Play Billing for that product; failures are shown as user-facing errors, not crashes. |
 | PM-04a | P1 | Signed-in | Premium pay buttons | Shows App Store or Google Play price only — no Paystack/Stripe or website CTA. |
-| PM-04b | P1 | Website or community checkout | Pay on pay.getcaremate.com | Paystack (NGN) or Stripe (USD); success tells the user to open the app. Deep link `caremate://billing/success` still verifies legacy/web returns. |
+| PM-04b | P1 | Website or community checkout | Pay on pay.getcaremate.com | Paystack (NGN or USD); success tells the user to open the app. Deep link `caremate://billing/success` still verifies web returns. |
 | PM-05 | P1 | Signed-in, active Premium | Airplane mode for remainder of paid period | Profile still shows Premium; AdMob stays suppressed until `current_period_end`. |
 | PM-06 | P1 | Signed-in, Premium period ended offline | Open app offline after period end | Tier falls back to Free locally without needing network. |
 | PM-06b | P2 | Guest | Open Premium and try upgrade CTA | Guest is routed to login/sign-in path. |
@@ -450,7 +450,9 @@ Spec: [Premium & plans](./premium-and-plans.md). Gates are enforced — run thes
 | PG-08 | P1 | Standard Premium | Pregnancy / Period | No ads in mini-app slots |
 | PG-09 | P0 | Free household | Add 2nd child | Blocked; Family upgrade CTA |
 | PG-10 | P0 | Free / Standard | Invite family member | Blocked; Family upgrade CTA |
-| PG-11 | P0 | Family Premium owner | Add multiple children + up to 3 adult invites | Allowed per family flows |
+| PG-11 | P0 | Family Premium owner | Add up to 6 children + up to 3 adult invites | Allowed; 7th child blocked |
+| PG-11b | P0 | Free | Try add 2nd child | Blocked; upgrade copy mentions Standard (3) / Family (6) |
+| PG-11c | P0 | Standard Premium | Add up to 3 children; try 4th | 4th blocked; upgrade to Family |
 | PG-12 | P1 | Guest | Learn + Nearby + Emergency | Full access without account |
 
 ---

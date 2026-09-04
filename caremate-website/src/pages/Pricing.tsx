@@ -30,7 +30,7 @@ export function PricingPage() {
           <p className={styles.lead}>
             Simple plans that put trust and adoption first. Start free, upgrade when deeper insights,
             documents, and family coordination will help — not because another screen is locked.
-            Pay here with Paystack (Naira) or Stripe (USD). The same account unlocks Premium in the
+            Pay here with Paystack (Naira or USD). The same account unlocks Premium in the
             CareMate app.
           </p>
           <div className={styles.ctaRow}>
@@ -153,7 +153,7 @@ export function PricingPage() {
                     ? 'Start free in the app'
                     : checkoutPlan === 'family'
                       ? 'Subscribe to Family'
-                      : 'Subscribe with Paystack / Stripe'}
+                      : 'Subscribe with Paystack'}
                 </a>
                 {checkoutPlan === 'family' ? (
                   <p className={styles.planNote}>
@@ -189,7 +189,7 @@ export function PricingPage() {
           <h2 id="closing-heading">Trust first. Adoption second. Revenue third.</h2>
           <p>
             If CareMate becomes an indispensable part of your healthcare journey, sustainable
-            support for the product follows. Subscribe on this page with Paystack or Stripe, or in
+            support for the product follows. Subscribe on this page with Paystack, or in
             the CareMate app through Apple or Google billing. Either way, Premium unlocks on the
             same account.
           </p>

@@ -67,7 +67,7 @@ export function PrivacyPage() {
           </li>
           <li>
             <strong>Payment metadata</strong> — subscription status and billing references;
-            card/wallet details are handled by payment partners (for example Paystack or Stripe) or
+            card/wallet details are handled by payment partners (for example Paystack) or
             by Apple / Google for in-app purchases — SoftLyft does not store full card numbers
           </li>
         </ul>
@@ -130,7 +130,7 @@ export function PrivacyPage() {
             under contracts that limit use to providing services to SoftLyft
           </li>
           <li>
-            <strong>Payment partners</strong> — Paystack, Stripe, Apple, or Google as applicable
+            <strong>Payment partners</strong> — Paystack, Apple, or Google as applicable
           </li>
           <li>
             <strong>People you choose</strong> — family members you invite, providers you connect

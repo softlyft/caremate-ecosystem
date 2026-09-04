@@ -11,10 +11,18 @@ type UpgradePromptProps = {
   title: string;
   message: string;
   compact?: boolean;
+  /** When false, hide the upgrade CTA (e.g. already on top plan). */
+  showCta?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function UpgradePrompt({ title, message, compact = false, style }: UpgradePromptProps) {
+export function UpgradePrompt({
+  title,
+  message,
+  compact = false,
+  showCta = true,
+  style,
+}: UpgradePromptProps) {
   const { t } = useTranslation();
 
   return (
@@ -30,14 +38,16 @@ export function UpgradePrompt({ title, message, compact = false, style }: Upgrad
           {message}
         </AppText>
       </View>
-      <Button
-        label={t('profile.premium.upgradeCta')}
-        size="sm"
-        style={styles.cta}
-        textStyle={styles.ctaLabel}
-        onPress={() => router.push('/(app)/profile/premium')}
-        accessibilityLabel={t('profile.premium.upgradeCta')}
-      />
+      {showCta ? (
+        <Button
+          label={t('profile.premium.upgradeCta')}
+          size="sm"
+          style={styles.cta}
+          textStyle={styles.ctaLabel}
+          onPress={() => router.push('/(app)/profile/premium')}
+          accessibilityLabel={t('profile.premium.upgradeCta')}
+        />
+      ) : null}
     </Card>
   );
 }

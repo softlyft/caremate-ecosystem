@@ -266,7 +266,13 @@ export default function FamilyHubScreen() {
       (member) => member.kind === 'child',
     ).length;
     if (!canAddChild(tier, currentChildCount)) {
-      Alert.alert(t('family.childLimitTitle'), t('family.childLimitMessage'));
+      const limitMessage =
+        tier === 'family'
+          ? t('family.childLimitMessageFamily')
+          : tier === 'personal'
+            ? t('family.childLimitMessageStandard')
+            : t('family.childLimitMessageFree');
+      Alert.alert(t('family.childLimitTitle'), limitMessage);
       return;
     }
     const validated = validateChildNameAndDob(childName, childDob);
@@ -597,8 +603,21 @@ export default function FamilyHubScreen() {
 
             {!canAddAnotherChild ? (
               <UpgradePrompt
-                title={t('profile.premium.familyChildLimitTitle')}
-                message={t('profile.premium.familyChildLimitMessage')}
+                title={
+                  tier === 'family'
+                    ? t('profile.premium.familyChildLimitTitleFamily')
+                    : tier === 'personal'
+                      ? t('profile.premium.familyChildLimitTitleStandard')
+                      : t('profile.premium.familyChildLimitTitleFree')
+                }
+                message={
+                  tier === 'family'
+                    ? t('profile.premium.familyChildLimitMessageFamily')
+                    : tier === 'personal'
+                      ? t('profile.premium.familyChildLimitMessageStandard')
+                      : t('profile.premium.familyChildLimitMessageFree')
+                }
+                showCta={tier !== 'family'}
               />
             ) : (
               <>

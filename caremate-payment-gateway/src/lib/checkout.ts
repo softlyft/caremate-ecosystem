@@ -117,8 +117,8 @@ export function intervalLabel(interval: BillingInterval): string {
   return interval === 'yearly' ? 'Yearly' : 'Monthly';
 }
 
-export function providerForCurrency(currency: BillingCurrency): 'paystack' | 'stripe' {
-  return currency === 'NGN' ? 'paystack' : 'stripe';
+export function providerForCurrency(_currency: BillingCurrency): 'paystack' {
+  return 'paystack';
 }
 
 export function formatAmount(amountMinor: number, currency: BillingCurrency): string {

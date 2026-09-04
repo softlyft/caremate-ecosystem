@@ -31,7 +31,13 @@ export default function FamilyReviewScreen() {
 
   async function saveFamily() {
     if (draftChildren.length > maxChildrenForTier(tier)) {
-      Alert.alert(t('family.childLimitTitle'), t('family.childLimitMessage'));
+      const limitMessage =
+        tier === 'family'
+          ? t('family.childLimitMessageFamily')
+          : tier === 'personal'
+            ? t('family.childLimitMessageStandard')
+            : t('family.childLimitMessageFree');
+      Alert.alert(t('family.childLimitTitle'), limitMessage);
       return;
     }
     setSaving(true);
