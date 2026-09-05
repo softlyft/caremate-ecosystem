@@ -54,14 +54,14 @@
   "account": {
     "title": "Asusu",
     "delete": "Share asusu",
-    "deleteHint": "Zai share asusun CareMate da bayanan da aka haɗa har abada. Ba za a iya mayar da shi ba.",
+    "deleteHint": "Yana share bayanan ku na CareMate kuma yana fita daga shiga har abada. Tarihin kulawa tare da masu bayar da sabis na iya wanzuwa ba tare da bayanin sirri ba.",
     "deleteConfirmTitle": "A share asusunka?",
-    "deleteConfirmMessage": "Bayanan martaba, katin gaggawa, hanyoyin iyali, da kayan aikin lafiya da aka haɗa za a share su har abada. Biyan kuɗi masu aiki za a soke su idan ya yiwu.",
+    "deleteConfirmMessage": "Bayanan martaba, katin gaggawa, hanyoyin iyali, da kayan aikin lafiya za a share su har abada. Ba za ku iya shiga kuma ba. Saƙonni da tarihi tare da masu sabis ko inshora na iya wanzuwa a matsayin Deleted user. Biyan kuɗi masu aiki za a soke su idan ya yiwu.",
     "deleteConfirmAction": "Share har abada",
     "cancel": "Soke",
     "deleting": "Ana sharewa…",
     "deleteFailed": "An kasa share asusu",
     "deleteSuccessTitle": "An share asusu",
-    "deleteSuccessMessage": "An share asusun CareMate ɗinka. Za ka iya ƙirƙira sabo kowane lokaci."
+    "deleteSuccessMessage": "An share bayanan ku na CareMate. Kuna iya ƙirƙirar sabon asusu kowane lokaci da wannan imel."
   }
 }

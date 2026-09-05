@@ -2486,6 +2486,7 @@ export type Database = {
           country_code: string | null
           created_at: string
           date_of_birth: string | null
+          deleted_at: string | null
           email: string | null
           emergency_share_token: string | null
           full_name: string
@@ -2509,6 +2510,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string
           date_of_birth?: string | null
+          deleted_at?: string | null
           email?: string | null
           emergency_share_token?: string | null
           full_name: string
@@ -2532,6 +2534,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string
           date_of_birth?: string | null
+          deleted_at?: string | null
           email?: string | null
           emergency_share_token?: string | null
           full_name?: string

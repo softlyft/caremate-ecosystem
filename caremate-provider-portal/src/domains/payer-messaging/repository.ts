@@ -12,6 +12,7 @@ import {
   isHealthDataGatewayConfigured,
 } from '@/lib/health-data-gateway';
 import type { Json } from '@/types/database';
+import { displayPatientName } from '@/domains/messaging/sender-display';
 
 export type PayerMessageConversation = {
   id: string;
@@ -70,7 +71,10 @@ async function enrichPayerInboxRows(
   ];
 
   const [{ data: profiles }, { data: participants }, { data: providerPartners }] = await Promise.all([
-    supabase.from('profiles').select('user_id, full_name, patient_id').in('user_id', patientIds),
+    supabase
+      .from('profiles')
+      .select('user_id, full_name, patient_id, deleted_at')
+      .in('user_id', patientIds),
     supabase
       .from('message_participants')
       .select('conversation_id, last_read_at')
@@ -83,10 +87,14 @@ async function enrichPayerInboxRows(
   ]);
 
   const profileByUser = new Map(
-    (profiles ?? []).map((p: { user_id: string; full_name: string; patient_id: string | null }) => [
-      p.user_id,
-      p,
-    ]),
+    (profiles ?? []).map(
+      (p: {
+        user_id: string;
+        full_name: string;
+        patient_id: string | null;
+        deleted_at: string | null;
+      }) => [p.user_id, p],
+    ),
   );
   const readByConv = new Map(
     (participants ?? []).map((p: { conversation_id: string; last_read_at: string | null }) => [
@@ -101,7 +109,11 @@ async function enrichPayerInboxRows(
   return rows.map((row) => {
     const profile = row.patient_user_id
       ? (profileByUser.get(row.patient_user_id) as
-          | { full_name: string; patient_id: string | null }
+          | {
+              full_name: string;
+              patient_id: string | null;
+              deleted_at: string | null;
+            }
           | undefined)
       : undefined;
     const lastRead = readByConv.get(row.id) as string | null | undefined;
@@ -110,8 +122,10 @@ async function enrichPayerInboxRows(
     );
     return {
       ...row,
-      patient_name: profile?.full_name ?? null,
-      patient_caremate_id: profile?.patient_id ?? null,
+      patient_name: profile
+        ? displayPatientName(profile.full_name, profile.deleted_at)
+        : null,
+      patient_caremate_id: profile?.deleted_at ? null : (profile?.patient_id ?? null),
       partner_org_name:
         row.kind === 'care_coordination' && row.organization_id
           ? (providerNameById.get(row.organization_id) ?? null)

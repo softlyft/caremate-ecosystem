@@ -54,14 +54,14 @@
   "account": {
     "title": "Compte",
     "delete": "Supprimer le compte",
-    "deleteHint": "Supprime définitivement votre compte CareMate et vos données synchronisées. Irréversible.",
+    "deleteHint": "Efface vos données personnelles CareMate et vous déconnecte définitivement. L’historique de soins avec les prestataires peut rester désidentifié.",
     "deleteConfirmTitle": "Supprimer votre compte ?",
-    "deleteConfirmMessage": "Votre profil, carte d’urgence, liens familiaux et outils de santé synchronisés seront définitivement supprimés. Les abonnements actifs seront annulés si possible.",
+    "deleteConfirmMessage": "Votre profil, carte d’urgence, liens familiaux et outils de santé synchronisés seront définitivement effacés. Vous ne pourrez plus vous connecter. Les messages et l’historique avec prestataires ou assureurs peuvent rester étiquetés Deleted user. Les abonnements actifs seront annulés si possible.",
     "deleteConfirmAction": "Supprimer définitivement",
     "cancel": "Annuler",
     "deleting": "Suppression…",
     "deleteFailed": "Impossible de supprimer le compte",
     "deleteSuccessTitle": "Compte supprimé",
-    "deleteSuccessMessage": "Votre compte CareMate a été supprimé. Vous pouvez en créer un nouveau à tout moment."
+    "deleteSuccessMessage": "Vos données personnelles CareMate ont été effacées. Vous pouvez créer un nouveau compte à tout moment avec le même e-mail."
   }
 }
