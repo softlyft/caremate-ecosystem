@@ -70,9 +70,9 @@ describe('family invite self-guards', () => {
     expect(familyConnectionErrorKey(new Error('That person is already in this household'))).toBe(
       'family.alreadyInHousehold',
     );
-    expect(familyConnectionErrorKey(new Error('A pending invite already exists for that person'))).toBe(
-      'family.pendingInviteExists',
-    );
+    expect(
+      familyConnectionErrorKey(new Error('A pending invite already exists for that person')),
+    ).toBe('family.pendingInviteExists');
     expect(
       familyConnectionErrorKey(new Error('Family Premium allows up to 3 invited members')),
     ).toBe('family.inviteSeatsFull');

@@ -1,10 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/config';
-import {
-  getRememberedLoginEmail,
-  setRememberedLoginEmail,
-} from '@/domains/auth/remember-login';
+import { getRememberedLoginEmail, setRememberedLoginEmail } from '@/domains/auth/remember-login';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),

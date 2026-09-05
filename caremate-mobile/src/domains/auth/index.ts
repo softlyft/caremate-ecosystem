@@ -1,7 +1,4 @@
-export {
-  getRememberedLoginEmail,
-  setRememberedLoginEmail,
-} from './remember-login';
+export { getRememberedLoginEmail, setRememberedLoginEmail } from './remember-login';
 export { identityFromAuthUser } from './auth-identity';
 export { bootstrapLocalAccountRecords } from './bootstrap-local-account';
 export { confirmDeviceAccountForAuth } from './confirm-device-account';
