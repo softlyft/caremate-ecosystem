@@ -15,9 +15,12 @@ Settings → Delete account → confirm
         ↓
 Mobile: supabase.functions.invoke('delete-account')  (caller JWT required)
         ↓
-Edge function:
-  1. Best-effort cancel Stripe / Paystack subscriptions (active | trialing | past_due)
-  2. auth.admin.deleteUser(user.id)  →  Postgres ON DELETE CASCADE
+Edge function (deidentify):
+  1. Best-effort cancel Stripe / Paystack subscriptions
+  2. Scrub personal PHI tables (trackers, emergency, keys, devices, …)
+  3. Tombstone profiles → full_name "Deleted user", deleted_at set, identity cleared
+  4. Disconnect/cancel active patient↔org connections (history retained)
+  5. Revoke sessions + auth.admin.deleteUser(id, soft=true)
         ↓
 Mobile (after edge success):
   wipeLocalAccountData(userId)
@@ -34,72 +37,54 @@ Implementation:
 | Client orchestration | `src/services/auth-service.ts` → `deleteAccount()` |
 | Local wipe | `src/domains/auth/wipe-local-account.ts` |
 | Edge function | `supabase/functions/delete-account/index.ts` |
+| Schema | `profiles.deleted_at` + `service_end_patient_connections_for_account_delete` |
 
 Guests never see Delete account (see [QA ME-16](./qa-test-cases.md)).
 
 ---
 
-## Edge function (explicit server actions)
+## Edge function (deidentification)
 
-The `delete-account` function does **not** iterate tables or delete storage objects. It only:
+The `delete-account` function:
 
 1. **Validates** the `Authorization` bearer JWT and resolves the caller’s `auth.users` row.
-2. **Best-effort billing cancel** — reads `subscriptions` for the user where `status` ∈ `{ active, trialing, past_due }` and:
-   - **Stripe:** `DELETE /v1/subscriptions/{provider_subscription_id}`
-   - **Paystack:** `POST /subscription/disable`  
-   Provider failures are swallowed; deletion still proceeds.
-3. **Deletes the auth user** — `auth.admin.deleteUser(user.id)` with the service role.
+2. **Best-effort billing cancel** — Stripe / Paystack for `active|trialing|past_due` (failures swallowed).
+3. **Scrubs personal PHI** — deletes rows in personal tables (`emergency_profiles`, `mini_app_snapshots`, `health_timeline_events`, `user_encryption_keys`, notifications/devices, bookmarks, settings, community membership/profile, family households owned by the user, etc.).
+4. **Tombs the profile** — keeps `profiles.user_id`; sets `full_name = 'Deleted user'`, `deleted_at`, clears email/phone/DOB/`patient_id`/address/national_id/`emergency_share_token`.
+5. **Ends org access** — approved connections → `disconnected`; pending → `cancelled` (via service-role RPC). Messaging, appointments, and document **history stay**.
+6. **Soft-deletes auth** — `auth.admin.deleteUser(user.id, true)` so the UUID remains (no cascade wipe of interaction rows) and the email can be re-registered. Falls back to hard delete only if soft delete is unavailable.
 
-All other cloud cleanup is **PostgreSQL cascade** from `auth.users`.
+Returns `{ ok: true, mode: 'deidentified' }` (or `hard_deleted` on fallback).
 
 ---
 
-## Cloud data removed (cascade from `auth.users`)
-
-Any table with `references auth.users (id) on delete cascade` loses rows keyed to the deleted user. For a typical **patient** account, that includes:
+## Cloud data erased (explicit scrub)
 
 | Area | Tables / data |
 |------|----------------|
-| **Profile & prefs** | `profiles`, `settings`, `emergency_profiles` |
-| **Learn engagement** | `bookmarks`, `article_reads` |
+| **Identity surface** | Profile PII fields cleared; `patient_id` cleared |
+| **Emergency PHI** | `emergency_profiles` |
 | **Health trackers** | `mini_app_snapshots`, `health_timeline_events` |
-| **Billing mirror** | `subscriptions`, `payments` rows tied to `user_id` |
-| **Family (owned)** | `family_households` where `created_by_user_id` = user (cascaded members and household-scoped requests); connection requests **sent** by the user |
-| **Connections** | `patient_provider_connections`, `patient_payer_connections`, `patient_provider_consents` |
-| **Provider engagement** | Patient-scoped `provider_documents`, `provider_appointments`, lab orders, etc. |
-| **Payer engagement** | Patient-scoped `payer_documents` and payer org↔patient threads |
-| **Messaging** | Org↔patient conversations where `patient_user_id` = user (messages cascade with conversation); care-coordination threads tied to the patient; the user’s `message_participants` rows; `message_direct_pairs` involving the user |
-| **Notifications** | `notifications`, `notification_devices` |
-| **Location** | `user_location_samples` |
-| **Favorites** | `provider_favorites` |
-| **Encryption** | `health_data_encryption_keys` (gateway DEK row) |
-| **Community** | Community membership and user-scoped portal rows |
-| **Checkout** | `checkout_handoffs` |
-| **Emergency audit** | `emergency_share_access_logs` where user is viewer or patient |
-| **Org staff roles** | If the user was portal staff: `provider_org_members`, `payer_org_members` |
-
-### Partial cleanup (`ON DELETE SET NULL`)
-
-Some references only **clear the user id**, not the parent row:
-
-| Column | Effect |
-|--------|--------|
-| `family_members.linked_user_id` | Spouse/adult link removed; household child rows may remain |
-| `family_connection_requests.to_user_id` | Incoming request target nulled |
-| `message_messages.sender_user_id` | Message body may remain in threads that survive |
-| Document / audit `uploaded_by`, `actor_user_id`, etc. | Attribution nulled; org or system rows may remain |
+| **Prefs / learn** | `settings`, `bookmarks`, `article_reads` |
+| **Encryption** | `user_encryption_keys` |
+| **Notifications / location** | `notifications`, `notification_devices`, `user_location_samples` |
+| **Family (owned)** | `family_households` created by user; sent connection requests; linked_user_id / to_user_id cleared |
+| **Community** | Memberships, join verifications, community profile |
+| **Favorites / checkout** | `provider_favorites`, `checkout_handoffs` |
 
 ---
 
-## Cloud data **not** removed
+## Cloud data retained (deidentified)
 
-| Kept | Why |
-|------|-----|
-| **Shared catalogs** | `articles`, `health_tips`, provider directory catalog, ad catalog tables |
-| **Organizations** | `provider_organizations`, `payer_organizations` and org-owned data |
-| **Other users’ data** | Other patients, staff accounts, unrelated conversations |
-| **Storage bucket objects** | Edge function does not delete files; lifecycle depends on bucket policies / separate jobs |
-| **Admin audit log** | Events may remain with nulled `actor_user_id` |
+| Kept | How it appears |
+|------|----------------|
+| **Messaging** | Org↔patient / care-coordination threads remain; Care Portal shows **Deleted user** |
+| **Connections** | Rows remain as `disconnected` / `cancelled` |
+| **Appointments / docs** | Patient-scoped clinical/org records remain; profile join shows Deleted user |
+| **Payments ledger** | `payments` / subscription mirror rows may remain on the soft-deleted user id |
+| **Auth UUID** | Soft-deleted `auth.users` row (email freed for a new registration) |
+
+Storage bucket objects are still not systematically deleted (same as before).
 
 ---
 
@@ -111,23 +96,16 @@ After the edge function succeeds, the mobile app clears **this user’s** on-dev
 
 | Target | Detail |
 |--------|--------|
-| **Mini-app state** | In-memory Zustand cleared; user-scoped AsyncStorage keys removed (`caremate-…:{userId}`) |
-| **Emergency lock surface** | Widget / lock snapshot cleared (`syncEmergencyLockSurface(null)`) |
-| **SQLite user rows** | `profiles`, `emergency_profiles`, `bookmarks`, `article_reads`, `settings`, `mini_app_snapshots`, `subscription_entitlements`, `notifications`, `user_location_samples`, `ad_events` |
-| **Family (local)** | Households created by user (+ members and requests in those households); member links and requests involving the user |
+| **Mini-app state** | In-memory Zustand cleared; user-scoped AsyncStorage keys removed |
+| **Emergency lock surface** | Widget / lock snapshot cleared |
+| **SQLite user rows** | profiles, emergency, bookmarks, settings, snapshots, entitlements, notifications, location, ads |
+| **Family (local)** | Households created by user (+ related members/requests) |
 | **Analytics queue** | Rows where `distinct_id` = user |
-| **Sync outbox** | **Entire** `sync_queue` table cleared (prevents deleted-user payloads from re-firing) |
-| **Device binding** | SecureStore `{ email, userId }` removed |
+| **Sync outbox** | Entire `sync_queue` cleared |
+| **Device binding** | SecureStore binding removed |
 | **Session** | Local sign-out → guest |
 
-### Kept on device
-
-| Target | Why |
-|--------|------|
-| `articles`, provider catalog cache, health tips, ads config | Shared read-only catalogs; not user-owned |
-| Guest-scoped data | Unaffected unless the deleted user was the only signed-in account on a fresh install |
-
-Local wipe is **best-effort** if the cloud delete already succeeded (errors are swallowed so the user still lands on guest).
+Local wipe is **best-effort** if the cloud delete already succeeded.
 
 ---
 
@@ -136,11 +114,12 @@ Local wipe is **best-effort** if the cloud delete already succeeded (errors are 
 | | **Mobile delete account** | **Admin portal disable account** |
 |--|---------------------------|----------------------------------|
 | **Who** | Patient (self) | Admin / user manager |
-| **Mechanism** | `delete-account` edge → `auth.admin.deleteUser` | `ban_duration: '876000h'` + `admin_revoke_user_sessions` |
-| **Cloud data** | Removed via cascade | **Not deleted** — rows remain |
-| **Sign-in** | Credentials invalid permanently | Blocked while banned; unban restores access |
-| **Local app data** | Wiped on device | Unchanged on device; user kicked to guest on session refresh |
-| **Implementation** | `caremate-mobile` + `supabase/functions/delete-account` | `caremate-admin-portal/src/domains/users/actions.ts` → `banUser` |
+| **Mechanism** | Deidentify + soft `deleteUser` | `ban_duration` + `admin_revoke_user_sessions` |
+| **Cloud personal PHI** | Scrubbed / tombstoned | **Retained** |
+| **Org interaction history** | Retained as Deleted user | Retained with real identity |
+| **Sign-in** | Soft-deleted; email free for a **new** account | Blocked while banned |
+| **Local app data** | Wiped | Unchanged until session ends |
+| **Implementation** | `delete-account` edge | `caremate-admin-portal` → `banUser` |
 
 ---
 
@@ -151,15 +130,13 @@ Use alongside [ME-15 / ME-16](./qa-test-cases.md).
 | Step | Expected |
 |------|----------|
 | Signed-in → Settings → Delete account → confirm | Success; returns to guest |
-| Sign in with same email/password | Fails (user gone) or requires new registration |
-| Supabase `profiles` for old `user_id` | Row absent |
-| Supabase `subscriptions` for old `user_id` | Row absent; Stripe/Paystack sub cancelled when keys + `provider_subscription_id` present |
-| Provider portal: former patient connection | Connection row gone; patient no longer in connected list |
-| Messaging: org thread with deleted patient | Conversation + messages gone for that patient thread |
-| Same device: re-open app as guest | No profile/emergency/mini-app data for deleted user in UI |
-| SQLite `sync_queue` | Empty (or no rows for deleted user’s pending ops) |
+| Sign in with same email/password | Fails for old account; **new signup with same email** can succeed |
+| Supabase `profiles` for old `user_id` | Row present: `full_name = Deleted user`, `deleted_at` set, identity fields null |
+| Provider portal: former org thread | Conversation still listed; patient label **Deleted user** |
+| Provider portal: connection | Status `disconnected` (or cancelled if was pending) |
+| Active Stripe/Paystack sub | Cancelled when keys + provider id present |
+| Same device as guest | No local PHI for deleted user |
 | Guest Settings | Delete account control hidden |
-| Offline delete attempt | Should fail gracefully (requires configured backend + network for edge invoke) |
 
 ---
 
@@ -167,5 +144,5 @@ Use alongside [ME-15 / ME-16](./qa-test-cases.md).
 
 - [Authentication — device binding & delete](./authentication.md#device-account-binding-same-device-reuse)
 - [Security — wipe on delete](./security.md#at-rest)
-- [Sync inventory](./SYNC_INVENTORY.md) — what sync would have pushed (queue is cleared on delete)
+- [Sync inventory](./SYNC_INVENTORY.md)
 - [Supabase Edge Functions README](../../supabase/functions/README.md#account-deletion)

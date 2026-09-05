@@ -87,7 +87,7 @@ Optional product ID overrides: `IAP_PRODUCT_PERSONAL_MONTHLY`, `IAP_PRODUCT_PERS
 | `send-provider-claim-otp` | Provider portal claim (service role) |
 | `send-provider-password-reset-otp` | Provider portal forgot-password (service role) |
 | `send-community-join-otp` | Community portal Patient ID verify (service role) |
-| `delete-account` | Mobile Settings → Delete account (user JWT → `auth.admin.deleteUser`) |
+| `delete-account` | Mobile Settings → Delete account (JWT → scrub PHI, tombstone profile, soft `deleteUser`) |
 
 Shared helpers: `_shared/mailer.ts`, `_shared/email.ts`, `_shared/push.ts`, `_shared/email-templates/`. Legacy `_shared/ses.ts` re-exports the mailer.
 
@@ -105,7 +105,7 @@ Mobile confirmation and recovery use **Supabase Auth** templates (`supabase/temp
 
 ### Account deletion
 
-`delete-account` requires the caller's `Authorization` bearer JWT. It best-effort cancels active Stripe/Paystack subscriptions, then deletes `auth.users` (cloud rows cascade). The mobile client wipes that user's local SQLite rows + mini-app snapshots and returns to guest.
+`delete-account` requires the caller's `Authorization` bearer JWT. It best-effort cancels active Stripe/Paystack subscriptions, scrubs personal PHI, tombs `profiles` as **Deleted user** (`deleted_at`), ends active org connections, and **soft-deletes** the auth user (UUID kept so messaging/history survive). The mobile client wipes that user's local SQLite rows + mini-app snapshots and returns to guest.
 
 Full matrix (cascade tables, local wipe, QA checklist, admin disable vs delete): [caremate-mobile/docs/account-deletion.md](../../caremate-mobile/docs/account-deletion.md).
 

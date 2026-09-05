@@ -54,14 +54,14 @@
   "account": {
     "title": "Akaunti",
     "delete": "Futa akaunti",
-    "deleteHint": "Inafuta kabisa akaunti yako ya CareMate na data iliyosawazishwa. Haiwezi kutenduliwa.",
+    "deleteHint": "Inafuta data yako binafsi ya CareMate na kukutoa kabisa. Historia ya huduma na watoa huduma inaweza kubaki bila utambulisho.",
     "deleteConfirmTitle": "Futa akaunti yako?",
-    "deleteConfirmMessage": "Wasifu wako, kadi ya dharura, viungo vya familia, na zana za afya zilizosawazishwa zitafutwa kabisa. Usajili unaoendelea utaghairiwa inapowezekana.",
+    "deleteConfirmMessage": "Wasifu, kadi ya dharura, viungo vya familia, na zana za afya zitafutwa kabisa. Hutaweza kuingia tena. Ujumbe na historia na watoa huduma/bima vinaweza kubaki kama Deleted user. Usajili unaoendelea utaghairiwa inapowezekana.",
     "deleteConfirmAction": "Futa kabisa",
     "cancel": "Ghairi",
     "deleting": "Inafuta…",
     "deleteFailed": "Imeshindwa kufuta akaunti",
     "deleteSuccessTitle": "Akaunti imefutwa",
-    "deleteSuccessMessage": "Akaunti yako ya CareMate imefutwa. Unaweza kuunda mpya wakati wowote."
+    "deleteSuccessMessage": "Data yako binafsi ya CareMate imefutwa. Unaweza kuunda akaunti mpya wakati wowote kwa barua pepe ileile."
   }
 }

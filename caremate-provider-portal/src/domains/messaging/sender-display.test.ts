@@ -66,6 +66,18 @@ describe('portal sender-display', () => {
       );
     });
 
+    it('shows Deleted user for tombstone names', () => {
+      assert.equal(
+        portalThreadHeaderTitle({
+          conversationKind: 'org_patient',
+          patientName: 'Deleted user',
+          providerOrgName: 'City Clinic',
+          payerOrgName: 'Leadway Insurance',
+        }),
+        'Deleted user',
+      );
+    });
+
     it('joins provider and payer org names for care team threads', () => {
       assert.equal(
         portalThreadHeaderTitle({
@@ -143,6 +155,23 @@ describe('portal sender-display', () => {
         ),
         {
           name: 'Patient',
+          roleLabel: 'participant',
+        },
+      );
+    });
+
+    it('labels anonymized senders without user id as Deleted user', () => {
+      assert.deepEqual(
+        resolvePortalSenderDisplay(
+          message({
+            sender_party_type: 'user',
+            sender_user_id: null,
+            sender_organization_id: null,
+          }),
+          coordinationContext,
+        ),
+        {
+          name: 'Deleted user',
           roleLabel: 'participant',
         },
       );

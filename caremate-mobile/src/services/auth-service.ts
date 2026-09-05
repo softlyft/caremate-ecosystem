@@ -45,6 +45,47 @@ function authEmailsToTry(email: string): string[] {
   return canonical === legacy ? [canonical] : [canonical, legacy];
 }
 
+/** Prefer JSON `{ error }` from Edge Functions over the generic non-2xx FunctionsHttpError. */
+async function edgeFunctionErrorMessage(
+  error: unknown,
+  data: unknown,
+  fallback: string,
+): Promise<string> {
+  if (data && typeof data === 'object' && 'error' in data && (data as { error?: unknown }).error) {
+    return String((data as { error: unknown }).error);
+  }
+
+  const context =
+    error && typeof error === 'object' && error !== null && 'context' in error
+      ? (error as { context?: unknown }).context
+      : null;
+  if (context && typeof Response !== 'undefined' && context instanceof Response) {
+    try {
+      const body = (await context.clone().json()) as { error?: unknown; message?: unknown };
+      if (body?.error) return String(body.error);
+      if (body?.message) return String(body.message);
+    } catch {
+      // Body may already be consumed or non-JSON.
+    }
+  } else if (context && typeof context === 'object' && context !== null && 'json' in context) {
+    try {
+      const body = (await (context as { json: () => Promise<unknown> }).json()) as {
+        error?: unknown;
+        message?: unknown;
+      };
+      if (body?.error) return String(body.error);
+      if (body?.message) return String(body.message);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+  return fallback;
+}
+
 function isInvalidCredentialError(error: { message?: string; status?: number } | null): boolean {
   if (!error) return false;
   const message = (error.message ?? '').toLowerCase();
@@ -355,11 +396,8 @@ export class AuthService {
       { body: {} },
     );
 
-    if (error) {
-      throw error;
-    }
-    if (data && typeof data === 'object' && 'error' in data && data.error) {
-      throw new Error(String(data.error));
+    if (error || (data && typeof data === 'object' && 'error' in data && data.error)) {
+      throw new Error(await edgeFunctionErrorMessage(error, data, 'Could not delete account'));
     }
 
     try {
