@@ -429,6 +429,71 @@ Templates are code-owned HTML in `supabase/functions/_shared/email-templates/`, 
 
 ---
 
+## Android Expo Push setup
+
+App code already registers tokens (`syncPushRegistration` → `notification_devices`). Android delivery still needs **two** Firebase/Expo pieces. Play builds via GitHub Actions do **not** upload FCM credentials for you — Expo’s servers need them to send.
+
+### What’s already in the repo
+
+| Item | Status |
+|------|--------|
+| `expo-notifications` plugin | `app.json` |
+| `android.googleServicesFile` | `./google-services.json` |
+| Firebase Android apps | `com.softlyft.caremate` **and** `com.softlyft.caremate.dev` in `google-services.json` (project `caremate-e9aa4`) |
+| EAS / Expo project id | `de6abf70-ee13-417b-915f-9dea1066ed27` (`@softlyft/caremate`) |
+| Runtime registration | Signed-in + notifications on → `getExpoPushTokenAsync` → upsert `notification_devices` |
+| Edge send path | `_shared/push.ts` → Expo Push API (optional `EXPO_ACCESS_TOKEN`) |
+
+### Critical: FCM V1 service account on Expo (often missing)
+
+`google-services.json` only lets the **device** get an FCM token. Expo Push needs a separate **Firebase Admin / FCM V1 service account JSON** uploaded to the Expo project, or Android sends fail even when the app “registered”.
+
+1. [Firebase Console](https://console.firebase.google.com/) → project **`caremate-e9aa4`** → **Project settings → Service accounts**
+2. **Generate new private key** (Firebase Admin SDK) → download JSON — **do not commit** this file
+3. Confirm Google Cloud has **Firebase Cloud Messaging API** enabled for that project
+4. Upload to Expo (either way):
+   - **CLI** (from `caremate-mobile/`):
+     ```bash
+     eas credentials -p android
+     ```
+     → pick profile tied to the package you ship (`production` for `com.softlyft.caremate`, and again for **`com.softlyft.caremate.dev`** if you test Slack/dev APKs)  
+     → **Google Service Account** → **Manage … Push Notifications (FCM V1)** → upload the JSON  
+   - Or [expo.dev](https://expo.dev) → `@softlyft/caremate` → **Credentials** → Android application identifier(s) → **FCM V1 service account key**
+5. Repeat for **both** application IDs if you use both packages:
+   - `com.softlyft.caremate` (Play / prod)
+   - `com.softlyft.caremate.dev` (Slack / `APP_VARIANT=development`)
+
+### Build / install checklist
+
+1. Use a **physical device** (or emulator with Google Play Services).
+2. Install a **native** build that includes `google-services.json` (prebuild / CI APK / Play). Expo Go is unreliable for CareMate’s custom package.
+3. Package must match Firebase + Expo credentials (`.dev` Slack APK ≠ prod Play package).
+4. Signed-in user; **Settings → Push notifications** on; OS notification permission allowed (Android 13+).
+5. Confirm a row in Supabase `notification_devices` for that user (`platform = 'android'`, `expo_push_token` like `ExponentPushToken[…]`).
+6. Optional: Metro/logcat — look for `syncPushRegistration: registered android` or `getExpoPushTokenAsync failed`.
+
+### Verify send
+
+1. [Expo push tool](https://expo.dev/notifications) — paste the Expo push token from `notification_devices`.
+2. Or trigger a real path (e.g. message / family request) and check Edge Function logs + Expo receipts.
+3. If tickets say `DeviceNotRegistered` / FCM auth errors → FCM V1 key missing/wrong project, or rebuild after fixing `google-services.json`.
+
+### API key restrictions (if token fetch fails with 403)
+
+In Google Cloud → credentials for the Android API key in `google-services.json`: allow **FCM Registration API** and **Firebase Installations API**, or leave unrestricted while debugging. For Play-distributed builds, application restriction SHA-1 must be the **Play App Signing** cert, not only the upload keystore.
+
+### Related
+
+| Piece | Path |
+|-------|------|
+| Registration | `src/domains/notifications/push.ts` |
+| Reconcile on foreground | `src/components/PushPermissionReconciler.tsx` |
+| Client config | `google-services.json`, `app.json` → `android.googleServicesFile` |
+| Expo send | `supabase/functions/_shared/push.ts` |
+| Official Expo guide | [FCM credentials](https://docs.expo.dev/push-notifications/fcm-credentials/) |
+
+---
+
 ## Related code / docs
 
 | Piece | Path |
