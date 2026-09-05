@@ -22,10 +22,7 @@ import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
-import {
-  getRememberedLoginEmail,
-  setRememberedLoginEmail,
-} from '@/domains/auth/remember-login';
+import { getRememberedLoginEmail, setRememberedLoginEmail } from '@/domains/auth/remember-login';
 import { continueAfterAuth } from '@/domains/emergency/continue-after-auth';
 import { useTranslation } from '@/domains/localization';
 import { AuthBrandHeader } from '@/features/auth/AuthBrandHeader';

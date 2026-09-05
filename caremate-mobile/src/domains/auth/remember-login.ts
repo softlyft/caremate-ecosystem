@@ -24,10 +24,7 @@ export async function setRememberedLoginEmail(
       await AsyncStorage.removeItem(STORAGE_KEYS.rememberedLoginEmail);
       return;
     }
-    await AsyncStorage.setItem(
-      STORAGE_KEYS.rememberedLoginEmail,
-      normalizeAccountEmail(email),
-    );
+    await AsyncStorage.setItem(STORAGE_KEYS.rememberedLoginEmail, normalizeAccountEmail(email));
   } catch {
     // Best-effort preference; login still succeeds without it.
   }
