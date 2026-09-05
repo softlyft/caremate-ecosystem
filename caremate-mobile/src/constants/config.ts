@@ -35,6 +35,8 @@ export const STORAGE_KEYS = {
   deviceAccountBinding: 'caremate_device_account_binding',
   /** Device-only mini-app card order on the Apps tab (never synced). */
   miniAppsOrder: 'caremate_mini_apps_order',
+  /** Login email prefill when “Remember me” is checked (not the password). */
+  rememberedLoginEmail: 'caremate_remembered_login_email',
 } as const;
 
 export const SYNC_CONFIG = {

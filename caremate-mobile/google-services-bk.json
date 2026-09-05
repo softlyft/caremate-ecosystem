@@ -23,25 +23,6 @@
           "other_platform_oauth_client": []
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:848303349799:android:2f6cc14c35fd32d4836e02",
-        "android_client_info": {
-          "package_name": "com.softlyft.caremate.dev"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCbKePyN28B8rW_vlsYhT5YgcyqEGdDcbU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
     }
   ],
   "configuration_version": "1"

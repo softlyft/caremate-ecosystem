@@ -44,10 +44,7 @@ export function NotificationCard({ notification }: NotificationCardProps) {
   const Icon = unread ? BellRing : Bell;
 
   return (
-    <View
-      accessibilityRole="text"
-      style={[styles.row, unread ? styles.rowUnread : null]}
-    >
+    <View accessibilityRole="text" style={[styles.row, unread ? styles.rowUnread : null]}>
       <View style={[styles.iconBadge, unread ? styles.iconUnread : styles.iconRead]}>
         <Icon color={unread ? ACCENT : '#64748B'} size={16} strokeWidth={2.2} />
       </View>

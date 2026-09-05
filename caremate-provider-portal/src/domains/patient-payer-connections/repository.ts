@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { toRpcError } from '@/lib/rpc-error';
 import {
   DEFAULT_PAGE_SIZE,
   emptyPage,
@@ -167,6 +168,6 @@ export async function requestPatientPayerConnectionByCaremateId(
     p_payer_note: payerNote ?? undefined,
   });
 
-  if (error) throw error;
+  if (error) throw toRpcError(error, 'Failed to request connection');
   return data as PatientPayerConnection;
 }

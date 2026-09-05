@@ -6,7 +6,7 @@ import {
 } from '@/domains/messaging/repository';
 import { listCareCoordinationStaffCandidates } from '@/domains/messaging/care-coordination';
 import { addCareCoordinationStaffAction } from '@/domains/messaging/care-coordination-actions';
-import { buildThreadDisplayContext } from '@/domains/messaging/sender-display';
+import { buildThreadDisplayContext } from '@/domains/messaging/sender-display.server';
 import { markOrgConversationRead } from '@/lib/mark-org-conversation-read';
 import { canWriteOrg } from '@/constants/roles';
 import { OrgMessageThread } from '@/components/features/org-message-thread';

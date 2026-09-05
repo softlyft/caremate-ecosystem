@@ -146,6 +146,7 @@ async function notifyOrg(
           dedupeKey: `messaging:org_message:${message.id}`,
           entityType: 'message_messages',
           entityId: message.id as string,
+          createInboxRow: false,
           data: {
             conversationId: message.conversation_id,
             messageId: message.id,
@@ -243,6 +244,7 @@ async function notifyOrg(
         dedupeKey: `messaging:org_message:${message.id}`,
         entityType: 'message_messages',
         entityId: message.id as string,
+        createInboxRow: false,
         data: {
           conversationId: message.conversation_id,
           messageId: message.id,
@@ -343,6 +345,7 @@ async function notifyDirect(_authHeader: string, senderUserId: string, messageId
         dedupeKey: `messaging:direct_message:${message.id}`,
         entityType: 'message_messages',
         entityId: message.id as string,
+        createInboxRow: false,
         data: {
           conversationId: cid,
           messageId: message.id,

@@ -1,6 +1,8 @@
+import { extractErrorMessage } from '@/lib/rpc-error';
+
 /** Map Postgres/RPC errors from provider↔payer connection flows to UI copy. */
 export function mapPayerConnectionError(err: unknown, fallback: string): string {
-  const message = err instanceof Error ? err.message : String(err ?? '');
+  const message = extractErrorMessage(err, fallback);
   const lower = message.toLowerCase();
 
   if (lower.includes('previously') && lower.includes('declined')) {

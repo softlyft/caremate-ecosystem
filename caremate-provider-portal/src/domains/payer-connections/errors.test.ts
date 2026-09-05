@@ -14,14 +14,22 @@ describe('mapPayerConnectionError', () => {
     );
   });
 
-  it('maps missing verified org', () => {
+  it('maps missing verified org from Postgrest-shaped object', () => {
     assert.match(
       mapPayerConnectionError(
-        new Error('No verified payer found with that claim contact email'),
+        { message: 'No verified payer found with that claim contact email', code: 'P0001' },
         'fallback',
       ),
       /No verified organization/,
     );
+  });
+
+  it('does not stringify objects as [object Object]', () => {
+    const mapped = mapPayerConnectionError(
+      { message: 'No verified payer found with that claim contact email' },
+      'fallback',
+    );
+    assert.equal(mapped.includes('[object Object]'), false);
   });
 
   it('maps self-approve block', () => {
