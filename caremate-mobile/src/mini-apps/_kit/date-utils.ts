@@ -20,6 +20,15 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
+/** Calendar-month add that clamps day-of-month (e.g. 31 Jan + 1 month → 28/29 Feb). */
+export function addCalendarMonths(date: Date, months: number): Date {
+  const year = date.getFullYear();
+  const month = date.getMonth() + months;
+  const day = date.getDate();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  return new Date(year, month, Math.min(day, lastDay));
+}
+
 export function daysBetween(start: Date, end: Date): number {
   const ms = startOfDay(end).getTime() - startOfDay(start).getTime();
   return Math.round(ms / (1000 * 60 * 60 * 24));

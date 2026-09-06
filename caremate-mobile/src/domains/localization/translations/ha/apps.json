@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "Mai zuwa: Mako {{week}}",
       "dailyNudgeTitle": "Rubuta yadda kake ji yau",
       "dailyNudgeBody": "Rubutun yanayi, alamu, ko kumburi cikin sauri yana barin tarihin cikin daurin ku da amfani.",
-      "ttDoseDueBody": "An wuce makonni 4 tun TT1. Tambayi likitocinku game da ƙarar tetanus (TT) na gaba.",
-      "ttDoseDueTitle": "TT2 na iya zama lokaci"
+      "ttDoseDueBody": "Ranar hasashen {{dose}} ta isa. Rubuta ta a Pregnancy Tracker lokacin da kuka karɓi allurar, kuma tambayi asibitinku idan ba ku da tabbaci.",
+      "ttDoseDueTitle": "{{dose}} na iya zama lokaci"
     },
     "motherCare": {
       "progress": "{{completed}} cikin {{total}} ƙarorin da aka rubuta",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "Wannan kwanaki {{gap}} ne kawai bayan ƙarar da ta gabata (yawanci a jira kwanaki {{days}}). Da fatan za a tabbatar tare da likitocinku.",
+        "ttIntervalShort": "Wannan rana tana gaban jiran da aka saba na {{interval}} bayan allurar da ta gabata. Tabbatar da asibitinku.",
         "checkTitle": "Da fatan za a duba wannan",
         "confirmTitle": "Da fatan za a tabbatar",
         "cancel": "Soke",
@@ -843,13 +843,21 @@
       "done": "An gama",
       "disclaimer": "Bin diddiga na ilimi kawai — bi tsarin asibitin ku da jagororin gida.",
       "title": "Kariya daga tetanus (TT)",
-      "body": "Ƙarorin TT suna kare ku da sabon jariri daga ciwon tetanus. Rubuta ƙarorin daga katin antenatal — wannan yana daban da mai bin diddigin mako na ciki.",
+      "body": "Alluran TT na kare ku da jaririnku daga tetanus. Fara da TT1 (yau ko ranar da ta wuce). Kowane allura da aka rubuta yana buɗe na gaba tare da ranar hasashe.",
       "complete": "An rubuta TT1–TT5",
       "archivedTitle": "Ƙarorin TT daga wannan ciki",
       "tapDate": "Danna ranar da ka karɓi {{dose}}.",
       "selectedDate": "Ranar da aka zaɓa",
       "saveDose": "Ajiye {{dose}}",
-      "completeTitle": "An kammala jadawalin TT"
+      "completeTitle": "An kammala jadawalin TT",
+      "forecast": "Mafi wuri don {{dose}}: {{date}}",
+      "forecastHint": "Yawanci aƙalla {{interval}} bayan allurar da ta gabata.",
+      "intervals": {
+        "weeks4": "makonni 4",
+        "months6": "watanni 6",
+        "year1": "shekara 1"
+      },
+      "lockedUntil": "Yana buɗewa bayan allurar da ta gabata"
     },
     "trimester": {
       "1": "Trimester na farko",

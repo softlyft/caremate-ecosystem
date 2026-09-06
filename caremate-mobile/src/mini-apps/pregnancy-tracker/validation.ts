@@ -9,11 +9,11 @@ import {
   SYMPTOM_OPTIONS,
 } from '@/mini-apps/pregnancy-tracker/constants';
 import {
-  daysSincePreviousTtDose,
   getMaternalTtDose,
+  getMaternalTtIntervalForDose,
   getNextMaternalTtDoseId,
   getPreviousMaternalTtDoseId,
-  MATERNAL_TT_MIN_INTERVAL_DAYS,
+  isMaternalTtDateBeforeForecast,
   type MaternalTtDose,
   type MaternalTtDoseId,
 } from '@/mini-apps/pregnancy-tracker/maternal-tt';
@@ -389,12 +389,15 @@ export function assessMaternalTtDraft(draft: MaternalTtDraft): MaternalTtAssessm
         params: { previous: previousId.toUpperCase(), previousDate: previous.dateKey },
       });
     }
-    const gap = daysSincePreviousTtDose(draft.existingDoses, draft.doseId, draft.selectedDate);
-    if (gap != null && gap < MATERNAL_TT_MIN_INTERVAL_DAYS) {
+    const interval = getMaternalTtIntervalForDose(draft.doseId);
+    if (
+      interval &&
+      isMaternalTtDateBeforeForecast(draft.existingDoses, draft.doseId, draft.selectedDate)
+    ) {
       soft.push({
         code: 'soft_tt_interval',
         messageKey: 'ttIntervalShort',
-        params: { days: MATERNAL_TT_MIN_INTERVAL_DAYS, gap },
+        params: { intervalKey: interval.labelKey },
       });
     }
   }

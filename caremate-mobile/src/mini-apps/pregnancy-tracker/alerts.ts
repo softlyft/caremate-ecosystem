@@ -1,16 +1,30 @@
 import { createInAppNotification } from '@/domains/notifications/service';
 import type { NotificationSeverity } from '@/domains/notifications/types';
-import { isMaternalTt2Due, type MaternalTtDose } from '@/mini-apps/pregnancy-tracker/maternal-tt';
+import {
+  getMaternalTtForecastDateKey,
+  getNextMaternalTtDoseId,
+  isMaternalTtNextDoseDue,
+  maternalTtWeekAnchorKey,
+  type MaternalTtDose,
+  type MaternalTtDoseId,
+} from '@/mini-apps/pregnancy-tracker/maternal-tt';
 import { getDaysUntilDue, getUpcomingMilestones } from '@/mini-apps/pregnancy-tracker/utils';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
 
 export type PregnancyAlertCandidate = {
   eventType:
-    'milestone_soon' | 'due_soon' | 'due_today' | 'past_due' | 'daily_log_nudge' | 'tt_dose_due';
+    | 'milestone_soon'
+    | 'due_soon'
+    | 'due_today'
+    | 'past_due'
+    | 'daily_log_nudge'
+    | 'tt_dose_due';
   dedupeKey: string;
   title: string;
   body: string;
   severity: NotificationSeverity;
+  /** Active next TT dose when eventType is tt_dose_due. */
+  ttDoseId?: MaternalTtDoseId;
 };
 
 export type PregnancyAlertCopy = {
@@ -24,8 +38,8 @@ export type PregnancyAlertCopy = {
   pastDueBody: (name: string, days: number) => string;
   dailyNudgeTitle: () => string;
   dailyNudgeBody: () => string;
-  ttDoseDueTitle: () => string;
-  ttDoseDueBody: () => string;
+  ttDoseDueTitle: (dose: string) => string;
+  ttDoseDueBody: (dose: string) => string;
 };
 
 const DEFAULT_COPY: PregnancyAlertCopy = {
@@ -42,12 +56,12 @@ const DEFAULT_COPY: PregnancyAlertCopy = {
     `${name}'s estimated due date was ${days} day(s) ago. Update your timeline or end pregnancy when ready.`,
   dailyNudgeTitle: () => 'Log how you feel today',
   dailyNudgeBody: () => 'A quick mood, symptom, or kick log keeps your pregnancy history useful.',
-  ttDoseDueTitle: () => 'TT2 may be due',
-  ttDoseDueBody: () =>
-    'It has been at least 4 weeks since TT1. Ask your clinic about your next tetanus (TT) dose.',
+  ttDoseDueTitle: (dose) => `${dose} may be due`,
+  ttDoseDueBody: (dose) =>
+    `Your clinic schedule suggests ${dose} from today. Log it in Pregnancy Tracker when you receive the shot.`,
 };
 
-/** Mother-care TT nudge — independent of pregnancy timeline setup. */
+/** Mother-care TT nudge — weekly from the next dose forecast date. */
 export function collectMaternalTtAlerts(params: {
   maternalTtDoses: MaternalTtDose[];
   now?: Date;
@@ -57,17 +71,26 @@ export function collectMaternalTtAlerts(params: {
   const todayKey = toDateKey(now);
   const copy = params.copy ?? DEFAULT_COPY;
 
-  if (!isMaternalTt2Due(params.maternalTtDoses, todayKey)) {
+  if (!isMaternalTtNextDoseDue(params.maternalTtDoses, todayKey)) {
     return [];
   }
+
+  const nextDoseId = getNextMaternalTtDoseId(params.maternalTtDoses);
+  if (!nextDoseId || nextDoseId === 'tt1') {
+    return [];
+  }
+
+  const weekKey = maternalTtWeekAnchorKey(todayKey);
+  const doseLabel = nextDoseId.toUpperCase();
 
   return [
     {
       eventType: 'tt_dose_due',
-      dedupeKey: `pregnancy:tt2:${todayKey.slice(0, 7)}`,
-      title: copy.ttDoseDueTitle(),
-      body: copy.ttDoseDueBody(),
+      dedupeKey: `pregnancy:tt:${nextDoseId}:${weekKey}`,
+      title: copy.ttDoseDueTitle(doseLabel),
+      body: copy.ttDoseDueBody(doseLabel),
       severity: 'info',
+      ttDoseId: nextDoseId,
     },
   ];
 }
@@ -188,7 +211,10 @@ export async function evaluatePregnancyAlerts(params: {
         body: candidate.body,
         severity: candidate.severity,
         entityType: candidate.eventType === 'tt_dose_due' ? 'maternal_tt' : 'pregnancy',
-        entityId: params.dueDate,
+        entityId:
+          candidate.eventType === 'tt_dose_due'
+            ? (candidate.ttDoseId ?? getMaternalTtForecastDateKey(params.maternalTtDoses ?? []))
+            : params.dueDate,
         dedupeKey: candidate.dedupeKey,
         data: {
           route:

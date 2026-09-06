@@ -379,8 +379,10 @@ app/(app)/apps/immunization-tracker/
 - **Close this pregnancy** — subtle quiet exit (no loss-specific wording); archives as `closed`, resumes Period Tracker
 - **Finish postpartum care** — archives as `birth`, clears timeline, resumes Period Tracker
 - **Mother care TT1–TT5** card at top of dashboard (independent of pregnancy timeline); modal `pregnancy-tracker/tt`
-- In-app alerts (`evaluatePregnancyAlerts`): milestone soon, due soon/today/past-due, daily log nudge, TT2 due nudge — domain `pregnancy`, no OS push yet
-
+  - TT1 entry (today or past only) unlocks TT2 with forecast ≥28 days later
+  - TT2 → TT3 (≥6 months), TT3 → TT4 (≥1 year), TT4 → TT5 (≥1 year)
+  - Weekly in-app + local OS push from the active next-dose forecast date (`evaluatePregnancyAlerts`, `syncMaternalTtScheduledNotifications`)
+- In-app alerts (`evaluatePregnancyAlerts`): milestone soon, due soon/today/past-due, daily log nudge, maternal TT due (TT2–TT5)
 ### Files
 
 ```
@@ -391,6 +393,7 @@ mini-apps/pregnancy-tracker/
 ├── maternal-tt.ts
 ├── validation.ts
 ├── alerts.ts
+├── scheduled-notifications.ts
 └── localize.ts
 app/(app)/apps/pregnancy-tracker/
 ├── index.tsx

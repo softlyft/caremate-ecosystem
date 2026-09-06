@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "N bọ: Ose {{week}}",
       "dailyNudgeTitle": "Kọ bí o ṣe rí loni",
       "dailyNudgeBody": "Akọsilẹ irú, àmì, tabi gbigbe ki itan ijọba rẹ wulo.",
-      "ttDoseDueBody": "O ti jẹ o kere ju ọsẹ 4 lati TT1. Beere kliniki rẹ nipa iṣẹju tetanus (TT) rẹ ti o kan.",
-      "ttDoseDueTitle": "TT2 le yẹ"
+      "ttDoseDueBody": "Ọjọ asọtẹlẹ fun {{dose}} ti de. Fi si Pregnancy Tracker nigbati o gba abẹrẹ naa, ki o si beere lọwọ ile-iwosan rẹ ti o ko ba da ọ loju.",
+      "ttDoseDueTitle": "{{dose}} le yẹ"
     },
     "motherCare": {
       "progress": "{{completed}} ninu {{total}} awọn iṣẹju ti a kọ",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "Eyi jẹ {{gap}} ọjọ nikan lẹhin iṣẹju ti tẹlẹ (a maa n duro ti {{days}} ọjọ). Jọwọ jẹrisi pẹlu kliniki rẹ.",
+        "ttIntervalShort": "Ọjọ yii wa ṣaaju idaduro deede ti {{interval}} lẹhin iwọn ti o kọja. Jẹrisi pẹlu ile-iwosan rẹ.",
         "checkTitle": "Jọwọ ṣayẹwo eyi",
         "confirmTitle": "Jọwọ jẹrisi",
         "cancel": "Fagilee",
@@ -843,13 +843,21 @@
       "done": "Ti pari",
       "disclaimer": "Itọpa ẹkọ nikan — tẹle eto ile iwosan rẹ ati ilana agbegbe.",
       "title": "Aabo tetanus (TT)",
-      "body": "Awọn iṣẹju TT dabobo ọ ati ọmọ tuntun rẹ lati arun tetanus. Kọ awọn iṣẹju lati kaadi antenatal rẹ — eyi yatọ si atọpinpin ọsẹ oyun rẹ.",
+      "body": "Abẹrẹ TT n daabobo ọ ati ọmọ tuntun rẹ lati tetanus. Bẹrẹ pẹlu TT1 (oni tabi ọjọ ti o ti koja). Gbogbo iwọn ti a forukọsilẹ n ṣii eyi ti o tẹle pẹlu ọjọ asọtẹlẹ.",
       "complete": "TT1–TT5 ti kọ",
       "archivedTitle": "Awọn iṣẹju TT lati oyun yii",
       "tapDate": "Tẹ ọjọ ti o gba {{dose}}.",
       "selectedDate": "Ọjọ ti a yan",
       "saveDose": "Fi {{dose}} pamọ",
-      "completeTitle": "Iṣeto TT pari"
+      "completeTitle": "Iṣeto TT pari",
+      "forecast": "Ni kutukutu julọ fun {{dose}}: {{date}}",
+      "forecastHint": "Ni igbagbogbo o kere ju {{interval}} lẹhin iwọn ti o kọja.",
+      "intervals": {
+        "weeks4": "ọsẹ mẹrin",
+        "months6": "oṣu mẹfa",
+        "year1": "ọdun kan"
+      },
+      "lockedUntil": "N ṣii lẹhin iwọn ti o kọja"
     },
     "trimester": {
       "1": "Trimesta akọkọ",
