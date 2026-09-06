@@ -8,14 +8,49 @@ import {
   type PaginatedResult,
 } from '@/lib/pagination';
 import type { DocumentType, PayerDocument } from '@/types/database';
+import { displayPatientName } from '@/domains/messaging/sender-display';
 
 const DOCUMENTS_BUCKET = 'provider-documents';
 const SIGNED_URL_SECONDS = 60 * 15;
 
+export type PayerDocumentListRow = PayerDocument & {
+  patient_name: string;
+};
+
+async function attachPatientNames<T extends { patient_id: string }>(
+  rows: T[],
+): Promise<(T & { patient_name: string })[]> {
+  if (!rows.length) return [];
+
+  const patientIds = [...new Set(rows.map((r) => r.patient_id))];
+  const supabase = await createClient();
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('user_id, full_name, deleted_at')
+    .in('user_id', patientIds);
+
+  const byUser = new Map(
+    (profiles ?? []).map(
+      (p: { user_id: string; full_name: string; deleted_at: string | null }) => [
+        p.user_id,
+        p,
+      ],
+    ),
+  );
+
+  return rows.map((row) => {
+    const profile = byUser.get(row.patient_id);
+    return {
+      ...row,
+      patient_name: displayPatientName(profile?.full_name, profile?.deleted_at),
+    };
+  });
+}
+
 export async function listPayerDocuments(
   payerOrganizationId: string,
   options?: { patientId?: string; page?: number; pageSize?: number },
-): Promise<PaginatedResult<PayerDocument>> {
+): Promise<PaginatedResult<PayerDocumentListRow>> {
   const page = parsePage(options?.page);
   const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
   const { from, to } = pageRange(page, pageSize);
@@ -34,7 +69,8 @@ export async function listPayerDocuments(
 
   const { data, error, count } = await query;
   if (error) throw error;
-  return paginatedResult((data ?? []) as PayerDocument[], count, page, pageSize);
+  const enriched = await attachPatientNames((data ?? []) as PayerDocument[]);
+  return paginatedResult(enriched, count, page, pageSize);
 }
 
 export async function countPayerDocuments(payerOrganizationId: string): Promise<number> {

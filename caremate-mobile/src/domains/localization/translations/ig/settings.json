@@ -54,14 +54,14 @@
   "account": {
     "title": "Akaụntụ",
     "delete": "Hichapụ akaụntụ",
-    "deleteHint": "Na-ehichapụ akaụntụ CareMate gị na data ejikọtara kpamkpam. Enweghị ike ịweghachi ya.",
+    "deleteHint": "Ọ na-ehichapụ data gị nkeonwe nke CareMate ma pụọ na ntinye aha kpamkpam. Akụkọ nlekọta nwere ike ịnọgide na-enweghị njirimara.",
     "deleteConfirmTitle": "Hichapụ akaụntụ gị?",
-    "deleteConfirmMessage": "Profaịlụ gị, kaadị mberede, njikọ ezinụlọ, na ngwaọrụ ahụike ejikọtara ga-ehichapụ kpamkpam. A ga-akagbu ndenye aha na-arụ ọrụ ma ọ bụrụ na o kwe omume.",
+    "deleteConfirmMessage": "Profaịlụ gị, kaadị mberede, njikọ ezinụlọ, na ngwaọrụ ahụike a ga-ehichapụ kpamkpam. Ị gaghị enwe ike ịbanye ọzọ. Ozi na akụkọ nwere ike ịnọgide dị ka Deleted user. A ga-akagbu ndenye aha dị ike ma ọ bụrụ na ọ ga-ekwe omume.",
     "deleteConfirmAction": "Hichapụ kpamkpam",
     "cancel": "Kagbuo",
     "deleting": "Na-ehichapụ…",
     "deleteFailed": "Enweghị ike ihichapụ akaụntụ",
     "deleteSuccessTitle": "Ehichapụrụ akaụntụ",
-    "deleteSuccessMessage": "Ehichapụrụ akaụntụ CareMate gị. Ị nwere ike ịmepụta nke ọhụrụ oge ọ bụla."
+    "deleteSuccessMessage": "Ehichapụla data gị nkeonwe nke CareMate. Ị nwere ike ịmepụta akaụntụ ọhụrụ oge ọ bụla jiri otu email."
   }
 }

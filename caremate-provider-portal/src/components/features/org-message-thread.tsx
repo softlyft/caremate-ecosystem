@@ -135,7 +135,7 @@ export function OrgMessageThread({
             <p className="text-sm text-muted">{patientCaremateId ?? '—'}</p>
           ) : (
             <p className="text-sm text-muted">
-              {patientName ?? 'Patient'}
+              {patientName ?? 'Deleted user'}
               {patientCaremateId ? ` · ${patientCaremateId}` : ''}
             </p>
           )}

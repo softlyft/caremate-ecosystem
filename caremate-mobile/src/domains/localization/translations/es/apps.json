@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "Próximo: Semana {{week}}",
       "dailyNudgeTitle": "Registra cómo te sientes hoy",
       "dailyNudgeBody": "Un registro rápido de ánimo, síntomas o patadas mantiene útil tu historial de embarazo.",
-      "ttDoseDueBody": "Han pasado al menos 4 semanas desde TT1. Pregunta en tu clínica por tu próxima dosis de tétanos (TT).",
-      "ttDoseDueTitle": "TT2 puede estar pendiente"
+      "ttDoseDueBody": "La fecha prevista para {{dose}} ha llegado. Regístrala en Pregnancy Tracker cuando recibas la vacuna y consulta a tu clínica si tienes dudas.",
+      "ttDoseDueTitle": "{{dose}} puede estar pendiente"
     },
     "motherCare": {
       "progress": "{{completed}} de {{total}} dosis registradas",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "Solo han pasado {{gap}} días desde la dosis anterior (normalmente se esperan unos {{days}} días). Confirma con tu clínica.",
+        "ttIntervalShort": "Esta fecha es anterior a la espera habitual de {{interval}} tras la dosis anterior. Confirma con tu clínica.",
         "checkTitle": "Por favor revisa esto",
         "confirmTitle": "Por favor confirma",
         "cancel": "Cancelar",
@@ -843,13 +843,21 @@
       "done": "Hecho",
       "disclaimer": "Seguimiento educativo únicamente — sigue el calendario de tu clínica y las guías locales.",
       "title": "Protección contra el tétanos (TT)",
-      "body": "Las dosis TT te protegen a ti y a tu recién nacido del tétanos. Registra las dosis de tu tarjeta prenatal — esto es independiente del seguimiento semanal del embarazo.",
+      "body": "Las vacunas TT te protegen a ti y a tu recién nacido del tétanos. Empieza con TT1 (hoy o una fecha pasada). Cada dosis registrada desbloquea la siguiente con una fecha prevista.",
       "complete": "TT1–TT5 registrados",
       "archivedTitle": "Dosis TT de este embarazo",
       "tapDate": "Toca el día en que recibiste {{dose}}.",
       "selectedDate": "Fecha seleccionada",
       "saveDose": "Guardar {{dose}}",
-      "completeTitle": "Calendario TT completo"
+      "completeTitle": "Calendario TT completo",
+      "forecast": "Más temprano para {{dose}}: {{date}}",
+      "forecastHint": "Normalmente al menos {{interval}} después de la dosis anterior.",
+      "intervals": {
+        "weeks4": "4 semanas",
+        "months6": "6 meses",
+        "year1": "1 año"
+      },
+      "lockedUntil": "Se abre tras la dosis anterior"
     },
     "trimester": {
       "1": "Primer trimestre",

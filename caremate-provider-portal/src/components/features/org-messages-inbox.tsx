@@ -95,7 +95,7 @@ export function OrgMessagesInbox({
                           href={threadHref(c.id)}
                           className="font-medium text-brand-navy hover:underline"
                         >
-                          {c.patient_name ?? 'Unknown'}
+                          {c.patient_name ?? 'Deleted user'}
                         </Link>
                         <p className="text-xs text-muted">{c.patient_caremate_id ?? '—'}</p>
                         {c.kind === 'care_coordination' ? (

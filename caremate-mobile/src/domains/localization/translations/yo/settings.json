@@ -54,14 +54,14 @@
   "account": {
     "title": "Àkọọ́lẹ̀",
     "delete": "Pa àkọọ́lẹ̀ rẹ́",
-    "deleteHint": "Yóò pa àkọọ́lẹ̀ CareMate àti data tí a ṣàmúisọpọ̀ rẹ́ títí láí. Kò ṣe é dápadà.",
+    "deleteHint": "Yóò pa data tìkára ẹ CareMate rẹ́ kí ó sì jáde kúrò nínú ìforúkọsílẹ̀ láìlẹ́yìn. Ìtàn ìtọ́jú pẹ̀lú awọn olùpèsè lè wà láì ní orúkọ.",
     "deleteConfirmTitle": "Pa àkọọ́lẹ̀ rẹ rẹ́?",
-    "deleteConfirmMessage": "Profáìlì, káàdì pájáwìrì, àsopọ̀ ìdílé, àti àwọn irinṣẹ́ ìlera tí a ṣàmúisọpọ̀ yóò parẹ́. Àwọn ìforúkọsílẹ̀ tí ń ṣiṣẹ́ yóò dìde nígbà tí ó bá ṣeé ṣe.",
+    "deleteConfirmMessage": "Àwòrán ẹni, káàdì pájáwìrì, ìsopọ̀ ẹbí, àti ohun èlò ìlera tí a ṣe àdáṣe ni a óò pa kúrò láéláé. Ìwọ kò lè wọlé mọ́. Àwọn ìfiránṣẹ́ àti ìtàn pẹ̀lú olùpèsè tàbí ilé iṣẹ́ ìṣọ̀kan lè wà gẹ́gẹ́ bí Deleted user. A óò fagilé ìforúkọsílẹ̀ tó ń ṣiṣẹ́ nígbà tí ó bá ṣeéṣe.",
     "deleteConfirmAction": "Pa rẹ́ títí láí",
     "cancel": "Fagilé",
     "deleting": "Ń pa…",
     "deleteFailed": "Kò le pa àkọọ́lẹ̀",
     "deleteSuccessTitle": "A ti pa àkọọ́lẹ̀",
-    "deleteSuccessMessage": "A ti pa àkọọ́lẹ̀ CareMate rẹ. O lè ṣẹ̀dá tuntun nígbàkúgbà."
+    "deleteSuccessMessage": "A ti pa data tìkára ẹ CareMate rẹ́. O lè ṣẹ̀dá àkántì tuntun nígbàkúgbà pẹ̀lú ímeèlì kannáà."
   }
 }

@@ -788,22 +788,30 @@
       "pastDueBody_other": "{{name}}'s estimated due date was {{count}} days ago. Update your timeline or end pregnancy when ready.",
       "dailyNudgeTitle": "Log how you feel today",
       "dailyNudgeBody": "A quick mood, symptom, or kick log keeps your pregnancy history useful.",
-      "ttDoseDueTitle": "TT2 may be due",
-      "ttDoseDueBody": "It has been at least 4 weeks since TT1. Ask your clinic about your next tetanus (TT) dose."
+      "ttDoseDueTitle": "{{dose}} may be due",
+      "ttDoseDueBody": "Your forecast date for {{dose}} has arrived. Log it in Pregnancy Tracker when you receive the shot, and ask your clinic if unsure."
     },
     "motherCare": {
       "eyebrow": "Mother care",
       "title": "Tetanus (TT) protection",
-      "body": "TT shots protect you and your newborn from tetanus. Log doses from your antenatal card — this is separate from your pregnancy week tracker.",
+      "body": "TT shots protect you and your newborn from tetanus. Start with TT1 (today or a past date). Each logged dose unlocks the next with a forecast date.",
       "progress": "{{completed}} of {{total}} doses logged",
       "nextDose": "Next: {{dose}}",
+      "forecast": "Earliest for {{dose}}: {{date}}",
+      "forecastHint": "Usually at least {{interval}} after the previous dose.",
+      "intervals": {
+        "weeks4": "4 weeks",
+        "months6": "6 months",
+        "year1": "1 year"
+      },
       "complete": "TT1–TT5 logged",
       "archivedTitle": "TT doses from this pregnancy",
       "notLogged": "Not logged",
+      "lockedUntil": "Opens after previous dose",
       "logNext": "Log next TT",
       "logTt1": "Log TT1",
       "logTitle": "Log {{dose}}",
-      "logSubtitle": "{{completed}} of {{total}} doses already logged. Pick the date you received this shot.",
+      "logSubtitle": "{{completed}} of {{total}} doses already logged. Pick the date you received this shot (today or earlier).",
       "pickDate": "Dose date",
       "tapDate": "Tap the day you received {{dose}}.",
       "selectedDate": "Selected date",
@@ -829,7 +837,7 @@
         "ttFuture": "A TT dose date cannot be in the future.",
         "ttOutOfOrder": "Log doses in order. Next expected is {{next}} (tried {{dose}}).",
         "ttBeforePrevious": "This date is before {{previous}} ({{previousDate}}). Please confirm it is correct.",
-        "ttIntervalShort": "This is only {{gap}} days after the previous dose (usually wait about {{days}} days). Please confirm with your clinic."
+        "ttIntervalShort": "This date is earlier than the usual wait of {{interval}} after the previous dose. Please confirm with your clinic."
       }
     },
     "trimester": {

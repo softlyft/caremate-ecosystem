@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "Na-abịa: Izu {{week}}",
       "dailyNudgeTitle": "Dekọ ka ị na-ahụ taa",
       "dailyNudgeBody": "Ideba obi ihe, ịrị ọrịa, ma ọ bụ mkpụkpụ na-eme ka akụkọ ime gị bara uru.",
-      "ttDoseDueBody": "O gafere izu 4 kemgbe TT1. Jụọ clinic gị maka dozi tetanus (TT) gị na-abịa.",
-      "ttDoseDueTitle": "TT2 nwere ike ịbụ oge ya"
+      "ttDoseDueBody": "Ụbọchị amụma maka {{dose}} eruola. Debanye ya na Pregnancy Tracker mgbe ị natara ọgwụ ahụ, ma jụọ ụlọ ọgwụ gị ma ọ bụrụ na ị maghị.",
+      "ttDoseDueTitle": "{{dose}} nwere ike ịbụ oge ya"
     },
     "motherCare": {
       "progress": "{{completed}} n'ime {{total}} dozi edebanyere",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "O bu naanị ụbọchị {{gap}} mgbe e nyere dozi gara aga (Ị na-echekarị ogologo ụbọchị {{days}}). Biko kwado na clinic gị.",
+        "ttIntervalShort": "Ụbọchị a dị n’ihu oge nchere a na-ahụkarị nke {{interval}} mgbe ọgwụ gara aga gasịrị. Kwenye na ụlọ ọgwụ gị.",
         "checkTitle": "Biko nyochaa nke a",
         "confirmTitle": "Biko kwado",
         "cancel": "Kagbuo",
@@ -843,13 +843,21 @@
       "done": "Emechara",
       "disclaimer": "Na-enyochi na-edu naanị — soro usoro ụlọ ahụike gị na ntuziaka mpaghara.",
       "title": "Nchedo tetanus (TT)",
-      "body": "Ogwụ TT na-eche gị na nwa gị ọhụrụ mgbochi tetanus. Dekọ dozi site na kaadị antenatal gị — nke a dị iche na onye nsochịkọ izu ime ime gị.",
+      "body": "Ọgwụ TT na-echekwa gị na nwa ọhụrụ gị site na tetanus. Malite na TT1 (taa ma ọ bụ ụbọchị gara aga). Ọgwụ ọ bụla edebanyere na-emeghe nke ọzọ yana ụbọchị amụma.",
       "complete": "Edebanyela TT1–TT5",
       "archivedTitle": "Dozi TT site na ime ime a",
       "tapDate": "Kpatu ụbọchị ị nwetara {{dose}}.",
       "selectedDate": "Ụbọchị ahọpụtara",
       "saveDose": "Chekwa {{dose}}",
-      "completeTitle": "Usoro TT emechara"
+      "completeTitle": "Usoro TT emechara",
+      "forecast": "Oge mbụ maka {{dose}}: {{date}}",
+      "forecastHint": "Ọ na-abụkarị opekata mpe {{interval}} mgbe ọgwụ gara aga gasịrị.",
+      "intervals": {
+        "weeks4": "izu 4",
+        "months6": "ọnwa 6",
+        "year1": "afọ 1"
+      },
+      "lockedUntil": "Na-emeghe mgbe ọgwụ gara aga gasịrị"
     },
     "trimester": {
       "1": "Trimesta mbụ",

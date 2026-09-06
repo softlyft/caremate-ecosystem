@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "即将到来：第 {{week}} 周",
       "dailyNudgeTitle": "记录您今天的感受",
       "dailyNudgeBody": "快速记录心情、症状或胎动，让孕期记录更有用。",
-      "ttDoseDueBody": "距 TT1 已至少 4 周。请向诊所咨询下一剂破伤风 (TT) 疫苗。",
-      "ttDoseDueTitle": "TT2 可能到期"
+      "ttDoseDueBody": "{{dose}} 的预计日期已到。接种后请在 Pregnancy Tracker 中记录，如有疑问请咨询诊所。",
+      "ttDoseDueTitle": "{{dose}} 可能到期"
     },
     "motherCare": {
       "progress": "已记录 {{completed}}/{{total}} 剂",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "距上一剂仅 {{gap}} 天（通常应间隔约 {{days}} 天）。请与您的诊所确认。",
+        "ttIntervalShort": "该日期早于上一剂后通常等待的 {{interval}}。请与诊所确认。",
         "checkTitle": "请检查此项",
         "confirmTitle": "请确认",
         "cancel": "取消",
@@ -843,13 +843,21 @@
       "done": "完成",
       "disclaimer": "仅供教育追踪——请遵循诊所安排和当地指南。",
       "title": "破伤风 (TT) 防护",
-      "body": "TT 疫苗保护您和新生儿免受破伤风。请从产前卡记录剂量——与怀孕周跟踪分开。",
+      "body": "TT 接种可保护您和新生儿免受破伤风。从 TT1 开始（今天或过去的日期）。每记录一剂会解锁下一剂并给出预计日期。",
       "complete": "已记录 TT1–TT5",
       "archivedTitle": "此次怀孕的 TT 剂量",
       "tapDate": "点按您接种 {{dose}} 的日期。",
       "selectedDate": "所选日期",
       "saveDose": "保存 {{dose}}",
-      "completeTitle": "TT 时间表已完成"
+      "completeTitle": "TT 时间表已完成",
+      "forecast": "{{dose}} 最早日期：{{date}}",
+      "forecastHint": "通常至少在上一剂后 {{interval}}。",
+      "intervals": {
+        "weeks4": "4 周",
+        "months6": "6 个月",
+        "year1": "1 年"
+      },
+      "lockedUntil": "上一剂后解锁"
     },
     "trimester": {
       "1": "第一孕期",

@@ -15,10 +15,11 @@ export function PrivacyPage() {
           users and as a working baseline for SoftLyft&apos;s legal counsel.
         </p>
         <p>
-          CareMate is built for people across <strong>Africa</strong>, with SoftLyft launching first
-          in <strong>Nigeria</strong>. Anyone elsewhere may still download and use CareMate where
-          the app stores make it available. SoftLyft primarily designs product, support, and nearby
-          care experiences around African (especially Nigerian) contexts.
+          CareMate is built for people across <strong>Africa</strong>. SoftLyft is launching first
+          in <strong>Nigeria</strong>, and CareMate is available for personal use to people{' '}
+          <strong>anywhere in the world</strong> where the App Store or Google Play makes it
+          available. Product design, support, and nearby-care experiences are shaped primarily
+          around African contexts — especially Nigeria — while remaining open to users globally.
         </p>
 
         <h2>1. Who controls your data</h2>
@@ -190,12 +191,12 @@ export function PrivacyPage() {
 
         <h2>11. International users</h2>
         <p>
-          If you use CareMate from outside Nigeria, you understand that SoftLyft operates primarily
-          from Nigeria / for African markets, and that your information may be processed in Nigeria
-          and in other countries where our providers operate. SoftLyft does not market CareMate as a
-          certified HIPAA, GDPR, or medical-device product for foreign healthcare systems. Educational
-          content and trackers remain consumer tools under our{' '}
-          <Link to="/terms">Terms of service</Link>.
+          CareMate is available worldwide for personal use. If you use CareMate from outside
+          Nigeria, you understand that SoftLyft operates primarily from Nigeria and designs for
+          African markets first, and that your information may be processed in Nigeria and in other
+          countries where our providers operate. SoftLyft does not market CareMate as a certified
+          HIPAA, GDPR, or medical-device product for foreign healthcare systems. Educational content
+          and trackers remain consumer tools under our <Link to="/terms">Terms of service</Link>.
         </p>
 
         <h2>12. Changes</h2>

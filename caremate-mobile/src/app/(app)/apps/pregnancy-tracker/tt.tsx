@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
+import { useSettingsStore } from '@/domains/profile/store';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -15,9 +16,15 @@ import {
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import {
+  getMaternalTtDose,
+  getMaternalTtForecastDateKey,
+  getMaternalTtIntervalForDose,
   getNextMaternalTtDoseId,
+  getPreviousMaternalTtDoseId,
   maternalTtSummary,
 } from '@/mini-apps/pregnancy-tracker/maternal-tt';
+import { buildPregnancyAlertCopy } from '@/mini-apps/pregnancy-tracker/localize';
+import { syncMaternalTtScheduledNotifications } from '@/mini-apps/pregnancy-tracker/scheduled-notifications';
 import {
   usePregnancyTrackerHydrated,
   usePregnancyTrackerStore,
@@ -42,15 +49,27 @@ export default function PregnancyTtScreen() {
   );
   const [selectedDate, setSelectedDate] = useState<string | null>(todayKey);
   const hydrated = usePregnancyTrackerHydrated();
+  const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
 
   const maternalTtDoses = usePregnancyTrackerStore((state) => state.maternalTtDoses);
   const logMaternalTtDose = usePregnancyTrackerStore((state) => state.logMaternalTtDose);
 
   const nextDoseId = getNextMaternalTtDoseId(maternalTtDoses);
   const summary = maternalTtSummary(maternalTtDoses);
+  const forecastKey = getMaternalTtForecastDateKey(maternalTtDoses);
+  const interval = nextDoseId ? getMaternalTtIntervalForDose(nextDoseId) : null;
+  const previousId = nextDoseId ? getPreviousMaternalTtDoseId(nextDoseId) : null;
+  const previousDose = previousId ? getMaternalTtDose(maternalTtDoses, previousId) : undefined;
+  const minSelectableKey = previousDose?.dateKey ?? undefined;
 
-  const issueMessage = (issue: PregnancyIssue): string =>
-    t(`apps.pregnancy.motherCare.validation.${issue.messageKey}`, issue.params ?? {});
+  const issueMessage = (issue: PregnancyIssue): string => {
+    if (issue.messageKey === 'ttIntervalShort' && issue.params?.intervalKey) {
+      return t('apps.pregnancy.motherCare.validation.ttIntervalShort', {
+        interval: t(`apps.pregnancy.motherCare.intervals.${String(issue.params.intervalKey)}`),
+      });
+    }
+    return t(`apps.pregnancy.motherCare.validation.${issue.messageKey}`, issue.params ?? {});
+  };
 
   const commitDose = async () => {
     if (!nextDoseId) {
@@ -86,6 +105,15 @@ export default function PregnancyTtScreen() {
 
     const save = () => {
       logMaternalTtDose(assessment.payload!.doseId, assessment.payload!.dateKey);
+      const nextDoses = [
+        ...maternalTtDoses.filter((d) => d.id !== assessment.payload!.doseId),
+        { id: assessment.payload!.doseId, dateKey: assessment.payload!.dateKey },
+      ];
+      void syncMaternalTtScheduledNotifications({
+        maternalTtDoses: nextDoses,
+        notificationsEnabled,
+        copy: buildPregnancyAlertCopy(t),
+      });
       router.back();
     };
 
@@ -147,11 +175,28 @@ export default function PregnancyTtScreen() {
         })}
       />
 
+      {forecastKey && interval ? (
+        <MiniAppCard index={0} eyebrow={t('apps.pregnancy.motherCare.eyebrow')} theme={theme}>
+          <AppText variant="body" style={{ color: theme.titleColor }}>
+            {t('apps.pregnancy.motherCare.forecast', {
+              dose: doseLabel,
+              date: formatDueDate(forecastKey),
+            })}
+          </AppText>
+          <AppText variant="caption" style={styles.muted}>
+            {t('apps.pregnancy.motherCare.forecastHint', {
+              interval: t(`apps.pregnancy.motherCare.intervals.${interval.labelKey}`),
+            })}
+          </AppText>
+        </MiniAppCard>
+      ) : null}
+
       <MiniAppCard index={1} eyebrow={t('apps.pregnancy.motherCare.pickDate')} theme={theme}>
         <MonthCalendarNavigator
           accentColor={theme.color}
           monthRef={monthRef}
           onMonthChange={setMonthRef}
+          maximumMonth={new Date(today.getFullYear(), today.getMonth(), 1)}
         />
 
         <AppText variant="caption" style={styles.muted}>
@@ -162,8 +207,23 @@ export default function PregnancyTtScreen() {
           monthRef={monthRef}
           interactive
           accentColor={theme.color}
-          onDayPress={setSelectedDate}
-          getDayState={(dayKey) => ({ selected: dayKey === selectedDate })}
+          onDayPress={(dayKey) => {
+            if (dayKey > todayKey) {
+              return;
+            }
+            if (minSelectableKey && dayKey < minSelectableKey) {
+              return;
+            }
+            setSelectedDate(dayKey);
+          }}
+          getDayState={(dayKey) => {
+            const future = dayKey > todayKey;
+            const beforePrevious = Boolean(minSelectableKey && dayKey < minSelectableKey);
+            return {
+              selected: dayKey === selectedDate,
+              disabled: future || beforePrevious,
+            };
+          }}
         />
       </MiniAppCard>
 

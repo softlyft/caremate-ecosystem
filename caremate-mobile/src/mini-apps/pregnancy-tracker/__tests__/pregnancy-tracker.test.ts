@@ -18,10 +18,13 @@ import {
 } from '@/mini-apps/pregnancy-tracker/localize';
 import { collectPregnancyAlerts } from '@/mini-apps/pregnancy-tracker/alerts';
 import {
+  getMaternalTtForecastDateKey,
   getNextMaternalTtDoseId,
   isMaternalTt2Due,
+  isMaternalTtNextDoseDue,
   maternalTtSummary,
 } from '@/mini-apps/pregnancy-tracker/maternal-tt';
+import { collectMaternalTtScheduledNotifications } from '@/mini-apps/pregnancy-tracker/scheduled-notifications';
 import {
   getTodayLog,
   listRecentDailyLogs,
@@ -37,6 +40,7 @@ import {
   getUpcomingMilestones,
   toDateKey,
 } from '@/mini-apps/pregnancy-tracker/utils';
+import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import {
   assessBirthDraft,
   assessMaternalTtDraft,
@@ -44,7 +48,6 @@ import {
   assessPregnancySetupDraft,
 } from '@/mini-apps/pregnancy-tracker/validation';
 import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
-import { parseDateKey } from '@/mini-apps/_kit/date-utils';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
 jest.mock('@/lib/supabase', () => ({
@@ -359,18 +362,54 @@ describe('pregnancy-tracker/alerts', () => {
 });
 
 describe('pregnancy-tracker/maternal-tt', () => {
-  it('detects TT2 due after 28 days', () => {
-    expect(isMaternalTt2Due([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-20')).toBe(false);
-    expect(isMaternalTt2Due([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-29')).toBe(true);
-    expect(
-      isMaternalTt2Due(
-        [
-          { id: 'tt1', dateKey: '2026-01-01' },
-          { id: 'tt2', dateKey: '2026-02-01' },
-        ],
-        '2026-03-01',
-      ),
-    ).toBe(false);
+  it('forecasts TT2 after 28 days from TT1', () => {
+    expect(getMaternalTtForecastDateKey([{ id: 'tt1', dateKey: '2026-01-01' }])).toBe(
+      '2026-01-29',
+    );
+    expect(isMaternalTtNextDoseDue([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-20')).toBe(
+      false,
+    );
+    expect(isMaternalTtNextDoseDue([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-29')).toBe(
+      true,
+    );
+  });
+
+  it('forecasts TT3/TT4/TT5 with 6 months then yearly gaps', () => {
+    const throughTt2 = [
+      { id: 'tt1' as const, dateKey: '2025-01-01' },
+      { id: 'tt2' as const, dateKey: '2025-02-01' },
+    ];
+    expect(getMaternalTtForecastDateKey(throughTt2)).toBe('2025-08-01');
+    expect(isMaternalTtNextDoseDue(throughTt2, '2025-07-31')).toBe(false);
+    expect(isMaternalTtNextDoseDue(throughTt2, '2025-08-01')).toBe(true);
+
+    const throughTt3 = [...throughTt2, { id: 'tt3' as const, dateKey: '2025-08-15' }];
+    expect(getMaternalTtForecastDateKey(throughTt3)).toBe('2026-08-15');
+
+    const throughTt4 = [...throughTt3, { id: 'tt4' as const, dateKey: '2026-09-01' }];
+    expect(getMaternalTtForecastDateKey(throughTt4)).toBe('2027-09-01');
+    expect(isMaternalTt2Due(throughTt2, '2025-08-01')).toBe(false);
+  });
+
+  it('has no forecast while TT1 is the next open dose', () => {
+    expect(getMaternalTtForecastDateKey([])).toBeNull();
+    expect(isMaternalTtNextDoseDue([], '2026-01-01')).toBe(false);
+  });
+});
+
+describe('pregnancy-tracker/scheduled-notifications', () => {
+  it('plans weekly OS reminders from the forecast date', () => {
+    const planned = collectMaternalTtScheduledNotifications({
+      maternalTtDoses: [{ id: 'tt1', dateKey: '2026-01-01' }],
+      now: parseDateKey('2026-01-10'),
+      horizonWeeks: 3,
+    });
+    expect(planned.map((item) => toDateKey(item.triggerAt))).toEqual([
+      '2026-01-29',
+      '2026-02-05',
+      '2026-02-12',
+    ]);
+    expect(planned[0]?.doseId).toBe('tt2');
   });
 });
 

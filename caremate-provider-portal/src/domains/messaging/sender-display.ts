@@ -1,5 +1,7 @@
 import type { OrgThreadMessage } from '@/domains/messaging/client-messages';
 
+export const DELETED_USER_DISPLAY_NAME = 'Deleted user';
+
 export type MessageSenderDisplay = {
   name: string;
   roleLabel: string | null;
@@ -26,6 +28,25 @@ const ROLE = {
   patient: 'patient',
 } as const;
 
+/** Prefer tombstone / scrubbed names; otherwise keep a live-patient fallback. */
+export function displayPatientName(
+  fullName: string | null | undefined,
+  deletedAt?: string | null,
+  emptyFallback = 'Patient',
+): string {
+  if (deletedAt) {
+    return DELETED_USER_DISPLAY_NAME;
+  }
+  const trimmed = fullName?.trim();
+  if (!trimmed) {
+    return emptyFallback;
+  }
+  if (trimmed === DELETED_USER_DISPLAY_NAME) {
+    return DELETED_USER_DISPLAY_NAME;
+  }
+  return trimmed;
+}
+
 export function portalThreadHeaderTitle(input: {
   conversationKind: 'org_patient' | 'care_coordination';
   patientName: string | null;
@@ -35,7 +56,7 @@ export function portalThreadHeaderTitle(input: {
   if (input.conversationKind === 'care_coordination') {
     return [input.providerOrgName, input.payerOrgName].filter(Boolean).join(' + ');
   }
-  return input.patientName?.trim() || 'Patient';
+  return displayPatientName(input.patientName);
 }
 
 export function isGroupThread(context: ThreadDisplayContext): boolean {
@@ -62,12 +83,15 @@ export function resolvePortalSenderDisplay(
 
   const senderId = message.sender_user_id;
   if (!senderId) {
-    return null;
+    return {
+      name: DELETED_USER_DISPLAY_NAME,
+      roleLabel: ROLE.participant,
+    };
   }
 
   if (context.patientUserId && senderId === context.patientUserId) {
     return {
-      name: context.patientName?.trim() || 'Patient',
+      name: displayPatientName(context.patientName),
       roleLabel: ROLE.participant,
     };
   }

@@ -64,8 +64,11 @@ Suggested Amplify app names:
 | `VITE_SITE_URL` | Production: `https://getcaremate.com`. Used for OG/canonical links and build-time sitemap. |
 | `VITE_PAYMENT_URL` | Checkout host baked in at **build** time. DEV: Amplify payment origin. Production: `https://payment.getcaremate.com`. |
 | `VITE_COMMUNITY_PORTAL_URL` | Community join links. |
+| `VITE_CARE_URL` | Care Portal origin (provider/payer CTAs). DEV: Amplify care origin. Production: care host / Amplify care app. |
 | `VITE_SUPABASE_URL` | Same Supabase project as mobile — loads provider/payer org plan prices on `/providers/pricing` and `/payers/pricing`. |
 | `VITE_SUPABASE_ANON_KEY` | Anon / publishable key (not service role). |
+
+All four host URLs are **required** at build time (`brand.ts`). Changing Amplify env vars alone does **not** update a live SPA — Vite inlines them into JS during `npm run build`. After editing env vars, set `AMPLIFY_FORCE_BUILD=true`, redeploy `main`, then remove the force flag (the build guard otherwise skips compile when `caremate-website/` is unchanged).
 
 Build also emits `robots.txt`, `sitemap.xml`, and `llms.txt` into the static output.
 ### Payment checkout (`caremate-payment-gateway`)
@@ -231,7 +234,7 @@ Or the simpler catch-all used by many Vite SPAs:
 | Next app treated as static | Recreate / ensure framework is Next.js WEB_COMPUTE; artifacts use `.next` |
 | "Welcome / Your app will appear here once you complete your first deployment" placeholder for a Next.js portal | Switch to Next.js SSR: `aws amplify update-app --app-id <APP_ID> --platform WEB_COMPUTE`, then redeploy `main` |
 | Amplify `!!! Internal error` immediately | Invalid `amplify.yml` / `customRules` — use the checked-in specs without `customRules`; set SPA rewrites in the Console |
-| Payment shows missing Supabase env | Set `VITE_*` in Amplify and **redeploy** (Vite inlines at build) |
+| Payment / website shows missing Supabase or `VITE_PAYMENT_URL is required` | Confirm vars are on the **website** Amplify app (not payment), branch `main`. Then set `AMPLIFY_FORCE_BUILD=true`, redeploy, remove the flag — env-only changes are skipped by the build guard otherwise. Vite inlines `VITE_*` at build time. |
 | Auth redirect errors after domain attach | Add Amplify URL to Supabase Auth redirect allow list |
 | Provider catalog upload fails in admin | Set `PROVIDER_INGEST_URL` + API key to a reachable ingest deployment |
 | **Cloudflare Pages still deploys on merge to `main`** | Not from this repo — disconnect or delete the Pages project in Cloudflare Console (see below) |

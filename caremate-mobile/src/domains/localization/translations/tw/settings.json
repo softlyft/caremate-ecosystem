@@ -54,14 +54,14 @@
   "account": {
     "title": "Akaunt",
     "delete": "Popa akaunt",
-    "deleteHint": "Ɛbɛpopa wo CareMate akaunt ne data a wɔakyekyɛ mu koraa. Worrentumi nsane.",
+    "deleteHint": "Ɛpopa wo CareMate data a ɛyɛ wo de na ɛma wo fi mu daa. Ɔyarehwɛ abakɔsɛm a ɛwɔ provider nkyɛn betumi atena sɛ wɔayi din no.",
     "deleteConfirmTitle": "Popa wo akaunt?",
-    "deleteConfirmMessage": "Wo profile, emergency card, abusua nkitahodi, ne health tools a wɔakyekyɛ mu bɛpopa koraa. Subscriptions a ɛreyɛ adwuma bɛtwa mu sɛ ɛbɛyɛ a.",
+    "deleteConfirmMessage": "Wo profile, emergency card, abusua nkitahodi, ne health tools bɛpopa koraa. Worentumi nkɔ so ntumi nkɔ mu bio. Nkrataa ne abakɔsɛm a ɛwɔ providers anaa insurers nkyɛn betumi atena sɛ Deleted user. Subscriptions a ɛreyɛ adwuma bɛtwa mu sɛ ɛbɛyɛ a.",
     "deleteConfirmAction": "Popa koraa",
     "cancel": "Gyae",
     "deleting": "Ɛrepopa…",
     "deleteFailed": "Antumi ampopa akaunt",
     "deleteSuccessTitle": "Wɔapopa akaunt",
-    "deleteSuccessMessage": "Wɔapopa wo CareMate akaunt. Wobetumi abɔ foforo bere biara."
+    "deleteSuccessMessage": "Wɔapopa wo CareMate data a ɛyɛ wo de. Wubetumi abɔ account foforo bere biara a wode email koro no bɛyɛ."
   }
 }

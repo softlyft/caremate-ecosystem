@@ -23,6 +23,7 @@ export type OrgDocumentRow = {
   title: string;
   document_type: DocumentType;
   patient_id: string;
+  patient_name: string;
   created_at: string;
 };
 
@@ -96,7 +97,7 @@ export function OrgDocumentsPanel({
                           {DOCUMENT_TYPE_LABELS[doc.document_type] ?? doc.document_type}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{doc.patient_id.slice(0, 8)}…</TableCell>
+                      <TableCell>{doc.patient_name}</TableCell>
                       <TableCell>{format(new Date(doc.created_at), 'MMM d, yyyy')}</TableCell>
                       <TableCell className="text-right">
                         <OpenDocumentButton documentId={doc.id} openAction={openAction} />

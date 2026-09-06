@@ -89,7 +89,7 @@ Edge Function **runtime** secrets on **prod** Supabase (`EMAIL_PROVIDER`, SMTP/S
 | Confirm production Supabase migrations applied | Run Supabase Deploy on `prod` once secrets exist; or `supabase:link:prod` + `db push` |
 | Deploy Edge Functions to prod | Same workflow / `supabase:functions:deploy:prod` |
 | Auth SMTP on prod project | Dashboard Auth → SMTP (same mailbox as product mail for MVP) |
-| FCM / APNs google services files | No `google-services.json` / `GoogleService-Info.plist` in app — don’t claim reliable OS push in listing yet |
+| FCM / APNs for Expo Push | `google-services.json` is in the app (prod + `.dev` packages). Still required: upload **FCM V1 service account** to Expo (and APNs `.p8` for iOS). See [Android Expo Push setup](./notifications.md#android-expo-push-setup). |
 | Gateway cutover policy | Set URL or disclose plaintext sync |
 
 ---

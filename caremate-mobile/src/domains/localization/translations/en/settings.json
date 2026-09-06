@@ -68,14 +68,14 @@
   "account": {
     "title": "Account",
     "delete": "Delete account",
-    "deleteHint": "Permanently deletes your CareMate account and synced data. This cannot be undone.",
+    "deleteHint": "Erases your personal CareMate data and signs you out permanently. Care history with providers may remain deidentified.",
     "deleteConfirmTitle": "Delete your account?",
-    "deleteConfirmMessage": "Your profile, emergency card, family links, and synced health tools for this account will be permanently removed. Active subscriptions will be cancelled when possible.",
+    "deleteConfirmMessage": "Your profile, emergency card, family links, and synced health tools will be permanently erased. You will not be able to sign in again. Messages and care history with providers or insurers may remain labeled as Deleted user. Active subscriptions will be cancelled when possible.",
     "deleteConfirmAction": "Delete permanently",
     "cancel": "Cancel",
     "deleting": "Deleting account…",
     "deleteFailed": "Couldn't delete account",
     "deleteSuccessTitle": "Account deleted",
-    "deleteSuccessMessage": "Your CareMate account has been removed. You can create a new one anytime."
+    "deleteSuccessMessage": "Your personal CareMate data has been erased. You can create a new account anytime with the same email."
   }
 }

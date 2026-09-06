@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "Reba: Dapɛn {{week}}",
       "dailyNudgeTitle": "Log how you feel nnɛ",
       "dailyNudgeBody": "Mood, symptom, anaa kick log kakra ma wo pregnancy history no ayɛ mfa.",
-      "ttDoseDueBody": "At least 4 weeks since TT1. Bisa wo clinic fa wo next tetanus (TT) dose.",
-      "ttDoseDueTitle": "TT2 betumi due"
+      "ttDoseDueBody": "{{dose}} forecast da no adu. Log wɔ Pregnancy Tracker mu bere a wubenya injection no, na bisa wo clinic sɛ wohu sɛ ɛyɛ den.",
+      "ttDoseDueTitle": "{{dose}} betumi due"
     },
     "motherCare": {
       "progress": "{{completed}} wɔ {{total}} doses logged",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "Eyi yɛ {{gap}} da nkutoo a edi dose no akyi (sɛnea ɛtaa yɛ de, twɛn kwan {{days}} da). Confirm ne wo clinic.",
+        "ttIntervalShort": "Da yi di {{interval}} a ɛtaa yɛ akyi dose a ɛtwaa mu no anim. Mesrɛ wo, bisa wo clinic.",
         "checkTitle": "Please check this",
         "confirmTitle": "Please confirm",
         "cancel": "Twa",
@@ -843,13 +843,21 @@
       "done": "Awie",
       "disclaimer": "Educational tracking nko — di wo clinic schedule ne local guidance so.",
       "title": "Tetanus (TT) protection",
-      "body": "TT shots bɔ wo ne wo newborn ho fi tetanus. Log doses fi wo antenatal card — eyi yɛ separate fi wo pregnancy week tracker.",
+      "body": "TT injections bɔ wo ne wo akokoraa ho ban fi tetanus ho. Fi TT1 ase (nnɛ anaa da a atwam). Dose biara a wolog no bue nea ɛdi hɔ a forecast date wɔ ho.",
       "complete": "TT1–TT5 logged",
       "archivedTitle": "TT doses fi pregnancy yi",
       "tapDate": "Tap da a wogye {{dose}}.",
       "selectedDate": "Selected date",
       "saveDose": "Save {{dose}}",
-      "completeTitle": "TT schedule complete"
+      "completeTitle": "TT schedule complete",
+      "forecast": "Ntɛm koraa ma {{dose}}: {{date}}",
+      "forecastHint": "Taataa ɛyɛ {{interval}} koraa akyi dose a ɛtwaa mu no.",
+      "intervals": {
+        "weeks4": "nnawɔtwe 4",
+        "months6": "bosome 6",
+        "year1": "afe 1"
+      },
+      "lockedUntil": "Ɛbue dose a ɛtwaa mu no akyi"
     },
     "trimester": {
       "1": "First trimester",
