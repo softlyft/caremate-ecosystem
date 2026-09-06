@@ -204,7 +204,7 @@ Kid doses notify the signed-in user only in MVP (both-parents fan-out waits for 
 | Milestone week soon (≤7 days) | ✅ | ⚪ (Self) | — | `evaluatePregnancyAlerts`; OS push deferred |
 | Due date approaching / due day / past due | ✅ | ⚪ (Self) | — | In-app inbox only today |
 | Daily log nudge | ✅ | ⚪ (Self) | — | Gentle; respects notifications toggle |
-| Maternal TT2 due (≥4 weeks after TT1) | ✅ | ⚪ (Self) | — | Mother-care ladder; works without pregnancy timeline |
+| Maternal TT due (TT2–TT5 from forecast) | ✅ | ✅ (Self, local weekly) | — | Weekly from forecast for active next dose; works without pregnancy timeline |
 | Partner share (future) | ✅ | ✅ (Partner) | — | |
 
 ### Period Tracker

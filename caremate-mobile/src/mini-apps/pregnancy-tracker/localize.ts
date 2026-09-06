@@ -75,7 +75,7 @@ export function buildPregnancyAlertCopy(t: TranslateFn): PregnancyAlertCopy {
       t(pluralKey('apps.pregnancy.alerts.pastDueBody', days), { name, count: days }),
     dailyNudgeTitle: () => t('apps.pregnancy.alerts.dailyNudgeTitle'),
     dailyNudgeBody: () => t('apps.pregnancy.alerts.dailyNudgeBody'),
-    ttDoseDueTitle: () => t('apps.pregnancy.alerts.ttDoseDueTitle'),
-    ttDoseDueBody: () => t('apps.pregnancy.alerts.ttDoseDueBody'),
+    ttDoseDueTitle: (dose) => t('apps.pregnancy.alerts.ttDoseDueTitle', { dose }),
+    ttDoseDueBody: (dose) => t('apps.pregnancy.alerts.ttDoseDueBody', { dose }),
   };
 }

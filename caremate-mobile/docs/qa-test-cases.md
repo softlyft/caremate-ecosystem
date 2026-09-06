@@ -361,8 +361,10 @@ Full portal-side matrix: [`caremate-provider-portal/docs/qa-testing.md`](../../c
 | PG-07 | P1 | Ended pregnancy | Set up again | Soft confirm; new pregnancy id; empty daily logs. |
 | PG-08 | P2 | Active + notifications on | Focus dashboard near milestone/due | In-app pregnancy cards appear (no OS push required). |
 | PG-09 | P0 | Fresh or active | Open Pregnancy Tracker → Mother care TT card | TT1–TT5 rows visible without pregnancy setup. |
-| PG-10 | P0 | No TT logged | Log TT1 then TT2 (≥4 weeks later) | Doses save; End/close pregnancy keeps TT history. |
-| PG-11 | P1 | TT1 logged ≥28 days ago, no TT2 | Notifications on; open dashboard | In-app TT2 due nudge. |
+| PG-10 | P0 | No TT logged | Log TT1 then TT2 (≥4 weeks later) | Doses save; forecast for TT2 shown after TT1; End/close pregnancy keeps TT history. |
+| PG-11 | P1 | TT1 logged ≥28 days ago, no TT2 | Notifications on; open dashboard | In-app TT2 due nudge (weekly); local OS weekly push from forecast. |
+| PG-11b | P1 | TT2 logged; ≥6 months later | Notifications on; open dashboard | TT3 forecast shown; TT3 due nudge when forecast reached. |
+| PG-11c | P1 | TT3 / TT4 logged | Wait ≥1 year for next | TT4 / TT5 unlock with yearly forecast + weekly reminders from forecast. |
 | PG-12 | P0 | Postpartum | Finish postpartum care | Archives as birth; clears timeline; Period Tracker resumes. |
 
 ---

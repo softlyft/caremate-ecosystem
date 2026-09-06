@@ -109,7 +109,10 @@ applications:
             - bash scripts/amplify-build-guard.sh run bash scripts/amplify-install.sh
         build:
           commands:
-            - bash scripts/amplify-build-guard.sh run npm run build --workspace=caremate-website
+            # Vite only inlines VITE_* at compile time. Materialize Amplify Console
+            # env into .env.production (same pattern as Next portals) so a skipped
+            # env-only redeploy is obvious, and missing keys fail the build.
+            - bash scripts/amplify-build-guard.sh run bash -c "env | grep -E '^(VITE_SITE_URL|VITE_COMMUNITY_PORTAL_URL|VITE_PAYMENT_URL|VITE_CARE_URL|VITE_SUPABASE_URL|VITE_SUPABASE_ANON_KEY)=' > caremate-website/.env.production && npm run build --workspace=caremate-website"
         postBuild:
           commands:
             - bash scripts/amplify-build-guard.sh record

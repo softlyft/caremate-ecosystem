@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "Inakuja: Wiki {{week}}",
       "dailyNudgeTitle": "Andika unavyojisikia leo",
       "dailyNudgeBody": "Kurekodi haraka hali, dalili, au mateka huweka historia yako ya ujauzito kuwa na manufaa.",
-      "ttDoseDueBody": "Imepita angalau wiki 4 tangu TT1. Uliza kliniki yako kuhusu dozi yako ijayo ya pepo (TT).",
-      "ttDoseDueTitle": "TT2 inaweza kuwa inayofaa"
+      "ttDoseDueBody": "Tarehe ya utabiri ya {{dose}} imefika. Iandike katika Pregnancy Tracker unapopokea chanjo, na uliza kliniki yako ukiwa na shaka.",
+      "ttDoseDueTitle": "{{dose}} inaweza kuwa inayofaa"
     },
     "motherCare": {
       "progress": "{{completed}} kati ya {{total}} dozi zimeandikwa",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "Hii ni siku {{gap}} tu baada ya dozi iliyotangulia (kawaida subiri siku {{days}}). Thibitisha na kliniki yako.",
+        "ttIntervalShort": "Tarehe hii ni mapema kuliko subira ya kawaida ya {{interval}} baada ya dozi iliyotangulia. Thibitisha na kliniki yako.",
         "checkTitle": "Tafadhali angalia hii",
         "confirmTitle": "Tafadhali thibitisha",
         "cancel": "Ghairi",
@@ -843,13 +843,21 @@
       "done": "Imekamilika",
       "disclaimer": "Ufuatiliaji wa elimu tu — fuata ratiba ya kliniki yako na mwongozo wa ndani.",
       "title": "Ulinzi wa pepo (TT)",
-      "body": "Dozi za TT zinakulinda wewe na mtoto wako mpya dhidi ya pepo. Andika dozi kutoka kadi yako ya ujauzito — hii ni tofauti na kifuatiliaji cha wiki za ujauzito.",
+      "body": "Chanjo za TT zinakulinda wewe na mtoto wako mchanga dhidi ya pepopunda. Anza na TT1 (leo au tarehe iliyopita). Kila dozi iliyorekodiwa inafungua inayofuata na tarehe ya utabiri.",
       "complete": "TT1–TT5 zimeandikwa",
       "archivedTitle": "Dozi za TT kutoka ujauzito huu",
       "tapDate": "Gusa siku ulipopokea {{dose}}.",
       "selectedDate": "Tarehe iliyochaguliwa",
       "saveDose": "Hifadhi {{dose}}",
-      "completeTitle": "Ratiba ya TT imekamilika"
+      "completeTitle": "Ratiba ya TT imekamilika",
+      "forecast": "Mapema zaidi kwa {{dose}}: {{date}}",
+      "forecastHint": "Kawaida angalau {{interval}} baada ya dozi iliyotangulia.",
+      "intervals": {
+        "weeks4": "wiki 4",
+        "months6": "miezi 6",
+        "year1": "mwaka 1"
+      },
+      "lockedUntil": "Inafunguka baada ya dozi iliyotangulia"
     },
     "trimester": {
       "1": "Trimesta ya kwanza",

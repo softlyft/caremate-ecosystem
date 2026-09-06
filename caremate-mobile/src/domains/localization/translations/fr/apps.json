@@ -807,8 +807,8 @@
       "milestoneSoonTitle": "À venir : Semaine {{week}}",
       "dailyNudgeTitle": "Enregistrer ce que vous ressentez aujourd'hui",
       "dailyNudgeBody": "Un bref journal d'humeur, de symptômes ou de coups de pied rend votre historique de grossesse utile.",
-      "ttDoseDueBody": "Au moins 4 semaines se sont écoulées depuis TT1. Demandez à votre clinique la prochaine dose de tétanos (TT).",
-      "ttDoseDueTitle": "TT2 peut être due"
+      "ttDoseDueBody": "La date prévue pour {{dose}} est arrivée. Enregistrez-la dans Pregnancy Tracker lorsque vous recevez l’injection, et demandez à votre clinique en cas de doute.",
+      "ttDoseDueTitle": "{{dose}} peut être due"
     },
     "motherCare": {
       "progress": "{{completed}} sur {{total}} doses enregistrées",
@@ -822,7 +822,7 @@
         "tt5": "TT5"
       },
       "validation": {
-        "ttIntervalShort": "Il ne s'est écoulé que {{gap}} jours depuis la dose précédente (attendre environ {{days}} jours est habituel). Veuillez confirmer avec votre clinique.",
+        "ttIntervalShort": "Cette date est antérieure au délai habituel de {{interval}} après la dose précédente. Veuillez confirmer avec votre clinique.",
         "checkTitle": "Veuillez vérifier ceci",
         "confirmTitle": "Veuillez confirmer",
         "cancel": "Annuler",
@@ -843,13 +843,21 @@
       "done": "Terminé",
       "disclaimer": "Suivi éducatif uniquement — suivez le calendrier de votre clinique et les recommandations locales.",
       "title": "Protection contre le tétanos (TT)",
-      "body": "Les doses TT vous protègent, vous et votre nouveau-né, contre le tétanos. Enregistrez les doses de votre carnet prénatal — c'est distinct du suivi hebdomadaire de grossesse.",
+      "body": "Les doses TT vous protègent, vous et votre nouveau-né, contre le tétanos. Commencez par TT1 (aujourd’hui ou une date passée). Chaque dose enregistrée débloque la suivante avec une date prévue.",
       "complete": "TT1–TT5 enregistrés",
       "archivedTitle": "Doses TT de cette grossesse",
       "tapDate": "Appuyez sur le jour où vous avez reçu {{dose}}.",
       "selectedDate": "Date sélectionnée",
       "saveDose": "Enregistrer {{dose}}",
-      "completeTitle": "Calendrier TT terminé"
+      "completeTitle": "Calendrier TT terminé",
+      "forecast": "Au plus tôt pour {{dose}} : {{date}}",
+      "forecastHint": "Habituellement au moins {{interval}} après la dose précédente.",
+      "intervals": {
+        "weeks4": "4 semaines",
+        "months6": "6 mois",
+        "year1": "1 an"
+      },
+      "lockedUntil": "S’ouvre après la dose précédente"
     },
     "trimester": {
       "1": "Premier trimestre",

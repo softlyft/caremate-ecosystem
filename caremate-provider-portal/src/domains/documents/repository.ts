@@ -14,15 +14,50 @@ import {
   isHealthDataGatewayConfigured,
 } from '@/lib/health-data-gateway';
 import type { DocumentType, ProviderDocument } from '@/types/database';
+import { displayPatientName } from '@/domains/messaging/sender-display';
 
 const DOCUMENTS_BUCKET = 'provider-documents';
 /** Match CareMate mobile signed URL lifetime. */
 const SIGNED_URL_SECONDS = 60 * 15;
 
+export type ProviderDocumentListRow = ProviderDocument & {
+  patient_name: string;
+};
+
+async function attachPatientNames<T extends { patient_id: string }>(
+  rows: T[],
+): Promise<(T & { patient_name: string })[]> {
+  if (!rows.length) return [];
+
+  const patientIds = [...new Set(rows.map((r) => r.patient_id))];
+  const supabase = await createClient();
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('user_id, full_name, deleted_at')
+    .in('user_id', patientIds);
+
+  const byUser = new Map(
+    (profiles ?? []).map(
+      (p: { user_id: string; full_name: string; deleted_at: string | null }) => [
+        p.user_id,
+        p,
+      ],
+    ),
+  );
+
+  return rows.map((row) => {
+    const profile = byUser.get(row.patient_id);
+    return {
+      ...row,
+      patient_name: displayPatientName(profile?.full_name, profile?.deleted_at),
+    };
+  });
+}
+
 export async function listDocuments(
   organizationId: string,
   options?: { patientId?: string; page?: number; pageSize?: number },
-): Promise<PaginatedResult<ProviderDocument>> {
+): Promise<PaginatedResult<ProviderDocumentListRow>> {
   const page = parsePage(options?.page);
   const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
   const { from, to } = pageRange(page, pageSize);
@@ -41,7 +76,8 @@ export async function listDocuments(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
     const slice = rows.slice(from, to + 1);
-    return paginatedResult(slice, rows.length, page, pageSize);
+    const enriched = await attachPatientNames(slice);
+    return paginatedResult(enriched, rows.length, page, pageSize);
   }
 
   if (isHealthDataGatewayConfigured()) {
@@ -62,7 +98,8 @@ export async function listDocuments(
 
   const { data, error, count } = await query;
   if (error) throw error;
-  return paginatedResult((data ?? []) as ProviderDocument[], count, page, pageSize);
+  const enriched = await attachPatientNames((data ?? []) as ProviderDocument[]);
+  return paginatedResult(enriched, count, page, pageSize);
 }
 
 export async function countDocuments(organizationId: string): Promise<number> {

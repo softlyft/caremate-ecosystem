@@ -29,6 +29,8 @@ import {
 } from '@/mini-apps/pregnancy-tracker/utils';
 import {
   getMaternalTtDose,
+  getMaternalTtForecastDateKey,
+  getMaternalTtIntervalForDose,
   MATERNAL_TT_DOSE_IDS,
   maternalTtSummary,
 } from '@/mini-apps/pregnancy-tracker/maternal-tt';
@@ -46,6 +48,7 @@ import {
   localizeSymptom,
   localizeTrimester,
 } from '@/mini-apps/pregnancy-tracker/localize';
+import { syncMaternalTtScheduledNotifications } from '@/mini-apps/pregnancy-tracker/scheduled-notifications';
 import { pluralKey } from '@/mini-apps/_kit/i18n';
 import { palette } from '@/theme';
 import { TrimesterProgress } from '@/mini-apps/pregnancy-tracker/TrimesterProgress';
@@ -84,6 +87,11 @@ export default function PregnancyTrackerScreen() {
   const historyLogs = recentLogs.filter((log) => log.dateKey !== todayKey);
   const ttSummary = useMemo(() => maternalTtSummary(maternalTtDoses), [maternalTtDoses]);
   const nextTtId = ttSummary.next;
+  const ttForecastKey = useMemo(
+    () => getMaternalTtForecastDateKey(maternalTtDoses),
+    [maternalTtDoses],
+  );
+  const ttNextInterval = nextTtId ? getMaternalTtIntervalForDose(nextTtId) : null;
   const ttCollapsedSummary = ttSummary.next
     ? `${t('apps.pregnancy.motherCare.progress', {
         completed: ttSummary.completed,
@@ -117,6 +125,7 @@ export default function PregnancyTrackerScreen() {
       if (!hydrated || !userId) {
         return;
       }
+      const copy = buildPregnancyAlertCopy(t);
       void evaluatePregnancyAlerts({
         userId,
         lastMenstrualPeriod,
@@ -126,7 +135,12 @@ export default function PregnancyTrackerScreen() {
         status,
         maternalTtDoses,
         notificationsEnabled,
-        copy: buildPregnancyAlertCopy(t),
+        copy,
+      });
+      void syncMaternalTtScheduledNotifications({
+        maternalTtDoses,
+        notificationsEnabled,
+        copy,
       });
     }, [
       hydrated,
@@ -246,14 +260,37 @@ export default function PregnancyTrackerScreen() {
               })
             : t('apps.pregnancy.motherCare.complete')}
         </AppText>
+        {ttForecastKey && nextTtId && ttNextInterval ? (
+          <AppText variant="caption" style={styles.muted}>
+            {t('apps.pregnancy.motherCare.forecast', {
+              dose: t(`apps.pregnancy.motherCare.doses.${nextTtId}`),
+              date: formatDueDate(ttForecastKey),
+            })}
+            {' · '}
+            {t('apps.pregnancy.motherCare.forecastHint', {
+              interval: t(`apps.pregnancy.motherCare.intervals.${ttNextInterval.labelKey}`),
+            })}
+          </AppText>
+        ) : null}
         {MATERNAL_TT_DOSE_IDS.map((doseId) => {
           const logged = getMaternalTtDose(maternalTtDoses, doseId);
+          const isNext = doseId === nextTtId;
+          const isLocked = !logged && !isNext;
           return (
             <MiniAppRow
               key={doseId}
               title={t(`apps.pregnancy.motherCare.doses.${doseId}`)}
               subtitle={
-                logged ? formatDueDate(logged.dateKey) : t('apps.pregnancy.motherCare.notLogged')
+                logged
+                  ? formatDueDate(logged.dateKey)
+                  : isNext && ttForecastKey
+                    ? t('apps.pregnancy.motherCare.forecast', {
+                        dose: t(`apps.pregnancy.motherCare.doses.${doseId}`),
+                        date: formatDueDate(ttForecastKey),
+                      })
+                    : isLocked
+                      ? t('apps.pregnancy.motherCare.lockedUntil')
+                      : t('apps.pregnancy.motherCare.notLogged')
               }
               soft={logged ? theme.color : theme.backgroundColor}
             />
