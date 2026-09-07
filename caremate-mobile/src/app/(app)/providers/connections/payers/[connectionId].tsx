@@ -2,11 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Unlink } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
 import { AppText } from '@/components/ui/AppText';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Button, FormField, Input } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -17,7 +17,6 @@ import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 export default function ConnectedPayerDetailScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const isGuest = useIsGuest();
   const queryClient = useQueryClient();
   const { connectionId: rawId } = useLocalSearchParams<{ connectionId?: string }>();
@@ -92,10 +91,7 @@ export default function ConnectedPayerDetailScreen() {
 
   return (
     <Screen padded={false}>
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-      >
+      <KeyboardAwareScroll contentContainerStyle={styles.content}>
         <View style={[styles.card, shadow.soft]}>
           <AppText variant="sectionTitle">
             {connection.payerName ?? t('insurance.connections.payerFallback')}
@@ -173,7 +169,7 @@ export default function ConnectedPayerDetailScreen() {
             </Button>
           )}
         </View>
-      </ScrollView>
+      </KeyboardAwareScroll>
     </Screen>
   );
 }

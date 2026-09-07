@@ -14,7 +14,6 @@ import {
 } from 'lucide-react-native';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
-import Animated from 'react-native-reanimated';
 import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -22,6 +21,7 @@ import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection'
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
@@ -250,10 +250,7 @@ export default function ProviderDetailScreen() {
 
   return (
     <Screen padded={false}>
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      >
+      <KeyboardAwareScroll contentContainerStyle={styles.content} restingBottomPad={40}>
         <AnimatedSection index={0}>
           <View style={[styles.heroShell, shadow.card]}>
             <LinearGradientFill
@@ -728,7 +725,7 @@ export default function ProviderDetailScreen() {
             </Button>
           </View>
         </AnimatedSection>
-      </Animated.ScrollView>
+      </KeyboardAwareScroll>
     </Screen>
   );
 }
@@ -737,7 +734,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
-    paddingBottom: 40,
     gap: spacing.md,
   },
   heroShell: {

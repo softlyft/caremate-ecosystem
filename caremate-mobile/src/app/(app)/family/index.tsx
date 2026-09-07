@@ -2,8 +2,19 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { Baby, Copy, Link2, Share2, UserPlus, Users } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
-import { Alert, Share, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Share,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,6 +46,10 @@ import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import {
+  MiniAppKeyboardContext,
+  useScheduleFocusedInputScroll,
+} from '@/hooks/use-keyboard-aware-scroll';
 import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -43,6 +58,7 @@ const ACCENT = palette.brandBlue;
 const SOFT = palette.brandBlueLight;
 const SOFT_END = '#EFF6FF';
 const TITLE = palette.brandBlue;
+const FAMILY_HEADER_HEIGHT = 56;
 
 function formatDob(value: string | null): string {
   if (!value) return '—';
@@ -69,6 +85,31 @@ export default function FamilyHubScreen() {
   const isGuest = useIsGuest();
   const tier = usePremiumTier();
   const queryClient = useQueryClient();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
+      setKeyboardHeight(event.endCoordinates.height);
+      keyboardApi.scheduleScrollIntoView();
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardApi]);
 
   const householdQuery = useQuery({
     queryKey: [...QUERY_KEYS.familyHousehold, userId],
@@ -435,13 +476,35 @@ export default function FamilyHubScreen() {
   const familyPlanAllowsInvite = canConnectSpouse(tier);
   const canSendInvite = isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
 
+  const bottomPad =
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
+      : insets.bottom + 40;
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + FAMILY_HEADER_HEIGHT : 0;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
+
   return (
-    <Screen padded={false}>
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
-        keyboardShouldPersistTaps="handled"
-      >
+    <MiniAppKeyboardContext.Provider value={keyboardApi}>
+      <Screen padded={false}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          <ScrollView
+            ref={scrollRef}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            automaticallyAdjustKeyboardInsets={false}
+            contentInsetAdjustmentBehavior="never"
+            scrollEventThrottle={16}
+            onScroll={onScroll}
+          >
         <AnimatedSection index={0}>
           <FamilyHero
             title={t('family.yourFamily')}
@@ -827,8 +890,10 @@ export default function FamilyHubScreen() {
             )}
           </View>
         </AnimatedSection>
-      </Animated.ScrollView>
-    </Screen>
+      </ScrollView>
+        </KeyboardAvoidingView>
+      </Screen>
+    </MiniAppKeyboardContext.Provider>
   );
 }
 
@@ -876,6 +941,9 @@ function FamilyHero({ title, subtitle, meta }: { title: string; subtitle: string
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   guestWrap: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,

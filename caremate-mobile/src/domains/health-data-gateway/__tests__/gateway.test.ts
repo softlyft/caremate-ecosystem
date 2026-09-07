@@ -84,6 +84,38 @@ describe('gateway body mappers', () => {
       date_of_birth: '1990-01-01',
       national_id: '123',
     });
+    expect(body).not.toHaveProperty('patient_id');
+    expect(body).not.toHaveProperty('emergency_share_token');
+  });
+
+  it('includes patient_id only when minted', () => {
+    const body = profileToGatewayBody({
+      id: 'p1',
+      userId: 'u1',
+      fullName: 'Ada',
+      email: null,
+      phone: null,
+      dateOfBirth: null,
+      avatarUrl: null,
+      countryCode: null,
+      languageCode: null,
+      state: null,
+      gender: null,
+      addressLine: null,
+      city: null,
+      postalCode: null,
+      nationalId: null,
+      maritalStatus: null,
+      isHealthPractitioner: false,
+      patientId: '123456789012',
+      emergencyShareToken: 'abcdef0123456789abcdef0123456789',
+      syncStatus: 'pending',
+      deletedAt: null,
+      createdAt: 't0',
+      updatedAt: 't1',
+    });
+    expect(body.patient_id).toBe('123456789012');
+    expect(body.emergency_share_token).toBe('abcdef0123456789abcdef0123456789');
   });
 
   it('maps emergency arrays through unchanged', () => {

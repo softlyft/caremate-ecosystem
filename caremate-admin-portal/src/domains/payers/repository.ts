@@ -70,6 +70,25 @@ export async function getPayerOrganization(id: string): Promise<PayerOrganizatio
   return data as PayerOrganization | null;
 }
 
+async function assertPayerClaimEmailAvailable(
+  email: string | null,
+  excludeOrganizationId?: string,
+): Promise<void> {
+  if (!email) return;
+  const supabase = await createClient();
+  const { data: ownedBy, error } = await supabase.rpc('care_portal_claim_email_owned_by', {
+    p_email: email,
+    p_exclude_provider_org_id: null,
+    p_exclude_payer_org_id: excludeOrganizationId ?? null,
+  });
+  if (error) throw error;
+  if (ownedBy === 'provider') {
+    throw new Error(
+      'This email is already used by a provider organization. Provider and payer claim emails must be unique.',
+    );
+  }
+}
+
 export async function createPayerOrganization(
   input: PayerOrganizationWriteInput,
 ): Promise<PayerOrganization> {
@@ -81,6 +100,8 @@ export async function createPayerOrganization(
   const phone = emptyToNull(input.phone);
   const website = emptyToNull(input.website);
   const address = emptyToNull(input.address);
+
+  await assertPayerClaimEmailAvailable(email);
 
   const { data, error } = await supabase
     .from('payer_organizations')
@@ -124,6 +145,8 @@ export async function updatePayerOrganization(
   const phone = emptyToNull(input.phone);
   const website = emptyToNull(input.website);
   const address = emptyToNull(input.address);
+
+  await assertPayerClaimEmailAvailable(email, organizationId);
 
   const { data, error } = await supabase
     .from('payer_organizations')

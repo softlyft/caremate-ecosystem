@@ -1,9 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
@@ -20,10 +30,16 @@ import { QUERY_KEYS } from '@/constants/config';
 import { createChildProfileSchema, FAMILY_GENDERS, familyRepository } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
+import {
+  MiniAppKeyboardContext,
+  useScheduleFocusedInputScroll,
+} from '@/hooks/use-keyboard-aware-scroll';
 import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { syncEngine } from '@/sync/engine';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
+
+const FAMILY_HEADER_HEIGHT = 56;
 
 type ChildForm = {
   fullName: string;
@@ -61,6 +77,11 @@ export default function EditChildScreen() {
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ id: string }>();
   const memberId = typeof params.id === 'string' ? params.id : params.id?.[0];
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
 
   const memberQuery = useQuery({
     queryKey: [...QUERY_KEYS.familyMembers, 'child', memberId],
@@ -77,6 +98,26 @@ export default function EditChildScreen() {
     month: Date;
   } | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
+      setKeyboardHeight(event.endCoordinates.height);
+      keyboardApi.scheduleScrollIntoView();
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardApi]);
 
   const childFormValues = useMemo((): ChildForm | undefined => {
     if (!child || child.kind !== 'child') return undefined;
@@ -115,6 +156,16 @@ export default function EditChildScreen() {
     dobMonthOverride?.memberId === memberId
       ? dobMonthOverride.month
       : initialDobMonth(child?.dateOfBirth);
+
+  const bottomPad =
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
+      : insets.bottom + spacing.xl * 2;
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + FAMILY_HEADER_HEIGHT : 0;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
 
   async function onSubmit(values: ChildForm) {
     if (!memberId || saving) return;
@@ -168,125 +219,142 @@ export default function EditChildScreen() {
   }
 
   return (
-    <Screen padded={false} tone="background">
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-        keyboardShouldPersistTaps="handled"
-      >
-        <AppText variant="sectionTitle">{t('family.editChildTitle')}</AppText>
-        <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
+    <MiniAppKeyboardContext.Provider value={keyboardApi}>
+      <Screen padded={false} tone="background">
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          <ScrollView
+            ref={scrollRef}
+            style={styles.flex}
+            contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            automaticallyAdjustKeyboardInsets={false}
+            contentInsetAdjustmentBehavior="never"
+            scrollEventThrottle={16}
+            onScroll={onScroll}
+          >
+            <AppText variant="sectionTitle">{t('family.editChildTitle')}</AppText>
+            <AppText variant="subtitle">{t('family.child.subtitle')}</AppText>
 
-        <View style={styles.card}>
-          <FormStack>
-            <Controller
-              control={control}
-              name="fullName"
-              render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.card}>
+              <FormStack>
+                <Controller
+                  control={control}
+                  name="fullName"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <FormField
+                      label={t('family.child.name')}
+                      error={formState.errors.fullName?.message}
+                    >
+                      <Input
+                        placeholder={t('family.child.name')}
+                        autoCapitalize="words"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    </FormField>
+                  )}
+                />
+
                 <FormField
-                  label={t('family.child.name')}
-                  error={formState.errors.fullName?.message}
+                  label={t('family.child.dob')}
+                  hint={t('family.child.dobHint')}
+                  error={formState.errors.dateOfBirth?.message}
                 >
-                  <Input
-                    placeholder={t('family.child.name')}
-                    autoCapitalize="words"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
+                  <MonthCalendarNavigator
+                    accentColor={palette.primary}
+                    monthRef={dobMonthRef}
+                    onMonthChange={(month) => {
+                      if (memberId) {
+                        setDobMonthOverride({ memberId, month });
+                      }
+                    }}
+                    maximumYear={currentYear}
                   />
+                  <MonthCalendarGrid
+                    monthRef={dobMonthRef}
+                    interactive
+                    accentColor={palette.primary}
+                    onDayPress={(dayKey) => {
+                      if (dayKey > todayKey) return;
+                      setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
+                    }}
+                    getDayState={(dayKey) => ({
+                      selected: dayKey === dateOfBirth,
+                      today: dayKey === todayKey,
+                      disabled: dayKey > todayKey,
+                    })}
+                  />
+                  {dateOfBirth ? (
+                    <View style={styles.dobSelectedRow}>
+                      <AppText variant="body">
+                        {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
+                      </AppText>
+                      <Button
+                        accessibilityRole="button"
+                        onPress={() =>
+                          setValue('dateOfBirth', '', {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          })
+                        }
+                        hitSlop={8}
+                        variant="plain"
+                      >
+                        <AppText variant="caption" color="brand">
+                          {t('common.clear')}
+                        </AppText>
+                      </Button>
+                    </View>
+                  ) : null}
                 </FormField>
-              )}
-            />
 
-            <FormField
-              label={t('family.child.dob')}
-              hint={t('family.child.dobHint')}
-              error={formState.errors.dateOfBirth?.message}
-            >
-              <MonthCalendarNavigator
-                accentColor={palette.primary}
-                monthRef={dobMonthRef}
-                onMonthChange={(month) => {
-                  if (memberId) {
-                    setDobMonthOverride({ memberId, month });
-                  }
-                }}
-                maximumYear={currentYear}
-              />
-              <MonthCalendarGrid
-                monthRef={dobMonthRef}
-                interactive
-                accentColor={palette.primary}
-                onDayPress={(dayKey) => {
-                  if (dayKey > todayKey) return;
-                  setValue('dateOfBirth', dayKey, { shouldValidate: true, shouldDirty: true });
-                }}
-                getDayState={(dayKey) => ({
-                  selected: dayKey === dateOfBirth,
-                  today: dayKey === todayKey,
-                  disabled: dayKey > todayKey,
-                })}
-              />
-              {dateOfBirth ? (
-                <View style={styles.dobSelectedRow}>
-                  <AppText variant="body">
-                    {t('family.child.dobSelected', { date: formatDobLabel(dateOfBirth) })}
-                  </AppText>
+                <FormField label={t('family.child.gender')} error={formState.errors.gender?.message}>
+                  <View style={styles.chipRow}>
+                    {FAMILY_GENDERS.map((g) => (
+                      <ChoiceChip
+                        key={g.value}
+                        label={g.label}
+                        selected={gender === g.value}
+                        onPress={() => setValue('gender', g.value, { shouldValidate: true })}
+                      />
+                    ))}
+                  </View>
+                </FormField>
+
+                <Controller
+                  control={control}
+                  name="notes"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <FormField>
+                      <Input
+                        placeholder={t('family.child.notesPlaceholder')}
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    </FormField>
+                  )}
+                />
+
+                <FormActions>
                   <Button
-                    accessibilityRole="button"
-                    onPress={() =>
-                      setValue('dateOfBirth', '', { shouldValidate: true, shouldDirty: true })
-                    }
-                    hitSlop={8}
-                    variant="plain"
-                  >
-                    <AppText variant="caption" color="brand">
-                      {t('common.clear')}
-                    </AppText>
-                  </Button>
-                </View>
-              ) : null}
-            </FormField>
-
-            <FormField label={t('family.child.gender')} error={formState.errors.gender?.message}>
-              <View style={styles.chipRow}>
-                {FAMILY_GENDERS.map((g) => (
-                  <ChoiceChip
-                    key={g.value}
-                    label={g.label}
-                    selected={gender === g.value}
-                    onPress={() => setValue('gender', g.value, { shouldValidate: true })}
+                    label={saving ? t('common.saving') : t('family.saveChild')}
+                    disabled={saving}
+                    onPress={handleSubmit(onSubmit)}
                   />
-                ))}
-              </View>
-            </FormField>
-
-            <Controller
-              control={control}
-              name="notes"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <FormField>
-                  <Input
-                    placeholder={t('family.child.notesPlaceholder')}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                </FormField>
-              )}
-            />
-
-            <FormActions>
-              <Button
-                label={saving ? t('common.saving') : t('family.saveChild')}
-                disabled={saving}
-                onPress={handleSubmit(onSubmit)}
-              />
-            </FormActions>
-          </FormStack>
-        </View>
-      </ScrollView>
-    </Screen>
+                </FormActions>
+              </FormStack>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Screen>
+    </MiniAppKeyboardContext.Provider>
   );
 }
 

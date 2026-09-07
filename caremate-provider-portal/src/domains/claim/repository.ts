@@ -23,6 +23,96 @@ export { generateClaimCode, hashClaimCode, normalizeEmail } from '@/domains/clai
 const CODE_TTL_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
+/** Provider and payer Care Portal accounts must never share an email. */
+export const CARE_PORTAL_EMAIL_EXCLUSIVE_MESSAGE =
+  'This email is already registered for a Care Portal account. Provider and payer organizations must use different emails.';
+
+export const CARE_PORTAL_CATALOG_EMAIL_EXCLUSIVE_MESSAGE =
+  'This email is already assigned to a different Care Org type in the SoftLyft catalog. Provider and payer contacts must use different emails.';
+
+async function countActiveCarePortalMemberships(userId: string): Promise<{
+  provider: number;
+  payer: number;
+}> {
+  const admin = createAdminClient();
+  const [{ count: provider }, { count: payer }] = await Promise.all([
+    admin
+      .from('provider_org_members')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .is('deleted_at', null),
+    admin
+      .from('payer_org_members')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .is('deleted_at', null),
+  ]);
+  return { provider: provider ?? 0, payer: payer ?? 0 };
+}
+
+/**
+ * Blocks claim when the email already has any Care Portal membership, or when
+ * the SoftLyft catalog already uses it for the other org kind.
+ */
+export async function assertCarePortalEmailExclusiveForClaim(input: {
+  email: string;
+  orgKind: CareOrgKind;
+  organizationId?: string;
+}): Promise<void> {
+  const admin = createAdminClient();
+  const email = normalizeEmail(input.email);
+
+  const existing = await findAuthUserByEmail(email);
+  if (existing) {
+    const memberships = await countActiveCarePortalMemberships(existing.id);
+    if (memberships.provider > 0 || memberships.payer > 0) {
+      throw new Error(CARE_PORTAL_EMAIL_EXCLUSIVE_MESSAGE);
+    }
+  }
+
+  const { data: owner, error } = await admin.rpc('care_portal_claim_email_owned_by', {
+    p_email: email,
+    p_exclude_provider_org_id: input.orgKind === 'provider' ? (input.organizationId ?? null) : null,
+    p_exclude_payer_org_id: input.orgKind === 'payer' ? (input.organizationId ?? null) : null,
+  });
+  if (error) {
+    // Older backends without the RPC — fall back to direct probes.
+    if (input.orgKind === 'provider') {
+      const { data: payers, error: payerError } = await admin
+        .from('payer_organizations')
+        .select('id')
+        .ilike('email', email)
+        .is('deleted_at', null)
+        .limit(1);
+      if (payerError) throw payerError;
+      if (payers?.length) {
+        throw new Error(CARE_PORTAL_CATALOG_EMAIL_EXCLUSIVE_MESSAGE);
+      }
+    } else {
+      const [{ data: profiles }, { data: locations }] = await Promise.all([
+        admin.from('provider_profiles').select('organization_id').ilike('email', email).limit(1),
+        admin
+          .from('provider_locations')
+          .select('organization_id')
+          .ilike('email', email)
+          .is('deleted_at', null)
+          .limit(1),
+      ]);
+      if (profiles?.length || locations?.length) {
+        throw new Error(CARE_PORTAL_CATALOG_EMAIL_EXCLUSIVE_MESSAGE);
+      }
+    }
+    return;
+  }
+
+  if (typeof owner === 'string' && owner.length > 0) {
+    const expectedOwn = input.orgKind;
+    if (owner !== expectedOwn) {
+      throw new Error(CARE_PORTAL_CATALOG_EMAIL_EXCLUSIVE_MESSAGE);
+    }
+  }
+}
+
 /** Orgs with zero active members are claimable. Exported for unit tests. */
 export function selectClaimableOrgs(
   orgs: ClaimableOrg[],
@@ -217,6 +307,12 @@ export async function createClaimChallenge(input: {
   const claimsTable = orgKind === 'payer' ? 'payer_org_claims' : 'provider_org_claims';
   const orgsTable = orgKind === 'payer' ? 'payer_organizations' : 'provider_organizations';
 
+  await assertCarePortalEmailExclusiveForClaim({
+    email,
+    orgKind,
+    organizationId: input.organizationId,
+  });
+
   await assertOtpSendAllowed({ kind: otpKind, email, ipHash: input.ipHash });
 
   const code = generateClaimCode();
@@ -341,39 +437,25 @@ async function completeProviderOrgClaim(input: {
   const email = normalizeEmail(claim.email);
   let userId: string | null = null;
 
+  await assertCarePortalEmailExclusiveForClaim({
+    email,
+    orgKind: 'provider',
+    organizationId: claim.organization_id,
+  });
+
   const existing = await findAuthUserByEmail(email);
 
   if (existing) {
-    const { count: memberCount } = await admin
-      .from('provider_org_members')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', existing.id)
-      .is('deleted_at', null);
-    if ((memberCount ?? 0) > 0) {
-      throw new Error('This email is already linked to another organization portal account');
-    }
-
-    const { count: payerMemberCount } = await admin
-      .from('payer_org_members')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', existing.id)
-      .is('deleted_at', null);
-    const linkingSecondKind = (payerMemberCount ?? 0) > 0;
-
     const updated = await admin.auth.admin.updateUserById(existing.id, {
-      ...(linkingSecondKind ? {} : { password: input.password }),
+      password: input.password,
       email_confirm: true,
       user_metadata: {
         ...(existing.user_metadata ?? {}),
         display_name: input.displayName ?? existing.user_metadata?.display_name,
         provider_portal: true,
         care_portal: true,
-        payer_portal: linkingSecondKind
-          ? true
-          : (existing.user_metadata?.payer_portal ?? false),
-        care_org_kind: linkingSecondKind
-          ? (existing.user_metadata?.care_org_kind ?? 'payer')
-          : 'provider',
+        payer_portal: false,
+        care_org_kind: 'provider',
       },
     });
     if (updated.error) throw updated.error;
@@ -387,6 +469,7 @@ async function completeProviderOrgClaim(input: {
         display_name: input.displayName ?? undefined,
         provider_portal: true,
         care_portal: true,
+        payer_portal: false,
         care_org_kind: 'provider',
       },
     });
@@ -473,40 +556,25 @@ async function completePayerOrgClaim(input: {
   const email = normalizeEmail(claim.email);
   let userId: string | null = null;
 
+  await assertCarePortalEmailExclusiveForClaim({
+    email,
+    orgKind: 'payer',
+    organizationId: claim.organization_id,
+  });
+
   const existing = await findAuthUserByEmail(email);
 
   if (existing) {
-    const { count: memberCount } = await admin
-      .from('payer_org_members')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', existing.id)
-      .is('deleted_at', null);
-    if ((memberCount ?? 0) > 0) {
-      throw new Error('This email is already linked to another payer organization portal account');
-    }
-
-    const { count: providerMemberCount } = await admin
-      .from('provider_org_members')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', existing.id)
-      .is('deleted_at', null);
-    const linkingSecondKind = (providerMemberCount ?? 0) > 0;
-
     const updated = await admin.auth.admin.updateUserById(existing.id, {
-      ...(linkingSecondKind ? {} : { password: input.password }),
+      password: input.password,
       email_confirm: true,
       user_metadata: {
         ...(existing.user_metadata ?? {}),
         display_name: input.displayName ?? existing.user_metadata?.display_name,
         care_portal: true,
         payer_portal: true,
-        provider_portal: linkingSecondKind
-          ? true
-          : (existing.user_metadata?.provider_portal ?? false),
-        // Prefer newly claimed kind only when this is the first Care Portal org kind.
-        care_org_kind: linkingSecondKind
-          ? (existing.user_metadata?.care_org_kind ?? 'provider')
-          : 'payer',
+        provider_portal: false,
+        care_org_kind: 'payer',
       },
     });
     if (updated.error) throw updated.error;
@@ -520,6 +588,7 @@ async function completePayerOrgClaim(input: {
         display_name: input.displayName ?? undefined,
         care_portal: true,
         payer_portal: true,
+        provider_portal: false,
         care_org_kind: 'payer',
       },
     });

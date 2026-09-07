@@ -14,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
@@ -151,7 +152,14 @@ export default function VerifyResetScreen() {
             subtitle={t('auth.verifyReset.subtitle', { email })}
           />
         </AuthBrandHeader>
-        <FormStack style={styles.form}>
+        <KeyboardAwareScroll
+          style={styles.form}
+          contentContainerStyle={styles.formContent}
+          headerHeight={0}
+          includeSafeArea={false}
+          restingBottomPad={spacing.lg}
+        >
+          <FormStack>
           <FormField error={formState.errors.code?.message}>
             <Controller
               control={control}
@@ -198,6 +206,7 @@ export default function VerifyResetScreen() {
 
           <TextLink href="/(auth)/login">{t('auth.verifyReset.backToSignIn')}</TextLink>
         </FormStack>
+        </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
   );
@@ -211,5 +220,9 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  formContent: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
   },
 });

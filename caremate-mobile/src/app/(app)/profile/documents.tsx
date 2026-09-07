@@ -25,6 +25,7 @@ import {
 
 import { PdfDocumentPreview } from '@/components/documents/PdfDocumentPreview';
 import { AppText } from '@/components/ui/AppText';
+import { KeyboardAwareSheet } from '@/components/ui/KeyboardAwareScroll';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -411,7 +412,7 @@ export default function ProviderDocumentsScreen() {
         onRequestClose={() => setUploadOpen(false)}
       >
         <View style={styles.modalBackdrop}>
-          <View style={[styles.modalCard, { paddingBottom: insets.bottom + spacing.md }]}>
+          <KeyboardAwareSheet style={styles.modalCard} extraPad={spacing.md}>
             <AppText variant="sectionTitle">{t('profile.documents.uploadTitle')}</AppText>
             <FormStack>
               <FormNotice>{t('profile.documents.uploadHint')}</FormNotice>
@@ -497,7 +498,7 @@ export default function ProviderDocumentsScreen() {
                 </Button>
               </FormActions>
             </FormStack>
-          </View>
+          </KeyboardAwareSheet>
         </View>
       </Modal>
 

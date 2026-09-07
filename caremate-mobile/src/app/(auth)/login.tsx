@@ -18,6 +18,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
@@ -120,7 +121,14 @@ export default function LoginScreen() {
         <AuthBrandHeader>
           <SectionTitle title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
         </AuthBrandHeader>
-        <FormStack style={styles.form}>
+        <KeyboardAwareScroll
+          style={styles.form}
+          contentContainerStyle={styles.formContent}
+          headerHeight={0}
+          includeSafeArea={false}
+          restingBottomPad={spacing.lg}
+        >
+          <FormStack>
           <FormField error={formState.errors.email?.message}>
             <Controller
               control={control}
@@ -201,6 +209,7 @@ export default function LoginScreen() {
             }}
           />
         </FormStack>
+        </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
   );
@@ -214,6 +223,10 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  formContent: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
   },
   rememberRow: {
     flexDirection: 'row',

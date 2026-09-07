@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams, useNavigation, type Href } from 'expo-router';
 import { Globe, Link2, Mail, MapPin, Phone, Shield } from 'lucide-react-native';
 import { useLayoutEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
@@ -10,6 +10,7 @@ import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -200,11 +201,7 @@ export default function InsuranceOrgDetailScreen() {
 
   return (
     <Screen tone="background" padded={false}>
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <KeyboardAwareScroll contentContainerStyle={styles.content}>
         <AnimatedSection index={0}>
           <View style={[styles.hero, shadow.soft]}>
             <LinearGradientFill
@@ -497,7 +494,7 @@ export default function InsuranceOrgDetailScreen() {
             {t('insurance.detail.footnote')}
           </AppText>
         </AnimatedSection>
-      </ScrollView>
+      </KeyboardAwareScroll>
     </Screen>
   );
 }
@@ -509,7 +506,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
-    paddingBottom: spacing.xl,
     gap: spacing.md,
   },
   hero: {

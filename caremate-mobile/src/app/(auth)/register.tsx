@@ -18,6 +18,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { LEGAL_URLS } from '@/constants/config';
 import { config } from '@/constants/env';
@@ -154,7 +155,14 @@ export default function RegisterScreen() {
         <AuthBrandHeader>
           <SectionTitle title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
         </AuthBrandHeader>
-        <FormStack style={styles.form}>
+        <KeyboardAwareScroll
+          style={styles.form}
+          contentContainerStyle={styles.formContent}
+          headerHeight={0}
+          includeSafeArea={false}
+          restingBottomPad={spacing.lg}
+        >
+          <FormStack>
           <View style={styles.nameRow}>
             <FormField compact error={formState.errors.firstName?.message} style={styles.nameField}>
               <Controller
@@ -294,6 +302,7 @@ export default function RegisterScreen() {
             {t('auth.register.hasAccount')} {t('auth.register.signIn')}
           </TextLink>
         </FormStack>
+        </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
   );
@@ -307,6 +316,10 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  formContent: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
   },
   nameRow: {
     flexDirection: 'row',
