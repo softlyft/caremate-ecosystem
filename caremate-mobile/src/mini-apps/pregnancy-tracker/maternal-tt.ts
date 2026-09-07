@@ -73,12 +73,15 @@ export function getNextMaternalTtDoseId(doses: MaternalTtDose[]): MaternalTtDose
   return null;
 }
 
-export function getPreviousMaternalTtDoseId(id: MaternalTtDoseId): MaternalTtDoseId | null {
+export function getPreviousMaternalTtDoseId(
+  id: MaternalTtDoseId,
+): Exclude<MaternalTtDoseId, 'tt5'> | null {
   const index = maternalTtDoseIndex(id);
   if (index <= 0) {
     return null;
   }
-  return MATERNAL_TT_DOSE_IDS[index - 1] ?? null;
+  // Previous of TT2–TT5 is always TT1–TT4 (never TT5).
+  return MATERNAL_TT_DOSE_IDS[index - 1] as Exclude<MaternalTtDoseId, 'tt5'>;
 }
 
 export function maternalTtSummary(doses: MaternalTtDose[]): {
@@ -124,9 +127,7 @@ export function getMaternalTtForecastDateKey(doses: MaternalTtDose[]): string | 
   return applyMaternalTtInterval(previous.dateKey, MATERNAL_TT_INTERVAL_AFTER[previousId]);
 }
 
-export function getMaternalTtIntervalForDose(
-  doseId: MaternalTtDoseId,
-): MaternalTtInterval | null {
+export function getMaternalTtIntervalForDose(doseId: MaternalTtDoseId): MaternalTtInterval | null {
   const previousId = getPreviousMaternalTtDoseId(doseId);
   if (!previousId) {
     return null;

@@ -257,7 +257,10 @@ export default function FamilyChildFormScreen() {
                   ) : null}
                 </FormField>
 
-                <FormField label={t('family.child.gender')} error={formState.errors.gender?.message}>
+                <FormField
+                  label={t('family.child.gender')}
+                  error={formState.errors.gender?.message}
+                >
                   <View style={styles.chipRow}>
                     {FAMILY_GENDERS.map((g) => (
                       <ChoiceChip

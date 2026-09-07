@@ -149,8 +149,7 @@ class ProfileRepository extends BaseRepository {
 
     if (existing) {
       const nextPatientId =
-        lockedPatientId ??
-        (input.patientId !== undefined ? input.patientId : existing.patientId);
+        lockedPatientId ?? (input.patientId !== undefined ? input.patientId : existing.patientId);
       const nextShareToken =
         lockedShareToken ??
         (input.emergencyShareToken !== undefined
@@ -260,12 +259,14 @@ class ProfileRepository extends BaseRepository {
     }
 
     const timestamp = nowIso();
+    const nextShareToken =
+      emergencyShareToken != null && isValidEmergencyShareToken(emergencyShareToken)
+        ? emergencyShareToken
+        : existing.emergencyShareToken;
     const updated: Profile = {
       ...existing,
       patientId,
-      emergencyShareToken: isValidEmergencyShareToken(emergencyShareToken)
-        ? emergencyShareToken
-        : existing.emergencyShareToken,
+      emergencyShareToken: nextShareToken,
       updatedAt: timestamp,
       syncStatus: 'synced',
     };
@@ -331,10 +332,9 @@ class ProfileRepository extends BaseRepository {
       }
 
       if (online) {
-        const { data: available, error } = await supabase.rpc(
-          'is_caremate_patient_id_available',
-          { p_digits: candidate },
-        );
+        const { data: available, error } = await supabase.rpc('is_caremate_patient_id_available', {
+          p_digits: candidate,
+        });
         if (error) {
           // Older backends without the RPC — fall back to a live-profile probe.
           const { data: remoteHit, error: probeError } = await supabase
@@ -359,7 +359,10 @@ class ProfileRepository extends BaseRepository {
       } catch (error) {
         // Concurrent mint / unique index race — try another candidate.
         const message = error instanceof Error ? error.message : String(error);
-        if (/unique|duplicate|23505|permanent|retired/i.test(message) && attempt < maxAttempts - 1) {
+        if (
+          /unique|duplicate|23505|permanent|retired/i.test(message) &&
+          attempt < maxAttempts - 1
+        ) {
           continue;
         }
         throw error;
@@ -545,10 +548,11 @@ class ProfileRepository extends BaseRepository {
           .select('patient_id, emergency_share_token')
           .eq('user_id', profile.userId)
           .maybeSingle();
-        if (remoteProfile && isValidPatientId(remoteProfile.patient_id)) {
+        const remotePatientId = remoteProfile?.patient_id;
+        if (remotePatientId && isValidPatientId(remotePatientId)) {
           await this.adoptAuthoritativePatientIdentity(
             profile.userId,
-            remoteProfile.patient_id,
+            remotePatientId,
             remoteProfile.emergency_share_token,
           );
           return;

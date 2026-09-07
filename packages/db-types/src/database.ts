@@ -3611,6 +3611,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      care_portal_claim_email_key: { Args: { p_email: string }; Returns: string }
+      care_portal_claim_email_owned_by: {
+        Args: {
+          p_email: string
+          p_exclude_provider_org_id?: string | null
+          p_exclude_payer_org_id?: string | null
+        }
+        Returns: string | null
+      }
       community_chapter_role: {
         Args: { p_chapter_id: string }
         Returns: string
@@ -3664,6 +3673,10 @@ export type Database = {
       }
       get_emergency_by_share_token: { Args: { p_token: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      is_caremate_patient_id_available: {
+        Args: { p_digits: string }
+        Returns: boolean
+      }
       is_community_leader: { Args: { p_chapter_id: string }; Returns: boolean }
       is_community_member: { Args: { p_chapter_id: string }; Returns: boolean }
       is_household_member: {

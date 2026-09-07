@@ -129,86 +129,86 @@ export default function LoginScreen() {
           restingBottomPad={spacing.lg}
         >
           <FormStack>
-          <FormField error={formState.errors.email?.message}>
+            <FormField error={formState.errors.email?.message}>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    placeholder={t('auth.login.emailPlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <FormField error={formState.errors.password?.message}>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <PasswordInput
+                    placeholder={t('auth.login.passwordPlaceholder')}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
             <Controller
               control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  placeholder={t('auth.login.emailPlaceholder')}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
+              name="rememberMe"
+              render={({ field: { onChange, value } }) => (
+                <View style={styles.rememberRow}>
+                  <Button
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: value }}
+                    accessibilityLabel={t('auth.login.rememberMeA11y')}
+                    onPress={() => onChange(!value)}
+                    hitSlop={8}
+                    style={[styles.checkbox, value ? styles.checkboxChecked : null]}
+                    variant="plain"
+                  >
+                    {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
+                  </Button>
+                  <Button
+                    accessibilityRole="button"
+                    onPress={() => onChange(!value)}
+                    style={styles.rememberLabelButton}
+                    variant="plain"
+                  >
+                    <AppText variant="caption" style={styles.rememberLabel}>
+                      {t('auth.login.rememberMe')}
+                    </AppText>
+                  </Button>
+                  <TextLink href="/(auth)/forgot-password" style={styles.forgotLink}>
+                    {t('auth.login.forgot')}
+                  </TextLink>
+                </View>
               )}
             />
-          </FormField>
-          <FormField error={formState.errors.password?.message}>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <PasswordInput
-                  placeholder={t('auth.login.passwordPlaceholder')}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
+            <Button
+              label={isLoading ? t('common.loading') : t('auth.login.submit')}
+              disabled={isLoading}
+              onPress={handleSubmit(onSubmit)}
             />
-          </FormField>
-          <Controller
-            control={control}
-            name="rememberMe"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.rememberRow}>
-                <Button
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: value }}
-                  accessibilityLabel={t('auth.login.rememberMeA11y')}
-                  onPress={() => onChange(!value)}
-                  hitSlop={8}
-                  style={[styles.checkbox, value ? styles.checkboxChecked : null]}
-                  variant="plain"
-                >
-                  {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
-                </Button>
-                <Button
-                  accessibilityRole="button"
-                  onPress={() => onChange(!value)}
-                  style={styles.rememberLabelButton}
-                  variant="plain"
-                >
-                  <AppText variant="caption" style={styles.rememberLabel}>
-                    {t('auth.login.rememberMe')}
-                  </AppText>
-                </Button>
-                <TextLink href="/(auth)/forgot-password" style={styles.forgotLink}>
-                  {t('auth.login.forgot')}
-                </TextLink>
-              </View>
-            )}
-          />
-          <Button
-            label={isLoading ? t('common.loading') : t('auth.login.submit')}
-            disabled={isLoading}
-            onPress={handleSubmit(onSubmit)}
-          />
-          <TextLink href="/(auth)/register">
-            {t('auth.login.noAccount')} {t('auth.login.register')}
-          </TextLink>
-          <Button
-            label={t('auth.login.continueGuest')}
-            variant="ghost"
-            onPress={() => {
-              void authService.setOnboardingComplete(true).then(() => {
-                router.replace('/(app)/(tabs)');
-              });
-            }}
-          />
-        </FormStack>
+            <TextLink href="/(auth)/register">
+              {t('auth.login.noAccount')} {t('auth.login.register')}
+            </TextLink>
+            <Button
+              label={t('auth.login.continueGuest')}
+              variant="ghost"
+              onPress={() => {
+                void authService.setOnboardingComplete(true).then(() => {
+                  router.replace('/(app)/(tabs)');
+                });
+              }}
+            />
+          </FormStack>
         </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
