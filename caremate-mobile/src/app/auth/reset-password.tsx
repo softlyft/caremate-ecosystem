@@ -90,48 +90,48 @@ export default function ResetPasswordScreen() {
           restingBottomPad={spacing.lg}
         >
           <FormStack>
-          <FormField
-            error={formState.errors.password?.message}
-            hint={t('auth.password.requirements')}
-          >
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <PasswordInput
-                  placeholder={t('auth.reset.password')}
-                  autoComplete="new-password"
-                  textContentType="newPassword"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
+            <FormField
+              error={formState.errors.password?.message}
+              hint={t('auth.password.requirements')}
+            >
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <PasswordInput
+                    placeholder={t('auth.reset.password')}
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <FormField error={formState.errors.confirmPassword?.message}>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <PasswordInput
+                    placeholder={t('auth.reset.confirm')}
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <Button
+              label={isLoading ? t('common.loading') : t('auth.reset.submit')}
+              disabled={isLoading}
+              onPress={handleSubmit(onSubmit)}
             />
-          </FormField>
-          <FormField error={formState.errors.confirmPassword?.message}>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <PasswordInput
-                  placeholder={t('auth.reset.confirm')}
-                  autoComplete="new-password"
-                  textContentType="newPassword"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
-            />
-          </FormField>
-          <Button
-            label={isLoading ? t('common.loading') : t('auth.reset.submit')}
-            disabled={isLoading}
-            onPress={handleSubmit(onSubmit)}
-          />
-          <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
-        </FormStack>
+            <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+          </FormStack>
         </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
