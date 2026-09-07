@@ -1,4 +1,6 @@
 import type { EmergencyProfile, Profile } from '@/types';
+import { isValidEmergencyShareToken } from '@/domains/emergency/share';
+import { isValidPatientId } from '@/domains/profile/patient-id';
 
 import { gatewayRequest, isHealthDataGatewayConfigured } from './client';
 
@@ -64,8 +66,12 @@ export function profileToGatewayBody(profile: Profile): Record<string, unknown> 
     national_id: profile.nationalId,
     marital_status: profile.maritalStatus,
     is_health_practitioner: profile.isHealthPractitioner,
-    patient_id: profile.patientId,
-    emergency_share_token: profile.emergencyShareToken,
+    // Patient IDs / share tokens are permanent once minted — never send null and
+    // wipe a value already stored remotely (same guard as direct Supabase sync).
+    ...(isValidPatientId(profile.patientId) ? { patient_id: profile.patientId } : {}),
+    ...(isValidEmergencyShareToken(profile.emergencyShareToken)
+      ? { emergency_share_token: profile.emergencyShareToken }
+      : {}),
     updated_at: profile.updatedAt,
   };
 }

@@ -35,8 +35,10 @@ import {
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
-/** Native stack header height; used for KeyboardAvoidingView offset on iOS. */
-const STACK_HEADER_HEIGHT = 56;
+/** Glossy stack header row height (excludes status bar) for iOS KeyboardAvoidingView. */
+const STACK_HEADER_HEIGHT = 64;
+/** Keep a little air between the composer and the keyboard top edge. */
+const KEYBOARD_CLEARANCE = spacing.sm;
 
 type ThreadItem =
   | { kind: 'day'; id: string; label: string }
@@ -213,7 +215,7 @@ function useKeyboardLift() {
       // Android: only lift the portion not already taken by window resize / insets.
       const shrunkBy = Math.max(0, baselineHeightRef.current - windowHeight);
       const remaining = Math.max(0, keyboardHeight - shrunkBy);
-      setLift(remaining);
+      setLift(remaining + KEYBOARD_CLEARANCE);
     };
 
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -233,9 +235,11 @@ function useKeyboardLift() {
       hideSub.remove();
       dimSub.remove();
     };
-  }, [insets.bottom]);
+  }, []);
 
-  const composerPaddingBottom = keyboardOpen ? spacing.sm : Math.max(insets.bottom, spacing.sm);
+  const composerPaddingBottom = keyboardOpen
+    ? KEYBOARD_CLEARANCE
+    : Math.max(insets.bottom, KEYBOARD_CLEARANCE);
 
   return { lift, composerPaddingBottom, keyboardOpen };
 }
@@ -376,7 +380,8 @@ export default function MessageThreadScreen() {
         style={styles.listFlex}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode={isIOS ? 'interactive' : 'on-drag'}
-        automaticallyAdjustKeyboardInsets={!isIOS}
+        // Composer lift / KeyboardAvoidingView own keyboard layout; avoid double insets.
+        automaticallyAdjustKeyboardInsets={false}
         contentContainerStyle={[
           styles.list,
           messages.length === 0 ? styles.listEmpty : null,

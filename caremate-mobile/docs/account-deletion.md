@@ -50,7 +50,7 @@ The `delete-account` function:
 1. **Validates** the `Authorization` bearer JWT and resolves the caller’s `auth.users` row.
 2. **Best-effort billing cancel** — Stripe / Paystack for `active|trialing|past_due` (failures swallowed).
 3. **Scrubs personal PHI** — deletes rows in personal tables (`emergency_profiles`, `mini_app_snapshots`, `health_timeline_events`, `user_encryption_keys`, notifications/devices, bookmarks, settings, community membership/profile, family households owned by the user, etc.).
-4. **Tombs the profile** — keeps `profiles.user_id`; sets `full_name = 'Deleted user'`, `deleted_at`, clears email/phone/DOB/`patient_id`/address/national_id/`emergency_share_token`.
+4. **Tombs the profile** — keeps `profiles.user_id`; sets `full_name = 'Deleted user'`, `deleted_at`, clears email/phone/DOB/`patient_id`/address/national_id/`emergency_share_token`. Cleared CareMate IDs are written to `retired_patient_ids` so they can never be reissued.
 5. **Ends org access** — approved connections → `disconnected`; pending → `cancelled` (via service-role RPC). Messaging, appointments, and document **history stay**.
 6. **Soft-deletes auth** — `auth.admin.deleteUser(user.id, true)` so the UUID remains (no cascade wipe of interaction rows) and the email can be re-registered. Falls back to hard delete only if soft delete is unavailable.
 
@@ -62,7 +62,7 @@ Returns `{ ok: true, mode: 'deidentified' }` (or `hard_deleted` on fallback).
 
 | Area | Tables / data |
 |------|----------------|
-| **Identity surface** | Profile PII fields cleared; `patient_id` cleared |
+| **Identity surface** | Profile PII fields cleared; `patient_id` cleared and **retired** (cannot be reused) |
 | **Emergency PHI** | `emergency_profiles` |
 | **Health trackers** | `mini_app_snapshots`, `health_timeline_events` |
 | **Prefs / learn** | `settings`, `bookmarks`, `article_reads` |

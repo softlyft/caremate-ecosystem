@@ -14,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
@@ -81,7 +82,14 @@ export default function ResetPasswordScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen padded={false} style={styles.container}>
         <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
-        <FormStack style={styles.form}>
+        <KeyboardAwareScroll
+          style={styles.form}
+          contentContainerStyle={styles.formContent}
+          headerHeight={0}
+          includeSafeArea={false}
+          restingBottomPad={spacing.lg}
+        >
+          <FormStack>
           <FormField
             error={formState.errors.password?.message}
             hint={t('auth.password.requirements')}
@@ -124,6 +132,7 @@ export default function ResetPasswordScreen() {
           />
           <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
         </FormStack>
+        </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
   );
@@ -137,5 +146,9 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  formContent: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
   },
 });

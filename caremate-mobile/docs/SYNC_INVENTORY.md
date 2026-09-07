@@ -38,7 +38,7 @@ Queued in SQLite `sync_queue` on local writes. Operations: `create` | `update` |
 
 | `entity_type` | Supabase table(s) | When enqueued | Push behavior | DB validation hints |
 |---------------|-------------------|---------------|---------------|---------------------|
-| `profiles` | `profiles` | Profile save (name, contact, country, patient ID fields, practitioner flag, …) | Upsert by `id`; delete by `id`. Gateway preferred. Never overwrites remote `patient_id` / `emergency_share_token` with null. | Row where `user_id = auth.uid()`; check `updated_at` matches device save time. |
+| `profiles` | `profiles` | Profile save (name, contact, country, patient ID fields, practitioner flag, …) | Upsert by `id`; delete by `id`. Gateway preferred. Never overwrites remote `patient_id` / `emergency_share_token` with null. DB trigger locks `patient_id` after mint; deleted IDs go to `retired_patient_ids`. | Row where `user_id = auth.uid()`; check `updated_at` matches device save time. |
 | `settings` | `settings` | Theme / notification prefs / subscribed article categories | Upsert or delete by `id` | `user_id`, `theme`, `notifications_enabled`, `subscribed_category_ids`. |
 | `emergency_profiles` | `emergency_profiles` | Emergency card save | Upsert (one row per `user_id`; reuses remote PK if exists). Gateway preferred. Delete by `id`. | `user_id` unique; JSON arrays for allergies/meds/conditions/contacts. |
 | `providers` | `providers` (stub RPC), `provider_favorites` | Favorite toggle / unfavorite | `ensure_provider_catalog_stub` then upsert or delete `provider_favorites` for `(user_id, provider_id)`. Signed-in only. | Favorites: `provider_favorites.is_favorite = true`. Stub row in `providers` if missing. |

@@ -138,16 +138,30 @@ class ProfileRepository extends BaseRepository {
     const existing = await this.findByUserId(userId);
     const timestamp = nowIso();
 
+    // Once minted locally, Patient ID / share token cannot be cleared or swapped by a
+    // normal save. Remote adoption uses adoptAuthoritativePatientIdentity instead.
+    const lockedPatientId =
+      existing && isValidPatientId(existing.patientId) ? existing.patientId : null;
+    const lockedShareToken =
+      existing && isValidEmergencyShareToken(existing.emergencyShareToken)
+        ? existing.emergencyShareToken
+        : null;
+
     if (existing) {
+      const nextPatientId =
+        lockedPatientId ??
+        (input.patientId !== undefined ? input.patientId : existing.patientId);
+      const nextShareToken =
+        lockedShareToken ??
+        (input.emergencyShareToken !== undefined
+          ? input.emergencyShareToken
+          : existing.emergencyShareToken);
+
       const updated: Profile = {
         ...existing,
         ...input,
-        // Never accidentally clear an existing patient ID unless explicitly passed null.
-        patientId: input.patientId !== undefined ? input.patientId : existing.patientId,
-        emergencyShareToken:
-          input.emergencyShareToken !== undefined
-            ? input.emergencyShareToken
-            : existing.emergencyShareToken,
+        patientId: nextPatientId,
+        emergencyShareToken: nextShareToken,
         updatedAt: timestamp,
         syncStatus: 'pending',
       };
@@ -219,6 +233,57 @@ class ProfileRepository extends BaseRepository {
   }
 
   /**
+   * Replace local Patient ID / share token with the server-authoritative values.
+   * Used when another device minted first and the DB rejected a conflicting sync.
+   */
+  async adoptAuthoritativePatientIdentity(
+    userId: string,
+    patientId: string,
+    emergencyShareToken?: string | null,
+  ): Promise<Profile> {
+    if (!isValidPatientId(patientId)) {
+      throw new Error('Invalid CareMate Patient ID');
+    }
+    const db = getDatabase();
+    const existing = await this.findByUserId(userId);
+    if (!existing) {
+      throw new Error('Profile not found');
+    }
+    if (existing.patientId === patientId) {
+      if (
+        emergencyShareToken == null ||
+        !isValidEmergencyShareToken(emergencyShareToken) ||
+        existing.emergencyShareToken === emergencyShareToken
+      ) {
+        return existing;
+      }
+    }
+
+    const timestamp = nowIso();
+    const updated: Profile = {
+      ...existing,
+      patientId,
+      emergencyShareToken: isValidEmergencyShareToken(emergencyShareToken)
+        ? emergencyShareToken
+        : existing.emergencyShareToken,
+      updatedAt: timestamp,
+      syncStatus: 'synced',
+    };
+
+    await db
+      .update(profiles)
+      .set({
+        ...profileColumns(updated),
+        syncStatus: 'synced',
+        updatedAt: timestamp,
+      })
+      .where(eq(profiles.id, existing.id));
+
+    await removeSyncOperationsForEntity('profiles', existing.id);
+    return updated;
+  }
+
+  /**
    * Mint a unique CareMate Patient ID (+ emergency share token) for an account
    * that does not have one yet. Does not run at signup — call from Profile.
    */
@@ -266,21 +331,39 @@ class ProfileRepository extends BaseRepository {
       }
 
       if (online) {
-        const { data: remoteHit, error } = await supabase
-          .from('profiles')
-          .select('id, user_id')
-          .eq('patient_id', candidate)
-          .maybeSingle();
+        const { data: available, error } = await supabase.rpc(
+          'is_caremate_patient_id_available',
+          { p_digits: candidate },
+        );
         if (error) {
-          throw new Error(error.message);
-        }
-        if (remoteHit && remoteHit.user_id !== userId) {
+          // Older backends without the RPC — fall back to a live-profile probe.
+          const { data: remoteHit, error: probeError } = await supabase
+            .from('profiles')
+            .select('id, user_id')
+            .eq('patient_id', candidate)
+            .maybeSingle();
+          if (probeError) {
+            throw new Error(probeError.message);
+          }
+          if (remoteHit && remoteHit.user_id !== userId) {
+            continue;
+          }
+        } else if (available !== true) {
           continue;
         }
       }
 
       const shareToken = await this.allocateEmergencyShareToken(userId, online);
-      return this.save(userId, { patientId: candidate, emergencyShareToken: shareToken });
+      try {
+        return await this.save(userId, { patientId: candidate, emergencyShareToken: shareToken });
+      } catch (error) {
+        // Concurrent mint / unique index race — try another candidate.
+        const message = error instanceof Error ? error.message : String(error);
+        if (/unique|duplicate|23505|permanent|retired/i.test(message) && attempt < maxAttempts - 1) {
+          continue;
+        }
+        throw error;
+      }
     }
 
     throw new Error('Could not allocate a unique Patient ID. Please try again.');
@@ -455,6 +538,22 @@ class ProfileRepository extends BaseRepository {
       updated_at: profile.updatedAt,
     });
     if (error) {
+      // Another device already minted — adopt the remote ID instead of failing sync forever.
+      if (/permanent|retired|duplicate|unique|23505/i.test(error.message)) {
+        const { data: remoteProfile } = await supabase
+          .from('profiles')
+          .select('patient_id, emergency_share_token')
+          .eq('user_id', profile.userId)
+          .maybeSingle();
+        if (remoteProfile && isValidPatientId(remoteProfile.patient_id)) {
+          await this.adoptAuthoritativePatientIdentity(
+            profile.userId,
+            remoteProfile.patient_id,
+            remoteProfile.emergency_share_token,
+          );
+          return;
+        }
+      }
       throw new Error(error.message);
     }
   }

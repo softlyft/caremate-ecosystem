@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, StyleSheet, View } from 'react-native';
 import { Button, FormActions, FormField, Input } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
@@ -14,7 +14,6 @@ import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 export default function ProviderConnectionRequestsScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const isGuest = useIsGuest();
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -87,10 +86,7 @@ export default function ProviderConnectionRequestsScreen() {
 
   return (
     <Screen padded={false} tone="surface">
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-      >
+      <KeyboardAwareScroll contentContainerStyle={styles.content}>
         <AppText variant="sectionTitle">{t('nearby.connectionRequests.title')}</AppText>
         <AppText variant="subtitle">{t('nearby.connectionRequests.subtitle')}</AppText>
 
@@ -195,7 +191,7 @@ export default function ProviderConnectionRequestsScreen() {
             );
           })
         )}
-      </ScrollView>
+      </KeyboardAwareScroll>
     </Screen>
   );
 }

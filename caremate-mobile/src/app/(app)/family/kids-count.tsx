@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -12,6 +11,7 @@ import {
   FormStack,
   Input,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { useFamilySetupStore } from '@/domains/family';
@@ -21,7 +21,6 @@ import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export default function FamilyKidsCountScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const tier = usePremiumTier();
   const maxKids = maxChildrenForTier(tier);
   const childCount = useFamilySetupStore((s) => s.childCount);
@@ -45,11 +44,7 @@ export default function FamilyKidsCountScreen() {
 
   return (
     <Screen padded={false} tone="background">
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
-        keyboardShouldPersistTaps="handled"
-      >
+      <KeyboardAwareScroll contentContainerStyle={styles.content}>
         <AppText variant="sectionTitle">{t('family.kidsCount.title')}</AppText>
         <AppText variant="subtitle">{t('family.kidsCount.subtitle')}</AppText>
         <FormNotice>{t('family.kidsCountLimitHint')}</FormNotice>
@@ -69,13 +64,12 @@ export default function FamilyKidsCountScreen() {
             </FormActions>
           </FormStack>
         </View>
-      </ScrollView>
+      </KeyboardAwareScroll>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
   content: {
     padding: layoutSpacing.screenHorizontal,
     gap: spacing.md,
