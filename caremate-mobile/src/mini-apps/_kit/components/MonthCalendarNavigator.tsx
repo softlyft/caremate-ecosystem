@@ -1,6 +1,14 @@
 import { Check, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 import { useMemo, useRef, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
@@ -53,7 +61,7 @@ export function MonthCalendarNavigator({
   maximumMonth,
   subtitle,
 }: MonthCalendarNavigatorProps) {
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState(monthRef.getFullYear());
@@ -84,6 +92,9 @@ export function MonthCalendarNavigator({
   // Keep Nov/Dec (bottom row) clear of gesture / 3-button nav bars.
   const sheetBottomPadding = spacing.lg + Math.max(insets.bottom, spacing.md);
   const sheetMaxHeight = Math.min(height * 0.85, 560);
+  const monthOptionWidth = Math.floor(
+    (width - spacing.lg * 2 - 82 - spacing.md - MONTH_GRID_GAP * 2) / 3,
+  );
 
   const changeMonthBy = (offset: number) => {
     if (offset > 0 && !canGoNext) {
@@ -254,7 +265,13 @@ export function MonthCalendarNavigator({
                 style={styles.yearList}
               />
 
-              <View style={styles.monthGrid}>
+              <ScrollView
+                contentContainerStyle={styles.monthGrid}
+                keyboardShouldPersistTaps="handled"
+                nestedScrollEnabled
+                showsVerticalScrollIndicator={false}
+                style={styles.monthScroll}
+              >
                 {MONTHS.map((label, month) => {
                   const candidate = startOfMonth(new Date(pickerYear, month, 1));
                   const monthDisabled = Boolean(
@@ -272,6 +289,7 @@ export function MonthCalendarNavigator({
                       onPress={() => selectMonth(month)}
                       style={[
                         styles.monthOption,
+                        { width: monthOptionWidth },
                         selected && { backgroundColor: accentColor, borderColor: accentColor },
                         monthDisabled && styles.monthOptionDisabled,
                       ]}
@@ -293,7 +311,7 @@ export function MonthCalendarNavigator({
                     </Button>
                   );
                 })}
-              </View>
+              </ScrollView>
             </View>
           </View>
         </View>
@@ -379,9 +397,10 @@ const styles = StyleSheet.create({
   },
   pickerBody: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: spacing.md,
     height: MONTH_GRID_HEIGHT,
+    minHeight: 0,
   },
   yearList: {
     width: 82,
@@ -397,17 +416,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: radius.md,
   },
-  monthGrid: {
+  monthScroll: {
     flex: 1,
+    height: MONTH_GRID_HEIGHT,
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  monthGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignContent: 'flex-start',
     justifyContent: 'space-between',
     gap: MONTH_GRID_GAP,
-    height: MONTH_GRID_HEIGHT,
+    paddingBottom: spacing.xs,
   },
   monthOption: {
-    width: '31%',
+    flexGrow: 0,
+    flexShrink: 0,
     height: MONTH_OPTION_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',

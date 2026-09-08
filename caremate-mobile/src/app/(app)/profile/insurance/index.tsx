@@ -3,7 +3,6 @@ import { router, type Href } from 'expo-router';
 import { Link2, Shield } from 'lucide-react-native';
 import { useDeferredValue, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -22,7 +21,6 @@ import { textColors } from '@/theme/typography';
 
 export default function InsuranceDirectoryScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const { online } = useNetworkStatus();
   const isGuest = useIsGuest();
   const [search, setSearch] = useState('');
@@ -82,11 +80,7 @@ export default function InsuranceDirectoryScreen() {
           }
         }}
         onEndReachedThreshold={0.4}
-        contentContainerStyle={[
-          styles.list,
-          { paddingTop: insets.top + spacing.sm },
-          payers.length === 0 ? styles.listFill : null,
-        ]}
+        contentContainerStyle={[styles.list, payers.length === 0 ? styles.listFill : null]}
         ListHeaderComponent={
           <View style={styles.headerBlock}>
             <AnimatedSection index={0}>
@@ -174,6 +168,7 @@ export default function InsuranceDirectoryScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
   },
   listFill: {
