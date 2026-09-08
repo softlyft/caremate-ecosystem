@@ -80,10 +80,7 @@ export default function InsuranceDirectoryScreen() {
           }
         }}
         onEndReachedThreshold={0.4}
-        contentContainerStyle={[
-          styles.list,
-          payers.length === 0 ? styles.listFill : null,
-        ]}
+        contentContainerStyle={[styles.list, payers.length === 0 ? styles.listFill : null]}
         ListHeaderComponent={
           <View style={styles.headerBlock}>
             <AnimatedSection index={0}>

@@ -318,10 +318,7 @@ export function assessPregnancyLogDraft(draft: PregnancyLogDraft): PregnancyLogA
   if (isPostpartum && symptoms.includes('Bleeding') && !symptomDetails?.lochiaAmount) {
     soft.push({ code: 'soft_bleeding_amount_missing', messageKey: 'bleedingAmountMissing' });
   }
-  if (
-    isPostpartum &&
-    (symptomDetails?.lochiaAmount === 'heavy' || symptomDetails?.lochiaClots)
-  ) {
+  if (isPostpartum && (symptomDetails?.lochiaAmount === 'heavy' || symptomDetails?.lochiaClots)) {
     soft.push({ code: 'soft_bleeding_concern', messageKey: 'bleedingConcern' });
   }
   if (isPostpartum) {

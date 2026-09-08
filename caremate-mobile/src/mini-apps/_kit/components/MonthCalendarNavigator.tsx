@@ -92,7 +92,9 @@ export function MonthCalendarNavigator({
   // Keep Nov/Dec (bottom row) clear of gesture / 3-button nav bars.
   const sheetBottomPadding = spacing.lg + Math.max(insets.bottom, spacing.md);
   const sheetMaxHeight = Math.min(height * 0.85, 560);
-  const monthOptionWidth = Math.floor((width - spacing.lg * 2 - 82 - spacing.md - MONTH_GRID_GAP * 2) / 3);
+  const monthOptionWidth = Math.floor(
+    (width - spacing.lg * 2 - 82 - spacing.md - MONTH_GRID_GAP * 2) / 3,
+  );
 
   const changeMonthBy = (offset: number) => {
     if (offset > 0 && !canGoNext) {
