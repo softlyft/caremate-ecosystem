@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { router, useNavigation } from 'expo-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
@@ -15,6 +15,7 @@ import {
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import {
+  VITAL_TYPES,
   VITAL_TYPE_META,
   type BloodSugarContext,
   type BloodSugarUnit,
@@ -45,6 +46,7 @@ import {
 import {
   assessVitalDraft,
   getPreviousEntry,
+  isVitalDraftStarted,
   type VitalAssessment,
   type VitalDraftInput,
   type VitalIssue,
@@ -53,9 +55,40 @@ import { palette, spacing } from '@/theme';
 
 const APP_ID = 'vitals-tracker' as const;
 
+type VitalDraftFields = {
+  unit: VitalUnit;
+  valueText: string;
+  systolicText: string;
+  diastolicText: string;
+  feetText: string;
+  inchesText: string;
+  notes: string;
+  bloodSugarContext: BloodSugarContext | null;
+};
+
+type DraftMap = Partial<Record<VitalType, VitalDraftFields>>;
+
+function emptyDraft(type: VitalType, unit: VitalUnit): VitalDraftFields {
+  return {
+    unit,
+    valueText: '',
+    systolicText: '',
+    diastolicText: '',
+    feetText: '',
+    inchesText: '',
+    notes: '',
+    bloodSugarContext: null,
+  };
+}
+
+function toDraftInput(type: VitalType, draft: VitalDraftFields): VitalDraftInput {
+  return { type, ...draft };
+}
+
 export default function VitalsLogScreen() {
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
+  const navigation = useNavigation();
   const hydrated = useVitalsTrackerHydrated();
   const unitPrefs = useVitalsTrackerStore((state) => state.unitPrefs);
   const entries = useVitalsTrackerStore((state) => state.entries);
@@ -71,27 +104,101 @@ export default function VitalsLogScreen() {
   const [inchesText, setInchesText] = useState('');
   const [notes, setNotes] = useState('');
   const [bloodSugarContext, setBloodSugarContext] = useState<BloodSugarContext | null>(null);
+  const [drafts, setDrafts] = useState<DraftMap>({});
+  const [saving, setSaving] = useState(false);
+
+  const allowLeaveRef = useRef(false);
+  const savingRef = useRef(false);
+  const saveRef = useRef<() => Promise<void>>(async () => {});
 
   const typeOptions = useMemo(() => localizeVitalTypeOptions(t), [t]);
   const sugarContextOptions = useMemo(() => localizeBloodSugarContextOptions(t), [t]);
 
-  if (!hydrated) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={theme.color} />
-      </View>
-    );
-  }
+  const liveDraft = (): VitalDraftFields => ({
+    unit,
+    valueText,
+    systolicText,
+    diastolicText,
+    feetText,
+    inchesText,
+    notes,
+    bloodSugarContext,
+  });
+
+  const sessionRef = useRef({
+    type,
+    drafts,
+    live: liveDraft(),
+  });
+  sessionRef.current = { type, drafts, live: liveDraft() };
+
+  const applyDraft = (next: VitalType, draft: VitalDraftFields) => {
+    setType(next);
+    setUnit(draft.unit);
+    setValueText(draft.valueText);
+    setSystolicText(draft.systolicText);
+    setDiastolicText(draft.diastolicText);
+    setFeetText(draft.feetText);
+    setInchesText(draft.inchesText);
+    setNotes(draft.notes);
+    setBloodSugarContext(draft.bloodSugarContext);
+  };
+
+  const mergedDrafts = (): DraftMap => ({
+    ...drafts,
+    [type]: liveDraft(),
+  });
+
+  const presentTypes = (map: DraftMap): VitalType[] =>
+    VITAL_TYPES.filter((id) => {
+      const draft = map[id];
+      return draft != null && isVitalDraftStarted(toDraftInput(id, draft));
+    });
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (allowLeaveRef.current) return;
+      if (savingRef.current) {
+        event.preventDefault();
+        return;
+      }
+
+      const session = sessionRef.current;
+      const map: DraftMap = { ...session.drafts, [session.type]: session.live };
+      if (presentTypes(map).length === 0) return;
+
+      event.preventDefault();
+      void alert(t('apps.vitalsTracker.unsavedTitle'), t('apps.vitalsTracker.unsavedMessage'), [
+        { text: t('apps.vitalsTracker.keepEditing'), style: 'cancel' },
+        {
+          text: t('apps.vitalsTracker.discardReadings'),
+          style: 'destructive',
+          onPress: () => {
+            allowLeaveRef.current = true;
+            navigation.dispatch(event.data.action);
+          },
+        },
+        {
+          text: t('apps.vitalsTracker.saveReadings'),
+          onPress: () => {
+            void saveRef.current();
+          },
+        },
+      ]);
+    });
+
+    return unsubscribe;
+    // Snapshot for leave is read from sessionRef; handleSave is stable enough via refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, t]);
 
   const selectType = (next: VitalType) => {
-    setType(next);
-    setUnit(preferUnitForType(next, unitPrefs));
-    setValueText('');
-    setSystolicText('');
-    setDiastolicText('');
-    setFeetText('');
-    setInchesText('');
-    setBloodSugarContext(null);
+    if (next === type) return;
+    const snapshot = liveDraft();
+    setDrafts((prev) => ({ ...prev, [type]: snapshot }));
+    const stored =
+      drafts[next] ?? emptyDraft(next, preferUnitForType(next, unitPrefs));
+    applyDraft(next, stored);
   };
 
   const switchUnit = (next: VitalUnit) => {
@@ -154,66 +261,52 @@ export default function VitalsLogScreen() {
     }
   })();
 
-  const buildDraft = (overrides?: Partial<VitalDraftInput>): VitalDraftInput => ({
-    type,
-    unit,
-    valueText,
-    systolicText,
-    diastolicText,
-    feetText,
-    inchesText,
-    notes,
-    bloodSugarContext,
-    ...overrides,
-  });
-
   const issueMessage = (issue: VitalIssue): string =>
     t(`apps.vitals.validation.${issue.messageKey}`, issue.params ?? {});
 
-  const savePayload = (assessment: VitalAssessment) => {
-    if (!assessment.payload) return;
-    addEntry({ ...assessment.payload, source: 'manual' });
-    router.back();
-  };
-
-  const confirmSoftThenSave = async (assessment: VitalAssessment, draft: VitalDraftInput) => {
-    const previous = getPreviousEntry(entries, type);
+  const confirmAssessment = async (
+    draft: VitalDraftInput,
+    assessment: VitalAssessment,
+  ): Promise<Omit<VitalAssessment, 'payload'> & { payload: NonNullable<VitalAssessment['payload']> } | null> => {
+    const previous = getPreviousEntry(entries, draft.type);
     const typo = assessment.soft.find((issue) => issue.code === 'typo_suggestion');
     const softMessages = assessment.soft.map(issueMessage).filter(Boolean);
 
     if (typo && typo.suggestedDisplayValue != null && !assessment.payload) {
-      void alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
-        { text: t('apps.vitals.validation.cancel'), style: 'cancel' },
-        {
-          text: t('apps.vitals.validation.useSuggestion', {
-            value: typo.suggestedDisplayValue,
-          }),
-          onPress: () => {
-            const next = assessVitalDraft(
-              { ...draft, valueText: String(typo.suggestedDisplayValue) },
-              previous,
-            );
-            if (next.hard) {
-              void alert(t('apps.vitals.validation.checkTitle'), issueMessage(next.hard));
-              return;
-            }
-            if (next.soft.length > 0 && next.payload) {
-              void confirmSoftThenSave(next, {
-                ...draft,
-                valueText: String(typo.suggestedDisplayValue),
-              });
-              return;
-            }
-            savePayload(next);
+      const useSuggestion = await new Promise<boolean>((resolve) => {
+        void alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
+          { text: t('apps.vitals.validation.cancel'), style: 'cancel', onPress: () => resolve(false) },
+          {
+            text: t('apps.vitals.validation.useSuggestion', {
+              value: typo.suggestedDisplayValue,
+            }),
+            onPress: () => resolve(true),
           },
-        },
-      ]);
-      return;
+        ]);
+      });
+      if (!useSuggestion) return null;
+
+      const next = assessVitalDraft(
+        { ...draft, valueText: String(typo.suggestedDisplayValue) },
+        previous,
+      );
+      if (next.hard || !next.payload) {
+        void alert(
+          t('apps.vitals.validation.checkTitle'),
+          next.hard ? issueMessage(next.hard) : t('apps.vitals.validation.unusualCheck'),
+        );
+        return null;
+      }
+      if (next.soft.length > 0) {
+        return confirmAssessment({ ...draft, valueText: String(typo.suggestedDisplayValue) }, next);
+      }
+      return { ...next, payload: next.payload };
     }
 
+    if (!assessment.payload) return null;
+
     if (assessment.soft.length === 0) {
-      savePayload(assessment);
-      return;
+      return { ...assessment, payload: assessment.payload };
     }
 
     const ok = await confirm({
@@ -222,38 +315,90 @@ export default function VitalsLogScreen() {
       cancelLabel: t('apps.vitals.validation.cancel'),
       confirmLabel: t('apps.vitals.validation.saveAnyway'),
     });
-    if (ok) {
-      savePayload(assessment);
+    if (!ok) return null;
+    return { ...assessment, payload: assessment.payload };
+  };
+
+  const commitPayloads = (
+    payloads: NonNullable<VitalAssessment['payload']>[],
+  ) => {
+    allowLeaveRef.current = true;
+    for (const payload of payloads) {
+      addEntry({ ...payload, source: 'manual' });
     }
+    router.back();
   };
 
   const handleSave = async () => {
-    const draft = buildDraft();
-    const previous = getPreviousEntry(entries, type);
-    const assessment = assessVitalDraft(draft, previous);
+    if (savingRef.current) return;
+    const map = mergedDrafts();
+    setDrafts(map);
+    const ready = presentTypes(map);
 
-    if (assessment.hard) {
-      void alert(t('apps.vitals.validation.checkTitle'), issueMessage(assessment.hard));
+    if (ready.length === 0) {
+      void alert(t('apps.vitals.validation.checkTitle'), t('apps.vitals.validation.requiredReading'));
       return;
     }
 
-    if (!assessment.payload && assessment.soft.some((s) => s.code === 'typo_suggestion')) {
-      await confirmSoftThenSave(assessment, draft);
-      return;
-    }
+    const accepted: NonNullable<VitalAssessment['payload']>[] = [];
 
-    if (!assessment.payload) {
-      void alert(t('apps.vitals.validation.checkTitle'), t('apps.vitals.validation.unusualCheck'));
-      return;
-    }
+    savingRef.current = true;
+    setSaving(true);
+    try {
+      for (const vitalType of ready) {
+        const draftFields = map[vitalType];
+        if (!draftFields) continue;
+        const draft = toDraftInput(vitalType, draftFields);
+        const previous = getPreviousEntry(entries, vitalType);
+        const assessment = assessVitalDraft(draft, previous);
 
-    if (assessment.soft.length > 0) {
-      await confirmSoftThenSave(assessment, draft);
-      return;
-    }
+        if (assessment.hard) {
+          applyDraft(vitalType, draftFields);
+          void alert(t('apps.vitals.validation.checkTitle'), issueMessage(assessment.hard));
+          return;
+        }
 
-    savePayload(assessment);
+        if (!assessment.payload) {
+          applyDraft(vitalType, draftFields);
+          void alert(t('apps.vitals.validation.checkTitle'), t('apps.vitals.validation.unusualCheck'));
+          return;
+        }
+
+        if (assessment.soft.length > 0) {
+          applyDraft(vitalType, draftFields);
+          const confirmed = await confirmAssessment(draft, assessment);
+          if (!confirmed) return;
+          accepted.push(confirmed.payload);
+          continue;
+        }
+
+        accepted.push(assessment.payload);
+      }
+
+      commitPayloads(accepted);
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
+
+  saveRef.current = handleSave;
+
+  if (!hydrated) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator color={theme.color} />
+      </View>
+    );
+  }
+
+  const readyCount = presentTypes(mergedDrafts()).length;
+  const saveLabel =
+    readyCount > 1
+      ? t('apps.vitalsTracker.saveReadingsCount', { count: readyCount })
+      : readyCount === 1
+        ? t('apps.vitalsTracker.saveLog')
+        : t('apps.vitalsTracker.saveReadings');
 
   let cardIndex = 1;
 
@@ -268,16 +413,20 @@ export default function VitalsLogScreen() {
 
       <MiniAppCard index={cardIndex++} title={t('apps.vitals.ui.vital')} theme={theme}>
         <View style={styles.chipRow}>
-          {typeOptions.map((option) => (
-            <MiniAppChip
-              key={option.id}
-              label={option.label}
-              selected={option.id === type}
-              accent={theme.color}
-              soft={theme.backgroundColor}
-              onPress={() => selectType(option.id)}
-            />
-          ))}
+          {typeOptions.map((option) => {
+            const draft = option.id === type ? liveDraft() : drafts[option.id];
+            const filled = draft != null && isVitalDraftStarted(toDraftInput(option.id, draft));
+            return (
+              <MiniAppChip
+                key={option.id}
+                label={filled ? `${option.label} ✓` : option.label}
+                selected={option.id === type}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => selectType(option.id)}
+              />
+            );
+          })}
         </View>
       </MiniAppCard>
 
@@ -394,10 +543,10 @@ export default function VitalsLogScreen() {
       </MiniAppCard>
 
       <MiniAppCta
-        label={t('apps.vitalsTracker.saveLog')}
+        label={saving ? t('apps.vitalsTracker.saveReadings') : saveLabel}
         accent={theme.color}
         soft={theme.backgroundColor}
-        onPress={handleSave}
+        onPress={() => void handleSave()}
       />
     </MiniAppScreen>
   );

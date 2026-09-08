@@ -7,7 +7,11 @@ import { AppText } from '@/components/ui/AppText';
 import { Button, FormActions } from '@/components/ui/form-controls';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
-import { familyConnectionService, familyRepository } from '@/domains/family';
+import {
+  familyConnectionService,
+  familyRepository,
+  isFamilyInviteRelationship,
+} from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
 import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
@@ -103,7 +107,11 @@ export default function FamilyRequestsScreen() {
         ) : (
           requests.map((request) => (
             <View key={request.id} style={styles.card}>
-              <AppText variant="cardTitle">{t('family.requests.spouseConnection')}</AppText>
+              <AppText variant="cardTitle">
+                {isFamilyInviteRelationship(request.relationship)
+                  ? t(`family.relationships.${request.relationship}`)
+                  : t('family.requests.spouseConnection')}
+              </AppText>
               <AppText variant="caption" style={styles.muted}>
                 {t('family.requests.fromUser', { id: request.fromUserId.slice(0, 8) })}
               </AppText>

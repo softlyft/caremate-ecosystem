@@ -1,7 +1,12 @@
 import { APP_NAME, APP_STORE_URLS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
 import { assertNotFamilySelfInvite } from '@/domains/family/invite-guards';
-import type { FamilyConnectionRequest, FamilyLookupUser } from '@/domains/family/types';
+import type {
+  FamilyConnectionRequest,
+  FamilyInviteRelationship,
+  FamilyLookupUser,
+} from '@/domains/family/types';
+import { isFamilyInviteRelationship } from '@/domains/family/types';
 import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { supabase } from '@/lib/supabase';
 import { createId, nowIso } from '@/utils/helpers';
@@ -28,9 +33,15 @@ function normalizeQuery(raw: string): {
  * Plaintext message for someone who is not on CareMate yet.
  * No invite tokens or deep links — connection happens in-app after they install and sign up.
  */
-export function buildSpouseInviteMessage(params: { fromName: string }): { message: string } {
+export function buildSpouseInviteMessage(params: {
+  fromName: string;
+  relationshipLabel?: string;
+}): { message: string } {
+  const role = params.relationshipLabel?.trim();
   const message = [
-    `${params.fromName} uses ${APP_NAME} Family Premium and wants to add you to their household.`,
+    role
+      ? `${params.fromName} uses ${APP_NAME} Family Premium and wants to add you as ${role}.`
+      : `${params.fromName} uses ${APP_NAME} Family Premium and wants to add you to their household.`,
     '',
     `Get ${APP_NAME}:`,
     `• iPhone: ${APP_STORE_URLS.ios}`,
@@ -80,6 +91,7 @@ class FamilyConnectionService {
     fromUserId: string;
     fromName: string;
     emailOrPhone: string;
+    relationship: FamilyInviteRelationship;
     matchedUser: FamilyLookupUser;
   }): Promise<{ request: FamilyConnectionRequest }> {
     assertNotFamilySelfInvite({
@@ -95,6 +107,7 @@ class FamilyConnectionService {
       p_to_user_id: params.matchedUser.userId,
       p_to_email: email ?? undefined,
       p_to_phone: phone ?? undefined,
+      p_relationship: params.relationship,
     });
 
     if (error) {
@@ -111,6 +124,9 @@ class FamilyConnectionService {
       toPhone: row?.to_phone ?? phone,
       status: (row?.status as FamilyConnectionRequest['status']) ?? 'pending',
       inviteToken: null,
+      relationship: isFamilyInviteRelationship(row?.relationship)
+        ? row.relationship
+        : params.relationship,
       syncStatus: 'synced',
       deletedAt: null,
       createdAt: row?.created_at ?? timestamp,

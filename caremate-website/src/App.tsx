@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { DocumentMeta } from '@/components/DocumentMeta';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -80,6 +81,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <GoogleAnalytics />
       <Routes>
         <Route
           path="/auth/reset-password"

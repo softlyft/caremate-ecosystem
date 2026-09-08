@@ -2,6 +2,19 @@ import type { BaseEntity } from '@/types';
 
 export type FamilyMemberKind = 'self' | 'spouse' | 'child';
 
+/** Invite slots. Only these three are available; invited adults stay kind `spouse`. */
+export const FAMILY_INVITE_RELATIONSHIPS = ['spouse', 'family_1', 'family_2'] as const;
+
+export type FamilyInviteRelationship = (typeof FAMILY_INVITE_RELATIONSHIPS)[number];
+
+export function isFamilyInviteRelationship(
+  value: string | null | undefined,
+): value is FamilyInviteRelationship {
+  return (
+    value === 'spouse' || value === 'family_1' || value === 'family_2'
+  );
+}
+
 export type FamilyMemberGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 
 export type FamilyConnectionStatus = 'pending' | 'accepted' | 'declined' | 'cancelled';
@@ -14,6 +27,7 @@ export interface FamilyHousehold extends BaseEntity {
 export interface FamilyMember extends BaseEntity {
   householdId: string;
   kind: FamilyMemberKind;
+  relationship: FamilyInviteRelationship | null;
   linkedUserId: string | null;
   fullName: string;
   dateOfBirth: string | null;
@@ -29,6 +43,7 @@ export interface FamilyConnectionRequest extends BaseEntity {
   toPhone: string | null;
   status: FamilyConnectionStatus;
   inviteToken: string | null;
+  relationship: FamilyInviteRelationship;
 }
 
 export interface FamilyLookupUser {

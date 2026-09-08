@@ -63,6 +63,12 @@ export function PrivacyPage() {
             diagnostics (when enabled), approximate analytics events, and push notification tokens
           </li>
           <li>
+            <strong>Website analytics</strong> — when enabled on getcaremate.com, Google Analytics
+            (Google tag) collects page views and similar usage data such as pages visited, approximate
+            location derived from IP, browser type, and device type. This measurement ID is not used
+            to store health information you enter in the CareMate app.
+          </li>
+          <li>
             <strong>Location</strong> — approximate or precise location when you use Nearby care
             features and grant permission
           </li>
@@ -127,8 +133,9 @@ export function PrivacyPage() {
         <ul className={styles.list}>
           <li>
             <strong>Infrastructure processors</strong> — hosting, databases, email delivery, push
-            notification services, crash/analytics providers (when enabled), and similar vendors
-            under contracts that limit use to providing services to SoftLyft
+            notification services, crash/analytics providers (when enabled), Google Analytics for
+            the marketing website when enabled, and similar vendors under contracts that limit use
+            to providing services to SoftLyft
           </li>
           <li>
             <strong>Payment partners</strong> — Paystack, Apple, or Google as applicable
@@ -219,7 +226,7 @@ export function PrivacyPage() {
         </p>
 
         <p className={styles.meta}>
-          Last updated: August 25, 2026 · Draft for counsel review — SoftLyft intends this policy as
+          Last updated: September 8, 2026 · Draft for counsel review — SoftLyft intends this policy as
           a working baseline before formal legal finalization (including NDPA registration /
           notices if required).
         </p>

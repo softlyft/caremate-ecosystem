@@ -1,7 +1,7 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 import { Link2, Shield } from 'lucide-react-native';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,7 +14,6 @@ import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/sc
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { PayerDirectoryCard } from '@/domains/payers/components/PayerDirectoryCard';
-import { payerConnectionService } from '@/domains/payers/connection-service';
 import { PAYER_DIRECTORY_PAGE_SIZE, payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { useNetworkStatus } from '@/hooks/use-network-status';
@@ -30,12 +29,6 @@ export default function InsuranceDirectoryScreen() {
   const deferredSearch = useDeferredValue(search);
   const trimmedSearch = deferredSearch.trim();
 
-  const activeConnectionsQuery = useQuery({
-    queryKey: [...QUERY_KEYS.payerConnections, 'active'],
-    queryFn: () => payerConnectionService.listActive(),
-    enabled: !isGuest,
-  });
-
   const query = useInfiniteQuery({
     queryKey: [...QUERY_KEYS.payers, trimmedSearch],
     queryFn: ({ pageParam }) =>
@@ -49,21 +42,7 @@ export default function InsuranceDirectoryScreen() {
     staleTime: 30_000,
   });
 
-  const activeOrgIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const connection of activeConnectionsQuery.data ?? []) {
-      ids.add(connection.payerOrganizationId);
-    }
-    return ids;
-  }, [activeConnectionsQuery.data]);
-
-  const payers = useMemo(() => {
-    const rows = query.data?.pages.flatMap((page) => page.rows) ?? [];
-    if (isGuest || activeOrgIds.size === 0) {
-      return rows;
-    }
-    return rows.filter((payer) => !activeOrgIds.has(payer.id));
-  }, [activeOrgIds, isGuest, query.data]);
+  const payers = query.data?.pages.flatMap((page) => page.rows) ?? [];
 
   if (query.isLoading && query.data === undefined) {
     return (

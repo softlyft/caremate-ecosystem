@@ -70,6 +70,12 @@ export function familyConnectionErrorKey(error: unknown): string {
   if (/up to 3 invited members/i.test(message)) {
     return 'family.inviteSeatsFull';
   }
+  if (/relationship is already used/i.test(message)) {
+    return 'family.relationshipUsed';
+  }
+  if (/choose a relationship/i.test(message)) {
+    return 'family.relationshipRequired';
+  }
   if (/only the family premium owner/i.test(message)) {
     return 'family.ownerOnlyInvite';
   }
