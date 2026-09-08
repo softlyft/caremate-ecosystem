@@ -180,9 +180,7 @@ export default function FamilyHubScreen() {
 
   const outsideInviteMessage = useMemo(() => {
     const fromName = profileQuery.data?.fullName?.trim() || t('family.defaultParentName');
-    const relationshipLabel = relationship
-      ? t(`family.relationships.${relationship}`)
-      : undefined;
+    const relationshipLabel = relationship ? t(`family.relationships.${relationship}`) : undefined;
     return buildSpouseInviteMessage({ fromName, relationshipLabel }).message;
   }, [profileQuery.data?.fullName, relationship, t]);
 

@@ -10,9 +10,7 @@ export type FamilyInviteRelationship = (typeof FAMILY_INVITE_RELATIONSHIPS)[numb
 export function isFamilyInviteRelationship(
   value: string | null | undefined,
 ): value is FamilyInviteRelationship {
-  return (
-    value === 'spouse' || value === 'family_1' || value === 'family_2'
-  );
+  return value === 'spouse' || value === 'family_1' || value === 'family_2';
 }
 
 export type FamilyMemberGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
