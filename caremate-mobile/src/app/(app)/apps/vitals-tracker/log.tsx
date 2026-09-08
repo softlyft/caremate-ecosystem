@@ -130,7 +130,10 @@ export default function VitalsLogScreen() {
     drafts,
     live: liveDraft(),
   });
-  sessionRef.current = { type, drafts, live: liveDraft() };
+
+  useEffect(() => {
+    sessionRef.current = { type, drafts, live: liveDraft() };
+  });
 
   const applyDraft = (next: VitalType, draft: VitalDraftFields) => {
     setType(next);
@@ -188,16 +191,13 @@ export default function VitalsLogScreen() {
     });
 
     return unsubscribe;
-    // Snapshot for leave is read from sessionRef; handleSave is stable enough via refs.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, t]);
 
   const selectType = (next: VitalType) => {
     if (next === type) return;
     const snapshot = liveDraft();
     setDrafts((prev) => ({ ...prev, [type]: snapshot }));
-    const stored =
-      drafts[next] ?? emptyDraft(next, preferUnitForType(next, unitPrefs));
+    const stored = drafts[next] ?? emptyDraft(next, preferUnitForType(next, unitPrefs));
     applyDraft(next, stored);
   };
 
@@ -267,18 +267,25 @@ export default function VitalsLogScreen() {
   const confirmAssessment = async (
     draft: VitalDraftInput,
     assessment: VitalAssessment,
-  ): Promise<Omit<VitalAssessment, 'payload'> & { payload: NonNullable<VitalAssessment['payload']> } | null> => {
+  ): Promise<
+    (Omit<VitalAssessment, 'payload'> & { payload: NonNullable<VitalAssessment['payload']> }) | null
+  > => {
     const previous = getPreviousEntry(entries, draft.type);
     const typo = assessment.soft.find((issue) => issue.code === 'typo_suggestion');
     const softMessages = assessment.soft.map(issueMessage).filter(Boolean);
 
-    if (typo && typo.suggestedDisplayValue != null && !assessment.payload) {
+    const suggestedDisplayValue = typo?.suggestedDisplayValue;
+    if (typo && suggestedDisplayValue != null && !assessment.payload) {
       const useSuggestion = await new Promise<boolean>((resolve) => {
         void alert(t('apps.vitals.validation.confirmTitle'), softMessages.join('\n\n'), [
-          { text: t('apps.vitals.validation.cancel'), style: 'cancel', onPress: () => resolve(false) },
+          {
+            text: t('apps.vitals.validation.cancel'),
+            style: 'cancel',
+            onPress: () => resolve(false),
+          },
           {
             text: t('apps.vitals.validation.useSuggestion', {
-              value: typo.suggestedDisplayValue,
+              value: suggestedDisplayValue,
             }),
             onPress: () => resolve(true),
           },
@@ -287,7 +294,7 @@ export default function VitalsLogScreen() {
       if (!useSuggestion) return null;
 
       const next = assessVitalDraft(
-        { ...draft, valueText: String(typo.suggestedDisplayValue) },
+        { ...draft, valueText: String(suggestedDisplayValue) },
         previous,
       );
       if (next.hard || !next.payload) {
@@ -298,7 +305,7 @@ export default function VitalsLogScreen() {
         return null;
       }
       if (next.soft.length > 0) {
-        return confirmAssessment({ ...draft, valueText: String(typo.suggestedDisplayValue) }, next);
+        return confirmAssessment({ ...draft, valueText: String(suggestedDisplayValue) }, next);
       }
       return { ...next, payload: next.payload };
     }
@@ -319,9 +326,7 @@ export default function VitalsLogScreen() {
     return { ...assessment, payload: assessment.payload };
   };
 
-  const commitPayloads = (
-    payloads: NonNullable<VitalAssessment['payload']>[],
-  ) => {
+  const commitPayloads = (payloads: NonNullable<VitalAssessment['payload']>[]) => {
     allowLeaveRef.current = true;
     for (const payload of payloads) {
       addEntry({ ...payload, source: 'manual' });
@@ -336,7 +341,10 @@ export default function VitalsLogScreen() {
     const ready = presentTypes(map);
 
     if (ready.length === 0) {
-      void alert(t('apps.vitals.validation.checkTitle'), t('apps.vitals.validation.requiredReading'));
+      void alert(
+        t('apps.vitals.validation.checkTitle'),
+        t('apps.vitals.validation.requiredReading'),
+      );
       return;
     }
 
@@ -360,7 +368,10 @@ export default function VitalsLogScreen() {
 
         if (!assessment.payload) {
           applyDraft(vitalType, draftFields);
-          void alert(t('apps.vitals.validation.checkTitle'), t('apps.vitals.validation.unusualCheck'));
+          void alert(
+            t('apps.vitals.validation.checkTitle'),
+            t('apps.vitals.validation.unusualCheck'),
+          );
           return;
         }
 
@@ -382,7 +393,9 @@ export default function VitalsLogScreen() {
     }
   };
 
-  saveRef.current = handleSave;
+  useEffect(() => {
+    saveRef.current = handleSave;
+  });
 
   if (!hydrated) {
     return (
