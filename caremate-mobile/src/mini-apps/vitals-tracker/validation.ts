@@ -51,6 +51,20 @@ export type VitalDraftInput = {
   bloodSugarContext?: BloodSugarContext | null;
 };
 
+/** True when the user has started a reading (notes alone do not count). */
+export function isVitalDraftStarted(input: VitalDraftInput): boolean {
+  if (input.type === 'blood_pressure') {
+    return Boolean(input.systolicText?.trim() || input.diastolicText?.trim());
+  }
+  if (input.type === 'height' && input.unit === 'ft') {
+    return Boolean(input.feetText?.trim() || input.inchesText?.trim());
+  }
+  if (input.type === 'blood_sugar') {
+    return Boolean(input.valueText?.trim() || input.bloodSugarContext);
+  }
+  return Boolean(input.valueText?.trim());
+}
+
 export type VitalAssessment = {
   /** Parsed payload ready to save (canonical units). Null if hard-blocked or unparsable. */
   payload: Omit<VitalEntry, 'id' | 'recordedAt'> | null;

@@ -178,6 +178,7 @@ export type GatewayFamilyMemberRow = {
   id: string;
   household_id: string;
   kind: string;
+  relationship?: string | null;
   linked_user_id: string | null;
   full_name: string;
   date_of_birth: string | null;
@@ -192,6 +193,7 @@ export function familyMemberToGatewayBody(member: {
   id: string;
   householdId: string;
   kind: string;
+  relationship?: string | null;
   linkedUserId: string | null;
   fullName: string;
   dateOfBirth: string | null;
@@ -204,6 +206,7 @@ export function familyMemberToGatewayBody(member: {
     id: member.id,
     household_id: member.householdId,
     kind: member.kind,
+    relationship: member.relationship ?? null,
     linked_user_id: member.linkedUserId,
     full_name: member.fullName,
     date_of_birth: member.dateOfBirth,

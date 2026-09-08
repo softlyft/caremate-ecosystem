@@ -26,14 +26,20 @@ import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states'
 import { QUERY_KEYS } from '@/constants/config';
 import {
   FAMILY_GENDERS,
+  FAMILY_INVITE_RELATIONSHIPS,
   buildSpouseInviteMessage,
   familyConnectionErrorKey,
   familyConnectionService,
   familyRepository,
+  isFamilyInviteRelationship,
   isFamilySelfInvite,
   validateChildNameAndDob,
 } from '@/domains/family';
-import type { FamilyLookupUser, FamilyMemberGender } from '@/domains/family/types';
+import type {
+  FamilyInviteRelationship,
+  FamilyLookupUser,
+  FamilyMemberGender,
+} from '@/domains/family/types';
 import {
   FAMILY_ADULT_INVITE_LIMIT,
   canAddChild,
@@ -137,7 +143,23 @@ export default function FamilyHubScreen() {
     enabled: Boolean(householdId),
   });
 
+  const takenRelationships = useMemo(() => {
+    const taken = new Set<FamilyInviteRelationship>();
+    for (const member of membersQuery.data ?? []) {
+      if (member.kind === 'spouse' && isFamilyInviteRelationship(member.relationship)) {
+        taken.add(member.relationship);
+      }
+    }
+    for (const invite of pendingOutgoingQuery.data ?? []) {
+      if (isFamilyInviteRelationship(invite.relationship)) {
+        taken.add(invite.relationship);
+      }
+    }
+    return taken;
+  }, [membersQuery.data, pendingOutgoingQuery.data]);
+
   const [lookup, setLookup] = useState('');
+  const [relationship, setRelationship] = useState<FamilyInviteRelationship | null>(null);
   const [matched, setMatched] = useState<FamilyLookupUser | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -158,8 +180,9 @@ export default function FamilyHubScreen() {
 
   const outsideInviteMessage = useMemo(() => {
     const fromName = profileQuery.data?.fullName?.trim() || t('family.defaultParentName');
-    return buildSpouseInviteMessage({ fromName }).message;
-  }, [profileQuery.data?.fullName, t]);
+    const relationshipLabel = relationship ? t(`family.relationships.${relationship}`) : undefined;
+    return buildSpouseInviteMessage({ fromName, relationshipLabel }).message;
+  }, [profileQuery.data?.fullName, relationship, t]);
 
   async function refreshAll() {
     await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold });
@@ -221,6 +244,14 @@ export default function FamilyHubScreen() {
       Alert.alert(t('family.spousePremiumTitle'), t('family.inviteSeatsFull'));
       return;
     }
+    if (!relationship) {
+      Alert.alert(t('family.connectionFailed'), t('family.relationshipRequired'));
+      return;
+    }
+    if (takenRelationships.has(relationship)) {
+      Alert.alert(t('family.connectionFailed'), t('family.relationshipUsed'));
+      return;
+    }
     if (
       isFamilySelfInvite({
         fromUserId: userId,
@@ -241,11 +272,13 @@ export default function FamilyHubScreen() {
         fromUserId: userId,
         fromName: profile?.fullName ?? t('family.defaultParentName'),
         emailOrPhone: lookup,
+        relationship,
         matchedUser: matched,
       });
       Alert.alert(t('family.requestSent'), t('family.requestSentMessage'));
       setMatched(null);
       setLookup('');
+      setRelationship(null);
       await refreshAll();
     } catch (error) {
       Alert.alert(t('family.connectionFailed'), t(familyConnectionErrorKey(error)));
@@ -561,7 +594,11 @@ export default function FamilyHubScreen() {
                           {member.fullName}
                         </AppText>
                         <AppText variant="caption" style={styles.muted}>
-                          {member.kind === 'self' ? t('family.kindSelf') : t('family.kindMember')}
+                          {member.kind === 'self'
+                            ? t('family.kindSelf')
+                            : isFamilyInviteRelationship(member.relationship)
+                              ? t(`family.relationships.${member.relationship}`)
+                              : t('family.kindMember')}
                         </AppText>
                       </View>
                       {isHouseholdOwner && member.kind === 'spouse' ? (
@@ -602,6 +639,11 @@ export default function FamilyHubScreen() {
                           <AppText variant="body" style={styles.memberName}>
                             {invite.toEmail || invite.toPhone || invite.toUserId || '—'}
                           </AppText>
+                          {isFamilyInviteRelationship(invite.relationship) ? (
+                            <AppText variant="caption" style={styles.memberName}>
+                              {t(`family.relationships.${invite.relationship}`)}
+                            </AppText>
+                          ) : null}
                           <AppText variant="caption" style={styles.muted}>
                             {t('family.pendingInviteMeta')}
                           </AppText>
@@ -794,6 +836,27 @@ export default function FamilyHubScreen() {
                 ) : (
                   <>
                     <FormField
+                      label={t('family.relationshipLabel')}
+                      hint={t('family.relationshipHint')}
+                    >
+                      <View style={styles.chipRow}>
+                        {FAMILY_INVITE_RELATIONSHIPS.map((value) => {
+                          const taken = takenRelationships.has(value);
+                          return (
+                            <ChoiceChip
+                              key={value}
+                              label={t(`family.relationships.${value}`)}
+                              selected={relationship === value}
+                              disabled={taken}
+                              onPress={() => setRelationship(value)}
+                              accent={ACCENT}
+                              soft={SOFT}
+                            />
+                          );
+                        })}
+                      </View>
+                    </FormField>
+                    <FormField
                       label={t('family.connectSpouse')}
                       hint={t('family.connectSpouseHint')}
                     >
@@ -845,8 +908,13 @@ export default function FamilyHubScreen() {
                           </AppText>
                         ) : null}
                         <Button
-                          style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
-                          disabled={busy}
+                          style={[
+                            styles.primaryCta,
+                            busy || !relationship || takenRelationships.has(relationship)
+                              ? styles.ctaDisabled
+                              : null,
+                          ]}
+                          disabled={busy || !relationship || takenRelationships.has(relationship)}
                           onPress={() => void handleConnect()}
                           variant="plain"
                         >

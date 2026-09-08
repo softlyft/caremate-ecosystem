@@ -213,6 +213,7 @@ export const familyMembers = sqliteTable('family_members', {
   id: text('id').primaryKey(),
   householdId: text('household_id').notNull(),
   kind: text('kind').notNull(),
+  relationship: text('relationship'),
   linkedUserId: text('linked_user_id'),
   fullName: text('full_name').notNull(),
   dateOfBirth: text('date_of_birth'),
@@ -230,6 +231,7 @@ export const familyConnectionRequests = sqliteTable('family_connection_requests'
   toPhone: text('to_phone'),
   status: text('status').notNull().default('pending'),
   inviteToken: text('invite_token'),
+  relationship: text('relationship'),
   ...syncColumns,
 });
 

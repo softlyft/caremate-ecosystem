@@ -1,9 +1,8 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 import { Link2, Shield } from 'lucide-react-native';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
@@ -14,7 +13,6 @@ import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/sc
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { PayerDirectoryCard } from '@/domains/payers/components/PayerDirectoryCard';
-import { payerConnectionService } from '@/domains/payers/connection-service';
 import { PAYER_DIRECTORY_PAGE_SIZE, payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
 import { useNetworkStatus } from '@/hooks/use-network-status';
@@ -23,18 +21,11 @@ import { textColors } from '@/theme/typography';
 
 export default function InsuranceDirectoryScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const { online } = useNetworkStatus();
   const isGuest = useIsGuest();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const trimmedSearch = deferredSearch.trim();
-
-  const activeConnectionsQuery = useQuery({
-    queryKey: [...QUERY_KEYS.payerConnections, 'active'],
-    queryFn: () => payerConnectionService.listActive(),
-    enabled: !isGuest,
-  });
 
   const query = useInfiniteQuery({
     queryKey: [...QUERY_KEYS.payers, trimmedSearch],
@@ -49,21 +40,7 @@ export default function InsuranceDirectoryScreen() {
     staleTime: 30_000,
   });
 
-  const activeOrgIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const connection of activeConnectionsQuery.data ?? []) {
-      ids.add(connection.payerOrganizationId);
-    }
-    return ids;
-  }, [activeConnectionsQuery.data]);
-
-  const payers = useMemo(() => {
-    const rows = query.data?.pages.flatMap((page) => page.rows) ?? [];
-    if (isGuest || activeOrgIds.size === 0) {
-      return rows;
-    }
-    return rows.filter((payer) => !activeOrgIds.has(payer.id));
-  }, [activeOrgIds, isGuest, query.data]);
+  const payers = query.data?.pages.flatMap((page) => page.rows) ?? [];
 
   if (query.isLoading && query.data === undefined) {
     return (
@@ -103,11 +80,7 @@ export default function InsuranceDirectoryScreen() {
           }
         }}
         onEndReachedThreshold={0.4}
-        contentContainerStyle={[
-          styles.list,
-          { paddingTop: insets.top + spacing.sm },
-          payers.length === 0 ? styles.listFill : null,
-        ]}
+        contentContainerStyle={[styles.list, payers.length === 0 ? styles.listFill : null]}
         ListHeaderComponent={
           <View style={styles.headerBlock}>
             <AnimatedSection index={0}>
@@ -195,6 +168,7 @@ export default function InsuranceDirectoryScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
   },
   listFill: {

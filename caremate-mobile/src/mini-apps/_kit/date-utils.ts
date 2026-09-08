@@ -34,22 +34,29 @@ export function daysBetween(start: Date, end: Date): number {
   return Math.round(ms / (1000 * 60 * 60 * 24));
 }
 
-export function getMonthMatrix(reference: Date): (Date | null)[] {
+/**
+ * Sunday-start weeks for `reference`'s month.
+ * Leading and trailing cells are real adjacent-month dates so a period that
+ * crosses the month boundary stays visible without changing months.
+ */
+export function getMonthMatrix(reference: Date): Date[] {
   const year = reference.getFullYear();
   const month = reference.getMonth();
   const firstDay = new Date(year, month, 1);
   const startOffset = firstDay.getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const cells: (Date | null)[] = [];
-  for (let i = 0; i < startOffset; i += 1) {
-    cells.push(null);
+  const cells: Date[] = [];
+  for (let offset = startOffset; offset > 0; offset -= 1) {
+    cells.push(new Date(year, month, 1 - offset));
   }
   for (let day = 1; day <= daysInMonth; day += 1) {
     cells.push(new Date(year, month, day));
   }
+  let trailing = 1;
   while (cells.length % 7 !== 0) {
-    cells.push(null);
+    cells.push(new Date(year, month + 1, trailing));
+    trailing += 1;
   }
   return cells;
 }

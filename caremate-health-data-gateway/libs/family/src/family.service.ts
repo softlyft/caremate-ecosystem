@@ -19,6 +19,7 @@ type MemberRow = {
   id: string;
   household_id: string;
   kind: string;
+  relationship?: string | null;
   linked_user_id: string | null;
   full_name: string;
   date_of_birth: string | null;
@@ -58,6 +59,7 @@ export class FamilyService {
       id: dto.id,
       household_id: dto.household_id,
       kind: dto.kind,
+      relationship: dto.relationship ?? null,
       linked_user_id: dto.linked_user_id ?? null,
       full_name: dto.full_name,
       date_of_birth: encrypted.date_of_birth,

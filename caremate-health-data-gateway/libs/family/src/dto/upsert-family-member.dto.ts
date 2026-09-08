@@ -11,6 +11,10 @@ export class UpsertFamilyMemberDto {
   kind!: 'self' | 'spouse' | 'child';
 
   @IsOptional()
+  @IsIn(['spouse', 'family_1', 'family_2'])
+  relationship?: 'spouse' | 'family_1' | 'family_2' | null;
+
+  @IsOptional()
   @IsUUID()
   linked_user_id?: string | null;
 

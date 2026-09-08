@@ -71,6 +71,13 @@
       "when": 1787136000000,
       "tag": "0009_health_timeline_events",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1788854400000,
+      "tag": "0010_family_invite_relationship",
+      "breakpoints": true
     }
   ]
 }

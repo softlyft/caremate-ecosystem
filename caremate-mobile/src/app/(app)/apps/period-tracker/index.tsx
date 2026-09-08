@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Minus, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
@@ -24,7 +24,6 @@ import {
   daysBetween,
   getCycleDay,
   getFertilityMark,
-  getWeekStrip,
   predictNextPeriodStart,
   toDateKey,
 } from '@/mini-apps/period-tracker/utils';
@@ -137,7 +136,6 @@ export default function PeriodTrackerScreen() {
         return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
       })()
     : null;
-  const weekStrip = getWeekStrip(today);
   const interactive = hydrated && !paused;
 
   if (hydrated && !paused && nextPeriod && !alignedPredictedMonth) {
@@ -233,65 +231,7 @@ export default function PeriodTrackerScreen() {
 
       <AdSlot slotId={AD_SLOTS.PERIOD_WEEK} />
 
-      <MiniAppCard index={1} title={t('apps.period.ui.thisWeek')} theme={theme}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.strip}
-        >
-          {weekStrip.map((date) => {
-            const key = toDateKey(date);
-            const isToday = key === todayKey;
-            const isLogged = loggedPeriodDays.includes(key);
-            const isPredicted = isPredictedPeriodDay(
-              key,
-              lastPeriodStart,
-              cycleLength,
-              periodLength,
-              loggedPeriodDays,
-              paused,
-            );
-            const fertility =
-              isLogged || isPredicted
-                ? null
-                : getFertilityMark(key, lastPeriodStart, cycleLength, paused);
-            const isOvulation = fertility === 'ovulation';
-            const isFertile = fertility === 'fertile';
-            return (
-              <Button
-                key={key}
-                disabled={!interactive}
-                style={styles.stripDay}
-                onPress={() => requestTogglePeriodDay(key)}
-                variant="plain"
-              >
-                <AppText variant="caption" style={styles.stripWeekday}>
-                  {date.toLocaleDateString(undefined, { weekday: 'short' })}
-                </AppText>
-                <View
-                  style={[
-                    styles.stripBubble,
-                    isLogged && { backgroundColor: theme.color },
-                    isPredicted && styles.predictedDay,
-                    isOvulation && styles.ovulationDay,
-                    isFertile && styles.fertileDay,
-                    isToday && styles.todayRing,
-                  ]}
-                >
-                  <AppText
-                    variant="body"
-                    style={isLogged || isOvulation ? styles.loggedDayText : undefined}
-                  >
-                    {date.getDate()}
-                  </AppText>
-                </View>
-              </Button>
-            );
-          })}
-        </ScrollView>
-      </MiniAppCard>
-
-      <MiniAppCard index={2} eyebrow={t('apps.period.ui.calendar')} theme={theme}>
+      <MiniAppCard index={1} eyebrow={t('apps.period.ui.calendar')} theme={theme}>
         <MonthCalendarNavigator
           accentColor={theme.color}
           monthRef={monthRef}
@@ -359,7 +299,7 @@ export default function PeriodTrackerScreen() {
         </View>
       </MiniAppCard>
 
-      <MiniAppCard index={3} title={t('apps.period.ui.cycleSummary')} theme={theme}>
+      <MiniAppCard index={2} title={t('apps.period.ui.cycleSummary')} theme={theme}>
         <MiniAppRow
           title={t('apps.period.ui.averageCycle')}
           soft={theme.backgroundColor}
@@ -412,7 +352,7 @@ export default function PeriodTrackerScreen() {
           label={t('apps.periodTracker.logPeriodDays')}
           accent={theme.color}
           soft={theme.backgroundColor}
-          index={4}
+          index={3}
           onPress={() => router.push('/(app)/apps/period-tracker/log')}
         />
       ) : null}
@@ -430,26 +370,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.xs,
   },
-  strip: {
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  stripDay: {
-    width: 52,
-    alignItems: 'center',
-    gap: 6,
-  },
-  stripWeekday: {
-    color: palette.textSecondary,
-  },
-  stripBubble: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.surface,
-  },
   predictedDay: {
     backgroundColor: '#F9A8D4',
     borderWidth: 2,
@@ -462,13 +382,6 @@ const styles = StyleSheet.create({
   },
   ovulationDay: {
     backgroundColor: '#7C3AED',
-  },
-  loggedDayText: {
-    color: '#FFFFFF',
-  },
-  todayRing: {
-    borderWidth: 2,
-    borderColor: palette.primary,
   },
   predictedHint: {
     color: palette.textSecondary,

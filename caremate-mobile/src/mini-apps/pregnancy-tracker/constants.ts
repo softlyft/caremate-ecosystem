@@ -15,21 +15,62 @@ export const SYMPTOM_OPTIONS = [
   'Food cravings',
 ] as const;
 
-/** Recovery-focused options for mother postpartum daily logs (no pregnancy-only items). */
-export const POSTPARTUM_SYMPTOM_OPTIONS = [
+/** Common recovery symptoms. Bleeding keeps this id so older logs still match. */
+export const POSTPARTUM_ROUTINE_SYMPTOMS = [
   'Fatigue',
   'Afterpains',
   'Bleeding',
   'Perineal discomfort',
   'Breast engorgement',
+  'Breast/nipple pain',
   'Incision pain',
   'Back pain',
   'Headache',
+  'Pelvic or abdominal pain',
   'Constipation',
   'Insomnia',
   'Anxiety',
   'Mood swings',
 ] as const;
+
+/**
+ * Signs that may need clinic or urgent care. Logged as details, not a diagnosis.
+ * Educational guidance only — the app does not decide whether care is required.
+ */
+export const POSTPARTUM_WARNING_SYMPTOMS = [
+  'Fever/chills',
+  'Painful/difficult urination',
+  'Foul-smelling vaginal discharge',
+  'Breast redness or warmth',
+  'Dizziness',
+  'Leg swelling or leg pain',
+  'Shortness of breath',
+  'Chest pain',
+  'Severe headache or vision changes',
+  'Incision/wound problems',
+  'Feeling overwhelmed or unusually sad',
+] as const;
+
+/** These should prompt urgent-care wording, not only a clinic check. */
+export const POSTPARTUM_URGENT_SYMPTOMS = [
+  'Shortness of breath',
+  'Chest pain',
+  'Severe headache or vision changes',
+] as const;
+
+/** Recovery-focused options for mother postpartum daily logs (no pregnancy-only items). */
+export const POSTPARTUM_SYMPTOM_OPTIONS = [
+  ...POSTPARTUM_ROUTINE_SYMPTOMS,
+  ...POSTPARTUM_WARNING_SYMPTOMS,
+] as const;
+
+export const LOCHIA_AMOUNTS = ['light', 'moderate', 'heavy'] as const;
+export type LochiaAmount = (typeof LOCHIA_AMOUNTS)[number];
+
+export type PostpartumSymptomDetails = {
+  lochiaAmount?: LochiaAmount;
+  lochiaClots?: boolean;
+};
 
 export const MILESTONES = [
   {

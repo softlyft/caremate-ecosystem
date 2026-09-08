@@ -117,20 +117,26 @@ export default function PregnancyTtScreen() {
       router.back();
     };
 
-    if (assessment.soft.length > 0) {
-      const ok = await confirm({
-        title: t('apps.pregnancy.motherCare.validation.confirmTitle'),
-        message: assessment.soft.map(issueMessage).join('\n\n'),
-        cancelLabel: t('apps.pregnancy.motherCare.validation.cancel'),
-        confirmLabel: t('apps.pregnancy.motherCare.validation.saveAnyway'),
-      });
-      if (ok) {
-        save();
-      }
-      return;
-    }
+    const doseLabel = t(`apps.pregnancy.motherCare.doses.${nextDoseId}`);
+    const dateLabel = formatDueDate(assessment.payload.dateKey);
+    const lockMessage = t('apps.pregnancy.motherCare.validation.lockMessage', {
+      dose: doseLabel,
+      date: dateLabel,
+    });
+    const reviewMessage =
+      assessment.soft.length > 0
+        ? `${assessment.soft.map(issueMessage).join('\n\n')}\n\n${lockMessage}`
+        : lockMessage;
 
-    save();
+    const ok = await confirm({
+      title: t('apps.pregnancy.motherCare.validation.lockTitle'),
+      message: reviewMessage,
+      cancelLabel: t('apps.pregnancy.motherCare.validation.lockCancel'),
+      confirmLabel: t('apps.pregnancy.motherCare.validation.lockConfirm', { dose: doseLabel }),
+    });
+    if (ok) {
+      save();
+    }
   };
 
   if (!hydrated) {

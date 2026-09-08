@@ -16,6 +16,7 @@ import {
   buildVitalEntryPayload,
   detectTypoSuggestion,
   isValidVitalDraft,
+  isVitalDraftStarted,
 } from '@/mini-apps/vitals-tracker/validation';
 import {
   localizeBloodSugarContext,
@@ -186,6 +187,30 @@ describe('vitals-tracker/utils', () => {
 });
 
 describe('vitals-tracker/validation', () => {
+  it('treats a started draft as present and notes-only as empty', () => {
+    expect(
+      isVitalDraftStarted({
+        type: 'heart_rate',
+        unit: 'bpm',
+        valueText: '72',
+      }),
+    ).toBe(true);
+    expect(
+      isVitalDraftStarted({
+        type: 'blood_pressure',
+        unit: 'mmHg',
+        systolicText: '120',
+      }),
+    ).toBe(true);
+    expect(
+      isVitalDraftStarted({
+        type: 'heart_rate',
+        unit: 'bpm',
+        notes: 'after walk',
+      }),
+    ).toBe(false);
+  });
+
   it('hard-rejects impossible blood pressure and diastolic ≥ systolic', () => {
     expect(
       assessVitalDraft({

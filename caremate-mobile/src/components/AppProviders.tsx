@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import * as SplashScreen from 'expo-splash-screen';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
@@ -137,6 +138,8 @@ function BootstrapGate({ children }: PropsWithChildren) {
           const message =
             error instanceof Error ? error.message : 'Failed to initialize local database';
           setBootstrapError(message);
+          // Splash stays up until auth initializes; a DB failure never reaches that, so hide it.
+          void SplashScreen.hideAsync();
         }
       }
     }

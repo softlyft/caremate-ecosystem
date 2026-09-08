@@ -70,6 +70,31 @@ describe('projectMiniAppEvents', () => {
         },
       ],
     });
+    const today = pregnancy.find((event) => event.id.endsWith('2026-04-01'));
+    expect(today?.title).toBe('Pregnancy log');
+    expect(today?.summary).toContain('nausea');
+
+    const postpartum = projectMiniAppEvents('u', 'pregnancy', {
+      pregnancyId: 'preg-1',
+      status: 'postpartum',
+      dailyLogs: {
+        '2026-10-02': {
+          dateKey: '2026-10-02',
+          mood: 'Tired',
+          symptoms: ['Fatigue', 'Bleeding', 'Chest pain'],
+          symptomDetails: { lochiaAmount: 'heavy', lochiaClots: true },
+          kickCount: 0,
+        },
+      },
+    });
+    const recovery = postpartum[0];
+    expect(recovery?.title).toBe('Postpartum log');
+    expect(recovery?.summary).toContain('Chest pain');
+    expect(recovery?.summary).toContain('Bleeding (heavy, clots)');
+    expect(recovery?.payload).toMatchObject({
+      symptomDetails: { lochiaAmount: 'heavy', lochiaClots: true },
+    });
+
     expect(pregnancy.map((e) => e.id)).toEqual(
       expect.arrayContaining([
         'u:pregnancy:pregnancy_log:preg-1:2026-04-01',

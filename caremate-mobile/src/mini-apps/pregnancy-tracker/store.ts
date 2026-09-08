@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import type { PostpartumSymptomDetails } from '@/mini-apps/pregnancy-tracker/constants';
 import { usePeriodTrackerStore } from '@/mini-apps/period-tracker/store';
 import {
   sortMaternalTtDoses,
@@ -27,6 +28,8 @@ export interface PregnancyDailyLog {
   dateKey: string;
   mood?: string;
   symptoms: string[];
+  /** Extra postpartum detail (lochia amount, clots). Omitted when not applicable. */
+  symptomDetails?: PostpartumSymptomDetails;
   kickCount: number;
   notes: string;
   weightKg?: number;

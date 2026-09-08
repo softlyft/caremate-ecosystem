@@ -7,10 +7,12 @@ import type {
   FamilyConnectionRequest,
   FamilyConnectionStatus,
   FamilyHousehold,
+  FamilyInviteRelationship,
   FamilyMember,
   FamilyMemberGender,
   FamilyMemberKind,
 } from '@/domains/family/types';
+import { isFamilyInviteRelationship } from '@/domains/family/types';
 import {
   deleteFamilyMemberViaGateway,
   fetchFamilyMembersViaGateway,
@@ -52,6 +54,7 @@ function mapMember(row: typeof familyMembers.$inferSelect): FamilyMember {
     id: row.id,
     householdId: row.householdId,
     kind: row.kind as FamilyMemberKind,
+    relationship: isFamilyInviteRelationship(row.relationship) ? row.relationship : null,
     linkedUserId: row.linkedUserId,
     fullName: row.fullName,
     dateOfBirth: row.dateOfBirth,
@@ -74,6 +77,7 @@ function mapRequest(row: typeof familyConnectionRequests.$inferSelect): FamilyCo
     toPhone: row.toPhone,
     status: row.status as FamilyConnectionStatus,
     inviteToken: row.inviteToken,
+    relationship: isFamilyInviteRelationship(row.relationship) ? row.relationship : 'spouse',
     syncStatus: row.syncStatus as FamilyConnectionRequest['syncStatus'],
     deletedAt: row.deletedAt,
     createdAt: row.createdAt,
@@ -334,6 +338,7 @@ class FamilyRepository extends BaseRepository {
     householdId: string;
     kind: FamilyMemberKind;
     linkedUserId: string | null;
+    relationship?: FamilyInviteRelationship | null;
     fullName: string;
     dateOfBirth: string | null;
     gender: FamilyMemberGender | null;
@@ -345,6 +350,7 @@ class FamilyRepository extends BaseRepository {
       id: await createId(),
       householdId: input.householdId,
       kind: input.kind,
+      relationship: input.relationship ?? null,
       linkedUserId: input.linkedUserId,
       fullName: input.fullName,
       dateOfBirth: input.dateOfBirth,
@@ -360,6 +366,7 @@ class FamilyRepository extends BaseRepository {
       id: member.id,
       householdId: member.householdId,
       kind: member.kind,
+      relationship: member.relationship,
       linkedUserId: member.linkedUserId,
       fullName: member.fullName,
       dateOfBirth: member.dateOfBirth,
@@ -397,6 +404,7 @@ class FamilyRepository extends BaseRepository {
         toPhone: request.toPhone,
         status: request.status,
         inviteToken: request.inviteToken,
+        relationship: request.relationship,
         syncStatus: request.syncStatus,
         deletedAt: request.deletedAt,
         createdAt: request.createdAt,
@@ -410,6 +418,7 @@ class FamilyRepository extends BaseRepository {
           toPhone: request.toPhone,
           status: request.status,
           inviteToken: request.inviteToken,
+          relationship: request.relationship,
           syncStatus: request.syncStatus,
           updatedAt: request.updatedAt,
           deletedAt: request.deletedAt,
@@ -458,6 +467,7 @@ class FamilyRepository extends BaseRepository {
         id: member.id,
         householdId: member.householdId,
         kind: member.kind,
+        relationship: member.relationship,
         linkedUserId: member.linkedUserId,
         fullName: member.fullName,
         dateOfBirth: member.dateOfBirth,
@@ -472,6 +482,7 @@ class FamilyRepository extends BaseRepository {
         target: familyMembers.id,
         set: {
           kind: member.kind,
+          relationship: member.relationship,
           linkedUserId: member.linkedUserId,
           fullName: member.fullName,
           dateOfBirth: member.dateOfBirth,
@@ -520,6 +531,7 @@ class FamilyRepository extends BaseRepository {
       id: member.id,
       household_id: member.householdId,
       kind: member.kind,
+      relationship: member.relationship,
       linked_user_id: member.linkedUserId,
       full_name: member.fullName,
       date_of_birth: member.dateOfBirth,
@@ -545,6 +557,7 @@ class FamilyRepository extends BaseRepository {
       to_phone: request.toPhone,
       status: request.status,
       invite_token: request.inviteToken,
+      relationship: request.relationship,
       updated_at: request.updatedAt,
       created_at: request.createdAt,
     });
@@ -610,6 +623,7 @@ class FamilyRepository extends BaseRepository {
           id: row.id,
           householdId: row.household_id,
           kind: asMemberKind(row.kind),
+          relationship: isFamilyInviteRelationship(row.relationship) ? row.relationship : null,
           linkedUserId: row.linked_user_id,
           fullName: row.full_name,
           dateOfBirth: scrubEncryptedText(row.date_of_birth),
@@ -629,6 +643,7 @@ class FamilyRepository extends BaseRepository {
           id: row.id,
           householdId: row.household_id,
           kind: asMemberKind(row.kind),
+          relationship: isFamilyInviteRelationship(row.relationship) ? row.relationship : null,
           linkedUserId: row.linked_user_id,
           fullName: row.full_name,
           dateOfBirth: scrubEncryptedText(row.date_of_birth),
@@ -666,6 +681,7 @@ class FamilyRepository extends BaseRepository {
         toPhone: row.to_phone,
         status,
         inviteToken: row.invite_token,
+        relationship: isFamilyInviteRelationship(row.relationship) ? row.relationship : 'spouse',
         syncStatus: 'synced',
         deletedAt: null,
         createdAt: row.created_at ?? nowIso(),
