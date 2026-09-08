@@ -42,10 +42,10 @@ import {
 } from '@/mini-apps/pregnancy-tracker/store';
 import {
   buildPregnancyAlertCopy,
+  formatLoggedSymptom,
   localizeMilestones,
   localizeMood,
   localizePregnancyMilestone,
-  localizeSymptom,
   localizeTrimester,
 } from '@/mini-apps/pregnancy-tracker/localize';
 import { syncMaternalTtScheduledNotifications } from '@/mini-apps/pregnancy-tracker/scheduled-notifications';
@@ -107,7 +107,9 @@ export default function PregnancyTrackerScreen() {
       log.kickCount > 0 ? t('apps.pregnancy.ui.kicksCount', { count: log.kickCount }) : null,
       log.weightKg != null ? t('apps.pregnancy.ui.weightValue', { value: log.weightKg }) : null,
       log.symptoms.length > 0
-        ? log.symptoms.map((symptom) => localizeSymptom(symptom, t)).join(', ')
+        ? log.symptoms
+            .map((symptom) => formatLoggedSymptom(symptom, log.symptomDetails, t))
+            .join(', ')
         : log.notes?.trim()
           ? log.notes.trim()
           : null,
@@ -415,7 +417,9 @@ export default function PregnancyTrackerScreen() {
           ) : null}
           {todayLog && todayLog.symptoms.length > 0 ? (
             <AppText variant="caption">
-              {todayLog.symptoms.map((symptom) => localizeSymptom(symptom, t)).join(' · ')}
+              {todayLog.symptoms
+                .map((symptom) => formatLoggedSymptom(symptom, todayLog.symptomDetails, t))
+                .join(' · ')}
             </AppText>
           ) : (
             <AppText variant="caption" style={styles.muted}>

@@ -63,10 +63,17 @@ describe('mini-apps/_kit/date-utils', () => {
   it('builds a Sunday-start month matrix padded to full weeks', () => {
     const cells = getMonthMatrix(new Date(2026, 6, 1));
     expect(cells.length % 7).toBe(0);
-    const numbered = cells.filter(Boolean) as Date[];
-    expect(numbered[0]!.getDate()).toBe(1);
-    expect(numbered[numbered.length - 1]!.getDate()).toBe(31);
-    expect(cells.slice(0, cells.findIndex(Boolean)).every((cell) => cell === null)).toBe(true);
+    const inMonth = cells.filter((cell) => cell.getMonth() === 6);
+    expect(inMonth[0]!.getDate()).toBe(1);
+    expect(inMonth[inMonth.length - 1]!.getDate()).toBe(31);
+    expect(cells[0]!.getMonth()).toBe(5);
+    expect(cells[cells.length - 1]!.getMonth()).toBe(7);
+  });
+
+  it('keeps next-month continuation days in the last week', () => {
+    const cells = getMonthMatrix(new Date(2026, 8, 1));
+    const trailing = cells.filter((cell) => cell.getMonth() === 9);
+    expect(trailing.map((cell) => cell.getDate())).toEqual([1, 2, 3]);
   });
 });
 

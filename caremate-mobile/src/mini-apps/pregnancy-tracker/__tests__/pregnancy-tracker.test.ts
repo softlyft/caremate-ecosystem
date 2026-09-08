@@ -127,6 +127,10 @@ describe('pregnancy-tracker/localize', () => {
     expect(localizeSymptomOptions(t, 'postpartum')).toHaveLength(POSTPARTUM_SYMPTOM_OPTIONS.length);
     expect(localizeSymptomOptions(t, 'postpartum').map((o) => o.id)).not.toContain('Food cravings');
     expect(localizeSymptomOptions(t, 'postpartum').map((o) => o.id)).toContain('Afterpains');
+    expect(localizeSymptomOptions(t, 'postpartum').map((o) => o.id)).toContain('Fever/chills');
+    expect(localizeSymptomOptions(t, 'postpartum').map((o) => o.id)).toContain(
+      'Feeling overwhelmed or unusually sad',
+    );
   });
 
   it('localizes milestones and trimester keys', () => {
@@ -477,6 +481,31 @@ describe('pregnancy-tracker/validation', () => {
     expect(postpartum.payload?.kickCount).toBe(0);
     expect(postpartum.payload?.symptoms).toEqual(['Afterpains']);
     expect(postpartum.soft.some((s) => s.code === 'soft_kicks_high')).toBe(false);
+  });
+
+  it('keeps lochia details and warns on heavy bleeding or urgent signs', () => {
+    const bleeding = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: ['Bleeding', 'Fever/chills'],
+      symptomDetails: { lochiaAmount: 'heavy', lochiaClots: true },
+      kickCount: 0,
+      notes: '',
+      journeyStatus: 'postpartum',
+    });
+    expect(bleeding.payload?.symptoms).toEqual(['Bleeding', 'Fever/chills']);
+    expect(bleeding.payload?.symptomDetails).toEqual({ lochiaAmount: 'heavy', lochiaClots: true });
+    expect(bleeding.soft.some((s) => s.code === 'soft_bleeding_concern')).toBe(true);
+    expect(bleeding.soft.some((s) => s.code === 'soft_postpartum_warning')).toBe(true);
+
+    const urgent = assessPregnancyLogDraft({
+      dateKey: '2026-07-16',
+      symptoms: ['Chest pain'],
+      kickCount: 0,
+      notes: '',
+      journeyStatus: 'postpartum',
+    });
+    expect(urgent.soft.some((s) => s.code === 'soft_postpartum_urgent')).toBe(true);
+    expect(urgent.payload?.symptomDetails).toBeUndefined();
   });
 
   it('soft-warns unusual weight and keeps valid weight in payload', () => {

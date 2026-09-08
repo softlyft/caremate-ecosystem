@@ -141,20 +141,53 @@ function projectMedication(
   return events;
 }
 
+const POSTPARTUM_WARNING_SYMPTOMS = new Set([
+  'Fever/chills',
+  'Painful/difficult urination',
+  'Foul-smelling vaginal discharge',
+  'Breast redness or warmth',
+  'Dizziness',
+  'Leg swelling or leg pain',
+  'Shortness of breath',
+  'Chest pain',
+  'Severe headache or vision changes',
+  'Incision/wound problems',
+  'Feeling overwhelmed or unusually sad',
+]);
+
+function formatTimelineSymptom(symptom: string, details: Record<string, unknown> | null): string {
+  if (symptom !== 'Bleeding' || !details) {
+    return symptom;
+  }
+  const amount = asString(details.lochiaAmount);
+  const clots = details.lochiaClots === true ? 'clots' : null;
+  const parts = [amount, clots].filter((part): part is string => Boolean(part));
+  return parts.length > 0 ? `Bleeding (${parts.join(', ')})` : symptom;
+}
+
 function pushPregnancyLog(
   events: ProjectedTimelineEvent[],
   userId: string,
   pregnancyId: string,
   log: Record<string, unknown>,
+  postpartum: boolean,
 ): void {
   const dateKey = dateKeyFromUnknown(log.dateKey);
   if (!dateKey) return;
   const mood = asString(log.mood);
   const notes = asString(log.notes);
+  const details = asRecord(log.symptomDetails);
   const symptoms = asArray(log.symptoms)
     .map((s) => asString(s))
     .filter((s): s is string => Boolean(s));
-  const summaryParts = [mood, symptoms.slice(0, 3).join(', '), notes].filter(Boolean);
+  const labeled = symptoms.map((symptom) => formatTimelineSymptom(symptom, details));
+  const warning = labeled.filter((_, index) => POSTPARTUM_WARNING_SYMPTOMS.has(symptoms[index]!));
+  const routine = labeled.filter((_, index) => !POSTPARTUM_WARNING_SYMPTOMS.has(symptoms[index]!));
+  // Keep warning signs and lochia details visible even when several routine symptoms are logged.
+  const symptomSummary = [...warning, ...routine].slice(0, 4).join(', ');
+  const summaryParts = [mood, symptomSummary, notes].filter(Boolean);
+  const isPostpartumLog =
+    postpartum || Boolean(details) || warning.length > 0 || symptoms.includes('Bleeding');
 
   events.push({
     id: eventId(userId, 'pregnancy', 'pregnancy_log', `${pregnancyId}:${dateKey}`),
@@ -163,9 +196,15 @@ function pushPregnancyLog(
     kind: 'pregnancy_log',
     occurredOn: dateKey,
     occurredAt: null,
-    title: 'Pregnancy log',
+    title: isPostpartumLog ? 'Postpartum log' : 'Pregnancy log',
     summary: summaryParts.join(' · '),
-    payload: { pregnancyId, mood, kickCount: log.kickCount },
+    payload: {
+      pregnancyId,
+      mood,
+      kickCount: log.kickCount,
+      symptoms,
+      ...(details ? { symptomDetails: details } : {}),
+    },
   });
 }
 
@@ -199,11 +238,12 @@ function projectPregnancy(
   const events: ProjectedTimelineEvent[] = [];
   const currentId = asString(payload.pregnancyId) ?? 'current';
 
+  const postpartum = asString(payload.status) === 'postpartum';
   const dailyLogs = asRecord(payload.dailyLogs) ?? {};
   for (const log of Object.values(dailyLogs)) {
     const record = asRecord(log);
     if (record) {
-      pushPregnancyLog(events, userId, currentId, record);
+      pushPregnancyLog(events, userId, currentId, record, postpartum);
     }
   }
 
@@ -221,7 +261,7 @@ function projectPregnancy(
     for (const log of asArray(archive.dailyLogs)) {
       const record = asRecord(log);
       if (record) {
-        pushPregnancyLog(events, userId, archiveId, record);
+        pushPregnancyLog(events, userId, archiveId, record, false);
       }
     }
     for (const dose of asArray(archive.maternalTtDoses)) {

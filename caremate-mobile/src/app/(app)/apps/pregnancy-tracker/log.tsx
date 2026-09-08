@@ -14,10 +14,15 @@ import {
   MiniAppHero,
   MiniAppScreen,
   getMiniAppTheme,
+  type MiniAppTheme,
 } from '@/mini-apps/_kit';
 import {
+  LOCHIA_AMOUNTS,
   POSTPARTUM_SYMPTOM_OPTIONS,
+  POSTPARTUM_URGENT_SYMPTOMS,
   SYMPTOM_OPTIONS,
+  type LochiaAmount,
+  type PostpartumSymptomDetails,
 } from '@/mini-apps/pregnancy-tracker/constants';
 import {
   getTodayLog,
@@ -27,6 +32,7 @@ import {
 } from '@/mini-apps/pregnancy-tracker/store';
 import {
   localizeMoodOptions,
+  localizePostpartumSymptomGroups,
   localizeSymptomOptions,
   type PregnancyLogPhase,
 } from '@/mini-apps/pregnancy-tracker/localize';
@@ -38,6 +44,114 @@ import { toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius, spacing } from '@/theme';
 
 const APP_ID = 'pregnancy-tracker' as const;
+const URGENT_SYMPTOM_SET = new Set<string>(POSTPARTUM_URGENT_SYMPTOMS);
+
+function PostpartumSymptomFields({
+  symptoms,
+  details,
+  theme,
+  onToggle,
+  onLochiaAmount,
+  onClotsToggle,
+}: {
+  symptoms: string[];
+  details: PostpartumSymptomDetails | undefined;
+  theme: MiniAppTheme;
+  onToggle: (symptom: string) => void;
+  onLochiaAmount: (amount: LochiaAmount) => void;
+  onClotsToggle: () => void;
+}) {
+  const { t } = useTranslation();
+  const groups = localizePostpartumSymptomGroups(t);
+  const bleedingSelected = symptoms.includes('Bleeding');
+  const selectedWarnings = groups.warning.filter((option) => symptoms.includes(option.id));
+  const hasUrgent = selectedWarnings.some((option) => URGENT_SYMPTOM_SET.has(option.id));
+  const bleedingConcern = details?.lochiaAmount === 'heavy' || details?.lochiaClots === true;
+
+  return (
+    <View style={styles.symptomStack}>
+      <AppText variant="caption" style={styles.sectionLabel}>
+        {t('apps.pregnancy.postpartumSymptoms.routineTitle')}
+      </AppText>
+      <View style={styles.chipRow}>
+        {groups.routine.map((option) => (
+          <MiniAppChip
+            key={option.id}
+            label={option.label}
+            selected={symptoms.includes(option.id)}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => onToggle(option.id)}
+          />
+        ))}
+      </View>
+
+      {bleedingSelected ? (
+        <View style={styles.detailBox}>
+          <AppText variant="caption" style={styles.sectionLabel}>
+            {t('apps.pregnancy.postpartumSymptoms.lochiaTitle')}
+          </AppText>
+          <View style={styles.chipRow}>
+            {LOCHIA_AMOUNTS.map((amount) => (
+              <MiniAppChip
+                key={amount}
+                label={t(`apps.pregnancy.postpartumSymptoms.lochia.${amount}`)}
+                selected={details?.lochiaAmount === amount}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => onLochiaAmount(amount)}
+              />
+            ))}
+            <MiniAppChip
+              label={t('apps.pregnancy.postpartumSymptoms.lochia.clots')}
+              selected={details?.lochiaClots === true}
+              accent={theme.color}
+              soft={theme.backgroundColor}
+              onPress={onClotsToggle}
+            />
+          </View>
+          {bleedingConcern ? (
+            <AppText variant="caption" style={styles.urgentNote}>
+              {t('apps.pregnancy.postpartumSymptoms.bleedingConcern')}
+            </AppText>
+          ) : (
+            <AppText variant="caption" style={styles.mutedLeft}>
+              {t('apps.pregnancy.postpartumSymptoms.lochiaHint')}
+            </AppText>
+          )}
+        </View>
+      ) : null}
+
+      <AppText variant="caption" style={styles.sectionLabel}>
+        {t('apps.pregnancy.postpartumSymptoms.warningTitle')}
+      </AppText>
+      <AppText variant="caption" style={styles.mutedLeft}>
+        {t('apps.pregnancy.postpartumSymptoms.warningHint')}
+      </AppText>
+      <View style={styles.chipRow}>
+        {groups.warning.map((option) => (
+          <MiniAppChip
+            key={option.id}
+            label={option.label}
+            selected={symptoms.includes(option.id)}
+            accent={theme.color}
+            soft={theme.backgroundColor}
+            onPress={() => onToggle(option.id)}
+          />
+        ))}
+      </View>
+      {selectedWarnings.length > 0 ? (
+        <AppText variant="caption" style={hasUrgent ? styles.urgentNote : styles.warningNote}>
+          {t(
+            hasUrgent
+              ? 'apps.pregnancy.postpartumSymptoms.urgentGuidance'
+              : 'apps.pregnancy.postpartumSymptoms.warningGuidance',
+          )}
+        </AppText>
+      ) : null}
+    </View>
+  );
+}
 
 function PregnancyLogForm({
   todayKey,
@@ -61,6 +175,9 @@ function PregnancyLogForm({
   const [symptoms, setSymptoms] = useState<string[]>(() =>
     (initialLog?.symptoms ?? []).filter((item) => allowedSymptoms.has(item)),
   );
+  const [symptomDetails, setSymptomDetails] = useState<PostpartumSymptomDetails | undefined>(
+    () => initialLog?.symptomDetails,
+  );
   const [kickCount, setKickCount] = useState(isPostpartum ? 0 : (initialLog?.kickCount ?? 0));
   const [notes, setNotes] = useState(initialLog?.notes ?? '');
   const [weightText, setWeightText] = useState(
@@ -70,11 +187,20 @@ function PregnancyLogForm({
   );
 
   const toggleSymptom = (symptom: string) => {
-    setSymptoms((current) =>
-      current.includes(symptom)
-        ? current.filter((item) => item !== symptom)
-        : [...current, symptom],
-    );
+    setSymptoms((current) => {
+      const selected = current.includes(symptom);
+      if (symptom === 'Bleeding' && selected) {
+        setSymptomDetails(undefined);
+      }
+      return selected ? current.filter((item) => item !== symptom) : [...current, symptom];
+    });
+  };
+
+  const setLochiaAmount = (amount: LochiaAmount) => {
+    setSymptomDetails((current) => ({
+      ...current,
+      lochiaAmount: current?.lochiaAmount === amount ? undefined : amount,
+    }));
   };
 
   const issueMessage = (issue: PregnancyIssue): string =>
@@ -88,6 +214,7 @@ function PregnancyLogForm({
       dateKey: todayKey,
       mood,
       symptoms,
+      symptomDetails: isPostpartum ? symptomDetails : undefined,
       kickCount: isPostpartum ? 0 : kickCount,
       notes,
       weightKg: trimmedWeight.length > 0 ? weightKg : null,
@@ -164,18 +291,34 @@ function PregnancyLogForm({
       </MiniAppCard>
 
       <MiniAppCard index={cardIndex++} title={t('apps.pregnancy.ui.symptoms')} theme={theme}>
-        <View style={styles.chipRow}>
-          {localizeSymptomOptions(t, phase).map((option) => (
-            <MiniAppChip
-              key={option.id}
-              label={option.label}
-              selected={symptoms.includes(option.id)}
-              accent={theme.color}
-              soft={theme.backgroundColor}
-              onPress={() => toggleSymptom(option.id)}
-            />
-          ))}
-        </View>
+        {isPostpartum ? (
+          <PostpartumSymptomFields
+            details={symptomDetails}
+            onClotsToggle={() =>
+              setSymptomDetails((current) => ({
+                ...current,
+                lochiaClots: !current?.lochiaClots,
+              }))
+            }
+            onLochiaAmount={setLochiaAmount}
+            onToggle={toggleSymptom}
+            symptoms={symptoms}
+            theme={theme}
+          />
+        ) : (
+          <View style={styles.chipRow}>
+            {localizeSymptomOptions(t, phase).map((option) => (
+              <MiniAppChip
+                key={option.id}
+                label={option.label}
+                selected={symptoms.includes(option.id)}
+                accent={theme.color}
+                soft={theme.backgroundColor}
+                onPress={() => toggleSymptom(option.id)}
+              />
+            ))}
+          </View>
+        )}
       </MiniAppCard>
 
       {!isPostpartum ? (
@@ -293,5 +436,27 @@ const styles = StyleSheet.create({
   muted: {
     color: palette.textSecondary,
     textAlign: 'center',
+  },
+  mutedLeft: {
+    color: palette.textSecondary,
+  },
+  symptomStack: {
+    gap: spacing.sm,
+  },
+  sectionLabel: {
+    color: palette.text,
+    fontWeight: '600',
+  },
+  detailBox: {
+    gap: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radius.lg,
+    backgroundColor: palette.surface,
+  },
+  warningNote: {
+    color: '#92400E',
+  },
+  urgentNote: {
+    color: palette.danger,
   },
 });

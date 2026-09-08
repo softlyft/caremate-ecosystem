@@ -1,8 +1,11 @@
 import {
   MILESTONES,
   MOOD_OPTIONS,
+  POSTPARTUM_ROUTINE_SYMPTOMS,
   POSTPARTUM_SYMPTOM_OPTIONS,
+  POSTPARTUM_WARNING_SYMPTOMS,
   SYMPTOM_OPTIONS,
+  type PostpartumSymptomDetails,
 } from '@/mini-apps/pregnancy-tracker/constants';
 import type { PregnancyAlertCopy } from '@/mini-apps/pregnancy-tracker/alerts';
 import type { TranslateFn } from '@/mini-apps/_kit/i18n';
@@ -26,6 +29,39 @@ export function localizeMoodOptions(t: TranslateFn) {
 export function localizeSymptomOptions(t: TranslateFn, phase: PregnancyLogPhase = 'active') {
   const options = phase === 'postpartum' ? POSTPARTUM_SYMPTOM_OPTIONS : SYMPTOM_OPTIONS;
   return options.map((symptom) => ({ id: symptom, label: localizeSymptom(symptom, t) }));
+}
+
+export function localizePostpartumSymptomGroups(t: TranslateFn) {
+  return {
+    routine: POSTPARTUM_ROUTINE_SYMPTOMS.map((symptom) => ({
+      id: symptom,
+      label: localizeSymptom(symptom, t),
+    })),
+    warning: POSTPARTUM_WARNING_SYMPTOMS.map((symptom) => ({
+      id: symptom,
+      label: localizeSymptom(symptom, t),
+    })),
+  };
+}
+
+export function formatLoggedSymptom(
+  symptom: string,
+  details: PostpartumSymptomDetails | undefined,
+  t: TranslateFn,
+): string {
+  const label = localizeSymptom(symptom, t);
+  if (symptom !== 'Bleeding' || !details) {
+    return label;
+  }
+
+  const parts = [
+    details.lochiaAmount
+      ? t(`apps.pregnancy.postpartumSymptoms.lochia.${details.lochiaAmount}`)
+      : null,
+    details.lochiaClots ? t('apps.pregnancy.postpartumSymptoms.lochia.clots') : null,
+  ].filter(Boolean);
+
+  return parts.length > 0 ? `${label} (${parts.join(', ')})` : label;
 }
 
 export function localizeMilestone(

@@ -3,10 +3,15 @@
  */
 
 import {
+  LOCHIA_AMOUNTS,
   MOOD_OPTIONS,
   PREGNANCY_DAYS,
   POSTPARTUM_SYMPTOM_OPTIONS,
+  POSTPARTUM_URGENT_SYMPTOMS,
+  POSTPARTUM_WARNING_SYMPTOMS,
   SYMPTOM_OPTIONS,
+  type LochiaAmount,
+  type PostpartumSymptomDetails,
 } from '@/mini-apps/pregnancy-tracker/constants';
 import {
   getMaternalTtDose,
@@ -46,7 +51,11 @@ export type PregnancyIssueCode =
   | 'soft_tt_before_previous'
   | 'birth_future'
   | 'soft_birth_before_lmp'
-  | 'setup_blocked_postpartum';
+  | 'setup_blocked_postpartum'
+  | 'soft_bleeding_amount_missing'
+  | 'soft_bleeding_concern'
+  | 'soft_postpartum_warning'
+  | 'soft_postpartum_urgent';
 
 export type PregnancyIssue = {
   code: PregnancyIssueCode;
@@ -85,6 +94,7 @@ export type PregnancyLogDraft = {
   dateKey: string;
   mood?: string;
   symptoms: string[];
+  symptomDetails?: PostpartumSymptomDetails;
   kickCount: number;
   notes: string;
   weightKg?: number | null;
@@ -99,6 +109,7 @@ export type PregnancyLogAssessment = {
     dateKey: string;
     mood?: string;
     symptoms: string[];
+    symptomDetails?: PostpartumSymptomDetails;
     kickCount: number;
     notes: string;
     weightKg?: number;
@@ -119,6 +130,31 @@ const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const MOOD_SET = new Set<string>(MOOD_OPTIONS);
 const SYMPTOM_SET = new Set<string>(SYMPTOM_OPTIONS);
 const POSTPARTUM_SYMPTOM_SET = new Set<string>(POSTPARTUM_SYMPTOM_OPTIONS);
+const POSTPARTUM_WARNING_SET = new Set<string>(POSTPARTUM_WARNING_SYMPTOMS);
+const POSTPARTUM_URGENT_SET = new Set<string>(POSTPARTUM_URGENT_SYMPTOMS);
+const LOCHIA_AMOUNT_SET = new Set<string>(LOCHIA_AMOUNTS);
+
+function sanitizeSymptomDetails(
+  symptoms: string[],
+  details: PostpartumSymptomDetails | undefined,
+): PostpartumSymptomDetails | undefined {
+  if (!symptoms.includes('Bleeding') || !details) {
+    return undefined;
+  }
+
+  const amount = details.lochiaAmount;
+  const lochiaAmount =
+    amount && LOCHIA_AMOUNT_SET.has(amount) ? (amount as LochiaAmount) : undefined;
+  const lochiaClots = details.lochiaClots === true ? true : undefined;
+  if (!lochiaAmount && !lochiaClots) {
+    return undefined;
+  }
+
+  return {
+    ...(lochiaAmount ? { lochiaAmount } : {}),
+    ...(lochiaClots ? { lochiaClots: true } : {}),
+  };
+}
 
 export function isValidDateKey(value: string): boolean {
   if (!DATE_KEY_RE.test(value)) return false;
@@ -275,6 +311,28 @@ export function assessPregnancyLogDraft(draft: PregnancyLogDraft): PregnancyLogA
 
   const mood = draft.mood && MOOD_SET.has(draft.mood) ? draft.mood : undefined;
   const symptoms = draft.symptoms.filter((item) => allowedSymptoms.has(item));
+  const symptomDetails = isPostpartum
+    ? sanitizeSymptomDetails(symptoms, draft.symptomDetails)
+    : undefined;
+
+  if (isPostpartum && symptoms.includes('Bleeding') && !symptomDetails?.lochiaAmount) {
+    soft.push({ code: 'soft_bleeding_amount_missing', messageKey: 'bleedingAmountMissing' });
+  }
+  if (
+    isPostpartum &&
+    (symptomDetails?.lochiaAmount === 'heavy' || symptomDetails?.lochiaClots)
+  ) {
+    soft.push({ code: 'soft_bleeding_concern', messageKey: 'bleedingConcern' });
+  }
+  if (isPostpartum) {
+    const warningSymptoms = symptoms.filter((item) => POSTPARTUM_WARNING_SET.has(item));
+    const urgent = warningSymptoms.filter((item) => POSTPARTUM_URGENT_SET.has(item));
+    if (urgent.length > 0) {
+      soft.push({ code: 'soft_postpartum_urgent', messageKey: 'postpartumUrgent' });
+    } else if (warningSymptoms.length > 0) {
+      soft.push({ code: 'soft_postpartum_warning', messageKey: 'postpartumWarning' });
+    }
+  }
 
   let weightKg: number | undefined;
   if (draft.weightKg != null) {
@@ -307,6 +365,7 @@ export function assessPregnancyLogDraft(draft: PregnancyLogDraft): PregnancyLogA
       dateKey: draft.dateKey,
       mood,
       symptoms,
+      ...(symptomDetails ? { symptomDetails } : {}),
       kickCount,
       notes,
       ...(weightKg != null ? { weightKg } : {}),
