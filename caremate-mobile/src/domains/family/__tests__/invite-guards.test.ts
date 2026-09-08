@@ -76,6 +76,12 @@ describe('family invite self-guards', () => {
     expect(
       familyConnectionErrorKey(new Error('Family Premium allows up to 3 invited members')),
     ).toBe('family.inviteSeatsFull');
+    expect(
+      familyConnectionErrorKey(new Error('That relationship is already used in this household')),
+    ).toBe('family.relationshipUsed');
+    expect(familyConnectionErrorKey(new Error('Choose a relationship'))).toBe(
+      'family.relationshipRequired',
+    );
     expect(familyConnectionErrorKey(new Error('boom'))).toBe('family.connectionFailedMessage');
   });
 });

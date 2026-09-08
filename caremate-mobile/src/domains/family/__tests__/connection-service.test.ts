@@ -48,6 +48,14 @@ describe('buildSpouseInviteMessage', () => {
     expect(message).toContain('iPhone');
     expect(message).toContain('Android');
   });
+
+  it('names the chosen relationship when one is selected', () => {
+    const { message } = buildSpouseInviteMessage({
+      fromName: 'Ada',
+      relationshipLabel: 'Family 1',
+    });
+    expect(message).toContain('as Family 1');
+  });
 });
 
 describe('familyConnectionService', () => {
@@ -89,6 +97,7 @@ describe('familyConnectionService', () => {
         fromUserId: 'u1',
         fromName: 'Ada',
         emailOrPhone: 'me@example.com',
+        relationship: 'spouse',
         matchedUser: {
           userId: 'u1',
           fullName: 'Ada',
@@ -118,6 +127,7 @@ describe('familyConnectionService', () => {
         fromUserId: 'u1',
         fromName: 'Ada',
         emailOrPhone: 'spouse@example.com',
+        relationship: 'family_1',
         matchedUser: {
           userId: 'u2',
           fullName: 'Grace',
@@ -159,6 +169,7 @@ describe('familyConnectionService', () => {
       fromUserId: 'u1',
       fromName: 'Ada',
       emailOrPhone: 'spouse@example.com',
+      relationship: 'spouse',
       matchedUser: {
         userId: 'u2',
         fullName: 'Grace',
@@ -171,6 +182,13 @@ describe('familyConnectionService', () => {
       },
     });
 
+    expect(mockRpc).toHaveBeenCalledWith('create_family_connection_request', {
+      p_household_id: 'hh-1',
+      p_to_user_id: 'u2',
+      p_to_email: 'spouse@example.com',
+      p_to_phone: undefined,
+      p_relationship: 'spouse',
+    });
     expect(mockInvoke).toHaveBeenCalledWith('notify-family-email', {
       body: { requestId: 'req-cloud' },
     });

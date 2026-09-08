@@ -1623,6 +1623,7 @@ export type Database = {
           household_id: string
           id: string
           invite_token: string | null
+          relationship: string
           status: string
           to_email: string | null
           to_phone: string | null
@@ -1635,6 +1636,7 @@ export type Database = {
           household_id: string
           id: string
           invite_token?: string | null
+          relationship?: string
           status?: string
           to_email?: string | null
           to_phone?: string | null
@@ -1647,6 +1649,7 @@ export type Database = {
           household_id?: string
           id?: string
           invite_token?: string | null
+          relationship?: string
           status?: string
           to_email?: string | null
           to_phone?: string | null
@@ -1696,6 +1699,7 @@ export type Database = {
           household_id: string
           id: string
           kind: string
+          relationship: string | null
           linked_user_id: string | null
           notes: string | null
           updated_at: string
@@ -1708,6 +1712,7 @@ export type Database = {
           household_id: string
           id: string
           kind: string
+          relationship?: string | null
           linked_user_id?: string | null
           notes?: string | null
           updated_at?: string
@@ -1720,6 +1725,7 @@ export type Database = {
           household_id?: string
           id?: string
           kind?: string
+          relationship?: string | null
           linked_user_id?: string | null
           notes?: string | null
           updated_at?: string
@@ -3628,6 +3634,7 @@ export type Database = {
         Args: {
           p_household_id: string
           p_invite_token?: string
+          p_relationship?: string
           p_to_email?: string
           p_to_phone?: string
           p_to_user_id?: string
@@ -3638,6 +3645,7 @@ export type Database = {
           household_id: string
           id: string
           invite_token: string | null
+          relationship: string
           status: string
           to_email: string | null
           to_phone: string | null

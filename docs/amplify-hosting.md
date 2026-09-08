@@ -67,6 +67,7 @@ Suggested Amplify app names:
 | `VITE_CARE_URL` | Care Portal origin (provider/payer CTAs). DEV: Amplify care origin. Production: care host / Amplify care app. |
 | `VITE_SUPABASE_URL` | Same Supabase project as mobile — loads provider/payer org plan prices on `/providers/pricing` and `/payers/pricing`. |
 | `VITE_SUPABASE_ANON_KEY` | Anon / publishable key (not service role). |
+| `VITE_GA_MEASUREMENT_ID` | Optional override for the website Google tag. Production builds default to `G-R6G825FF6R` when this is unset. Local `npm run dev` does not load the tag unless you set the ID. |
 
 All four host URLs are **required** at build time (`brand.ts`). Changing Amplify env vars alone does **not** update a live SPA — Vite inlines them into JS during `npm run build`. After editing env vars, set `AMPLIFY_FORCE_BUILD=true`, redeploy `main`, then remove the force flag (the build guard otherwise skips compile when `caremate-website/` is unchanged).
 

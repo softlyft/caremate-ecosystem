@@ -33,6 +33,15 @@
   "memberOnlyHint": "Only the Family Premium owner can invite or remove members.",
   "pendingInvites": "Pending invites",
   "pendingInviteMeta": "Waiting for them to accept",
+  "relationshipLabel": "Relationship",
+  "relationshipHint": "Choose one seat. Each relationship can be used once.",
+  "relationshipRequired": "Choose a relationship before sending the invite.",
+  "relationshipUsed": "That relationship is already used. Pick another seat.",
+  "relationships": {
+    "spouse": "Spouse",
+    "family_1": "Family 1",
+    "family_2": "Family 2"
+  },
   "cancelInvite": "Cancel invite",
   "removeMember": "Remove",
   "removeMemberTitle": "Remove family member?",
@@ -128,6 +137,7 @@
     "working": "Working...",
     "empty": "No pending requests",
     "spouseConnection": "Family connection",
+    "asRelationship": "Invited as {{relationship}}",
     "fromUser": "From user {{id}}…",
     "lookupEmail": "Lookup email: {{email}}",
     "lookupPhone": "Lookup phone: {{phone}}",

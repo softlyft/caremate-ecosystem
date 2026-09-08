@@ -1,6 +1,6 @@
 {
   "title": "Health Insurance Directory",
-  "subtitle": "Browse insurers you are not linked with yet. Connected insurers are managed under Me → Connections.",
+  "subtitle": "Browse health insurance organizations. Open one to see details and whether you are connected.",
   "loading": "Loading insurance directory…",
   "count": "{{count}} listed",
   "searchPlaceholder": "Search by name or address",

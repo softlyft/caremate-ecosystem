@@ -20,9 +20,14 @@ export type {
   ChildProfileDraft,
   FamilyConnectionRequest,
   FamilyHousehold,
+  FamilyInviteRelationship,
   FamilyLookupUser,
   FamilyMember,
   FamilyMemberGender,
   FamilyMemberKind,
 } from '@/domains/family/types';
-export { FAMILY_GENDERS } from '@/domains/family/types';
+export {
+  FAMILY_GENDERS,
+  FAMILY_INVITE_RELATIONSHIPS,
+  isFamilyInviteRelationship,
+} from '@/domains/family/types';

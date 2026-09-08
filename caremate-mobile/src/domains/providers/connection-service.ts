@@ -362,7 +362,7 @@ class ProviderConnectionService {
     });
 
     if (error) {
-      throw error;
+      throw new Error(error.message || 'Could not update request');
     }
 
     void supabase.functions
