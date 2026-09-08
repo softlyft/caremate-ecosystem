@@ -13,12 +13,7 @@ import { toDateKey } from '@/mini-apps/_kit/date-utils';
 
 export type PregnancyAlertCandidate = {
   eventType:
-    | 'milestone_soon'
-    | 'due_soon'
-    | 'due_today'
-    | 'past_due'
-    | 'daily_log_nudge'
-    | 'tt_dose_due';
+    'milestone_soon' | 'due_soon' | 'due_today' | 'past_due' | 'daily_log_nudge' | 'tt_dose_due';
   dedupeKey: string;
   title: string;
   body: string;

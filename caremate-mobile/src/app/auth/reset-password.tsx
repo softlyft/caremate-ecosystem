@@ -14,6 +14,7 @@ import {
   SectionTitle,
   TextLink,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { passwordSchema } from '@/domains/auth/password';
 import { useTranslation } from '@/domains/localization';
@@ -81,49 +82,57 @@ export default function ResetPasswordScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen padded={false} style={styles.container}>
         <SectionTitle title={t('auth.reset.title')} subtitle={t('auth.reset.subtitle')} />
-        <FormStack style={styles.form}>
-          <FormField
-            error={formState.errors.password?.message}
-            hint={t('auth.password.requirements')}
-          >
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <PasswordInput
-                  placeholder={t('auth.reset.password')}
-                  autoComplete="new-password"
-                  textContentType="newPassword"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
+        <KeyboardAwareScroll
+          style={styles.form}
+          contentContainerStyle={styles.formContent}
+          headerHeight={0}
+          includeSafeArea={false}
+          restingBottomPad={spacing.lg}
+        >
+          <FormStack>
+            <FormField
+              error={formState.errors.password?.message}
+              hint={t('auth.password.requirements')}
+            >
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <PasswordInput
+                    placeholder={t('auth.reset.password')}
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <FormField error={formState.errors.confirmPassword?.message}>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <PasswordInput
+                    placeholder={t('auth.reset.confirm')}
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </FormField>
+            <Button
+              label={isLoading ? t('common.loading') : t('auth.reset.submit')}
+              disabled={isLoading}
+              onPress={handleSubmit(onSubmit)}
             />
-          </FormField>
-          <FormField error={formState.errors.confirmPassword?.message}>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <PasswordInput
-                  placeholder={t('auth.reset.confirm')}
-                  autoComplete="new-password"
-                  textContentType="newPassword"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
-            />
-          </FormField>
-          <Button
-            label={isLoading ? t('common.loading') : t('auth.reset.submit')}
-            disabled={isLoading}
-            onPress={handleSubmit(onSubmit)}
-          />
-          <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
-        </FormStack>
+            <TextLink href="/(auth)/login">{t('auth.forgot.back')}</TextLink>
+          </FormStack>
+        </KeyboardAwareScroll>
       </Screen>
     </SafeAreaView>
   );
@@ -137,5 +146,9 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  formContent: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
   },
 });

@@ -604,6 +604,22 @@ export async function syncOrganizationContactEmail(
   }
 
   const supabase = await createClient();
+
+  const { data: ownedBy, error: ownedError } = await supabase.rpc(
+    'care_portal_claim_email_owned_by',
+    {
+      p_email: normalized,
+      p_exclude_provider_org_id: organizationId,
+      p_exclude_payer_org_id: null,
+    },
+  );
+  if (ownedError) throw ownedError;
+  if (ownedBy === 'payer') {
+    throw new Error(
+      'This email is already used by a payer organization. Provider and payer claim emails must be unique.',
+    );
+  }
+
   const ts = nowIso();
 
   if (profile) {

@@ -1,8 +1,8 @@
+import { Send } from 'lucide-react-native';
 import { forwardRef, useImperativeHandle, useRef, type ComponentPropsWithRef } from 'react';
 import type { StyleProp, TextInput, ViewStyle } from 'react-native';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { Input, InputField } from '@/components/ui/input';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
@@ -10,6 +10,8 @@ import { layoutSpacing, palette, radius, spacing } from '@/theme';
 export type MessageComposerHandle = {
   focus: () => void;
 };
+
+const SEND_BUTTON_SIZE = 44;
 
 export const MessageComposer = forwardRef<
   MessageComposerHandle,
@@ -61,7 +63,10 @@ export const MessageComposer = forwardRef<
   return (
     <View style={[styles.composer, { paddingBottom, marginBottom }, style]}>
       <View style={styles.inputWrap}>
-        <Input className="rounded-xl min-h-12 bg-secondary border-input">
+        <Input
+          className="min-h-12 bg-secondary border-input px-4 overflow-hidden"
+          style={styles.inputShell}
+        >
           <InputField
             ref={inputRef as ComponentPropsWithRef<typeof InputField>['ref']}
             value={value}
@@ -70,7 +75,7 @@ export const MessageComposer = forwardRef<
             multiline
             blurOnSubmit={false}
             textAlignVertical="top"
-            className="text-[15px] font-sans"
+            className="text-[15px] font-sans py-2.5"
             style={styles.input}
           />
         </Input>
@@ -81,10 +86,13 @@ export const MessageComposer = forwardRef<
         disabled={!canSend}
         variant="plain"
         accessibilityLabel={sending ? sendingLabel : sendLabel}
+        accessibilityRole="button"
       >
-        <AppText variant="seeAll" style={styles.sendLabel} numberOfLines={1}>
-          {sending ? sendingLabel : sendLabel}
-        </AppText>
+        {sending ? (
+          <ActivityIndicator color="#fff" size="small" />
+        ) : (
+          <Send color="#fff" size={18} strokeWidth={2.4} />
+        )}
       </Button>
     </View>
   );
@@ -107,24 +115,24 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  inputShell: {
+    borderRadius: radius.pill,
+  },
   input: {
     minHeight: 42,
     maxHeight: 120,
   },
   sendButton: {
     flexShrink: 0,
+    width: SEND_BUTTON_SIZE,
+    height: SEND_BUTTON_SIZE,
     borderRadius: radius.full,
     backgroundColor: palette.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minWidth: 72,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 2,
   },
   sendDisabled: {
-    opacity: 0.45,
-  },
-  sendLabel: {
-    color: '#fff',
+    opacity: 0.4,
   },
 });

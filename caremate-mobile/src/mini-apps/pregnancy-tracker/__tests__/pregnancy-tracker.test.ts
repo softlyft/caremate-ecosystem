@@ -153,8 +153,8 @@ describe('pregnancy-tracker/localize', () => {
     expect(copy.pastDueBody('Baby', 1)).toContain('pastDueBody');
     expect(copy.dailyNudgeTitle()).toContain('dailyNudgeTitle');
     expect(copy.dailyNudgeBody()).toContain('dailyNudgeBody');
-    expect(copy.ttDoseDueTitle()).toContain('ttDoseDueTitle');
-    expect(copy.ttDoseDueBody()).toContain('ttDoseDueBody');
+    expect(copy.ttDoseDueTitle('TT2')).toContain('ttDoseDueTitle');
+    expect(copy.ttDoseDueBody('TT2')).toContain('ttDoseDueBody');
   });
 });
 
@@ -363,9 +363,7 @@ describe('pregnancy-tracker/alerts', () => {
 
 describe('pregnancy-tracker/maternal-tt', () => {
   it('forecasts TT2 after 28 days from TT1', () => {
-    expect(getMaternalTtForecastDateKey([{ id: 'tt1', dateKey: '2026-01-01' }])).toBe(
-      '2026-01-29',
-    );
+    expect(getMaternalTtForecastDateKey([{ id: 'tt1', dateKey: '2026-01-01' }])).toBe('2026-01-29');
     expect(isMaternalTtNextDoseDue([{ id: 'tt1', dateKey: '2026-01-01' }], '2026-01-20')).toBe(
       false,
     );

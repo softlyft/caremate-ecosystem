@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Users } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
@@ -18,6 +19,7 @@ import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 export function AddCareCoordinationButton({ conversation }: { conversation: MessageConversation }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -65,7 +67,12 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
 
       <Modal visible={open} animationType="slide" transparent onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
-        <View style={styles.sheet}>
+        <View
+          style={[
+            styles.sheet,
+            { paddingBottom: Math.max(insets.bottom, spacing.md) + spacing.xl },
+          ]}
+        >
           <AppText variant="cardTitle" style={styles.sheetTitle}>
             {addLabel}
           </AppText>
@@ -142,7 +149,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.lg,
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
     gap: spacing.sm,
   },
   sheetTitle: {
@@ -169,6 +175,10 @@ const styles = StyleSheet.create({
   },
   cancel: {
     marginTop: spacing.md,
+    marginBottom: spacing.sm,
     alignSelf: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
   },
 });

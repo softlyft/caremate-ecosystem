@@ -15,7 +15,7 @@ Living checklist for the first App Store / Play submit. Updated **21 Aug 2026**.
 | Store deploy gated | `android-play.yml` / `ios-app-store.yml` are **manual only**; push to `prod` runs **CI only** |
 | CI on `prod` | `ci.yml` includes `prod` branch |
 | iOS build numbers | Shared `resolve-ios-build-number.sh` uses `github.run_id` (+ offset) — no TF/AS collision |
-| AdMob fail-closed | Production rejects missing/sample app IDs (`app.config.ts` + `assert-production-mobile-env.sh`) |
+| AdMob fail-closed | Production rejects missing/sample app IDs and banner units (`app.config.ts` + `assert-production-mobile-env.sh`) |
 | Reject caremate-dev in store builds | Assert fails if Supabase URL contains `eybakmhqtotoywwgwgjy` |
 | Main CD Android env parity | Website / payment / community / Sentry / PostHog / gateway injected |
 | Sentry upload | Enabled automatically when `SENTRY_AUTH_TOKEN` is set on store jobs |

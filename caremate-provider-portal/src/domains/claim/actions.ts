@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 
 import {
+  assertCarePortalEmailExclusiveForClaim,
   completeOrgClaim,
   createClaimChallenge,
   findClaimableOrgsForKind,
@@ -37,6 +38,12 @@ export async function startOrgClaimAction(input: {
 > {
   const orgKind = parseOrgKind(input.orgKind);
   try {
+    await assertCarePortalEmailExclusiveForClaim({
+      email: input.email,
+      orgKind,
+      organizationId: input.organizationId,
+    });
+
     const organizations = await findClaimableOrgsForKind(orgKind, input.email);
     if (organizations.length === 0) {
       return {

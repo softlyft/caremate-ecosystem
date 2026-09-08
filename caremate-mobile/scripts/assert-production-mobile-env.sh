@@ -45,6 +45,20 @@ require_nonempty EXPO_PUBLIC_COMMUNITY_PORTAL_URL
 reject_sample_admob EXPO_PUBLIC_ADMOB_APP_ID_ANDROID
 reject_sample_admob EXPO_PUBLIC_ADMOB_APP_ID_IOS
 
+# One iOS unit for every slot; Android needs a live unit per slot (same ID may be reused).
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_TIMELINE
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK
+reject_sample_admob EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER
+
 if [[ "${EXPO_PUBLIC_SUPABASE_URL:-}" == *"eybakmhqtotoywwgwgjy"* ]]; then
   echo "Refusing caremate-dev Supabase project in a production store build."
   missing=1

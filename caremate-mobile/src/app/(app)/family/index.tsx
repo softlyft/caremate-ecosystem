@@ -2,8 +2,19 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { Baby, Copy, Link2, Share2, UserPlus, Users } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
-import { Alert, Share, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Share,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,6 +46,10 @@ import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import {
+  MiniAppKeyboardContext,
+  useScheduleFocusedInputScroll,
+} from '@/hooks/use-keyboard-aware-scroll';
 import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
@@ -43,6 +58,7 @@ const ACCENT = palette.brandBlue;
 const SOFT = palette.brandBlueLight;
 const SOFT_END = '#EFF6FF';
 const TITLE = palette.brandBlue;
+const FAMILY_HEADER_HEIGHT = 56;
 
 function formatDob(value: string | null): string {
   if (!value) return '—';
@@ -69,6 +85,31 @@ export default function FamilyHubScreen() {
   const isGuest = useIsGuest();
   const tier = usePremiumTier();
   const queryClient = useQueryClient();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
+  const keyboardTopRef = useRef(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardApi = useScheduleFocusedInputScroll(scrollRef, scrollYRef, keyboardTopRef);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      keyboardTopRef.current = event.endCoordinates.screenY;
+      setKeyboardHeight(event.endCoordinates.height);
+      keyboardApi.scheduleScrollIntoView();
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardTopRef.current = 0;
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardApi]);
 
   const householdQuery = useQuery({
     queryKey: [...QUERY_KEYS.familyHousehold, userId],
@@ -435,400 +476,430 @@ export default function FamilyHubScreen() {
   const familyPlanAllowsInvite = canConnectSpouse(tier);
   const canSendInvite = isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
 
+  const bottomPad =
+    keyboardHeight > 0
+      ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.xl * 2
+      : insets.bottom + 40;
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + FAMILY_HEADER_HEIGHT : 0;
+
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }
+
   return (
-    <Screen padded={false}>
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
-        keyboardShouldPersistTaps="handled"
-      >
-        <AnimatedSection index={0}>
-          <FamilyHero
-            title={t('family.yourFamily')}
-            subtitle={t('family.yourFamilySubtitle')}
-            meta={t('family.meta', {
-              adults: adults.length,
-              adultsPlural: adults.length === 1 ? '' : 's',
-              children: children.length,
-              childrenPlural: children.length === 1 ? '' : 'ren',
-            })}
-          />
-        </AnimatedSection>
-
-        {requestCount > 0 ? (
-          <AnimatedSection index={1}>
-            <View style={[styles.card, styles.requestCard, shadow.soft]}>
-              <AppText variant="caption" style={styles.sectionEyebrow}>
-                {t('family.requests.title')}
-              </AppText>
-              <AppText variant="body">
-                {t('family.pendingRequests', {
-                  count: requestCount,
-                  plural: requestCount === 1 ? '' : 's',
+    <MiniAppKeyboardContext.Provider value={keyboardApi}>
+      <Screen padded={false}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          <ScrollView
+            ref={scrollRef}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            automaticallyAdjustKeyboardInsets={false}
+            contentInsetAdjustmentBehavior="never"
+            scrollEventThrottle={16}
+            onScroll={onScroll}
+          >
+            <AnimatedSection index={0}>
+              <FamilyHero
+                title={t('family.yourFamily')}
+                subtitle={t('family.yourFamilySubtitle')}
+                meta={t('family.meta', {
+                  adults: adults.length,
+                  adultsPlural: adults.length === 1 ? '' : 's',
+                  children: children.length,
+                  childrenPlural: children.length === 1 ? '' : 'ren',
                 })}
-              </AppText>
-              <Button
-                style={styles.secondaryCta}
-                onPress={() => router.push('/(app)/family/requests')}
-                variant="plain"
-              >
-                <Link2 color={ACCENT} size={16} strokeWidth={2.25} />
-                <AppText variant="button" style={styles.secondaryCtaLabel}>
-                  {t('family.reviewRequests')}
-                </AppText>
-              </Button>
-            </View>
-          </AnimatedSection>
-        ) : null}
+              />
+            </AnimatedSection>
 
-        <AnimatedSection index={2}>
-          <View style={[styles.card, shadow.soft]}>
-            <AppText variant="caption" style={styles.sectionEyebrow}>
-              {t('family.parentsSpouse')}
-            </AppText>
-            {adults.map((member, index) => (
-              <View key={member.id}>
-                {index > 0 ? <View style={styles.divider} /> : null}
-                <View style={styles.memberRow}>
-                  <View style={styles.avatar}>
-                    <Users color={ACCENT} size={16} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <AppText variant="body" style={styles.memberName}>
-                      {member.fullName}
+            {requestCount > 0 ? (
+              <AnimatedSection index={1}>
+                <View style={[styles.card, styles.requestCard, shadow.soft]}>
+                  <AppText variant="caption" style={styles.sectionEyebrow}>
+                    {t('family.requests.title')}
+                  </AppText>
+                  <AppText variant="body">
+                    {t('family.pendingRequests', {
+                      count: requestCount,
+                      plural: requestCount === 1 ? '' : 's',
+                    })}
+                  </AppText>
+                  <Button
+                    style={styles.secondaryCta}
+                    onPress={() => router.push('/(app)/family/requests')}
+                    variant="plain"
+                  >
+                    <Link2 color={ACCENT} size={16} strokeWidth={2.25} />
+                    <AppText variant="button" style={styles.secondaryCtaLabel}>
+                      {t('family.reviewRequests')}
                     </AppText>
-                    <AppText variant="caption" style={styles.muted}>
-                      {member.kind === 'self' ? t('family.kindSelf') : t('family.kindMember')}
-                    </AppText>
-                  </View>
-                  {isHouseholdOwner && member.kind === 'spouse' ? (
-                    <Button
-                      style={styles.removeChip}
-                      disabled={busy}
-                      onPress={() => void handleRemoveMember(member.id)}
-                      variant="plain"
-                    >
-                      <AppText variant="caption" style={styles.removeChipLabel}>
-                        {t('family.removeMember')}
-                      </AppText>
-                    </Button>
-                  ) : null}
+                  </Button>
                 </View>
-              </View>
-            ))}
-            {adults.length === 0 ? (
-              <AppText variant="caption" style={styles.muted}>
-                {t('family.noAdults')}
-              </AppText>
+              </AnimatedSection>
             ) : null}
 
-            {isHouseholdOwner && pendingOutgoing.length > 0 ? (
-              <>
-                <AppText
-                  variant="caption"
-                  style={[styles.sectionEyebrow, { marginTop: spacing.md }]}
-                >
-                  {t('family.pendingInvites')}
+            <AnimatedSection index={2}>
+              <View style={[styles.card, shadow.soft]}>
+                <AppText variant="caption" style={styles.sectionEyebrow}>
+                  {t('family.parentsSpouse')}
                 </AppText>
-                {pendingOutgoing.map((invite) => (
-                  <View key={invite.id} style={styles.memberRow}>
-                    <View style={styles.avatar}>
-                      <UserPlus color={ACCENT} size={16} />
+                {adults.map((member, index) => (
+                  <View key={member.id}>
+                    {index > 0 ? <View style={styles.divider} /> : null}
+                    <View style={styles.memberRow}>
+                      <View style={styles.avatar}>
+                        <Users color={ACCENT} size={16} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <AppText variant="body" style={styles.memberName}>
+                          {member.fullName}
+                        </AppText>
+                        <AppText variant="caption" style={styles.muted}>
+                          {member.kind === 'self' ? t('family.kindSelf') : t('family.kindMember')}
+                        </AppText>
+                      </View>
+                      {isHouseholdOwner && member.kind === 'spouse' ? (
+                        <Button
+                          style={styles.removeChip}
+                          disabled={busy}
+                          onPress={() => void handleRemoveMember(member.id)}
+                          variant="plain"
+                        >
+                          <AppText variant="caption" style={styles.removeChipLabel}>
+                            {t('family.removeMember')}
+                          </AppText>
+                        </Button>
+                      ) : null}
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <AppText variant="body" style={styles.memberName}>
-                        {invite.toEmail || invite.toPhone || invite.toUserId || '—'}
-                      </AppText>
-                      <AppText variant="caption" style={styles.muted}>
-                        {t('family.pendingInviteMeta')}
-                      </AppText>
-                    </View>
+                  </View>
+                ))}
+                {adults.length === 0 ? (
+                  <AppText variant="caption" style={styles.muted}>
+                    {t('family.noAdults')}
+                  </AppText>
+                ) : null}
+
+                {isHouseholdOwner && pendingOutgoing.length > 0 ? (
+                  <>
+                    <AppText
+                      variant="caption"
+                      style={[styles.sectionEyebrow, { marginTop: spacing.md }]}
+                    >
+                      {t('family.pendingInvites')}
+                    </AppText>
+                    {pendingOutgoing.map((invite) => (
+                      <View key={invite.id} style={styles.memberRow}>
+                        <View style={styles.avatar}>
+                          <UserPlus color={ACCENT} size={16} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <AppText variant="body" style={styles.memberName}>
+                            {invite.toEmail || invite.toPhone || invite.toUserId || '—'}
+                          </AppText>
+                          <AppText variant="caption" style={styles.muted}>
+                            {t('family.pendingInviteMeta')}
+                          </AppText>
+                        </View>
+                        <Button
+                          style={styles.removeChip}
+                          disabled={busy}
+                          onPress={() => void handleCancelInvite(invite.id)}
+                          variant="plain"
+                        >
+                          <AppText variant="caption" style={styles.removeChipLabel}>
+                            {t('family.cancelInvite')}
+                          </AppText>
+                        </Button>
+                      </View>
+                    ))}
+                  </>
+                ) : null}
+              </View>
+            </AnimatedSection>
+
+            <AnimatedSection index={3}>
+              <View style={[styles.card, shadow.soft]}>
+                <AppText variant="caption" style={styles.sectionEyebrow}>
+                  {t('family.children')}
+                </AppText>
+                {children.map((child, index) => (
+                  <View key={child.id}>
+                    {index > 0 ? <View style={styles.divider} /> : null}
                     <Button
-                      style={styles.removeChip}
-                      disabled={busy}
-                      onPress={() => void handleCancelInvite(invite.id)}
+                      style={styles.memberRow}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('family.editChildA11y', { name: child.fullName })}
+                      onPress={() => router.push(`/(app)/family/child/edit/${child.id}`)}
                       variant="plain"
                     >
-                      <AppText variant="caption" style={styles.removeChipLabel}>
-                        {t('family.cancelInvite')}
+                      <View style={styles.avatar}>
+                        <Baby color={ACCENT} size={16} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <AppText variant="body" style={styles.memberName}>
+                          {child.fullName}
+                        </AppText>
+                        <AppText variant="caption" style={styles.muted}>
+                          {t('family.dobLabel', {
+                            dob: formatDob(child.dateOfBirth),
+                            gender: child.gender ?? '—',
+                          })}
+                        </AppText>
+                      </View>
+                      <AppText variant="caption" color="brand">
+                        {t('family.editChild')}
                       </AppText>
                     </Button>
                   </View>
                 ))}
-              </>
-            ) : null}
-          </View>
-        </AnimatedSection>
-
-        <AnimatedSection index={3}>
-          <View style={[styles.card, shadow.soft]}>
-            <AppText variant="caption" style={styles.sectionEyebrow}>
-              {t('family.children')}
-            </AppText>
-            {children.map((child, index) => (
-              <View key={child.id}>
-                {index > 0 ? <View style={styles.divider} /> : null}
-                <Button
-                  style={styles.memberRow}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('family.editChildA11y', { name: child.fullName })}
-                  onPress={() => router.push(`/(app)/family/child/edit/${child.id}`)}
-                  variant="plain"
-                >
-                  <View style={styles.avatar}>
-                    <Baby color={ACCENT} size={16} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <AppText variant="body" style={styles.memberName}>
-                      {child.fullName}
-                    </AppText>
-                    <AppText variant="caption" style={styles.muted}>
-                      {t('family.dobLabel', {
-                        dob: formatDob(child.dateOfBirth),
-                        gender: child.gender ?? '—',
-                      })}
-                    </AppText>
-                  </View>
-                  <AppText variant="caption" color="brand">
-                    {t('family.editChild')}
-                  </AppText>
-                </Button>
-              </View>
-            ))}
-            {children.length === 0 ? (
-              <AppText variant="caption" style={styles.muted}>
-                {t('family.noChildren')}
-              </AppText>
-            ) : null}
-
-            {!canAddAnotherChild ? (
-              <UpgradePrompt
-                title={
-                  tier === 'family'
-                    ? t('profile.premium.familyChildLimitTitleFamily')
-                    : tier === 'personal'
-                      ? t('profile.premium.familyChildLimitTitleStandard')
-                      : t('profile.premium.familyChildLimitTitleFree')
-                }
-                message={
-                  tier === 'family'
-                    ? t('profile.premium.familyChildLimitMessageFamily')
-                    : tier === 'personal'
-                      ? t('profile.premium.familyChildLimitMessageStandard')
-                      : t('profile.premium.familyChildLimitMessageFree')
-                }
-                showCta={tier !== 'family'}
-              />
-            ) : (
-              <>
-                <AppText variant="body" style={styles.memberName}>
-                  {t('family.addAnotherChild')}
-                </AppText>
-                <FormField label={t('family.child.name')}>
-                  <Input
-                    placeholder={t('family.child.name')}
-                    value={childName}
-                    onChangeText={setChildName}
-                    autoCapitalize="words"
-                  />
-                </FormField>
-                <FormField label={t('family.child.dob')} hint={t('family.child.dobHint')}>
-                  <MonthCalendarNavigator
-                    accentColor={ACCENT}
-                    monthRef={childDobMonthRef}
-                    onMonthChange={setChildDobMonthRef}
-                    maximumYear={currentYear}
-                  />
-                  <MonthCalendarGrid
-                    monthRef={childDobMonthRef}
-                    interactive
-                    accentColor={ACCENT}
-                    onDayPress={(dayKey) => {
-                      if (dayKey > todayKey) return;
-                      setChildDob(dayKey);
-                    }}
-                    getDayState={(dayKey) => ({
-                      selected: dayKey === childDob,
-                      today: dayKey === todayKey,
-                      disabled: dayKey > todayKey,
-                    })}
-                  />
-                  {childDob ? (
-                    <View style={styles.dobSelectedRow}>
-                      <AppText variant="body">
-                        {t('family.child.dobSelected', { date: formatDobLabel(childDob) })}
-                      </AppText>
-                      <Button
-                        accessibilityRole="button"
-                        onPress={() => setChildDob('')}
-                        hitSlop={8}
-                        variant="plain"
-                      >
-                        <AppText variant="caption" color="brand">
-                          {t('common.clear')}
-                        </AppText>
-                      </Button>
-                    </View>
-                  ) : null}
-                </FormField>
-                <FormField label={t('family.child.gender')}>
-                  <View style={styles.chipRow}>
-                    {FAMILY_GENDERS.map((g) => (
-                      <ChoiceChip
-                        key={g.value}
-                        label={g.label}
-                        selected={childGender === g.value}
-                        onPress={() => setChildGender(g.value)}
-                        accent={ACCENT}
-                        soft={SOFT}
-                      />
-                    ))}
-                  </View>
-                </FormField>
-                <Button
-                  style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
-                  disabled={busy}
-                  onPress={() => void handleAddChild()}
-                  variant="plain"
-                >
-                  <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
-                  <AppText variant="button" style={styles.primaryCtaLabel}>
-                    {busy ? t('common.saving') : t('family.addChild')}
-                  </AppText>
-                </Button>
-              </>
-            )}
-          </View>
-        </AnimatedSection>
-
-        <AnimatedSection index={4}>
-          <View style={[styles.card, shadow.soft]}>
-            <AppText variant="caption" style={styles.sectionEyebrow}>
-              {t('family.connectSpouse')}
-            </AppText>
-            {!familyPlanAllowsInvite ? (
-              <UpgradePrompt
-                title={t('profile.premium.familySpouseTitle')}
-                message={t('profile.premium.familySpouseMessage')}
-              />
-            ) : !isHouseholdOwner ? (
-              <AppText variant="caption" style={styles.muted}>
-                {t('family.memberOnlyHint')}
-              </AppText>
-            ) : !canSendInvite ? (
-              <>
-                <AppText variant="caption" style={styles.muted}>
-                  {t('family.inviteSeats', {
-                    used: usedInviteSeats,
-                    limit: FAMILY_ADULT_INVITE_LIMIT,
-                    remaining: inviteSeatsRemaining,
-                  })}
-                </AppText>
-                <AppText variant="body" style={{ marginTop: spacing.xs }}>
-                  {t('family.inviteSeatsFull')}
-                </AppText>
-              </>
-            ) : (
-              <>
-                <FormField label={t('family.connectSpouse')} hint={t('family.connectSpouseHint')}>
+                {children.length === 0 ? (
                   <AppText variant="caption" style={styles.muted}>
-                    {t('family.inviteSeats', {
-                      used: usedInviteSeats,
-                      limit: FAMILY_ADULT_INVITE_LIMIT,
-                      remaining: inviteSeatsRemaining,
-                    })}
+                    {t('family.noChildren')}
                   </AppText>
-                  <Input
-                    placeholder={t('family.emailOrPhone')}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    value={lookup}
-                    onChangeText={setLookup}
-                  />
-                </FormField>
-                <Button
-                  style={[styles.secondaryCta, busy || !lookup.trim() ? styles.ctaDisabled : null]}
-                  disabled={busy || !lookup.trim()}
-                  onPress={() => void handleLookup()}
-                  variant="plain"
-                >
-                  <AppText variant="button" style={styles.secondaryCtaLabel}>
-                    {busy ? t('family.searching') : t('family.find')}
-                  </AppText>
-                </Button>
+                ) : null}
 
-                {matched ? (
-                  <View style={styles.foundCard}>
-                    <AppText variant="cardTitle" style={{ color: TITLE }}>
-                      {matched.fullName}
+                {!canAddAnotherChild ? (
+                  <UpgradePrompt
+                    title={
+                      tier === 'family'
+                        ? t('profile.premium.familyChildLimitTitleFamily')
+                        : tier === 'personal'
+                          ? t('profile.premium.familyChildLimitTitleStandard')
+                          : t('profile.premium.familyChildLimitTitleFree')
+                    }
+                    message={
+                      tier === 'family'
+                        ? t('profile.premium.familyChildLimitMessageFamily')
+                        : tier === 'personal'
+                          ? t('profile.premium.familyChildLimitMessageStandard')
+                          : t('profile.premium.familyChildLimitMessageFree')
+                    }
+                    showCta={tier !== 'family'}
+                  />
+                ) : (
+                  <>
+                    <AppText variant="body" style={styles.memberName}>
+                      {t('family.addAnotherChild')}
                     </AppText>
-                    <AppText variant="caption">
-                      {t('family.emailLabel', { value: matched.email ?? '—' })}
-                    </AppText>
-                    <AppText variant="caption">
-                      {t('family.phoneLabel', { value: matched.phone ?? '—' })}
-                    </AppText>
-                    {matched.countryCode ? (
-                      <AppText variant="caption">
-                        {t('family.locationLabel', {
-                          value: matched.countryCode,
+                    <FormField label={t('family.child.name')}>
+                      <Input
+                        placeholder={t('family.child.name')}
+                        value={childName}
+                        onChangeText={setChildName}
+                        autoCapitalize="words"
+                      />
+                    </FormField>
+                    <FormField label={t('family.child.dob')} hint={t('family.child.dobHint')}>
+                      <MonthCalendarNavigator
+                        accentColor={ACCENT}
+                        monthRef={childDobMonthRef}
+                        onMonthChange={setChildDobMonthRef}
+                        maximumYear={currentYear}
+                      />
+                      <MonthCalendarGrid
+                        monthRef={childDobMonthRef}
+                        interactive
+                        accentColor={ACCENT}
+                        onDayPress={(dayKey) => {
+                          if (dayKey > todayKey) return;
+                          setChildDob(dayKey);
+                        }}
+                        getDayState={(dayKey) => ({
+                          selected: dayKey === childDob,
+                          today: dayKey === todayKey,
+                          disabled: dayKey > todayKey,
                         })}
-                      </AppText>
-                    ) : null}
+                      />
+                      {childDob ? (
+                        <View style={styles.dobSelectedRow}>
+                          <AppText variant="body">
+                            {t('family.child.dobSelected', { date: formatDobLabel(childDob) })}
+                          </AppText>
+                          <Button
+                            accessibilityRole="button"
+                            onPress={() => setChildDob('')}
+                            hitSlop={8}
+                            variant="plain"
+                          >
+                            <AppText variant="caption" color="brand">
+                              {t('common.clear')}
+                            </AppText>
+                          </Button>
+                        </View>
+                      ) : null}
+                    </FormField>
+                    <FormField label={t('family.child.gender')}>
+                      <View style={styles.chipRow}>
+                        {FAMILY_GENDERS.map((g) => (
+                          <ChoiceChip
+                            key={g.value}
+                            label={g.label}
+                            selected={childGender === g.value}
+                            onPress={() => setChildGender(g.value)}
+                            accent={ACCENT}
+                            soft={SOFT}
+                          />
+                        ))}
+                      </View>
+                    </FormField>
                     <Button
-                      style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
+                      style={[styles.primaryCta, busy ? styles.ctaDisabled : null, shadow.soft]}
                       disabled={busy}
-                      onPress={() => void handleConnect()}
+                      onPress={() => void handleAddChild()}
                       variant="plain"
                     >
+                      <Baby color="#FFFFFF" size={18} strokeWidth={2.25} />
                       <AppText variant="button" style={styles.primaryCtaLabel}>
-                        {t('family.connect')}
+                        {busy ? t('common.saving') : t('family.addChild')}
                       </AppText>
                     </Button>
-                  </View>
-                ) : null}
+                  </>
+                )}
+              </View>
+            </AnimatedSection>
 
-                {notFound ? (
-                  <View style={styles.foundCard}>
-                    <AppText variant="body">{t('family.notFound')}</AppText>
-                    <AppText variant="caption" style={styles.inviteHint}>
-                      {t('family.outsideInviteHint')}
+            <AnimatedSection index={4}>
+              <View style={[styles.card, shadow.soft]}>
+                <AppText variant="caption" style={styles.sectionEyebrow}>
+                  {t('family.connectSpouse')}
+                </AppText>
+                {!familyPlanAllowsInvite ? (
+                  <UpgradePrompt
+                    title={t('profile.premium.familySpouseTitle')}
+                    message={t('profile.premium.familySpouseMessage')}
+                  />
+                ) : !isHouseholdOwner ? (
+                  <AppText variant="caption" style={styles.muted}>
+                    {t('family.memberOnlyHint')}
+                  </AppText>
+                ) : !canSendInvite ? (
+                  <>
+                    <AppText variant="caption" style={styles.muted}>
+                      {t('family.inviteSeats', {
+                        used: usedInviteSeats,
+                        limit: FAMILY_ADULT_INVITE_LIMIT,
+                        remaining: inviteSeatsRemaining,
+                      })}
                     </AppText>
-                    <View style={styles.inviteMessageBox}>
-                      <AppText variant="caption" style={styles.inviteMessageText}>
-                        {outsideInviteMessage}
+                    <AppText variant="body" style={{ marginTop: spacing.xs }}>
+                      {t('family.inviteSeatsFull')}
+                    </AppText>
+                  </>
+                ) : (
+                  <>
+                    <FormField
+                      label={t('family.connectSpouse')}
+                      hint={t('family.connectSpouseHint')}
+                    >
+                      <AppText variant="caption" style={styles.muted}>
+                        {t('family.inviteSeats', {
+                          used: usedInviteSeats,
+                          limit: FAMILY_ADULT_INVITE_LIMIT,
+                          remaining: inviteSeatsRemaining,
+                        })}
                       </AppText>
-                    </View>
-                    <View style={styles.inviteActions}>
-                      <Button
-                        style={styles.secondaryCta}
-                        onPress={() => void handleCopyInvite()}
-                        variant="plain"
-                      >
-                        <Copy color={ACCENT} size={16} strokeWidth={2.25} />
-                        <AppText variant="button" style={styles.secondaryCtaLabel}>
-                          {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
+                      <Input
+                        placeholder={t('family.emailOrPhone')}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        value={lookup}
+                        onChangeText={setLookup}
+                      />
+                    </FormField>
+                    <Button
+                      style={[
+                        styles.secondaryCta,
+                        busy || !lookup.trim() ? styles.ctaDisabled : null,
+                      ]}
+                      disabled={busy || !lookup.trim()}
+                      onPress={() => void handleLookup()}
+                      variant="plain"
+                    >
+                      <AppText variant="button" style={styles.secondaryCtaLabel}>
+                        {busy ? t('family.searching') : t('family.find')}
+                      </AppText>
+                    </Button>
+
+                    {matched ? (
+                      <View style={styles.foundCard}>
+                        <AppText variant="cardTitle" style={{ color: TITLE }}>
+                          {matched.fullName}
                         </AppText>
-                      </Button>
-                      <Button
-                        style={styles.secondaryCta}
-                        onPress={() => void handleShareInvite()}
-                        variant="plain"
-                      >
-                        <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
-                        <AppText variant="button" style={styles.secondaryCtaLabel}>
-                          {t('family.shareInvite')}
+                        <AppText variant="caption">
+                          {t('family.emailLabel', { value: matched.email ?? '—' })}
                         </AppText>
-                      </Button>
-                    </View>
-                  </View>
-                ) : null}
-              </>
-            )}
-          </View>
-        </AnimatedSection>
-      </Animated.ScrollView>
-    </Screen>
+                        <AppText variant="caption">
+                          {t('family.phoneLabel', { value: matched.phone ?? '—' })}
+                        </AppText>
+                        {matched.countryCode ? (
+                          <AppText variant="caption">
+                            {t('family.locationLabel', {
+                              value: matched.countryCode,
+                            })}
+                          </AppText>
+                        ) : null}
+                        <Button
+                          style={[styles.primaryCta, busy ? styles.ctaDisabled : null]}
+                          disabled={busy}
+                          onPress={() => void handleConnect()}
+                          variant="plain"
+                        >
+                          <AppText variant="button" style={styles.primaryCtaLabel}>
+                            {t('family.connect')}
+                          </AppText>
+                        </Button>
+                      </View>
+                    ) : null}
+
+                    {notFound ? (
+                      <View style={styles.foundCard}>
+                        <AppText variant="body">{t('family.notFound')}</AppText>
+                        <AppText variant="caption" style={styles.inviteHint}>
+                          {t('family.outsideInviteHint')}
+                        </AppText>
+                        <View style={styles.inviteMessageBox}>
+                          <AppText variant="caption" style={styles.inviteMessageText}>
+                            {outsideInviteMessage}
+                          </AppText>
+                        </View>
+                        <View style={styles.inviteActions}>
+                          <Button
+                            style={styles.secondaryCta}
+                            onPress={() => void handleCopyInvite()}
+                            variant="plain"
+                          >
+                            <Copy color={ACCENT} size={16} strokeWidth={2.25} />
+                            <AppText variant="button" style={styles.secondaryCtaLabel}>
+                              {inviteCopied ? t('family.copiedInvite') : t('family.copyInvite')}
+                            </AppText>
+                          </Button>
+                          <Button
+                            style={styles.secondaryCta}
+                            onPress={() => void handleShareInvite()}
+                            variant="plain"
+                          >
+                            <Share2 color={ACCENT} size={16} strokeWidth={2.25} />
+                            <AppText variant="button" style={styles.secondaryCtaLabel}>
+                              {t('family.shareInvite')}
+                            </AppText>
+                          </Button>
+                        </View>
+                      </View>
+                    ) : null}
+                  </>
+                )}
+              </View>
+            </AnimatedSection>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Screen>
+    </MiniAppKeyboardContext.Provider>
   );
 }
 
@@ -876,6 +947,9 @@ function FamilyHero({ title, subtitle, meta }: { title: string; subtitle: string
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   guestWrap: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.md,
