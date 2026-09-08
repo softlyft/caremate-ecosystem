@@ -111,7 +111,7 @@ Common failures (`The incoming JSON object does not contain a client_email field
 
 After updating the secret, re-run **Android Play**. The workflow validates `client_email` before calling Play.
 
-Store workflows **fail closed** if AdMob app IDs are missing/sample, Supabase/host URLs are missing, or the Supabase URL still points at `caremate-dev`.
+Store workflows **fail closed** if AdMob app IDs or banner units are missing/sample, Supabase/host URLs are missing, or the Supabase URL still points at `caremate-dev`.
 
 ### App env (recommended for a real Play build)
 

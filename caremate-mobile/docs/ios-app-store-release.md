@@ -57,7 +57,7 @@ Uses GitHub Environment **`production`**. Signing secrets are the same as TestFl
 | `EXPO_PUBLIC_ADMOB_*` | Live ads: 2 app IDs + Android banners + `EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS`. See [Ads → GitHub secrets](./ads.md#github-secrets) |
 | `SENTRY_AUTH_TOKEN` | Optional — when set, native source-map upload is enabled automatically |
 
-Store workflows **fail closed** if AdMob app IDs are missing/sample, host/Supabase URLs are missing, or Supabase still points at `caremate-dev`.
+Store workflows **fail closed** if AdMob app IDs or banner units are missing/sample, host/Supabase URLs are missing, or Supabase still points at `caremate-dev`.
 
 ### Optional variable (repo or `production` environment)
 
