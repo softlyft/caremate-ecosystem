@@ -29,6 +29,34 @@ function requireLiveAdMobAppId(platform: 'android' | 'ios', value: string | unde
   return trimmed;
 }
 
+/** Missing or sample banner units must fail the production config, not hide ads at runtime. */
+const PRODUCTION_BANNER_UNIT_ENVS = [
+  'EXPO_PUBLIC_ADMOB_BANNER_UNIT_IOS',
+  'EXPO_PUBLIC_ADMOB_BANNER_HOME_TIPS',
+  'EXPO_PUBLIC_ADMOB_BANNER_HOME_FEED',
+  'EXPO_PUBLIC_ADMOB_BANNER_LEARN_LIST',
+  'EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_HEADER',
+  'EXPO_PUBLIC_ADMOB_BANNER_LEARN_ARTICLE_FOOTER',
+  'EXPO_PUBLIC_ADMOB_BANNER_NEARBY_LIST',
+  'EXPO_PUBLIC_ADMOB_BANNER_NEARBY_PROVIDER',
+  'EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_TIMELINE',
+  'EXPO_PUBLIC_ADMOB_BANNER_PREGNANCY_FOOTER',
+  'EXPO_PUBLIC_ADMOB_BANNER_PERIOD_WEEK',
+  'EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER',
+] as const;
+
+function requireLiveAdMobBannerUnits(): void {
+  for (const name of PRODUCTION_BANNER_UNIT_ENVS) {
+    const trimmed = process.env[name]?.trim() ?? '';
+    if (!trimmed) {
+      throw new Error(`${name} is required when EXPO_PUBLIC_APP_ENV=production`);
+    }
+    if (trimmed.startsWith(GOOGLE_SAMPLE_ADMOB_PREFIX)) {
+      throw new Error(`${name} must not use Google sample IDs in production`);
+    }
+  }
+}
+
 function productionAssociatedDomains(domains: string[] | undefined): string[] | undefined {
   if (!domains?.length) return domains;
   return domains.filter(
@@ -73,6 +101,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   const iosAppId = isProductionAppEnv
     ? requireLiveAdMobAppId('ios', process.env.EXPO_PUBLIC_ADMOB_APP_ID_IOS)
     : GOOGLE_SAMPLE_IOS_APP_ID;
+  if (isProductionAppEnv) {
+    requireLiveAdMobBannerUnits();
+  }
 
   const plugins: NonNullable<ExpoConfig['plugins']> = [...(base.plugins ?? [])];
 
