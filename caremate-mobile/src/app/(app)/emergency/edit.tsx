@@ -1,19 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import {
-  Alert,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -25,6 +17,7 @@ import {
   FormStack,
   Input,
 } from '@/components/ui/form-controls';
+import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import {
@@ -50,6 +43,7 @@ import { syncEngine } from '@/sync/engine';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { profileRepository } from '@/domains/profile/repository';
 import { useTranslation } from '@/domains/localization';
+import { trackEmergencyProfileCompleted } from '@/lib/monitoring/product-analytics';
 import { palette, spacing, useAppTheme } from '@/theme';
 
 const EMERGENCY_ACCENT = palette.brandPurple;
@@ -86,11 +80,8 @@ const EMPTY_CONTACT = {
 export default function EmergencyEditScreen() {
   const { t } = useTranslation();
   const { colors } = useAppTheme();
-  const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
   const queryClient = useQueryClient();
-  const scrollRef = useRef<ScrollView>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [contactsSource, setContactsSource] = useState<EmergencyContact[] | undefined>(undefined);
   const [draftContact, setDraftContact] = useState(EMPTY_CONTACT);
@@ -98,33 +89,6 @@ export default function EmergencyEditScreen() {
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
   const [contactError, setContactError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(showEvent, (event) => {
-      setKeyboardHeight(event.endCoordinates.height);
-    });
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      setKeyboardHeight(0);
-    });
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
-
-  function scrollContactsIntoView() {
-    // Let the keyboard finish opening, then bring ICE fields / actions above it.
-    requestAnimationFrame(() => {
-      setTimeout(
-        () => {
-          scrollRef.current?.scrollToEnd({ animated: true });
-        },
-        Platform.OS === 'ios' ? 80 : 120,
-      );
-    });
-  }
 
   const schema = useMemo(
     () =>
@@ -204,7 +168,6 @@ export default function EmergencyEditScreen() {
       relationship: contact.relationship,
     });
     setContactError(null);
-    scrollContactsIntoView();
   }
 
   function validateDraftContact(): EmergencyContact | null {
@@ -379,337 +342,315 @@ export default function EmergencyEditScreen() {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
       // Push local emergency changes so shared QR viewers see the latest details.
       syncEngine.requestSync({ reason: 'write', immediate: true });
+      trackEmergencyProfileCompleted();
       router.back();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : t('emergency.edit.saveFailedMessage');
-      Alert.alert(t('emergency.edit.saveFailed'), message);
+      void alert(t('emergency.edit.saveFailed'), message);
     } finally {
       savingRef.current = false;
       setSaving(false);
     }
   }
 
-  const keyboardBottomInset =
-    keyboardHeight > 0 ? Math.max(keyboardHeight - insets.bottom, 0) + spacing.lg : spacing.xl * 2;
-  // Modal stack header ≈ 56pt + safe area on iOS; Android uses windowSoftInputMode=adjustResize.
-  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + 56 : 0;
-
   return (
     <Screen>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
+      <KeyboardAwareScroll
+        contentContainerStyle={styles.content}
+        keyboardExtraPad={spacing.lg}
+        showsVerticalScrollIndicator
       >
-        <ScrollView
-          ref={scrollRef}
-          style={styles.flex}
-          contentContainerStyle={[styles.content, { paddingBottom: keyboardBottomInset }]}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator
-          nestedScrollEnabled
-        >
-          <FormStack>
-            <FormNotice>{t('emergency.edit.hint')}</FormNotice>
+        <FormStack>
+          <FormNotice>{t('emergency.edit.hint')}</FormNotice>
 
-            <Controller
-              control={control}
-              name="firstName"
-              render={({ field }) => (
-                <FormField
-                  label={t('emergency.fields.firstName')}
-                  error={formState.errors.firstName?.message}
-                >
-                  <Input
-                    placeholder={t('emergency.fields.firstName')}
-                    autoCapitalize="words"
-                    autoCorrect={false}
-                    textContentType="givenName"
-                    maxLength={PERSON_NAME_MAX_CHARS}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={(value) => field.onChange(sanitizePersonNameInput(value))}
-                  />
-                </FormField>
-              )}
-            />
-            <Controller
-              control={control}
-              name="lastName"
-              render={({ field }) => (
-                <FormField
-                  label={t('emergency.fields.lastName')}
-                  error={formState.errors.lastName?.message}
-                >
-                  <Input
-                    placeholder={t('emergency.fields.lastName')}
-                    autoCapitalize="words"
-                    autoCorrect={false}
-                    textContentType="familyName"
-                    maxLength={PERSON_NAME_MAX_CHARS}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={(value) => field.onChange(sanitizePersonNameInput(value))}
-                  />
-                </FormField>
-              )}
-            />
-
-            <FormField
-              label={t('emergency.fields.bloodGroup')}
-              error={formState.errors.bloodGroup?.message}
-            >
-              <View style={styles.chipRow}>
-                {BLOOD_GROUPS.map((group) => (
-                  <ChoiceChip
-                    key={group}
-                    label={group}
-                    selected={selectedBloodGroup === group}
-                    onPress={() => setValue('bloodGroup', group, { shouldValidate: true })}
-                    accent={EMERGENCY_ACCENT}
-                    soft={EMERGENCY_SOFT}
-                    disabled={saving}
-                  />
-                ))}
-              </View>
-            </FormField>
-
-            <FormField
-              label={t('emergency.fields.genotype')}
-              error={formState.errors.genotype?.message}
-            >
-              <View style={styles.chipRow}>
-                {GENOTYPES.map((genotype) => (
-                  <ChoiceChip
-                    key={genotype}
-                    label={genotype}
-                    selected={selectedGenotype === genotype}
-                    onPress={() => setValue('genotype', genotype, { shouldValidate: true })}
-                    accent={EMERGENCY_ACCENT}
-                    soft={EMERGENCY_SOFT}
-                    disabled={saving}
-                  />
-                ))}
-              </View>
-            </FormField>
-
-            <Controller
-              control={control}
-              name="allergies"
-              render={({ field }) => (
-                <FormField label={t('emergency.fields.allergies')}>
-                  <Input
-                    placeholder={t('emergency.fields.allergiesPlaceholder')}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                  />
-                </FormField>
-              )}
-            />
-            <Controller
-              control={control}
-              name="currentMedications"
-              render={({ field }) => (
-                <FormField label={t('emergency.fields.medications')}>
-                  <Input
-                    placeholder={t('emergency.fields.medicationsPlaceholder')}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                  />
-                </FormField>
-              )}
-            />
-            <Controller
-              control={control}
-              name="chronicConditions"
-              render={({ field }) => (
-                <FormField label={t('emergency.fields.conditions')}>
-                  <Input
-                    placeholder={t('emergency.fields.conditionsPlaceholder')}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                  />
-                </FormField>
-              )}
-            />
-            <Controller
-              control={control}
-              name="preferredHospital"
-              render={({ field }) => (
-                <FormField label={t('emergency.fields.hospital')}>
-                  <Input
-                    placeholder={t('emergency.fields.hospital')}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                  />
-                </FormField>
-              )}
-            />
-            <Controller
-              control={control}
-              name="insuranceProvider"
-              render={({ field }) => (
-                <FormField label={t('emergency.fields.insurance')}>
-                  <Input
-                    placeholder={t('emergency.fields.insurance')}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                  />
-                </FormField>
-              )}
-            />
-            <Controller
-              control={control}
-              name="notes"
-              render={({ field }) => (
-                <FormField label={t('emergency.fields.notes')}>
-                  <Input
-                    placeholder={t('emergency.fields.notes')}
-                    multiline
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                  />
-                </FormField>
-              )}
-            />
-
-            <FormField label={t('emergency.fields.contacts')} error={contactError ?? undefined}>
-              {contacts.length === 0 ? (
-                <AppText variant="caption">{t('emergency.edit.noContactsYet')}</AppText>
-              ) : (
-                contacts.map((contact, index) => {
-                  const isEditing = editingContactIndex === index;
-                  return (
-                    <View
-                      key={`${contact.name}-${contact.phone}-${index}`}
-                      style={[
-                        styles.contactCard,
-                        {
-                          borderColor: isEditing ? EMERGENCY_ACCENT : colors.border,
-                          backgroundColor: isEditing ? EMERGENCY_SOFT : colors.surface,
-                        },
-                      ]}
-                    >
-                      <View style={styles.contactInfo}>
-                        <AppText variant="quickActionTitle">{contact.name}</AppText>
-                        <AppText variant="caption">{contact.relationship}</AppText>
-                        <AppText variant="caption">{contact.phone}</AppText>
-                      </View>
-                      <View style={styles.contactActions}>
-                        <Button
-                          onPress={() => beginEditContact(index)}
-                          hitSlop={8}
-                          disabled={isEditing}
-                          variant="plain"
-                        >
-                          <AppText
-                            variant="seeAll"
-                            color={isEditing ? colors.textMuted : EMERGENCY_ACCENT}
-                          >
-                            {t('emergency.edit.editContact')}
-                          </AppText>
-                        </Button>
-                        <Button onPress={() => removeContact(index)} hitSlop={8} variant="plain">
-                          <AppText variant="seeAll" color={colors.danger}>
-                            {t('emergency.edit.remove')}
-                          </AppText>
-                        </Button>
-                      </View>
-                    </View>
-                  );
-                })
-              )}
-
-              <Input
-                placeholder={t('emergency.edit.contactName')}
-                autoCapitalize="words"
-                autoCorrect={false}
-                maxLength={PERSON_NAME_MAX_CHARS}
-                value={draftContact.name}
-                onFocus={scrollContactsIntoView}
-                onChangeText={(name) => {
-                  setDraftContact((current) => ({
-                    ...current,
-                    name: sanitizePersonNameInput(name),
-                  }));
-                  setContactError(null);
-                }}
-              />
-              <Input
-                placeholder={t('emergency.edit.relationshipPlaceholder')}
-                autoCapitalize="words"
-                value={draftContact.relationship}
-                onFocus={scrollContactsIntoView}
-                onChangeText={(relationship) => {
-                  setDraftContact((current) => ({ ...current, relationship }));
-                  setContactError(null);
-                }}
-              />
-              <Input
-                placeholder={t('emergency.edit.phoneNumber')}
-                keyboardType="phone-pad"
-                textContentType="telephoneNumber"
-                autoComplete="tel"
-                maxLength={ICE_PHONE_MAX_CHARS}
-                value={draftContact.phone}
-                onFocus={scrollContactsIntoView}
-                onChangeText={(phone) => {
-                  setDraftContact((current) => ({ ...current, phone: sanitizePhoneInput(phone) }));
-                  setContactError(null);
-                }}
-              />
-              {editingContactIndex === null ? (
-                <Button
-                  label={t('emergency.edit.addContact')}
-                  variant="secondary"
-                  onPress={addContact}
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field }) => (
+              <FormField
+                label={t('emergency.fields.firstName')}
+                error={formState.errors.firstName?.message}
+              >
+                <Input
+                  placeholder={t('emergency.fields.firstName')}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  textContentType="givenName"
+                  maxLength={PERSON_NAME_MAX_CHARS}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={(value) => field.onChange(sanitizePersonNameInput(value))}
                 />
-              ) : (
-                <FormActions style={styles.contactEditActions}>
-                  <Button
-                    label={t('emergency.edit.saveContact')}
-                    variant="secondary"
-                    onPress={saveContactEdit}
-                  />
-                  <Button
-                    label={t('emergency.edit.cancelEdit')}
-                    variant="ghost"
-                    onPress={clearContactDraft}
-                  />
-                </FormActions>
-              )}
-            </FormField>
+              </FormField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field }) => (
+              <FormField
+                label={t('emergency.fields.lastName')}
+                error={formState.errors.lastName?.message}
+              >
+                <Input
+                  placeholder={t('emergency.fields.lastName')}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  textContentType="familyName"
+                  maxLength={PERSON_NAME_MAX_CHARS}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={(value) => field.onChange(sanitizePersonNameInput(value))}
+                />
+              </FormField>
+            )}
+          />
 
-            <FormActions>
+          <FormField
+            label={t('emergency.fields.bloodGroup')}
+            error={formState.errors.bloodGroup?.message}
+          >
+            <View style={styles.chipRow}>
+              {BLOOD_GROUPS.map((group) => (
+                <ChoiceChip
+                  key={group}
+                  label={group}
+                  selected={selectedBloodGroup === group}
+                  onPress={() => setValue('bloodGroup', group, { shouldValidate: true })}
+                  accent={EMERGENCY_ACCENT}
+                  soft={EMERGENCY_SOFT}
+                  disabled={saving}
+                />
+              ))}
+            </View>
+          </FormField>
+
+          <FormField
+            label={t('emergency.fields.genotype')}
+            error={formState.errors.genotype?.message}
+          >
+            <View style={styles.chipRow}>
+              {GENOTYPES.map((genotype) => (
+                <ChoiceChip
+                  key={genotype}
+                  label={genotype}
+                  selected={selectedGenotype === genotype}
+                  onPress={() => setValue('genotype', genotype, { shouldValidate: true })}
+                  accent={EMERGENCY_ACCENT}
+                  soft={EMERGENCY_SOFT}
+                  disabled={saving}
+                />
+              ))}
+            </View>
+          </FormField>
+
+          <Controller
+            control={control}
+            name="allergies"
+            render={({ field }) => (
+              <FormField label={t('emergency.fields.allergies')}>
+                <Input
+                  placeholder={t('emergency.fields.allergiesPlaceholder')}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="currentMedications"
+            render={({ field }) => (
+              <FormField label={t('emergency.fields.medications')}>
+                <Input
+                  placeholder={t('emergency.fields.medicationsPlaceholder')}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="chronicConditions"
+            render={({ field }) => (
+              <FormField label={t('emergency.fields.conditions')}>
+                <Input
+                  placeholder={t('emergency.fields.conditionsPlaceholder')}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="preferredHospital"
+            render={({ field }) => (
+              <FormField label={t('emergency.fields.hospital')}>
+                <Input
+                  placeholder={t('emergency.fields.hospital')}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="insuranceProvider"
+            render={({ field }) => (
+              <FormField label={t('emergency.fields.insurance')}>
+                <Input
+                  placeholder={t('emergency.fields.insurance')}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="notes"
+            render={({ field }) => (
+              <FormField label={t('emergency.fields.notes')}>
+                <Input
+                  placeholder={t('emergency.fields.notes')}
+                  multiline
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+
+          <FormField label={t('emergency.fields.contacts')} error={contactError ?? undefined}>
+            {contacts.length === 0 ? (
+              <AppText variant="caption">{t('emergency.edit.noContactsYet')}</AppText>
+            ) : (
+              contacts.map((contact, index) => {
+                const isEditing = editingContactIndex === index;
+                return (
+                  <View
+                    key={`${contact.name}-${contact.phone}-${index}`}
+                    style={[
+                      styles.contactCard,
+                      {
+                        borderColor: isEditing ? EMERGENCY_ACCENT : colors.border,
+                        backgroundColor: isEditing ? EMERGENCY_SOFT : colors.surface,
+                      },
+                    ]}
+                  >
+                    <View style={styles.contactInfo}>
+                      <AppText variant="quickActionTitle">{contact.name}</AppText>
+                      <AppText variant="caption">{contact.relationship}</AppText>
+                      <AppText variant="caption">{contact.phone}</AppText>
+                    </View>
+                    <View style={styles.contactActions}>
+                      <Button
+                        onPress={() => beginEditContact(index)}
+                        hitSlop={8}
+                        disabled={isEditing}
+                        variant="plain"
+                      >
+                        <AppText
+                          variant="seeAll"
+                          color={isEditing ? colors.textMuted : EMERGENCY_ACCENT}
+                        >
+                          {t('emergency.edit.editContact')}
+                        </AppText>
+                      </Button>
+                      <Button onPress={() => removeContact(index)} hitSlop={8} variant="plain">
+                        <AppText variant="seeAll" color={colors.danger}>
+                          {t('emergency.edit.remove')}
+                        </AppText>
+                      </Button>
+                    </View>
+                  </View>
+                );
+              })
+            )}
+
+            <Input
+              placeholder={t('emergency.edit.contactName')}
+              autoCapitalize="words"
+              autoCorrect={false}
+              maxLength={PERSON_NAME_MAX_CHARS}
+              value={draftContact.name}
+              onChangeText={(name) => {
+                setDraftContact((current) => ({
+                  ...current,
+                  name: sanitizePersonNameInput(name),
+                }));
+                setContactError(null);
+              }}
+            />
+            <Input
+              placeholder={t('emergency.edit.relationshipPlaceholder')}
+              autoCapitalize="words"
+              value={draftContact.relationship}
+              onChangeText={(relationship) => {
+                setDraftContact((current) => ({ ...current, relationship }));
+                setContactError(null);
+              }}
+            />
+            <Input
+              placeholder={t('emergency.edit.phoneNumber')}
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              autoComplete="tel"
+              maxLength={ICE_PHONE_MAX_CHARS}
+              value={draftContact.phone}
+              onChangeText={(phone) => {
+                setDraftContact((current) => ({ ...current, phone: sanitizePhoneInput(phone) }));
+                setContactError(null);
+              }}
+            />
+            {editingContactIndex === null ? (
               <Button
-                label={saving ? t('common.loading') : t('emergency.edit.save')}
-                disabled={saving}
-                onPress={() => {
-                  void handleSubmit(onSubmit)();
-                }}
+                label={t('emergency.edit.addContact')}
+                variant="secondary"
+                onPress={addContact}
               />
-            </FormActions>
-          </FormStack>
-        </ScrollView>
-      </KeyboardAvoidingView>
+            ) : (
+              <FormActions style={styles.contactEditActions}>
+                <Button
+                  label={t('emergency.edit.saveContact')}
+                  variant="secondary"
+                  onPress={saveContactEdit}
+                />
+                <Button
+                  label={t('emergency.edit.cancelEdit')}
+                  variant="ghost"
+                  onPress={clearContactDraft}
+                />
+              </FormActions>
+            )}
+          </FormField>
+
+          <FormActions>
+            <Button
+              label={saving ? t('common.loading') : t('emergency.edit.save')}
+              disabled={saving}
+              onPress={() => {
+                void handleSubmit(onSubmit)();
+              }}
+            />
+          </FormActions>
+        </FormStack>
+      </KeyboardAwareScroll>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   content: {
     gap: spacing.md,
     flexGrow: 1,

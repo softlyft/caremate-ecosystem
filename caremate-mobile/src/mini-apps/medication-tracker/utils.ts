@@ -48,13 +48,15 @@ export interface MedicationDoseLog {
   /** Slot index within the day (0-based). As-needed logs use 0+. */
   slotIndex: number;
   notes?: string;
-  /** ISO timestamp when the dose was marked taken. */
+  /** ISO timestamp when the dose was marked taken or skipped. */
   takenAt?: string;
   /** True when logging this dose decremented quantityRemaining. */
   didDecrementQuantity?: boolean;
+  /** Defaults to taken for legacy logs. */
+  outcome?: 'taken' | 'skipped';
 }
 
-export type DoseSlotStatus = 'taken' | 'due' | 'missed' | 'upcoming' | 'as-needed';
+export type DoseSlotStatus = 'taken' | 'skipped' | 'due' | 'missed' | 'upcoming' | 'as-needed';
 
 export interface DoseSlot {
   medication: Medication;
@@ -227,10 +229,10 @@ export function resolveScheduledStatus(params: {
   dateKey: string;
   slotTime: string;
   referenceDate: Date;
-  hasLog: boolean;
+  log?: MedicationDoseLog | null;
 }): DoseSlotStatus {
-  if (params.hasLog) {
-    return 'taken';
+  if (params.log) {
+    return params.log.outcome === 'skipped' ? 'skipped' : 'taken';
   }
 
   const todayKey = toDateKey(params.referenceDate);
@@ -278,7 +280,7 @@ export function buildDaySlots(
           dateKey,
           slotIndex: log.slotIndex,
           slotLabel: dayLogs.length > 1 ? `Dose ${index + 1}` : 'As needed',
-          status: 'taken',
+          status: log.outcome === 'skipped' ? 'skipped' : 'taken',
           log,
         });
       });
@@ -314,7 +316,7 @@ export function buildDaySlots(
           dateKey,
           slotTime,
           referenceDate,
-          hasLog: Boolean(log),
+          log,
         }),
         log,
       });
@@ -329,23 +331,26 @@ export function partitionTodaySlots(slots: DoseSlot[]) {
   const upcoming = slots.filter(
     (slot) => slot.status === 'upcoming' || slot.status === 'as-needed',
   );
-  const taken = slots.filter((slot) => slot.status === 'taken');
+  const taken = slots.filter((slot) => slot.status === 'taken' || slot.status === 'skipped');
   return { dueNow, upcoming, taken };
 }
 
 export function getDaySummary(slots: DoseSlot[]) {
   const taken = slots.filter((slot) => slot.status === 'taken').length;
+  const skipped = slots.filter((slot) => slot.status === 'skipped').length;
   const due = slots.filter((slot) => slot.status === 'due').length;
   const missed = slots.filter((slot) => slot.status === 'missed').length;
   const asNeededOpen = slots.filter((slot) => slot.status === 'as-needed' && !slot.log).length;
   const upcoming = slots.filter((slot) => slot.status === 'upcoming').length;
 
   const expected = slots.filter((slot) => slot.status !== 'as-needed').length;
-  const progress = expected > 0 ? taken / expected : taken > 0 ? 1 : 0;
+  const handled = taken + skipped;
+  const progress = expected > 0 ? handled / expected : handled > 0 ? 1 : 0;
 
   return {
     total: slots.length,
     taken,
+    skipped,
     due,
     missed,
     upcoming,
@@ -360,6 +365,8 @@ export function getStatusLabel(status: DoseSlotStatus): string {
   switch (status) {
     case 'taken':
       return 'Taken';
+    case 'skipped':
+      return 'Skipped';
     case 'due':
       return 'Due';
     case 'missed':

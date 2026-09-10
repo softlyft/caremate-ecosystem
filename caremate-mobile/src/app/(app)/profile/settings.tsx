@@ -11,9 +11,10 @@ import {
   Users,
 } from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Linking, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
@@ -80,7 +81,7 @@ export default function SettingsScreen() {
   async function updateNotifications(value: boolean) {
     const result = await applyNotificationsEnabledPreference(value);
     if (value && !result.applied) {
-      Alert.alert(
+      void alert(
         t('settings.notifications.permissionDeniedTitle'),
         t('settings.notifications.permissionDeniedMessage'),
         [
@@ -114,7 +115,7 @@ export default function SettingsScreen() {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile }),
       ]);
     } catch {
-      Alert.alert(t('settings.sync.syncFailed'));
+      void alert(t('settings.sync.syncFailed'));
     } finally {
       setSyncing(false);
     }
@@ -146,7 +147,7 @@ export default function SettingsScreen() {
     if (isGuest || deletingAccount) {
       return;
     }
-    Alert.alert(
+    void alert(
       t('settings.account.deleteConfirmTitle'),
       t('settings.account.deleteConfirmMessage'),
       [
@@ -159,7 +160,7 @@ export default function SettingsScreen() {
               setDeletingAccount(true);
               try {
                 await deleteAccount();
-                Alert.alert(
+                void alert(
                   t('settings.account.deleteSuccessTitle'),
                   t('settings.account.deleteSuccessMessage'),
                   [{ text: 'OK', onPress: () => router.replace('/(app)/(tabs)/profile') }],
@@ -167,7 +168,7 @@ export default function SettingsScreen() {
               } catch (error) {
                 const message =
                   error instanceof Error ? error.message : t('settings.account.deleteFailed');
-                Alert.alert(t('settings.account.deleteFailed'), message);
+                void alert(t('settings.account.deleteFailed'), message);
               } finally {
                 setDeletingAccount(false);
               }

@@ -7,7 +7,6 @@ import {
   trackEvent,
   trackScreen,
 } from '@/lib/monitoring/analytics';
-import { InteractionManager } from 'react-native';
 
 jest.mock('@/constants/env', () => ({
   config: {
@@ -43,16 +42,13 @@ describe('analytics', () => {
     mockEnqueue.mockClear();
     mockFlush.mockClear();
     mockBindSender.mockClear();
-    jest.spyOn(InteractionManager, 'runAfterInteractions').mockImplementation((task) => {
-      if (typeof task === 'function') {
-        task();
-      }
-      return {
-        cancel: jest.fn(),
-        done: jest.fn(),
-        then: (onfulfilled?: () => unknown) => Promise.resolve().then(onfulfilled),
-      };
-    });
+    globalThis.requestIdleCallback = ((callback: IdleRequestCallback) => {
+      callback({
+        didTimeout: false,
+        timeRemaining: () => 16,
+      } as IdleDeadline);
+      return 1;
+    }) as typeof requestIdleCallback;
     bindPostHogClient({
       capture,
       screen,
@@ -62,7 +58,8 @@ describe('analytics', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    // @ts-expect-error test cleanup
+    delete globalThis.requestIdleCallback;
     bindPostHogClient(null);
   });
 
@@ -93,7 +90,7 @@ describe('analytics', () => {
 
   it('identifies signed-in users and resets guests', () => {
     identifyAnalyticsUser({ id: 'u1', email: 'a@b.co', isGuest: false });
-    expect(identify).toHaveBeenCalledWith('u1', { email: 'a@b.co' });
+    expect(identify).toHaveBeenCalledWith('u1');
 
     identifyAnalyticsUser({ id: 'guest', isGuest: true });
     expect(reset).toHaveBeenCalled();

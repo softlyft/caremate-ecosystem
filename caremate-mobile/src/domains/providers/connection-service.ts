@@ -7,6 +7,10 @@ import {
 } from '@/domains/providers/connection-consents';
 import { isDateKey } from '@/domains/timeline/consent-window';
 import { supabase } from '@/lib/supabase';
+import {
+  trackProviderConnectionCompleted,
+  trackProviderConnectionStarted,
+} from '@/lib/monitoring/product-analytics';
 import type { Provider } from '@/types';
 
 export type ConnectionStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'disconnected';
@@ -338,6 +342,7 @@ class ProviderConnectionService {
         // Push is optional; offline / missing Expo must not fail the connection flow.
       });
 
+    trackProviderConnectionStarted(params.organizationId);
     return connection;
   }
 
@@ -363,6 +368,13 @@ class ProviderConnectionService {
 
     if (error) {
       throw new Error(error.message || 'Could not update request');
+    }
+
+    if (params.accept) {
+      const accepted = await this.getConnectionById(params.connectionId);
+      if (accepted?.organizationId) {
+        trackProviderConnectionCompleted(accepted.organizationId);
+      }
     }
 
     void supabase.functions

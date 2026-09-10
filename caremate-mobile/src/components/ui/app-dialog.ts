@@ -130,6 +130,41 @@ export function confirm(options: AppDialogConfirmOptions): Promise<boolean> {
   });
 }
 
+export type AppDialogChooseOptions<T extends string> = {
+  title: string;
+  message: string;
+  actions: {
+    label: string;
+    value: T;
+    variant?: AppDialogActionVariant;
+  }[];
+};
+
+/**
+ * Multi-button chooser. Resolves to the selected action `value`, or `null` if dismissed
+ * without a matching action result.
+ */
+export function choose<T extends string>(options: AppDialogChooseOptions<T>): Promise<T | null> {
+  return new Promise((resolve) => {
+    useAppDialogStore.getState().enqueue({
+      title: options.title,
+      message: options.message,
+      actions: options.actions.map((action) => ({
+        label: action.label,
+        variant: action.variant,
+        result: action.value,
+      })),
+      resolve: (value) => {
+        if (typeof value === 'string' && options.actions.some((action) => action.value === value)) {
+          resolve(value as T);
+          return;
+        }
+        resolve(null);
+      },
+    });
+  });
+}
+
 /** Test helper — clears the dialog queue without resolving listeners. */
 export function __resetAppDialogForTests(): void {
   dialogSeq = 0;

@@ -22,6 +22,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { useEmergencyProfileViewed } from '@/lib/monitoring/use-product-analytics';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = palette.brandPurple;
@@ -33,6 +34,7 @@ export default function EmergencyViewScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const userId = useCurrentUserId();
+  useEmergencyProfileViewed();
 
   const query = useQuery({
     queryKey: [...QUERY_KEYS.emergencyProfile, userId],

@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "Ondoa",
-      "completedYearMismatch": "Umeandika {{completedYear}}, lakini kipengele hiki ni cha mpango wa {{planYear}}. Thibitisha ni makusudi.",
+      "completedYearMismatch": "Tarehe ya kukamilisha lazima iwe katika {{planYear}}. Tarehe uliyochagua iko katika {{completedYear}}.",
       "onceAlreadyLogged": "Ukaguzi huu wa mara moja tayari umeandikwa kwa {{year}}. Thibitisha unataka kuandika tena.",
       "checkTitle": "Tafadhali angalia hii",
       "confirmTitle": "Tafadhali thibitisha",

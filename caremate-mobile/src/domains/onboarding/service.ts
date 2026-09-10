@@ -4,11 +4,10 @@ import { GUEST_USER_ID } from '@/constants/guest';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { ensureWelcomeInAppNotification } from '@/domains/notifications/service';
 import { authService } from '@/services/auth-service';
-import { localizationService } from '@/domains/localization';
+import { localizationService } from '@/domains/localization/service';
 import { useSettingsStore } from '@/domains/profile/store';
-import { profileRepository } from '@/domains/profile/repository';
 import { useAuthStore } from '@/features/auth/store';
-import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
+import { trackOnboardingCompleted } from '@/lib/monitoring/product-analytics';
 
 import { getDeviceDefaults, setDeviceDefaults } from './device-defaults';
 import { useOnboardingDraftStore } from './store';
@@ -32,12 +31,7 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
 
   useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
   await authService.setOnboardingComplete(true);
-  trackEvent(AnalyticsEvents.onboardingComplete, {
-    country_code: defaults.countryCode,
-    language_code: defaults.languageCode,
-    emergency_basics_started: defaults.emergencyBasicsStarted,
-    wants_family: defaults.wantsFamily,
-  });
+  trackOnboardingCompleted();
 
   const userId = useAuthStore.getState().user?.id ?? GUEST_USER_ID;
   await ensureWelcomeInAppNotification({
@@ -74,19 +68,7 @@ export async function saveOnboardingEmergencyBasics(input: {
   });
 }
 
-/** Copy device country/language defaults onto a freshly created profile. */
-export async function applyDeviceDefaultsToProfile(userId: string): Promise<void> {
-  const defaults = await getDeviceDefaults();
-  await profileRepository.save(userId, {
-    countryCode: defaults.countryCode,
-    languageCode: defaults.languageCode,
-    state: defaults.state,
-  });
-  await profileRepository.saveSettings(userId, {
-    notificationsEnabled: defaults.notificationsEnabled,
-  });
-  useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
-}
+export { applyDeviceDefaultsToProfile } from './apply-device-defaults';
 
 export function getPostSignupHref(defaults: DeviceDefaults): Href {
   if (!defaults.emergencyEssentialsDone) {

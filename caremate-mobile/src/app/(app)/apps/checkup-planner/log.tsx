@@ -7,6 +7,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { isCheckupItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import {
@@ -18,6 +19,14 @@ import {
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
 import { CHECKUP_CATALOG } from '@/mini-apps/checkup-planner/constants';
+import {
+  clampMonthRef,
+  dateInPlanYear,
+  defaultCompletedDate,
+  isCompletionDayAllowed,
+  monthFromDateKey,
+  planYearMonthBounds,
+} from '@/mini-apps/checkup-planner/log-date';
 import {
   useCheckupPlannerHydrated,
   useCheckupPlannerStore,
@@ -60,14 +69,35 @@ export default function CheckupPlannerLogScreen() {
     ? completions.find((item) => item.checkupId === checkup.id && item.year === year)
     : undefined;
 
-  const [completedDate, setCompletedDate] = useState(existing?.completedDate ?? todayKey);
-  const [notes, setNotes] = useState(existing?.notes ?? '');
-  const [monthRef, setMonthRef] = useState(() => {
-    const base = existing?.completedDate ?? todayKey;
-    const [y, m] = base.split('-').map(Number);
-    return new Date(y, (m || 1) - 1, 1);
-  });
+  const canLogForYear = year <= currentYear;
 
+  const dateSeed = useMemo(() => {
+    if (profile && canLogForYear) {
+      return defaultCompletedDate(existing?.completedDate, year, todayKey, profile.dateOfBirth);
+    }
+    return existing?.completedDate && dateInPlanYear(existing.completedDate, year)
+      ? existing.completedDate
+      : todayKey;
+  }, [canLogForYear, existing, profile, todayKey, year]);
+
+  const [dateSeedApplied, setDateSeedApplied] = useState(dateSeed);
+  const [completedDate, setCompletedDate] = useState(dateSeed);
+  const [notes, setNotes] = useState(existing?.notes ?? '');
+  const [monthRef, setMonthRef] = useState(() =>
+    monthFromDateKey(dateSeed, year, currentYear, today),
+  );
+
+  // Reset local date/month when the plan year or saved completion changes (React "adjust state while rendering").
+  if (dateSeed !== dateSeedApplied) {
+    setDateSeedApplied(dateSeed);
+    setCompletedDate(dateSeed);
+    setMonthRef(monthFromDateKey(dateSeed, year, currentYear, today));
+  } else if (canLogForYear && profile && completedDate && !dateInPlanYear(completedDate, year)) {
+    // Heal stale/out-of-year selections so the CTA year always matches the completion date.
+    const fixed = defaultCompletedDate(undefined, year, todayKey, profile.dateOfBirth);
+    setCompletedDate(fixed);
+    setMonthRef(monthFromDateKey(fixed, year, currentYear, today));
+  }
   if (!hydrated) {
     return (
       <View style={styles.loading}>
@@ -131,11 +161,28 @@ export default function CheckupPlannerLogScreen() {
   }
 
   const localizedCheckup = localizeCheckup(checkup, t);
+  const isDayAllowed = (dayKey: string) =>
+    isCompletionDayAllowed(dayKey, year, todayKey, profile.dateOfBirth);
+
+  const { minMonth, maxMonth } = planYearMonthBounds(year, currentYear, today);
+  const completedMatchesPlan = dateInPlanYear(completedDate, year);
+  const completedYear = Number(completedDate.slice(0, 4));
 
   const issueMessage = (issue: CheckupIssue): string =>
     t(`apps.checkup.validation.${issue.messageKey}`, issue.params ?? {});
 
   const commitCompletion = async () => {
+    if (!completedMatchesPlan) {
+      void alert(
+        t('apps.checkup.validation.checkTitle'),
+        t('apps.checkup.validation.completedYearMismatch', {
+          completedYear,
+          planYear: year,
+        }),
+      );
+      return;
+    }
+
     const assessment = assessCompletionDraft({
       checkupId: checkup.id,
       year,
@@ -163,6 +210,7 @@ export default function CheckupPlannerLogScreen() {
 
     const save = () => {
       markComplete(assessment.payload!);
+      trackMiniAppUsed('checkup-planner', 'checkup_completed');
       router.back();
     };
 
@@ -185,7 +233,9 @@ export default function CheckupPlannerLogScreen() {
   return (
     <MiniAppScreen>
       <AppText variant="subtitle" style={styles.intro}>
-        {t('apps.checkup.ui.logIntro', { year })}
+        {canLogForYear
+          ? t('apps.checkup.ui.logIntro', { year })
+          : t('apps.checkup.ui.futureYearLog', { year })}
       </AppText>
 
       <MiniAppCard index={1} title={localizedCheckup.name} theme={theme}>
@@ -194,62 +244,86 @@ export default function CheckupPlannerLogScreen() {
         </AppText>
       </MiniAppCard>
 
-      <MiniAppCard index={2} theme={theme}>
-        <MonthCalendarNavigator
-          accentColor={theme.color}
-          monthRef={monthRef}
-          onMonthChange={(next) => {
-            const maxMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            setMonthRef(next > maxMonth ? maxMonth : next);
+      {canLogForYear ? (
+        <MiniAppCard index={2} theme={theme}>
+          <MonthCalendarNavigator
+            accentColor={theme.color}
+            monthRef={monthRef}
+            onMonthChange={(next) => {
+              setMonthRef(clampMonthRef(next, year, currentYear, today));
+            }}
+            minimumYear={year}
+            maximumYear={Math.min(year, currentYear)}
+            minimumMonth={minMonth}
+            maximumMonth={maxMonth}
+          />
+          <AppText variant="caption" style={styles.muted}>
+            {t('apps.checkup.ui.dateCompleted')}
+          </AppText>
+          <MonthCalendarGrid
+            monthRef={monthRef}
+            interactive
+            accentColor={theme.color}
+            onDayPress={(dayKey) => {
+              if (!isDayAllowed(dayKey)) {
+                return;
+              }
+              setCompletedDate(dayKey);
+            }}
+            getDayState={(dayKey) => ({
+              selected: dayKey === completedDate,
+              today: dayKey === todayKey,
+              disabled: !isDayAllowed(dayKey),
+            })}
+          />
+          <AppText variant="body">
+            {t('apps.checkup.ui.completedLabel', { date: formatDisplayDate(completedDate) })}
+          </AppText>
+          {!completedMatchesPlan ? (
+            <AppText variant="caption" style={styles.mismatch}>
+              {t('apps.checkup.validation.completedYearMismatch', {
+                completedYear,
+                planYear: year,
+              })}
+            </AppText>
+          ) : null}
+        </MiniAppCard>
+      ) : null}
+
+      {canLogForYear ? (
+        <MiniAppCard index={3} title={t('apps.checkup.ui.notesOptional')} theme={theme}>
+          <Input
+            value={notes}
+            onChangeText={setNotes}
+            placeholder={t('apps.checkup.ui.notesPlaceholder')}
+            multiline
+          />
+        </MiniAppCard>
+      ) : null}
+
+      {canLogForYear ? (
+        <MiniAppCta
+          label={
+            existing ? t('apps.checkup.ui.updateLog') : t('apps.checkup.ui.markDone', { year })
+          }
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={4}
+          onPress={() => {
+            void commitCompletion();
           }}
-          maximumYear={today.getFullYear()}
-          maximumMonth={new Date(today.getFullYear(), today.getMonth(), 1)}
         />
-        <AppText variant="caption" style={styles.muted}>
-          {t('apps.checkup.ui.dateCompleted')}
-        </AppText>
-        <MonthCalendarGrid
-          monthRef={monthRef}
-          interactive
-          accentColor={theme.color}
-          onDayPress={(dayKey) => {
-            if (dayKey > todayKey) {
-              return;
-            }
-            if (dayKey < profile.dateOfBirth) {
-              return;
-            }
-            setCompletedDate(dayKey);
-          }}
-          getDayState={(dayKey) => ({
-            selected: dayKey === completedDate,
-            today: dayKey === todayKey,
-            disabled: dayKey > todayKey || dayKey < profile.dateOfBirth,
-          })}
+      ) : (
+        <MiniAppCta
+          label={t('common.goBack')}
+          accent={theme.color}
+          soft={theme.backgroundColor}
+          index={2}
+          onPress={() => router.back()}
         />
-        <AppText variant="body">
-          {t('apps.checkup.ui.completedLabel', { date: formatDisplayDate(completedDate) })}
-        </AppText>
-      </MiniAppCard>
+      )}
 
-      <MiniAppCard index={3} title={t('apps.checkup.ui.notesOptional')} theme={theme}>
-        <Input
-          value={notes}
-          onChangeText={setNotes}
-          placeholder={t('apps.checkup.ui.notesPlaceholder')}
-          multiline
-        />
-      </MiniAppCard>
-
-      <MiniAppCta
-        label={existing ? t('apps.checkup.ui.updateLog') : t('apps.checkup.ui.markDone', { year })}
-        accent={theme.color}
-        soft={theme.backgroundColor}
-        index={4}
-        onPress={commitCompletion}
-      />
-
-      {existing ? (
+      {existing && canLogForYear ? (
         <MiniAppCta
           label={t('apps.checkup.ui.removeCompletion')}
           accent={theme.color}
@@ -289,5 +363,9 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: palette.textSecondary,
+  },
+  mismatch: {
+    color: palette.danger,
+    marginTop: spacing.xs,
   },
 });

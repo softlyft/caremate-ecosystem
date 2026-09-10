@@ -229,6 +229,8 @@ export const layoutSpacing = {
   greetingToWelcome: 4,
   welcomeToSubtitle: 6,
   sectionTitleToContent: 16,
+  /** Tighter stack on home between search, daily tip, and timeline. */
+  homeHeroStack: 10,
   cardTitleToDescription: 8,
   betweenSections: 32,
   screenHorizontal: 20,

@@ -3,7 +3,6 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { MessageCircle } from 'lucide-react-native';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
-  Alert,
   Dimensions,
   FlatList,
   Keyboard,
@@ -15,12 +14,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
-import { MessageComposer, type MessageComposerHandle } from '@/components/ui/form-controls';
+import { MessageComposer, type MessageComposerHandle } from '@/components/ui/message-composer';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
+import { trackMessageSent } from '@/lib/monitoring/product-analytics';
 import { useConversationMessages } from '@/domains/messaging/hooks';
 import {
   conversationHeaderTitle,
@@ -336,11 +337,12 @@ export default function MessageThreadScreen() {
     setSending(true);
     try {
       await sendPatientReply(conversationId, body);
+      trackMessageSent();
       setDraft('');
       await threadQuery.refetch();
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.messages });
     } catch (error) {
-      Alert.alert(t('messages.sendFailedTitle'), t(patientMessageErrorKey(error)));
+      void alert(t('messages.sendFailedTitle'), t(patientMessageErrorKey(error)));
     } finally {
       setSending(false);
       composerRef.current?.focus();

@@ -15,9 +15,14 @@ import { useEffect } from 'react';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
-import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
+import {
+  OnboardingPrimaryButton,
+  OnboardingSecondaryButton,
+  OnboardingShell,
+} from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { useTranslation } from '@/domains/localization';
+import { trackOnboardingStarted } from '@/lib/monitoring/product-analytics';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[0];
@@ -46,6 +51,10 @@ const PREVIEW_KEYS = [
 export default function OnboardingWelcomeScreen() {
   const { t } = useTranslation();
   const pulse = useSharedValue(1);
+
+  useEffect(() => {
+    trackOnboardingStarted();
+  }, []);
 
   useEffect(() => {
     pulse.value = withRepeat(
@@ -85,11 +94,19 @@ export default function OnboardingWelcomeScreen() {
         </View>
       }
       footer={
-        <OnboardingPrimaryButton
-          label={t('onboarding.welcome.cta')}
-          accent={theme.accent}
-          onPress={() => router.push('/(auth)/onboarding/country')}
-        />
+        <>
+          <OnboardingPrimaryButton
+            label={t('onboarding.welcome.cta')}
+            accent={theme.accent}
+            onPress={() => router.push('/(auth)/onboarding/country')}
+          />
+          <OnboardingSecondaryButton
+            label={t('onboarding.welcome.haveAccount')}
+            accent={theme.title}
+            soft="#FFFFFF"
+            onPress={() => router.push('/(auth)/login')}
+          />
+        </>
       }
     >
       <View style={styles.previewList}>

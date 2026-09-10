@@ -2,15 +2,16 @@ import { type ReactNode } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { FullWindowOverlay } from 'react-native-screens';
 
-import { alert, confirm, useAppDialogStore } from '@/components/ui/app-dialog';
+import { alert, choose, confirm, useAppDialogStore } from '@/components/ui/app-dialog';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
-export { alert, confirm, useAppDialogStore };
+export { alert, choose, confirm, useAppDialogStore };
 export type {
   AppDialogAction,
   AppDialogAlertButton,
+  AppDialogChooseOptions,
   AppDialogConfirmOptions,
 } from '@/components/ui/app-dialog';
 

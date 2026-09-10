@@ -1,5 +1,4 @@
-import { Alert } from 'react-native';
-
+import { confirm } from '@/components/ui/AppDialogHost';
 import {
   getDeviceAccountConflict,
   resetDeviceForNewAccount,
@@ -25,22 +24,21 @@ export async function confirmDeviceAccountForAuth(
     return true;
   }
 
-  return new Promise((resolve) => {
-    Alert.alert(copy.title, copy.message(conflict.maskedEmail), [
-      {
-        text: copy.cancel,
-        style: 'cancel',
-        onPress: () => resolve(false),
-      },
-      {
-        text: copy.proceed,
-        style: 'destructive',
-        onPress: () => {
-          void resetDeviceForNewAccount()
-            .then(() => resolve(true))
-            .catch(() => resolve(false));
-        },
-      },
-    ]);
+  const ok = await confirm({
+    title: copy.title,
+    message: copy.message(conflict.maskedEmail),
+    cancelLabel: copy.cancel,
+    confirmLabel: copy.proceed,
+    confirmVariant: 'destructive',
   });
+  if (!ok) {
+    return false;
+  }
+
+  try {
+    await resetDeviceForNewAccount();
+    return true;
+  } catch {
+    return false;
+  }
 }

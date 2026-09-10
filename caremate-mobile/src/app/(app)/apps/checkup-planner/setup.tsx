@@ -7,6 +7,7 @@ import { AppText } from '@/components/ui/AppText';
 import { CountrySelect } from '@/components/ui/CountrySelect';
 import { localizationService } from '@/domains/localization/service';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -180,6 +181,7 @@ export default function CheckupPlannerSetupScreen() {
 
           const commit = () => {
             saveProfile(assessment.payload!);
+            trackMiniAppUsed('checkup-planner', 'checkup_created');
             router.back();
           };
 

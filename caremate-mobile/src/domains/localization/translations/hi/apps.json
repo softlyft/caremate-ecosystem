@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "हटाएँ",
-      "completedYearMismatch": "आपने {{completedYear}} दर्ज किया, लेकिन यह आइटम {{planYear}} योजना के लिए है। कृपया पुष्टि करें कि यह जानबूझकर है।",
+      "completedYearMismatch": "पूर्णता की तारीख {{planYear}} में होनी चाहिए। आपके द्वारा चुनी गई तारीख {{completedYear}} में है।",
       "onceAlreadyLogged": "यह एक बार की जांच {{year}} के लिए पहले ही दर्ज है। कृपया पुष्टि करें कि आप इसे फिर से दर्ज करना चाहते हैं।",
       "checkTitle": "कृपया इसे जाँचें",
       "confirmTitle": "कृपया पुष्टि करें",

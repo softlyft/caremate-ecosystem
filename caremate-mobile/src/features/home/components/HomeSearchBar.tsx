@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { SearchField } from '@/components/ui/search-field';
 import { useTranslation } from '@/domains/localization';
-import { palette, radius } from '@/theme';
+import { layoutSpacing, palette, radius } from '@/theme';
 
 export function HomeSearchBar() {
   const { t } = useTranslation();
@@ -15,6 +15,7 @@ export function HomeSearchBar() {
       placeholder={t('common.search')}
       accessibilityLabel={t('home.searchA11y')}
       onPress={() => router.push('/(app)/search')}
+      style={styles.field}
       trailing={
         <View style={styles.sparkleWrap}>
           <Sparkles color={palette.primary} size={14} />
@@ -25,6 +26,9 @@ export function HomeSearchBar() {
 }
 
 const styles = StyleSheet.create({
+  field: {
+    marginBottom: layoutSpacing.homeHeroStack,
+  },
   sparkleWrap: {
     width: 28,
     height: 28,

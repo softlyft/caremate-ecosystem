@@ -8,7 +8,7 @@ Family is a shared **household** for kids and adult connections. Each adult keep
 
 1. **Setup** (Me → Family or Settings → Family): “Are you a parent?” → kids count → DOB/gender per child → create household.
 2. **Invite family members** (Family Premium **owner only**): email/phone lookup → matched profile → Send invite. If not found → copy/share App Store / Play Store message. Up to **3** seats (accepted members + pending invites). Invited members cannot invite others.
-3. **Accept/decline**: recipient opens Me → Family → requests; accept joins the owner’s household as `spouse` (DB kind for invited adults).
+3. **Accept/decline**: recipient opens Me → Family → requests (or taps the invite push/inbox card). Accept joins the owner’s household as `spouse` (DB kind for invited adults). The Family hub pulls remote invites so Accept/Decline is visible even before a background sync. The invitee’s active Family view and Family Premium entitlement resolve from that joined household (invites stay owner-only; invitees see the Family Premium badge, shared children, ad-free mini-apps).
 4. **Remove / cancel** (owner only): remove an invited adult or cancel a pending invite to free a seat.
 
 ## Data

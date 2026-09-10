@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 import { MessageCircle, UserRound } from 'lucide-react-native';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
@@ -63,7 +64,7 @@ export function OrgCareTeamSection({
       router.push(`/(app)/messages/${conversationId}` as Href);
     },
     onError: (error, member) => {
-      Alert.alert(
+      void alert(
         t('nearby.careTeam.messageFailedTitle'),
         formatCareTeamMessageAlert(error, member.messageViaOrgInbox, t),
       );

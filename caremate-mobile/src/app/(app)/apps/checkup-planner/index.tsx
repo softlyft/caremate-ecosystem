@@ -6,6 +6,7 @@ import { AppText } from '@/components/ui/AppText';
 import { isCheckupItemUnlocked, isCheckupYearUnlocked } from '@/domains/billing/entitlements';
 import { localizationService } from '@/domains/localization/service';
 import { useTranslation } from '@/domains/localization';
+import { useMiniAppViewed } from '@/lib/monitoring/use-product-analytics';
 import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
 import {
   MiniAppCard,
@@ -56,6 +57,7 @@ const STATUS_BACKGROUNDS: Record<CheckupItemStatus, string> = {
 };
 
 export default function CheckupPlannerScreen() {
+  useMiniAppViewed('checkup-planner');
   const { t } = useTranslation();
   const hydrated = useCheckupPlannerHydrated();
   const currentYear = useMemo(() => new Date().getFullYear(), []);

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { localizationService } from '@/domains/localization';
+import { localizationService } from '@/domains/localization/service';
 import { profileRepository } from '@/domains/profile/repository';
 import { QUERY_KEYS } from '@/constants/config';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';

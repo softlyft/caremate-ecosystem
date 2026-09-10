@@ -120,6 +120,7 @@ async function handleRequestKind(params: {
     dedupeKey: pushDedupeKey,
     entityType: 'family_connection_requests',
     entityId: request.id,
+    data: { path: '/(app)/family/requests' },
   });
 
   let toEmail =
@@ -232,6 +233,7 @@ async function handleRespondKind(params: {
     dedupeKey,
     entityType: 'family_connection_requests',
     entityId: request.id,
+    data: { path: '/(app)/family' },
   });
 
   return jsonResponse({

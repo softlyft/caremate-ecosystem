@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '@/constants/config';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 
-/** Load a previously saved login email when Remember me was checked. */
+/** Load a previously saved login email when Remember email was checked. */
 export async function getRememberedLoginEmail(): Promise<string | null> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.rememberedLoginEmail);
@@ -14,7 +14,7 @@ export async function getRememberedLoginEmail(): Promise<string | null> {
   }
 }
 
-/** Persist or clear the login email based on the Remember me checkbox. */
+/** Persist or clear the login email based on the Remember email checkbox. */
 export async function setRememberedLoginEmail(
   email: string | null,
   remember: boolean,

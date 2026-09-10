@@ -16,6 +16,7 @@ import { AppText } from '@/components/ui/AppText';
 import { QUERY_KEYS } from '@/constants/config';
 import { useTranslation } from '@/domains/localization';
 import { buildEmergencyShareUrl, isValidEmergencyShareToken } from '@/domains/emergency/share';
+import { trackEmergencyProfileShared } from '@/lib/monitoring/product-analytics';
 import { emergencyRepository } from '@/domains/emergency/repository';
 import { formatPatientId, isValidPatientId } from '@/domains/profile/patient-id';
 import { profileRepository } from '@/domains/profile/repository';
@@ -104,9 +105,13 @@ export function PatientIdCard({ userId, displayName }: PatientIdCardProps) {
   });
 
   function toggleFlip() {
+    const showingShare = flip.value <= 0.5;
     // Reanimated shared values are mutable by design.
     // eslint-disable-next-line react-hooks/immutability
-    flip.value = withTiming(flip.value > 0.5 ? 0 : 1, { duration: 420 });
+    flip.value = withTiming(showingShare ? 1 : 0, { duration: 420 });
+    if (showingShare && hasShareToken) {
+      trackEmergencyProfileShared();
+    }
   }
 
   return (

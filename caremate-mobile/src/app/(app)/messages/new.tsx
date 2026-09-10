@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useDeferredValue, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, FormNotice, SearchField } from '@/components/ui/form-controls';
+import { Button, FormNotice } from '@/components/ui/form-controls';
+import { SearchField } from '@/components/ui/search-field';
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, Screen } from '@/components/ui/screen-states';
 import { QUERY_KEYS } from '@/constants/config';
@@ -16,7 +17,9 @@ import {
   type MessageableUser,
 } from '@/domains/messaging/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
+import { trackConversationStarted } from '@/lib/monitoring/product-analytics';
 import { layoutSpacing, palette, spacing } from '@/theme';
+import { alert } from '@/components/ui/AppDialogHost';
 
 export default function NewMessageScreen() {
   const { t } = useTranslation();
@@ -41,9 +44,10 @@ export default function NewMessageScreen() {
         otherUserId: user.user_id,
         organizationId: user.organization_id,
       });
+      trackConversationStarted();
       router.replace(`/(app)/messages/${conversationId}`);
     } catch (error) {
-      Alert.alert(t('messages.startFailedTitle'), formatDirectMessageStartAlert(error, t));
+      void alert(t('messages.startFailedTitle'), formatDirectMessageStartAlert(error, t));
     } finally {
       setStartingId(null);
     }

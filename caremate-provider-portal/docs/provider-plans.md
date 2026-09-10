@@ -22,6 +22,8 @@ Care Portal org billing is **separate** from patient Premium (`subscription_pric
 
 Paid checkout: **Paystack NGN only** (monthly / yearly).
 
+Checkout return URLs are Care Portal billing (`/app/settings/billing?paid=1`) and website cancel (`/providers/pricing`). Edge `assertAllowedReturnUrls` allowlists CareMate https hosts (not only `/success`|/cancel`).
+
 ## Schema
 
 - `provider_org_plan_prices` — SoftLyft-editable catalog

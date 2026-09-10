@@ -36,6 +36,7 @@ import {
 } from '@/features/home/components/HealthCategoriesRow';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
+import { useLearningOpened } from '@/lib/monitoring/use-product-analytics';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 import type { Article } from '@/types';
 
@@ -57,6 +58,7 @@ function parseCategoryParam(value: string | string[] | undefined): HealthCategor
 export default function ArticlesTabScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  useLearningOpened();
   const { category: categoryParam, q: queryParam } = useLocalSearchParams<{
     category?: string;
     q?: string;

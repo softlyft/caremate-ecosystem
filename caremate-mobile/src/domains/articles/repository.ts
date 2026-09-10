@@ -1,6 +1,5 @@
 import { and, desc, eq, inArray, isNull, like, or } from 'drizzle-orm';
 
-import { localizationService } from '@/domains/localization';
 import { config } from '@/constants/env';
 import { getDatabase } from '@/database/client';
 import { articles, articleReads, bookmarks } from '@/database/schema';
@@ -20,6 +19,7 @@ import {
   shouldEvictExternalNewsFromDevice,
 } from '@/domains/articles/utils/evergreen-articles';
 import { INTERNATIONAL_COUNTRY_CODE } from '@/domains/localization/config';
+import { localizationService } from '@/domains/localization/service';
 import { supabase } from '@/lib/supabase';
 import { BaseRepository } from '@/repositories/base-repository';
 import { isOnline } from '@/sync/network';

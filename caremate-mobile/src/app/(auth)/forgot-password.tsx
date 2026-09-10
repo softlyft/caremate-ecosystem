@@ -2,9 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { useMemo, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import {
   Button,
@@ -48,7 +49,7 @@ export default function ForgotPasswordScreen() {
   async function onSubmit(values: ForgotPasswordForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
+        void alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       setIsSubmitting(true);
@@ -59,7 +60,7 @@ export default function ForgotPasswordScreen() {
         params: { email },
       });
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('common.error'),
         toUserFacingErrorMessage(
           error,

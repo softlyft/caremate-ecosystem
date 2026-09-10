@@ -6,6 +6,7 @@ import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -146,6 +147,7 @@ export default function MedicationLogScreen() {
         slotIndex: assessment.payload!.slotIndex,
         notes: assessment.payload!.notes,
       });
+      trackMiniAppUsed('medication-tracker', 'medication_logged');
       router.back();
     };
 

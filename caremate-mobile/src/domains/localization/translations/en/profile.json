@@ -145,12 +145,13 @@
     "practitionerHint": "Choose Yes if you work in a clinic, hospital, pharmacy, lab, or similar.",
     "connectOrgTitle": "Connect your organization",
     "connectOrgBody": "Find your workplace on Nearby and send a connection request. After they approve, an admin can mark you as staff.",
+    "connectOrgBodyStaffed": "You're marked as staff at the workplace(s) listed below. Connect another from Nearby if needed.",
     "findOrg": "Find organization on Nearby",
     "openConnections": "Open Connections",
     "connectedOrg": "Connected: {{name}}",
     "staffOrg": "Staff at: {{name}}",
     "pendingOrg": "Pending: {{name}}",
-    "awaitingStaff": "Waiting for your organization to mark you as staff.",
+    "awaitingStaff": "Waiting for this organization to mark you as staff.",
     "unknownOrg": "Organization"
   },
   "connections": {

@@ -1,3 +1,4 @@
+export { selectActiveHouseholdId } from '@/domains/family/active-household';
 export { familyRepository } from '@/domains/family/repository';
 export {
   familyConnectionService,

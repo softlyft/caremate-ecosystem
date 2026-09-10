@@ -9,6 +9,7 @@ import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/sc
 import { useTranslation } from '@/domains/localization';
 import { useMessageInbox } from '@/domains/messaging/hooks';
 import type { MessageConversation } from '@/domains/messaging/repository';
+import { useMessagingOpened } from '@/lib/monitoring/use-product-analytics';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 function formatThreadTime(value: string | null): string {
@@ -79,6 +80,7 @@ function ConversationRow({ item }: { item: MessageConversation }) {
 export default function MessagesInboxScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  useMessagingOpened();
   const query = useMessageInbox();
 
   if (query.isLoading) {

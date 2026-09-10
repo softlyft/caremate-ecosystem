@@ -2,7 +2,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, ChoiceChip, FormField, FormStack, Input } from '@/components/ui/form-controls';
@@ -122,25 +122,25 @@ export default function SetupEmergencyEssentialsScreen() {
       return;
     }
     if (!bloodGroup || !genotype) {
-      Alert.alert(
+      void alert(
         t('emergency.setupWizard.missingDetailsTitle'),
         t('emergency.setupWizard.missingDetailsMessage'),
       );
       return;
     }
     if (!iceName.trim() || !icePhone.trim() || !iceRelationship.trim()) {
-      Alert.alert(
+      void alert(
         t('emergency.setupWizard.iceContactTitle'),
         t('emergency.setupWizard.iceContactRequired'),
       );
       return;
     }
     if (!isValidPersonName(iceName)) {
-      Alert.alert(t('emergency.setupWizard.iceContactTitle'), t('emergency.edit.nameInvalid'));
+      void alert(t('emergency.setupWizard.iceContactTitle'), t('emergency.edit.nameInvalid'));
       return;
     }
     if (!isValidIcePhone(icePhone)) {
-      Alert.alert(
+      void alert(
         t('emergency.setupWizard.iceContactTitle'),
         t('emergency.edit.contactPhoneInvalid'),
       );
@@ -172,7 +172,7 @@ export default function SetupEmergencyEssentialsScreen() {
       syncEngine.requestSync({ reason: 'write', immediate: true });
       await goNext();
     } catch (error) {
-      Alert.alert(
+      void alert(
         'Save failed',
         error instanceof Error ? error.message : 'Unable to save emergency essentials',
       );

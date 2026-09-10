@@ -11,6 +11,7 @@ import {
   MiniAppScreen,
   getMiniAppTheme,
 } from '@/mini-apps/_kit';
+import { useMiniAppViewed } from '@/lib/monitoring/use-product-analytics';
 import { localizeVitalType } from '@/mini-apps/vitals-tracker/localize';
 import { useVitalsTrackerHydrated, useVitalsTrackerStore } from '@/mini-apps/vitals-tracker/store';
 import {
@@ -25,6 +26,7 @@ import { palette, spacing } from '@/theme';
 const APP_ID = 'vitals-tracker' as const;
 
 export default function VitalsTrackerScreen() {
+  useMiniAppViewed(APP_ID);
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const hydrated = useVitalsTrackerHydrated();

@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import { useSettingsStore } from '@/domains/profile/store';
 import {
   MiniAppCard,
@@ -105,6 +106,7 @@ export default function PregnancyTtScreen() {
 
     const save = () => {
       logMaternalTtDose(assessment.payload!.doseId, assessment.payload!.dateKey);
+      trackMiniAppUsed('pregnancy-tracker', 'pregnancy_checkup_recorded');
       const nextDoses = [
         ...maternalTtDoses.filter((d) => d.id !== assessment.payload!.doseId),
         { id: assessment.payload!.doseId, dateKey: assessment.payload!.dateKey },

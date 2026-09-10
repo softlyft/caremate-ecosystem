@@ -94,7 +94,7 @@ On successful `signUpWithEmail` **with a session** (confirmations off), or after
 4. **Hydrates mini-apps from cloud** (`hydrateMiniAppsFromRemote`) — pulls `mini_app_snapshots`, then writes into user-scoped AsyncStorage **only when local state is empty** (new device / clear-data), then rehydrates Zustand stores so vitals and other trackers are available before the user opens an app
 5. **Hydrates Premium entitlements** (`hydrateAccountEntitlements`) — pulls family membership + `subscriptions` into SQLite so a **new device** shows the correct plan (and AdMob suppression) without waiting on the background sync cycle
 
-After the auth store marks the user signed in, **`claimExclusiveNotificationDevice`** registers this device’s Expo push token and deletes any other `notification_devices` rows for that account (so the previous phone stops receiving remote medication/message push). If notifications are off or OS permission is missing, all remote tokens for the user are removed instead.
+After the auth store marks the user signed in, **`claimExclusiveNotificationDevice`** registers this device’s Expo push token and deletes any other `notification_devices` rows for that account (so the previous phone stops receiving remote medication/message push). If notifications are off or OS permission is missing, all remote tokens for the user are removed instead. On the previous device, **`AuthSessionGuard`** detects the revoked refresh token and runs **`clearDeviceNotificationState`** (cancel local OS medication / pregnancy TT schedules + best-effort remote token delete) **before** dropping the local session.
 
 Local stub / hydrate steps are best-effort so a local DB hiccup does not fail auth. Session restore in `AppProviders` also re-runs `prepareLocalAccount` paths (including emergency + mini-app + entitlement hydrate) and triggers a full sync.
 
@@ -140,7 +140,7 @@ This is separate from **device account binding** (one email per physical device 
 
 ### Login (`(auth)/login.tsx`)
 - Email + password form (React Hook Form + Zod)
-- **Remember me** checkbox — stores the email on-device for prefill (never the password); session persistence is unchanged via SecureStore
+- **Remember email** checkbox — stores the email on-device for prefill (never the password; OS password managers may still offer fill). Session persistence is unchanged via SecureStore
 - Forgot password link
 - Continue as guest
 - If Supabase env is missing, the screen surfaces configuration messaging rather than a demo sign-in path

@@ -6,6 +6,7 @@ import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed, vitalActionForType } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -330,6 +331,7 @@ export default function VitalsLogScreen() {
     allowLeaveRef.current = true;
     for (const payload of payloads) {
       addEntry({ ...payload, source: 'manual' });
+      trackMiniAppUsed('vitals-tracker', vitalActionForType(payload.type));
     }
     router.back();
   };

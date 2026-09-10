@@ -1,10 +1,5 @@
 import { eq } from 'drizzle-orm';
-import {
-  AppState,
-  InteractionManager,
-  type AppStateStatus,
-  type NativeEventSubscription,
-} from 'react-native';
+import { AppState, type AppStateStatus, type NativeEventSubscription } from 'react-native';
 
 import { config } from '@/constants/env';
 import { SYNC_CONFIG } from '@/constants/config';
@@ -33,7 +28,7 @@ import { registerDefaultSyncHandlers } from '@/sync/register-default-handlers';
 import { getRegisteredSyncHandlers, getSyncHandler } from '@/sync/registry';
 import { nowIso } from '@/utils/helpers';
 
-/** Yield to navigation / scroll; don't stall forever if InteractionManager never settles. */
+/** Yield to navigation / scroll; don't stall forever if idle callback never fires. */
 const UI_IDLE_TIMEOUT_MS = 500;
 
 function localDateKey(date = new Date()): string {
@@ -57,7 +52,7 @@ class SyncEngine {
   private dailyTimer: ReturnType<typeof setTimeout> | null = null;
   private intervalTimer: ReturnType<typeof setInterval> | null = null;
   private idleSafetyTimer: ReturnType<typeof setTimeout> | null = null;
-  private interactionHandle: { cancel: () => void } | null = null;
+  private idleHandle: { cancel: () => void } | null = null;
   private unsubscribeNetwork: (() => void) | null = null;
   private appStateSub: NativeEventSubscription | null = null;
   private wasOnline: boolean | null = null;
@@ -157,8 +152,8 @@ class SyncEngine {
       clearTimeout(this.requestTimer);
       this.requestTimer = null;
     }
-    this.interactionHandle?.cancel();
-    this.interactionHandle = null;
+    this.idleHandle?.cancel();
+    this.idleHandle = null;
     if (this.idleSafetyTimer) {
       clearTimeout(this.idleSafetyTimer);
       this.idleSafetyTimer = null;
@@ -166,7 +161,8 @@ class SyncEngine {
   }
 
   private runAfterUiIdle(fn: () => void): void {
-    this.interactionHandle?.cancel();
+    this.idleHandle?.cancel();
+    this.idleHandle = null;
     if (this.idleSafetyTimer) {
       clearTimeout(this.idleSafetyTimer);
       this.idleSafetyTimer = null;
@@ -178,7 +174,7 @@ class SyncEngine {
         return;
       }
       ran = true;
-      this.interactionHandle = null;
+      this.idleHandle = null;
       if (this.idleSafetyTimer) {
         clearTimeout(this.idleSafetyTimer);
         this.idleSafetyTimer = null;
@@ -186,7 +182,23 @@ class SyncEngine {
       fn();
     };
 
-    this.interactionHandle = InteractionManager.runAfterInteractions(runOnce);
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(runOnce);
+      this.idleHandle = {
+        cancel: () => {
+          if (typeof cancelIdleCallback === 'function') {
+            cancelIdleCallback(id);
+          }
+        },
+      };
+    } else {
+      const id = setTimeout(runOnce, 0);
+      this.idleHandle = {
+        cancel: () => {
+          clearTimeout(id);
+        },
+      };
+    }
     this.idleSafetyTimer = setTimeout(runOnce, UI_IDLE_TIMEOUT_MS);
   }
 

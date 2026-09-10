@@ -75,6 +75,12 @@ export default function FamilySetupScreen() {
               style={styles.secondaryCta}
               onPress={() => {
                 setIsParent(false);
+                // Setup was pushed from Family; pop instead of replace so we do not
+                // stack another Family landing under the system back button.
+                if (router.canGoBack()) {
+                  router.back();
+                  return;
+                }
                 router.replace('/(app)/family');
               }}
               variant="plain"

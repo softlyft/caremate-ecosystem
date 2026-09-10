@@ -4,7 +4,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +14,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -30,6 +30,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { createChildProfileSchema, FAMILY_GENDERS, familyRepository } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
+import { trackFamilyMemberViewed } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppKeyboardContext,
   useScheduleFocusedInputScroll,
@@ -77,6 +78,12 @@ export default function EditChildScreen() {
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ id: string }>();
   const memberId = typeof params.id === 'string' ? params.id : params.id?.[0];
+
+  useEffect(() => {
+    if (memberId) {
+      trackFamilyMemberViewed();
+    }
+  }, [memberId]);
   const scrollRef = useRef<ScrollView>(null);
   const scrollYRef = useRef(0);
   const keyboardTopRef = useRef(0);
@@ -182,7 +189,7 @@ export default function EditChildScreen() {
       router.back();
     } catch (error) {
       const message = error instanceof Error ? error.message : t('family.editChildFailedMessage');
-      Alert.alert(t('family.editChildFailed'), message);
+      void alert(t('family.editChildFailed'), message);
     } finally {
       setSaving(false);
     }

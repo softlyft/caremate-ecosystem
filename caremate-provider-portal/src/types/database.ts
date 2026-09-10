@@ -636,6 +636,7 @@ type PortalFunctions = {
       p_provider_organization_id: string;
       p_payer_claim_email: string;
       p_provider_note?: string | null;
+      p_confirm_resend?: boolean;
     };
     Returns: ProviderPayerConnection;
   };
@@ -644,6 +645,7 @@ type PortalFunctions = {
       p_payer_organization_id: string;
       p_provider_claim_email: string;
       p_payer_note?: string | null;
+      p_confirm_resend?: boolean;
     };
     Returns: ProviderPayerConnection;
   };

@@ -153,7 +153,7 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-17',
         slotTime: '08:00',
         referenceDate: midMorning,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('due');
     expect(
@@ -161,7 +161,7 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-17',
         slotTime: '20:00',
         referenceDate: midMorning,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('upcoming');
     expect(
@@ -169,7 +169,7 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-17',
         slotTime: '08:00',
         referenceDate: lateEvening,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('missed');
     expect(
@@ -177,9 +177,37 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-10',
         slotTime: '08:00',
         referenceDate: midMorning,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('missed');
+    expect(
+      resolveScheduledStatus({
+        dateKey: '2026-07-17',
+        slotTime: '08:00',
+        referenceDate: lateEvening,
+        log: {
+          id: '1',
+          medicationId: 'm',
+          dateKey: '2026-07-17',
+          slotIndex: 0,
+          outcome: 'skipped',
+        },
+      }),
+    ).toBe('skipped');
+    expect(
+      resolveScheduledStatus({
+        dateKey: '2026-07-17',
+        slotTime: '08:00',
+        referenceDate: lateEvening,
+        log: {
+          id: '1',
+          medicationId: 'm',
+          dateKey: '2026-07-17',
+          slotIndex: 0,
+          outcome: 'taken',
+        },
+      }),
+    ).toBe('taken');
   });
 
   it('builds scheduled slots for past, today, and future', () => {
@@ -378,6 +406,19 @@ describe('medication-tracker/scheduled-notifications', () => {
 
     expect(planned.some((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')).toBe(false);
     expect(planned.some((item) => item.medicationId === 'med-prn')).toBe(false);
+  });
+
+  it('falls back when medication name is missing so banners never show null', () => {
+    const now = new Date(2026, 6, 17, 7, 30);
+    const planned = collectMedicationScheduledNotifications({
+      medications: [med({ name: undefined as unknown as string, slotTimes: ['08:00'] })],
+      logs: [],
+      now,
+    });
+
+    const due = planned.find((item) => item.identifier === 'med:dose:med-1:2026-07-17:0');
+    expect(due?.title).toBe('Dose due: Medication');
+    expect(due?.body).not.toContain('null');
   });
 });
 

@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField, formInlineGridClassName } from '@/components/ui/form-field';
 import { requestPayerConnectionByEmailAction } from '@/domains/payer-connections/actions';
-import type { ActionResult } from '@/lib/action-result';
+import { buildRejectedResendConfirmMessage } from '@/domains/payer-connections/errors';
+import type { RequestOrgConnectionResult } from '@/lib/action-result';
 
-type RequestOrgConnectionAction = (formData: FormData) => Promise<ActionResult>;
+type RequestOrgConnectionAction = (formData: FormData) => Promise<RequestOrgConnectionResult>;
 
 export function RequestOrgConnectionForm({
   requestAction = requestPayerConnectionByEmailAction,
@@ -34,12 +35,31 @@ export function RequestOrgConnectionForm({
       onSubmit={(e) => {
         e.preventDefault();
         const form = e.currentTarget;
-        const formData = new FormData(form);
         startTransition(async () => {
           try {
-            const result = await requestAction(formData);
+            const submit = async (confirmResend: boolean) => {
+              const payload = new FormData(form);
+              if (confirmResend) {
+                payload.set('confirm_resend', '1');
+              }
+              return requestAction(payload);
+            };
+
+            let result = await submit(false);
+            if (!result.ok && 'needsResendConfirm' in result && result.needsResendConfirm) {
+              const confirmed = window.confirm(
+                buildRejectedResendConfirmMessage(result.rejectionReason),
+              );
+              if (!confirmed) {
+                return;
+              }
+              result = await submit(true);
+            }
+
             if (!result.ok) {
-              toast.error(result.error);
+              if ('error' in result) {
+                toast.error(result.error);
+              }
               return;
             }
             toast.success(successMessage);

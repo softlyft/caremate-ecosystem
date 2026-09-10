@@ -2,9 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import {
   Button,
@@ -78,11 +79,11 @@ export default function VerifyEmailScreen() {
   async function onSubmit(values: VerifyForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
+        void alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
-        Alert.alert(t('auth.verify.error'), t('auth.verify.missingEmail'));
+        void alert(t('auth.verify.error'), t('auth.verify.missingEmail'));
         return;
       }
 
@@ -93,7 +94,7 @@ export default function VerifyEmailScreen() {
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('auth.verify.error'),
         toUserFacingErrorMessage(
           error,
@@ -113,9 +114,9 @@ export default function VerifyEmailScreen() {
       setIsResending(true);
       await resendSignupEmail(email);
       startCooldown();
-      Alert.alert(t('auth.verify.resentTitle'), t('auth.verify.resentMessage'));
+      void alert(t('auth.verify.resentTitle'), t('auth.verify.resentMessage'));
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('auth.verify.error'),
         toUserFacingErrorMessage(
           error,

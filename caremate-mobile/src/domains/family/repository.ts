@@ -1,7 +1,8 @@
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull, or } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { familyConnectionRequests, familyHouseholds, familyMembers } from '@/database/schema';
+import { selectActiveHouseholdId } from '@/domains/family/active-household';
 import type {
   ChildProfileDraft,
   FamilyConnectionRequest,
@@ -97,19 +98,17 @@ class FamilyRepository extends BaseRepository {
           isNull(familyMembers.deletedAt),
           inArray(familyMembers.kind, ['self', 'spouse']),
         ),
-      )
-      .limit(1);
+      );
 
-    if (memberRows[0]) {
+    const activeHouseholdId = selectActiveHouseholdId(
+      memberRows.map((row) => ({ kind: row.kind, householdId: row.householdId })),
+    );
+
+    if (activeHouseholdId) {
       const [household] = await db
         .select()
         .from(familyHouseholds)
-        .where(
-          and(
-            eq(familyHouseholds.id, memberRows[0].householdId),
-            isNull(familyHouseholds.deletedAt),
-          ),
-        )
+        .where(and(eq(familyHouseholds.id, activeHouseholdId), isNull(familyHouseholds.deletedAt)))
         .limit(1);
       return household ? mapHousehold(household) : null;
     }
@@ -661,6 +660,23 @@ class FamilyRepository extends BaseRepository {
   }
 
   private async pullRequestsForUser(userId: string): Promise<void> {
+    const db = getDatabase();
+    const previousRows = await db
+      .select({
+        id: familyConnectionRequests.id,
+        status: familyConnectionRequests.status,
+      })
+      .from(familyConnectionRequests)
+      .where(
+        or(
+          eq(familyConnectionRequests.fromUserId, userId),
+          eq(familyConnectionRequests.toUserId, userId),
+        ),
+      );
+    const previousStatusById = new Map(
+      previousRows.map((row) => [row.id, asConnectionStatus(row.status)]),
+    );
+
     const { data, error } = await supabase
       .from('family_connection_requests')
       .select('*')
@@ -672,6 +688,8 @@ class FamilyRepository extends BaseRepository {
 
     for (const row of data) {
       const status = asConnectionStatus(row.status);
+      const previousStatus = previousStatusById.get(row.id) ?? null;
+
       await this.saveConnectionRequestLocal({
         id: row.id,
         householdId: row.household_id,
@@ -688,9 +706,10 @@ class FamilyRepository extends BaseRepository {
         updatedAt: row.updated_at ?? nowIso(),
       });
 
-      // Local inbox cards when family connection state lands on this device.
+      // Inbox cards only on real transitions. Re-emitting on every pull resurfaced historical
+      // "accepted" rows for the inviter whenever sync ran after sending a new invite.
       try {
-        if (row.to_user_id === userId && status === 'pending') {
+        if (row.to_user_id === userId && status === 'pending' && previousStatus !== 'pending') {
           await createInAppNotification({
             userId,
             domain: 'family',
@@ -702,7 +721,11 @@ class FamilyRepository extends BaseRepository {
             entityId: row.id,
             dedupeKey: `family:request:${row.id}:pending`,
           });
-        } else if (row.from_user_id === userId && status === 'accepted') {
+        } else if (
+          row.from_user_id === userId &&
+          status === 'accepted' &&
+          previousStatus === 'pending'
+        ) {
           await createInAppNotification({
             userId,
             domain: 'family',
@@ -714,7 +737,11 @@ class FamilyRepository extends BaseRepository {
             entityId: row.id,
             dedupeKey: `family:request:${row.id}:accepted`,
           });
-        } else if (row.from_user_id === userId && status === 'declined') {
+        } else if (
+          row.from_user_id === userId &&
+          status === 'declined' &&
+          previousStatus === 'pending'
+        ) {
           await createInAppNotification({
             userId,
             domain: 'family',

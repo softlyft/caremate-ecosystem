@@ -2,9 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import {
   Button,
@@ -72,11 +73,11 @@ export default function VerifyResetScreen() {
   async function onSubmit(values: VerifyResetForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
+        void alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       if (!email) {
-        Alert.alert(t('auth.verifyReset.error'), t('auth.verifyReset.missingEmail'));
+        void alert(t('auth.verifyReset.error'), t('auth.verifyReset.missingEmail'));
         return;
       }
 
@@ -93,7 +94,7 @@ export default function VerifyResetScreen() {
       await verifyRecoveryEmail(email, values.code);
       router.replace('/auth/reset-password');
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('auth.verifyReset.error'),
         toUserFacingErrorMessage(
           error,
@@ -113,9 +114,9 @@ export default function VerifyResetScreen() {
       setIsResending(true);
       await resendRecoveryEmail(email);
       startCooldown();
-      Alert.alert(t('auth.verifyReset.resentTitle'), t('auth.verifyReset.resentMessage'));
+      void alert(t('auth.verifyReset.resentTitle'), t('auth.verifyReset.resentMessage'));
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('auth.verifyReset.error'),
         toUserFacingErrorMessage(
           error,

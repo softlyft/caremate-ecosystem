@@ -29,6 +29,14 @@ import { providerRepository } from '@/domains/providers/repository';
 import { PRIMARY_PROVIDER_TYPES, type ProviderType } from '@/domains/providers/types';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { useNetworkStatus } from '@/hooks/use-network-status';
+import {
+  nearbyEntityTypeForProvider,
+  trackNearbyEntitySelected,
+  trackNearbyResultViewed,
+  trackNearbySearch,
+  trackProviderSearched,
+} from '@/lib/monitoring/product-analytics';
+import { useNearbyOpened } from '@/lib/monitoring/use-product-analytics';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const NEARBY_RESULT_LIMIT = 15;
@@ -36,6 +44,7 @@ const NEARBY_RESULT_LIMIT = 15;
 export default function ProvidersTabScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  useNearbyOpened();
   const { online } = useNetworkStatus();
   const { q: queryParam } = useLocalSearchParams<{ q?: string }>();
   const initialQuery = Array.isArray(queryParam) ? (queryParam[0] ?? '') : (queryParam ?? '');
@@ -67,6 +76,20 @@ export default function ProvidersTabScreen() {
 
   const trimmedSearch = deferredSearch.trim();
   const isSearching = trimmedSearch.length > 0;
+  const lastTrackedSearch = useRef('');
+
+  useEffect(() => {
+    if (!trimmedSearch) {
+      lastTrackedSearch.current = '';
+      return;
+    }
+    if (lastTrackedSearch.current === trimmedSearch) {
+      return;
+    }
+    lastTrackedSearch.current = trimmedSearch;
+    trackNearbySearch();
+    trackProviderSearched();
+  }, [trimmedSearch]);
   const hasUsableCoords = coordsQuery.data?.latitude != null && coordsQuery.data?.longitude != null;
   const needsLocationSetup = !isSearching && !hasUsableCoords;
   const usingLastKnown = Boolean(coordsQuery.data?.usingLastKnown);
@@ -341,7 +364,12 @@ export default function ProvidersTabScreen() {
         renderItem={({ item }) => (
           <NearbyProviderCard
             provider={item}
-            onPress={() => router.push(`/(app)/providers/${item.id}`)}
+            onPress={() => {
+              const entityType = nearbyEntityTypeForProvider(item.type);
+              trackNearbyResultViewed(entityType);
+              trackNearbyEntitySelected(entityType);
+              router.push(`/(app)/providers/${item.id}`);
+            }}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
