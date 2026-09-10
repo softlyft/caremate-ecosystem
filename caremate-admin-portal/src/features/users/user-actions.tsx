@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/lib/router';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { banUser, sendPasswordReset, setUserRole, unbanUser } from '@/domains/users/actions';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/lib/router';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
