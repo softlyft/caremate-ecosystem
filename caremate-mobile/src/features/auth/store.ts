@@ -4,8 +4,18 @@ import { GUEST_USER } from '@/constants/guest';
 import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
 import { trackUserSignedUp } from '@/lib/monitoring/product-analytics';
 import { queryClient } from '@/lib/query-client';
-import { authService } from '@/services/auth-service';
 import type { AuthUser } from '@/types';
+
+type AuthService = typeof import('@/services/auth-service').authService;
+
+/**
+ * Lazy-load so Metro does not form store → auth-service → … → store cycles
+ * (onboarding, location, mini-app synced storage, etc.).
+ */
+function getAuthService(): AuthService {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('@/services/auth-service').authService as AuthService;
+}
 
 interface AuthState {
   user: AuthUser | null;
@@ -69,12 +79,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     try {
       // Drop legacy biometric unlock preference (Settings toggle + gate removed).
-      await authService.clearLegacyBiometricPreference();
+      await getAuthService().clearLegacyBiometricPreference();
 
-      const session = await authService.getSession();
-      const user = authService.mapUser(session?.user ?? null);
+      const session = await getAuthService().getSession();
+      const user = getAuthService().mapUser(session?.user ?? null);
       if (user && session?.user) {
-        await authService.prepareLocalAccount(session.user, undefined, {
+        await getAuthService().prepareLocalAccount(session.user, undefined, {
           deferRemoteHydration: true,
         });
         set({
@@ -97,8 +107,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   syncSessionFromSupabase: async () => {
-    const session = await authService.getSession();
-    const user = authService.mapUser(session?.user ?? null);
+    const session = await getAuthService().getSession();
+    const user = getAuthService().mapUser(session?.user ?? null);
     if (user) {
       set({
         user,
@@ -111,8 +121,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signIn: async (email, password) => {
     set({ isLoading: true });
     try {
-      const { user } = await authService.signInWithEmail(email, password);
-      const mapped = authService.mapUser(user);
+      const { user } = await getAuthService().signInWithEmail(email, password);
+      const mapped = getAuthService().mapUser(user);
       set({
         user: mapped,
         isAuthenticated: Boolean(mapped),
@@ -132,7 +142,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async (email, password, fullName, phone, options) => {
     set({ isLoading: true });
     try {
-      const result = await authService.signUpWithEmail(email, password, fullName, phone, options);
+      const result = await getAuthService().signUpWithEmail(
+        email,
+        password,
+        fullName,
+        phone,
+        options,
+      );
       if (result.needsEmailVerification) {
         // Stay guest until the email OTP is verified.
         return {
@@ -141,7 +157,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         };
       }
 
-      const mapped = authService.mapUser(result.user);
+      const mapped = getAuthService().mapUser(result.user);
       set({
         user: mapped,
         isAuthenticated: Boolean(mapped),
@@ -165,8 +181,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   verifySignupEmail: async (email, token, profile) => {
     set({ isLoading: true });
     try {
-      const { user } = await authService.verifySignupEmailOtp(email, token, profile);
-      const mapped = authService.mapUser(user);
+      const { user } = await getAuthService().verifySignupEmailOtp(email, token, profile);
+      const mapped = getAuthService().mapUser(user);
       set({
         user: mapped,
         isAuthenticated: Boolean(mapped),
@@ -184,38 +200,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   resendSignupEmail: async (email) => {
-    await authService.resendSignupEmail(email);
+    await getAuthService().resendSignupEmail(email);
   },
 
   verifyRecoveryEmail: async (email, token) => {
     set({ isLoading: true });
     try {
-      const { user } = await authService.verifyRecoveryOtp(email, token);
-      const mapped = authService.mapUser(user);
+      const { user } = await getAuthService().verifyRecoveryOtp(email, token);
+      const mapped = getAuthService().mapUser(user);
       set({
         user: mapped,
         isAuthenticated: Boolean(mapped),
         isGuest: false,
         passwordRecoveryPending: true,
       });
+      if (mapped) {
+        const { claimExclusiveNotificationDevice } = await import('@/domains/notifications/push');
+        await claimExclusiveNotificationDevice();
+      }
     } finally {
       set({ isLoading: false });
     }
   },
 
   resendRecoveryEmail: async (email) => {
-    await authService.resetPassword(email);
+    await getAuthService().resetPassword(email);
   },
 
   signOut: async () => {
-    const { clearPushRegistration } = await import('@/domains/notifications/push');
-    await clearPushRegistration();
+    const { clearDeviceNotificationState } = await import('@/domains/notifications/push');
+    await clearDeviceNotificationState();
     // Do not clear mini-app stores on sign-out. Zustand persist would write empty
     // state over AsyncStorage/SQLite while the session is still active, wiping
     // local vitals and other trackers. Keep device-bound local data so the same
     // email can sign back in without re-entering everything. Guests cannot open
     // mini-apps; a different account still goes through confirmDeviceAccountForAuth wipe.
-    await authService.signOut();
+    await getAuthService().signOut();
     trackEvent(AnalyticsEvents.signOut);
     // Drop premium cache so the next session cannot reuse a stale or wrong-shaped entry.
     queryClient.removeQueries({ queryKey: ['billing', 'premium'] });
@@ -227,10 +247,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
     try {
-      const { clearPushRegistration } = await import('@/domains/notifications/push');
-      await clearPushRegistration();
+      const { clearDeviceNotificationState } = await import('@/domains/notifications/push');
+      await clearDeviceNotificationState();
     } catch {
-      // Best-effort; session is already gone.
+      // Best-effort; session may already be unusable for server deletes.
     }
     queryClient.removeQueries({ queryKey: ['billing', 'premium'] });
     setGuestState(set);
@@ -241,9 +261,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!userId || get().isGuest) {
       throw new Error('Sign in to delete your account.');
     }
-    const { clearPushRegistration } = await import('@/domains/notifications/push');
-    await clearPushRegistration();
-    await authService.deleteAccount(userId);
+    const { clearDeviceNotificationState } = await import('@/domains/notifications/push');
+    await clearDeviceNotificationState();
+    await getAuthService().deleteAccount(userId);
     trackEvent(AnalyticsEvents.deleteAccount);
     queryClient.clear();
     setGuestState(set);
@@ -261,7 +281,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   updatePassword: async (password) => {
     set({ isLoading: true });
     try {
-      await authService.updatePassword(password);
+      await getAuthService().updatePassword(password);
       await get().syncSessionFromSupabase();
       set({ passwordRecoveryPending: false });
     } finally {

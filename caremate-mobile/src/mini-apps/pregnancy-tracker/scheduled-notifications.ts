@@ -95,14 +95,19 @@ async function ensurePregnancyChannel(): Promise<void> {
   });
 }
 
-async function cancelMaternalTtNotifications(): Promise<void> {
-  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-  await Promise.all(
-    scheduled
-      .map((item) => item.identifier)
-      .filter((identifier) => identifier.startsWith(MATERNAL_TT_NOTIFICATION_PREFIX))
-      .map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier)),
-  );
+/** Cancel all local OS maternal TT reminders on this device. Best-effort; never throws. */
+export async function cancelMaternalTtScheduledNotifications(): Promise<void> {
+  try {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    await Promise.all(
+      scheduled
+        .map((item) => item.identifier)
+        .filter((identifier) => identifier.startsWith(MATERNAL_TT_NOTIFICATION_PREFIX))
+        .map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier)),
+    );
+  } catch {
+    // Best-effort cleanup.
+  }
 }
 
 /** Schedules weekly local OS TT reminders. Best-effort; never throws. */
@@ -114,7 +119,7 @@ export async function syncMaternalTtScheduledNotifications(params: {
 }): Promise<number> {
   try {
     if (!params.notificationsEnabled) {
-      await cancelMaternalTtNotifications();
+      await cancelMaternalTtScheduledNotifications();
       return 0;
     }
 
@@ -124,7 +129,7 @@ export async function syncMaternalTtScheduledNotifications(params: {
     }
 
     await ensurePregnancyChannel();
-    await cancelMaternalTtNotifications();
+    await cancelMaternalTtScheduledNotifications();
 
     const planned = collectMaternalTtScheduledNotifications(params);
     for (const item of planned) {

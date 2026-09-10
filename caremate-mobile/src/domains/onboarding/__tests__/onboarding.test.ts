@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/config';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
+import { applyDeviceDefaultsToProfile } from '@/domains/onboarding/apply-device-defaults';
 import { getDeviceDefaults, setDeviceDefaults } from '@/domains/onboarding/device-defaults';
 import {
-  applyDeviceDefaultsToProfile,
   completePhaseA,
   getFinishSetupItems,
   getPostSignupHref,

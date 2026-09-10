@@ -56,8 +56,11 @@ jest.mock('@/domains/profile/repository', () => ({
   },
 }));
 
-jest.mock('@/domains/onboarding', () => ({
+jest.mock('@/domains/onboarding/device-defaults', () => ({
   getDeviceDefaults: (...args: unknown[]) => mockGetDeviceDefaults(...args),
+}));
+
+jest.mock('@/domains/onboarding/apply-device-defaults', () => ({
   applyDeviceDefaultsToProfile: (...args: unknown[]) => mockApplyDeviceDefaultsToProfile(...args),
 }));
 

@@ -1,6 +1,7 @@
 {
   "greeting": "你好",
   "greetingNamed": "你好，{{name}}",
+  "guestName": "访客",
   "tagline": "您的健康之旅，清晰有序",
   "emergency": {
     "title": "急救档案",

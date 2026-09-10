@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
-import { MessageComposer, type MessageComposerHandle } from '@/components/ui/form-controls';
+import { MessageComposer, type MessageComposerHandle } from '@/components/ui/message-composer';
 import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';

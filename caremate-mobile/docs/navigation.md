@@ -51,7 +51,7 @@ Tab bar styling:
 - **Gesture handler** — single `GestureHandlerRootView` at app root; nested root on Apps tab removed
 - **Apps tab (iOS)** — benefits from iOS `detachInactiveScreens` (DraggableFlatList remounts cleanly on tab return)
 - Learn and Nearby queries use longer `staleTime` and `refetchOnMount: false` so returning to a tab does not feel like a reload
-- Home catalog pull runs after `InteractionManager.runAfterInteractions` so it does not compete with tab transitions
+- Home catalog pull runs after `requestIdleCallback` (with `setTimeout` fallback) so it does not compete with tab transitions
 - Full-screen loaders only when there is **no cached data yet**
 
 Learn category filters update via `router.setParams` (including clearing to All) — avoid `router.replace` to the same tab (that remounts the screen).

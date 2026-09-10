@@ -12,8 +12,13 @@ import {
   requestPayerProviderConnectionByEmail,
   requestProviderPayerConnectionByEmail,
 } from '@/domains/payer-connections/repository';
-import { mapPayerConnectionError } from '@/domains/payer-connections/errors';
-import { actionFail, actionOk, type ActionResult } from '@/lib/action-result';
+import { mapPayerConnectionError, parseRejectedResendPrompt } from '@/domains/payer-connections/errors';
+import {
+  actionFail,
+  actionNeedsResendConfirm,
+  actionOk,
+  type RequestOrgConnectionResult,
+} from '@/lib/action-result';
 
 function revalidateProviderPaths() {
   revalidatePath('/app/payers', 'layout');
@@ -55,11 +60,12 @@ export async function rejectPayerConnectionAsProviderAction(
 
 export async function requestPayerConnectionByEmailAction(
   formData: FormData,
-): Promise<ActionResult> {
+): Promise<RequestOrgConnectionResult> {
   try {
     const session = await requireWriteAccess();
     const claimEmail = String(formData.get('claim_email') ?? '').trim();
     const providerNote = String(formData.get('provider_note') ?? '').trim() || null;
+    const confirmResend = String(formData.get('confirm_resend') ?? '') === '1';
 
     if (!claimEmail) {
       return actionFail('Payer claim email is required');
@@ -69,10 +75,15 @@ export async function requestPayerConnectionByEmailAction(
       session.activeOrganizationId,
       claimEmail,
       providerNote,
+      { confirmResend },
     );
     revalidateProviderPaths();
     return actionOk();
   } catch (err) {
+    const rejected = parseRejectedResendPrompt(err);
+    if (rejected) {
+      return actionNeedsResendConfirm(rejected.rejectionReason);
+    }
     return actionFail(mapPayerConnectionError(err, 'Failed to request connection'));
   }
 }
@@ -105,11 +116,12 @@ export async function rejectProviderConnectionAsPayerAction(
 
 export async function requestProviderConnectionByEmailAction(
   formData: FormData,
-): Promise<ActionResult> {
+): Promise<RequestOrgConnectionResult> {
   try {
     const session = await requirePayerWriteAccess();
     const claimEmail = String(formData.get('claim_email') ?? '').trim();
     const payerNote = String(formData.get('payer_note') ?? '').trim() || null;
+    const confirmResend = String(formData.get('confirm_resend') ?? '') === '1';
 
     if (!claimEmail) {
       return actionFail('Provider claim email is required');
@@ -119,10 +131,15 @@ export async function requestProviderConnectionByEmailAction(
       session.activeOrganizationId,
       claimEmail,
       payerNote,
+      { confirmResend },
     );
     revalidatePayerPaths();
     return actionOk();
   } catch (err) {
+    const rejected = parseRejectedResendPrompt(err);
+    if (rejected) {
+      return actionNeedsResendConfirm(rejected.rejectionReason);
+    }
     return actionFail(mapPayerConnectionError(err, 'Failed to request connection'));
   }
 }

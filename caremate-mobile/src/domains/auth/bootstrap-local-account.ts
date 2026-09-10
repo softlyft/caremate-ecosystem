@@ -1,7 +1,8 @@
 import { isDatabaseInitialized } from '@/database/client';
 import type { LocalAccountIdentity } from '@/domains/auth/auth-identity';
 import { emergencyRepository } from '@/domains/emergency/repository';
-import { applyDeviceDefaultsToProfile, getDeviceDefaults } from '@/domains/onboarding';
+import { applyDeviceDefaultsToProfile } from '@/domains/onboarding/apply-device-defaults';
+import { getDeviceDefaults } from '@/domains/onboarding/device-defaults';
 import { isWeakDisplayName, resolveAccountDisplayName } from '@/domains/profile/display-name';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';

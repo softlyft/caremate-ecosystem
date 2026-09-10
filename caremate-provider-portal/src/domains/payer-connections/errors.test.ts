@@ -1,16 +1,20 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { mapPayerConnectionError } from './errors';
+import {
+  buildRejectedResendConfirmMessage,
+  mapPayerConnectionError,
+  parseRejectedResendPrompt,
+} from './errors';
 
 describe('mapPayerConnectionError', () => {
-  it('maps one-lifetime decline', () => {
+  it('maps legacy one-lifetime decline to resend copy', () => {
     assert.match(
       mapPayerConnectionError(
         new Error('A previous connection request was declined. Multiple requests are not allowed.'),
         'fallback',
       ),
-      /declined/i,
+      /rejected your initial request/i,
     );
   });
 
@@ -44,5 +48,47 @@ describe('mapPayerConnectionError', () => {
 
   it('falls back for unknown errors', () => {
     assert.equal(mapPayerConnectionError(new Error(''), 'fallback'), 'fallback');
+  });
+});
+
+describe('parseRejectedResendPrompt', () => {
+  it('extracts rejection reason from RPC signal', () => {
+    assert.deepEqual(
+      parseRejectedResendPrompt(
+        new Error('CONNECTION_REJECTED_NEEDS_CONFIRM:Not in network'),
+      ),
+      {
+        needsResendConfirm: true,
+        rejectionReason: 'Not in network',
+      },
+    );
+  });
+
+  it('returns null reason when none was stored', () => {
+    assert.deepEqual(
+      parseRejectedResendPrompt(new Error('CONNECTION_REJECTED_NEEDS_CONFIRM:')),
+      {
+        needsResendConfirm: true,
+        rejectionReason: null,
+      },
+    );
+  });
+
+  it('returns null for unrelated errors', () => {
+    assert.equal(parseRejectedResendPrompt(new Error('Already pending')), null);
+  });
+});
+
+describe('buildRejectedResendConfirmMessage', () => {
+  it('includes rejection reason when present', () => {
+    const message = buildRejectedResendConfirmMessage('Coverage mismatch');
+    assert.match(message, /already rejected your initial request/i);
+    assert.match(message, /Coverage mismatch/);
+  });
+
+  it('omits reason line when absent', () => {
+    const message = buildRejectedResendConfirmMessage(null);
+    assert.match(message, /Do you want to resend/);
+    assert.equal(message.includes('Rejection reason'), false);
   });
 });

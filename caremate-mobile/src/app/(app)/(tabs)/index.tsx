@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { AppState, InteractionManager } from 'react-native';
+import { AppState } from 'react-native';
 import { TabScrollView, iosTabScrollProps } from '@/components/navigation/tab-scroll';
 
 import { applyAppStateChange, createAppBackgroundGate } from '@/sync/app-state';
@@ -120,7 +120,8 @@ export default function HomeScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    let interactionTask: { cancel: () => void } | null = null;
+    let idleHandle: number | null = null;
+    let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
 
     async function refreshCatalog() {
       try {
@@ -134,14 +135,24 @@ export default function HomeScreen() {
     }
 
     if (localizationReady) {
-      interactionTask = InteractionManager.runAfterInteractions(() => {
+      const run = () => {
         void refreshCatalog();
-      });
+      };
+      if (typeof requestIdleCallback === 'function') {
+        idleHandle = requestIdleCallback(run);
+      } else {
+        timeoutHandle = setTimeout(run, 0);
+      }
     }
 
     return () => {
       cancelled = true;
-      interactionTask?.cancel();
+      if (idleHandle != null && typeof cancelIdleCallback === 'function') {
+        cancelIdleCallback(idleHandle);
+      }
+      if (timeoutHandle != null) {
+        clearTimeout(timeoutHandle);
+      }
     };
   }, [localizationReady, queryClient]);
 

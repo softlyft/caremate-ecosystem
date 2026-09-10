@@ -1,6 +1,7 @@
 import {
   applyNotificationsEnabledPreference,
   claimExclusiveNotificationDevice,
+  clearDeviceNotificationState,
   clearPushRegistration,
   reconcilePushRegistrationWithOsPermission,
   syncPushRegistration,
@@ -12,6 +13,8 @@ const mockGetPermissionsAsync = jest.fn();
 const mockRequestPermissionsAsync = jest.fn();
 const mockGetExpoPushTokenAsync = jest.fn();
 const mockSetNotificationChannelAsync = jest.fn();
+const mockGetAllScheduledNotificationsAsync = jest.fn();
+const mockCancelScheduledNotificationAsync = jest.fn();
 const mockUpsert = jest.fn();
 const mockDeleteEq = jest.fn();
 const mockDeleteNeq = jest.fn();
@@ -37,6 +40,10 @@ jest.mock('expo-notifications', () => ({
   requestPermissionsAsync: (...args: unknown[]) => mockRequestPermissionsAsync(...args),
   getExpoPushTokenAsync: (...args: unknown[]) => mockGetExpoPushTokenAsync(...args),
   setNotificationChannelAsync: (...args: unknown[]) => mockSetNotificationChannelAsync(...args),
+  getAllScheduledNotificationsAsync: (...args: unknown[]) =>
+    mockGetAllScheduledNotificationsAsync(...args),
+  cancelScheduledNotificationAsync: (...args: unknown[]) =>
+    mockCancelScheduledNotificationAsync(...args),
   AndroidImportance: { DEFAULT: 3 },
   IosAuthorizationStatus: {
     NOT_DETERMINED: 0,
@@ -117,6 +124,8 @@ describe('push registration', () => {
     mockGetPermissionsAsync.mockResolvedValue({ status: 'granted' });
     mockRequestPermissionsAsync.mockResolvedValue({ status: 'granted' });
     mockGetExpoPushTokenAsync.mockResolvedValue({ data: 'ExponentPushToken[test]' });
+    mockGetAllScheduledNotificationsAsync.mockResolvedValue([]);
+    mockCancelScheduledNotificationAsync.mockResolvedValue(undefined);
     mockSetDeviceDefaults.mockResolvedValue({});
     mockSaveSettings.mockResolvedValue(undefined);
     mockSettingsGetState.mockReturnValue({
@@ -251,6 +260,20 @@ describe('push registration', () => {
     expect(mockUpsert).toHaveBeenCalled();
   });
 
+  it('prunes other devices even when upsert fails during exclusive claim', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockUpsert.mockResolvedValue({ error: { message: 'upsert failed' } });
+
+    await syncPushRegistration({ replaceOtherDevices: true });
+
+    expect(mockDeleteEq).toHaveBeenCalledWith('user_id', 'user-1');
+    expect(mockDeleteNeq).toHaveBeenCalledWith('expo_push_token', 'ExponentPushToken[test]');
+  });
+
   it('clears the current device token for the signed-in user', async () => {
     mockAuthGetState.mockReturnValue({
       user: { id: 'user-1' },
@@ -260,6 +283,25 @@ describe('push registration', () => {
 
     await clearPushRegistration();
 
+    expect(mockDeleteEq).toHaveBeenCalled();
+  });
+
+  it('clears local reminder schedules and push token on device notification teardown', async () => {
+    mockAuthGetState.mockReturnValue({
+      user: { id: 'user-1' },
+      isGuest: false,
+      isAuthenticated: true,
+    });
+    mockGetAllScheduledNotificationsAsync.mockResolvedValue([
+      { identifier: 'med:dose:1' },
+      { identifier: 'pregnancy-tt:TT1' },
+    ]);
+
+    await clearDeviceNotificationState();
+
+    expect(mockGetAllScheduledNotificationsAsync).toHaveBeenCalled();
+    expect(mockCancelScheduledNotificationAsync).toHaveBeenCalledWith('med:dose:1');
+    expect(mockCancelScheduledNotificationAsync).toHaveBeenCalledWith('pregnancy-tt:TT1');
     expect(mockDeleteEq).toHaveBeenCalled();
   });
 

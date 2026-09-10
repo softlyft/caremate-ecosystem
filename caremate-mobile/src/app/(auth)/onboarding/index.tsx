@@ -15,7 +15,11 @@ import { useEffect } from 'react';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
 import { AppText } from '@/components/ui/AppText';
 import { images } from '@/constants/assets';
-import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
+import {
+  OnboardingPrimaryButton,
+  OnboardingSecondaryButton,
+  OnboardingShell,
+} from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { useTranslation } from '@/domains/localization';
 import { trackOnboardingStarted } from '@/lib/monitoring/product-analytics';
@@ -90,11 +94,19 @@ export default function OnboardingWelcomeScreen() {
         </View>
       }
       footer={
-        <OnboardingPrimaryButton
-          label={t('onboarding.welcome.cta')}
-          accent={theme.accent}
-          onPress={() => router.push('/(auth)/onboarding/country')}
-        />
+        <>
+          <OnboardingPrimaryButton
+            label={t('onboarding.welcome.cta')}
+            accent={theme.accent}
+            onPress={() => router.push('/(auth)/onboarding/country')}
+          />
+          <OnboardingSecondaryButton
+            label={t('onboarding.welcome.haveAccount')}
+            accent={theme.title}
+            soft="#FFFFFF"
+            onPress={() => router.push('/(auth)/login')}
+          />
+        </>
       }
     >
       <View style={styles.previewList}>

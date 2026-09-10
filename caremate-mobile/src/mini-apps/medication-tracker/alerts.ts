@@ -39,6 +39,11 @@ const DEFAULT_COPY: MedicationAlertCopy = {
   refillBody: (name) => `${name} is running low or due for a refill.`,
 };
 
+function medicationDisplayName(name: string | null | undefined): string {
+  const trimmed = typeof name === 'string' ? name.trim() : '';
+  return trimmed || 'Medication';
+}
+
 /** Pure collector used by tests and the async evaluator. */
 export function collectMedicationAlerts(params: {
   medications: Medication[];
@@ -55,12 +60,13 @@ export function collectMedicationAlerts(params: {
   const slots = buildDaySlots(active, params.logs, todayKey, now);
 
   for (const slot of slots) {
+    const name = medicationDisplayName(slot.medication.name);
     if (slot.status === 'due') {
       candidates.push({
         eventType: 'dose_due',
         dedupeKey: `med:dose:${slot.medication.id}:${slot.dateKey}:${slot.slotIndex}`,
-        title: copy.doseDueTitle(slot.medication.name),
-        body: copy.doseDueBody(slot.medication.name, slot.slotLabel),
+        title: copy.doseDueTitle(name),
+        body: copy.doseDueBody(name, slot.slotLabel),
         severity: 'important',
         entityId: slot.medication.id,
       });
@@ -69,8 +75,8 @@ export function collectMedicationAlerts(params: {
       candidates.push({
         eventType: 'dose_missed',
         dedupeKey: `med:missed:${slot.medication.id}:${slot.dateKey}:${slot.slotIndex}`,
-        title: copy.doseMissedTitle(slot.medication.name),
-        body: copy.doseMissedBody(slot.medication.name, slot.slotLabel),
+        title: copy.doseMissedTitle(name),
+        body: copy.doseMissedBody(name, slot.slotLabel),
         severity: 'critical',
         entityId: slot.medication.id,
       });
@@ -81,11 +87,12 @@ export function collectMedicationAlerts(params: {
     if (!needsRefill(medication, todayKey)) {
       continue;
     }
+    const name = medicationDisplayName(medication.name);
     candidates.push({
       eventType: 'refill_due',
       dedupeKey: `med:refill:${medication.id}:${medication.refillDueDate ?? 'qty'}`,
-      title: copy.refillTitle(medication.name),
-      body: copy.refillBody(medication.name),
+      title: copy.refillTitle(name),
+      body: copy.refillBody(name),
       severity: 'important',
       entityId: medication.id,
     });

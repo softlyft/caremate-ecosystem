@@ -407,6 +407,19 @@ describe('medication-tracker/scheduled-notifications', () => {
     expect(planned.some((item) => item.identifier === 'med:dose:med-1:2026-07-17:0')).toBe(false);
     expect(planned.some((item) => item.medicationId === 'med-prn')).toBe(false);
   });
+
+  it('falls back when medication name is missing so banners never show null', () => {
+    const now = new Date(2026, 6, 17, 7, 30);
+    const planned = collectMedicationScheduledNotifications({
+      medications: [med({ name: undefined as unknown as string, slotTimes: ['08:00'] })],
+      logs: [],
+      now,
+    });
+
+    const due = planned.find((item) => item.identifier === 'med:dose:med-1:2026-07-17:0');
+    expect(due?.title).toBe('Dose due: Medication');
+    expect(due?.body).not.toContain('null');
+  });
 });
 
 describe('medication entitlements activate gate', () => {

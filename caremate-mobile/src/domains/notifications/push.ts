@@ -12,6 +12,8 @@ import { supabase } from '@/lib/supabase';
 
 const FALLBACK_EAS_PROJECT_ID = 'de6abf70-ee13-417b-915f-9dea1066ed27';
 const REGISTERED_TOKEN_KEY = 'caremate_expo_push_token';
+/** Prefixes for OS-scheduled reminders that must die with the session. */
+const LOCAL_REMINDER_PREFIXES = ['med:', 'pregnancy-tt:'] as const;
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -233,13 +235,15 @@ export async function syncPushRegistration(options?: {
       { onConflict: 'expo_push_token' },
     );
 
+    // Prune other devices even when upsert fails so a previous phone cannot keep
+    // receiving remote push after this device claimed the account.
+    if (options?.replaceOtherDevices) {
+      await removeOtherPushDevicesForUser(user.id, token);
+    }
+
     if (error) {
       console.warn('syncPushRegistration upsert failed', error.message);
       return;
-    }
-
-    if (options?.replaceOtherDevices) {
-      await removeOtherPushDevicesForUser(user.id, token);
     }
 
     if (__DEV__) {
@@ -252,21 +256,40 @@ export async function syncPushRegistration(options?: {
 }
 
 /**
+ * Cancel local OS medication / pregnancy TT reminders on this device.
+ * Remote session revoke does not clear Expo's scheduled queue — call this on
+ * sign-out and remote session end so a terminated session cannot keep firing.
+ */
+export async function clearLocalReminderNotifications(): Promise<void> {
+  try {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    await Promise.all(
+      scheduled
+        .map((item) => item.identifier)
+        .filter((identifier) =>
+          LOCAL_REMINDER_PREFIXES.some((prefix) => identifier.startsWith(prefix)),
+        )
+        .map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier)),
+    );
+  } catch (err) {
+    if (__DEV__) {
+      console.warn('clearLocalReminderNotifications', err instanceof Error ? err.message : err);
+    }
+  }
+}
+
+/**
  * Remove this device's push token (prefs off or sign-out). Best-effort.
  * Never falls back to deleting every device for the user.
+ * Always clears the locally cached token key, even when the session is already gone.
  */
 export async function clearPushRegistration(): Promise<void> {
   try {
     const { user, isGuest, isAuthenticated } = useAuthStore.getState();
-    if (!isAuthenticated || isGuest || !user?.id) {
-      return;
-    }
-
     const platform = resolvePlatform();
-    if (!platform) return;
 
     let token = (await AsyncStorage.getItem(REGISTERED_TOKEN_KEY))?.trim() || null;
-    if (!token) {
+    if (!token && platform) {
       try {
         const projectId = resolveProjectId();
         if (projectId) {
@@ -278,20 +301,35 @@ export async function clearPushRegistration(): Promise<void> {
       }
     }
 
-    if (!token) {
-      await AsyncStorage.removeItem(REGISTERED_TOKEN_KEY);
-      return;
+    if (isAuthenticated && !isGuest && user?.id && token) {
+      const { error } = await supabase
+        .from('notification_devices')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('expo_push_token', token);
+      if (error && __DEV__) {
+        console.warn('clearPushRegistration delete failed', error.message);
+      }
     }
 
-    await supabase
-      .from('notification_devices')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('expo_push_token', token);
     await AsyncStorage.removeItem(REGISTERED_TOKEN_KEY);
   } catch (err) {
     console.warn('clearPushRegistration', err instanceof Error ? err.message : err);
+    try {
+      await AsyncStorage.removeItem(REGISTERED_TOKEN_KEY);
+    } catch {
+      // ignore
+    }
   }
+}
+
+/**
+ * Tear down this device's remote push registration and local OS reminder schedules.
+ * Prefer this on sign-out / remote session end while the access JWT is still usable.
+ */
+export async function clearDeviceNotificationState(): Promise<void> {
+  await clearLocalReminderNotifications();
+  await clearPushRegistration();
 }
 
 /**

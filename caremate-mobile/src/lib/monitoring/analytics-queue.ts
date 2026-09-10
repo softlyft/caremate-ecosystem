@@ -1,10 +1,9 @@
 import { eq } from 'drizzle-orm';
 
 import { ANALYTICS_QUEUE_CONFIG } from '@/constants/config';
+import { GUEST_USER_ID } from '@/constants/guest';
 import { getDatabase, isDatabaseInitialized } from '@/database/client';
 import { analyticsQueue } from '@/database/schema';
-import { GUEST_USER_ID } from '@/constants/guest';
-import { useAuthStore } from '@/features/auth/store';
 import { isOnline } from '@/sync/network';
 import { createId, nowIso } from '@/utils/helpers';
 
@@ -32,6 +31,10 @@ export function bindAnalyticsSender(instance: PostHogSender | null): void {
 
 function resolveDistinctId(): string | null {
   try {
+    // Lazy require avoids analytics → queue → auth store → analytics cycles.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- break import cycle with auth store
+    const { useAuthStore } =
+      require('@/features/auth/store') as typeof import('@/features/auth/store');
     const auth = useAuthStore.getState();
     if (!auth.isInitialized || auth.isGuest || !auth.user?.id) {
       return null;

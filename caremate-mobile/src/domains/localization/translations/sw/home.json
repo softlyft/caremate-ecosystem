@@ -1,6 +1,7 @@
 {
   "greeting": "Habari",
   "greetingNamed": "Habari, {{name}}",
+  "guestName": "Mgeni",
   "tagline": "Safari yako ya afya, imepangwa vizuri",
   "emergency": {
     "title": "Wasifu wa dharura",
