@@ -1,6 +1,5 @@
 import type { PostHogEventProperties } from '@posthog/core';
 import type { PostHog } from 'posthog-react-native';
-import { InteractionManager } from 'react-native';
 
 import { config } from '@/constants/env';
 import {
@@ -77,11 +76,16 @@ export function trackScreen(screenName: string, properties?: AnalyticsProps): vo
     return;
   }
   // Defer SQLite outbox writes so navigation transitions stay on the JS thread.
-  InteractionManager.runAfterInteractions(() => {
+  const enqueue = () => {
     void enqueueAnalyticsEvent({ kind: 'screen', name: screenName, properties }).catch(() => {
       // Outbox must never break product flows.
     });
-  });
+  };
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(enqueue);
+  } else {
+    setTimeout(enqueue, 0);
+  }
 }
 
 /** Expose flush for sync-engine reconnect / tests. */

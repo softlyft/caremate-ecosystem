@@ -23,12 +23,13 @@ function isFatalAuthError(error: { message?: string; status?: number } | null): 
 }
 
 async function endLocalSession(): Promise<void> {
+  // Clear push + local OS reminders while the access JWT may still authorize deletes.
+  await useAuthStore.getState().handleRemoteSessionEnd();
   try {
     await supabase.auth.signOut({ scope: 'local' });
   } catch {
-    // Still drop UI to guest.
+    // UI is already guest after handleRemoteSessionEnd.
   }
-  await useAuthStore.getState().handleRemoteSessionEnd();
 }
 
 /**

@@ -1,6 +1,6 @@
 import { QUERY_KEYS } from '@/constants/config';
 import { GUEST_USER_ID } from '@/constants/guest';
-import { translateText } from '@/domains/localization';
+import { translateText } from '@/domains/localization/i18n/translate';
 import type { LanguageCode } from '@/domains/localization/types';
 import { notificationRepository } from '@/domains/notifications/repository';
 import type { CreateInAppNotificationInput } from '@/domains/notifications/types';

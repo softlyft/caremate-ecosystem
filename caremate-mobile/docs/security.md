@@ -112,7 +112,7 @@ and the Play signing SHA-256 before store launch.
 
 ## Push devices
 
-Accounts are device-bound: on interactive sign-in, `claimExclusiveNotificationDevice` registers this device and deletes other `notification_devices` rows for the user so the previous phone stops receiving remote push.
+Accounts are device-bound: on interactive sign-in, `claimExclusiveNotificationDevice` registers this device and deletes other `notification_devices` rows for the user so the previous phone stops receiving remote push. The previous device also cancels local OS reminder schedules via `clearDeviceNotificationState` when `AuthSessionGuard` ends the session.
 
 Sign-out still deletes **only this device’s** token (no “delete all” fallback when the local token is missing).
 

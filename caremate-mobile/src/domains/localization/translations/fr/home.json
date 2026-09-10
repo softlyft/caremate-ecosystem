@@ -1,6 +1,7 @@
 {
   "greeting": "Bonjour",
   "greetingNamed": "Bonjour, {{name}}",
+  "guestName": "Invité",
   "tagline": "Votre parcours santé, clairement organisé",
   "emergency": {
     "title": "Profil d'urgence",

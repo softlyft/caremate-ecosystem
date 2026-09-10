@@ -1,9 +1,9 @@
 export { DEFAULT_DEVICE_DEFAULTS } from './types';
 export type { DeviceDefaults, LocationMode } from './types';
+export { applyDeviceDefaultsToProfile } from './apply-device-defaults';
 export { getDeviceDefaults, setDeviceDefaults, updateDeviceDefaults } from './device-defaults';
 export { useOnboardingDraftStore } from './store';
 export {
-  applyDeviceDefaultsToProfile,
   completePhaseA,
   getFinishSetupItems,
   getPostSignupHref,

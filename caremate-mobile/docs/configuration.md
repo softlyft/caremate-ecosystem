@@ -44,7 +44,7 @@ File: `.env` (copy from `.env.example`)
 
 | Concern | Module | Notes |
 |---------|--------|-------|
-| Crash / exception reporting | `src/lib/monitoring/sentry.ts` | `initSentry()` in root layout; `ErrorBoundary` + `Sentry.wrap` |
+| Crash / exception reporting | `src/lib/monitoring/sentry.ts` | `initSentry()` always calls `Sentry.init` (events gated by DSN / `__DEV__`); `ErrorBoundary` + `Sentry.wrap` |
 | Product analytics | `src/lib/monitoring/analytics.ts` | `MonitoringProvider` in `AppProviders`; screen views via pathname |
 | Offline analytics outbox | `src/lib/monitoring/analytics-queue.ts` | SQLite `analytics_queue`; flush on online / reconnect / PostHog bind |
 | Identity | Both | Signed-in users identified; guests reset |

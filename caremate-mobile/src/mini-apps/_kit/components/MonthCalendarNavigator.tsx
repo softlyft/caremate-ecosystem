@@ -21,6 +21,8 @@ type MonthCalendarNavigatorProps = {
   accentColor?: string;
   minimumYear?: number;
   maximumYear?: number;
+  /** Inclusive earliest month the user may navigate to (day is ignored). */
+  minimumMonth?: Date;
   /** Inclusive latest month the user may navigate to (day is ignored). */
   maximumMonth?: Date;
   subtitle?: string;
@@ -58,6 +60,7 @@ export function MonthCalendarNavigator({
   accentColor = palette.primary,
   minimumYear = new Date().getFullYear() - 100,
   maximumYear = new Date().getFullYear() + 20,
+  minimumMonth,
   maximumMonth,
   subtitle,
 }: MonthCalendarNavigatorProps) {
@@ -66,24 +69,32 @@ export function MonthCalendarNavigator({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState(monthRef.getFullYear());
   const yearListRef = useRef<FlatList<number>>(null);
+  const minMonthStart = useMemo(
+    () => (minimumMonth ? startOfMonth(minimumMonth) : null),
+    [minimumMonth],
+  );
   const maxMonthStart = useMemo(
     () => (maximumMonth ? startOfMonth(maximumMonth) : null),
     [maximumMonth],
   );
+  const effectiveMinimumYear = minMonthStart
+    ? Math.max(minimumYear, minMonthStart.getFullYear())
+    : minimumYear;
   const effectiveMaximumYear = maxMonthStart
     ? Math.min(maximumYear, maxMonthStart.getFullYear())
     : maximumYear;
   const years = useMemo(
     () =>
       Array.from(
-        { length: Math.max(1, effectiveMaximumYear - minimumYear + 1) },
-        (_, index) => minimumYear + index,
+        { length: Math.max(1, effectiveMaximumYear - effectiveMinimumYear + 1) },
+        (_, index) => effectiveMinimumYear + index,
       ),
-    [effectiveMaximumYear, minimumYear],
+    [effectiveMaximumYear, effectiveMinimumYear],
   );
   const today = new Date();
   const isCurrentMonth =
     monthRef.getFullYear() === today.getFullYear() && monthRef.getMonth() === today.getMonth();
+  const canGoPrev = !minMonthStart || isMonthAfter(monthRef, minMonthStart);
   const canGoNext = !maxMonthStart || isMonthBefore(monthRef, maxMonthStart);
   const monthLabel = monthRef.toLocaleDateString(undefined, {
     month: 'long',
@@ -92,15 +103,28 @@ export function MonthCalendarNavigator({
   // Keep Nov/Dec (bottom row) clear of gesture / 3-button nav bars.
   const sheetBottomPadding = spacing.lg + Math.max(insets.bottom, spacing.md);
   const sheetMaxHeight = Math.min(height * 0.85, 560);
+  /** Header + gaps inside the sheet; leftover height is for the year/month picker. */
+  const sheetChromeHeight = spacing.lg + 72 + spacing.md + sheetBottomPadding;
+  const pickerHeight = Math.max(
+    MONTH_OPTION_HEIGHT * 3 + MONTH_GRID_GAP * 2,
+    Math.min(MONTH_GRID_HEIGHT, sheetMaxHeight - sheetChromeHeight),
+  );
   const monthOptionWidth = Math.floor(
     (width - spacing.lg * 2 - 82 - spacing.md - MONTH_GRID_GAP * 2) / 3,
   );
 
   const changeMonthBy = (offset: number) => {
+    if (offset < 0 && !canGoPrev) {
+      return;
+    }
     if (offset > 0 && !canGoNext) {
       return;
     }
     const next = startOfMonth(new Date(monthRef.getFullYear(), monthRef.getMonth() + offset, 1));
+    if (minMonthStart && isMonthBefore(next, minMonthStart)) {
+      onMonthChange(minMonthStart);
+      return;
+    }
     if (maxMonthStart && isMonthAfter(next, maxMonthStart)) {
       onMonthChange(maxMonthStart);
       return;
@@ -109,11 +133,15 @@ export function MonthCalendarNavigator({
   };
 
   const openPicker = () => {
-    setPickerYear(Math.min(monthRef.getFullYear(), effectiveMaximumYear));
+    const year = Math.min(
+      Math.max(monthRef.getFullYear(), effectiveMinimumYear),
+      effectiveMaximumYear,
+    );
+    setPickerYear(year);
     setPickerOpen(true);
     requestAnimationFrame(() => {
       yearListRef.current?.scrollToIndex({
-        index: Math.max(0, Math.min(monthRef.getFullYear(), effectiveMaximumYear) - minimumYear),
+        index: Math.max(0, year - effectiveMinimumYear),
         animated: false,
         viewPosition: 0.5,
       });
@@ -122,6 +150,9 @@ export function MonthCalendarNavigator({
 
   const selectMonth = (month: number) => {
     const next = startOfMonth(new Date(pickerYear, month, 1));
+    if (minMonthStart && isMonthBefore(next, minMonthStart)) {
+      return;
+    }
     if (maxMonthStart && isMonthAfter(next, maxMonthStart)) {
       return;
     }
@@ -135,12 +166,14 @@ export function MonthCalendarNavigator({
         <Button
           accessibilityLabel="Previous month"
           accessibilityRole="button"
+          accessibilityState={{ disabled: !canGoPrev }}
+          disabled={!canGoPrev}
           hitSlop={12}
           onPress={() => changeMonthBy(-1)}
-          style={styles.arrowButton}
+          style={[styles.arrowButton, !canGoPrev && styles.arrowButtonDisabled]}
           variant="plain"
         >
-          <ChevronLeft color={palette.textSecondary} size={20} />
+          <ChevronLeft color={!canGoPrev ? palette.divider : palette.textSecondary} size={20} />
         </Button>
 
         <View style={styles.heading}>
@@ -230,7 +263,7 @@ export function MonthCalendarNavigator({
               </Button>
             </View>
 
-            <View style={styles.pickerBody}>
+            <View style={[styles.pickerBody, { height: pickerHeight }]}>
               <FlatList
                 ref={yearListRef}
                 data={years}
@@ -262,20 +295,21 @@ export function MonthCalendarNavigator({
                   );
                 }}
                 showsVerticalScrollIndicator={false}
-                style={styles.yearList}
+                style={[styles.yearList, { height: pickerHeight }]}
               />
 
               <ScrollView
                 contentContainerStyle={styles.monthGrid}
                 keyboardShouldPersistTaps="handled"
                 nestedScrollEnabled
-                showsVerticalScrollIndicator={false}
-                style={styles.monthScroll}
+                showsVerticalScrollIndicator
+                style={[styles.monthScroll, { height: pickerHeight }]}
               >
                 {MONTHS.map((label, month) => {
                   const candidate = startOfMonth(new Date(pickerYear, month, 1));
                   const monthDisabled = Boolean(
-                    maxMonthStart && isMonthAfter(candidate, maxMonthStart),
+                    (minMonthStart && isMonthBefore(candidate, minMonthStart)) ||
+                    (maxMonthStart && isMonthAfter(candidate, maxMonthStart)),
                   );
                   const selected =
                     pickerYear === monthRef.getFullYear() && month === monthRef.getMonth();
@@ -399,12 +433,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'stretch',
     gap: spacing.md,
-    height: MONTH_GRID_HEIGHT,
+    flexGrow: 0,
+    flexShrink: 0,
     minHeight: 0,
   },
   yearList: {
     width: 82,
-    height: MONTH_GRID_HEIGHT,
     flexGrow: 0,
     flexShrink: 0,
     borderRadius: radius.lg,
@@ -418,9 +452,9 @@ const styles = StyleSheet.create({
   },
   monthScroll: {
     flex: 1,
-    height: MONTH_GRID_HEIGHT,
     flexGrow: 1,
-    flexShrink: 1,
+    flexShrink: 0,
+    minWidth: 0,
   },
   monthGrid: {
     flexDirection: 'row',
@@ -428,7 +462,9 @@ const styles = StyleSheet.create({
     alignContent: 'flex-start',
     justifyContent: 'space-between',
     gap: MONTH_GRID_GAP,
-    paddingBottom: spacing.xs,
+    // Full 4-row content height so the ScrollView can scroll when the viewport is shorter.
+    minHeight: MONTH_GRID_HEIGHT,
+    paddingBottom: spacing.sm,
   },
   monthOption: {
     flexGrow: 0,

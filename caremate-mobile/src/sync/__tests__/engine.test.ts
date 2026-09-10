@@ -1,5 +1,3 @@
-import { InteractionManager } from 'react-native';
-
 import { SYNC_CONFIG } from '@/constants/config';
 
 import { syncEngine } from '@/sync/engine';
@@ -14,6 +12,14 @@ const mockGetRegisteredSyncHandlers = jest.fn();
 const mockRegisterDefaultSyncHandlers = jest.fn();
 const mockGetDatabase = jest.fn();
 const mockFlushAnalyticsQueue = jest.fn();
+const mockRequestIdleCallback = jest.fn((callback: IdleRequestCallback) => {
+  callback({
+    didTimeout: false,
+    timeRemaining: () => 50,
+  });
+  return 1;
+});
+const mockCancelIdleCallback = jest.fn();
 
 jest.mock('@/constants/env', () => ({
   config: {
@@ -71,12 +77,6 @@ jest.mock('@/utils/helpers', () => ({
 }));
 
 jest.mock('react-native', () => ({
-  InteractionManager: {
-    runAfterInteractions: jest.fn((callback: () => void) => {
-      callback();
-      return { cancel: jest.fn() };
-    }),
-  },
   AppState: {
     currentState: 'active',
     addEventListener: jest.fn(() => ({ remove: jest.fn() })),
@@ -88,12 +88,16 @@ describe('syncEngine', () => {
     jest.useFakeTimers();
     await syncEngine.stop();
     jest.clearAllMocks();
-    (InteractionManager.runAfterInteractions as jest.Mock).mockImplementation(
-      (callback: () => void) => {
-        callback();
-        return { cancel: jest.fn() };
-      },
-    );
+    globalThis.requestIdleCallback =
+      mockRequestIdleCallback as unknown as typeof requestIdleCallback;
+    globalThis.cancelIdleCallback = mockCancelIdleCallback as unknown as typeof cancelIdleCallback;
+    mockRequestIdleCallback.mockImplementation((callback: IdleRequestCallback) => {
+      callback({
+        didTimeout: false,
+        timeRemaining: () => 50,
+      });
+      return 1;
+    });
 
     mockWatchNetworkStatus.mockResolvedValue(() => undefined);
     mockIsOnline.mockResolvedValue(true);
@@ -224,6 +228,6 @@ describe('syncEngine', () => {
     await cycle;
     await jest.advanceTimersByTimeAsync(0);
 
-    expect(InteractionManager.runAfterInteractions).toHaveBeenCalled();
+    expect(mockRequestIdleCallback).toHaveBeenCalled();
   });
 });

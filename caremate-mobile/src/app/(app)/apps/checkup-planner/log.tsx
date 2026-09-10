@@ -20,6 +20,14 @@ import {
 } from '@/mini-apps/_kit';
 import { CHECKUP_CATALOG } from '@/mini-apps/checkup-planner/constants';
 import {
+  clampMonthRef,
+  dateInPlanYear,
+  defaultCompletedDate,
+  isCompletionDayAllowed,
+  monthFromDateKey,
+  planYearMonthBounds,
+} from '@/mini-apps/checkup-planner/log-date';
+import {
   useCheckupPlannerHydrated,
   useCheckupPlannerStore,
 } from '@/mini-apps/checkup-planner/store';
@@ -29,52 +37,6 @@ import { assessCompletionDraft, type CheckupIssue } from '@/mini-apps/checkup-pl
 import { layoutSpacing, palette, spacing } from '@/theme';
 
 const theme = getMiniAppTheme('checkup-planner');
-
-function dateInPlanYear(dayKey: string, planYear: number): boolean {
-  return Number(dayKey.slice(0, 4)) === planYear;
-}
-
-function defaultCompletedDate(
-  existingDate: string | undefined,
-  planYear: number,
-  todayKey: string,
-  dateOfBirth: string,
-): string {
-  if (existingDate && dateInPlanYear(existingDate, planYear)) {
-    return existingDate;
-  }
-  if (dateInPlanYear(todayKey, planYear) && todayKey >= dateOfBirth) {
-    return todayKey;
-  }
-  if (planYear < Number(todayKey.slice(0, 4))) {
-    const endOfYear = `${planYear}-12-31`;
-    return endOfYear >= dateOfBirth ? endOfYear : dateOfBirth;
-  }
-  // Future plan year: no selectable completion date yet.
-  return `${planYear}-01-01`;
-}
-
-function clampMonthRef(candidate: Date, planYear: number, currentYear: number, today: Date): Date {
-  const maxMonth = new Date(
-    Math.min(planYear, currentYear),
-    planYear < currentYear ? 11 : today.getMonth(),
-    1,
-  );
-  const minMonth = new Date(planYear, 0, 1);
-  if (candidate > maxMonth) return maxMonth;
-  if (candidate < minMonth) return minMonth;
-  return candidate;
-}
-
-function monthFromDateKey(
-  dateKey: string,
-  planYear: number,
-  currentYear: number,
-  today: Date,
-): Date {
-  const [y, m] = dateKey.split('-').map(Number);
-  return clampMonthRef(new Date(y, (m || 1) - 1, 1), planYear, currentYear, today);
-}
 
 export default function CheckupPlannerLogScreen() {
   const { t } = useTranslation();
@@ -113,8 +75,10 @@ export default function CheckupPlannerLogScreen() {
     if (profile && canLogForYear) {
       return defaultCompletedDate(existing?.completedDate, year, todayKey, profile.dateOfBirth);
     }
-    return existing?.completedDate ?? todayKey;
-  }, [canLogForYear, existing?.completedDate, profile, todayKey, year]);
+    return existing?.completedDate && dateInPlanYear(existing.completedDate, year)
+      ? existing.completedDate
+      : todayKey;
+  }, [canLogForYear, existing, profile, todayKey, year]);
 
   const [dateSeedApplied, setDateSeedApplied] = useState(dateSeed);
   const [completedDate, setCompletedDate] = useState(dateSeed);
@@ -128,6 +92,11 @@ export default function CheckupPlannerLogScreen() {
     setDateSeedApplied(dateSeed);
     setCompletedDate(dateSeed);
     setMonthRef(monthFromDateKey(dateSeed, year, currentYear, today));
+  } else if (canLogForYear && profile && completedDate && !dateInPlanYear(completedDate, year)) {
+    // Heal stale/out-of-year selections so the CTA year always matches the completion date.
+    const fixed = defaultCompletedDate(undefined, year, todayKey, profile.dateOfBirth);
+    setCompletedDate(fixed);
+    setMonthRef(monthFromDateKey(fixed, year, currentYear, today));
   }
   if (!hydrated) {
     return (
@@ -193,19 +162,27 @@ export default function CheckupPlannerLogScreen() {
 
   const localizedCheckup = localizeCheckup(checkup, t);
   const isDayAllowed = (dayKey: string) =>
-    dateInPlanYear(dayKey, year) && dayKey <= todayKey && dayKey >= profile.dateOfBirth;
+    isCompletionDayAllowed(dayKey, year, todayKey, profile.dateOfBirth);
 
-  const maxMonth = new Date(
-    Math.min(year, currentYear),
-    year < currentYear ? 11 : today.getMonth(),
-    1,
-  );
-  const minYear = year;
+  const { minMonth, maxMonth } = planYearMonthBounds(year, currentYear, today);
+  const completedMatchesPlan = dateInPlanYear(completedDate, year);
+  const completedYear = Number(completedDate.slice(0, 4));
 
   const issueMessage = (issue: CheckupIssue): string =>
     t(`apps.checkup.validation.${issue.messageKey}`, issue.params ?? {});
 
   const commitCompletion = async () => {
+    if (!completedMatchesPlan) {
+      void alert(
+        t('apps.checkup.validation.checkTitle'),
+        t('apps.checkup.validation.completedYearMismatch', {
+          completedYear,
+          planYear: year,
+        }),
+      );
+      return;
+    }
+
     const assessment = assessCompletionDraft({
       checkupId: checkup.id,
       year,
@@ -275,8 +252,9 @@ export default function CheckupPlannerLogScreen() {
             onMonthChange={(next) => {
               setMonthRef(clampMonthRef(next, year, currentYear, today));
             }}
-            minimumYear={minYear}
+            minimumYear={year}
             maximumYear={Math.min(year, currentYear)}
+            minimumMonth={minMonth}
             maximumMonth={maxMonth}
           />
           <AppText variant="caption" style={styles.muted}>
@@ -301,6 +279,14 @@ export default function CheckupPlannerLogScreen() {
           <AppText variant="body">
             {t('apps.checkup.ui.completedLabel', { date: formatDisplayDate(completedDate) })}
           </AppText>
+          {!completedMatchesPlan ? (
+            <AppText variant="caption" style={styles.mismatch}>
+              {t('apps.checkup.validation.completedYearMismatch', {
+                completedYear,
+                planYear: year,
+              })}
+            </AppText>
+          ) : null}
         </MiniAppCard>
       ) : null}
 
@@ -323,7 +309,9 @@ export default function CheckupPlannerLogScreen() {
           accent={theme.color}
           soft={theme.backgroundColor}
           index={4}
-          onPress={commitCompletion}
+          onPress={() => {
+            void commitCompletion();
+          }}
         />
       ) : (
         <MiniAppCta
@@ -375,5 +363,9 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: palette.textSecondary,
+  },
+  mismatch: {
+    color: palette.danger,
+    marginTop: spacing.xs,
   },
 });

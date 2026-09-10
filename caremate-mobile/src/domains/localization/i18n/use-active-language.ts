@@ -1,7 +1,7 @@
 import { usePathname } from 'expo-router';
 import { useMemo } from 'react';
 
-import { useOnboardingDraftStore } from '@/domains/onboarding';
+import { useOnboardingDraftStore } from '@/domains/onboarding/store';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 
 import type { LanguageCode } from '../types';

@@ -4,20 +4,26 @@ import { config } from '@/constants/env';
 
 let initialized = false;
 
-/** Initialize Sentry once at app start. No-ops when DSN is unset. */
+/**
+ * Initialize Sentry once at app start.
+ * Always calls `Sentry.init` (even when disabled) so `Sentry.wrap` can finish App Start
+ * without warning. Events are only sent when a DSN is set and enabled for this build.
+ */
 export function initSentry(): void {
-  if (initialized || !config.isSentryConfigured) {
+  if (initialized) {
     return;
   }
 
+  const enabled = config.isSentryConfigured && (!__DEV__ || config.sentryEnableInDev);
+
   Sentry.init({
-    dsn: config.sentryDsn,
+    dsn: config.isSentryConfigured ? config.sentryDsn : undefined,
     environment: config.appEnv,
     release: `caremate@${config.appVersion}`,
     enableAutoSessionTracking: true,
     tracesSampleRate: __DEV__ ? 0 : 0.2,
     sendDefaultPii: false,
-    enabled: !__DEV__ || config.sentryEnableInDev,
+    enabled,
   });
 
   initialized = true;

@@ -258,12 +258,14 @@ export async function requestProviderPayerConnectionByEmail(
   providerOrganizationId: string,
   payerClaimEmail: string,
   providerNote?: string | null,
+  options?: { confirmResend?: boolean },
 ): Promise<ProviderPayerConnection> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('request_provider_payer_connection_by_email', {
     p_provider_organization_id: providerOrganizationId,
     p_payer_claim_email: payerClaimEmail,
     p_provider_note: providerNote ?? undefined,
+    p_confirm_resend: options?.confirmResend === true,
   });
 
   if (error) throw toRpcError(error, 'Failed to request connection');
@@ -305,12 +307,14 @@ export async function requestPayerProviderConnectionByEmail(
   payerOrganizationId: string,
   providerClaimEmail: string,
   payerNote?: string | null,
+  options?: { confirmResend?: boolean },
 ): Promise<ProviderPayerConnection> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('request_payer_provider_connection_by_email', {
     p_payer_organization_id: payerOrganizationId,
     p_provider_claim_email: providerClaimEmail,
     p_payer_note: payerNote ?? undefined,
+    p_confirm_resend: options?.confirmResend === true,
   });
 
   if (error) throw toRpcError(error, 'Failed to request connection');

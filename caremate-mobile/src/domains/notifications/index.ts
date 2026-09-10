@@ -14,6 +14,8 @@ export {
   allowsOsNotifications,
   applyNotificationsEnabledPreference,
   claimExclusiveNotificationDevice,
+  clearDeviceNotificationState,
+  clearLocalReminderNotifications,
   clearPushRegistration,
   reconcilePushRegistrationWithOsPermission,
   syncPushRegistration,

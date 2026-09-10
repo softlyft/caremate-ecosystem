@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getDeviceDefaults } from '@/domains/onboarding';
+import { getDeviceDefaults } from '@/domains/onboarding/device-defaults';
 
 export function useDeviceDefaults() {
   return useQuery({

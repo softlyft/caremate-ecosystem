@@ -56,7 +56,7 @@ export function HealthTimelineCard() {
 const styles = StyleSheet.create({
   wrapper: {
     marginHorizontal: layoutSpacing.screenHorizontal,
-    marginBottom: layoutSpacing.sectionTitleToContent,
+    marginBottom: layoutSpacing.homeHeroStack,
     borderRadius: radius.xxl,
     overflow: 'hidden',
   },

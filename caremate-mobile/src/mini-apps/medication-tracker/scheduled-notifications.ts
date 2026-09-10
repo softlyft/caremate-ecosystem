@@ -37,6 +37,12 @@ const DEFAULT_COPY: MedicationAlertCopy = {
   refillBody: (name) => `${name} is running low or due for a refill.`,
 };
 
+/** Avoid OS banners showing the literal string "null" / "undefined". */
+function medicationDisplayName(name: string | null | undefined): string {
+  const trimmed = typeof name === 'string' ? name.trim() : '';
+  return trimmed || 'Medication';
+}
+
 function hasDoseLog(
   logs: MedicationDoseLog[],
   medicationId: string,
@@ -95,13 +101,14 @@ export function collectMedicationScheduledNotifications(params: {
         const slotLabel = option.slotLabels[slotIndex] ?? `Dose ${slotIndex + 1}`;
         const dueAt = hhMmToDate(slotTime, parseDateKey(dateKey));
         const missedAt = new Date(dueAt.getTime() + MISSED_GRACE_MINUTES * 60_000);
+        const name = medicationDisplayName(medication.name);
 
         push({
           identifier: `med:dose:${medication.id}:${dateKey}:${slotIndex}`,
           triggerAt: dueAt,
           eventType: 'dose_due',
-          title: copy.doseDueTitle(medication.name),
-          body: copy.doseDueBody(medication.name, slotLabel),
+          title: copy.doseDueTitle(name),
+          body: copy.doseDueBody(name, slotLabel),
           medicationId: medication.id,
         });
 
@@ -109,8 +116,8 @@ export function collectMedicationScheduledNotifications(params: {
           identifier: `med:missed:${medication.id}:${dateKey}:${slotIndex}`,
           triggerAt: missedAt,
           eventType: 'dose_missed',
-          title: copy.doseMissedTitle(medication.name),
-          body: copy.doseMissedBody(medication.name, slotLabel),
+          title: copy.doseMissedTitle(name),
+          body: copy.doseMissedBody(name, slotLabel),
           medicationId: medication.id,
         });
       }
@@ -125,12 +132,13 @@ export function collectMedicationScheduledNotifications(params: {
           `${String(REFILL_REMINDER_HOUR).padStart(2, '0')}:00`,
           parseDateKey(medication.refillDueDate),
         );
+        const name = medicationDisplayName(medication.name);
         push({
           identifier: `med:refill:${medication.id}:${medication.refillDueDate}`,
           triggerAt: refillAt,
           eventType: 'refill_due',
-          title: copy.refillTitle(medication.name),
-          body: copy.refillBody(medication.name),
+          title: copy.refillTitle(name),
+          body: copy.refillBody(name),
           medicationId: medication.id,
         });
       }
@@ -152,6 +160,21 @@ async function ensureMedicationChannel(): Promise<void> {
   });
 }
 
+/** Cancel all local OS medication reminders on this device. Best-effort; never throws. */
+export async function cancelMedicationScheduledNotifications(): Promise<void> {
+  try {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    await Promise.all(
+      scheduled
+        .map((item) => item.identifier)
+        .filter((identifier) => identifier.startsWith(MEDICATION_NOTIFICATION_PREFIX))
+        .map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier)),
+    );
+  } catch {
+    // Best-effort cleanup.
+  }
+}
+
 /** Schedules local OS notifications for upcoming doses. Best-effort; never throws. */
 export async function syncMedicationScheduledNotifications(params: {
   medications: Medication[];
@@ -161,19 +184,7 @@ export async function syncMedicationScheduledNotifications(params: {
   copy?: MedicationAlertCopy;
 }): Promise<number> {
   if (!params.notificationsEnabled) {
-    try {
-      const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-      const medicationIds = scheduled
-        .map((item) => item.identifier)
-        .filter((identifier) => identifier.startsWith(MEDICATION_NOTIFICATION_PREFIX));
-      await Promise.all(
-        medicationIds.map((identifier) =>
-          Notifications.cancelScheduledNotificationAsync(identifier),
-        ),
-      );
-    } catch {
-      // Best-effort cleanup.
-    }
+    await cancelMedicationScheduledNotifications();
     return 0;
   }
 
@@ -184,14 +195,7 @@ export async function syncMedicationScheduledNotifications(params: {
     }
 
     await ensureMedicationChannel();
-
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    await Promise.all(
-      scheduled
-        .map((item) => item.identifier)
-        .filter((identifier) => identifier.startsWith(MEDICATION_NOTIFICATION_PREFIX))
-        .map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier)),
-    );
+    await cancelMedicationScheduledNotifications();
 
     const planned = collectMedicationScheduledNotifications(params);
     for (const item of planned) {

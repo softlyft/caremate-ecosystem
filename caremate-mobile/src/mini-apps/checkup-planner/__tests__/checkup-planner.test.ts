@@ -28,6 +28,12 @@ import {
   type CheckupPlannerProfile,
 } from '@/mini-apps/checkup-planner/utils';
 import { assessCompletionDraft, assessProfileDraft } from '@/mini-apps/checkup-planner/validation';
+import {
+  clampMonthRef,
+  defaultCompletedDate,
+  isCompletionDayAllowed,
+  planYearMonthBounds,
+} from '@/mini-apps/checkup-planner/log-date';
 import { identityTranslate } from '@/mini-apps/test-utils';
 
 const adultFemale: CheckupPlannerProfile = {
@@ -387,6 +393,29 @@ describe('checkup-planner/validation', () => {
     });
     expect(futurePlanMismatch.hard?.code).toBe('completed_year_mismatch');
     expect(futurePlanMismatch.payload).toBeNull();
+  });
+
+  it('keeps completion calendar months inside the plan year', () => {
+    const today = new Date(2026, 8, 10); // 10 Sep 2026
+    const bounds2026 = planYearMonthBounds(2026, 2026, today);
+    expect(bounds2026.minMonth.getFullYear()).toBe(2026);
+    expect(bounds2026.minMonth.getMonth()).toBe(0);
+    expect(bounds2026.maxMonth.getMonth()).toBe(8);
+
+    // Future plan year must not collapse into the previous year.
+    const bounds2027 = planYearMonthBounds(2027, 2026, today);
+    expect(bounds2027.minMonth.getFullYear()).toBe(2027);
+    expect(bounds2027.maxMonth.getFullYear()).toBe(2027);
+    expect(bounds2027.maxMonth.getMonth()).toBe(0);
+
+    const clamped = clampMonthRef(new Date(2026, 5, 1), 2027, 2026, today);
+    expect(clamped.getFullYear()).toBe(2027);
+    expect(clamped.getMonth()).toBe(0);
+
+    expect(defaultCompletedDate(undefined, 2027, '2026-09-10', '1990-01-01')).toBe('2027-01-01');
+    expect(defaultCompletedDate('2026-03-01', 2027, '2026-09-10', '1990-01-01')).toBe('2027-01-01');
+    expect(isCompletionDayAllowed('2026-09-10', 2027, '2026-09-10', '1990-01-01')).toBe(false);
+    expect(isCompletionDayAllowed('2027-01-01', 2027, '2027-06-01', '1990-01-01')).toBe(true);
   });
 
   it('soft-warns when a once-cadence checkup was logged in another year', () => {

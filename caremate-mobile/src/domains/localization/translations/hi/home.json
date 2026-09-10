@@ -1,6 +1,7 @@
 {
   "greeting": "नमस्ते",
   "greetingNamed": "नमस्ते, {{name}}",
+  "guestName": "अतिथि",
   "tagline": "आपकी स्वास्थ्य यात्रा, सुव्यवस्थित",
   "emergency": {
     "title": "आपातकालीन प्रोफ़ाइल",
