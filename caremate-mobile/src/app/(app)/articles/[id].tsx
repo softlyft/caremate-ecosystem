@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { ExternalLink, Sparkles } from 'lucide-react-native';
-import { useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Button } from '@/components/ui/form-controls';
@@ -24,6 +24,10 @@ import { articleRepository } from '@/domains/articles/repository';
 import { isEvergreenArticle, isExternalArticle } from '@/domains/articles/utils/evergreen-articles';
 import { useTranslation } from '@/domains/localization';
 import { AdSlot } from '@/features/ads/AdSlot';
+import {
+  trackLearningContentCompleted,
+  trackLearningContentViewed,
+} from '@/lib/monitoring/product-analytics';
 import { layoutSpacing, palette, primaryAlpha, radius, shadow, spacing } from '@/theme';
 
 function getCategoryMeta(categoryId: string) {
@@ -55,8 +59,34 @@ export default function ArticleDetailScreen() {
 
   const article = query.data ?? null;
   const paragraphs = useMemo(() => (article ? splitParagraphs(article.content) : []), [article]);
-  const { isRead, markRead } = useArticleReadTracking(id);
+  const { isRead, isLoading: readStatusLoading, markRead } = useArticleReadTracking(id);
   const didAutoComplete = useRef(false);
+  const readOnOpen = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (!article) return;
+    trackLearningContentViewed({
+      contentId: article.id,
+      contentCategory: article.categoryId,
+      contentType: article.contentType,
+    });
+  }, [article]);
+
+  useEffect(() => {
+    if (!article || readStatusLoading) return;
+    if (readOnOpen.current === null) {
+      readOnOpen.current = isRead;
+      return;
+    }
+    if (isRead && !readOnOpen.current) {
+      readOnOpen.current = true;
+      trackLearningContentCompleted({
+        contentId: article.id,
+        contentCategory: article.categoryId,
+        contentType: article.contentType,
+      });
+    }
+  }, [article, isRead, readStatusLoading]);
 
   useLayoutEffect(() => {
     // Let the header Text ellipsize; avoid baking "…" into the string (looks like a

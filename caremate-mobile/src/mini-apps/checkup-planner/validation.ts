@@ -1,6 +1,7 @@
 /**
  * Hard / soft validation for Checkup Planner profile + completion logging.
  * Tone matches vitals/medication: block impossible values; confirm unusual ones.
+ * Completion dates must fall in the plan year (hard) — no “save anyway” for year mismatch.
  */
 
 import { CHECKUP_CATALOG, type CheckupDefinition } from '@/mini-apps/checkup-planner/constants';
@@ -20,9 +21,9 @@ export type CheckupIssueCode =
   | 'invalid_completed_date'
   | 'completed_before_dob'
   | 'completed_future'
+  | 'completed_year_mismatch'
   | 'soft_age_high'
   | 'soft_age_young'
-  | 'soft_completed_year_mismatch'
   | 'soft_notes_long'
   | 'soft_once_already_logged';
 
@@ -197,11 +198,15 @@ export function assessCompletionDraft(draft: CompletionDraft): CompletionAssessm
 
   const completedYear = Number(draft.completedDate.slice(0, 4));
   if (Number.isFinite(completedYear) && completedYear !== draft.year) {
-    soft.push({
-      code: 'soft_completed_year_mismatch',
-      messageKey: 'completedYearMismatch',
-      params: { completedYear, planYear: draft.year },
-    });
+    return {
+      hard: {
+        code: 'completed_year_mismatch',
+        messageKey: 'completedYearMismatch',
+        params: { completedYear, planYear: draft.year },
+      },
+      soft: [],
+      payload: null,
+    };
   }
 
   const notes = draft.notes?.trim() || undefined;

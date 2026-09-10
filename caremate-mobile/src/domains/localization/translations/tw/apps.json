@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "Yi",
-      "completedYearMismatch": "Woatwerɛ {{completedYear}}, nanso item yi yɛ {{planYear}} plan no de. Confirm sɛ ɛyɛ deliberate.",
+      "completedYearMismatch": "Completion date no yɛ sɛ ɛwɔ {{planYear}} mu. Da a woapaw no wɔ {{completedYear}} mu.",
       "onceAlreadyLogged": "One-time checkup yi wɔatwerɛ dedaw ma {{year}}. Confirm sɛ wopɛ sɛ wobɛtwerɛ bio.",
       "checkTitle": "Please check this",
       "confirmTitle": "Please confirm",

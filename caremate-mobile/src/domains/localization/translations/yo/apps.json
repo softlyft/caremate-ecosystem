@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "Yọ kuro",
-      "completedYearMismatch": "O kọ {{completedYear}}, ṣugbọn nkan yii jẹ fun eto {{planYear}}. Jọwọ jẹrisi pe o jẹ ifẹ.",
+      "completedYearMismatch": "Ọjọ́ ìparí gbọ́dọ̀ wà nínú {{planYear}}. Ọjọ́ tí o yàn wà nínú {{completedYear}}.",
       "onceAlreadyLogged": "Iṣayẹwo yii ti diẹ ti a ti kọ fun {{year}}. Jọwọ jẹrisi pe o fẹ kọ o lẹẹkan si.",
       "checkTitle": "Jọwọ ṣayẹwo eyi",
       "confirmTitle": "Jọwọ jẹrisi",

@@ -12,9 +12,10 @@ import {
   Shield,
   Star,
 } from 'lucide-react-native';
-import { useLayoutEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Button, FormActions, FormField, Input, TextLink } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
@@ -37,6 +38,7 @@ import { canOpenInMaps, openInExternalMaps } from '@/domains/providers/open-in-m
 import { providerRepository } from '@/domains/providers/repository';
 import type { ProviderType } from '@/domains/providers/types';
 import { useIsGuest } from '@/hooks/use-current-user-id';
+import { trackProviderViewed } from '@/lib/monitoring/product-analytics';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import type { Provider } from '@/types';
 
@@ -78,6 +80,12 @@ export default function ProviderDetailScreen() {
   });
 
   const organizationId = query.data ? getProviderOrganizationId(query.data) : null;
+
+  useEffect(() => {
+    if (organizationId) {
+      trackProviderViewed(organizationId);
+    }
+  }, [organizationId]);
 
   const orgVerifiedQuery = useQuery({
     queryKey: [...QUERY_KEYS.providerConnections, 'verified', organizationId],
@@ -125,10 +133,10 @@ export default function ProviderDetailScreen() {
       providerConnectionService.requestConnection({ organizationId: organizationId! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
-      Alert.alert(t('nearby.detail.connectSuccessTitle'), t('nearby.detail.connectSuccessMessage'));
+      void alert(t('nearby.detail.connectSuccessTitle'), t('nearby.detail.connectSuccessMessage'));
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('nearby.detail.connectFailedTitle'),
         error instanceof Error ? error.message : t('nearby.detail.connectFailedTitle'),
       );
@@ -146,7 +154,7 @@ export default function ProviderDetailScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setDeclining(false);
       setRejectionReason('');
-      Alert.alert(
+      void alert(
         variables.accept
           ? t('nearby.detail.approveSuccessTitle')
           : t('nearby.connectionRequests.declinedTitle'),
@@ -156,7 +164,7 @@ export default function ProviderDetailScreen() {
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('nearby.detail.respondFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );
@@ -170,10 +178,10 @@ export default function ProviderDetailScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setCancelling(false);
       setCancelReason('');
-      Alert.alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
+      void alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('nearby.detail.cancelFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );

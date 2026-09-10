@@ -11,6 +11,7 @@ import {
   countActiveMedications,
 } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import { parseDateKey } from '@/mini-apps/_kit/date-utils';
@@ -758,6 +759,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
               });
             } else {
               addMedication(assessment.payload!);
+              trackMiniAppUsed('medication-tracker', 'medication_added');
             }
             router.back();
           };

@@ -6,6 +6,7 @@ import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/form-controls';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppCard,
   MiniAppChip,
@@ -120,6 +121,7 @@ export default function PregnancySetupScreen() {
         } else {
           setFromDueDate(assessment.payload!.selectedDate, assessment.payload!.babyNickname);
         }
+        trackMiniAppUsed('pregnancy-tracker', 'pregnancy_profile_created');
         router.back();
       };
 

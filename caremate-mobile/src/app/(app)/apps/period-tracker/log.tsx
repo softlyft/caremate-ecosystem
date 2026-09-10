@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppCard,
   MiniAppCta,
@@ -61,7 +62,11 @@ export default function LogPeriodScreen() {
       return;
     }
 
-    const apply = () => togglePeriodDay(dayKey);
+    const apply = () => {
+      const logging = !loggedPeriodDays.includes(dayKey);
+      togglePeriodDay(dayKey);
+      trackMiniAppUsed('period-tracker', logging ? 'period_started' : 'period_ended');
+    };
 
     if (assessment.soft.length > 0) {
       const ok = await confirm({

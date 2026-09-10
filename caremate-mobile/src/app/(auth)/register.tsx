@@ -4,9 +4,10 @@ import type { Href } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -103,7 +104,7 @@ export default function RegisterScreen() {
   async function onSubmit(values: RegisterForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
+        void alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       const email = normalizeAccountEmail(values.email);
@@ -137,7 +138,7 @@ export default function RegisterScreen() {
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('auth.register.error'),
         toUserFacingErrorMessage(
           error,

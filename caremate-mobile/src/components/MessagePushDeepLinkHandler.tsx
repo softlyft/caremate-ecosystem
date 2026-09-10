@@ -6,6 +6,7 @@ import { config } from '@/constants/env';
 import { MEDICATION_TRACKER_PATH } from '@/mini-apps/medication-tracker/push-alerts';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const FAMILY_REQUESTS_PATH = '/(app)/family/requests' as const;
 
 function extractConversationId(data: Record<string, unknown> | undefined): string | null {
   if (!data) return null;
@@ -42,8 +43,28 @@ function extractMedicationPath(data: Record<string, unknown> | undefined): Href 
   return null;
 }
 
+function extractFamilyPath(data: Record<string, unknown> | undefined): Href | null {
+  if (!data || data.domain !== 'family') {
+    return null;
+  }
+  const eventType = data.eventType ?? data.event_type;
+  if (
+    eventType === 'connection_request_received' ||
+    eventType === 'connection_request_accepted' ||
+    eventType === 'connection_request_declined'
+  ) {
+    return FAMILY_REQUESTS_PATH;
+  }
+  const path = data.path;
+  if (typeof path === 'string' && path.includes('/family')) {
+    return path.trim() as Href;
+  }
+  return '/(app)/family';
+}
+
 /**
- * Opens org message push taps (provider or payer) on the matching thread.
+ * Opens org message push taps (provider or payer) on the matching thread,
+ * medication alerts on the tracker, and family invite pushes on Review requests.
  */
 export function MessagePushDeepLinkHandler() {
   const handledColdStart = useRef(false);
@@ -62,6 +83,11 @@ export function MessagePushDeepLinkHandler() {
         router.push(medicationPath);
         return;
       }
+      const familyPath = extractFamilyPath(data);
+      if (familyPath) {
+        router.push(familyPath);
+        return;
+      }
       const conversationId = extractConversationId(data);
       if (conversationId) {
         openConversation(conversationId);
@@ -77,9 +103,7 @@ export function MessagePushDeepLinkHandler() {
       void Notifications.getLastNotificationResponseAsync().then(handleResponse);
     }
 
-    return () => {
-      sub.remove();
-    };
+    return () => sub.remove();
   }, []);
 
   return null;

@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { Baby, Copy, Link2, Share2, UserPlus, Users } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -17,6 +16,7 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
@@ -58,6 +58,8 @@ import {
 } from '@/hooks/use-keyboard-aware-scroll';
 import { MonthCalendarGrid, MonthCalendarNavigator } from '@/mini-apps/_kit';
 import { parseDateKey, toDateKey } from '@/mini-apps/_kit/date-utils';
+import { trackFamilyMemberAdded } from '@/lib/monitoring/product-analytics';
+import { useFamilyOpened } from '@/lib/monitoring/use-product-analytics';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = palette.brandBlue;
@@ -87,6 +89,7 @@ function initialAddChildDobMonth(): Date {
 export default function FamilyHubScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  useFamilyOpened();
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
   const tier = usePremiumTier();
@@ -133,7 +136,12 @@ export default function FamilyHubScreen() {
 
   const requestsQuery = useQuery({
     queryKey: [...QUERY_KEYS.familyRequests, userId],
-    queryFn: () => familyRepository.listIncomingRequests(userId),
+    queryFn: async () => {
+      // Family hub used to read SQLite only — invitees with a push/inbox card saw no
+      // Accept UI until they opened Review requests (which already pulls remote).
+      await familyRepository.pullFromRemote(userId);
+      return familyRepository.listIncomingRequests(userId);
+    },
     enabled: !isGuest,
   });
 
@@ -160,6 +168,7 @@ export default function FamilyHubScreen() {
 
   const [lookup, setLookup] = useState('');
   const [relationship, setRelationship] = useState<FamilyInviteRelationship | null>(null);
+  const [relationshipError, setRelationshipError] = useState<string | null>(null);
   const [matched, setMatched] = useState<FamilyLookupUser | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -205,7 +214,7 @@ export default function FamilyHubScreen() {
           ownPhone: profile?.phone,
         })
       ) {
-        Alert.alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
+        void alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
         return;
       }
 
@@ -217,7 +226,7 @@ export default function FamilyHubScreen() {
             matchedUser: user,
           })
         ) {
-          Alert.alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
+          void alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
           return;
         }
         setMatched(user);
@@ -226,7 +235,7 @@ export default function FamilyHubScreen() {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : t('family.lookupFailedMessage');
-      Alert.alert(t('family.lookupFailed'), message);
+      void alert(t('family.lookupFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -235,21 +244,21 @@ export default function FamilyHubScreen() {
   async function handleConnect() {
     if (!householdId || !matched) return;
     if (!canConnectSpouse(tier)) {
-      Alert.alert(t('family.spousePremiumTitle'), t('family.spousePremiumMessage'));
+      void alert(t('family.spousePremiumTitle'), t('family.spousePremiumMessage'));
       return;
     }
     const invitedCount = (membersQuery.data ?? []).filter((m) => m.kind === 'spouse').length;
     const pendingCount = pendingOutgoingQuery.data?.length ?? 0;
     if (!canInviteFamilyMember(tier, invitedCount + pendingCount)) {
-      Alert.alert(t('family.spousePremiumTitle'), t('family.inviteSeatsFull'));
+      void alert(t('family.spousePremiumTitle'), t('family.inviteSeatsFull'));
       return;
     }
     if (!relationship) {
-      Alert.alert(t('family.connectionFailed'), t('family.relationshipRequired'));
+      void alert(t('family.connectionFailed'), t('family.relationshipRequired'));
       return;
     }
     if (takenRelationships.has(relationship)) {
-      Alert.alert(t('family.connectionFailed'), t('family.relationshipUsed'));
+      void alert(t('family.connectionFailed'), t('family.relationshipUsed'));
       return;
     }
     if (
@@ -261,7 +270,7 @@ export default function FamilyHubScreen() {
         ownPhone: profileQuery.data?.phone,
       })
     ) {
-      Alert.alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
+      void alert(t('family.connectionFailed'), t('family.cannotInviteSelf'));
       return;
     }
     setBusy(true);
@@ -275,20 +284,20 @@ export default function FamilyHubScreen() {
         relationship,
         matchedUser: matched,
       });
-      Alert.alert(t('family.requestSent'), t('family.requestSentMessage'));
+      void alert(t('family.requestSent'), t('family.requestSentMessage'));
       setMatched(null);
       setLookup('');
       setRelationship(null);
       await refreshAll();
     } catch (error) {
-      Alert.alert(t('family.connectionFailed'), t(familyConnectionErrorKey(error)));
+      void alert(t('family.connectionFailed'), t(familyConnectionErrorKey(error)));
     } finally {
       setBusy(false);
     }
   }
 
   async function handleRemoveMember(memberId: string) {
-    Alert.alert(t('family.removeMemberTitle'), t('family.removeMemberMessage'), [
+    void alert(t('family.removeMemberTitle'), t('family.removeMemberMessage'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('family.removeMember'),
@@ -302,7 +311,7 @@ export default function FamilyHubScreen() {
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : t('family.removeMemberFailed');
-              Alert.alert(t('family.removeMemberFailed'), message);
+              void alert(t('family.removeMemberFailed'), message);
             } finally {
               setBusy(false);
             }
@@ -319,7 +328,7 @@ export default function FamilyHubScreen() {
       await refreshAll();
     } catch (error) {
       const message = error instanceof Error ? error.message : t('family.cancelInviteFailed');
-      Alert.alert(t('family.cancelInviteFailed'), message);
+      void alert(t('family.cancelInviteFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -346,7 +355,7 @@ export default function FamilyHubScreen() {
           : tier === 'personal'
             ? t('family.childLimitMessageStandard')
             : t('family.childLimitMessageFree');
-      Alert.alert(t('family.childLimitTitle'), limitMessage);
+      void alert(t('family.childLimitTitle'), limitMessage);
       return;
     }
     const validated = validateChildNameAndDob(childName, childDob);
@@ -357,7 +366,7 @@ export default function FamilyHubScreen() {
           : validated.reason === 'dobFormat'
             ? t('family.child.dobFormat')
             : t('family.child.dobInvalid');
-      Alert.alert(t('family.missingDetails'), message);
+      void alert(t('family.missingDetails'), message);
       return;
     }
     setBusy(true);
@@ -367,6 +376,7 @@ export default function FamilyHubScreen() {
         dateOfBirth: validated.dateOfBirth,
         gender: childGender,
       });
+      trackFamilyMemberAdded();
       setChildName('');
       setChildDob('');
       setChildDobMonthRef(initialAddChildDobMonth());
@@ -374,7 +384,7 @@ export default function FamilyHubScreen() {
       await refreshAll();
     } catch (error) {
       const message = error instanceof Error ? error.message : t('family.addChildFailedMessage');
-      Alert.alert(t('family.addChildFailed'), message);
+      void alert(t('family.addChildFailed'), message);
     } finally {
       setBusy(false);
     }
@@ -836,27 +846,6 @@ export default function FamilyHubScreen() {
                 ) : (
                   <>
                     <FormField
-                      label={t('family.relationshipLabel')}
-                      hint={t('family.relationshipHint')}
-                    >
-                      <View style={styles.chipRow}>
-                        {FAMILY_INVITE_RELATIONSHIPS.map((value) => {
-                          const taken = takenRelationships.has(value);
-                          return (
-                            <ChoiceChip
-                              key={value}
-                              label={t(`family.relationships.${value}`)}
-                              selected={relationship === value}
-                              disabled={taken}
-                              onPress={() => setRelationship(value)}
-                              accent={ACCENT}
-                              soft={SOFT}
-                            />
-                          );
-                        })}
-                      </View>
-                    </FormField>
-                    <FormField
                       label={t('family.connectSpouse')}
                       hint={t('family.connectSpouseHint')}
                     >
@@ -872,7 +861,12 @@ export default function FamilyHubScreen() {
                         autoCapitalize="none"
                         keyboardType="email-address"
                         value={lookup}
-                        onChangeText={setLookup}
+                        onChangeText={(value) => {
+                          setLookup(value);
+                          setMatched(null);
+                          setNotFound(false);
+                          setRelationshipError(null);
+                        }}
                       />
                     </FormField>
                     <Button
@@ -907,15 +901,52 @@ export default function FamilyHubScreen() {
                             })}
                           </AppText>
                         ) : null}
+                        <FormField
+                          label={t('family.relationshipLabel')}
+                          hint={t('family.relationshipHint')}
+                          error={relationshipError ?? undefined}
+                        >
+                          <View style={styles.chipRow}>
+                            {FAMILY_INVITE_RELATIONSHIPS.map((value) => {
+                              const taken = takenRelationships.has(value);
+                              return (
+                                <ChoiceChip
+                                  key={value}
+                                  label={t(`family.relationships.${value}`)}
+                                  selected={relationship === value}
+                                  disabled={taken}
+                                  onPress={() => {
+                                    setRelationship(value);
+                                    setRelationshipError(null);
+                                  }}
+                                  accent={ACCENT}
+                                  soft={SOFT}
+                                />
+                              );
+                            })}
+                          </View>
+                        </FormField>
                         <Button
                           style={[
                             styles.primaryCta,
-                            busy || !relationship || takenRelationships.has(relationship)
+                            busy || (relationship != null && takenRelationships.has(relationship))
                               ? styles.ctaDisabled
                               : null,
                           ]}
-                          disabled={busy || !relationship || takenRelationships.has(relationship)}
-                          onPress={() => void handleConnect()}
+                          disabled={
+                            busy || (relationship != null && takenRelationships.has(relationship))
+                          }
+                          onPress={() => {
+                            if (!relationship) {
+                              setRelationshipError(t('family.relationshipRequired'));
+                              return;
+                            }
+                            if (takenRelationships.has(relationship)) {
+                              setRelationshipError(t('family.relationshipUsed'));
+                              return;
+                            }
+                            void handleConnect();
+                          }}
                           variant="plain"
                         >
                           <AppText variant="button" style={styles.primaryCtaLabel}>

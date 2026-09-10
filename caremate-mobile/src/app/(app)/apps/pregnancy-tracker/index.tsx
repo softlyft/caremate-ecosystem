@@ -8,6 +8,7 @@ import { AD_SLOTS } from '@/domains/ads';
 import { AdSlot } from '@/features/ads/AdSlot';
 import { useTranslation } from '@/domains/localization';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { useMiniAppViewed } from '@/lib/monitoring/use-product-analytics';
 import { useSettingsStore } from '@/domains/profile/store';
 import {
   MiniAppCard,
@@ -56,6 +57,7 @@ import { TrimesterProgress } from '@/mini-apps/pregnancy-tracker/TrimesterProgre
 const APP_ID = 'pregnancy-tracker' as const;
 
 export default function PregnancyTrackerScreen() {
+  useMiniAppViewed(APP_ID);
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);

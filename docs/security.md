@@ -23,7 +23,7 @@ Out of scope here: App Store / Play disclosures, Amplify account IAM (see [`ampl
 
 | Threat | Controls |
 |--------|----------|
-| Checkout return URL → `javascript:` / phishing host | Allowlisted `caremate://billing/*` + `*.getcaremate.com` / localhost (`_shared/return-url.ts`, payment `return-url.ts`) |
+| Checkout return URL → `javascript:` / phishing host | Allowlisted `caremate://billing/*` + CareMate https hosts (`_shared/return-url.ts`, payment `return-url.ts`); nested `return` on `/success`\|`/cancel` still validated |
 | Session tokens in browser URL | Single-use `#handoff=` codes; legacy `#access_token` ignored |
 | Concurrent handoff race | Exchange updates `used_at` with `.is('used_at', null)` + `.select()`; clear tokens after claim |
 | Family billing IDOR (`household_id`) | `assertHouseholdMembership` on create-checkout / upgrade quote |

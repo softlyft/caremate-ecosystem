@@ -8,6 +8,7 @@ const mockRpc = jest.fn();
 const mockInvoke = jest.fn();
 const mockSaveConnectionRequestLocal = jest.fn();
 const mockPullFromRemote = jest.fn();
+const mockBillingPullFromRemote = jest.fn();
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -22,6 +23,12 @@ jest.mock('@/domains/family/repository', () => ({
   familyRepository: {
     saveConnectionRequestLocal: (...args: unknown[]) => mockSaveConnectionRequestLocal(...args),
     pullFromRemote: (...args: unknown[]) => mockPullFromRemote(...args),
+  },
+}));
+
+jest.mock('@/domains/billing/repository', () => ({
+  billingRepository: {
+    pullFromRemote: (...args: unknown[]) => mockBillingPullFromRemote(...args),
   },
 }));
 
@@ -197,6 +204,7 @@ describe('familyConnectionService', () => {
   it('responds to connection requests and refreshes family', async () => {
     mockRpc.mockResolvedValue({ data: null, error: null });
     mockPullFromRemote.mockResolvedValue(undefined);
+    mockBillingPullFromRemote.mockResolvedValue(undefined);
     mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
     await familyConnectionService.respondToRequest({
       requestId: 'req-1',
@@ -205,6 +213,7 @@ describe('familyConnectionService', () => {
       selfFullName: 'Ada',
     });
     expect(mockPullFromRemote).toHaveBeenCalledWith('u1');
+    expect(mockBillingPullFromRemote).toHaveBeenCalled();
     expect(mockInvoke).toHaveBeenCalledWith('notify-family-email', {
       body: { requestId: 'req-1', kind: 'accepted' },
     });
@@ -220,6 +229,7 @@ describe('familyConnectionService', () => {
       accept: false,
       selfFullName: 'Ada',
     });
+    expect(mockBillingPullFromRemote).not.toHaveBeenCalled();
     expect(mockInvoke).toHaveBeenCalledWith('notify-family-email', {
       body: { requestId: 'req-2', kind: 'declined' },
     });

@@ -4,9 +4,10 @@ import type { Href } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useMemo } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -55,9 +56,12 @@ export default function LoginScreen() {
     [t],
   );
 
-  const { control, handleSubmit, formState, reset } = useForm<LoginForm>({
+  const { control, handleSubmit, formState, reset, clearErrors } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', rememberMe: false },
+    // Avoid surfacing passwordMin when Remember email prefills an empty password.
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
   });
 
   useEffect(() => {
@@ -65,17 +69,29 @@ export default function LoginScreen() {
     void (async () => {
       const remembered = await getRememberedLoginEmail();
       if (cancelled || !remembered) return;
-      reset({ email: remembered, password: '', rememberMe: true });
+      // Email only — never restore a password. Clear submit/error state so an empty
+      // password does not immediately show "Password must be at least 8 characters".
+      reset(
+        { email: remembered, password: '', rememberMe: true },
+        {
+          keepErrors: false,
+          keepDirty: false,
+          keepIsSubmitted: false,
+          keepTouched: false,
+          keepSubmitCount: false,
+        },
+      );
+      clearErrors();
     })();
     return () => {
       cancelled = true;
     };
-  }, [reset]);
+  }, [clearErrors, reset]);
 
   async function onSubmit(values: LoginForm) {
     try {
       if (!config.isSupabaseConfigured) {
-        Alert.alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
+        void alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
         return;
       }
       const email = normalizeAccountEmail(values.email);
@@ -98,7 +114,7 @@ export default function LoginScreen() {
         t('common.networkError'),
       );
       if (!isNetworkError(error) && /email not confirmed|confirm your email/i.test(message)) {
-        Alert.alert(t('auth.login.error'), t('auth.login.emailNotConfirmed'), [
+        void alert(t('auth.login.error'), t('auth.login.emailNotConfirmed'), [
           { text: t('common.cancel'), style: 'cancel' },
           {
             text: t('auth.verify.open'),
@@ -111,7 +127,7 @@ export default function LoginScreen() {
         ]);
         return;
       }
-      Alert.alert(t('auth.login.error'), message);
+      void alert(t('auth.login.error'), message);
     }
   }
 
@@ -129,7 +145,7 @@ export default function LoginScreen() {
           restingBottomPad={spacing.lg}
         >
           <FormStack>
-            <FormField error={formState.errors.email?.message}>
+            <FormField error={formState.isSubmitted ? formState.errors.email?.message : undefined}>
               <Controller
                 control={control}
                 name="email"
@@ -145,7 +161,9 @@ export default function LoginScreen() {
                 )}
               />
             </FormField>
-            <FormField error={formState.errors.password?.message}>
+            <FormField
+              error={formState.isSubmitted ? formState.errors.password?.message : undefined}
+            >
               <Controller
                 control={control}
                 name="password"

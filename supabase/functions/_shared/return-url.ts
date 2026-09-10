@@ -1,6 +1,11 @@
 /**
- * Allow only CareMate app deep links and payment-gateway return pages for Stripe/Paystack redirects.
- * Rejects javascript:, data:, and arbitrary https origins (open redirect).
+ * Allow only CareMate app deep links and payment-gateway / Care Portal return pages
+ * for Stripe/Paystack redirects. Rejects javascript:, data:, and arbitrary https origins
+ * (open redirect).
+ *
+ * HTTPS URLs must be on an allowlisted CareMate host (see allowed-hosts.ts). Path is not
+ * restricted to /success|/cancel so Care Portal org checkout can return to
+ * `/app/settings/billing` and `/payer/settings/billing`, and cancel to website pricing.
  */
 import { isAllowedHttpsHostname } from './allowed-hosts.ts';
 
@@ -39,7 +44,7 @@ export function isAllowedAppReturnUrl(raw: string): boolean {
       const host = url.hostname.toLowerCase();
       if (!isAllowedHttpsHostname(host)) return false;
 
-      // Hosted checkout pages used as Stripe/Paystack callbacks, or https app links.
+      // Hosted checkout pages may nest a further app/web return URL.
       const path = url.pathname.replace(/\/+$/, '') || '/';
       if (
         path === '/success' ||
@@ -49,10 +54,9 @@ export function isAllowedAppReturnUrl(raw: string): boolean {
       ) {
         const nested = url.searchParams.get('return');
         if (nested && !isAllowedAppReturnUrl(nested)) return false;
-        return true;
       }
 
-      return false;
+      return true;
     } catch {
       return false;
     }
@@ -64,7 +68,7 @@ export function isAllowedAppReturnUrl(raw: string): boolean {
 export function assertAllowedReturnUrls(successUrl: string, cancelUrl: string): void {
   if (!isAllowedAppReturnUrl(successUrl) || !isAllowedAppReturnUrl(cancelUrl)) {
     throw new Error(
-      'success_url and cancel_url must be CareMate billing deep links or allowlisted /success|/cancel hosts',
+      'success_url and cancel_url must be CareMate billing deep links or allowlisted CareMate https hosts',
     );
   }
 }

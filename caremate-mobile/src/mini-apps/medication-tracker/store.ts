@@ -52,8 +52,9 @@ interface MedicationTrackerState {
     dateKey: string;
     slotIndex: number;
     notes?: string;
-    /** When true, decrement quantityRemaining by 1 if tracked. */
+    /** When true, decrement quantityRemaining by 1 if tracked. Defaults off for skipped. */
     decrementQuantity?: boolean;
+    outcome?: 'taken' | 'skipped';
   }) => MedicationDoseLog;
   removeDoseLog: (logId: string) => void;
   clearAll: () => void;
@@ -113,6 +114,7 @@ export function migrateMedicationPersistedState(
     logs: (state.logs ?? []).map((log) => ({
       ...log,
       takenAt: log.takenAt,
+      outcome: log.outcome === 'skipped' ? 'skipped' : 'taken',
     })),
   };
 }
@@ -178,7 +180,14 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
           set({ activeMedicationId: medicationId });
         }
       },
-      logDose: ({ medicationId, dateKey, slotIndex, notes, decrementQuantity = true }) => {
+      logDose: ({
+        medicationId,
+        dateKey,
+        slotIndex,
+        notes,
+        outcome = 'taken',
+        decrementQuantity = outcome !== 'skipped',
+      }) => {
         const existing = get().logs.find(
           (log) =>
             log.medicationId === medicationId &&
@@ -192,6 +201,7 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
             ...existing,
             notes: notes?.trim() || undefined,
             takenAt: existing.takenAt ?? takenAt,
+            outcome,
           };
           set({
             logs: get().logs.map((log) => (log.id === existing.id ? updated : log)),
@@ -222,6 +232,7 @@ export const useMedicationTrackerStore = create<MedicationTrackerState>()(
           notes: notes?.trim() || undefined,
           takenAt,
           didDecrementQuantity,
+          outcome,
         };
 
         set({

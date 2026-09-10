@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 import { Link2, Shield } from 'lucide-react-native';
-import { useDeferredValue, useState } from 'react';
+import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -15,6 +15,7 @@ import { useTranslation } from '@/domains/localization';
 import { PayerDirectoryCard } from '@/domains/payers/components/PayerDirectoryCard';
 import { PAYER_DIRECTORY_PAGE_SIZE, payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
+import { trackPayerSearched, trackPayerViewed } from '@/lib/monitoring/product-analytics';
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 import { textColors } from '@/theme/typography';
@@ -26,6 +27,19 @@ export default function InsuranceDirectoryScreen() {
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const trimmedSearch = deferredSearch.trim();
+  const lastTrackedSearch = useRef('');
+
+  useEffect(() => {
+    if (!trimmedSearch) {
+      lastTrackedSearch.current = '';
+      return;
+    }
+    if (lastTrackedSearch.current === trimmedSearch) {
+      return;
+    }
+    lastTrackedSearch.current = trimmedSearch;
+    trackPayerSearched();
+  }, [trimmedSearch]);
 
   const query = useInfiniteQuery({
     queryKey: [...QUERY_KEYS.payers, trimmedSearch],
@@ -142,7 +156,10 @@ export default function InsuranceDirectoryScreen() {
           <PayerDirectoryCard
             payer={item}
             typeLabel={t('insurance.orgType')}
-            onPress={() => router.push(`/(app)/profile/insurance/${item.id}` as Href)}
+            onPress={() => {
+              trackPayerViewed(item.id);
+              router.push(`/(app)/profile/insurance/${item.id}` as Href);
+            }}
           />
         )}
         ListEmptyComponent={

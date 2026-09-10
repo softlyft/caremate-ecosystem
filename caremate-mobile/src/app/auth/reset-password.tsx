@@ -2,9 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { useMemo } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import {
   Button,
@@ -57,7 +58,7 @@ export default function ResetPasswordScreen() {
   async function onSubmit(values: ResetPasswordForm) {
     try {
       if (!isAuthenticated && !passwordRecoveryPending) {
-        Alert.alert(t('auth.reset.expiredTitle'), t('auth.reset.expiredMessage'), [
+        void alert(t('auth.reset.expiredTitle'), t('auth.reset.expiredMessage'), [
           {
             text: t('auth.reset.requestNew'),
             onPress: () => router.replace('/(auth)/forgot-password'),
@@ -66,7 +67,7 @@ export default function ResetPasswordScreen() {
         return;
       }
       await updatePassword(values.password);
-      Alert.alert(t('auth.reset.successTitle'), t('auth.reset.successMessage'), [
+      void alert(t('auth.reset.successTitle'), t('auth.reset.successMessage'), [
         {
           text: t('common.continue'),
           onPress: () => router.replace('/(app)/(tabs)'),
@@ -74,7 +75,7 @@ export default function ResetPasswordScreen() {
       ]);
     } catch (error) {
       const message = error instanceof Error ? error.message : t('auth.reset.failedFallback');
-      Alert.alert(t('auth.reset.failedTitle'), message);
+      void alert(t('auth.reset.failedTitle'), message);
     }
   }
 

@@ -1,8 +1,9 @@
 import { router, type Href } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button, FormActions, FormField, Input } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
@@ -34,13 +35,13 @@ export default function PayerOutboundRequestsScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       setCancellingId(null);
       setCancelReason('');
-      Alert.alert(
+      void alert(
         t('insurance.connections.cancelSuccessTitle'),
         t('insurance.connections.cancelSuccessMessage'),
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('insurance.connections.cancelFailedTitle'),
         error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
       );

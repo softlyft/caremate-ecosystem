@@ -3,7 +3,6 @@ import { FilePlus2, FileText, Link2 } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Modal,
   Platform,
@@ -22,6 +21,7 @@ import {
   FormStack,
   Input,
 } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { PdfDocumentPreview } from '@/components/documents/PdfDocumentPreview';
 import { AppText } from '@/components/ui/AppText';
@@ -112,7 +112,7 @@ export default function ProviderDocumentsScreen() {
       setPreviewLoading(canPreviewInApp(local.mimeType, local.fileName));
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('profile.documents.openFailedTitle'),
         error instanceof Error ? error.message : t('profile.documents.openFailedMessage'),
       );
@@ -154,7 +154,7 @@ export default function ProviderDocumentsScreen() {
       setTitle('');
       setDocumentType('prescription');
       setUploadOrgId(null);
-      Alert.alert(
+      void alert(
         t('profile.documents.uploadSuccessTitle'),
         t('profile.documents.uploadSuccessMessage'),
       );
@@ -163,7 +163,7 @@ export default function ProviderDocumentsScreen() {
       if (error instanceof Error && error.message === 'UPLOAD_CANCELLED') {
         return;
       }
-      Alert.alert(
+      void alert(
         t('profile.documents.uploadFailedTitle'),
         error instanceof Error ? error.message : t('profile.documents.uploadFailedMessage'),
       );
@@ -176,13 +176,13 @@ export default function ProviderDocumentsScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerDocuments });
       setLinkDoc(null);
-      Alert.alert(
+      void alert(
         t('profile.documents.linkSuccessTitle'),
         t('profile.documents.linkSuccessMessage'),
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('profile.documents.linkFailedTitle'),
         error instanceof Error ? error.message : t('profile.documents.linkFailedMessage'),
       );

@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, FormActions } from '@/components/ui/form-controls';
@@ -48,13 +49,17 @@ export default function FamilyRequestsScreen() {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyRequests });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
-      Alert.alert(
+      if (accept) {
+        await queryClient.invalidateQueries({ queryKey: ['billing', 'premium'] });
+        await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
+      }
+      void alert(
         accept ? t('family.requests.connected') : t('family.requests.declined'),
         accept ? t('family.requests.connectedMessage') : t('family.requests.declinedMessage'),
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : t('family.requests.failedMessage');
-      Alert.alert(t('family.requests.failed'), message);
+      void alert(t('family.requests.failed'), message);
     } finally {
       setBusyId(null);
     }

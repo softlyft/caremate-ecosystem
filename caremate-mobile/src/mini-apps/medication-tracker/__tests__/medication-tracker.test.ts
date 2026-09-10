@@ -153,7 +153,7 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-17',
         slotTime: '08:00',
         referenceDate: midMorning,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('due');
     expect(
@@ -161,7 +161,7 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-17',
         slotTime: '20:00',
         referenceDate: midMorning,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('upcoming');
     expect(
@@ -169,7 +169,7 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-17',
         slotTime: '08:00',
         referenceDate: lateEvening,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('missed');
     expect(
@@ -177,9 +177,37 @@ describe('medication-tracker/utils', () => {
         dateKey: '2026-07-10',
         slotTime: '08:00',
         referenceDate: midMorning,
-        hasLog: false,
+        log: null,
       }),
     ).toBe('missed');
+    expect(
+      resolveScheduledStatus({
+        dateKey: '2026-07-17',
+        slotTime: '08:00',
+        referenceDate: lateEvening,
+        log: {
+          id: '1',
+          medicationId: 'm',
+          dateKey: '2026-07-17',
+          slotIndex: 0,
+          outcome: 'skipped',
+        },
+      }),
+    ).toBe('skipped');
+    expect(
+      resolveScheduledStatus({
+        dateKey: '2026-07-17',
+        slotTime: '08:00',
+        referenceDate: lateEvening,
+        log: {
+          id: '1',
+          medicationId: 'm',
+          dateKey: '2026-07-17',
+          slotIndex: 0,
+          outcome: 'taken',
+        },
+      }),
+    ).toBe('taken');
   });
 
   it('builds scheduled slots for past, today, and future', () => {

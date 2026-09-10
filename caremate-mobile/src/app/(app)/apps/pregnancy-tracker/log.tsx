@@ -41,6 +41,7 @@ import {
   type PregnancyIssue,
 } from '@/mini-apps/pregnancy-tracker/validation';
 import { toDateKey } from '@/mini-apps/_kit/date-utils';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import { palette, radius, spacing } from '@/theme';
 
 const APP_ID = 'pregnancy-tracker' as const;
@@ -239,6 +240,7 @@ function PregnancyLogForm({
         ...getTodayLog(todayKey),
         ...assessment.payload!,
       });
+      trackMiniAppUsed('pregnancy-tracker', 'pregnancy_update_recorded');
       router.back();
     };
 

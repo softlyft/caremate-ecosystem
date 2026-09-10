@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "Wepụ",
-      "completedYearMismatch": "Ị debanyere {{completedYear}}, mana ihe a bụ maka atụmatụ {{planYear}}. Biko kwado na ọ bụ n'ụzọ dị ume.",
+      "completedYearMismatch": "Ụbọchị mmecha ga-adị n'ime {{planYear}}. Ụbọchị ị họọrọ dị n'ime {{completedYear}}.",
       "onceAlreadyLogged": "Enyocha otu oge a edebanyela maka {{year}}. Biko kwado na ị chọrọ ideba ya ọzọ.",
       "checkTitle": "Biko nyochaa nke a",
       "confirmTitle": "Biko kwado",

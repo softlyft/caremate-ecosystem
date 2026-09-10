@@ -8,7 +8,7 @@ import { localizationService } from '@/domains/localization';
 import { useSettingsStore } from '@/domains/profile/store';
 import { profileRepository } from '@/domains/profile/repository';
 import { useAuthStore } from '@/features/auth/store';
-import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
+import { trackOnboardingCompleted } from '@/lib/monitoring/product-analytics';
 
 import { getDeviceDefaults, setDeviceDefaults } from './device-defaults';
 import { useOnboardingDraftStore } from './store';
@@ -32,12 +32,7 @@ export async function completePhaseA(): Promise<DeviceDefaults> {
 
   useSettingsStore.getState().setNotificationsEnabled(defaults.notificationsEnabled);
   await authService.setOnboardingComplete(true);
-  trackEvent(AnalyticsEvents.onboardingComplete, {
-    country_code: defaults.countryCode,
-    language_code: defaults.languageCode,
-    emergency_basics_started: defaults.emergencyBasicsStarted,
-    wants_family: defaults.wantsFamily,
-  });
+  trackOnboardingCompleted();
 
   const userId = useAuthStore.getState().user?.id ?? GUEST_USER_ID;
   await ensureWelcomeInAppNotification({

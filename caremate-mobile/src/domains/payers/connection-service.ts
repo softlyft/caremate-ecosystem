@@ -1,4 +1,8 @@
 import { supabase } from '@/lib/supabase';
+import {
+  trackPayerConnectionCompleted,
+  trackPayerConnectionStarted,
+} from '@/lib/monitoring/product-analytics';
 
 export type PayerConnectionStatus =
   'pending' | 'approved' | 'rejected' | 'cancelled' | 'disconnected';
@@ -268,6 +272,7 @@ class PayerConnectionService {
 
     const row = (Array.isArray(data) ? data[0] : data) as RemotePayerConnectionRow;
     const names = await loadPayerNames([params.payerOrganizationId]);
+    trackPayerConnectionStarted(params.payerOrganizationId);
     return mapRow(row, names.get(params.payerOrganizationId) ?? null);
   }
 
@@ -293,6 +298,13 @@ class PayerConnectionService {
 
     if (error) {
       throw error;
+    }
+
+    if (params.accept) {
+      const accepted = await this.getConnectionById(params.connectionId);
+      if (accepted?.payerOrganizationId) {
+        trackPayerConnectionCompleted(accepted.payerOrganizationId);
+      }
     }
   }
 

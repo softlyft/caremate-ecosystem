@@ -1,8 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button, DetailRow, FormActions } from '@/components/ui/form-controls';
@@ -11,6 +12,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { maxChildrenForTier } from '@/domains/billing/entitlements';
 import { familyRepository, useFamilySetupStore } from '@/domains/family';
 import { useTranslation } from '@/domains/localization';
+import { trackFamilyMemberAdded } from '@/lib/monitoring/product-analytics';
 import { profileRepository } from '@/domains/profile/repository';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
@@ -37,7 +39,7 @@ export default function FamilyReviewScreen() {
           : tier === 'personal'
             ? t('family.childLimitMessageStandard')
             : t('family.childLimitMessageFree');
-      Alert.alert(t('family.childLimitTitle'), limitMessage);
+      void alert(t('family.childLimitTitle'), limitMessage);
       return;
     }
     setSaving(true);
@@ -49,14 +51,19 @@ export default function FamilyReviewScreen() {
           profile?.fullName || profile?.email?.split('@')[0] || t('family.defaultParentLabel'),
         children: draftChildren,
       });
+      draftChildren.forEach(() => {
+        trackFamilyMemberAdded();
+      });
       reset();
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyHousehold });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
-      router.replace('/(app)/family');
+      // Pop Setup → Kids → Child → Review so Back from Family returns to Me,
+      // not into the finished wizard (replace alone left those routes stacked).
+      router.dismissTo('/(app)/family');
     } catch (error) {
       const message =
         error instanceof Error ? error.message : t('family.review.setupFailedMessage');
-      Alert.alert(t('family.review.setupFailed'), message);
+      void alert(t('family.review.setupFailed'), message);
     } finally {
       setSaving(false);
     }

@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { alert, confirm } from '@/components/ui/AppDialogHost';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/form-controls';
 import { LoadingState } from '@/components/ui/screen-states';
 import { isImmunizationScheduleItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import { VACCINE_SCHEDULE } from '@/mini-apps/immunization-tracker/constants';
@@ -51,6 +52,13 @@ export default function ImmunizationLogScreen() {
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
   const hydrated = useImmunizationTrackerHydrated();
+  const vaccineId = typeof initialVaccineId === 'string' ? initialVaccineId : null;
+
+  useEffect(() => {
+    if (vaccineId) {
+      trackMiniAppUsed('immunization-tracker', 'immunization_viewed');
+    }
+  }, [vaccineId]);
 
   const profiles = useImmunizationTrackerStore((state) => state.profiles);
   const activeProfileId = useImmunizationTrackerStore((state) => state.activeProfileId);
@@ -163,6 +171,7 @@ export default function ImmunizationLogScreen() {
 
     const save = () => {
       upsertRecord(assessment.payload!);
+      trackMiniAppUsed('immunization-tracker', 'immunization_added');
       router.back();
     };
 

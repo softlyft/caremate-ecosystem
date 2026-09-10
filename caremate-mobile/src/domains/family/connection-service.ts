@@ -1,4 +1,5 @@
 import { APP_NAME, APP_STORE_URLS } from '@/constants/config';
+import { billingRepository } from '@/domains/billing/repository';
 import { familyRepository } from '@/domains/family/repository';
 import { assertNotFamilySelfInvite } from '@/domains/family/invite-guards';
 import type {
@@ -7,7 +8,10 @@ import type {
   FamilyLookupUser,
 } from '@/domains/family/types';
 import { isFamilyInviteRelationship } from '@/domains/family/types';
-import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
+import {
+  trackFamilyInvitationAccepted,
+  trackFamilyInvitationSent,
+} from '@/lib/monitoring/product-analytics';
 import { supabase } from '@/lib/supabase';
 import { createId, nowIso } from '@/utils/helpers';
 
@@ -134,7 +138,7 @@ class FamilyConnectionService {
     };
 
     await familyRepository.saveConnectionRequestLocal(request);
-    trackEvent(AnalyticsEvents.familyRequestSent, { channel: 'remote' });
+    trackFamilyInvitationSent();
 
     // Best-effort email + push to the receiver (Edge Function; never blocks request create).
     void supabase.functions
@@ -189,6 +193,17 @@ class FamilyConnectionService {
     }
 
     await familyRepository.pullFromRemote(params.userId);
+    if (params.accept) {
+      // Family Premium is stored on the owner's subscription row; household members
+      // read it via RLS. Refresh local entitlement cache so the invitee gets the badge,
+      // ad suppression, and mini-app unlocks without waiting for a later sync.
+      try {
+        await billingRepository.pullFromRemote();
+      } catch {
+        // Offline / RLS — Family UI can still show the joined household from SQLite.
+      }
+      trackFamilyInvitationAccepted();
+    }
 
     // Best-effort OS push to the sender (Edge Function; never blocks respond).
     void supabase.functions

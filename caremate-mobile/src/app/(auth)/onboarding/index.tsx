@@ -18,6 +18,7 @@ import { images } from '@/constants/assets';
 import { OnboardingPrimaryButton, OnboardingShell } from '@/domains/onboarding/OnboardingShell';
 import { ONBOARDING_STEP_THEMES } from '@/domains/onboarding/themes';
 import { useTranslation } from '@/domains/localization';
+import { trackOnboardingStarted } from '@/lib/monitoring/product-analytics';
 import { fontFamily, palette, radius, shadow, spacing } from '@/theme';
 
 const theme = ONBOARDING_STEP_THEMES[0];
@@ -46,6 +47,10 @@ const PREVIEW_KEYS = [
 export default function OnboardingWelcomeScreen() {
   const { t } = useTranslation();
   const pulse = useSharedValue(1);
+
+  useEffect(() => {
+    trackOnboardingStarted();
+  }, []);
 
   useEffect(() => {
     pulse.value = withRepeat(
