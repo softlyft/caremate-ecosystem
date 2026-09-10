@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "Eliminar",
-      "completedYearMismatch": "Registraste {{completedYear}}, pero este ítem es del plan {{planYear}}. Confirma que es intencional.",
+      "completedYearMismatch": "La fecha de realización debe estar en {{planYear}}. La fecha elegida está en {{completedYear}}.",
       "onceAlreadyLogged": "Este chequeo único ya se registró para {{year}}. Confirma que quieres registrarlo de nuevo.",
       "checkTitle": "Por favor revisa esto",
       "confirmTitle": "Por favor confirma",

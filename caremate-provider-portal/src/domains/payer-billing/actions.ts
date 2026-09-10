@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { requirePayerManageAccess, requirePayerWriteAccess } from '@/lib/auth';
+import { requirePayerManageAccess } from '@/lib/auth';
 import { setSupportTeamMember } from '@/domains/payer-billing/repository';
 
 export async function setSupportTeamMemberAction(formData: FormData) {
@@ -22,7 +22,7 @@ export async function setSupportTeamMemberAction(formData: FormData) {
 }
 
 export async function startPayerOrgCheckoutAction(formData: FormData) {
-  const session = await requirePayerWriteAccess();
+  const session = await requirePayerManageAccess();
   const planTier = String(formData.get('plan_tier') ?? '').trim() as 'basic' | 'pro';
   const billingInterval = String(formData.get('billing_interval') ?? 'monthly').trim() as
     | 'monthly'
@@ -49,6 +49,7 @@ export async function startPayerOrgCheckoutAction(formData: FormData) {
   const accessToken = sessionData.session?.access_token;
   if (!accessToken) throw new Error('Not authenticated');
 
+  // Must stay on allowlisted CareMate hosts (see supabase/functions/_shared/return-url.ts).
   const successUrl = `${careUrl}/payer/settings/billing?paid=1`;
   const cancelUrl = `${website}/payers/pricing`;
 

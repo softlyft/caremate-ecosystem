@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -197,7 +197,8 @@ function EditProfileForm({
     () => (connectionsQuery.data ?? []).filter((c) => c.status === 'pending'),
     [connectionsQuery.data],
   );
-  const awaitingStaff = useMemo(() => approved.some((c) => !c.isOrgStaff), [approved]);
+  const hasStaffOrg = useMemo(() => approved.some((c) => c.isOrgStaff), [approved]);
+  const hasConnectedNonStaff = useMemo(() => approved.some((c) => !c.isOrgStaff), [approved]);
 
   // Extra scroll room so lower fields (address / NIN) can rise above the keyboard.
   // Applied on both platforms: Android adjustResize alone is not enough for bottom fields.
@@ -216,13 +217,13 @@ function EditProfileForm({
     if (!name) {
       const message = t('profile.edit.nameRequired');
       setNameError(message);
-      Alert.alert(message);
+      void alert(message);
       return;
     }
     if (!isValidFullName(name)) {
       const message = t('profile.edit.nameInvalid');
       setNameError(message);
-      Alert.alert(message);
+      void alert(message);
       return;
     }
     setNameError(null);
@@ -230,13 +231,13 @@ function EditProfileForm({
     const nationalIdResult = parseNationalId(nationalId, countryCode, nationalIdMessages);
     if (!nationalIdResult.ok) {
       setNationalIdError(nationalIdResult.message);
-      Alert.alert(nationalIdResult.message);
+      void alert(nationalIdResult.message);
       return;
     }
     setNationalIdError(null);
 
     if (phone.trim() && !isValidPhone(phone)) {
-      Alert.alert(t('profile.edit.phoneInvalid'));
+      void alert(t('profile.edit.phoneInvalid'));
       return;
     }
 
@@ -258,7 +259,7 @@ function EditProfileForm({
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
       router.back();
     } catch (error) {
-      Alert.alert(
+      void alert(
         t('profile.edit.saveFailed'),
         error instanceof Error ? error.message : t('common.loadFailedMessage'),
       );
@@ -476,20 +477,28 @@ function EditProfileForm({
             {isPractitioner ? (
               <View style={[styles.orgCard, { borderColor: palette.divider }]}>
                 <AppText variant="cardTitle">{t('profile.edit.connectOrgTitle')}</AppText>
-                <AppText variant="caption">{t('profile.edit.connectOrgBody')}</AppText>
+                <AppText variant="caption">
+                  {t(
+                    hasStaffOrg && !hasConnectedNonStaff
+                      ? 'profile.edit.connectOrgBodyStaffed'
+                      : 'profile.edit.connectOrgBody',
+                  )}
+                </AppText>
 
                 {approved.length > 0 ? (
                   <View style={styles.orgList}>
                     {approved.map((c) => (
-                      <AppText key={c.id} variant="body">
-                        {t(c.isOrgStaff ? 'profile.edit.staffOrg' : 'profile.edit.connectedOrg', {
-                          name: c.organizationName ?? t('profile.edit.unknownOrg'),
-                        })}
-                      </AppText>
+                      <View key={c.id} style={styles.orgRow}>
+                        <AppText variant="body">
+                          {t(c.isOrgStaff ? 'profile.edit.staffOrg' : 'profile.edit.connectedOrg', {
+                            name: c.organizationName ?? t('profile.edit.unknownOrg'),
+                          })}
+                        </AppText>
+                        {!c.isOrgStaff ? (
+                          <AppText variant="caption">{t('profile.edit.awaitingStaff')}</AppText>
+                        ) : null}
+                      </View>
                     ))}
-                    {awaitingStaff ? (
-                      <AppText variant="caption">{t('profile.edit.awaitingStaff')}</AppText>
-                    ) : null}
                   </View>
                 ) : null}
 
@@ -557,6 +566,9 @@ const styles = StyleSheet.create({
     backgroundColor: palette.background,
   },
   orgList: {
-    gap: 4,
+    gap: spacing.sm,
+  },
+  orgRow: {
+    gap: 2,
   },
 });

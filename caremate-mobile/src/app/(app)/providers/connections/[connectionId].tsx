@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ShieldPlus, Unlink } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
@@ -83,7 +84,7 @@ export default function ConnectedProviderDetailScreen() {
       setRangeConsent(null);
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('nearby.connections.consentFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connections.consentFailedMessage'),
       );
@@ -97,14 +98,14 @@ export default function ConnectedProviderDetailScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setDisconnecting(false);
       setDisconnectReason('');
-      Alert.alert(
+      void alert(
         t('nearby.connections.disconnectSuccessTitle'),
         t('nearby.connections.disconnectSuccessMessage'),
         [{ text: t('common.ok'), onPress: () => router.back() }],
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('nearby.connections.disconnectFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );
@@ -180,7 +181,7 @@ export default function ConnectedProviderDetailScreen() {
       return;
     }
     const title = resolveConsentTitle(consent, t);
-    Alert.alert(
+    void alert(
       t('nearby.connections.grantConfirmTitle'),
       t('nearby.connections.grantConfirmMessage', { consent: title }),
       [
@@ -200,7 +201,7 @@ export default function ConnectedProviderDetailScreen() {
 
   const confirmRevoke = (consent: ConnectionConsentDefinition) => {
     const title = resolveConsentTitle(consent, t);
-    Alert.alert(
+    void alert(
       t('nearby.connections.revokeConfirmTitle'),
       t('nearby.connections.revokeConfirmMessage', { consent: title }),
       [

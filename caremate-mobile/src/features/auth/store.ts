@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { GUEST_USER } from '@/constants/guest';
 import { AnalyticsEvents, trackEvent } from '@/lib/monitoring/analytics';
+import { trackUserSignedUp } from '@/lib/monitoring/product-analytics';
 import { queryClient } from '@/lib/query-client';
 import { authService } from '@/services/auth-service';
 import type { AuthUser } from '@/types';
@@ -148,7 +149,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         passwordRecoveryPending: false,
       });
       if (mapped) {
-        trackEvent(AnalyticsEvents.signUp);
+        trackUserSignedUp('email');
         const { claimExclusiveNotificationDevice } = await import('@/domains/notifications/push');
         await claimExclusiveNotificationDevice();
       }
@@ -173,7 +174,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         passwordRecoveryPending: false,
       });
       if (mapped) {
-        trackEvent(AnalyticsEvents.signUp);
+        trackUserSignedUp('email');
         const { claimExclusiveNotificationDevice } = await import('@/domains/notifications/push');
         await claimExclusiveNotificationDevice();
       }

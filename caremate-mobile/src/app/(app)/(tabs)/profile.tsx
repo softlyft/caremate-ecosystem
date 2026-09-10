@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Alert, Linking, StyleSheet, Switch, View } from 'react-native';
+import { Linking, StyleSheet, Switch, View } from 'react-native';
 import {
   TabScrollView,
   iosTabScrollProps,
@@ -24,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { LinearGradientFill } from '@/components/motion/LinearGradientFill';
@@ -87,7 +88,7 @@ export default function ProfileTabScreen() {
   async function handleNotificationsToggle(value: boolean) {
     const result = await applyNotificationsEnabledPreference(value);
     if (value && !result.applied) {
-      Alert.alert(
+      void alert(
         t('settings.notifications.permissionDeniedTitle'),
         t('settings.notifications.permissionDeniedMessage'),
         [
@@ -108,12 +109,12 @@ export default function ProfileTabScreen() {
       const url = WEBSITE_URLS.communityNetwork;
       const supported = await Linking.canOpenURL(url);
       if (!supported) {
-        Alert.alert(t('settings.legal.openFailed'));
+        void alert(t('settings.legal.openFailed'));
         return;
       }
       await Linking.openURL(url);
     } catch {
-      Alert.alert(t('settings.legal.openFailed'));
+      void alert(t('settings.legal.openFailed'));
     }
   }
 

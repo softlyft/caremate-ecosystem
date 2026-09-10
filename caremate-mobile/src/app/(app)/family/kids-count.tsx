@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -30,7 +31,7 @@ export default function FamilyKidsCountScreen() {
   function continueNext() {
     const parsed = Number.parseInt(value, 10) || 0;
     if (parsed > maxKids) {
-      Alert.alert(t('family.childLimitTitle'), t('family.kidsCountLimitHint'));
+      void alert(t('family.childLimitTitle'), t('family.kidsCountLimitHint'));
       return;
     }
     const count = Math.max(0, Math.min(maxKids, parsed));

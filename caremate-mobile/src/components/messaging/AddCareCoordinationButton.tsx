@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { Users } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { useTranslation } from '@/domains/localization';
@@ -36,7 +37,7 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
       const rows = await listCareCoordinationCandidates(conversation.id);
       setCandidates(rows);
     } catch (error) {
-      Alert.alert(t('messages.coordinationFailedTitle'), formatCareCoordinationLoadAlert(error, t));
+      void alert(t('messages.coordinationFailedTitle'), formatCareCoordinationLoadAlert(error, t));
       setOpen(false);
     } finally {
       setLoading(false);
@@ -103,7 +104,7 @@ export function AddCareCoordinationButton({ conversation }: { conversation: Mess
                       setOpen(false);
                       router.replace(`/(app)/messages/${nextId}`);
                     } catch (error) {
-                      Alert.alert(
+                      void alert(
                         t('messages.coordinationFailedTitle'),
                         formatCareCoordinationAlert(error, t),
                       );

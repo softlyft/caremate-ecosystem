@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +13,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import {
@@ -158,7 +158,7 @@ export default function FamilyChildFormScreen() {
   }
 
   if (index < 0 || index >= childCount) {
-    Alert.alert(t('family.child.invalidStep'));
+    void alert(t('family.child.invalidStep'));
     router.replace('/(app)/family/kids-count');
     return null;
   }

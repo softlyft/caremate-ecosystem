@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button, FormActions, FormField, Input } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
@@ -33,10 +34,10 @@ export default function ProviderOutboundConnectionRequestsScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.providerConnections });
       setCancellingId(null);
       setReason('');
-      Alert.alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
+      void alert(t('nearby.detail.cancelSuccessTitle'), t('nearby.detail.cancelSuccessMessage'));
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('nearby.detail.cancelFailedTitle'),
         error instanceof Error ? error.message : t('nearby.connectionRequests.failedMessage'),
       );

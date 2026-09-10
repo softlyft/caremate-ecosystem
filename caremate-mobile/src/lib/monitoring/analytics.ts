@@ -48,11 +48,8 @@ export function identifyAnalyticsUser(user: {
     client.reset();
     return;
   }
-  const traits: PostHogEventProperties = {};
-  if (user.email) {
-    traits.email = user.email;
-  }
-  client.identify(user.id, traits);
+  // CareMate user id only. Do not attach email, phone, or name.
+  client.identify(user.id);
 }
 
 export function resetAnalytics(): void {

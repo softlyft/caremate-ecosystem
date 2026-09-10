@@ -2,7 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
-import { alert, confirm } from '@/components/ui/AppDialogHost';
+import { alert, choose, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import {
   FREE_MEDICATION_LIMIT,
@@ -14,6 +14,8 @@ import { useTranslation } from '@/domains/localization';
 import { useSettingsStore } from '@/domains/profile/store';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
+import { useMiniAppViewed } from '@/lib/monitoring/use-product-analytics';
 import { usePremiumTier } from '@/hooks/use-premium-state';
 import {
   MiniAppCard,
@@ -60,6 +62,7 @@ const theme = getMiniAppTheme('medication-tracker');
 
 const STATUS_COLORS: Record<DoseSlotStatus, string> = {
   taken: '#059669',
+  skipped: '#6B7280',
   due: '#D97706',
   missed: '#DC2626',
   upcoming: '#6B7280',
@@ -68,6 +71,7 @@ const STATUS_COLORS: Record<DoseSlotStatus, string> = {
 
 const STATUS_BACKGROUNDS: Record<DoseSlotStatus, string> = {
   taken: '#D1FAE5',
+  skipped: '#F3F4F6',
   due: '#FEF3C7',
   missed: '#FEE2E2',
   upcoming: '#F3F4F6',
@@ -86,9 +90,11 @@ function slotSubtitle(slot: DoseSlot, t: TranslateFn) {
   if (instructions) {
     bits.push(instructions);
   }
-  if (slot.status === 'taken') {
+  if (slot.status === 'taken' || slot.status === 'skipped') {
     bits.push(t('apps.medication.ui.tapToUndo'));
-  } else if (slot.status === 'due' || slot.status === 'missed' || slot.status === 'as-needed') {
+  } else if (slot.status === 'missed') {
+    bits.push(t('apps.medication.ui.tapToUpdateMissed'));
+  } else if (slot.status === 'due' || slot.status === 'as-needed') {
     bits.push(t('apps.medication.ui.tapToMarkTaken'));
   }
   return bits.join(' · ');
@@ -118,6 +124,7 @@ function DoseSection({
           slot.status === 'due' ||
           slot.status === 'missed' ||
           slot.status === 'taken' ||
+          slot.status === 'skipped' ||
           slot.status === 'as-needed';
         return (
           <MiniAppRow
@@ -141,6 +148,7 @@ function DoseSection({
 }
 
 export default function MedicationTrackerScreen() {
+  useMiniAppViewed('medication-tracker');
   const { t } = useTranslation();
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
@@ -284,13 +292,61 @@ export default function MedicationTrackerScreen() {
       return;
     }
 
-    const save = () => {
+    const save = (outcome: 'taken' | 'skipped' = 'taken') => {
       logDose({
         medicationId: slot.medication.id,
         dateKey: slot.dateKey,
         slotIndex: slot.slotIndex,
+        outcome,
       });
+      trackMiniAppUsed('medication-tracker', 'medication_logged');
     };
+
+    if (slot.status === 'missed') {
+      const choice = await choose({
+        title: t('apps.medication.validation.missedTitle'),
+        message: t('apps.medication.validation.missedMessage', {
+          name: slot.medication.name,
+          slot: localizeDoseSlotLabel(slot, t),
+        }),
+        actions: [
+          {
+            label: t('apps.medication.validation.keepMissed'),
+            value: 'keep',
+            variant: 'secondary',
+          },
+          {
+            label: t('apps.medication.validation.skipDose'),
+            value: 'skip',
+            variant: 'secondary',
+          },
+          {
+            label: t('apps.medication.validation.markTaken'),
+            value: 'taken',
+            variant: 'primary',
+          },
+        ],
+      });
+
+      if (choice === 'keep' || choice == null) {
+        return;
+      }
+
+      const outcome = choice === 'skip' ? 'skipped' : 'taken';
+      if (outcome === 'taken' && assessment.soft.length > 0) {
+        const ok = await confirm({
+          title: t('apps.medication.validation.confirmTitle'),
+          message: assessment.soft.map(issueMessage).join('\n\n'),
+          cancelLabel: t('apps.medication.validation.cancel'),
+          confirmLabel: t('apps.medication.validation.saveAnyway'),
+        });
+        if (!ok) {
+          return;
+        }
+      }
+      save(outcome);
+      return;
+    }
 
     if (assessment.soft.length > 0) {
       const ok = await confirm({
@@ -300,12 +356,12 @@ export default function MedicationTrackerScreen() {
         confirmLabel: t('apps.medication.validation.saveAnyway'),
       });
       if (ok) {
-        save();
+        save('taken');
       }
       return;
     }
 
-    save();
+    save('taken');
   };
 
   if (!hydrated) {

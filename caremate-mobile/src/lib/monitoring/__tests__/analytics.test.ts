@@ -93,7 +93,7 @@ describe('analytics', () => {
 
   it('identifies signed-in users and resets guests', () => {
     identifyAnalyticsUser({ id: 'u1', email: 'a@b.co', isGuest: false });
-    expect(identify).toHaveBeenCalledWith('u1', { email: 'a@b.co' });
+    expect(identify).toHaveBeenCalledWith('u1');
 
     identifyAnalyticsUser({ id: 'guest', isGuest: true });
     expect(reset).toHaveBeenCalled();

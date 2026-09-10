@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button, FormActions, FormField, Input } from '@/components/ui/form-controls';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AppText } from '@/components/ui/AppText';
 import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
@@ -33,7 +34,7 @@ export default function PayerConnectionRequestsScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       setDecliningId(null);
       setReason('');
-      Alert.alert(
+      void alert(
         variables.accept
           ? t('insurance.connections.approvedTitle')
           : t('insurance.connections.declinedTitle'),
@@ -43,7 +44,7 @@ export default function PayerConnectionRequestsScreen() {
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('insurance.connections.respondFailedTitle'),
         error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
       );

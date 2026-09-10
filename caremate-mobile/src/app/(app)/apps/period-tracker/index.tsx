@@ -8,6 +8,8 @@ import { alert, confirm } from '@/components/ui/AppDialogHost';
 import { AppText } from '@/components/ui/AppText';
 import { AD_SLOTS } from '@/domains/ads';
 import { useTranslation } from '@/domains/localization';
+import { trackMiniAppUsed } from '@/lib/monitoring/product-analytics';
+import { useMiniAppViewed } from '@/lib/monitoring/use-product-analytics';
 import { AdSlot } from '@/features/ads/AdSlot';
 import {
   MiniAppCard,
@@ -43,6 +45,7 @@ import { palette, radius, spacing } from '@/theme';
 const APP_ID = 'period-tracker' as const;
 
 export default function PeriodTrackerScreen() {
+  useMiniAppViewed('period-tracker');
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);
@@ -85,7 +88,11 @@ export default function PeriodTrackerScreen() {
       return;
     }
 
-    const apply = () => togglePeriodDay(dayKey);
+    const apply = () => {
+      const logging = !loggedPeriodDays.includes(dayKey);
+      togglePeriodDay(dayKey);
+      trackMiniAppUsed('period-tracker', logging ? 'period_started' : 'period_ended');
+    };
 
     if (assessment.soft.length > 0) {
       const ok = await confirm({

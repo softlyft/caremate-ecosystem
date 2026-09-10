@@ -373,8 +373,20 @@ describe('checkup-planner/validation', () => {
       currentYear: 2026,
       completions: [],
     });
-    expect(mismatch.hard).toBeNull();
-    expect(mismatch.soft.some((s) => s.code === 'soft_completed_year_mismatch')).toBe(true);
+    expect(mismatch.hard?.code).toBe('completed_year_mismatch');
+    expect(mismatch.payload).toBeNull();
+
+    const futurePlanMismatch = assessCompletionDraft({
+      checkupId: 'general-checkup',
+      year: 2027,
+      completedDate: '2026-09-10',
+      profile,
+      todayKey: '2026-09-10',
+      currentYear: 2026,
+      completions: [],
+    });
+    expect(futurePlanMismatch.hard?.code).toBe('completed_year_mismatch');
+    expect(futurePlanMismatch.payload).toBeNull();
   });
 
   it('soft-warns when a once-cadence checkup was logged in another year', () => {

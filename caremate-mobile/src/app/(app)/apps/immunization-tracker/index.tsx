@@ -6,6 +6,7 @@ import { AppText } from '@/components/ui/AppText';
 import { LoadingState } from '@/components/ui/screen-states';
 import { isImmunizationScheduleItemUnlocked } from '@/domains/billing/entitlements';
 import { useTranslation } from '@/domains/localization';
+import { useMiniAppViewed } from '@/lib/monitoring/use-product-analytics';
 import { PremiumLockedOverlay } from '@/features/premium/PremiumLockedOverlay';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { useFamilyImmunizationChildren } from '@/mini-apps/immunization-tracker/use-family-children';
@@ -54,6 +55,7 @@ const STATUS_BACKGROUNDS: Record<VaccineStatus, string> = {
 };
 
 export default function ImmunizationTrackerScreen() {
+  useMiniAppViewed('immunization-tracker');
   const { t } = useTranslation();
   const theme = getMiniAppTheme(APP_ID);
   const today = useMemo(() => new Date(), []);

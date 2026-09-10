@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "移除",
-      "completedYearMismatch": "您记录的是 {{completedYear}}，但此项属于 {{planYear}} 计划。请确认这是有意的。",
+      "completedYearMismatch": "完成日期必须在 {{planYear}} 年内。您选择的日期在 {{completedYear}} 年。",
       "onceAlreadyLogged": "此一次性体检已于 {{year}} 年记录。请确认您要再次记录。",
       "checkTitle": "请检查此项",
       "confirmTitle": "请确认",

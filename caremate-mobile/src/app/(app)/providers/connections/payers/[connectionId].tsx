@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Unlink } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
 import { AppText } from '@/components/ui/AppText';
@@ -36,14 +37,14 @@ export default function ConnectedPayerDetailScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       setDisconnecting(false);
       setDisconnectReason('');
-      Alert.alert(
+      void alert(
         t('insurance.connections.disconnectSuccessTitle'),
         t('insurance.connections.disconnectSuccessMessage'),
         [{ text: t('common.ok'), onPress: () => router.back() }],
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('insurance.connections.disconnectFailedTitle'),
         error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
       );

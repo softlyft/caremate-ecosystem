@@ -469,7 +469,7 @@
     },
     "validation": {
       "undoConfirm": "Cire",
-      "completedYearMismatch": "Ka rubuta {{completedYear}}, amma wannan abu na tsarin {{planYear}} ne. Da fatan za a tabbatar haka ne nufi.",
+      "completedYearMismatch": "Ranar kammala dole ta kasance a cikin {{planYear}}. Ranar da kuka zaɓa tana cikin {{completedYear}}.",
       "onceAlreadyLogged": "An riga an rubuta wannan binciken lokaci ɗaya don {{year}}. Da fatan za a tabbatar kuna son sake rubutawa.",
       "checkTitle": "Da fatan za a duba wannan",
       "confirmTitle": "Da fatan za a tabbatar",

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams, useNavigation, type Href } from 'expo-router';
 import { Globe, Link2, Mail, MapPin, Phone, Shield } from 'lucide-react-native';
-import { useLayoutEffect, useMemo, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { alert } from '@/components/ui/AppDialogHost';
 
 import { AnimatedSection } from '@/components/motion/AnimatedSection';
 import { OrgCareTeamSection } from '@/components/connections/OrgCareTeamSection';
@@ -20,6 +21,7 @@ import {
 } from '@/domains/payers/connection-service';
 import { payerRepository } from '@/domains/payers/repository';
 import { useIsGuest } from '@/hooks/use-current-user-id';
+import { trackPayerViewed } from '@/lib/monitoring/product-analytics';
 import { layoutSpacing, palette, radius, shadow, spacing, textColors } from '@/theme';
 
 const THEME = {
@@ -32,6 +34,12 @@ export default function InsuranceOrgDetailScreen() {
   const { t } = useTranslation();
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   const payerOrganizationId = Array.isArray(rawId) ? rawId[0] : (rawId ?? '');
+
+  useEffect(() => {
+    if (payerOrganizationId) {
+      trackPayerViewed(payerOrganizationId);
+    }
+  }, [payerOrganizationId]);
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const isGuest = useIsGuest();
@@ -90,13 +98,13 @@ export default function InsuranceOrgDetailScreen() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
-      Alert.alert(
+      void alert(
         t('insurance.connections.connectSuccessTitle'),
         t('insurance.connections.connectSuccessMessage'),
       );
     },
     onError: (error) => {
-      Alert.alert(t('insurance.connections.connectFailedTitle'), t(payerConnectionErrorKey(error)));
+      void alert(t('insurance.connections.connectFailedTitle'), t(payerConnectionErrorKey(error)));
     },
   });
 
@@ -111,7 +119,7 @@ export default function InsuranceOrgDetailScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       setDeclining(false);
       setRejectionReason('');
-      Alert.alert(
+      void alert(
         variables.accept
           ? t('insurance.connections.approveSuccessTitle')
           : t('insurance.connections.declinedTitle'),
@@ -121,7 +129,7 @@ export default function InsuranceOrgDetailScreen() {
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('insurance.connections.respondFailedTitle'),
         error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
       );
@@ -135,13 +143,13 @@ export default function InsuranceOrgDetailScreen() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payerConnections });
       setCancelling(false);
       setCancelReason('');
-      Alert.alert(
+      void alert(
         t('insurance.connections.cancelSuccessTitle'),
         t('insurance.connections.cancelSuccessMessage'),
       );
     },
     onError: (error) => {
-      Alert.alert(
+      void alert(
         t('insurance.connections.cancelFailedTitle'),
         error instanceof Error ? error.message : t('insurance.connections.failedMessage'),
       );

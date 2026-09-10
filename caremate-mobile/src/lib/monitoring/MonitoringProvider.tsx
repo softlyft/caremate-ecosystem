@@ -4,6 +4,7 @@ import { PropsWithChildren, useEffect } from 'react';
 
 import { config } from '@/constants/env';
 import { useAuthStore } from '@/features/auth/store';
+import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import {
   bindPostHogClient,
   identifyAnalyticsUser,
@@ -11,24 +12,34 @@ import {
   resetAnalytics,
   trackScreen,
 } from '@/lib/monitoring/analytics';
+import { setProductAnalyticsContext, trackAppOpened } from '@/lib/monitoring/product-analytics';
 import { setSentryUser } from '@/lib/monitoring/sentry';
 
 function MonitoringIdentityBridge({ children }: PropsWithChildren) {
   const user = useAuthStore((state) => state.user);
   const isGuest = useAuthStore((state) => state.isGuest);
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const { countryCode, resolvedLanguage } = useLocalizationPreferences();
+
+  useEffect(() => {
+    setProductAnalyticsContext({
+      country: countryCode,
+      language: resolvedLanguage,
+    });
+  }, [countryCode, resolvedLanguage]);
 
   useEffect(() => {
     if (!isInitialized) {
       return;
     }
+    trackAppOpened();
     if (!user || isGuest) {
       setSentryUser(null);
       resetAnalytics();
       return;
     }
     setSentryUser({ id: user.id, email: user.email });
-    identifyAnalyticsUser({ id: user.id, email: user.email, isGuest: false });
+    identifyAnalyticsUser({ id: user.id, isGuest: false });
   }, [isInitialized, isGuest, user]);
 
   return children;
