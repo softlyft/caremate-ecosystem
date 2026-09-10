@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from '@/lib/router';
+import { usePathname } from 'next/navigation';
 import { useTransition } from 'react';
 import {
   LayoutDashboard,

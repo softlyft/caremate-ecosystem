@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/lib/router';
 import { useTransition } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
