@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
 import { AppProviders } from '@/components/app-providers';
 import './globals.css';
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <NextTopLoader color="#0d9488" height={3} showSpinner={false} crawl speed={200} />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
