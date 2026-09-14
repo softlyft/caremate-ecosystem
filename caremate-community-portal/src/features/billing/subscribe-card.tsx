@@ -35,8 +35,8 @@ export function SubscribeCard({ defaultCurrency }: { defaultCurrency: 'NGN' | 'U
       <CardHeader>
         <CardTitle>CareMate Premium</CardTitle>
         <CardDescription>
-          Subscribe with Paystack (Naira) or Stripe (USD). The same account unlocks Premium in the
-          CareMate app. Family plans need a household already set up in the app.
+          Subscribe with Paystack (NGN or USD). The same account unlocks Premium in the CareMate
+          app. Family plans need a household already set up in the app.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -71,7 +71,7 @@ export function SubscribeCard({ defaultCurrency }: { defaultCurrency: 'NGN' | 'U
               onChange={(event) => setCurrency(event.target.value as 'NGN' | 'USD')}
             >
               <option value="NGN">NGN · Paystack</option>
-              <option value="USD">USD · Stripe</option>
+              <option value="USD">USD · Paystack</option>
             </Select>
           </div>
         </div>

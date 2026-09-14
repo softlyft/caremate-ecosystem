@@ -20,9 +20,11 @@ Care Portal org billing is **separate** from patient Premium (`subscription_pric
 | Pro | 20 | 100 | 250h each / mo |
 | Enterprise | SoftLyft grant | SoftLyft grant | Custom |
 
-Paid checkout: **Paystack NGN only** (monthly / yearly).
+Paid checkout: **Paystack NGN only** (monthly / yearly), hosted by the **payment gateway**.
 
-Checkout return URLs are Care Portal billing (`/app/settings/billing?paid=1`) and website cancel (`/providers/pricing`). Edge `assertAllowedReturnUrls` allowlists CareMate https hosts (not only `/success`|/cancel`).
+Care Portal billing actions build a payment-gateway URL (`product=provider_org`, plan tier, org id, handoff) and redirect. The gateway reads `provider_org_plan_prices`, calls `create-provider-org-checkout`, and returns through gateway `/success` → `verify-checkout` (webhook remains durable). Do **not** call the Edge Function directly from Care Portal.
+
+Checkout return URLs nested under the gateway are Care Portal billing (`/app/settings/billing?paid=1`) and website cancel (`/providers/pricing`). Edge `assertAllowedReturnUrls` allowlists CareMate https hosts.
 
 ## Schema
 
