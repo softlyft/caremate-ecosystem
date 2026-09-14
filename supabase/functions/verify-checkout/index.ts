@@ -1,6 +1,12 @@
 import { finalizeSuccessfulPayment, type BillingInterval, type PlanType } from '../_shared/billing.ts';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { sendBillingActivatedEmail } from '../_shared/email.ts';
+import {
+  finalizePayerOrgPayment,
+} from '../_shared/payer-org-billing.ts';
+import {
+  finalizeProviderOrgPayment,
+} from '../_shared/provider-org-billing.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
 
 type PaystackVerifyData = {
@@ -40,6 +46,14 @@ function metaString(meta: Record<string, unknown> | undefined, key: string): str
   return null;
 }
 
+function isProviderOrgReference(reference: string): boolean {
+  return reference.startsWith('pog_');
+}
+
+function isPayerOrgReference(reference: string): boolean {
+  return reference.startsWith('pyo_');
+}
+
 async function respondAfterFinalize(
   service: ReturnType<typeof createServiceClient>,
   result: { paymentId: string; subscriptionId: string; alreadyFinalized: boolean },
@@ -75,13 +89,125 @@ async function respondAfterFinalize(
   });
 }
 
+async function userCanAccessProviderOrgPayment(
+  service: ReturnType<typeof createServiceClient>,
+  userId: string,
+  payment: { created_by?: string | null; organization_id: string },
+): Promise<boolean> {
+  if (payment.created_by && payment.created_by === userId) return true;
+  const { data: membership } = await service
+    .from('provider_org_members')
+    .select('role')
+    .eq('organization_id', payment.organization_id)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle();
+  const role = membership?.role as string | undefined;
+  return role === 'owner' || role === 'administrator';
+}
+
+async function userCanAccessPayerOrgPayment(
+  service: ReturnType<typeof createServiceClient>,
+  userId: string,
+  payment: { created_by?: string | null; organization_id: string },
+): Promise<boolean> {
+  if (payment.created_by && payment.created_by === userId) return true;
+  const { data: membership } = await service
+    .from('payer_org_members')
+    .select('role')
+    .eq('organization_id', payment.organization_id)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle();
+  const role = membership?.role as string | undefined;
+  return role === 'owner' || role === 'administrator';
+}
+
+async function verifyAndFinalizeOrgPayment(params: {
+  service: ReturnType<typeof createServiceClient>;
+  userId: string;
+  reference: string;
+  kind: 'provider' | 'payer';
+}) {
+  const { service, userId, reference, kind } = params;
+  const table = kind === 'provider' ? 'provider_org_payments' : 'payer_org_payments';
+  const { data: payment, error } = await service
+    .from(table)
+    .select('*')
+    .eq('provider_reference', reference)
+    .maybeSingle();
+  if (error) return jsonResponse({ error: error.message }, 500);
+  if (!payment) {
+    return jsonResponse({ error: 'Organization payment not found.' }, 404);
+  }
+
+  const allowed =
+    kind === 'provider'
+      ? await userCanAccessProviderOrgPayment(service, userId, payment as {
+          created_by?: string | null;
+          organization_id: string;
+        })
+      : await userCanAccessPayerOrgPayment(service, userId, payment as {
+          created_by?: string | null;
+          organization_id: string;
+        });
+  if (!allowed) {
+    return jsonResponse({ error: 'Forbidden' }, 403);
+  }
+
+  if (payment.status === 'succeeded' && payment.subscription_id) {
+    return jsonResponse({
+      status: 'succeeded',
+      payment_id: payment.id,
+      subscription_id: payment.subscription_id,
+      already_finalized: true,
+      product: kind === 'provider' ? 'provider_org' : 'payer_org',
+    });
+  }
+
+  const verified = await verifyPaystackReference(reference);
+  if (!verified.ok) {
+    return jsonResponse({ error: verified.error }, 502);
+  }
+  if (verified.data.status !== 'success') {
+    return jsonResponse({
+      status: verified.data.status ?? 'pending',
+      payment_id: payment.id,
+      message: 'Payment not successful yet',
+      product: kind === 'provider' ? 'provider_org' : 'payer_org',
+    });
+  }
+
+  const finalizeInput = {
+    paymentId: String(payment.id),
+    providerReference: String(verified.data.reference ?? reference),
+    providerTransactionId: verified.data.id != null ? String(verified.data.id) : null,
+    providerCustomerId: verified.data.customer?.customer_code ?? null,
+    amountMinor: typeof verified.data.amount === 'number' ? verified.data.amount : null,
+  };
+
+  const result =
+    kind === 'provider'
+      ? await finalizeProviderOrgPayment(service, finalizeInput)
+      : await finalizePayerOrgPayment(service, finalizeInput);
+
+  return jsonResponse({
+    status: 'succeeded',
+    payment_id: result.paymentId,
+    subscription_id: result.subscriptionId,
+    already_finalized: result.alreadyFinalized,
+    product: kind === 'provider' ? 'provider_org' : 'payer_org',
+  });
+}
+
 /**
- * Client-side fallback after hosted checkout returns to the app.
- * Confirms the charge with Paystack/Stripe, then creates the subscription.
+ * Client-side fallback after hosted checkout returns to the app / payment gateway.
+ * Confirms the charge with Paystack, then creates the subscription / org entitlement.
  *
- * Also recovers:
- * - missing `payments` rows (legacy incomplete-subscription checkout)
- * - missing deep-link reference (uses latest pending payment for the user)
+ * Routes by payment reference prefix:
+ * - `pog_` → provider org Private Care Team
+ * - `pyo_` → payer org Support Team
+ * - else → patient Premium (`payments` / `subscriptions`)
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -115,6 +241,23 @@ Deno.serve(async (req) => {
     const service = createServiceClient();
     const reference = body.reference?.trim() || null;
     const paymentId = body.payment_id?.trim() || null;
+
+    if (reference && isProviderOrgReference(reference)) {
+      return await verifyAndFinalizeOrgPayment({
+        service,
+        userId: user.id,
+        reference,
+        kind: 'provider',
+      });
+    }
+    if (reference && isPayerOrgReference(reference)) {
+      return await verifyAndFinalizeOrgPayment({
+        service,
+        userId: user.id,
+        reference,
+        kind: 'payer',
+      });
+    }
 
     let payment: Record<string, unknown> | null = null;
 

@@ -189,3 +189,57 @@ export function buildCheckoutUrl(input: {
   });
   return `${payment}/?${query.toString()}`;
 }
+
+export type SubscriptionPriceRow = {
+  plan_type: 'personal' | 'family';
+  billing_interval: 'monthly' | 'yearly';
+  currency: 'NGN' | 'USD';
+  amount_minor: number;
+};
+
+export function formatMoneyFromMinor(amountMinor: number, currency: 'NGN' | 'USD'): string {
+  const major = amountMinor / 100;
+  try {
+    return new Intl.NumberFormat(currency === 'NGN' ? 'en-NG' : 'en-US', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: currency === 'NGN' ? 0 : 2,
+    }).format(major);
+  } catch {
+    return `${major} ${currency}`;
+  }
+}
+
+/** Live `subscription_prices` for marketing display (fallback stays CONSUMER_PLANS). */
+export async function fetchActiveSubscriptionPrices(): Promise<SubscriptionPriceRow[]> {
+  const { isSupabaseConfigured, supabaseRestHeaders, supabaseRestUrl } = await import(
+    '@/lib/supabase'
+  );
+  if (!isSupabaseConfigured) return [];
+  const url = supabaseRestUrl(
+    'subscription_prices',
+    'is_active=eq.true&select=plan_type,billing_interval,currency,amount_minor&order=plan_type,billing_interval',
+  );
+  const response = await fetch(url, { headers: supabaseRestHeaders() });
+  if (!response.ok) return [];
+  return (await response.json()) as SubscriptionPriceRow[];
+}
+
+export function liveDisplayAmount(
+  rows: SubscriptionPriceRow[],
+  planId: PlanId,
+  region: PricingRegion,
+  billing: 'monthly' | 'annual',
+): string | null {
+  const planType = checkoutPlanType(planId);
+  if (!planType) return null;
+  const currency = checkoutCurrency(region);
+  const interval = checkoutInterval(billing);
+  const row = rows.find(
+    (item) =>
+      item.plan_type === planType &&
+      item.billing_interval === interval &&
+      item.currency === currency,
+  );
+  return row ? formatMoneyFromMinor(row.amount_minor, currency) : null;
+}

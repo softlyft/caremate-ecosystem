@@ -60,6 +60,33 @@ class SupabaseWriter:
         self._require()
         if not rows:
             return 0
+        # Postgres rejects ON CONFLICT when the same conflict key appears twice in one INSERT.
+        conflict_keys = [k.strip() for k in on_conflict.split(",") if k.strip()]
+        if conflict_keys:
+            deduped: dict[str, dict[str, Any]] = {}
+            order: list[str] = []
+            dropped = 0
+            for row in rows:
+                key = "|".join(str(row.get(k) or "") for k in conflict_keys)
+                if not key or key == "|".join("" for _ in conflict_keys):
+                    # Keep rows missing conflict keys as unique entries (rare / invalid).
+                    key = f"__missing__:{len(order)}"
+                if key in deduped:
+                    dropped += 1
+                else:
+                    order.append(key)
+                deduped[key] = row  # last wins
+            if dropped:
+                logger.warning(
+                    "%s upsert: dropped %s duplicate %s key(s) within batch (%s → %s rows)",
+                    table,
+                    dropped,
+                    on_conflict,
+                    len(rows),
+                    len(order),
+                )
+            rows = [deduped[k] for k in order]
+
         written = 0
         chunk_size = 200
         with httpx.Client(timeout=180.0) as client:

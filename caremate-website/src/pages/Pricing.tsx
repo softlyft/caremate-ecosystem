@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { APP_STORE_URLS, BRAND, PAYMENT_URL, SITE_URL } from '@/lib/brand';
@@ -11,7 +11,10 @@ import {
   checkoutCurrency,
   checkoutInterval,
   checkoutPlanType,
+  fetchActiveSubscriptionPrices,
+  liveDisplayAmount,
   type PricingRegion,
+  type SubscriptionPriceRow,
 } from '@/lib/pricing';
 import styles from './Pricing.module.css';
 
@@ -20,6 +23,21 @@ export function PricingPage() {
   const paid = searchParams.get('paid') === '1';
   const [region, setRegion] = useState<PricingRegion>('ng');
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
+  const [livePrices, setLivePrices] = useState<SubscriptionPriceRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchActiveSubscriptionPrices()
+      .then((rows) => {
+        if (!cancelled) setLivePrices(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setLivePrices([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <main>
@@ -106,12 +124,16 @@ export function PricingPage() {
         </div>
         <p className={styles.regionHint}>
           {PRICING_REGIONS.find((item) => item.id === region)?.hint}
+          {' '}
+          Final amount is confirmed on the CareMate payment page before Paystack.
         </p>
 
         <div className={styles.planGrid}>
           {CONSUMER_PLANS.map((plan) => {
             const price = plan.prices[region];
-            const amount = billing === 'monthly' ? price.monthly : price.annual;
+            const liveAmount = liveDisplayAmount(livePrices, plan.id, region, billing);
+            const amount =
+              liveAmount ?? (billing === 'monthly' ? price.monthly : price.annual);
             const period = billing === 'monthly' ? '/ month' : '/ year';
             const note = billing === 'annual' ? price.annualNote : price.monthlyNote;
 

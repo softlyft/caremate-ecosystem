@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
   readonly VITE_WEBSITE_URL?: string;
   readonly VITE_COMMUNITY_PORTAL_URL?: string;
+  readonly VITE_CARE_PORTAL_URL?: string;
 }
 
 interface ImportMeta {

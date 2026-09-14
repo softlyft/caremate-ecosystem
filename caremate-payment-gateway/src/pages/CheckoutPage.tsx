@@ -2,14 +2,23 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 're
 import { useSearchParams } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 
-import { fetchActivePrice, fetchPatientId, startProviderCheckout } from '@/lib/api';
+import {
+  fetchActiveOrgPrice,
+  fetchActivePrice,
+  fetchPatientId,
+  startOrgCheckout,
+  startPremiumCheckout,
+} from '@/lib/api';
 import {
   formatAmount,
   intervalLabel,
+  orgPlanLabel,
   parseCheckoutParams,
   planLabel,
   providerForCurrency,
   type CheckoutParams,
+  type OrgCheckoutParams,
+  type PremiumCheckoutParams,
 } from '@/lib/checkout';
 import { hydrateSessionFromHash, isSupabaseConfigured, signInWithPassword, supabase } from '@/lib/supabase';
 
@@ -62,23 +71,37 @@ export function CheckoutPage() {
     }
 
     async function loadAccount(nextSession: Session, checkout: CheckoutParams) {
-      const [price, profilePatientId] = await Promise.all([
-        fetchActivePrice({
-          planType: checkout.planType,
-          billingInterval: checkout.billingInterval,
-          currency: checkout.currency,
-        }),
-        checkout.patientId
-          ? Promise.resolve(checkout.patientId)
-          : fetchPatientId(nextSession.user.id),
-      ]);
+      if (checkout.product === 'premium') {
+        const [price, profilePatientId] = await Promise.all([
+          fetchActivePrice({
+            planType: checkout.planType,
+            billingInterval: checkout.billingInterval,
+            currency: checkout.currency,
+          }),
+          checkout.patientId
+            ? Promise.resolve(checkout.patientId)
+            : fetchPatientId(nextSession.user.id),
+        ]);
 
-      if (!price) {
-        throw new Error('No active price found for this plan and currency.');
+        if (!price) {
+          throw new Error('No active price found for this plan and currency.');
+        }
+
+        setPatientId(profilePatientId);
+        setAmountLabel(formatAmount(price.amount_minor, checkout.currency));
+        return;
       }
 
-      setPatientId(profilePatientId);
-      setAmountLabel(formatAmount(price.amount_minor, checkout.currency));
+      const price = await fetchActiveOrgPrice({
+        product: checkout.product,
+        planTier: checkout.planTier,
+        billingInterval: checkout.billingInterval,
+      });
+      if (!price) {
+        throw new Error('No active org plan price found for this selection.');
+      }
+      setPatientId(null);
+      setAmountLabel(formatAmount(price.amount_minor, 'NGN'));
     }
 
     void boot();
@@ -94,19 +117,32 @@ export function CheckoutPage() {
     try {
       setSession(nextSession);
       setNeedsSignIn(false);
-      const [price, profilePatientId] = await Promise.all([
-        fetchActivePrice({
-          planType: params.planType,
+      if (params.product === 'premium') {
+        const [price, profilePatientId] = await Promise.all([
+          fetchActivePrice({
+            planType: params.planType,
+            billingInterval: params.billingInterval,
+            currency: params.currency,
+          }),
+          params.patientId ? Promise.resolve(params.patientId) : fetchPatientId(nextSession.user.id),
+        ]);
+        if (!price) {
+          throw new Error('No active price found for this plan and currency.');
+        }
+        setPatientId(profilePatientId);
+        setAmountLabel(formatAmount(price.amount_minor, params.currency));
+      } else {
+        const price = await fetchActiveOrgPrice({
+          product: params.product,
+          planTier: params.planTier,
           billingInterval: params.billingInterval,
-          currency: params.currency,
-        }),
-        params.patientId ? Promise.resolve(params.patientId) : fetchPatientId(nextSession.user.id),
-      ]);
-      if (!price) {
-        throw new Error('No active price found for this plan and currency.');
+        });
+        if (!price) {
+          throw new Error('No active org plan price found for this selection.');
+        }
+        setPatientId(null);
+        setAmountLabel(formatAmount(price.amount_minor, 'NGN'));
       }
-      setPatientId(profilePatientId);
-      setAmountLabel(formatAmount(price.amount_minor, params.currency));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not prepare checkout');
     } finally {
@@ -122,14 +158,24 @@ export function CheckoutPage() {
       const successUrl = `${origin}/success?return=${encodeURIComponent(checkout.returnSuccess)}`;
       const cancelUrl = `${origin}/cancel?return=${encodeURIComponent(checkout.returnCancel)}`;
 
-      const result = await startProviderCheckout({
-        planType: checkout.planType,
-        billingInterval: checkout.billingInterval,
-        currency: checkout.currency,
-        householdId: checkout.householdId,
-        successUrl,
-        cancelUrl,
-      });
+      const result =
+        checkout.product === 'premium'
+          ? await startPremiumCheckout({
+              planType: checkout.planType,
+              billingInterval: checkout.billingInterval,
+              currency: checkout.currency,
+              householdId: checkout.householdId,
+              successUrl,
+              cancelUrl,
+            })
+          : await startOrgCheckout({
+              product: checkout.product,
+              organizationId: checkout.organizationId,
+              planTier: checkout.planTier,
+              billingInterval: checkout.billingInterval,
+              successUrl,
+              cancelUrl,
+            });
 
       window.location.assign(result.url);
     } catch (err) {
@@ -161,8 +207,9 @@ export function CheckoutPage() {
         <div className="badge">Paystack · {params.currency}</div>
         <h1>Sign in to pay</h1>
         <p className="lead">
-          Use the same email and password as the CareMate app. New accounts are created in the app
-          first.
+          {params.product === 'premium'
+            ? 'Use the same email and password as the CareMate app. New accounts are created in the app first.'
+            : 'Use your Care Portal account email and password (or open checkout from Care Portal with a signed-in session).'}
         </p>
         <SignInForm
           onSignedIn={(next) => {
@@ -170,12 +217,14 @@ export function CheckoutPage() {
           }}
         />
         {error ? <p className="error">{error}</p> : null}
-        <p className="muted">
-          Don&apos;t have an account?{' '}
-          <a href={APP_STORE_IOS}>Download for iOS</a>
-          {' · '}
-          <a href={APP_STORE_ANDROID}>Get it on Android</a>
-        </p>
+        {params.product === 'premium' ? (
+          <p className="muted">
+            Don&apos;t have an account?{' '}
+            <a href={APP_STORE_IOS}>Download for iOS</a>
+            {' · '}
+            <a href={APP_STORE_ANDROID}>Get it on Android</a>
+          </p>
+        ) : null}
       </Shell>
     );
   }
@@ -190,14 +239,19 @@ export function CheckoutPage() {
       </div>
       <h1>Confirm your plan</h1>
       <p className="lead">
-        You&apos;ll complete payment with Paystack. Premium unlocks on the same CareMate account in
-        the app.
+        {params.product === 'premium'
+          ? "You'll complete payment with Paystack. Premium unlocks on the same CareMate account in the app."
+          : "You'll complete payment with Paystack. Your organization plan activates on Care Portal after confirmation."}
       </p>
 
       <dl className="summary">
         <div>
           <dt>Plan</dt>
-          <dd>{planLabel(params.planType)}</dd>
+          <dd>
+            {params.product === 'premium'
+              ? planLabel(params.planType)
+              : orgPlanLabel(params.planTier, params.product)}
+          </dd>
         </div>
         <div>
           <dt>Billing</dt>
@@ -211,16 +265,24 @@ export function CheckoutPage() {
           <dt>Account</dt>
           <dd>{session.user.email ?? session.user.id}</dd>
         </div>
-        {patientId ? (
+        {params.product !== 'premium' ? (
+          <div>
+            <dt>Organization</dt>
+            <dd className="mono">{(params as OrgCheckoutParams).organizationId}</dd>
+          </div>
+        ) : null}
+        {params.product === 'premium' && patientId ? (
           <div>
             <dt>Patient ID</dt>
             <dd className="mono">{patientId}</dd>
           </div>
         ) : null}
-        {params.planType === 'family' && params.householdId ? (
+        {params.product === 'premium' &&
+        (params as PremiumCheckoutParams).planType === 'family' &&
+        (params as PremiumCheckoutParams).householdId ? (
           <div>
             <dt>Household</dt>
-            <dd className="mono">{params.householdId}</dd>
+            <dd className="mono">{(params as PremiumCheckoutParams).householdId}</dd>
           </div>
         ) : null}
       </dl>
