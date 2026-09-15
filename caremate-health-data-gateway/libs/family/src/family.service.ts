@@ -212,14 +212,92 @@ export class FamilyService {
       throw new InternalServerErrorException(linked.error.message);
     }
 
-    return Array.from(
-      new Set([
-        ...((owned.data ?? []) as { id: string }[]).map((r) => r.id),
-        ...((linked.data ?? []) as { household_id: string }[]).map(
-          (r) => r.household_id,
-        ),
-      ]),
-    );
+    const householdIds = new Set<string>([
+      ...((owned.data ?? []) as { id: string }[]).map((r) => r.id),
+      ...((linked.data ?? []) as { household_id: string }[]).map(
+        (r) => r.household_id,
+      ),
+    ]);
+
+    // Family Premium federation: include peer adults' leftover households.
+    if (householdIds.size > 0) {
+      const familySubs = await this.supabase.admin
+        .from('subscriptions')
+        .select('household_id, status, current_period_end')
+        .eq('plan_type', 'family')
+        .in('household_id', Array.from(householdIds))
+        .in('status', ['active', 'trialing']);
+
+      if (familySubs.error) {
+        throw new InternalServerErrorException(familySubs.error.message);
+      }
+
+      const now = Date.now();
+      const premiumIds = ((familySubs.data ?? []) as {
+        household_id: string;
+        status: string;
+        current_period_end: string | null;
+      }[])
+        .filter((row) => {
+          if (!row.current_period_end) return false;
+          const end = Date.parse(row.current_period_end);
+          return !Number.isNaN(end) && end > now;
+        })
+        .map((row) => row.household_id)
+        .filter(Boolean);
+
+      if (premiumIds.length > 0) {
+        const adults = await this.supabase.admin
+          .from('family_members')
+          .select('linked_user_id')
+          .in('household_id', premiumIds)
+          .in('kind', ['self', 'spouse']);
+
+        if (adults.error) {
+          throw new InternalServerErrorException(adults.error.message);
+        }
+
+        const peerUserIds = Array.from(
+          new Set(
+            ((adults.data ?? []) as { linked_user_id: string | null }[])
+              .map((r) => r.linked_user_id)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        );
+
+        if (peerUserIds.length > 0) {
+          const [peerOwned, peerSelf] = await Promise.all([
+            this.supabase.admin
+              .from('family_households')
+              .select('id')
+              .in('created_by_user_id', peerUserIds),
+            this.supabase.admin
+              .from('family_members')
+              .select('household_id')
+              .in('linked_user_id', peerUserIds)
+              .eq('kind', 'self'),
+          ]);
+
+          if (peerOwned.error) {
+            throw new InternalServerErrorException(peerOwned.error.message);
+          }
+          if (peerSelf.error) {
+            throw new InternalServerErrorException(peerSelf.error.message);
+          }
+
+          for (const row of (peerOwned.data ?? []) as { id: string }[]) {
+            householdIds.add(row.id);
+          }
+          for (const row of (peerSelf.data ?? []) as {
+            household_id: string;
+          }[]) {
+            householdIds.add(row.household_id);
+          }
+        }
+      }
+    }
+
+    return Array.from(householdIds);
   }
 
   private async loadHouseholds(ids: string[]): Promise<HouseholdRow[]> {

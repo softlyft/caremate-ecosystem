@@ -1,6 +1,7 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 import { periodEndIso } from './supabase.ts';
+import { pruneOrgSeatsToLimit } from './org-checkout-guards.ts';
 
 export type PayerOrgPlanTier = 'basic' | 'pro';
 export type PayerOrgBillingInterval = 'monthly' | 'yearly';
@@ -147,6 +148,12 @@ export async function finalizePayerOrgPayment(
   });
 
   if (subError) throw new Error(subError.message);
+
+  await pruneOrgSeatsToLimit(service, {
+    kind: 'payer',
+    organizationId: row.organization_id,
+    seatLimit: supportTeamSeatLimit,
+  });
 
   await service
     .from('payer_org_payments')

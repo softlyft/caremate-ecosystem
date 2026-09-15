@@ -7,18 +7,24 @@ Care Portal org billing is **separate** from patient Premium (`subscription_pric
 | Surface | Gate |
 |---------|------|
 | Org ↔ patient Messages | Always free (write roles) |
-| Patient ↔ practitioner DMs | Peer must be `provider_org_members.private_care_team = true` |
+| Patient ↔ practitioner DMs | Owner/admin **or** (`private_care_team` + `profiles.is_health_practitioner`) + messaging consent |
+| Staff ↔ staff DMs | Active org membership (no PCT seat required) |
 | Mark as staff | Membership only — does **not** grant patient DMs |
 | Add to Private Care Team | Manage role; seat limit from org entitlement |
+| Plan changes | Upgrade-only (or same-tier renewal). Downgrades blocked at checkout. |
+
+Owners/administrators can always DM connected patients **without** consuming a PCT seat.
 
 ### Plan defaults
 
-| Tier | PCT seats | Patients | Voice / video (reserved) |
-|------|-----------|----------|---------------------------|
-| Free (no active sub) | 1 | 5 | 0 |
-| Basic | 5 | 20 | 100h each / mo |
-| Pro | 20 | 100 | 250h each / mo |
-| Enterprise | SoftLyft grant | SoftLyft grant | Custom |
+Live defaults (catalog / free entitlement RPC):
+
+| Tier | PCT seats | Patients | Payer partners | Voice / video (reserved) |
+|------|-----------|----------|----------------|---------------------------|
+| Free (no active sub) | 2 | 20 | 3 | 0 |
+| Basic | 7 | 50 | 25 | catalog minutes / mo |
+| Pro | 25 | 200 | 75 | catalog minutes / mo |
+| Enterprise | SoftLyft grant | SoftLyft grant | SoftLyft grant | Custom |
 
 Paid checkout: **Paystack NGN only** (monthly / yearly), hosted by the **payment gateway**.
 
@@ -35,7 +41,7 @@ Checkout return URLs nested under the gateway are Care Portal billing (`/app/set
 - `provider_org_members.private_care_team`
 
 Helpers: `provider_org_entitlements`, `is_private_care_team_member`, `set_private_care_team_member`, `admin_grant_provider_org_subscription`.  
-`can_direct_message` requires PCT for patient DMs; staff↔staff unchanged.
+`can_direct_message` allows owner/admin or PCT health practitioners for patient DMs; staff↔staff unchanged.
 
 ## Surfaces
 

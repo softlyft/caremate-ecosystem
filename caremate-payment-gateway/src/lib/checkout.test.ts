@@ -159,9 +159,7 @@ describe('return URL allowlist', () => {
     expect(isAllowedAppReturnUrl('https://evil.amplifyapp.com/success')).toBe(false);
     expect(isAppDeepLinkReturn('caremate://billing/success')).toBe(true);
     expect(isAppDeepLinkReturn('https://www.getcaremate.com/pricing')).toBe(false);
-    expect(isCarePortalReturn('https://care.getcaremate.com/app/settings/billing?paid=1')).toBe(
-      true,
-    );
+    expect(isCarePortalReturn('https://care.test.local/app/settings/billing?paid=1')).toBe(true);
     expect(parseCheckoutSource('website')).toBe('website');
     expect(parseCheckoutSource('community')).toBe('community');
     expect(parseCheckoutSource('care_portal_provider')).toBe('care_portal_provider');

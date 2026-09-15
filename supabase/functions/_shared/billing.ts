@@ -118,7 +118,7 @@ export async function finalizeSuccessfulPayment(
   // Prefer renewing an existing active entitlement for the same scope.
   let existingQuery = service
     .from('subscriptions')
-    .select('id, current_period_end')
+    .select('id, current_period_end, billing_interval')
     .eq('user_id', row.user_id)
     .eq('plan_type', row.plan_type)
     .in('status', ['active', 'trialing', 'past_due'])
@@ -136,6 +136,18 @@ export async function finalizeSuccessfulPayment(
   let subscriptionId = existing?.id as string | undefined;
 
   if (subscriptionId) {
+    const existingInterval = existing?.billing_interval as BillingInterval | undefined;
+    const intervalRank = { monthly: 1, yearly: 2 } as const;
+    if (
+      existingInterval &&
+      (existingInterval === 'monthly' || existingInterval === 'yearly') &&
+      intervalRank[row.billing_interval] < intervalRank[existingInterval]
+    ) {
+      throw new Error(
+        'Cannot shorten the billing interval. Renew at the same interval or upgrade to yearly.',
+      );
+    }
+
     const base =
       existing?.current_period_end && new Date(existing.current_period_end) > new Date(now)
         ? new Date(existing.current_period_end)

@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { requireManageAccess } from '@/lib/auth';
 import { setPrivateCareTeamMember } from '@/domains/billing/repository';
-import { buildCarePortalOrgCheckoutUrl, getPaymentUrl } from '@/lib/payment-url';
+import { getCareUrl, getPaymentUrl, getWebsiteUrl } from '@/lib/env';
+import { buildCarePortalOrgCheckoutUrl } from '@/lib/payment-url';
 
 export async function setPrivateCareTeamMemberAction(formData: FormData) {
   const session = await requireManageAccess();
@@ -43,12 +44,8 @@ export async function startProviderOrgCheckoutAction(formData: FormData) {
   const refreshToken = sessionData.session?.refresh_token;
   if (!accessToken) throw new Error('Not authenticated');
 
-  const website =
-    process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, '') || 'https://www.getcaremate.com';
-  const careUrl =
-    process.env.NEXT_PUBLIC_CARE_URL?.replace(/\/$/, '') ||
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-    'https://care.getcaremate.com';
+  const website = getWebsiteUrl();
+  const careUrl = getCareUrl();
 
   let handoffCode: string | null = null;
   if (refreshToken) {

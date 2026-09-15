@@ -42,11 +42,11 @@ import type {
 } from '@/domains/family/types';
 import {
   FAMILY_ADULT_INVITE_LIMIT,
-  canAddChild,
   canConnectSpouse,
   canInviteFamilyMember,
   familyAdultInviteSeatsRemaining,
 } from '@/domains/billing/entitlements';
+import { canAddChildForRole } from '@/domains/family/visible-children';
 import { useTranslation } from '@/domains/localization';
 import { UpgradePrompt } from '@/features/premium/UpgradePrompt';
 import { profileRepository } from '@/domains/profile/repository';
@@ -132,6 +132,18 @@ export default function FamilyHubScreen() {
     queryKey: [...QUERY_KEYS.familyMembers, householdId],
     queryFn: () => familyRepository.listMembers(householdId!),
     enabled: Boolean(householdId),
+  });
+
+  const childrenQuery = useQuery({
+    queryKey: [...QUERY_KEYS.familyMembers, userId, 'accessible-children', tier],
+    queryFn: () => familyRepository.listVisibleAccessibleChildren(userId, tier),
+    enabled: !isGuest,
+  });
+
+  const writableHouseholdIdsQuery = useQuery({
+    queryKey: [...QUERY_KEYS.familyMembers, userId, 'writable-households'],
+    queryFn: () => familyRepository.listWritableHouseholdIds(userId),
+    enabled: !isGuest,
   });
 
   const requestsQuery = useQuery({
@@ -345,16 +357,22 @@ export default function FamilyHubScreen() {
 
   async function handleAddChild() {
     if (!householdId) return;
-    const currentChildCount = (membersQuery.data ?? []).filter(
-      (member) => member.kind === 'child',
-    ).length;
-    if (!canAddChild(tier, currentChildCount)) {
+    const owner = householdQuery.data?.createdByUserId === userId;
+    if (
+      !canAddChildForRole({
+        tier,
+        currentVisibleOrFederatedCount: childrenQuery.data?.length ?? 0,
+        isFamilyPlanOwner: owner,
+      })
+    ) {
       const limitMessage =
-        tier === 'family'
-          ? t('family.childLimitMessageFamily')
-          : tier === 'personal'
-            ? t('family.childLimitMessageStandard')
-            : t('family.childLimitMessageFree');
+        tier === 'family' && !owner
+          ? t('family.childLimitMessageFamilyInvitee')
+          : tier === 'family'
+            ? t('family.childLimitMessageFamily')
+            : tier === 'personal'
+              ? t('family.childLimitMessageStandard')
+              : t('family.childLimitMessageFree');
       void alert(t('family.childLimitTitle'), limitMessage);
       return;
     }
@@ -371,6 +389,7 @@ export default function FamilyHubScreen() {
     }
     setBusy(true);
     try {
+      // Family Premium adds always land on the owner household (this household for owners).
       await familyRepository.addChild(householdId, {
         fullName: validated.fullName,
         dateOfBirth: validated.dateOfBirth,
@@ -507,7 +526,8 @@ export default function FamilyHubScreen() {
     );
   }
 
-  const children = (membersQuery.data ?? []).filter((m) => m.kind === 'child');
+  const children = childrenQuery.data ?? [];
+  const writableHouseholdIds = new Set(writableHouseholdIdsQuery.data ?? []);
   const adults = (membersQuery.data ?? []).filter((m) => m.kind !== 'child');
   const invitedAdults = adults.filter((m) => m.kind === 'spouse');
   const pendingOutgoing = pendingOutgoingQuery.data ?? [];
@@ -515,7 +535,11 @@ export default function FamilyHubScreen() {
   const inviteSeatsRemaining = familyAdultInviteSeatsRemaining(usedInviteSeats);
   const isHouseholdOwner = householdQuery.data?.createdByUserId === userId;
   const requestCount = requestsQuery.data?.length ?? 0;
-  const canAddAnotherChild = canAddChild(tier, children.length);
+  const canAddAnotherChild = canAddChildForRole({
+    tier,
+    currentVisibleOrFederatedCount: children.length,
+    isFamilyPlanOwner: isHouseholdOwner,
+  });
   const familyPlanAllowsInvite = canConnectSpouse(tier);
   const canSendInvite = isHouseholdOwner && canInviteFamilyMember(tier, usedInviteSeats);
 
@@ -680,36 +704,58 @@ export default function FamilyHubScreen() {
                 <AppText variant="caption" style={styles.sectionEyebrow}>
                   {t('family.children')}
                 </AppText>
-                {children.map((child, index) => (
-                  <View key={child.id}>
-                    {index > 0 ? <View style={styles.divider} /> : null}
-                    <Button
-                      style={styles.memberRow}
-                      accessibilityRole="button"
-                      accessibilityLabel={t('family.editChildA11y', { name: child.fullName })}
-                      onPress={() => router.push(`/(app)/family/child/edit/${child.id}`)}
-                      variant="plain"
-                    >
-                      <View style={styles.avatar}>
-                        <Baby color={ACCENT} size={16} />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <AppText variant="body" style={styles.memberName}>
-                          {child.fullName}
-                        </AppText>
-                        <AppText variant="caption" style={styles.muted}>
-                          {t('family.dobLabel', {
-                            dob: formatDob(child.dateOfBirth),
-                            gender: child.gender ?? '—',
-                          })}
-                        </AppText>
-                      </View>
-                      <AppText variant="caption" color="brand">
-                        {t('family.editChild')}
-                      </AppText>
-                    </Button>
-                  </View>
-                ))}
+                {children.map((child, index) => {
+                  const canEditChild = writableHouseholdIds.has(child.householdId);
+                  return (
+                    <View key={child.id}>
+                      {index > 0 ? <View style={styles.divider} /> : null}
+                      {canEditChild ? (
+                        <Button
+                          style={styles.memberRow}
+                          accessibilityRole="button"
+                          accessibilityLabel={t('family.editChildA11y', { name: child.fullName })}
+                          onPress={() => router.push(`/(app)/family/child/edit/${child.id}`)}
+                          variant="plain"
+                        >
+                          <View style={styles.avatar}>
+                            <Baby color={ACCENT} size={16} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <AppText variant="body" style={styles.memberName}>
+                              {child.fullName}
+                            </AppText>
+                            <AppText variant="caption" style={styles.muted}>
+                              {t('family.dobLabel', {
+                                dob: formatDob(child.dateOfBirth),
+                                gender: child.gender ?? '—',
+                              })}
+                            </AppText>
+                          </View>
+                          <AppText variant="caption" color="brand">
+                            {t('family.editChild')}
+                          </AppText>
+                        </Button>
+                      ) : (
+                        <View style={styles.memberRow}>
+                          <View style={styles.avatar}>
+                            <Baby color={ACCENT} size={16} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <AppText variant="body" style={styles.memberName}>
+                              {child.fullName}
+                            </AppText>
+                            <AppText variant="caption" style={styles.muted}>
+                              {t('family.dobLabel', {
+                                dob: formatDob(child.dateOfBirth),
+                                gender: child.gender ?? '—',
+                              })}
+                            </AppText>
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
                 {children.length === 0 ? (
                   <AppText variant="caption" style={styles.muted}>
                     {t('family.noChildren')}
@@ -719,18 +765,22 @@ export default function FamilyHubScreen() {
                 {!canAddAnotherChild ? (
                   <UpgradePrompt
                     title={
-                      tier === 'family'
-                        ? t('profile.premium.familyChildLimitTitleFamily')
-                        : tier === 'personal'
-                          ? t('profile.premium.familyChildLimitTitleStandard')
-                          : t('profile.premium.familyChildLimitTitleFree')
+                      tier === 'family' && !isHouseholdOwner
+                        ? t('family.childLimitTitle')
+                        : tier === 'family'
+                          ? t('profile.premium.familyChildLimitTitleFamily')
+                          : tier === 'personal'
+                            ? t('profile.premium.familyChildLimitTitleStandard')
+                            : t('profile.premium.familyChildLimitTitleFree')
                     }
                     message={
-                      tier === 'family'
-                        ? t('profile.premium.familyChildLimitMessageFamily')
-                        : tier === 'personal'
-                          ? t('profile.premium.familyChildLimitMessageStandard')
-                          : t('profile.premium.familyChildLimitMessageFree')
+                      tier === 'family' && !isHouseholdOwner
+                        ? t('family.childLimitMessageFamilyInvitee')
+                        : tier === 'family'
+                          ? t('profile.premium.familyChildLimitMessageFamily')
+                          : tier === 'personal'
+                            ? t('profile.premium.familyChildLimitMessageStandard')
+                            : t('profile.premium.familyChildLimitMessageFree')
                     }
                     showCta={tier !== 'family'}
                   />

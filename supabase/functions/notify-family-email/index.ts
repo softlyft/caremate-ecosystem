@@ -3,14 +3,17 @@ import { sendTransactionalEmail } from '../_shared/email.ts';
 import { sendExpoPushNotification } from '../_shared/push.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
 
-type NotifyKind = 'request' | 'accepted' | 'declined';
+type NotifyKind = 'request' | 'accepted' | 'declined' | 'removed';
 
 /**
  * Authenticated family connection notifier (email + push).
- * Body: { requestId: string, kind?: 'request' | 'accepted' | 'declined' }
+ * Body:
+ * - { requestId, kind?: 'request' | 'accepted' | 'declined' }
+ * - { kind: 'removed', removedUserId, householdId? }
  *
  * - request (default): sender invokes → email + push to receiver
  * - accepted / declined: receiver invokes → push to sender
+ * - removed: household owner invokes → push to removed invitee
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -36,16 +39,29 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Unauthorized' }, 401);
     }
 
-    const body = (await req.json()) as { requestId?: string; kind?: string };
+    const body = (await req.json()) as {
+      requestId?: string;
+      kind?: string;
+      removedUserId?: string;
+      householdId?: string;
+    };
+
+    const kind: NotifyKind =
+      body.kind === 'accepted' || body.kind === 'declined' || body.kind === 'removed'
+        ? body.kind
+        : 'request';
+
+    const service = createServiceClient();
+
+    if (kind === 'removed') {
+      return await handleRemovedKind({ service, user, body });
+    }
+
     const requestId = body.requestId?.trim();
     if (!requestId) {
       return jsonResponse({ error: 'requestId is required' }, 400);
     }
 
-    const kind: NotifyKind =
-      body.kind === 'accepted' || body.kind === 'declined' ? body.kind : 'request';
-
-    const service = createServiceClient();
     const { data: request, error: requestError } = await service
       .from('family_connection_requests')
       .select('id, from_user_id, to_user_id, to_email, status')
@@ -70,6 +86,83 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: message }, 500);
   }
 });
+
+async function handleRemovedKind(params: {
+  service: ReturnType<typeof createServiceClient>;
+  user: { id: string; email?: string };
+  body: { removedUserId?: string; householdId?: string };
+}) {
+  const { service, user, body } = params;
+  const removedUserId = body.removedUserId?.trim();
+  const householdId = body.householdId?.trim() || null;
+
+  if (!removedUserId) {
+    return jsonResponse({ error: 'removedUserId is required' }, 400);
+  }
+  if (removedUserId === user.id) {
+    return jsonResponse({ error: 'Cannot notify yourself as removed' }, 400);
+  }
+
+  if (householdId) {
+    const { data: household } = await service
+      .from('family_households')
+      .select('id, created_by_user_id')
+      .eq('id', householdId)
+      .maybeSingle();
+    if (!household || household.created_by_user_id !== user.id) {
+      return jsonResponse({ error: 'Forbidden' }, 403);
+    }
+  } else {
+    const { data: owned } = await service
+      .from('family_households')
+      .select('id')
+      .eq('created_by_user_id', user.id)
+      .limit(1)
+      .maybeSingle();
+    if (!owned) {
+      return jsonResponse({ error: 'Forbidden' }, 403);
+    }
+  }
+
+  const { data: fromProfile } = await service
+    .from('profiles')
+    .select('full_name, email')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const fromName =
+    (typeof fromProfile?.full_name === 'string' && fromProfile.full_name.trim()) ||
+    user.email?.split('@')[0] ||
+    'Someone';
+
+  const title = 'Removed from Family Premium';
+  const bodyText = `${fromName} removed you from their CareMate Family plan. Family Premium access on that household has ended.`;
+  const dedupeKey = `family:removed:${user.id}:${removedUserId}:${householdId ?? 'any'}:${new Date()
+    .toISOString()
+    .slice(0, 13)}`;
+
+  const pushResult = await sendExpoPushNotification({
+    service,
+    userId: removedUserId,
+    domain: 'family',
+    eventType: 'family_member_removed',
+    title,
+    body: bodyText,
+    severity: 'important',
+    dedupeKey,
+    entityType: 'family_households',
+    entityId: householdId ?? user.id,
+    data: { path: '/(app)/family' },
+  });
+
+  return jsonResponse({
+    ok: true,
+    kind: 'removed',
+    push_delivery_status: pushResult.deliveryStatus,
+    push_notification_id: pushResult.notificationId || null,
+    push_error: pushResult.error ?? null,
+  });
+}
 
 async function handleRequestKind(params: {
   service: ReturnType<typeof createServiceClient>;
