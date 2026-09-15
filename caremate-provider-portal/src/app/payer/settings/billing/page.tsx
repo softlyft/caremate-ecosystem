@@ -4,6 +4,7 @@ import { getPayerOrgPlanUsage } from '@/domains/payer-billing/repository';
 import { startPayerOrgCheckoutAction } from '@/domains/payer-billing/actions';
 import { OrgBillingSettingsPanel } from '@/components/features/org-billing-settings-panel';
 import { Badge } from '@/components/ui/badge';
+import { getWebsiteUrl } from '@/lib/env';
 
 export default async function PayerBillingSettingsPage({
   searchParams,
@@ -14,8 +15,7 @@ export default async function PayerBillingSettingsPage({
   const params = await searchParams;
   const usage = await getPayerOrgPlanUsage(session.activeOrganizationId);
   const canManage = canManageOrg(session.activeRole);
-  const website =
-    process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, '') || 'https://www.getcaremate.com';
+  const website = getWebsiteUrl();
 
   const { entitlements, supportTeamMemberCount, approvedPatientCount, approvedProviderConnectionCount } =
     usage;

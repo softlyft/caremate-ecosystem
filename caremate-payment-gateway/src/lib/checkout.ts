@@ -1,4 +1,5 @@
 import { isAllowedAppReturnUrl, sanitizeAppReturnUrl } from '@/lib/return-url';
+import { getCarePortalUrl, getCommunityPortalUrl, getWebsiteUrl } from '@/lib/env';
 
 export type CheckoutProduct = 'premium' | 'provider_org' | 'payer_org';
 export type PlanType = 'personal' | 'family';
@@ -184,21 +185,13 @@ export function isCarePortalReturn(url: string): boolean {
   }
 }
 
-function trimOrigin(value: string | undefined, fallback: string): string {
-  const origin = (value ?? fallback).trim().replace(/\/$/, '');
-  return origin || fallback;
-}
-
 function websiteFallbackUrl(kind: 'success' | 'cancel'): string {
-  const origin = trimOrigin(import.meta.env.VITE_WEBSITE_URL, 'https://getcaremate.com');
+  const origin = getWebsiteUrl();
   return kind === 'success' ? `${origin}/pricing?paid=1` : `${origin}/pricing`;
 }
 
 function communityFallbackUrl(kind: 'success' | 'cancel'): string {
-  const origin = trimOrigin(
-    import.meta.env.VITE_COMMUNITY_PORTAL_URL,
-    'https://community.getcaremate.com',
-  );
+  const origin = getCommunityPortalUrl();
   return kind === 'success' ? `${origin}/app/profile?paid=1` : `${origin}/app/profile`;
 }
 
@@ -206,11 +199,8 @@ function carePortalFallbackUrl(
   kind: 'provider' | 'payer',
   outcome: 'success' | 'cancel',
 ): string {
-  const careOrigin = trimOrigin(
-    import.meta.env.VITE_CARE_PORTAL_URL,
-    'https://care.getcaremate.com',
-  );
-  const websiteOrigin = trimOrigin(import.meta.env.VITE_WEBSITE_URL, 'https://getcaremate.com');
+  const careOrigin = getCarePortalUrl();
+  const websiteOrigin = getWebsiteUrl();
   if (kind === 'provider') {
     return outcome === 'success'
       ? `${careOrigin}/app/settings/billing?paid=1`

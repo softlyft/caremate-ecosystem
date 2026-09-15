@@ -1,10 +1,6 @@
-/** CareMate hosted checkout origin (no trailing slash). */
-export function getPaymentUrl(): string {
-  return (process.env.NEXT_PUBLIC_PAYMENT_URL ?? 'https://payment.getcaremate.com').replace(
-    /\/$/,
-    '',
-  );
-}
+import { getPaymentUrl } from '@/lib/env';
+
+export { getPaymentUrl };
 
 export function buildCarePortalOrgCheckoutUrl(input: {
   paymentUrl: string;

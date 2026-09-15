@@ -1,12 +1,8 @@
-/** Canonical origin for this portal (no trailing slash). */
-export function getAppUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:4000').replace(/\/$/, '');
-}
+import { getCareUrl, getWebsiteUrl, requireEnvUrl } from '@/lib/env';
 
-/** CareMate marketing site origin. */
-export function getWebsiteUrl(): string {
-  return (process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://main.dim7uuolmjgc9.amplifyapp.com').replace(
-    /\/$/,
-    '',
-  );
+export { getCareUrl, getWebsiteUrl };
+
+/** Canonical origin for this portal instance (no trailing slash). */
+export function getAppUrl(): string {
+  return requireEnvUrl('NEXT_PUBLIC_APP_URL');
 }

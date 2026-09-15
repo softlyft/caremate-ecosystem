@@ -46,7 +46,7 @@
   "coordinationPayerNotConnected": "You are not connected to this insurer.",
   "coordinationOrgsNotLinked": "Your provider and insurer must be linked before you can start a care team chat.",
   "coordinationConsentRequired": "Turn on secure messaging with this clinic in your connection settings, then try again.",
-  "coordinationNotEligible": "This organization cannot be added to a care team chat right now.",
+  "coordinationNotEligible": "Care team group chat needs the payer’s Pro plan. Ask them to upgrade, or pick another organization.",
   "coordinationNotAvailable": "Care team chat is not available yet. Update the app or try again later.",
   "senderRoleInsurer": "insurer",
   "senderRoleProvider": "provider",

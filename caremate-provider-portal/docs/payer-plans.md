@@ -7,20 +7,25 @@ Care Portal payer org billing is **separate** from provider Private Care Team an
 | Surface | Gate |
 |---------|------|
 | Org ↔ patient Messages | Always free (write roles) |
-| Patient ↔ Support Team DMs | Peer must be `payer_org_members.support_team = true` |
+| Patient ↔ Support Team DMs | Owner/admin **or** `payer_org_members.support_team = true` + approved connection |
 | Mark as staff | Membership only — does **not** grant patient DMs |
 | Add to Support Team | Manage role; seat limit from org entitlement |
 | Voice | Support Team + plan allowance (no video for payers) |
-| Pro group chat | `group_chat_enabled` on subscription (patient + payer + provider) |
+| Care team group chat | Requires payer `group_chat_enabled` (Pro+). Enforced in `start_care_coordination_conversation` / candidate listing. |
+| Plan changes | Upgrade-only (or same-tier renewal). Downgrades blocked at checkout. |
+
+Owners/administrators can always DM connected patients **without** consuming a Support Team seat.
 
 ### Plan defaults
 
-| Tier | Support Team seats | Patients | Voice | Group chat |
-|------|-------------------|----------|-------|------------|
-| Free (no active sub) | 1 | 5 | 0 | No |
-| Basic | 5 | 20 | 100h / mo | No |
-| Pro | 20 | 100 | 250h / mo | Yes |
-| Enterprise | SoftLyft grant | SoftLyft grant | Custom | Yes |
+Live defaults (catalog / free entitlement RPC):
+
+| Tier | Support Team seats | Patients | Provider partners | Voice | Group chat |
+|------|-------------------|----------|-------------------|-------|------------|
+| Free (no active sub) | 2 | 7 | 3 | 0 | No |
+| Basic | 7 | 100 | 25 | catalog minutes / mo | No |
+| Pro | 25 | 250 | 75 | catalog minutes / mo | Yes |
+| Enterprise | SoftLyft grant | SoftLyft grant | SoftLyft grant | Custom | Yes |
 
 Paid checkout: **Paystack NGN only** (monthly / yearly).
 
@@ -32,7 +37,7 @@ Paid checkout: **Paystack NGN only** (monthly / yearly).
 - `payer_org_usage_counters` — voice minutes
 - `payer_org_members.support_team`
 
-Helpers: `payer_org_entitlements`, `is_support_team_member`, `set_support_team_member`, `admin_grant_payer_org_subscription`, `mark_connected_patient_as_payer_staff`.
+Helpers: `payer_org_entitlements`, `payer_org_has_group_chat`, `is_support_team_member`, `set_support_team_member`, `admin_grant_payer_org_subscription`, `mark_connected_patient_as_payer_staff`.
 
 ## Surfaces
 

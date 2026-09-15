@@ -51,7 +51,7 @@ export function careCoordinationErrorKey(error: unknown): string {
   if (/messaging consent required/i.test(message)) {
     return 'messages.coordinationConsentRequired';
   }
-  if (/not eligible/i.test(message)) {
+  if (/not eligible|group chat requires the payer|pro plan/i.test(message)) {
     return 'messages.coordinationNotEligible';
   }
   if (/does not exist|could not find the function|42883/i.test(lower)) {

@@ -1,5 +1,6 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { assertHouseholdMembership } from '../_shared/household.ts';
+import { assertPatientMayStartCheckout } from '../_shared/patient-checkout-guards.ts';
 import { initializePaystackTransaction } from '../_shared/paystack.ts';
 import { assertAllowedReturnUrls } from '../_shared/return-url.ts';
 import { createServiceClient, createUserClient, periodEndIso } from '../_shared/supabase.ts';
@@ -57,43 +58,13 @@ Deno.serve(async (req) => {
 
     const service = createServiceClient();
 
-    // Active Standard members must use create-upgrade for Family (credit + new period).
-    if (plan_type === 'family') {
-      const { data: personalActive } = await service
-        .from('subscriptions')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('plan_type', 'personal')
-        .in('status', ['active', 'trialing'])
-        .limit(1)
-        .maybeSingle();
-      if (personalActive) {
-        return jsonResponse(
-          {
-            error:
-              'You already have Standard Premium. Use Upgrade to Family to apply your unused credit.',
-          },
-          400,
-        );
-      }
-    }
-
-    // Block duplicate active entitlement of the same plan type.
-    {
-      const { data: already } = await service
-        .from('subscriptions')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('plan_type', plan_type)
-        .in('status', ['active', 'trialing'])
-        .limit(1)
-        .maybeSingle();
-      if (already) {
-        return jsonResponse(
-          { error: 'You already have an active subscription for this plan.' },
-          400,
-        );
-      }
+    try {
+      await assertPatientMayStartCheckout(service, user.id, plan_type);
+    } catch (err) {
+      return jsonResponse(
+        { error: err instanceof Error ? err.message : 'Checkout not allowed' },
+        400,
+      );
     }
 
     let householdId: string | null = null;

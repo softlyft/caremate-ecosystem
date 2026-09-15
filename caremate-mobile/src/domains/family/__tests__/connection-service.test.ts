@@ -23,6 +23,9 @@ jest.mock('@/domains/family/repository', () => ({
   familyRepository: {
     saveConnectionRequestLocal: (...args: unknown[]) => mockSaveConnectionRequestLocal(...args),
     pullFromRemote: (...args: unknown[]) => mockPullFromRemote(...args),
+    findMemberById: jest.fn(async () => null),
+    softDeleteMemberLocal: jest.fn(async () => undefined),
+    markConnectionRequestStatus: jest.fn(async () => undefined),
   },
 }));
 

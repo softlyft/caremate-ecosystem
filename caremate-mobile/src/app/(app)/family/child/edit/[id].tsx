@@ -30,6 +30,7 @@ import { QUERY_KEYS } from '@/constants/config';
 import { createChildProfileSchema, FAMILY_GENDERS, familyRepository } from '@/domains/family';
 import type { FamilyMemberGender } from '@/domains/family/types';
 import { useTranslation } from '@/domains/localization';
+import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { trackFamilyMemberViewed } from '@/lib/monitoring/product-analytics';
 import {
   MiniAppKeyboardContext,
@@ -76,6 +77,7 @@ export default function EditChildScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const userId = useCurrentUserId();
   const params = useLocalSearchParams<{ id: string }>();
   const memberId = typeof params.id === 'string' ? params.id : params.id?.[0];
 
@@ -96,7 +98,15 @@ export default function EditChildScreen() {
     enabled: Boolean(memberId),
   });
 
+  const writableHouseholdIdsQuery = useQuery({
+    queryKey: [...QUERY_KEYS.familyMembers, userId, 'writable-households'],
+    queryFn: () => familyRepository.listWritableHouseholdIds(userId),
+    enabled: Boolean(userId),
+  });
+
   const child = memberQuery.data;
+  const canEditChild =
+    Boolean(child) && (writableHouseholdIdsQuery.data ?? []).includes(child!.householdId);
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const currentYear = today.getFullYear();
@@ -175,7 +185,7 @@ export default function EditChildScreen() {
   }
 
   async function onSubmit(values: ChildForm) {
-    if (!memberId || saving) return;
+    if (!memberId || saving || !canEditChild) return;
     setSaving(true);
     try {
       await familyRepository.updateChild(memberId, {
@@ -206,7 +216,7 @@ export default function EditChildScreen() {
     );
   }
 
-  if (memberQuery.isLoading) {
+  if (memberQuery.isLoading || writableHouseholdIdsQuery.isLoading) {
     return <LoadingState title={t('family.editChildLoading')} />;
   }
 
@@ -219,6 +229,17 @@ export default function EditChildScreen() {
             ? memberQuery.error.message
             : t('family.editChildNotFoundMessage')
         }
+        actionLabel={t('common.goBack')}
+        onAction={() => router.back()}
+      />
+    );
+  }
+
+  if (!canEditChild) {
+    return (
+      <ErrorState
+        title={t('family.editChildNotFoundTitle')}
+        message={t('family.editChildReadOnlyMessage')}
         actionLabel={t('common.goBack')}
         onAction={() => router.back()}
       />

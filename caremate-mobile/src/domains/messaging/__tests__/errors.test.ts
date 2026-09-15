@@ -74,6 +74,10 @@ describe('messaging errors', () => {
       ['Messaging consent required', 'messages.coordinationConsentRequired'],
       ['Organization is not eligible for care coordination', 'messages.coordinationNotEligible'],
       [
+        'Care team group chat requires the payer organization Pro plan',
+        'messages.coordinationNotEligible',
+      ],
+      [
         'function start_care_coordination_from_source() does not exist',
         'messages.coordinationNotAvailable',
       ],
