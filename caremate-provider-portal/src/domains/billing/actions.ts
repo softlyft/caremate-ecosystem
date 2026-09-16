@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { requireManageAccess } from '@/lib/auth';
 import { setPrivateCareTeamMember } from '@/domains/billing/repository';
+import { getCareUrl, getPaymentUrl, getWebsiteUrl } from '@/lib/env';
+import { buildCarePortalOrgCheckoutUrl } from '@/lib/payment-url';
 
 export async function setPrivateCareTeamMemberAction(formData: FormData) {
   const session = await requireManageAccess();
@@ -31,55 +33,40 @@ export async function startProviderOrgCheckoutAction(formData: FormData) {
   if (planTier !== 'basic' && planTier !== 'pro') {
     throw new Error('Choose Basic or Pro');
   }
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const website =
-    process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, '') || 'https://www.getcaremate.com';
-  const careUrl =
-    process.env.NEXT_PUBLIC_CARE_URL?.replace(/\/$/, '') || 'https://care.getcaremate.com';
-
-  if (!url || !anon) {
-    throw new Error('Checkout is not configured');
+  if (billingInterval !== 'monthly' && billingInterval !== 'yearly') {
+    throw new Error('Choose monthly or yearly billing');
   }
 
   const { createClient } = await import('@/lib/supabase/server');
   const supabase = await createClient();
   const { data: sessionData } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
+  const refreshToken = sessionData.session?.refresh_token;
   if (!accessToken) throw new Error('Not authenticated');
 
-  // Must stay on allowlisted CareMate hosts (see supabase/functions/_shared/return-url.ts).
-  const successUrl = `${careUrl}/app/settings/billing?paid=1`;
-  const cancelUrl = `${website}/providers/pricing`;
+  const website = getWebsiteUrl();
+  const careUrl = getCareUrl();
 
-  const response = await fetch(`${url.replace(/\/$/, '')}/functions/v1/create-provider-org-checkout`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      apikey: anon,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      organization_id: session.activeOrganizationId,
-      plan_tier: planTier,
-      billing_interval: billingInterval,
-      currency: 'NGN',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-    }),
-  });
-
-  const payload = (await response.json().catch(() => null)) as {
-    error?: string;
-    url?: string;
-    authorization_url?: string;
-  } | null;
-
-  const checkoutUrl = payload?.url ?? payload?.authorization_url;
-  if (!response.ok || !checkoutUrl) {
-    throw new Error(payload?.error ?? 'Could not start checkout');
+  let handoffCode: string | null = null;
+  if (refreshToken) {
+    const { data, error } = await supabase.functions.invoke('create-checkout-handoff', {
+      body: { refresh_token: refreshToken },
+    });
+    if (!error && typeof data?.code === 'string' && data.code.trim()) {
+      handoffCode = data.code.trim();
+    }
   }
 
-  return { url: checkoutUrl };
+  return {
+    url: buildCarePortalOrgCheckoutUrl({
+      paymentUrl: getPaymentUrl(),
+      careUrl,
+      websiteUrl: website,
+      product: 'provider_org',
+      organizationId: session.activeOrganizationId,
+      planTier,
+      billingInterval,
+      handoffCode,
+    }),
+  };
 }

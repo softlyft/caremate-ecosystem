@@ -77,6 +77,8 @@ export function OrgBillingSettingsPanel({
             <OrgPlanCheckoutButtons
               websitePricingUrl={websitePricingUrl}
               checkoutAction={checkoutAction}
+              currentPlanTier={entitlements.plan_tier}
+              currentBillingInterval={entitlements.billing_interval}
             />
           </CardContent>
         </Card>

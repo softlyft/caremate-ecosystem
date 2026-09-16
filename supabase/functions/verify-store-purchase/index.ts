@@ -3,6 +3,7 @@ import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import { sendBillingActivatedEmail } from '../_shared/email.ts';
 import { assertHouseholdMembership } from '../_shared/household.ts';
 import { planFromProductId } from '../_shared/iap-products.ts';
+import { assertPatientMayStartCheckout } from '../_shared/patient-checkout-guards.ts';
 import { verifyAppleTransaction } from '../_shared/apple-app-store.ts';
 import { verifyGoogleSubscription } from '../_shared/google-play.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
@@ -56,6 +57,18 @@ Deno.serve(async (req) => {
     }
 
     const service = createServiceClient();
+
+    try {
+      await assertPatientMayStartCheckout(service, user.id, mapped.planType, {
+        allowPersonalToFamilyUpgrade: mapped.planType === 'family',
+      });
+    } catch (err) {
+      return jsonResponse(
+        { error: err instanceof Error ? err.message : 'Purchase not allowed' },
+        400,
+      );
+    }
+
     const provider = platform === 'ios' ? 'apple' : 'google';
     let providerReference = '';
     let expiresAt: string | null = null;

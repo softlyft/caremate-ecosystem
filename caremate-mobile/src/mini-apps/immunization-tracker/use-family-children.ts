@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react';
 import { QUERY_KEYS } from '@/constants/config';
 import { familyRepository } from '@/domains/family/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
+import { usePremiumTier } from '@/hooks/use-premium-state';
 import {
   resolveFamilyImmunizationSource,
   type FamilyImmunizationSource,
@@ -21,11 +22,12 @@ export type { FamilyImmunizationSource };
 
 /**
  * Loads family household children into the immunization tracker.
- * Children are managed only via Family setup — not added in this mini-app.
+ * Under Family Premium, includes federated kids from linked adults (over-cap hidden by tier).
  */
 export function useFamilyImmunizationChildren(): FamilyImmunizationSource {
   const userId = useCurrentUserId();
   const isGuest = useIsGuest();
+  const tier = usePremiumTier();
   const hydrated = useImmunizationTrackerHydrated();
   const syncProfilesFromFamily = useImmunizationTrackerStore((s) => s.syncProfilesFromFamily);
 
@@ -38,9 +40,9 @@ export function useFamilyImmunizationChildren(): FamilyImmunizationSource {
   const householdId = householdQuery.data?.id;
 
   const childrenQuery = useQuery({
-    queryKey: [...QUERY_KEYS.familyMembers, householdId, 'children'],
-    queryFn: () => familyRepository.listChildren(householdId!),
-    enabled: Boolean(householdId) && !isGuest && hydrated,
+    queryKey: [...QUERY_KEYS.familyMembers, userId, 'accessible-children', tier],
+    queryFn: () => familyRepository.listVisibleAccessibleChildren(userId, tier),
+    enabled: !isGuest && hydrated,
   });
 
   const children = useMemo<ImmunizationProfile[]>(() => {
@@ -57,7 +59,12 @@ export function useFamilyImmunizationChildren(): FamilyImmunizationSource {
     if (isGuest || !hydrated) {
       return;
     }
-    if (householdQuery.isSuccess && !householdId) {
+    if (
+      householdQuery.isSuccess &&
+      !householdId &&
+      childrenQuery.isSuccess &&
+      children.length === 0
+    ) {
       syncProfilesFromFamily([]);
       return;
     }

@@ -5,8 +5,11 @@ import {
   intervalLabel,
   isAllowedAppReturnUrl,
   isAppDeepLinkReturn,
+  isCarePortalReturn,
   openAppDeepLink,
+  orgPlanLabel,
   parseCheckoutParams,
+  parseCheckoutProduct,
   parseCheckoutSource,
   planLabel,
   providerForCurrency,
@@ -26,6 +29,7 @@ describe('parseCheckoutParams', () => {
     });
 
     expect(parseCheckoutParams(params)).toEqual({
+      product: 'premium',
       planType: 'family',
       billingInterval: 'yearly',
       currency: 'NGN',
@@ -44,6 +48,7 @@ describe('parseCheckoutParams', () => {
     });
 
     expect(parseCheckoutParams(params)).toEqual({
+      product: 'premium',
       planType: 'personal',
       billingInterval: 'monthly',
       currency: 'USD',
@@ -64,6 +69,7 @@ describe('parseCheckoutParams', () => {
     });
 
     expect(parseCheckoutParams(params)).toEqual({
+      product: 'premium',
       planType: 'personal',
       billingInterval: 'monthly',
       currency: 'USD',
@@ -96,6 +102,51 @@ describe('parseCheckoutParams', () => {
       error: 'Invalid currency (NGN | USD).',
     });
   });
+
+  it('parses provider_org checkout and requires organization_id', () => {
+    expect(
+      parseCheckoutParams(
+        new URLSearchParams({
+          product: 'provider_org',
+          plan_tier: 'basic',
+          billing_interval: 'monthly',
+          organization_id: 'org-1',
+          source: 'care_portal_provider',
+        }),
+      ),
+    ).toEqual({
+      product: 'provider_org',
+      planTier: 'basic',
+      billingInterval: 'monthly',
+      currency: 'NGN',
+      organizationId: 'org-1',
+      returnSuccess: expect.stringMatching(/\/app\/settings\/billing/),
+      returnCancel: expect.stringMatching(/\/providers\/pricing/),
+      source: 'care_portal_provider',
+    });
+
+    expect(
+      parseCheckoutParams(
+        new URLSearchParams({
+          product: 'payer_org',
+          plan_tier: 'pro',
+          billing_interval: 'yearly',
+        }),
+      ),
+    ).toEqual({ error: 'Missing organization_id.' });
+
+    expect(
+      parseCheckoutParams(
+        new URLSearchParams({
+          product: 'provider_org',
+          plan_tier: 'basic',
+          billing_interval: 'monthly',
+          organization_id: 'org-1',
+          currency: 'USD',
+        }),
+      ),
+    ).toEqual({ error: 'Org checkout currency must be NGN.' });
+  });
 });
 
 describe('return URL allowlist', () => {
@@ -108,9 +159,13 @@ describe('return URL allowlist', () => {
     expect(isAllowedAppReturnUrl('https://evil.amplifyapp.com/success')).toBe(false);
     expect(isAppDeepLinkReturn('caremate://billing/success')).toBe(true);
     expect(isAppDeepLinkReturn('https://www.getcaremate.com/pricing')).toBe(false);
+    expect(isCarePortalReturn('https://care.test.local/app/settings/billing?paid=1')).toBe(true);
     expect(parseCheckoutSource('website')).toBe('website');
     expect(parseCheckoutSource('community')).toBe('community');
+    expect(parseCheckoutSource('care_portal_provider')).toBe('care_portal_provider');
     expect(parseCheckoutSource(null)).toBe('app');
+    expect(parseCheckoutProduct('provider_org')).toBe('provider_org');
+    expect(parseCheckoutProduct(null)).toBe('premium');
     expect(isAllowedAppReturnUrl('javascript:alert(1)')).toBe(false);
     expect(isAllowedAppReturnUrl('caremate://evil')).toBe(false);
     expect(sanitizeAppReturnUrl('javascript:x', 'caremate://billing/success')).toBe(
@@ -130,6 +185,7 @@ describe('return URL allowlist', () => {
     expect(website).toMatchObject({
       source: 'website',
       currency: 'NGN',
+      product: 'premium',
     });
     if ('error' in website) {
       throw new Error(website.error);
@@ -156,6 +212,8 @@ describe('checkout labels and providers', () => {
   it('maps plan / interval labels and payment provider by currency', () => {
     expect(planLabel('family')).toBe('Family Premium');
     expect(planLabel('personal')).toBe('Standard Premium');
+    expect(orgPlanLabel('basic', 'provider_org')).toContain('Private Care Team');
+    expect(orgPlanLabel('pro', 'payer_org')).toContain('Support Team');
     expect(intervalLabel('yearly')).toBe('Yearly');
     expect(intervalLabel('monthly')).toBe('Monthly');
     expect(providerForCurrency('NGN')).toBe('paystack');

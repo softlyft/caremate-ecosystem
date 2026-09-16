@@ -24,6 +24,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['src/**/*.test.ts'],
+    env: {
+      VITE_WEBSITE_URL: 'https://www.test.local',
+      VITE_COMMUNITY_PORTAL_URL: 'https://community.test.local',
+      VITE_CARE_PORTAL_URL: 'https://care.test.local',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary'],

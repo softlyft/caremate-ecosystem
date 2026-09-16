@@ -1,4 +1,5 @@
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import { assertOrgCheckoutIsUpgradeOrRenewal } from '../_shared/org-checkout-guards.ts';
 import { assertAllowedReturnUrls } from '../_shared/return-url.ts';
 import { createServiceClient, createUserClient } from '../_shared/supabase.ts';
 
@@ -78,6 +79,20 @@ Deno.serve(async (req) => {
     const canManage = role === 'owner' || role === 'administrator';
     if (!canManage) {
       return jsonResponse({ error: 'Forbidden' }, 403);
+    }
+
+    try {
+      await assertOrgCheckoutIsUpgradeOrRenewal(service, {
+        table: 'payer_org_subscriptions',
+        organizationId,
+        planTier,
+        billingInterval,
+      });
+    } catch (err) {
+      return jsonResponse(
+        { error: err instanceof Error ? err.message : 'Checkout not allowed' },
+        400,
+      );
     }
 
     const { data: price, error: priceError } = await service

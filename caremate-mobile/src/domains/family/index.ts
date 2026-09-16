@@ -1,5 +1,6 @@
 export { selectActiveHouseholdId } from '@/domains/family/active-household';
 export { familyRepository } from '@/domains/family/repository';
+export { canAddChildForRole, selectVisibleChildren } from '@/domains/family/visible-children';
 export {
   familyConnectionService,
   buildSpouseInviteMessage,

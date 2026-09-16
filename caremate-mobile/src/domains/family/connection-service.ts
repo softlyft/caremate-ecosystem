@@ -164,6 +164,10 @@ class FamilyConnectionService {
   }
 
   async removeAdultMember(params: { memberId: string; userId: string }): Promise<void> {
+    const member = await familyRepository.findMemberById(params.memberId);
+    const removedUserId = member?.linkedUserId ?? null;
+    const householdId = member?.householdId ?? null;
+
     const { error } = await supabase.rpc('remove_family_adult_member', {
       p_member_id: params.memberId,
     });
@@ -174,6 +178,20 @@ class FamilyConnectionService {
 
     await familyRepository.softDeleteMemberLocal(params.memberId);
     await familyRepository.pullFromRemote(params.userId);
+
+    if (removedUserId) {
+      void supabase.functions
+        .invoke('notify-family-email', {
+          body: {
+            kind: 'removed',
+            removedUserId,
+            householdId,
+          },
+        })
+        .catch(() => {
+          // Push is optional; offline / missing Expo must not fail remove.
+        });
+    }
   }
 
   async respondToRequest(params: {

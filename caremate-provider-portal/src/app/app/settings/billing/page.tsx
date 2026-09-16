@@ -2,6 +2,7 @@ import { requireProviderSession } from '@/lib/auth';
 import { canManageOrg } from '@/constants/roles';
 import { getProviderOrgPlanUsage } from '@/domains/billing/repository';
 import { OrgBillingSettingsPanel } from '@/components/features/org-billing-settings-panel';
+import { getWebsiteUrl } from '@/lib/env';
 
 export default async function ProviderBillingSettingsPage({
   searchParams,
@@ -12,8 +13,7 @@ export default async function ProviderBillingSettingsPage({
   const params = await searchParams;
   const usage = await getProviderOrgPlanUsage(session.activeOrganizationId);
   const canManage = canManageOrg(session.activeRole);
-  const website =
-    process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, '') || 'https://www.getcaremate.com';
+  const website = getWebsiteUrl();
 
   const { entitlements, pctMemberCount, approvedPatientCount, approvedPayerConnectionCount } =
     usage;

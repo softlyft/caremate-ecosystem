@@ -384,6 +384,12 @@ export const billingRepository = new BillingRepository();
 export async function getPremiumState(userId: string): Promise<PremiumState> {
   try {
     if (await isOnline()) {
+      // Family membership first so removed invitees drop household coverage before billing pull.
+      try {
+        await familyRepository.pullFromRemote(userId);
+      } catch {
+        // Best-effort; billing pull still refreshes owned subscriptions.
+      }
       await billingRepository.pullFromRemote();
     }
   } catch {

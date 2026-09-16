@@ -32,8 +32,8 @@ export function bindAnalyticsSender(instance: PostHogSender | null): void {
 function resolveDistinctId(): string | null {
   try {
     // Lazy require avoids analytics → queue → auth store → analytics cycles.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- break import cycle with auth store
     const { useAuthStore } =
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- break import cycle with auth store
       require('@/features/auth/store') as typeof import('@/features/auth/store');
     const auth = useAuthStore.getState();
     if (!auth.isInitialized || auth.isGuest || !auth.user?.id) {

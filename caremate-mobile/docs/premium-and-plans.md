@@ -47,7 +47,7 @@ When a guest creates an account, existing guest-local data migrates per [Authent
 | Patient account + sync | Yes | Yes | Yes |
 | Core: Learn, Nearby, Emergency | Full | Full | Full |
 | Mini-apps | Free-tier limits (below) | Unlocked limits + ad-free on pregnancy/period | Same as Standard + expanded family |
-| **Child profiles in household** | **1 child max** | **Up to 3 children** | **Up to 6 children** (household total, shared across adults) |
+| **Child profiles in household** | **1 child max** (extras hidden) | **Up to 3 children** (extras hidden) | **Up to 6 children** federated across linked adults (no transfer; owner-only add) |
 | **Spouse connection** | No | No | Up to 3 invited adults (owner-only) |
 | AdMob banners | Shown per slot mode (free/guest) | **No AdMob** (existing Premium rule) | **No AdMob** |
 | House / sponsored catalog ads | Per portal slot mode | Per slot mode (pregnancy/period ad-free — see below) | Same as Standard |
@@ -120,12 +120,12 @@ All mini-apps require a **signed-in patient account**. Limits below apply after 
 | Capability | Free | Standard Premium | Family Premium |
 |------------|------|------------------|----------------|
 | Create household / parent setup | Yes | Yes | Yes |
-| Add children | **1 child max** | **Up to 3 children** | **Up to 6 children** (household total) |
+| Add children | **1 child max** | **Up to 3 children** | **Up to 6 federated** (owner only; invitees view only) |
 | Connect **spouse** to household | No | No | Yes (up to 3 invited adults) |
-| Spouse sees shared children / household data | — | — | Yes (when connected) |
+| Spouse sees shared children / household data | — | — | Yes (federated two-way view when connected) |
 | Invite / remove members | — | — | **Owner only** |
 
-Immunization and Medication trackers consume family members from the household. Child limits are **household totals**: on Family Premium, children an invited adult brings count toward the shared cap of 6.
+Immunization and Medication trackers consume the **federated visible** child list. Child limits are **union totals**: on Family Premium, kids that stay on an invitee’s leftover household still count toward the shared cap of 6. Over-cap rows are hidden (not soft-locked) until the plan covers them.
 
 Free users who need more than one child upgrade to Standard (up to 3) or Family (up to 6). Standard users who need more than three upgrade to Family.
 

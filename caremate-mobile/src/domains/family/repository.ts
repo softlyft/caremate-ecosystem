@@ -1,7 +1,14 @@
 import { and, eq, inArray, isNull, or } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
-import { familyConnectionRequests, familyHouseholds, familyMembers } from '@/database/schema';
+import {
+  familyConnectionRequests,
+  familyHouseholds,
+  familyMembers,
+  subscriptionEntitlements,
+} from '@/database/schema';
+import { isLocalEntitlementActive } from '@/domains/billing/period';
+import type { PremiumTier } from '@/domains/billing/types';
 import { selectActiveHouseholdId } from '@/domains/family/active-household';
 import type {
   ChildProfileDraft,
@@ -14,6 +21,7 @@ import type {
   FamilyMemberKind,
 } from '@/domains/family/types';
 import { isFamilyInviteRelationship } from '@/domains/family/types';
+import { selectVisibleChildren } from '@/domains/family/visible-children';
 import {
   deleteFamilyMemberViaGateway,
   fetchFamilyMembersViaGateway,
@@ -133,6 +141,185 @@ class FamilyRepository extends BaseRepository {
   async listChildren(householdId: string): Promise<FamilyMember[]> {
     const members = await this.listMembers(householdId);
     return members.filter((m) => m.kind === 'child');
+  }
+
+  /**
+   * Households whose children the user may see: own memberships/owned, plus
+   * peer leftover households while Family Premium is active.
+   */
+  async listAccessibleHouseholdIds(userId: string): Promise<string[]> {
+    const db = getDatabase();
+    const ids = new Set<string>();
+
+    const memberRows = await db
+      .select({ householdId: familyMembers.householdId })
+      .from(familyMembers)
+      .where(
+        and(
+          eq(familyMembers.linkedUserId, userId),
+          isNull(familyMembers.deletedAt),
+          inArray(familyMembers.kind, ['self', 'spouse']),
+        ),
+      );
+    for (const row of memberRows) {
+      ids.add(row.householdId);
+    }
+
+    const owned = await db
+      .select({ id: familyHouseholds.id })
+      .from(familyHouseholds)
+      .where(and(eq(familyHouseholds.createdByUserId, userId), isNull(familyHouseholds.deletedAt)));
+    for (const row of owned) {
+      ids.add(row.id);
+    }
+
+    const familySubs = await db
+      .select()
+      .from(subscriptionEntitlements)
+      .where(
+        and(
+          eq(subscriptionEntitlements.planType, 'family'),
+          isNull(subscriptionEntitlements.deletedAt),
+        ),
+      );
+
+    for (const sub of familySubs) {
+      if (!sub.householdId) continue;
+      if (
+        !isLocalEntitlementActive({
+          status: sub.status,
+          currentPeriodEnd: sub.currentPeriodEnd,
+        })
+      ) {
+        continue;
+      }
+
+      const adults = await db
+        .select()
+        .from(familyMembers)
+        .where(
+          and(
+            eq(familyMembers.householdId, sub.householdId),
+            inArray(familyMembers.kind, ['self', 'spouse']),
+            isNull(familyMembers.deletedAt),
+          ),
+        );
+
+      const iAmAdult = adults.some((adult) => adult.linkedUserId === userId);
+      const [premiumHousehold] = await db
+        .select()
+        .from(familyHouseholds)
+        .where(and(eq(familyHouseholds.id, sub.householdId), isNull(familyHouseholds.deletedAt)))
+        .limit(1);
+      const iOwnPremium = premiumHousehold?.createdByUserId === userId;
+      if (!iAmAdult && !iOwnPremium) continue;
+
+      ids.add(sub.householdId);
+
+      for (const adult of adults) {
+        const peerUserId = adult.linkedUserId;
+        if (!peerUserId) continue;
+
+        const peerOwned = await db
+          .select({ id: familyHouseholds.id })
+          .from(familyHouseholds)
+          .where(
+            and(
+              eq(familyHouseholds.createdByUserId, peerUserId),
+              isNull(familyHouseholds.deletedAt),
+            ),
+          );
+        for (const row of peerOwned) {
+          ids.add(row.id);
+        }
+
+        const peerSelf = await db
+          .select({ householdId: familyMembers.householdId })
+          .from(familyMembers)
+          .where(
+            and(
+              eq(familyMembers.linkedUserId, peerUserId),
+              eq(familyMembers.kind, 'self'),
+              isNull(familyMembers.deletedAt),
+            ),
+          );
+        for (const row of peerSelf) {
+          ids.add(row.householdId);
+        }
+      }
+    }
+
+    return Array.from(ids);
+  }
+
+  /**
+   * Households the user may write members on (membership/owned only — not federated peers).
+   */
+  async listWritableHouseholdIds(userId: string): Promise<string[]> {
+    const db = getDatabase();
+    const ids = new Set<string>();
+
+    const memberRows = await db
+      .select({ householdId: familyMembers.householdId })
+      .from(familyMembers)
+      .where(
+        and(
+          eq(familyMembers.linkedUserId, userId),
+          isNull(familyMembers.deletedAt),
+          inArray(familyMembers.kind, ['self', 'spouse']),
+        ),
+      );
+    for (const row of memberRows) {
+      ids.add(row.householdId);
+    }
+
+    const owned = await db
+      .select({ id: familyHouseholds.id })
+      .from(familyHouseholds)
+      .where(and(eq(familyHouseholds.createdByUserId, userId), isNull(familyHouseholds.deletedAt)));
+    for (const row of owned) {
+      ids.add(row.id);
+    }
+
+    return Array.from(ids);
+  }
+
+  /** Federated children across accessible households (no tier hide yet). */
+  async listAccessibleChildren(userId: string): Promise<FamilyMember[]> {
+    const householdIds = await this.listAccessibleHouseholdIds(userId);
+    if (householdIds.length === 0) {
+      return [];
+    }
+
+    const db = getDatabase();
+    const rows = await db
+      .select()
+      .from(familyMembers)
+      .where(
+        and(
+          inArray(familyMembers.householdId, householdIds),
+          eq(familyMembers.kind, 'child'),
+          isNull(familyMembers.deletedAt),
+        ),
+      );
+
+    const byId = new Map<string, FamilyMember>();
+    for (const row of rows) {
+      byId.set(row.id, mapMember(row));
+    }
+    return Array.from(byId.values());
+  }
+
+  /** Federated children with over-cap rows hidden for the current tier. */
+  async listVisibleAccessibleChildren(userId: string, tier: PremiumTier): Promise<FamilyMember[]> {
+    const children = await this.listAccessibleChildren(userId);
+    return selectVisibleChildren(children, tier);
+  }
+
+  async isFamilyPlanOwner(userId: string): Promise<boolean> {
+    const household = await this.findHouseholdForUser(userId);
+    if (!household) return false;
+    return household.createdByUserId === userId;
   }
 
   async listIncomingRequests(userId: string): Promise<FamilyConnectionRequest[]> {
@@ -587,8 +774,13 @@ class FamilyRepository extends BaseRepository {
       }
     }
 
+    // While Family Premium is active, also pull peer adults' leftover households
+    // so federated children (spouse kids) are available locally without transfer.
+    await this.appendFamilyPeerHouseholdIds(userId, householdIds);
+
     if (householdIds.length === 0) {
-      // Still pull incoming requests
+      // Still pull incoming requests; clear any stale invited-adult links.
+      await this.softDeleteStaleSpouseMemberships(userId, []);
       await this.pullRequestsForUser(userId);
       return;
     }
@@ -615,9 +807,13 @@ class FamilyRepository extends BaseRepository {
       .select('*')
       .in('household_id', householdIds);
 
+    const remoteMemberIds = new Set<string>();
+    let sawDefinitiveMemberRoster = false;
     const gatewayMembers = await fetchFamilyMembersViaGateway();
     if (gatewayMembers) {
+      sawDefinitiveMemberRoster = true;
       for (const row of gatewayMembers) {
+        remoteMemberIds.add(row.id);
         await this.upsertMemberLocal({
           id: row.id,
           householdId: row.household_id,
@@ -637,7 +833,9 @@ class FamilyRepository extends BaseRepository {
     } else if (isHealthDataGatewayConfigured()) {
       // Gateway is source of truth when configured — skip plaintext member pull.
     } else {
+      sawDefinitiveMemberRoster = true;
       for (const row of members ?? []) {
+        remoteMemberIds.add(row.id);
         await this.upsertMemberLocal({
           id: row.id,
           householdId: row.household_id,
@@ -656,7 +854,133 @@ class FamilyRepository extends BaseRepository {
       }
     }
 
+    // Revoke local cache for members removed remotely (incl. when this user was removed).
+    if (sawDefinitiveMemberRoster) {
+      await this.softDeleteMissingMembersInHouseholds(householdIds, remoteMemberIds);
+    }
+    await this.softDeleteStaleSpouseMemberships(userId, householdIds);
+
     await this.pullRequestsForUser(userId);
+  }
+
+  /** Soft-delete local members in known households that are no longer on the remote roster. */
+  private async softDeleteMissingMembersInHouseholds(
+    householdIds: string[],
+    remoteMemberIds: Set<string>,
+  ): Promise<void> {
+    if (householdIds.length === 0) return;
+    const db = getDatabase();
+    const timestamp = nowIso();
+    const localRows = await db
+      .select({ id: familyMembers.id })
+      .from(familyMembers)
+      .where(
+        and(inArray(familyMembers.householdId, householdIds), isNull(familyMembers.deletedAt)),
+      );
+    for (const row of localRows) {
+      if (remoteMemberIds.has(row.id)) continue;
+      await db
+        .update(familyMembers)
+        .set({ deletedAt: timestamp, updatedAt: timestamp, syncStatus: 'synced' })
+        .where(eq(familyMembers.id, row.id));
+    }
+  }
+
+  /**
+   * Soft-delete invited-adult (`spouse`) links for this user whose household is no longer
+   * returned by remote membership — e.g. owner removed them from Family Premium.
+   */
+  private async softDeleteStaleSpouseMemberships(
+    userId: string,
+    activeHouseholdIds: string[],
+  ): Promise<void> {
+    const db = getDatabase();
+    const timestamp = nowIso();
+    const localSpouse = await db
+      .select({ id: familyMembers.id, householdId: familyMembers.householdId })
+      .from(familyMembers)
+      .where(
+        and(
+          eq(familyMembers.linkedUserId, userId),
+          eq(familyMembers.kind, 'spouse'),
+          isNull(familyMembers.deletedAt),
+        ),
+      );
+    for (const row of localSpouse) {
+      if (activeHouseholdIds.includes(row.householdId)) continue;
+      await db
+        .update(familyMembers)
+        .set({ deletedAt: timestamp, updatedAt: timestamp, syncStatus: 'synced' })
+        .where(eq(familyMembers.id, row.id));
+    }
+  }
+
+  /** Expand `householdIds` with peer leftover households under active Family Premium. */
+  private async appendFamilyPeerHouseholdIds(
+    userId: string,
+    householdIds: string[],
+  ): Promise<void> {
+    if (householdIds.length === 0) return;
+
+    const { data: familySubs } = await supabase
+      .from('subscriptions')
+      .select('household_id, status, current_period_end')
+      .eq('plan_type', 'family')
+      .in('household_id', householdIds)
+      .in('status', ['active', 'trialing']);
+
+    const premiumHouseholdIds = (familySubs ?? [])
+      .filter((row) =>
+        isLocalEntitlementActive({
+          status: String(row.status),
+          currentPeriodEnd: row.current_period_end as string | null,
+        }),
+      )
+      .map((row) => row.household_id as string)
+      .filter(Boolean);
+
+    if (premiumHouseholdIds.length === 0) return;
+
+    const { data: adults } = await supabase
+      .from('family_members')
+      .select('household_id, linked_user_id, kind')
+      .in('household_id', premiumHouseholdIds)
+      .in('kind', ['self', 'spouse']);
+
+    const peerUserIds = Array.from(
+      new Set(
+        (adults ?? [])
+          .map((row) => row.linked_user_id as string | null)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    if (!peerUserIds.includes(userId)) {
+      // Owner may only appear as created_by; still include peers from adults list.
+    }
+
+    for (const peerUserId of peerUserIds) {
+      const { data: peerOwned } = await supabase
+        .from('family_households')
+        .select('id')
+        .eq('created_by_user_id', peerUserId);
+      for (const row of peerOwned ?? []) {
+        if (row.id && !householdIds.includes(row.id)) {
+          householdIds.push(row.id);
+        }
+      }
+
+      const { data: peerSelf } = await supabase
+        .from('family_members')
+        .select('household_id')
+        .eq('linked_user_id', peerUserId)
+        .eq('kind', 'self');
+      for (const row of peerSelf ?? []) {
+        const id = row.household_id as string;
+        if (id && !householdIds.includes(id)) {
+          householdIds.push(id);
+        }
+      }
+    }
   }
 
   private async pullRequestsForUser(userId: string): Promise<void> {
