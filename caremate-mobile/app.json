@@ -4,12 +4,12 @@
     "slug": "caremate",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/caremate-splash-icon.png",
+    "icon": "./assets/images/caremate-icon.png",
     "scheme": "caremate",
     "userInterfaceStyle": "light",
     "owner": "softlyft",
     "ios": {
-      "icon": "./assets/images/caremate-splash-icon.png",
+      "icon": "./assets/images/caremate-icon.png",
       "bundleIdentifier": "com.softlyft.caremate",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
