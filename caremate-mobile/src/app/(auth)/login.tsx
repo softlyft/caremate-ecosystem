@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { Controller, useForm } from 'react-hook-form';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
@@ -45,12 +45,16 @@ export default function LoginScreen() {
   const { colors } = useAppTheme();
   const signIn = useAuthStore((state) => state.signIn);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const [showFieldErrors, setShowFieldErrors] = useState(false);
 
   const loginSchema = useMemo(
     () =>
       z.object({
         email: z.email(t('auth.validation.emailInvalid')),
-        password: z.string().min(8, t('auth.validation.passwordMin')),
+        password: z
+          .string()
+          .min(1, t('auth.validation.passwordRequired'))
+          .min(8, t('auth.validation.passwordMin')),
         rememberMe: z.boolean(),
       }),
     [t],
@@ -59,36 +63,41 @@ export default function LoginScreen() {
   const { control, handleSubmit, formState, reset, clearErrors } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', rememberMe: false },
-    // Avoid surfacing passwordMin when Remember email prefills an empty password.
+    // Prefill must not surface validation until the user taps Sign in.
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
   });
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const remembered = await getRememberedLoginEmail();
-      if (cancelled || !remembered) return;
-      // Email only — never restore a password. Clear submit/error state so an empty
-      // password does not immediately show "Password must be at least 8 characters".
-      reset(
-        { email: remembered, password: '', rememberMe: true },
-        {
-          keepErrors: false,
-          keepDirty: false,
-          keepIsSubmitted: false,
-          keepTouched: false,
-          keepSubmitCount: false,
-        },
-      );
-      clearErrors();
-    })();
-    return () => {
-      cancelled = true;
-    };
+  const applyRememberedEmail = useCallback(async () => {
+    const remembered = await getRememberedLoginEmail();
+    setShowFieldErrors(false);
+    clearErrors();
+    reset(
+      {
+        email: remembered ?? '',
+        password: '',
+        rememberMe: Boolean(remembered),
+      },
+      {
+        keepErrors: false,
+        keepDirty: false,
+        keepIsSubmitted: false,
+        keepTouched: false,
+        keepSubmitCount: false,
+      },
+    );
   }, [clearErrors, reset]);
 
+  // Re-apply on every focus so logout → Sign in never keeps a stale submitted form
+  // (empty password + "must be at least 8 characters").
+  useFocusEffect(
+    useCallback(() => {
+      void applyRememberedEmail();
+    }, [applyRememberedEmail]),
+  );
+
   async function onSubmit(values: LoginForm) {
+    setShowFieldErrors(true);
     try {
       if (!config.isSupabaseConfigured) {
         void alert(t('auth.config.supabaseTitle'), t('auth.config.supabaseMessage'));
@@ -145,14 +154,17 @@ export default function LoginScreen() {
           restingBottomPad={spacing.lg}
         >
           <FormStack>
-            <FormField error={formState.isSubmitted ? formState.errors.email?.message : undefined}>
+            <FormField error={showFieldErrors ? formState.errors.email?.message : undefined}>
               <Controller
                 control={control}
                 name="email"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect={false}
                     keyboardType="email-address"
+                    textContentType="username"
                     placeholder={t('auth.login.emailPlaceholder')}
                     onBlur={onBlur}
                     onChangeText={onChange}
@@ -161,14 +173,14 @@ export default function LoginScreen() {
                 )}
               />
             </FormField>
-            <FormField
-              error={formState.isSubmitted ? formState.errors.password?.message : undefined}
-            >
+            <FormField error={showFieldErrors ? formState.errors.password?.message : undefined}>
               <Controller
                 control={control}
                 name="password"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <PasswordInput
+                    autoComplete="password"
+                    textContentType="password"
                     placeholder={t('auth.login.passwordPlaceholder')}
                     onBlur={onBlur}
                     onChangeText={onChange}
@@ -181,38 +193,43 @@ export default function LoginScreen() {
               control={control}
               name="rememberMe"
               render={({ field: { onChange, value } }) => (
-                <View style={styles.rememberRow}>
-                  <Button
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: value }}
-                    accessibilityLabel={t('auth.login.rememberMeA11y')}
-                    onPress={() => onChange(!value)}
-                    hitSlop={8}
-                    style={[styles.checkbox, value ? styles.checkboxChecked : null]}
-                    variant="plain"
-                  >
-                    {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
-                  </Button>
-                  <Button
-                    accessibilityRole="button"
-                    onPress={() => onChange(!value)}
-                    style={styles.rememberLabelButton}
-                    variant="plain"
-                  >
-                    <AppText variant="caption" style={styles.rememberLabel}>
-                      {t('auth.login.rememberMe')}
-                    </AppText>
-                  </Button>
-                  <TextLink href="/(auth)/forgot-password" style={styles.forgotLink}>
-                    {t('auth.login.forgot')}
-                  </TextLink>
+                <View style={styles.rememberBlock}>
+                  <View style={styles.rememberRow}>
+                    <Button
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: value }}
+                      accessibilityLabel={t('auth.login.rememberMeA11y')}
+                      onPress={() => onChange(!value)}
+                      hitSlop={8}
+                      style={[styles.checkbox, value ? styles.checkboxChecked : null]}
+                      variant="plain"
+                    >
+                      {value ? <Check color="#FFFFFF" size={14} strokeWidth={3} /> : null}
+                    </Button>
+                    <Button
+                      accessibilityRole="button"
+                      onPress={() => onChange(!value)}
+                      style={styles.rememberLabelButton}
+                      variant="plain"
+                    >
+                      <AppText variant="caption" style={styles.rememberLabel}>
+                        {t('auth.login.rememberMe')}
+                      </AppText>
+                    </Button>
+                    <TextLink href="/(auth)/forgot-password" style={styles.forgotLink}>
+                      {t('auth.login.forgot')}
+                    </TextLink>
+                  </View>
+                  <AppText variant="caption" style={styles.rememberHint}>
+                    {t('auth.login.rememberMeHint')}
+                  </AppText>
                 </View>
               )}
             />
             <Button
               label={isLoading ? t('common.loading') : t('auth.login.submit')}
               disabled={isLoading}
-              onPress={handleSubmit(onSubmit)}
+              onPress={handleSubmit(onSubmit, () => setShowFieldErrors(true))}
             />
             <TextLink href="/(auth)/register">
               {t('auth.login.noAccount')} {t('auth.login.register')}
@@ -246,6 +263,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingBottom: spacing.md,
   },
+  rememberBlock: {
+    gap: 6,
+  },
   rememberRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -274,6 +294,12 @@ const styles = StyleSheet.create({
     color: palette.textSecondary,
     fontSize: 14,
     lineHeight: 20,
+  },
+  rememberHint: {
+    color: palette.textSecondary,
+    opacity: 0.85,
+    marginLeft: 32,
+    lineHeight: 18,
   },
   forgotLink: {
     marginLeft: 'auto',
