@@ -257,6 +257,7 @@ function EditProfileForm({
         isHealthPractitioner: isPractitioner,
       });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
       router.back();
     } catch (error) {
       void alert(

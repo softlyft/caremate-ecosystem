@@ -520,6 +520,64 @@ class FamilyRepository extends BaseRepository {
     return updated;
   }
 
+  /**
+   * Keep adult family_members.full_name in sync when the linked user renames their profile.
+   * Household create / invite accept snapshot the name; profile edit used to leave it stale.
+   */
+  async syncLinkedAdultFullName(userId: string, fullName: string): Promise<number> {
+    const name = fullName.trim();
+    if (!userId || !name) {
+      return 0;
+    }
+
+    const db = getDatabase();
+    const rows = await db
+      .select()
+      .from(familyMembers)
+      .where(
+        and(
+          eq(familyMembers.linkedUserId, userId),
+          isNull(familyMembers.deletedAt),
+          inArray(familyMembers.kind, ['self', 'spouse']),
+        ),
+      );
+
+    const timestamp = nowIso();
+    let updatedCount = 0;
+
+    for (const row of rows) {
+      if (row.fullName === name) {
+        continue;
+      }
+
+      const updated: FamilyMember = {
+        ...mapMember(row),
+        fullName: name,
+        syncStatus: 'pending',
+        updatedAt: timestamp,
+      };
+
+      await db
+        .update(familyMembers)
+        .set({
+          fullName: name,
+          syncStatus: 'pending',
+          updatedAt: timestamp,
+        })
+        .where(eq(familyMembers.id, row.id));
+
+      await this.queueSync({
+        entityType: 'family_members',
+        entityId: updated.id,
+        operation: 'update',
+        payload: updated,
+      });
+      updatedCount += 1;
+    }
+
+    return updatedCount;
+  }
+
   private async insertMember(input: {
     householdId: string;
     kind: FamilyMemberKind;

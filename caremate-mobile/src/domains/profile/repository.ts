@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, ne, sql } from 'drizzle-orm';
 
 import { getDatabase } from '@/database/client';
 import { profiles, settings } from '@/database/schema';
+import { familyRepository } from '@/domains/family/repository';
 import { isWeakDisplayName } from '@/domains/profile/display-name';
 import { generatePatientIdDigits, isValidPatientId } from '@/domains/profile/patient-id';
 import { generateEmergencyShareToken, isValidEmergencyShareToken } from '@/domains/emergency/share';
@@ -180,6 +181,18 @@ class ProfileRepository extends BaseRepository {
         operation: 'update',
         payload: updated,
       });
+
+      if (
+        input.fullName !== undefined &&
+        updated.fullName.trim() &&
+        updated.fullName.trim() !== (existing.fullName ?? '').trim()
+      ) {
+        try {
+          await familyRepository.syncLinkedAdultFullName(userId, updated.fullName);
+        } catch {
+          // Family name mirror is best-effort; profile save must still succeed.
+        }
+      }
 
       return updated;
     }

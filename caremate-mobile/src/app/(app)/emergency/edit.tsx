@@ -340,6 +340,7 @@ export default function EmergencyEditScreen() {
       await syncEmergencyLockSurface(null);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emergencyProfile });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
       // Push local emergency changes so shared QR viewers see the latest details.
       syncEngine.requestSync({ reason: 'write', immediate: true });
       trackEmergencyProfileCompleted();

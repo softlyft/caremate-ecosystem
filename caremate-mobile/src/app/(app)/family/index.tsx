@@ -199,6 +199,29 @@ export default function FamilyHubScreen() {
     enabled: !isGuest,
   });
 
+  // Heal adult member name snapshots left behind by older profile renames.
+  useEffect(() => {
+    const profileName = profileQuery.data?.fullName?.trim();
+    if (!profileName || isGuest) {
+      return;
+    }
+    const mine = (membersQuery.data ?? []).find(
+      (member) => member.linkedUserId === userId && member.kind !== 'child',
+    );
+    if (!mine || mine.fullName.trim() === profileName) {
+      return;
+    }
+    let cancelled = false;
+    void familyRepository.syncLinkedAdultFullName(userId, profileName).then((updated) => {
+      if (!cancelled && updated > 0) {
+        void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.familyMembers });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isGuest, membersQuery.data, profileQuery.data?.fullName, queryClient, userId]);
+
   const outsideInviteMessage = useMemo(() => {
     const fromName = profileQuery.data?.fullName?.trim() || t('family.defaultParentName');
     const relationshipLabel = relationship ? t(`family.relationships.${relationship}`) : undefined;
@@ -625,7 +648,9 @@ export default function FamilyHubScreen() {
                       </View>
                       <View style={{ flex: 1 }}>
                         <AppText variant="body" style={styles.memberName}>
-                          {member.fullName}
+                          {member.linkedUserId === userId && profileQuery.data?.fullName?.trim()
+                            ? profileQuery.data.fullName.trim()
+                            : member.fullName}
                         </AppText>
                         <AppText variant="caption" style={styles.muted}>
                           {member.kind === 'self'
