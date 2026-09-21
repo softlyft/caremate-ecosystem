@@ -4,7 +4,7 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.softlyft.caremate",
-      "sha256_cert_fingerprints": ["REPLACE_WITH_PLAY_APP_SIGNING_SHA256"]
+      "sha256_cert_fingerprints": ["76:64:79:27:53:6B:CB:A8:EA:9B:37:E8:11:CE:49:15:AF:5C:3E:B2:4F:DD:61:35:20:54:7B:3A:50:22:06:95"]
     }
   }
 ]
