@@ -1,0 +1,62 @@
+{
+  "brandLine": "CareMate — Your Health Companion",
+  "outputSize": [1080, 1920],
+  "screens": [
+    {
+      "id": "01-home",
+      "source": "20260921-145045-home.png",
+      "headline": "Your health, beautifully organized",
+      "subline": "One secure place for everyday care",
+      "gradient": ["#CCFBF1", "#DBEAFE"]
+    },
+    {
+      "id": "02-emergency",
+      "source": "20260921-133712-emergency.png",
+      "headline": "Ready when it matters most",
+      "subline": "Blood group, allergies & ICE — offline",
+      "gradient": ["#CCFBF1", "#99F6E4"]
+    },
+    {
+      "id": "03-nearby",
+      "source": "20260921-134042-capture.png",
+      "headline": "Care close to home",
+      "subline": "Hospitals, clinics & pharmacies nearby",
+      "gradient": ["#E0F2FE", "#DBEAFE"]
+    },
+    {
+      "id": "04-learn",
+      "source": "20260921-134201-learn.png",
+      "headline": "Trusted guidance, curated for you",
+      "subline": "Health stories that stay on your device",
+      "gradient": ["#DBEAFE", "#CCFBF1"]
+    },
+    {
+      "id": "05-medication",
+      "source": "20260921-134726-medication.png",
+      "headline": "Never miss a dose",
+      "subline": "Schedules and reminders that work offline",
+      "gradient": ["#FFEDD5", "#FEF3C7"]
+    },
+    {
+      "id": "06-family",
+      "source": "20260921-140414-family.png",
+      "headline": "Healthcare managed together",
+      "subline": "Kids shared. Each adult keeps their account",
+      "gradient": ["#F3E8FF", "#EDE9FE"]
+    },
+    {
+      "id": "07-immunization",
+      "source": "20260921-134917-immunization.png",
+      "headline": "Childhood vaccines on track",
+      "subline": "Schedules, due dates, and dose logs",
+      "gradient": ["#D1FAE5", "#CCFBF1"]
+    },
+    {
+      "id": "08-period",
+      "source": "20260921-135026-period.png",
+      "headline": "Understand your cycle",
+      "subline": "Simple predictions from days you mark",
+      "gradient": ["#FCE7F3", "#FBCFE8"]
+    }
+  ]
+}
