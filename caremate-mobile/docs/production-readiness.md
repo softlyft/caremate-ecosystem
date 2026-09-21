@@ -2,95 +2,67 @@
 
 [← Back to index](./README.md) · [Mobile release](./mobile-release.md)
 
-Living checklist for the first App Store / Play submit. Updated **21 Aug 2026**.
+Living checklist for the first App Store / Play submit. Updated **20 Sep 2026**.
 
-**Verdict: not store-submit ready** — release pipelines and much of Phase 1 are in place; remaining work is mostly secrets, association files, branch sync, host cutover, and store paperwork.
+**Verdict: almost ready — not store-review ready** — binaries can build/upload (Play + TestFlight green on `prod`); remaining work is website deep links / association files, prod Supabase Deploy health, and Console/IAP/push paperwork.
 
 ---
 
-## Done recently (in-repo)
+## Done (verified)
 
 | Item | Notes |
 |------|--------|
-| Store deploy gated | `android-play.yml` / `ios-app-store.yml` are **manual only**; push to `prod` runs **CI only** |
-| CI on `prod` | `ci.yml` includes `prod` branch |
-| iOS build numbers | Shared `resolve-ios-build-number.sh` uses `github.run_id` (+ offset) — no TF/AS collision |
-| AdMob fail-closed | Production rejects missing/sample app IDs and banner units (`app.config.ts` + `assert-production-mobile-env.sh`) |
-| Reject caremate-dev in store builds | Assert fails if Supabase URL contains `eybakmhqtotoywwgwgjy` |
-| Main CD Android env parity | Website / payment / community / Sentry / PostHog / gateway injected |
-| Sentry upload | Enabled automatically when `SENTRY_AUTH_TOKEN` is set on store jobs |
+| Branch sync | `origin/prod` **contains** `origin/main` (0 behind as of 20 Sep 2026) |
+| Production secrets | iOS cert password + App Store profile, Play SA, Supabase token/DB, Sentry present; Play assert + upload succeeded |
+| Store deploy gated | `android-play.yml` / `ios-app-store.yml` **manual only**; push to `prod` runs **CI only** |
+| AdMob fail-closed | Production rejects sample IDs (`app.config.ts` + `assert-production-mobile-env.sh`) |
+| Reject caremate-dev in store builds | Assert fails if Supabase URL is caremate-dev |
+| App icon 1024² | `assets/images/caremate-icon.png` wired as `icon` + `ios.icon` |
+| Android SDK CI | `setup-android@v4` with `packages: platform-tools` (no obsolete `tools`) |
+| Remember email | Email-only prefill; password never stored; OS autofill enabled |
 | Prod applinks strip | Production binaries drop Amplify / `dev.getcaremate.com` hosts |
-| Supabase per-env CI | [Supabase Deploy](../../.github/workflows/supabase-migrate.yml): migrations + Edge Functions on `main`→dev, `prod`→prod |
-| Pluggable email | `EMAIL_PROVIDER=smtp\|ses\|resend` — [email.md](../../supabase/docs/email.md) |
-| Period roadmap accuracy | Calendar fertility documented as partial; learned cycle still deferred |
 
 ---
 
-## Open blockers (must close before submit)
+## Open blockers (must close before submit / review)
 
-### 1. Branch sync
+### 1. Website SPA deep links (legal URLs)
 
-| Check | Status |
-|-------|--------|
-| `prod` ≈ `main` | **Open** — `prod` is ~**35 commits behind** `main` |
-| Timeline / WIP on `bug/fixes` | **Open** — merge to `main` (and then `prod`) or keep timeline out of the first cut |
+Live probes (20 Sep 2026): `https://www.getcaremate.com/privacy`, `/terms`, `/security`, `/refunds` → **404** (SPA HTML shell). Pages exist in `caremate-website` source.
 
-Do **not** ship the current stale `prod` tip.
+**Fix:** Amplify Console SPA **200 rewrite** to `/index.html` per [amplify-hosting.md](../../docs/amplify-hosting.md); redeploy; confirm privacy/terms return real content. App uses `LEGAL_URLS` → `{WEBSITE}/privacy|terms`.
 
-### 2. GitHub Environment `production` secrets still missing
-
-Present and useful: Supabase URL/anon, website/payment/community hosts, AdMob live IDs, Sentry DSN, PostHog API key, Android keystore, ASC API key, Apple team id, distribution **certificate** base64.
-
-| Secret | Why |
-|--------|-----|
-| `IOS_DISTRIBUTION_CERTIFICATE_PASSWORD` | iOS archive will fail without it (on **development**, missing on **production**) |
-| `IOS_PROVISIONING_PROFILE_BASE64` | Same — App Store profile |
-| `PLAY_SERVICE_ACCOUNT_JSON` | Play upload when `upload=true` (on development only today) |
-| `SUPABASE_ACCESS_TOKEN` | Supabase Deploy CI for prod migrations/functions |
-| `SUPABASE_DB_PASSWORD` | Prod project DB password for `db push` |
-| `SENTRY_AUTH_TOKEN` | Optional but needed for readable native stacks (DSN alone is not enough for upload) |
-| `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` | Optional; empty → PHI may sync plaintext (assert **warns**) |
-
-Copy signing / Play SA from `development` where appropriate; use **prod** DB password and access token for migrate.
-
-### 3. Universal Links / App Links
+### 2. Universal Links / App Links
 
 | File | Status |
 |------|--------|
-| `caremate-website/public/.well-known/apple-app-site-association` | Still `TEAMID.com.softlyft.caremate` |
-| `caremate-website/public/.well-known/assetlinks.json` | Still `REPLACE_WITH_PLAY_APP_SIGNING_SHA256` |
+| `caremate-website/public/.well-known/apple-app-site-association` | Still `TEAMID.com.softlyft.caremate`; **live URL 404 HTML** (must serve JSON, no trailing-slash SPA rewrite) |
+| `caremate-website/public/.well-known/assetlinks.json` | Still `REPLACE_WITH_PLAY_APP_SIGNING_SHA256` — copy SHA from Play Console (App signing) now that AABs upload |
 
-Replace `TEAMID` with Apple Team ID; after first Play AAB, paste **Play App Signing** SHA-256. Redeploy website. Until then, prefer `caremate://` fallbacks.
+Until fixed, prefer `caremate://` fallbacks.
 
-### 4. Store compliance / listing
+### 3. Store compliance / listing (ops)
 
 - App Privacy (iOS) + Data Safety (Play), including ads + health data  
-- Privacy / Terms live on production website URLs  
-- IAP products in App Store Connect / Play Console matching `caremate.premium.*`  
+- IAP products in ASC / Play matching `caremate.premium.{personal\|family}.{monthly\|yearly}`  
 - Screenshots, age rating, health disclaimers  
 - Submit for Review (iOS) / complete Play release (draft upload ≠ live)
 
-### 5. Other production hosts
+### 4. Prod Supabase Deploy health
 
-Website is live (`getcaremate.com`). Confirm production secrets for:
+Recent **Supabase Deploy** on `prod` failed token/project authorization for `aokorersszvediuatagp`. Re-check `SUPABASE_ACCESS_TOKEN` privileges; run Deploy (or `supabase:link:prod` + `db push` + functions) to green.
 
-- Payment (`payment.getcaremate.com` or current `EXPO_PUBLIC_PAYMENT_URL`)
-- Community portal  
-- Health data gateway (if claiming encrypted PHI)
+### 5. Push (if claiming OS notifications)
 
-Edge Function **runtime** secrets on **prod** Supabase (`EMAIL_PROVIDER`, SMTP/SES/Resend, Stripe/Paystack, etc.) are separate from GitHub — set after `supabase:link:prod`. See [email.md](../../supabase/docs/email.md).
+`google-services.json` in the app ≠ Expo credentials. Upload **FCM V1** service account to Expo + **APNs `.p8`** for iOS. See [notifications.md](./notifications.md#android-expo-push-setup).
 
----
+### 6. Optional / warn
 
-## High (should fix for a serious launch)
-
-| Item | Status |
+| Item | Notes |
 |------|--------|
-| Confirm production Supabase migrations applied | Run Supabase Deploy on `prod` once secrets exist; or `supabase:link:prod` + `db push` |
-| Deploy Edge Functions to prod | Same workflow / `supabase:functions:deploy:prod` |
-| Auth SMTP on prod project | Dashboard Auth → SMTP (same mailbox as product mail for MVP) |
-| FCM / APNs for Expo Push | `google-services.json` is in the app (prod + `.dev` packages). Still required: upload **FCM V1 service account** to Expo (and APNs `.p8` for iOS). See [Android Expo Push setup](./notifications.md#android-expo-push-setup). |
-| Gateway cutover policy | Set URL or disclose plaintext sync |
+| `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` | Empty → PHI may sync plaintext (assert **warns**) |
+| `SENTRY_AUTH_TOKEN` | Needed for native source-map upload (DSN alone ≠ upload) |
+| Payment host naming | Prefer `payment.getcaremate.com` (live); confirm secret matches |
 
 ---
 
@@ -98,23 +70,22 @@ Edge Function **runtime** secrets on **prod** Supabase (`EMAIL_PROVIDER`, SMTP/S
 
 | Item | Notes |
 |------|--------|
-| `EXPO_PUBLIC_POSTHOG_HOST` | Optional if not US Cloud default |
-| IAP product ID overrides in CI | Defaults in code; confirm Console SKUs match |
-| Period learned cycle / Flo depth | Deferred — fixed user-set cycle + calendar fertility is MVP |
+| Period learned cycle / Flo depth | Deferred — fixed cycle + calendar fertility is MVP |
 | Social auth, E2E, maps SDK, biometric lock | Post-MVP |
+| Manual **iOS App Store** workflow dispatch | TestFlight on `prod` succeeded; still need ASC upload job when listings ready |
 
 ---
 
 ## Ship order (ops)
 
-1. Copy **iOS profile + cert password** and **Play SA** onto GitHub Environment **production**  
-2. Add **prod** `SUPABASE_ACCESS_TOKEN` + `SUPABASE_DB_PASSWORD`; run **Supabase Deploy** (or manual link/push + functions)  
-3. Set prod Edge secrets (`EMAIL_PROVIDER=smtp` + SMTP, billing keys, etc.)  
-4. Fill AASA `TEAMID` + (when available) Play signing SHA; deploy website  
-5. Merge `bug/fixes` → `main` → `prod` (or cut without timeline)  
-6. Optional: `SENTRY_AUTH_TOKEN`, gateway URL  
-7. Complete store listings / privacy forms; run [QA P0](./qa-test-cases.md) on a **production-signed** binary  
-8. Manual **iOS App Store** + **Android Play** dispatch from branch `prod`
+1. Amplify SPA rewrite → privacy/terms **200**  
+2. AASA real Team ID + non-SPA hosting for `/.well-known/apple-app-site-association`  
+3. Play signing SHA → `assetlinks.json`; redeploy website  
+4. Fix prod Supabase token; Deploy migrations + functions to green  
+5. IAP SKUs + App Privacy / Data Safety + screenshots  
+6. Expo FCM V1 + APNs (if push claimed)  
+7. QA P0 on production-signed binary  
+8. Manual **iOS App Store** + promote **Android Play** from branch `prod` → Submit  
 
 ---
 
@@ -125,8 +96,7 @@ Edge Function **runtime** secrets on **prod** Supabase (`EMAIL_PROVIDER`, SMTP/S
 | Branch / CD strategy | [mobile-release.md](./mobile-release.md) |
 | Play | [play-android-release.md](./play-android-release.md) |
 | App Store | [ios-app-store-release.md](./ios-app-store-release.md) |
+| Amplify SPA | [amplify-hosting.md](../../docs/amplify-hosting.md) |
 | Env vars | [configuration.md](./configuration.md) |
 | Email | [supabase/docs/email.md](../../supabase/docs/email.md) |
-| Supabase CI | [supabase/docs/operations.md](../../supabase/docs/operations.md) |
 | Ads secrets | [ads.md](./ads.md) |
-| Roadmap gaps | [roadmap.md](./roadmap.md) |
