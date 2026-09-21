@@ -37,7 +37,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     name: BRAND.name,
     alternateName: PHIN.acronym,
     url: SITE_URL,
-    logo: `${SITE_URL}/caremate-logo.png`,
+    logo: `${SITE_URL}/caremate-icon.png`,
     email: 'hello@getcaremate.com',
     description: DEFAULT_DESCRIPTION,
     sameAs: [
@@ -208,7 +208,7 @@ export function articleSeo(input: {
         name: BRAND.name,
         logo: {
           '@type': 'ImageObject',
-          url: `${SITE_URL}/caremate-logo.png`,
+          url: `${SITE_URL}/caremate-icon.png`,
         },
       },
       mainEntityOfPage: absoluteUrl(input.path),

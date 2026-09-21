@@ -216,10 +216,7 @@ export function TermsPage() {
           <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a>
         </p>
 
-        <p className={styles.meta}>
-          Last updated: August 25, 2026 · Draft for counsel review — SoftLyft intends these Terms as
-          a working baseline before formal legal finalization.
-        </p>
+        <p className={styles.meta}>Last updated: August 25, 2026</p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
         </p>
