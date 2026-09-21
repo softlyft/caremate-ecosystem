@@ -167,7 +167,7 @@ Expo configuration at project root.
 |-------|-------|
 | `package` | com.softlyft.caremate |
 | `versionCode` | 1 (CI overrides via `ANDROID_VERSION_CODE`) |
-| `adaptiveIcon.foregroundImage` | ./assets/images/caremate-logo.png |
+| `adaptiveIcon.foregroundImage` | ./assets/images/caremate-adaptive-icon.png |
 | `adaptiveIcon.backgroundColor` | #FFFFFF |
 
 ### Web
