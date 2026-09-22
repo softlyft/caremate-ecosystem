@@ -21,10 +21,10 @@ export type RenderedEmail = {
 /** Mirrors caremate-website `tokens.css` / mobile palette. */
 const BRAND = {
   name: 'CareMate',
-  tagline: 'Your Health. Our Priority.',
+  tagline: 'Your Health Companion',
   siteUrl: 'https://getcaremate.com',
   supportEmail: 'hello@getcaremate.com',
-  logoUrl: 'https://getcaremate.com/caremate-logo-header.png',
+  logoUrl: 'https://getcaremate.com/caremate-logo.png',
   privacyUrl: 'https://getcaremate.com/privacy',
   termsUrl: 'https://getcaremate.com/terms',
   providerPortalUrl: 'https://app.getcaremate.com',
@@ -117,7 +117,7 @@ function layout(options: LayoutOptions): string {
           <tr>
             <td style="padding:28px 28px 8px;text-align:center;">
               <a href="${BRAND.siteUrl}" style="text-decoration:none;">
-                <img src="${BRAND.logoUrl}" width="200" alt="${BRAND.name}" style="display:block;margin:0 auto;width:200px;max-width:80%;height:auto;border:0;outline:none;">
+                <img src="${BRAND.logoUrl}" width="168" alt="${BRAND.name} — ${escapeHtml(BRAND.tagline)}" style="display:block;margin:0 auto;width:168px;max-width:72%;height:auto;border:0;outline:none;">
               </a>
             </td>
           </tr>
