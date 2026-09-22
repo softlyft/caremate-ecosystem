@@ -87,7 +87,7 @@ export default function OnboardingWelcomeScreen() {
             <View style={[styles.heroBlob, { backgroundColor: theme.blob }]} />
             <Animated.View style={[styles.logoRing, pulseStyle]}>
               <View style={styles.logoInner}>
-                <Image source={images.icon} style={styles.logo} contentFit="contain" />
+                <Image source={images.logo} style={styles.logo} contentFit="contain" />
               </View>
             </Animated.View>
           </LinearGradientFill>

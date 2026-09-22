@@ -18,10 +18,10 @@ describe('email templates', () => {
     assert.match(mail.html, /Ada &lt;script&gt;/);
     assert.match(mail.text, /Ada <script>/);
     assert.match(mail.text, /Family/);
-    assert.match(mail.html, /caremate-logo-header\.png/);
+    assert.match(mail.html, /caremate-logo\.png/);
     assert.match(mail.html, /Open CareMate Family/);
     assert.match(mail.html, /hello@getcaremate\.com/);
-    assert.match(mail.html, /Your Health\. Our Priority/);
+    assert.match(mail.html, /Your Health Companion/);
     assert.match(mail.html, /#0d9488/);
     assert.match(mail.html, /www\.getcaremate\.com/);
   });
