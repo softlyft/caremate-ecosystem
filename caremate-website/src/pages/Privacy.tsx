@@ -11,8 +11,7 @@ export function PrivacyPage() {
         <p className={styles.lead}>
           This Privacy policy explains how SoftLyft (&quot;SoftLyft,&quot; &quot;we,&quot;
           &quot;us,&quot; or &quot;our&quot;) collects, uses, stores, and shares personal data when
-          you use CareMate (mobile apps, websites, and related services). It is written for everyday
-          users and as a working baseline for SoftLyft&apos;s legal counsel.
+          you use CareMate (mobile apps, websites, and related services).
         </p>
         <p>
           CareMate is built for people across <strong>Africa</strong>. SoftLyft is launching first
@@ -225,11 +224,7 @@ export function PrivacyPage() {
           <Link to="/refunds">Refunds</Link>
         </p>
 
-        <p className={styles.meta}>
-          Last updated: September 8, 2026 · Draft for counsel review — SoftLyft intends this policy as
-          a working baseline before formal legal finalization (including NDPA registration /
-          notices if required).
-        </p>
+        <p className={styles.meta}>Last updated: September 8, 2026</p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
         </p>

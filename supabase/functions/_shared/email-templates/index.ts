@@ -21,7 +21,7 @@ export type RenderedEmail = {
 /** Mirrors caremate-website `tokens.css` / mobile palette. */
 const BRAND = {
   name: 'CareMate',
-  tagline: 'Your Health. Our Priority.',
+  tagline: 'Your Health Companion',
   siteUrl: 'https://getcaremate.com',
   supportEmail: 'hello@getcaremate.com',
   logoUrl: 'https://getcaremate.com/caremate-logo.png',

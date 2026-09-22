@@ -190,8 +190,10 @@ const styles = StyleSheet.create({
 
 | Asset | Path | Usage |
 |-------|------|-------|
-| App icon | `assets/images/caremate-logo.png` | App icon, adaptive icon |
-| Header logo | `assets/images/caremate-logo-header.png` | Home header (transparent bg) |
+| App icon | `assets/images/caremate-icon.png` | App icon (`app.json` icon / iOS) |
+| Adaptive icon | `assets/images/caremate-adaptive-icon.png` | Android adaptive foreground |
+| Stacked logo | `assets/images/caremate-logo.png` | Onboarding / email (icon + wordmark + tagline) |
+| Header logo | `assets/images/caremate-logo-header.png` | Home / auth header (no tagline) |
 | Splash icon | `assets/images/caremate-splash-icon.png` | Splash (icon only, no text) |
 | iOS icon | `assets/expo.icon` | iOS app icon (Icon Composer) |
 

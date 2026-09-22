@@ -116,9 +116,7 @@ export function RefundsPage() {
           <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a>
         </p>
 
-        <p className={styles.meta}>
-          Last updated: August 25, 2026 · Draft for counsel review alongside Terms and Privacy.
-        </p>
+        <p className={styles.meta}>Last updated: August 25, 2026</p>
         <p className={styles.back}>
           <Link to="/">← Back to CareMate</Link>
           {' · '}
