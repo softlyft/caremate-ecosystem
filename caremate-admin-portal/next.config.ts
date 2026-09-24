@@ -43,6 +43,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@caremate/learn-content'],
   turbopack: {
     root: path.join(__dirname),
   },

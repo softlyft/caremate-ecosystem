@@ -50,7 +50,7 @@
     "ingest:test": "cd caremate-provider-ingestion && (test -x .venv/bin/python || python3.12 -m venv .venv) && .venv/bin/pip install -q -r requirements.txt && .venv/bin/pytest --cov=app --cov-report=term-missing",
     "lint": "npm run lint -w caremate-mobile && npm run lint -w caremate-admin-portal && npm run lint -w caremate-provider-portal && npm run lint -w caremate-community-portal",
     "typecheck": "npm run typecheck -w caremate-mobile && npm run typecheck -w caremate-admin-portal && npm run typecheck -w caremate-provider-portal && npm run typecheck -w caremate-community-portal && npm run typecheck -w caremate-payment-gateway && npm run typecheck -w caremate-website && npm run typecheck -w caremate-health-data-gateway",
-    "test": "npm run test -w caremate-mobile && npm run test -w caremate-admin-portal && npm run test -w caremate-payment-gateway && npm run ingest:test && npm run test:email-templates",
+    "test": "npm run test -w @caremate/learn-content && npm run test -w caremate-mobile && npm run test -w caremate-admin-portal && npm run test -w caremate-payment-gateway && npm run ingest:test && npm run test:email-templates",
     "test:email-templates": "npx tsx --test supabase/functions/_shared/email-templates/templates.test.ts",
     "format": "npm run format:write",
     "format:write": "prettier --write --config caremate-mobile/.prettierrc --ignore-path caremate-mobile/.prettierignore caremate-mobile",

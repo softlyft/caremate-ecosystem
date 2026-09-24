@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from '@/lib/router';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useTransition } from 'react';
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { FileUploadButton } from '@/components/ui/file-upload-button';
 import { FormActions, FormField, FormStack } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
@@ -160,8 +161,25 @@ export function ArticleForm({ article }: { article?: Article }) {
               <FormField label="Summary" htmlFor="summary" className="md:col-span-2">
                 <Textarea id="summary" rows={2} {...register('summary')} />
               </FormField>
-              <FormField label="Content" htmlFor="content" className="md:col-span-2">
-                <Textarea id="content" rows={10} {...register('content')} />
+              <FormField
+                label="Content"
+                htmlFor="content"
+                className="md:col-span-2"
+                hint="Headings, lists, links, and emphasis render the same way in the app and on the website."
+              >
+                <Controller
+                  control={control}
+                  name="content"
+                  render={({ field }) => (
+                    <RichTextEditor
+                      id="content"
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      disabled={pending}
+                    />
+                  )}
+                />
               </FormField>
               <FormField label="Published at (empty = draft)" htmlFor="published_at">
                 <Input id="published_at" type="datetime-local" {...register('published_at')} />
