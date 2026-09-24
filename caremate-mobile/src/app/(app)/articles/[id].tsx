@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { ExternalLink, Sparkles } from 'lucide-react-native';
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Button } from '@/components/ui/form-controls';
@@ -16,6 +16,7 @@ import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states'
 import { QUERY_KEYS } from '@/constants/config';
 import { AD_SLOTS } from '@/domains/ads';
 import { ARTICLE_THUMBNAILS, getHealthCategory } from '@/domains/articles/categories';
+import { ArticleBody } from '@/domains/articles/components/ArticleBody';
 import { BookmarkToggleButton } from '@/domains/articles/components/BookmarkToggleButton';
 import { ArticleShareButton } from '@/domains/articles/components/ArticleShareButton';
 import { MarkAsReadToggleButton } from '@/domains/articles/components/MarkAsReadToggleButton';
@@ -39,13 +40,6 @@ function getCategoryMeta(categoryId: string) {
   };
 }
 
-function splitParagraphs(content: string): string[] {
-  return content
-    .split(/\n+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
-
 export default function ArticleDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,7 +52,6 @@ export default function ArticleDetailScreen() {
   });
 
   const article = query.data ?? null;
-  const paragraphs = useMemo(() => (article ? splitParagraphs(article.content) : []), [article]);
   const { isRead, isLoading: readStatusLoading, markRead } = useArticleReadTracking(id);
   const didAutoComplete = useRef(false);
   const readOnOpen = useRef<boolean | null>(null);
@@ -221,15 +214,7 @@ export default function ArticleDetailScreen() {
           <View style={[styles.bodyCard, shadow.soft]}>
             <View style={styles.bodyAccent} />
             <View style={styles.bodyCopy}>
-              {paragraphs.map((paragraph, index) => (
-                <AppText
-                  key={`${index}-${paragraph.slice(0, 12)}`}
-                  variant="body"
-                  style={styles.paragraph}
-                >
-                  {paragraph}
-                </AppText>
-              ))}
+              <ArticleBody content={article.content} />
             </View>
           </View>
         </AnimatedSection>
@@ -394,12 +379,6 @@ const styles = StyleSheet.create({
   bodyCopy: {
     flex: 1,
     padding: layoutSpacing.cardPadding + 2,
-    gap: 16,
-  },
-  paragraph: {
-    fontSize: 16,
-    lineHeight: 28,
-    color: palette.text,
   },
   cta: {
     minHeight: 54,

@@ -51,7 +51,7 @@ Mapped today on SQLite `articles` (table name may stay for compatibility; treat 
 | `content_type` | Discriminator (default `article`) |
 | `title` | Display title (FAQ question may also live in attributes) |
 | `summary` | Card blurb / podcast description |
-| `content` | Body: article HTML/text, guide fallback, FAQ answer, transcript notes |
+| `content` | Body: markdown / plain text (bold, headings, lists, links). Legacy newline paragraphs still render. |
 | `category_id` / `category_name` | Heart, child, pregnancy, … (topic axis ≠ format axis) |
 | `image_url` | Poster / cover art |
 | `source_url` | External deep link (Currents article, YouTube, Spotify, …) |

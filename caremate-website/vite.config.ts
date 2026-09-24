@@ -11,6 +11,10 @@ export default defineConfig({
         __dirname,
         '../caremate-admin-portal/data/learn.json',
       ),
+      '@caremate/learn-content': path.resolve(
+        __dirname,
+        '../packages/learn-content/src/index.ts',
+      ),
     },
   },
   server: {
@@ -21,6 +25,7 @@ export default defineConfig({
       allow: [
         path.resolve(__dirname),
         path.resolve(__dirname, '../caremate-admin-portal/data'),
+        path.resolve(__dirname, '../packages/learn-content'),
       ],
     },
   },

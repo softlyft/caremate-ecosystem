@@ -1,7 +1,8 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { DocumentMeta } from '@/components/DocumentMeta';
-import { contentToParagraphs, getArticleByCategoryAndSlug } from '@/lib/articles';
+import { ArticleBody } from '@/components/ArticleBody';
+import { getArticleByCategoryAndSlug } from '@/lib/articles';
 import { articleSeo } from '@/lib/seo';
 import styles from './Articles.module.css';
 
@@ -12,8 +13,6 @@ export function ArticleDetailPage() {
   if (!article) {
     return <Navigate to="/articles" replace />;
   }
-
-  const paragraphs = contentToParagraphs(article.content);
 
   return (
     <main className={styles.page}>
@@ -37,11 +36,7 @@ export function ArticleDetailPage() {
         <h1>{article.title}</h1>
         <p className={styles.lead}>{article.summary}</p>
 
-        <div className={styles.body}>
-          {paragraphs.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
-        </div>
+        <ArticleBody content={article.content} />
 
         <Link to={`/articles/${article.categoryId}`} className={styles.back}>
           ← More in {article.categoryShortLabel}
