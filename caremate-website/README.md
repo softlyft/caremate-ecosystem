@@ -22,6 +22,7 @@ provider marketing + guide, privacy, and terms.
 | `/privacy` | Privacy policy |
 | `/terms` | Terms of service |
 | `/refunds` | Refund policy (Premium / Family billing) |
+| `/delete-account` | Account deletion instructions (Play Data safety URL: `/delete-account.html`) |
 
 Legacy guide URLs redirect: `/guide` → `/docs/patient`, `/ccn/guide` → `/docs/community`, `/providers/guide` → `/docs/providers`.
 

@@ -15,6 +15,8 @@ export const APP_STORE_URLS = {
 export const LEGAL_URLS = {
   privacy: `${config.websiteUrl}/privacy`,
   terms: `${config.websiteUrl}/terms`,
+  /** Static HTML — Play Data safety crawler 404s SPA paths like /security. */
+  deleteAccount: `${config.websiteUrl}/delete-account.html`,
 } as const;
 
 /** Public CareMate website surfaces linked from the app. */

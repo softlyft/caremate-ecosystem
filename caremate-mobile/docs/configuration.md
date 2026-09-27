@@ -86,6 +86,7 @@ Hosted CareMate legal pages opened from Settings → Legal:
 |-----|-------------|
 | `privacy` | `{EXPO_PUBLIC_WEBSITE_URL}/privacy` (prod default `https://getcaremate.com/privacy`) |
 | `terms` | `{EXPO_PUBLIC_WEBSITE_URL}/terms` |
+| `deleteAccount` | `{EXPO_PUBLIC_WEBSITE_URL}/delete-account.html` (static page for Play Data safety) |
 
 Source pages live in the monorepo [`caremate-website/`](../../caremate-website/) package. Keep App Store / Play Console listing URLs aligned. Publish the site before relying on these links in production.
 

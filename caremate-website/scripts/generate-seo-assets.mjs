@@ -3,7 +3,7 @@
  * Writes public/robots.txt, public/llms.txt, and public/sitemap.xml
  * (includes Learn article URLs from caremate-admin-portal/data/learn.json).
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -81,6 +81,7 @@ const staticPaths = [
   '/privacy',
   '/terms',
   '/refunds',
+  '/delete-account.html',
 ];
 
 const learn = JSON.parse(
@@ -158,6 +159,7 @@ CareMate helps people keep critical health details ready when care is needed, di
 - Privacy: ${siteUrl}/privacy
 - Terms: ${siteUrl}/terms
 - Refunds: ${siteUrl}/refunds
+- Delete account: ${siteUrl}/delete-account.html
 
 ## Solutions
 
@@ -184,6 +186,10 @@ Trusted health education articles for patients and families:
 - Support: hello@getcaremate.com
 - Website: ${siteUrl}/
 `;
+
+const deleteAccountHtml = readFileSync(join(publicDir, 'delete-account.html'), 'utf8');
+mkdirSync(join(publicDir, 'delete-account'), { recursive: true });
+writeFileSync(join(publicDir, 'delete-account', 'index.html'), deleteAccountHtml, 'utf8');
 
 writeFileSync(join(publicDir, 'robots.txt'), robots, 'utf8');
 writeFileSync(join(publicDir, 'llms.txt'), llms, 'utf8');
