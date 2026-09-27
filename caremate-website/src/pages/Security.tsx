@@ -92,7 +92,10 @@ export function SecurityPage() {
         <ul className={styles.list}>
           <li>Update profile and preferences in the app</li>
           <li>Sign out on a device you no longer use</li>
-          <li>Delete your account from Settings for permanent cloud removal</li>
+          <li>
+            Delete your account from Settings, or request deletion on the{' '}
+            <Link to="/delete-account">account deletion</Link> page
+          </li>
           <li>
             Contact us at{' '}
             <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a> for security or privacy

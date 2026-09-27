@@ -167,7 +167,10 @@ export function PrivacyPage() {
         <ul className={styles.list}>
           <li>Update profile and notification preferences in the app</li>
           <li>Revoke OS permissions (location, notifications) in device settings</li>
-          <li>Sign out; delete your account from Settings for permanent cloud removal</li>
+          <li>
+            Sign out; delete your account from Settings, or use the{' '}
+            <Link to="/delete-account">account deletion</Link> page
+          </li>
           <li>
             Request access, correction, or deletion of personal data SoftLyft holds about you by
             emailing <a href="mailto:hello@getcaremate.com">hello@getcaremate.com</a>
@@ -222,6 +225,8 @@ export function PrivacyPage() {
           <Link to="/security">Security</Link>
           {' · '}
           <Link to="/refunds">Refunds</Link>
+          {' · '}
+          <Link to="/delete-account">Delete account</Link>
         </p>
 
         <p className={styles.meta}>Last updated: September 8, 2026</p>
