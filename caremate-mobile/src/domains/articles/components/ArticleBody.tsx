@@ -6,7 +6,10 @@ import { AppText } from '@/components/ui/AppText';
 import { parseLearnContent, type LearnInlineNode } from '@caremate/learn-content';
 import { palette } from '@/theme';
 
-function renderInline(nodes: LearnInlineNode[], baseStyle: TextStyle = styles.paragraph): ReactNode[] {
+function renderInline(
+  nodes: LearnInlineNode[],
+  baseStyle: TextStyle = styles.paragraph,
+): ReactNode[] {
   return nodes.map((node, index) => {
     if (node.type === 'link') {
       return (
