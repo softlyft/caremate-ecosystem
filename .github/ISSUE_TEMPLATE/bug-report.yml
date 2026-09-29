@@ -1,0 +1,90 @@
+name: Bug Report
+description: Report a problem with CareMate
+title: "[BUG] "
+type: Bug
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Clearly describe the problem.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Web Portal
+        - Mobile App
+        - API / Backend
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: desktop
+    attributes:
+      label: Desktop environment
+      description: Complete this if the issue occurs on the web portal.
+      value: |
+        - OS:
+        - Browser:
+        - Version:
+
+  - type: textarea
+    id: smartphone
+    attributes:
+      label: Smartphone environment
+      description: Complete this if the issue occurs on the mobile app.
+      value: |
+        - Device:
+        - OS:
+        - App version:
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots / Logs
+      description: Attach screenshots, recordings, or relevant logs.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+
+  - type: checkboxes
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      options:
+        - label: The reported behaviour has been fixed
+        - label: The original issue no longer occurs
+        - label: Relevant tests pass

@@ -93,3 +93,62 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+.rich-text-prose {
+  min-height: 16rem;
+}
+
+.rich-text-prose p {
+  margin: 0.4rem 0;
+}
+
+.rich-text-prose h2 {
+  margin: 0.85rem 0 0.4rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.rich-text-prose h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.rich-text-prose ul,
+.rich-text-prose ol {
+  margin: 0.45rem 0;
+  padding-left: 1.25rem;
+}
+
+.rich-text-prose blockquote {
+  margin: 0.55rem 0;
+  border-left: 3px solid var(--primary);
+  padding-left: 0.75rem;
+  color: var(--muted);
+}
+
+.rich-text-prose a {
+  color: var(--primary-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rich-text-prose hr {
+  margin: 0.85rem 0;
+  border-color: var(--border);
+}
+
+.rich-text-prose u {
+  text-decoration: underline;
+}
+
+.rich-text-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--muted);
+  pointer-events: none;
+}

@@ -153,6 +153,61 @@
   display: grid;
   gap: var(--space-md);
   margin-top: var(--space-sm);
+  color: var(--cm-text);
+}
+
+.body p,
+.body li {
+  margin: 0;
+  color: var(--cm-text);
+  line-height: 1.7;
+}
+
+.body h2,
+.body h3 {
+  margin: 0;
+  color: var(--cm-text);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.body h2 {
+  font-size: 1.35rem;
+}
+
+.body h3 {
+  font-size: 1.15rem;
+}
+
+.body ul,
+.body ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.body blockquote {
+  margin: 0;
+  border-left: 3px solid var(--cm-primary-dark);
+  padding-left: 0.9rem;
+  color: var(--cm-text-secondary);
+}
+
+.body a {
+  color: var(--cm-primary-dark);
+  font-weight: 600;
+}
+
+.body hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.body u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .back {

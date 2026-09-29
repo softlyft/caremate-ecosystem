@@ -30,6 +30,7 @@ const FOOTER_COLUMNS = [
       { to: '/privacy', label: 'Privacy' },
       { to: '/terms', label: 'Terms' },
       { to: '/refunds', label: 'Refunds' },
+      { to: '/delete-account', label: 'Delete account' },
     ],
   },
 ] as const;

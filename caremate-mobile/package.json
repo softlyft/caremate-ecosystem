@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@caremate/db-types": "*",
+    "@caremate/learn-content": "*",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/html-elements": "^57.0.0",
     "@expo/ui": "~57.0.11",
@@ -124,7 +125,8 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
-      "^@/assets/(.*)$": "<rootDir>/assets/$1"
+      "^@/assets/(.*)$": "<rootDir>/assets/$1",
+      "^@caremate/learn-content$": "<rootDir>/../packages/learn-content/src/index.ts"
     }
   },
   "private": true

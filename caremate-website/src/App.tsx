@@ -14,6 +14,7 @@ import { CcnGuidePage } from '@/pages/CcnGuide';
 import { DocsIndexPage } from '@/pages/DocsIndex';
 import { GuidePage } from '@/pages/Guide';
 import { OpenInAppPage } from '@/pages/OpenInApp';
+import { DeleteAccountPage } from '@/pages/DeleteAccount';
 import { PrivacyPage } from '@/pages/Privacy';
 import { RefundsPage } from '@/pages/Refunds';
 import { SecurityPage } from '@/pages/Security';
@@ -252,6 +253,14 @@ export default function App() {
           element={
             <MarketingChrome>
               <RefundsPage />
+            </MarketingChrome>
+          }
+        />
+        <Route
+          path="/delete-account"
+          element={
+            <MarketingChrome>
+              <DeleteAccountPage />
             </MarketingChrome>
           }
         />

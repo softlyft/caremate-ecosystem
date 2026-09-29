@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@caremate/db-types": ["../packages/db-types/src/index.ts"],
-      "@caremate/db-types/*": ["../packages/db-types/src/*"]
+      "@caremate/db-types/*": ["../packages/db-types/src/*"],
+      "@caremate/learn-content": ["../packages/learn-content/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

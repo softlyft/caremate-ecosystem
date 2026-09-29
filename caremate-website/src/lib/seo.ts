@@ -153,6 +153,11 @@ export const STATIC_PAGE_SEO: Record<string, Omit<PageSeo, 'path'>> = {
     title: titleWithBrand('Refunds'),
     description: 'CareMate refund and cancellation policy for Premium and Family subscriptions.',
   },
+  '/delete-account': {
+    title: titleWithBrand('Delete your account'),
+    description:
+      'How to delete your CareMate account in the app or by email. SoftLyft removes personal cloud data after a verified request.',
+  },
 };
 
 export function seoForPath(pathname: string): PageSeo {

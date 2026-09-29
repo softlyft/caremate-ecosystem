@@ -21,7 +21,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@evergreen-learn": ["../caremate-admin-portal/data/learn.json"]
+      "@evergreen-learn": ["../caremate-admin-portal/data/learn.json"],
+      "@caremate/learn-content": ["../packages/learn-content/src/index.ts"]
     }
   },
   "include": ["src"]
