@@ -11,9 +11,9 @@ This audit verifies that controls described in [`docs/security.md`](../security.
 
 ## Executive summary
 
-Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Paystack webhook signatures, OOB OTPs, admin RBAC, and portal upload size limits are **largely implemented and match the threat model**. Mobile has a strong *design* (SQLCipher, SecureStore sessions, gateway encryption, handoff), but several documented controls are incomplete or fail open.
+Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Paystack webhook signatures, OOB OTPs, admin RBAC, and portal upload size limits are **largely implemented and match the threat model**. Mobile has a strong *design* (SQLCipher, SecureStore sessions, gateway encryption, handoff), but several documented controls are incomplete or fail open. Community profile/notification RLS was already tightened in `20260904130000_security_hardening_batch.sql`.
 
-**Two Critical** production-cutover gaps were confirmed on mobile PHI sync and provider ingestion. Additional **High** issues cover payment-gateway session persistence, community RLS privacy, SQLCipher/SecureStore/backup doc-vs-code gaps, plaintext mini-app AsyncStorage, and health-data gateway document ACL / JWT binding / public API exposure.
+**Two Critical** production-cutover gaps were confirmed on mobile PHI sync and provider ingestion. Additional **High** issues cover payment-gateway session persistence, community login open redirect, SQLCipher/SecureStore/backup doc-vs-code gaps, plaintext mini-app AsyncStorage, and health-data gateway document ACL / JWT binding / public API exposure.
 
 ---
 
@@ -41,23 +41,31 @@ Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Pa
 | **Evidence** | Client creates Supabase with local persistence. Success/Cancel call `signOut()`, but abandoned checkouts, crashes, or shared browsers can leave a live session in storage. Website email/password sign-in on this origin amplifies the risk. |
 | **Recommendation** | Set `persistSession: false` (and ideally `autoRefreshToken: false`) for hosted checkout, **or** update the threat model and add explicit idle timeout + storage wipe on unload. Prefer matching the documented non-persistence model. |
 
-### H2 — Community profiles readable by any authenticated user (includes phone)
+### H2 — Community portal open redirect via unsanitized `next`
 
 | | |
 |--|--|
-| **Severity** | High (privacy / enumeration) |
-| **Where** | `supabase/migrations/20260721100000_community_portal_phase1.sql` — policy `"Users read community profiles" … using (true)` on `community_profiles` |
-| **Evidence** | Table columns include `full_name`, `phone`, `photo_url`, `bio`, geo FKs, `user_id`. Any logged-in CareMate user (mobile or portal) can `select *` the full directory. |
-| **Recommendation** | Restrict SELECT to chapter co-members, self, and staff (or expose a narrowed public view without `phone` / precise location). Align with directory UX needs. |
+| **Severity** | High |
+| **Where** | `caremate-community-portal/src/features/auth/login-form.tsx` (`router.replace(next \|\| '/app/dashboard')`) |
+| **Evidence** | Post-login uses raw `searchParams.get('next')`. Admin/provider sanitize with `sanitizePostLoginPath`; community does not. `?next=https://evil.example` or `//evil.example` can send an authenticated user off-site. |
+| **Recommendation** | Allowlist relative `/app…` paths only (same pattern as provider); reject `//`, `://`, `..`; apply on client and any server redirects. |
 
-### M1 — Arbitrary inserts into `community_notifications`
+### H2-fixed — Community profiles / notification insert (already remediated)
+
+| | |
+|--|--|
+| **Severity** | ~~High / Medium~~ → **Fixed** in `20260904130000_security_hardening_batch.sql` |
+| **Evidence** | Profile SELECT now limited to self / staff / `shares_community_chapter_with`; `"System inserts notifications"` dropped and INSERT revoked from `authenticated`/`anon`. |
+| **Note** | Earlier phase-1 `using (true)` / `with check (true)` policies must not be treated as current prod risk if this migration is applied. Confirm on hosted projects (see **L3**). |
+
+### M1 — Community Patient ID join still enumerable
 
 | | |
 |--|--|
 | **Severity** | Medium |
-| **Where** | Same migration — `"System inserts notifications" … with check (true)` |
-| **Evidence** | Any authenticated client can insert rows for any `user_id` (phishing/spam via in-app inbox). Mobile `notifications` correctly scopes insert to `user_id = auth.uid()`. |
-| **Recommendation** | Restrict insert to `service_role` / staff / chapter leaders, or `with check (user_id = auth.uid())` if only self-sync is needed. |
+| **Where** | `caremate-community-portal/src/domains/join/actions.ts` |
+| **Evidence** | Unknown IDs return sentinel `verificationId: '00000000-…'` and `maskedEmail: 'yo**@email.com'`. Valid IDs return a real UUID + real mask. SES failures throw only on the valid path. Response shape still leaks existence. |
+| **Recommendation** | Always return a random UUID-shaped id + generic mask; send email only for real rows; avoid existence-differentiated errors/timing. |
 
 ### M2 — Provider document uploads trust client MIME / extension (no content sniff)
 
@@ -102,8 +110,26 @@ Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Pa
 |--|--|
 | **Severity** | Medium (ops / misconfig) |
 | **Where** | `caremate-provider-ingestion/app/settings.py` — `ingest_api_key: str = "dev-ingest-key"` |
-| **Evidence** | Auth compares bearer token to this setting. If production is deployed without overriding `INGEST_API_KEY`, the default is guessable. Endpoints correctly require the key. |
+| **Evidence** | Auth compares bearer token to this setting. If production is deployed without overriding `INGEST_API_KEY`, the default is guessable. Endpoints correctly require the key. See also **C2**. |
 | **Recommendation** | Fail closed when `ENV=production` and key is missing/default; document required secret in ops runbook. |
+
+### M7 — Provider claim contact emails readable by any authenticated user
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `provider_locations.email` + `"Authenticated read provider_locations" … using (true)` (`20260715140000_provider_fhir_resources.sql`) |
+| **Evidence** | Claim contact emails live on location rows readable by any logged-in client. Payer side was narrowed via `payer_directory` (`20260825173000_payer_directory_hide_claim_email.sql`); providers were not. Enables harvesting for phishing / targeted claim attempts (OTP still required). |
+| **Recommendation** | Directory view without `email` (mirror payer); expose claim email only via service-role claim RPCs. |
+
+### M8 — `community_join_verifications` lacks table REVOKE
+
+| | |
+|--|--|
+| **Severity** | Medium (defense-in-depth) |
+| **Where** | `20260721113000_community_join_patient_verification.sql` |
+| **Evidence** | RLS enabled with no policies (deny-by-default under RLS). Sibling OTP tables (`provider_org_claims`, `provider_password_resets`, `provider_auth_otp_sends`) also `REVOKE ALL FROM anon, authenticated`. |
+| **Recommendation** | `REVOKE ALL` from `anon`/`authenticated`; grant to `service_role` only (same for `retired_patient_ids` if applicable). |
 
 ### L1 — HTTPS return URLs allow any path on allowlisted hosts
 
