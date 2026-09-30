@@ -13,7 +13,7 @@ This audit verifies that controls described in [`docs/security.md`](../security.
 
 Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Paystack webhook signatures, OOB OTPs, admin RBAC, and portal upload size limits are **largely implemented and match the threat model**. Mobile has a strong *design* (SQLCipher, SecureStore sessions, gateway encryption, handoff), but several documented controls are incomplete or fail open. Community profile/notification RLS was already tightened in `20260904130000_security_hardening_batch.sql`.
 
-**Two Critical** production-cutover gaps were confirmed on mobile PHI sync and provider ingestion. Additional **High** issues cover payment-gateway session persistence, community login open redirect, SQLCipher/SecureStore/backup doc-vs-code gaps, plaintext mini-app AsyncStorage, and health-data gateway document ACL / JWT binding / public API exposure.
+**Two Critical** production-cutover gaps were confirmed on mobile PHI sync and provider ingestion. Additional **High** issues cover payment-gateway session persistence, **query-string checkout handoffs emitted by Care/Community portals**, community login open redirect, SQLCipher/SecureStore/backup doc-vs-code gaps, plaintext mini-app AsyncStorage, and health-data gateway document ACL / JWT binding / public API exposure.
 
 ---
 
@@ -95,14 +95,51 @@ Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Pa
 | **Contrast** | Admin and provider portals set a baseline CSP. Docs already note nonce CSP as a follow-up. |
 | **Recommendation** | Add the same baseline CSP as admin/provider; plan nonce wiring later. |
 
-### M5 — Checkout handoff accepted from query string (Referer / log leakage)
+### M5 — Checkout handoff emitted and accepted in query string (Referer / log leakage)
+
+| | |
+|--|--|
+| **Severity** | **High** (elevated — portals actively emit query form) |
+| **Where** | `caremate-provider-portal/src/lib/payment-url.ts`, `caremate-community-portal/src/lib/payment-url.ts` (`query.set('handoff', …)`); gateway `supabase.ts` accepts hash **or** query; `exchange-checkout-handoff` is public anon |
+| **Doc claim** | Browser opens `#handoff=` only |
+| **Evidence** | Query values hit CDN/access logs, history, and Referer before `replaceState`. Exchange returns `access_token` + `refresh_token`. Atomic single-use claim limits reuse but not first interception. |
+| **Recommendation** | Emit `#handoff=` only from portals; stop accepting query handoffs (short deprecation OK). Keep atomic claim. |
+
+### M5a — Paystack webhooks lack timestamp / replay window
 
 | | |
 |--|--|
 | **Severity** | Medium |
-| **Where** | `caremate-payment-gateway/src/lib/supabase.ts` — `hashParams.get('handoff') ?? queryParams.get('handoff')` |
-| **Evidence** | Hash fragment is preferable (not sent in Referer). Query `?handoff=` can appear in proxy logs, analytics, and Referer headers before `history.replaceState` clears it. |
-| **Recommendation** | Prefer hash-only in production deep links; reject or immediately invalidate query handoffs after one use (already single-use server-side — keep TTL short; stop emitting query form from mobile/website). |
+| **Where** | `supabase/functions/billing-webhook-paystack/index.ts` (contrast Stripe `maxAgeSeconds = 300`) |
+| **Evidence** | HMAC-SHA512 + timing-safe compare present; no event-age check. Captured payloads remain indefinitely replayable (finalize mostly idempotent, so impact limited). |
+| **Recommendation** | Reject events older than ~5 minutes using Paystack event timestamp; retain idempotent finalize. |
+
+### M5b — Payment gateway missing browser security headers
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `caremate-payment-gateway/` — no Vite/Amplify header plugin; docs only cover Next portals |
+| **Evidence** | Checkout UI can be iframed (clickjacking / UI redress on Paystack CTA and sign-in). |
+| **Recommendation** | Amplify `customHttp.yml` (or equivalent): XFO DENY, nosniff, Referrer-Policy, baseline CSP, HSTS. |
+
+### M5c — `finalizeSuccessfulPayment` update not CAS on pending; amount not enforced
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `supabase/functions/_shared/billing.ts` (~L65–110) |
+| **Evidence** | Early return if already `succeeded`, but status→succeeded update is `.eq('id')` only (not `.eq('status','pending')`). Concurrent finalizers can both proceed into subscription create/extend. Webhook `amountMinor` overwrites ledger without comparing to initialized amount. |
+| **Recommendation** | Claim with `.eq('status','pending')` + require updated row; reject/alert if provider amount ≠ expected `amount_minor`. |
+
+### M5d — Legacy `verify-checkout` recovery weakly binds payer identity
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `supabase/functions/verify-checkout/index.ts` (~L295–350) |
+| **Evidence** | If no payments row and `reference` is provided, recovery verifies Paystack and creates payment for the **caller**. `metadata.user_id` enforced only when present. Unique `(provider, provider_reference)` blocks steal when a row exists; orphaned legacy charges / races still matter. |
+| **Recommendation** | Require `metadata.user_id === auth.uid()`; refuse recovery when metadata user is missing. |
 
 ### M6 — Ingest API default key is a fixed string
 
@@ -137,8 +174,43 @@ Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Pa
 |--|--|
 | **Severity** | Low |
 | **Where** | `supabase/functions/_shared/return-url.ts` |
-| **Doc drift** | `docs/security.md` still says HTTPS paths other than `/success`\|`/cancel` are rejected; code intentionally allows Care Portal billing paths. Nested `return=` is validated only on success/cancel-style paths. |
-| **Recommendation** | Update security.md to match; optionally constrain path prefixes (`/success`, `/cancel`, `/billing/*`, `/app/settings/billing`, `/payer/settings/billing`). |
+| **Doc drift** | `docs/security.md` still says HTTPS paths other than `/success`\|`/cancel` are rejected; code intentionally allows Care Portal billing paths. Nested `return=` is validated only on success/cancel-style paths. Gateway allows any path and does not recurse nested returns. |
+| **Recommendation** | Update security.md to match; optionally constrain path prefixes (`/success`, `/cancel`, `/billing/*`, `/app/settings/billing`, `/payer/settings/billing`). Align gateway with Edge. |
+
+### L1a — `caremate://` allowlist is prefix-based
+
+| | |
+|--|--|
+| **Severity** | Low |
+| **Where** | Edge + gateway `return-url.ts` |
+| **Evidence** | `startsWith('caremate://billing/success')` also accepts `…/success.extra` / unusual suffixes depending on mobile handlers. |
+| **Recommendation** | Parse path strictly (`billing/success` \| `billing/cancel` + optional query). |
+
+### L1b — `create-checkout-handoff` does not verify refresh_token ownership
+
+| | |
+|--|--|
+| **Severity** | Low |
+| **Where** | `supabase/functions/create-checkout-handoff/index.ts` |
+| **Evidence** | Access token validated via `getUser()`; body `refresh_token` stored as-is. |
+| **Recommendation** | Validate/refresh server-side and persist only a session pair for `user.id`. |
+
+### L1c — `notify-family-email` `removed` without household binding
+
+| | |
+|--|--|
+| **Severity** | Low |
+| **Where** | `supabase/functions/notify-family-email/index.ts` |
+| **Evidence** | With `householdId`, ownership is checked; without it, a household owner can notify an arbitrary `removedUserId` (spam via push). |
+| **Recommendation** | Require `householdId` and verify target membership. |
+
+### L1d — Service-role auth helpers inconsistent (mail/cron)
+
+| | |
+|--|--|
+| **Severity** | Low |
+| **Where** | OTP senders use `isServiceRoleRequest`; `send-billing-email` / `billing-renewal-reminders` exact-match `SUPABASE_SERVICE_ROLE_KEY` |
+| **Recommendation** | Route all through `isServiceRoleRequest`; prefer constant-time compare. |
 
 ### L2 — Payment gateway return-URL host allowlist is broader than Edge for path rules
 
@@ -147,6 +219,14 @@ Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Pa
 | **Severity** | Low |
 | **Where** | `caremate-payment-gateway/src/lib/return-url.ts` — any path on allowlisted host |
 | **Recommendation** | Align gateway and Edge validators; keep Amplify hosts as an explicit allowlist (already done — good). |
+
+### L2a — Success page may navigate before `signOut` completes
+
+| | |
+|--|--|
+| **Severity** | Low (worsens **H1**) |
+| **Where** | `caremate-payment-gateway/src/pages/SuccessPage.tsx` — `openAppDeepLink` then `void signOut()` |
+| **Recommendation** | `await signOut()` before redirect when using persisted sessions; or disable persistence (**H1**). |
 
 ### L3 — Deploy checklist still unchecked for cutover
 
@@ -311,9 +391,11 @@ Verified follow-up from deeper mobile / gateway / ingest review (cross-checked i
 | Paystack webhook HMAC-SHA512 + timing-safe compare | OK |
 | Community / provider OTPs emailed OOB; hashes stored; not returned to browser | OK |
 | OTP send throttling (`provider_auth_otp_sends` / community join) | OK |
-| Softened Patient ID enumeration on community join | OK (dummy verification id + masked email) |
+| Softened Patient ID enumeration on community join | Partial — sentinel shape still leaks existence (**M1**) |
 | Admin middleware staff gate + server-action `requirePortalSession` | OK |
-| Admin post-login redirect sanitization | OK — `safe-redirect.ts` + tests |
+| Admin post-login redirect sanitization | OK — `safe-redirect.ts` + tests (community missing — **H2**) |
+| Community profile / badge / certificate SELECT scoped to chapter peers | OK — `20260904130000_security_hardening_batch.sql` |
+| Community notification client INSERT revoked | OK — same hardening batch |
 | Admin media MIME sniff + 15 MB cap | OK |
 | Provider document size ≤ 3 MB + allowlisted extensions | OK (MIME sniff still M2) |
 | Provider upload requires approved patient connection | OK |
@@ -335,10 +417,10 @@ Verified follow-up from deeper mobile / gateway / ingest review (cross-checked i
 2. **C2 / M6** — Harden provider ingestion (prod key, size limits, network isolation).
 3. **MH1–MH3** — Hard-fail without SQLCipher; Android backup exclusion; SecureStore this-device-only.
 4. **MH4–MH7** — Encrypt or relocate mini-app PHI; tighten gateway document ACL + JWT iss/aud + API Gateway controls.
-5. **H1** — Fix payment-gateway session persistence (or revise threat model).
-6. **H2 / M1** — Tighten community profile + notification RLS.
-7. **M2–M5 / MM\*** — MIME sniff, Edge CORS, community CSP, handoff query string, AASA, CI permissions.
-8. **L3** — Close `docs/security.md` deploy checklist against production.
+5. **H1 / H2 / M5** — Payment-gateway session persistence; sanitize community login `next`; hash-only handoff (stop portal `?handoff=`).
+6. **M1 / M5a–M5d / M7 / M8** — Join enumeration; Paystack replay window; payment-gateway headers; finalize CAS/amount; verify-checkout identity; claim emails; join REVOKE.
+7. **M2–M4 / MM\*** — MIME sniff, Edge CORS, community CSP, AASA, CI permissions.
+8. **L3** — Close `docs/security.md` deploy checklist against production (includes confirming hardening-batch migration applied).
 
 ---
 
@@ -347,7 +429,7 @@ Verified follow-up from deeper mobile / gateway / ingest review (cross-checked i
 - Pulled / verified `origin/main` at audit time.
 - Static review of Edge Functions, portals, payment gateway, migrations, ingestion, health gateway, mobile, workflows, and security docs.
 - Grep-assisted scans for secrets, `service_role`, permissive RLS (`using (true)` / `with check (true)`), OTP return paths, CORS, CSP, SQLCipher/SecureStore, and gateway cutover.
-- Mobile/gateway/ingest findings cross-checked after a deeper pass ([Audit mobile & ingestion](bc-92087905-6f74-50e0-bcd8-dd01ce6c1e3c)).
+- Cross-checked with deeper passes: [Audit Edge & billing security](bc-19564e37-deba-51ac-83f7-534748bdbfc1), [Audit portals & RLS](bc-4c04f7c9-6a7f-522f-bb1e-a3f64fdf60d1), [Audit mobile & ingestion](bc-92087905-6f74-50e0-bcd8-dd01ce6c1e3c).
 - No live exploitation against caremate-dev/prod; no secret values were accessed.
 
 ---
@@ -356,4 +438,4 @@ Verified follow-up from deeper mobile / gateway / ingest review (cross-checked i
 
 - Optional: automated RLS regression tests (pgTAP / supabase test) for community tables and billing tables.
 - Optional: dependency/SCA scan in CI (`npm audit` / OSV) as a scheduled workflow.
-- Re-audit after remediating **C1–C2** and **MH1–MH3** at minimum.
+- Re-audit after remediating **C1–C2**, **H1–H2**, **M5**, and **MH1–MH3** at minimum.
