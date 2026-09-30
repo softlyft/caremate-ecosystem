@@ -11,9 +11,9 @@ This audit verifies that controls described in [`docs/security.md`](../security.
 
 ## Executive summary
 
-Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Paystack webhook signatures, OOB OTPs, admin RBAC, and portal upload size limits are **largely implemented and match the threat model**.
+Post-hardening controls for checkout handoff, return-URL allowlisting, Stripe/Paystack webhook signatures, OOB OTPs, admin RBAC, and portal upload size limits are **largely implemented and match the threat model**. Mobile has a strong *design* (SQLCipher, SecureStore sessions, gateway encryption, handoff), but several documented controls are incomplete or fail open.
 
-No Critical issues were confirmed in static review. Several **High/Medium** residual risks remain: payment-gateway session persistence contradicts the security doc, community RLS allows global profile/phone reads and arbitrary notification inserts, provider document MIME checks are extension-based (no magic-byte sniff), Edge CORS is fully open, community portal lacks CSP, and the deploy checklist still has unchecked production cutover items.
+**Two Critical** production-cutover gaps were confirmed on mobile PHI sync and provider ingestion. Additional **High** issues cover payment-gateway session persistence, community RLS privacy, SQLCipher/SecureStore/backup doc-vs-code gaps, plaintext mini-app AsyncStorage, and health-data gateway document ACL / JWT binding / public API exposure.
 
 ---
 
@@ -150,6 +150,129 @@ No Critical issues were confirmed in static review. Several **High/Medium** resi
 
 ---
 
+## Findings — mobile, health gateway & ingestion
+
+Verified follow-up from deeper mobile / gateway / ingest review (cross-checked in tree).
+
+### C1 — PHI sync falls back to plaintext Supabase when gateway URL is unset
+
+| | |
+|--|--|
+| **Severity** | Critical (production cutover) |
+| **Where** | `caremate-mobile/src/domains/health-data-gateway/client.ts`, emergency/mini-app repositories, `caremate-mobile/scripts/assert-production-mobile-env.sh` |
+| **Evidence** | `gatewayRequest` returns `null` when URL unset; callers (e.g. `emergency/repository.ts` `syncToRemote`) then upsert full PHI to Supabase. Production assert only **warns** on empty `EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL` (`warn=1`), does not fail the build. |
+| **Recommendation** | Fail closed for store/`APP_ENV=production` builds: require gateway URL; remove or hard-disable plaintext cloud write paths in production binaries. |
+
+### C2 — Provider ingest: default API key + unbounded uploads + prod service-role target
+
+| | |
+|--|--|
+| **Severity** | Critical (if reachable) |
+| **Where** | `caremate-provider-ingestion/app/settings.py`, `app/main.py`, `app/auth.py`, `app/writers/supabase.py` |
+| **Evidence** | Default `ingest_api_key="dev-ingest-key"`; `UploadFile.read()` with no max size; `?env=prod` selects prod service-role credentials; simple string compare for auth. |
+| **Recommendation** | Fail closed if key is default/empty outside local; enforce size/MIME limits; separate prod keys; rate-limit; keep service behind private network (not public Amplify/internet). (Overlaps portal finding **M6**.) |
+
+### MH1 — SQLCipher can silently degrade to plaintext
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-mobile/src/database/client.ts` — `applyEncryptionKey` / `openNativeDatabase` |
+| **Evidence** | Missing `PRAGMA cipher_version` returns `false`, but `openNativeDatabase` discards that result and continues opening the DB. |
+| **Recommendation** | Abort init (hard fail) when native encryption is expected but cipher is unavailable; add regression tests. |
+
+### MH2 — Documented Android backup exclusion not implemented
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-mobile/docs/security.md` vs `app.json` / `app.config.ts` / `plugins/*` |
+| **Evidence** | Docs claim backup/data-extraction rules exclude `caremate.secure.db`; no `fullBackupContent` / `dataExtractionRules` / `allowBackup=false` config found. |
+| **Recommendation** | Add Expo config plugin excluding DB/WAL/SHM; consider `allowBackup=false` for release. |
+
+### MH3 — SecureStore “this-device-only” not applied
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-mobile/src/lib/storage.ts`, `encryption-key.ts`; docs in `security.md` / `data-layer.md` |
+| **Evidence** | `secureSetItem` never passes `keychainAccessible: WHEN_UNLOCKED_THIS_DEVICE_ONLY` (constant only appears in tests). Auth + SQLCipher keys use default accessibility. |
+| **Recommendation** | Pass `WHEN_UNLOCKED_THIS_DEVICE_ONLY` for auth session + cipher keys on iOS/Android. |
+
+### MH4 — Mini-app PHI also in plaintext AsyncStorage
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-mobile/src/mini-apps/_kit/synced-storage.ts`, `hydrate.ts` |
+| **Evidence** | User-scoped Zustand persist writes clinical payloads to AsyncStorage outside SQLCipher (medications / period / pregnancy state). |
+| **Recommendation** | Prefer SQLite-only for PHI, or encrypt AsyncStorage blobs with the Keystore key. |
+
+### MH5 — Gateway org document list without per-patient consent; `file_url` cleartext
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-health-data-gateway/libs/documents/src/documents.service.ts`, `DOCUMENT_PHI_FIELDS` |
+| **Evidence** | `listForOrganization` only checks org membership. Encryption covers `title` / `file_name` only — `file_url` stored and returned plaintext. |
+| **Recommendation** | Enforce connection + consent (or patient ACL) on list/get; treat `file_url` as sensitive (encrypt or short-lived signed URLs). |
+
+### MH6 — Health gateway HTTP API lacks network authZ controls
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-health-data-gateway/template.yaml`, Nest bootstrap; JWT only at app layer |
+| **Evidence** | SAM `HttpApi` `ANY /{proxy+}` with no API Gateway auth/throttle; service-role backend bypasses RLS once JWT accepted. |
+| **Recommendation** | API Gateway throttling + WAF; CORS allowlist; request size limits; consider private API / IP allowlist for staff routes. |
+
+### MH7 — JWT verify lacks issuer/audience binding
+
+| | |
+|--|--|
+| **Severity** | High |
+| **Where** | `caremate-health-data-gateway/libs/common/src/auth/supabase-jwt.guard.ts` |
+| **Evidence** | `jwtVerify` sets algorithms only — no `issuer` / `audience` checks. |
+| **Recommendation** | Require `iss` = `{SUPABASE_URL}/auth/v1` and expected `aud`; reject non-access tokens. |
+
+### MM1 — Universal/App Links not launch-ready
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `caremate-website/public/.well-known/apple-app-site-association` |
+| **Evidence** | Placeholder `TEAMID.com.softlyft.caremate` still present. |
+| **Recommendation** | Replace Team ID; serve AASA as application/json without SPA rewrite. |
+
+### MM2 — Ingest `/health` discloses env configuration
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `caremate-provider-ingestion/app/main.py` |
+| **Evidence** | Unauthenticated health returns `supabase_configured_dev` / `_prod` style flags. |
+| **Recommendation** | Public `{status:"ok"}` only; detail behind auth. |
+
+### MM3 — Gateway CD secrets via CloudFormation parameters + long-lived IAM keys
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `.github/workflows/gateway-cd.yml`, `template.yaml` |
+| **Evidence** | Service role / JWT / master key as SAM parameter overrides; IAM user access keys (OIDC noted as future). |
+| **Recommendation** | SSM/Secrets Manager + OIDC for AWS auth. |
+
+### MM4 — CI workflow missing explicit `permissions`
+
+| | |
+|--|--|
+| **Severity** | Medium |
+| **Where** | `.github/workflows/ci.yml` |
+| **Evidence** | Deploy workflows set `contents: read`; CI does not. |
+| **Recommendation** | Add top-level least-privilege `permissions`. |
+
+---
+
 ## Positive controls (verified)
 
 | Control | Status |
@@ -169,30 +292,36 @@ No Critical issues were confirmed in static review. Several **High/Medium** resi
 | Provider document size ≤ 3 MB + allowlisted extensions | OK (MIME sniff still M2) |
 | Provider upload requires approved patient connection | OK |
 | Portal security headers (XFO, nosniff, Referrer-Policy, HSTS, Permissions-Policy) | OK (CSP gap on community — M4) |
-| Health-data gateway JWT guard on controllers + user_id ownership checks | OK |
-| Provider ingestion Bearer API key on ingest routes | OK (default key — M6) |
-| Mobile SQLCipher / SecureStore / handoff model (per docs + structure) | Documented and consistent with Edge |
+| Health-data gateway JWT guard on controllers + owner checks (profile/emergency/timeline) | OK (JWT claims / docs ACL — MH5–MH7) |
+| Provider ingestion Bearer API key on ingest routes | OK (default key / size — C2) |
+| Mobile: SecureStore for auth on native; guest sync skipped; device account binding / wipe | OK (accessibility / backup — MH2–MH3) |
+| Mobile: SQLCipher intended (`useSQLCipher: true`); legacy plaintext DB deleted on secure boot | OK if cipher present (fail-open — MH1) |
+| Gateway field-level encryption architecture (wrapped DEKs + master key) | OK for fields in PHI lists |
 | No `service_role` in client `NEXT_PUBLIC_` / `VITE_` / `EXPO_PUBLIC_` bundles (static scan) | OK — server-only usage in portals/Edge/ingest |
 | Amplify builds write `SUPABASE_SERVICE_ROLE_KEY` into `.env.production` for **server** Next builds (not `NEXT_PUBLIC_`) | OK pattern; keep secrets out of client components |
+| CD workflows: GitHub Environments + `permissions: contents: read` on deploy jobs | OK |
 
 ---
 
 ## Suggested remediation order
 
-1. **H1** — Fix payment-gateway session persistence (or formally revise threat model).
-2. **H2 / M1** — Tighten community profile + notification RLS.
-3. **M2** — Magic-byte sniff on provider/payer uploads.
-4. **M3 / M4** — Edge CORS allowlist + community CSP.
-5. **M5 / M6** — Hash-only handoff links; fail-closed ingest key in prod.
-6. **L3** — Close deploy checklist against production.
+1. **C1** — Fail closed on missing health-data gateway URL in production store builds; block plaintext PHI cloud writes.
+2. **C2 / M6** — Harden provider ingestion (prod key, size limits, network isolation).
+3. **MH1–MH3** — Hard-fail without SQLCipher; Android backup exclusion; SecureStore this-device-only.
+4. **MH4–MH7** — Encrypt or relocate mini-app PHI; tighten gateway document ACL + JWT iss/aud + API Gateway controls.
+5. **H1** — Fix payment-gateway session persistence (or revise threat model).
+6. **H2 / M1** — Tighten community profile + notification RLS.
+7. **M2–M5 / MM\*** — MIME sniff, Edge CORS, community CSP, handoff query string, AASA, CI permissions.
+8. **L3** — Close `docs/security.md` deploy checklist against production.
 
 ---
 
 ## Method
 
 - Pulled / verified `origin/main` at audit time.
-- Static review of Edge Functions, portals, payment gateway, migrations, ingestion, health gateway, workflows, and security docs.
-- Grep-assisted scans for secrets, `service_role`, permissive RLS (`using (true)` / `with check (true)`), OTP return paths, CORS, and CSP.
+- Static review of Edge Functions, portals, payment gateway, migrations, ingestion, health gateway, mobile, workflows, and security docs.
+- Grep-assisted scans for secrets, `service_role`, permissive RLS (`using (true)` / `with check (true)`), OTP return paths, CORS, CSP, SQLCipher/SecureStore, and gateway cutover.
+- Mobile/gateway/ingest findings cross-checked after a deeper pass ([Audit mobile & ingestion](bc-92087905-6f74-50e0-bcd8-dd01ce6c1e3c)).
 - No live exploitation against caremate-dev/prod; no secret values were accessed.
 
 ---
@@ -201,4 +330,4 @@ No Critical issues were confirmed in static review. Several **High/Medium** resi
 
 - Optional: automated RLS regression tests (pgTAP / supabase test) for community tables and billing tables.
 - Optional: dependency/SCA scan in CI (`npm audit` / OSV) as a scheduled workflow.
-- Re-audit after remediating H1–M4.
+- Re-audit after remediating **C1–C2** and **MH1–MH3** at minimum.
