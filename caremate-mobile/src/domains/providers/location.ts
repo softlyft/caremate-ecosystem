@@ -80,6 +80,25 @@ async function fromLastKnownSample(options?: {
 }
 
 /**
+ * After the user declines Android Location Accuracy / a live GPS request fails,
+ * stop calling `getCurrentPositionAsync` until they explicitly tap Enable again.
+ * Without this, Home/Providers AppState resume refetch re-opens the system dialog
+ * in a loop (issue #175).
+ */
+let liveGpsSuspendedUntilOptIn = false;
+
+/** @internal test helper */
+export function __resetLiveGpsSuspensionForTests(): void {
+  liveGpsSuspendedUntilOptIn = false;
+}
+
+async function suspendLiveGpsAfterFailure(): Promise<void> {
+  liveGpsSuspendedUntilOptIn = true;
+  // Persist so cold starts do not immediately re-prompt Location Accuracy.
+  await setDeviceDefaults({ locationMode: 'approximate' });
+}
+
+/**
  * Resolve coordinates for Nearby ranking.
  *
  * Priority:
@@ -96,7 +115,7 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
     const defaults = await getDeviceDefaults();
     const wantsPrecise = defaults.locationMode === 'precise';
 
-    if (!wantsPrecise) {
+    if (!wantsPrecise || liveGpsSuspendedUntilOptIn) {
       return fromLastKnownSample({ locationEnabled: false });
     }
 
@@ -107,9 +126,23 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
       return fromLastKnownSample({ locationEnabled: false, permissionBlocked });
     }
 
-    const position = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced,
-    });
+    // Avoid system location / accuracy dialogs when device location is off.
+    const servicesEnabled = await Location.hasServicesEnabledAsync();
+    if (!servicesEnabled) {
+      return fromLastKnownSample({ locationEnabled: true });
+    }
+
+    let position: Location.LocationObject;
+    try {
+      position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+    } catch {
+      // "No thanks" on Location Accuracy (and other GPS failures): fall back and
+      // do not auto-retry on the next foreground refetch.
+      await suspendLiveGpsAfterFailure();
+      return fromLastKnownSample({ locationEnabled: false });
+    }
 
     const sample = await locationSampleRepository.recordSample(currentOwnerId(), {
       latitude: position.coords.latitude,
@@ -144,6 +177,7 @@ export async function resolveNearbyCoords(): Promise<NearbyCoords> {
  * the system will still show a dialog, otherwise open Settings.
  */
 export async function enableNearbyLocationAccess(): Promise<EnableNearbyLocationResult> {
+  liveGpsSuspendedUntilOptIn = false;
   await setDeviceDefaults({ locationMode: 'precise', locationSkipped: false });
 
   let permission = await Location.getForegroundPermissionsAsync();
