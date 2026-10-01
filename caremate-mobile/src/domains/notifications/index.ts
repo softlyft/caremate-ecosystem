@@ -5,6 +5,7 @@ export type {
   NotificationSeverity,
 } from '@/domains/notifications/types';
 export { notificationRepository } from '@/domains/notifications/repository';
+export { resolveNotificationHref } from '@/domains/notifications/resolve-href';
 export {
   createInAppNotification,
   ensureWelcomeInAppNotification,
