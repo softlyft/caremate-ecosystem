@@ -1,5 +1,44 @@
 /** Shared billing helpers for portal admin grants / upgrades. */
 
+import type { createAdminClient } from '@/lib/supabase/admin';
+
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+/**
+ * Resolve a household for Family billing: membership first, then owned household.
+ * Owners may not appear in `family_members` yet.
+ */
+export async function resolveHouseholdIdForUser(
+  admin: AdminClient,
+  userId: string,
+): Promise<string | null> {
+  const { data: membership, error: memberError } = await admin
+    .from('family_members')
+    .select('household_id')
+    .eq('linked_user_id', userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (memberError) {
+    throw new Error(memberError.message);
+  }
+  if (membership?.household_id) {
+    return membership.household_id;
+  }
+
+  const { data: owned, error: ownedError } = await admin
+    .from('family_households')
+    .select('id')
+    .eq('created_by_user_id', userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (ownedError) {
+    throw new Error(ownedError.message);
+  }
+  return owned?.id ?? null;
+}
+
 export function periodEndIso(interval: string, from = new Date()): string {
   const d = new Date(from);
   if (interval === 'yearly') {
