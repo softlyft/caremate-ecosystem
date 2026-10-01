@@ -160,8 +160,9 @@ export function AppShell({
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">{children}</div>
+      <main className="min-w-0 flex-1 overflow-auto">
+        {/* Align content to the sidebar edge (no centered max-width gap on wide screens). */}
+        <div className="w-full px-4 py-6 md:px-6 md:py-6 lg:px-8">{children}</div>
       </main>
     </div>
   );
