@@ -109,11 +109,17 @@ export default async function CommunityPage() {
             ) : (
               <ul className="space-y-3">
                 {leaderboard.map((entry, idx) => (
-                  <li key={entry.userId} className="flex items-center justify-between text-sm">
-                    <span>
-                      {idx + 1}. {entry.fullName}
+                  <li
+                    key={entry.userId}
+                    className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-sm"
+                  >
+                    <span className="shrink-0 tabular-nums">{idx + 1}.</span>
+                    <span className="truncate font-medium" title={entry.fullName}>
+                      {entry.fullName}
                     </span>
-                    <span className="text-muted">{entry.totalPoints} pts</span>
+                    <span className="shrink-0 whitespace-nowrap text-muted">
+                      {entry.totalPoints} pts
+                    </span>
                   </li>
                 ))}
               </ul>
