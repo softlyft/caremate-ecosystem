@@ -111,14 +111,19 @@ export default async function DashboardPage() {
             ) : (
               <ul className="space-y-3">
                 {leaderboard.map((entry, idx) => (
-                  <li key={entry.userId} className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm font-medium">{entry.fullName}</span>
-                    </div>
-                    <span className="text-sm text-muted">{entry.totalPoints} pts</span>
+                  <li
+                    key={entry.userId}
+                    className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold">
+                      {idx + 1}
+                    </span>
+                    <span className="truncate text-sm font-medium" title={entry.fullName}>
+                      {entry.fullName}
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap text-sm text-muted">
+                      {entry.totalPoints} pts
+                    </span>
                   </li>
                 ))}
               </ul>
