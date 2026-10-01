@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
 import { useTranslation } from '@/domains/localization';
 import { useNotificationsInbox } from '@/domains/notifications/hooks';
+import { resolveNotificationHref } from '@/domains/notifications/resolve-href';
 import { markNotificationsRead } from '@/domains/notifications/service';
 import { NotificationCard } from '@/features/notifications/NotificationCard';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
@@ -79,7 +80,21 @@ export default function NotificationsScreen() {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={NotificationDivider}
-        renderItem={({ item }) => <NotificationCard notification={item} />}
+        renderItem={({ item }) => {
+          const href = resolveNotificationHref(item);
+          return (
+            <NotificationCard
+              notification={item}
+              onPress={
+                href
+                  ? () => {
+                      router.push(href);
+                    }
+                  : undefined
+              }
+            />
+          );
+        }}
       />
     </Screen>
   );
