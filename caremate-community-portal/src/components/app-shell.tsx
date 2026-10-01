@@ -130,7 +130,12 @@ export function AppShell({
           <div className="mb-3 flex items-center justify-between">
             <NotificationBell initialCount={unreadCount} />
           </div>
-          <div className="flex items-center gap-3 rounded-lg bg-surface-muted p-3">
+          <Link
+            href="/app/profile"
+            title={email}
+            aria-label={`Account: ${email}. Open profile.`}
+            className="flex items-center gap-3 rounded-lg bg-surface-muted p-3 transition-colors hover:bg-primary-light/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold uppercase text-white">
               {email.charAt(0)}
             </div>
@@ -140,7 +145,7 @@ export function AppShell({
                 {ROLE_LABELS[role]}
               </Badge>
             </div>
-          </div>
+          </Link>
           <Button
             variant="ghost"
             size="sm"
