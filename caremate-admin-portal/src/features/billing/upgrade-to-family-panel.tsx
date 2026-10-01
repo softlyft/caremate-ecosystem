@@ -30,7 +30,11 @@ export function UpgradeToFamilyPanel({ prices }: { prices: SubscriptionPrice[] }
     event.preventDefault();
     startTransition(async () => {
       try {
-        await adminUpgradeToFamily({ patientId, priceId });
+        const result = await adminUpgradeToFamily({ patientId, priceId });
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
         toast.success('Upgraded to Family (admin)');
         setPatientId('');
         setOpen(false);
