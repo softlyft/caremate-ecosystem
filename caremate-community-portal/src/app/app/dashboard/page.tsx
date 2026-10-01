@@ -28,10 +28,10 @@ export default async function DashboardPage() {
   const recentAnnouncements = announcements.slice(0, 5);
 
   const cards = [
-    { label: 'Your points', value: summary.totalPoints, icon: Award, href: '/app/recognition' },
-    { label: 'Upcoming events', value: upcoming.length, icon: CalendarDays, href: '/app/events' },
+    { label: 'Points', value: summary.totalPoints, icon: Award, href: '/app/recognition' },
+    { label: 'Events', value: upcoming.length, icon: CalendarDays, href: '/app/events' },
     { label: 'Announcements', value: announcements.length, icon: Megaphone, href: '/app/community' },
-    { label: 'Actions logged', value: summary.totalActions, icon: FolderOpen, href: '/app/profile' },
+    { label: 'Actions', value: summary.totalActions, icon: FolderOpen, href: '/app/profile' },
   ];
 
   return (
@@ -48,12 +48,12 @@ export default async function DashboardPage() {
           <Link key={label} href={href}>
             <Card className="transition-shadow hover:shadow-md">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-2xl font-semibold text-foreground">{value}</p>
-                  <p className="text-sm text-muted">{label}</p>
+                  <p className="truncate whitespace-nowrap text-sm text-muted">{label}</p>
                 </div>
               </CardContent>
             </Card>
