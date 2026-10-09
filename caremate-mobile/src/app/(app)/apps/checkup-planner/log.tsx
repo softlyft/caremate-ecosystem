@@ -262,6 +262,9 @@ export default function CheckupPlannerLogScreen() {
           </AppText>
           <MonthCalendarGrid
             monthRef={monthRef}
+            onMonthChange={(next) => {
+              setMonthRef(clampMonthRef(next, year, currentYear, today));
+            }}
             interactive
             accentColor={theme.color}
             onDayPress={(dayKey) => {

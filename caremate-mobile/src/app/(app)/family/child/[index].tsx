@@ -221,6 +221,7 @@ export default function FamilyChildFormScreen() {
                   />
                   <MonthCalendarGrid
                     monthRef={dobMonthRef}
+                    onMonthChange={setDobMonthRef}
                     interactive
                     accentColor={palette.primary}
                     onDayPress={(dayKey) => {

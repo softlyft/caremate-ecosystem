@@ -154,6 +154,7 @@ export default function LogPeriodScreen() {
 
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={setMonthRef}
           interactive
           accentColor={theme.color}
           predictedColor="#FBCFE8"
