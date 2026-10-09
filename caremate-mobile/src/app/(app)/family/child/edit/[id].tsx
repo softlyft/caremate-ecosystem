@@ -306,6 +306,11 @@ export default function EditChildScreen() {
                   />
                   <MonthCalendarGrid
                     monthRef={dobMonthRef}
+                    onMonthChange={(month) => {
+                      if (memberId) {
+                        setDobMonthOverride({ memberId, month });
+                      }
+                    }}
                     interactive
                     accentColor={palette.primary}
                     onDayPress={(dayKey) => {

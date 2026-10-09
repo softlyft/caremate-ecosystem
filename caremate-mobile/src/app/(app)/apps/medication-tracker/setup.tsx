@@ -553,6 +553,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
         />
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={setMonthRef}
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {
@@ -652,6 +653,7 @@ function MedicationSetupForm({ editing, todayKey }: { editing?: Medication; toda
             />
             <MonthCalendarGrid
               monthRef={refillMonthRef}
+              onMonthChange={setRefillMonthRef}
               interactive
               accentColor={theme.color}
               onDayPress={(dayKey) => {
