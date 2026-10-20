@@ -831,6 +831,7 @@ export default function FamilyHubScreen() {
                       />
                       <MonthCalendarGrid
                         monthRef={childDobMonthRef}
+                        onMonthChange={setChildDobMonthRef}
                         interactive
                         accentColor={ACCENT}
                         onDayPress={(dayKey) => {

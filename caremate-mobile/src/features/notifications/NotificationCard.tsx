@@ -1,5 +1,5 @@
 import { Bell, BellRing } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import type { InAppNotification } from '@/domains/notifications/types';
@@ -36,15 +36,17 @@ function formatRelativeTime(iso: string): string {
 
 type NotificationCardProps = {
   notification: InAppNotification;
+  onPress?: () => void;
 };
 
-/** Compact inbox row — title + body + time (no CTA). */
-export function NotificationCard({ notification }: NotificationCardProps) {
+/** Compact inbox row — title + body + time; tappable when `onPress` is set. */
+export function NotificationCard({ notification, onPress }: NotificationCardProps) {
   const unread = !notification.readAt;
   const Icon = unread ? BellRing : Bell;
+  const interactive = typeof onPress === 'function';
 
-  return (
-    <View accessibilityRole="text" style={[styles.row, unread ? styles.rowUnread : null]}>
+  const content = (
+    <>
       <View style={[styles.iconBadge, unread ? styles.iconUnread : styles.iconRead]}>
         <Icon color={unread ? ACCENT : '#64748B'} size={16} strokeWidth={2.2} />
       </View>
@@ -54,7 +56,7 @@ export function NotificationCard({ notification }: NotificationCardProps) {
           <AppText
             variant="body"
             style={[styles.title, unread ? styles.titleUnread : null]}
-            numberOfLines={1}
+            numberOfLines={2}
           >
             {notification.title}
           </AppText>
@@ -62,12 +64,35 @@ export function NotificationCard({ notification }: NotificationCardProps) {
             {formatRelativeTime(notification.createdAt)}
           </AppText>
         </View>
-        <AppText variant="caption" style={styles.body} numberOfLines={2}>
+        <AppText variant="caption" style={styles.body}>
           {notification.body}
         </AppText>
       </View>
 
       {unread ? <View style={styles.dot} /> : null}
+    </>
+  );
+
+  if (interactive) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityHint="Opens related screen"
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.row,
+          unread ? styles.rowUnread : null,
+          pressed ? styles.rowPressed : null,
+        ]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View accessibilityRole="text" style={[styles.row, unread ? styles.rowUnread : null]}>
+      {content}
     </View>
   );
 }
@@ -85,6 +110,9 @@ const styles = StyleSheet.create({
     marginHorizontal: -spacing.xs,
     paddingHorizontal: spacing.sm,
     borderRadius: radius.md,
+  },
+  rowPressed: {
+    opacity: 0.85,
   },
   iconBadge: {
     width: 32,

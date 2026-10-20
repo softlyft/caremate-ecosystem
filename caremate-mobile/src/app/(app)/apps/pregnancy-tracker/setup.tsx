@@ -218,6 +218,7 @@ export default function PregnancySetupScreen() {
 
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={setMonthRef}
           interactive
           accentColor={theme.color}
           onDayPress={setSelectedDate}

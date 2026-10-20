@@ -64,7 +64,9 @@ export function NotificationBell({ initialCount = 0 }: { initialCount?: number }
       </Button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-border bg-surface shadow-lg">
+        // Anchor to the left of the bell so the panel opens into the main content
+        // (sidebar sits on the left; `right-0` previously clipped the panel off-screen).
+        <div className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-border bg-surface shadow-lg md:left-0 md:right-auto">
           <div className="border-b border-border px-4 py-3">
             <p className="text-sm font-semibold text-foreground">Notifications</p>
             <p className="text-xs text-muted">{pending && loadingList ? 'Loading…' : `${count} unread`}</p>
@@ -76,9 +78,13 @@ export function NotificationBell({ initialCount = 0 }: { initialCount?: number }
               items.map((n) => (
                 <li key={n.id} className="border-b border-border px-4 py-3 last:border-0">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground">{n.title}</p>
-                      {n.body && <p className="mt-0.5 text-xs text-muted">{n.body}</p>}
+                      {n.body && (
+                        <p className="mt-0.5 whitespace-pre-wrap break-words text-xs text-muted">
+                          {n.body}
+                        </p>
+                      )}
                       {n.link_path && (
                         <Link
                           href={n.link_path}

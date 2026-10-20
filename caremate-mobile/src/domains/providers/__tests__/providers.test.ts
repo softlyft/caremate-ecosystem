@@ -12,13 +12,18 @@ import {
   getProviderSeeds,
   mapFhirProviderBundle,
 } from '@/domains/providers/utils/fhir-providers';
-import { resolveNearbyCoords, enableNearbyLocationAccess } from '@/domains/providers/location';
+import {
+  resolveNearbyCoords,
+  enableNearbyLocationAccess,
+  __resetLiveGpsSuspensionForTests,
+} from '@/domains/providers/location';
 
 jest.mock('expo-location', () => ({
   Accuracy: { Balanced: 3 },
   getForegroundPermissionsAsync: jest.fn(),
   requestForegroundPermissionsAsync: jest.fn(),
   getCurrentPositionAsync: jest.fn(),
+  hasServicesEnabledAsync: jest.fn(),
 }));
 
 jest.mock('@/domains/onboarding/device-defaults', () => ({
@@ -43,6 +48,7 @@ const Location = jest.requireMock('expo-location') as {
   getForegroundPermissionsAsync: jest.Mock;
   requestForegroundPermissionsAsync: jest.Mock;
   getCurrentPositionAsync: jest.Mock;
+  hasServicesEnabledAsync: jest.Mock;
 };
 const { getDeviceDefaults, setDeviceDefaults } = jest.requireMock(
   '@/domains/onboarding/device-defaults',
@@ -142,11 +148,15 @@ describe('providers/location', () => {
   const openSettings = jest.spyOn(Linking, 'openSettings').mockResolvedValue(undefined as never);
 
   beforeEach(() => {
+    __resetLiveGpsSuspensionForTests();
     getDeviceDefaults.mockReset();
     setDeviceDefaults.mockReset();
+    setDeviceDefaults.mockImplementation(async (patch: Record<string, unknown>) => patch);
     Location.getForegroundPermissionsAsync.mockReset();
     Location.requestForegroundPermissionsAsync.mockReset();
     Location.getCurrentPositionAsync.mockReset();
+    Location.hasServicesEnabledAsync.mockReset();
+    Location.hasServicesEnabledAsync.mockResolvedValue(true);
     locationSampleRepository.recordSample.mockReset();
     locationSampleRepository.getLatest.mockReset();
     openSettings.mockClear();
@@ -284,6 +294,109 @@ describe('providers/location', () => {
       precision: 'last_known',
       usingLastKnown: true,
     });
+    expect(setDeviceDefaults).toHaveBeenCalledWith({ locationMode: 'approximate' });
+  });
+
+  it('does not re-call getCurrentPositionAsync after Location Accuracy / GPS decline', async () => {
+    getDeviceDefaults.mockResolvedValue({
+      countryCode: 'NG',
+      state: null,
+      locationMode: 'precise',
+    });
+    locationSampleRepository.getLatest.mockResolvedValue({
+      id: 'sample-declined',
+      latitude: 6.5,
+      longitude: 3.3,
+    });
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'granted',
+      canAskAgain: true,
+    });
+    Location.getCurrentPositionAsync.mockRejectedValue(new Error('Location request failed'));
+
+    await resolveNearbyCoords();
+    Location.getCurrentPositionAsync.mockClear();
+
+    // Simulate AppState resume refetch while defaults still read as precise from cache race,
+    // or before persistence is observed — in-memory suspension must block the dialog loop.
+    await expect(resolveNearbyCoords()).resolves.toMatchObject({
+      precision: 'last_known',
+      sampleId: 'sample-declined',
+    });
+    expect(Location.getCurrentPositionAsync).not.toHaveBeenCalled();
+  });
+
+  it('skips live GPS when location services are disabled', async () => {
+    getDeviceDefaults.mockResolvedValue({
+      countryCode: 'NG',
+      state: null,
+      locationMode: 'precise',
+    });
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'granted',
+      canAskAgain: true,
+    });
+    Location.hasServicesEnabledAsync.mockResolvedValue(false);
+    locationSampleRepository.getLatest.mockResolvedValue({
+      id: 'sample-services-off',
+      latitude: 6.4,
+      longitude: 3.5,
+    });
+
+    await expect(resolveNearbyCoords()).resolves.toMatchObject({
+      precision: 'last_known',
+      locationEnabled: true,
+      sampleId: 'sample-services-off',
+    });
+    expect(Location.getCurrentPositionAsync).not.toHaveBeenCalled();
+  });
+
+  it('clears GPS suspension when the user explicitly enables location', async () => {
+    getDeviceDefaults.mockResolvedValue({
+      countryCode: 'NG',
+      state: null,
+      locationMode: 'precise',
+    });
+    locationSampleRepository.getLatest.mockResolvedValue({
+      id: 'sample-3',
+      latitude: 6.5,
+      longitude: 3.3,
+    });
+    Location.getForegroundPermissionsAsync.mockResolvedValue({
+      status: 'granted',
+      canAskAgain: true,
+    });
+    Location.getCurrentPositionAsync.mockRejectedValueOnce(new Error('declined'));
+
+    await resolveNearbyCoords();
+    expect(Location.getCurrentPositionAsync).toHaveBeenCalledTimes(1);
+
+    Location.getCurrentPositionAsync.mockClear();
+    Location.getCurrentPositionAsync.mockResolvedValue({
+      coords: {
+        latitude: 6.45,
+        longitude: 3.4,
+        altitude: null,
+        accuracy: 10,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
+      mocked: false,
+      timestamp: 1_700_000_000_000,
+    });
+    locationSampleRepository.recordSample.mockResolvedValue({
+      id: 'sample-gps-retry',
+      latitude: 6.45,
+      longitude: 3.4,
+    });
+
+    await enableNearbyLocationAccess();
+    await expect(resolveNearbyCoords()).resolves.toMatchObject({
+      precision: 'gps',
+      sampleId: 'sample-gps-retry',
+    });
+    expect(Location.getCurrentPositionAsync).toHaveBeenCalledTimes(1);
   });
 
   it('marks permissionBlocked when the OS will not show the dialog again', async () => {

@@ -28,14 +28,14 @@ export default async function DashboardPage() {
   const recentAnnouncements = announcements.slice(0, 5);
 
   const cards = [
-    { label: 'Your points', value: summary.totalPoints, icon: Award, href: '/app/recognition' },
-    { label: 'Upcoming events', value: upcoming.length, icon: CalendarDays, href: '/app/events' },
+    { label: 'Points', value: summary.totalPoints, icon: Award, href: '/app/recognition' },
+    { label: 'Events', value: upcoming.length, icon: CalendarDays, href: '/app/events' },
     { label: 'Announcements', value: announcements.length, icon: Megaphone, href: '/app/community' },
-    { label: 'Actions logged', value: summary.totalActions, icon: FolderOpen, href: '/app/profile' },
+    { label: 'Actions', value: summary.totalActions, icon: FolderOpen, href: '/app/profile' },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Dashboard</h1>
         <p className="mt-1 text-sm text-muted">
@@ -48,12 +48,12 @@ export default async function DashboardPage() {
           <Link key={label} href={href}>
             <Card className="transition-shadow hover:shadow-md">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-2xl font-semibold text-foreground">{value}</p>
-                  <p className="text-sm text-muted">{label}</p>
+                  <p className="truncate whitespace-nowrap text-sm text-muted">{label}</p>
                 </div>
               </CardContent>
             </Card>
@@ -111,14 +111,19 @@ export default async function DashboardPage() {
             ) : (
               <ul className="space-y-3">
                 {leaderboard.map((entry, idx) => (
-                  <li key={entry.userId} className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm font-medium">{entry.fullName}</span>
-                    </div>
-                    <span className="text-sm text-muted">{entry.totalPoints} pts</span>
+                  <li
+                    key={entry.userId}
+                    className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold">
+                      {idx + 1}
+                    </span>
+                    <span className="truncate text-sm font-medium" title={entry.fullName}>
+                      {entry.fullName}
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap text-sm text-muted">
+                      {entry.totalPoints} pts
+                    </span>
                   </li>
                 ))}
               </ul>

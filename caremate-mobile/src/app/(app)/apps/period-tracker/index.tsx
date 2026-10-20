@@ -247,6 +247,7 @@ export default function PeriodTrackerScreen() {
 
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={setMonthRef}
           interactive={interactive}
           accentColor={theme.color}
           predictedColor="#F9A8D4"

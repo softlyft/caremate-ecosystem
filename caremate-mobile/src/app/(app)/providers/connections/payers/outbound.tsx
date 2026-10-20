@@ -132,6 +132,7 @@ export default function PayerOutboundRequestsScreen() {
                       <Button
                         style={styles.primary}
                         loading={busy}
+                        disabled={busy || !cancelReason.trim()}
                         onPress={() => {
                           setBusyId(item.id);
                           cancelMutation.mutate({ connectionId: item.id, reason: cancelReason });
@@ -218,7 +219,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   secondary: {
-    minHeight: 44,
+    flex: 1,
+    minHeight: 48,
     borderRadius: radius.full,
     borderWidth: 1,
     borderColor: palette.divider,

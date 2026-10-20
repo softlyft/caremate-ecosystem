@@ -91,7 +91,9 @@ export default function ArticlesTabScreen() {
       ...QUERY_KEYS.articles,
       trimmedSearch,
       userKey,
-      selectedCategoryId ?? 'news',
+      // Default Learn landing is the full ordered feed (evergreen + retained news).
+      // Category chips filter evergreen; "News" chip (null) is that landing feed.
+      selectedCategoryId ?? 'all',
       newsCountryCode,
     ],
     queryFn: async () => {
@@ -99,8 +101,9 @@ export default function ArticlesTabScreen() {
       if (selectedCategoryId) {
         return articleRepository.findByCategory(selectedCategoryId, userKey, term);
       }
-      return articleRepository.findNews(term, newsCountryCode);
+      return articleRepository.findAll(term, userKey);
     },
+    enabled: localizationReady,
     staleTime: 5 * 60_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -147,7 +150,7 @@ export default function ArticlesTabScreen() {
   }, [articles, trimmedSearch]);
 
   const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
-  const listFilterKey = `${trimmedSearch}|${selectedCategoryId ?? 'news'}`;
+  const listFilterKey = `${trimmedSearch}|${selectedCategoryId ?? 'all'}`;
   const [listFilterSnapshot, setListFilterSnapshot] = useState(listFilterKey);
   if (listFilterKey !== listFilterSnapshot) {
     setListFilterSnapshot(listFilterKey);

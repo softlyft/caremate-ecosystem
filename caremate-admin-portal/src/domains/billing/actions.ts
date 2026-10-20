@@ -11,7 +11,12 @@ import {
   isValidPatientId,
   normalizePatientId,
   periodEndIso,
+  resolveHouseholdIdForUser,
 } from '@/domains/billing/utils';
+
+export type AdminUpgradeToFamilyResult =
+  | { ok: true; subscriptionId: string }
+  | { ok: false; error: string };
 
 async function requireBillingAdmin() {
   const session = await requirePortalSession();
@@ -134,13 +139,7 @@ export async function createAdminSubscription(input: {
 
   let householdId: string | null = null;
   if (price.plan_type === 'family') {
-    const { data: membership } = await admin
-      .from('family_members')
-      .select('household_id')
-      .eq('linked_user_id', profile.user_id)
-      .limit(1)
-      .maybeSingle();
-    householdId = membership?.household_id ?? null;
+    householdId = await resolveHouseholdIdForUser(admin, profile.user_id);
     if (!householdId) {
       throw new Error(
         'Family plan requires a household. Have the user set up family profiles in the app first.',
@@ -227,155 +226,167 @@ export async function createAdminSubscription(input: {
 /**
  * Admin Standard → Family upgrade: cancel active personal, grant Family from today
  * (full new period, no payment). Requires an existing household.
+ *
+ * Returns a structured result so the client can show real errors in production
+ * (thrown server-action errors are redacted as a generic RSC message).
  */
 export async function adminUpgradeToFamily(input: {
   patientId: string;
   priceId: string;
-}): Promise<{ subscriptionId: string }> {
-  const session = await requireBillingAdmin();
-  const patientId = normalizePatientId(input.patientId);
-  if (!isValidPatientId(patientId)) {
-    throw new Error('Patient ID must be exactly 12 digits');
-  }
-  if (!input.priceId?.trim()) {
-    throw new Error('Select a Family plan');
-  }
+}): Promise<AdminUpgradeToFamilyResult> {
+  try {
+    const session = await requireBillingAdmin();
+    const patientId = normalizePatientId(input.patientId);
+    if (!isValidPatientId(patientId)) {
+      return { ok: false, error: 'Patient ID must be exactly 12 digits' };
+    }
+    if (!input.priceId?.trim()) {
+      return { ok: false, error: 'Select a Family plan' };
+    }
 
-  const admin = createAdminClient();
+    const admin = createAdminClient();
 
-  const { data: profile, error: profileError } = await admin
-    .from('profiles')
-    .select('user_id, patient_id')
-    .eq('patient_id', patientId)
-    .maybeSingle();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('user_id, patient_id')
+      .eq('patient_id', patientId)
+      .maybeSingle();
 
-  if (profileError) throw new Error(profileError.message);
-  if (!profile?.user_id) {
-    throw new Error('No user found for that Patient ID');
-  }
+    if (profileError) return { ok: false, error: profileError.message };
+    if (!profile?.user_id) {
+      return { ok: false, error: 'No user found for that Patient ID' };
+    }
 
-  const { data: price, error: priceError } = await admin
-    .from('subscription_prices')
-    .select('*')
-    .eq('id', input.priceId)
-    .eq('plan_type', 'family')
-    .eq('is_active', true)
-    .maybeSingle();
+    const { data: price, error: priceError } = await admin
+      .from('subscription_prices')
+      .select('*')
+      .eq('id', input.priceId)
+      .eq('plan_type', 'family')
+      .eq('is_active', true)
+      .maybeSingle();
 
-  if (priceError) throw new Error(priceError.message);
-  if (!price) {
-    throw new Error('Selected Family plan is not available');
-  }
+    if (priceError) return { ok: false, error: priceError.message };
+    if (!price) {
+      return { ok: false, error: 'Selected Family plan is not available' };
+    }
 
-  const now = new Date();
-  const nowIso = now.toISOString();
+    const now = new Date();
+    const nowIso = now.toISOString();
 
-  const { data: personalRows, error: personalError } = await admin
-    .from('subscriptions')
-    .select('id, plan_type, status, current_period_end')
-    .eq('user_id', profile.user_id)
-    .eq('plan_type', 'personal')
-    .in('status', ['active', 'trialing'])
-    .order('updated_at', { ascending: false })
-    .limit(5);
+    const { data: personalRows, error: personalError } = await admin
+      .from('subscriptions')
+      .select('id, plan_type, status, current_period_end')
+      .eq('user_id', profile.user_id)
+      .eq('plan_type', 'personal')
+      .in('status', ['active', 'trialing', 'past_due'])
+      .order('updated_at', { ascending: false })
+      .limit(5);
 
-  if (personalError) throw new Error(personalError.message);
+    if (personalError) return { ok: false, error: personalError.message };
 
-  const personal = (personalRows ?? []).find((row) =>
-    isSubscriptionPeriodActive(row.current_period_end, now),
-  );
-
-  if (!personal) {
-    throw new Error(
-      'No active Standard subscription to upgrade. Use Add a subscriber for new grants.',
+    const personal = (personalRows ?? []).find((row) =>
+      isSubscriptionPeriodActive(row.current_period_end, now),
     );
-  }
 
-  const { data: familyExisting } = await admin
-    .from('subscriptions')
-    .select('id, current_period_end')
-    .eq('user_id', profile.user_id)
-    .eq('plan_type', 'family')
-    .in('status', ['active', 'trialing'])
-    .maybeSingle();
+    if (!personal) {
+      return {
+        ok: false,
+        error: 'No active Standard subscription to upgrade. Use Add a subscriber for new grants.',
+      };
+    }
 
-  if (familyExisting && isSubscriptionPeriodActive(familyExisting.current_period_end, now)) {
-    throw new Error('This user already has an active Family subscription');
-  }
+    const { data: familyRows, error: familyError } = await admin
+      .from('subscriptions')
+      .select('id, current_period_end')
+      .eq('user_id', profile.user_id)
+      .eq('plan_type', 'family')
+      .in('status', ['active', 'trialing'])
+      .order('updated_at', { ascending: false })
+      .limit(5);
 
-  const { data: membership } = await admin
-    .from('family_members')
-    .select('household_id')
-    .eq('linked_user_id', profile.user_id)
-    .limit(1)
-    .maybeSingle();
+    if (familyError) return { ok: false, error: familyError.message };
 
-  const householdId = membership?.household_id ?? null;
-  if (!householdId) {
-    throw new Error(
-      'Family plan requires a household. Have the user set up family profiles in the app first.',
+    const familyExisting = (familyRows ?? []).find((row) =>
+      isSubscriptionPeriodActive(row.current_period_end, now),
     );
-  }
+    if (familyExisting) {
+      return { ok: false, error: 'This user already has an active Family subscription' };
+    }
 
-  const periodEnd = periodEndIso(price.billing_interval, now);
-  const subscriptionId = crypto.randomUUID();
+    const householdId = await resolveHouseholdIdForUser(admin, profile.user_id);
+    if (!householdId) {
+      return {
+        ok: false,
+        error:
+          'Family plan requires a household. Have the user set up family profiles in the app first.',
+      };
+    }
 
-  const { error: cancelError } = await admin
-    .from('subscriptions')
-    .update({
-      status: 'canceled',
-      updated_at: nowIso,
-      provider_ref: `admin_upgraded_to_family:${subscriptionId}`,
-    })
-    .eq('user_id', profile.user_id)
-    .eq('plan_type', 'personal')
-    .in('status', ['active', 'trialing', 'past_due']);
+    const periodEnd = periodEndIso(price.billing_interval, now);
+    const subscriptionId = crypto.randomUUID();
 
-  if (cancelError) throw new Error(cancelError.message);
+    const { error: cancelError } = await admin
+      .from('subscriptions')
+      .update({
+        status: 'canceled',
+        updated_at: nowIso,
+        provider_ref: `admin_upgraded_to_family:${subscriptionId}`,
+      })
+      .eq('user_id', profile.user_id)
+      .eq('plan_type', 'personal')
+      .in('status', ['active', 'trialing', 'past_due']);
 
-  const { error: insertError } = await admin.from('subscriptions').insert({
-    id: subscriptionId,
-    user_id: profile.user_id,
-    household_id: householdId,
-    plan_type: 'family',
-    billing_interval: price.billing_interval,
-    currency: price.currency,
-    provider: 'admin',
-    status: 'active',
-    payment_id: null,
-    provider_ref: 'admin_upgraded_to_family',
-    current_period_start: nowIso,
-    current_period_end: periodEnd,
-    created_at: nowIso,
-    updated_at: nowIso,
-  });
+    if (cancelError) return { ok: false, error: cancelError.message };
 
-  if (insertError) throw new Error(insertError.message);
-
-  await writeAuditEvent({
-    action: 'admin_upgrade_to_family',
-    entityType: 'subscription',
-    entityId: subscriptionId,
-    payload: {
-      patient_id: patientId,
+    const { error: insertError } = await admin.from('subscriptions').insert({
+      id: subscriptionId,
       user_id: profile.user_id,
-      from_subscription_id: personal.id,
-      price_id: price.id,
+      household_id: householdId,
+      plan_type: 'family',
       billing_interval: price.billing_interval,
       currency: price.currency,
-      actor_email: session.user.email ?? null,
-      note: 'admin_upgraded_to_family',
-    },
-  });
+      provider: 'admin',
+      status: 'active',
+      payment_id: null,
+      provider_ref: 'admin_upgraded_to_family',
+      current_period_start: nowIso,
+      current_period_end: periodEnd,
+      created_at: nowIso,
+      updated_at: nowIso,
+    });
 
-  await notifyBillingActivatedEmail({
-    userId: profile.user_id,
-    subscriptionId,
-    planType: 'family',
-    periodEnd,
-  });
+    if (insertError) return { ok: false, error: insertError.message };
 
-  revalidatePath('/dashboard/billing/subscribers');
-  revalidatePath('/dashboard/billing/transactions');
-  return { subscriptionId };
+    await writeAuditEvent({
+      action: 'admin_upgrade_to_family',
+      entityType: 'subscription',
+      entityId: subscriptionId,
+      payload: {
+        patient_id: patientId,
+        user_id: profile.user_id,
+        from_subscription_id: personal.id,
+        price_id: price.id,
+        billing_interval: price.billing_interval,
+        currency: price.currency,
+        actor_email: session.user.email ?? null,
+        note: 'admin_upgraded_to_family',
+      },
+    });
+
+    await notifyBillingActivatedEmail({
+      userId: profile.user_id,
+      subscriptionId,
+      planType: 'family',
+      periodEnd,
+    });
+
+    revalidatePath('/dashboard/billing/subscribers');
+    revalidatePath('/dashboard/billing/transactions');
+    return { ok: true, subscriptionId };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not upgrade to Family',
+    };
+  }
 }

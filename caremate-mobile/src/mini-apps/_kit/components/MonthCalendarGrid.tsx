@@ -18,6 +18,11 @@ type DayState = {
 
 type MonthCalendarGridProps = {
   monthRef: Date;
+  /**
+   * When the user taps a leading/trailing day from an adjacent month, advance the
+   * visible month so the header matches the selected date (issue #187).
+   */
+  onMonthChange?: (month: Date) => void;
   onDayPress?: (dayKey: string) => void;
   getDayState?: (dayKey: string) => DayState;
   interactive?: boolean;
@@ -73,6 +78,7 @@ function withCrossMonthContinuation(
 
 export function MonthCalendarGrid({
   monthRef,
+  onMonthChange,
   onDayPress,
   getDayState,
   interactive = false,
@@ -179,7 +185,12 @@ export function MonthCalendarGrid({
                 accessibilityLabel={`${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}${outsideMonth ? ', outside this month' : ''}, ${isSelected ? 'selected' : 'not selected'}`}
                 hitSlop={6}
                 style={styles.dayCell}
-                onPress={() => onDayPress(dayKey)}
+                onPress={() => {
+                  if (outsideMonth && onMonthChange) {
+                    onMonthChange(new Date(date.getFullYear(), date.getMonth(), 1));
+                  }
+                  onDayPress(dayKey);
+                }}
                 variant="plain"
               >
                 {content}

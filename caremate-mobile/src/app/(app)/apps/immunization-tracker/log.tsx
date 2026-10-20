@@ -289,6 +289,9 @@ export default function ImmunizationLogScreen() {
 
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={(next) => {
+            setMonthRef(next > maxMonth ? maxMonth : next);
+          }}
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {

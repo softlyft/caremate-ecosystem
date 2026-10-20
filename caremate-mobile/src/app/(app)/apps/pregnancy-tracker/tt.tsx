@@ -213,6 +213,7 @@ export default function PregnancyTtScreen() {
 
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={setMonthRef}
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {

@@ -108,6 +108,7 @@ export default function CheckupPlannerSetupScreen() {
         </AppText>
         <MonthCalendarGrid
           monthRef={monthRef}
+          onMonthChange={setMonthRef}
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {
