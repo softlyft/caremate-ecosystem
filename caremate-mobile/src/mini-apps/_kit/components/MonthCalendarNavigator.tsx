@@ -92,8 +92,13 @@ export function MonthCalendarNavigator({
     [effectiveMaximumYear, effectiveMinimumYear],
   );
   const today = new Date();
+  const todayMonthStart = startOfMonth(today);
   const isCurrentMonth =
     monthRef.getFullYear() === today.getFullYear() && monthRef.getMonth() === today.getMonth();
+  const todayInBounds =
+    (!minMonthStart || !isMonthBefore(todayMonthStart, minMonthStart)) &&
+    (!maxMonthStart || !isMonthAfter(todayMonthStart, maxMonthStart));
+  const canJumpToToday = !isCurrentMonth && todayInBounds;
   const canGoPrev = !minMonthStart || isMonthAfter(monthRef, minMonthStart);
   const canGoNext = !maxMonthStart || isMonthBefore(monthRef, maxMonthStart);
   const monthLabel = monthRef.toLocaleDateString(undefined, {
@@ -209,10 +214,20 @@ export function MonthCalendarNavigator({
         </Button>
       </View>
 
-      {!isCurrentMonth ? (
+      {canJumpToToday ? (
         <Button
           accessibilityRole="button"
-          onPress={() => onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1))}
+          accessibilityLabel="Jump to current month"
+          onPress={() => {
+            let next = todayMonthStart;
+            if (minMonthStart && isMonthBefore(next, minMonthStart)) {
+              next = minMonthStart;
+            }
+            if (maxMonthStart && isMonthAfter(next, maxMonthStart)) {
+              next = maxMonthStart;
+            }
+            onMonthChange(next);
+          }}
           style={styles.todayButton}
           variant="plain"
         >

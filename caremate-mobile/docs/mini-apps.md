@@ -84,10 +84,9 @@ Tap → `router.push(app.route)`.
 | `parseDateKey(key)` | Local `Date` |
 | `addDays(date, n)` | Date arithmetic |
 | `daysBetween(a, b)` | Day difference |
-| `getMonthMatrix(ref)` | Calendar cells |
 | `startOfDay(date)` | Strip time |
 
-`MonthCalendarGrid` lives in `period-tracker/` and is reused by pregnancy, immunization, medication, and checkup planner setup/log screens.
+Month grids use shared `_kit` helpers (`getMonthMatrix`, `MonthCalendarGrid`, `MonthCalendarNavigator`) — reused by period tracker, pregnancy, immunization, medication, and checkup planner.
 
 Country list for Checkup Planner comes from `localizationService.listCountryOptions()` in `src/domains/localization/`.
 

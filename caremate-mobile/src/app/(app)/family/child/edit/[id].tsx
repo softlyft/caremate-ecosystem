@@ -110,6 +110,10 @@ export default function EditChildScreen() {
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const currentYear = today.getFullYear();
+  const maxDobMonth = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth(), 1),
+    [today],
+  );
   const [dobMonthOverride, setDobMonthOverride] = useState<{
     memberId: string;
     month: Date;
@@ -303,6 +307,7 @@ export default function EditChildScreen() {
                       }
                     }}
                     maximumYear={currentYear}
+                    maximumMonth={maxDobMonth}
                   />
                   <MonthCalendarGrid
                     monthRef={dobMonthRef}

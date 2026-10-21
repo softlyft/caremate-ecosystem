@@ -192,6 +192,10 @@ export default function FamilyHubScreen() {
   const [childGender, setChildGender] = useState<FamilyMemberGender>('prefer_not_to_say');
   const todayKey = useMemo(() => toDateKey(new Date()), []);
   const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const maxDobMonth = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }, []);
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
@@ -828,6 +832,7 @@ export default function FamilyHubScreen() {
                         monthRef={childDobMonthRef}
                         onMonthChange={setChildDobMonthRef}
                         maximumYear={currentYear}
+                        maximumMonth={maxDobMonth}
                       />
                       <MonthCalendarGrid
                         monthRef={childDobMonthRef}

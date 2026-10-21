@@ -25,26 +25,6 @@ export function daysBetween(start: Date, end: Date): number {
   return Math.round(ms / (1000 * 60 * 60 * 24));
 }
 
-export function getMonthMatrix(reference: Date): (Date | null)[] {
-  const year = reference.getFullYear();
-  const month = reference.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const startOffset = firstDay.getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const cells: (Date | null)[] = [];
-  for (let i = 0; i < startOffset; i += 1) {
-    cells.push(null);
-  }
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    cells.push(new Date(year, month, day));
-  }
-  while (cells.length % 7 !== 0) {
-    cells.push(null);
-  }
-  return cells;
-}
-
 export function getWeekStrip(center: Date): Date[] {
   return Array.from({ length: 7 }, (_, index) => addDays(center, index - 3));
 }

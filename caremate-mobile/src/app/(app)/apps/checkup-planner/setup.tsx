@@ -33,6 +33,11 @@ export default function CheckupPlannerSetupScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const today = useMemo(() => new Date(), []);
+  const todayKey = useMemo(() => toDateKey(today), [today]);
+  const maxDobMonth = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth(), 1),
+    [today],
+  );
   const [monthRef, setMonthRef] = useState(
     () => new Date(today.getFullYear() - 30, today.getMonth(), 1),
   );
@@ -102,6 +107,8 @@ export default function CheckupPlannerSetupScreen() {
           accentColor={theme.color}
           monthRef={monthRef}
           onMonthChange={setMonthRef}
+          maximumYear={today.getFullYear()}
+          maximumMonth={maxDobMonth}
         />
         <AppText variant="caption" style={styles.muted}>
           {t('apps.checkup.ui.tapDob')}
@@ -112,14 +119,15 @@ export default function CheckupPlannerSetupScreen() {
           interactive
           accentColor={theme.color}
           onDayPress={(dayKey) => {
-            if (dayKey > toDateKey(today)) {
+            if (dayKey > todayKey) {
               return;
             }
             setDateOfBirth(dayKey);
           }}
           getDayState={(dayKey) => ({
             selected: dayKey === dateOfBirth,
-            today: dayKey === toDateKey(today),
+            today: dayKey === todayKey,
+            disabled: dayKey > todayKey,
           })}
         />
         {dateOfBirth ? (

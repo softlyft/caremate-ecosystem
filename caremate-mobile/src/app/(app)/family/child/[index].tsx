@@ -86,6 +86,10 @@ export default function FamilyChildFormScreen() {
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const currentYear = today.getFullYear();
+  const maxDobMonth = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth(), 1),
+    [today],
+  );
   const [dobMonthRef, setDobMonthRef] = useState(() => initialDobMonth(existing?.dateOfBirth));
 
   useEffect(() => {
@@ -218,6 +222,7 @@ export default function FamilyChildFormScreen() {
                     monthRef={dobMonthRef}
                     onMonthChange={setDobMonthRef}
                     maximumYear={currentYear}
+                    maximumMonth={maxDobMonth}
                   />
                   <MonthCalendarGrid
                     monthRef={dobMonthRef}

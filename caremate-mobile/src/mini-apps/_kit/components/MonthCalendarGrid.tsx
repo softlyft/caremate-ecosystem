@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
-import { addDays, getMonthMatrix, toDateKey } from '@/mini-apps/_kit/date-utils';
+import { getMonthMatrix, toDateKey } from '@/mini-apps/_kit/date-utils';
 import { palette, radius } from '@/theme';
 
 type DayState = {
@@ -18,10 +18,7 @@ type DayState = {
 
 type MonthCalendarGridProps = {
   monthRef: Date;
-  /**
-   * When the user taps a leading/trailing day from an adjacent month, advance the
-   * visible month so the header matches the selected date (issue #187).
-   */
+  /** @deprecated Unused — outside-month days are blank and not tappable. */
   onMonthChange?: (month: Date) => void;
   onDayPress?: (dayKey: string) => void;
   getDayState?: (dayKey: string) => DayState;
@@ -37,48 +34,13 @@ type MonthCalendarGridProps = {
 };
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-const MAX_CROSS_MONTH_DAYS = 14;
-
-function isMarkedDay(state: DayState): boolean {
-  return Boolean(state.logged || state.predicted || state.selected);
-}
 
 function isInMonth(date: Date, monthRef: Date): boolean {
   return date.getFullYear() === monthRef.getFullYear() && date.getMonth() === monthRef.getMonth();
 }
 
-/** Keep a logged/predicted streak that runs past this month's last week on the grid. */
-function withCrossMonthContinuation(
-  cells: Date[],
-  getDayState?: (dayKey: string) => DayState,
-): Date[] {
-  if (!getDayState || cells.length === 0) {
-    return cells;
-  }
-
-  const extended = [...cells];
-  let cursor = extended[extended.length - 1]!;
-  let extra = 0;
-  while (extra < MAX_CROSS_MONTH_DAYS) {
-    const next = addDays(cursor, 1);
-    if (!isMarkedDay(getDayState(toDateKey(next)))) {
-      break;
-    }
-    extended.push(next);
-    cursor = next;
-    extra += 1;
-  }
-
-  while (extended.length % 7 !== 0) {
-    const last = extended[extended.length - 1]!;
-    extended.push(addDays(last, 1));
-  }
-  return extended;
-}
-
 export function MonthCalendarGrid({
   monthRef,
-  onMonthChange,
   onDayPress,
   getDayState,
   interactive = false,
@@ -89,7 +51,7 @@ export function MonthCalendarGrid({
   fertileBorderColor = '#8B5CF6',
   ovulationColor = '#7C3AED',
 }: MonthCalendarGridProps) {
-  const monthCells = withCrossMonthContinuation(getMonthMatrix(monthRef), getDayState);
+  const monthCells = getMonthMatrix(monthRef);
   const rows: Date[][] = [];
 
   for (let index = 0; index < monthCells.length; index += 7) {
@@ -110,15 +72,19 @@ export function MonthCalendarGrid({
 
       {rows.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
-          {row.map((date) => {
-            const dayKey = toDateKey(date);
+          {row.map((date, colIndex) => {
             const outsideMonth = !isInMonth(date, monthRef);
+            // Keep week alignment, but only show day numbers for the focused month.
+            if (outsideMonth) {
+              return <View key={`empty-${rowIndex}-${colIndex}`} style={styles.dayCell} />;
+            }
+
+            const dayKey = toDateKey(date);
             const state = getDayState?.(dayKey) ?? {};
             const isSelected = state.selected ?? state.logged ?? false;
             const isDisabled = Boolean(state.disabled);
             const isOvulation = Boolean(state.ovulation);
             const isFertile = Boolean(state.fertile);
-            const marked = isMarkedDay(state) || isOvulation || isFertile;
             const strongFill = isSelected || Boolean(state.logged) || isOvulation;
 
             const bubbleStyle = [
@@ -152,7 +118,6 @@ export function MonthCalendarGrid({
                 },
               state.today && !isDisabled && styles.todayRing,
               isDisabled && styles.disabledBubble,
-              outsideMonth && !marked && styles.outsideBubble,
             ];
 
             const content = (
@@ -162,7 +127,6 @@ export function MonthCalendarGrid({
                   style={[
                     strongFill ? styles.selectedDayText : undefined,
                     isDisabled ? styles.disabledDayText : undefined,
-                    outsideMonth && !strongFill ? styles.outsideDayText : undefined,
                   ]}
                 >
                   {date.getDate()}
@@ -182,15 +146,10 @@ export function MonthCalendarGrid({
               <Button
                 key={dayKey}
                 accessibilityRole="button"
-                accessibilityLabel={`${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}${outsideMonth ? ', outside this month' : ''}, ${isSelected ? 'selected' : 'not selected'}`}
+                accessibilityLabel={`${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}, ${isSelected ? 'selected' : 'not selected'}`}
                 hitSlop={6}
                 style={styles.dayCell}
-                onPress={() => {
-                  if (outsideMonth && onMonthChange) {
-                    onMonthChange(new Date(date.getFullYear(), date.getMonth(), 1));
-                  }
-                  onDayPress(dayKey);
-                }}
+                onPress={() => onDayPress(dayKey)}
                 variant="plain"
               >
                 {content}
@@ -244,12 +203,6 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   disabledDayText: {
-    color: palette.textSecondary,
-  },
-  outsideBubble: {
-    backgroundColor: 'transparent',
-  },
-  outsideDayText: {
     color: palette.textSecondary,
   },
 });
