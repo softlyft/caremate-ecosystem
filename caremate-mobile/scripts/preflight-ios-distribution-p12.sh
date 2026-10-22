@@ -32,18 +32,24 @@ security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
 security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH" >/dev/null
 security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
 
+IMPORT_ERR="$(mktemp)"
 if ! security import "$P12_PATH" \
   -k "$KEYCHAIN_PATH" \
   -f pkcs12 \
   -P "$IOS_DISTRIBUTION_CERTIFICATE_PASSWORD" \
   -T /usr/bin/codesign \
-  -T /usr/bin/security >/dev/null 2>&1; then
+  -T /usr/bin/security >/dev/null 2>"$IMPORT_ERR"; then
   echo "Invalid IOS_DISTRIBUTION_CERTIFICATE_* on ${ENV_LABEL}."
-  echo "security import failed (same as: Unable to decode the provided data)."
+  if [ -s "$IMPORT_ERR" ]; then
+    echo "security import: $(tr '\n' ' ' <"$IMPORT_ERR")"
+  fi
+  rm -f "$IMPORT_ERR"
+  echo "Common causes: corrupt BASE64 paste, wrong PASSWORD, or mismatched cert/password pair."
   echo "Fix: copy the working certificate + password from the development environment,"
   echo "or re-export CareMate-Distribution.p12 and update both BASE64 and PASSWORD secrets."
   echo "See caremate-mobile/docs/ios-app-store-release.md / ios-testflight-release.md"
   exit 1
 fi
+rm -f "$IMPORT_ERR"
 
 echo "PKCS#12 preflight OK (${ENV_LABEL})."
