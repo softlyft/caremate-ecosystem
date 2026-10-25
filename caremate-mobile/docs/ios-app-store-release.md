@@ -77,6 +77,7 @@ Store workflows **fail closed** if AdMob app IDs or banner units are missing/sam
 | Issue | Fix |
 |-------|-----|
 | `Unable to decode the provided data` / PKCS#12 preflight fails | `IOS_DISTRIBUTION_CERTIFICATE_BASE64` or `IOS_DISTRIBUTION_CERTIFICATE_PASSWORD` on GitHub Environment **`production`** is corrupt or mismatched. Copy the working values from **`development`**, or re-export `CareMate-Distribution.p12` and update both secrets (`base64 -i CareMate-Distribution.p12 \| tr -d '\n' \| pbcopy`). Same cert as TestFlight is fine; do **not** change only one of the two secrets. |
+| `No profile … matching 'CareMate App Store'` on archive | Profile secret is missing/wrong, or Xcode 16+ cannot see it. Workflow installs into `~/Library/Developer/Xcode/UserData/Provisioning Profiles` (and the legacy MobileDevice path). Confirm **`production`** `IOS_PROVISIONING_PROFILE_BASE64` is an App Store profile for **`com.softlyft.caremate`** that includes the current Distribution cert. |
 | Build number already used | Increase `IOS_BUILD_NUMBER_OFFSET` or pass **build_number**. Auto builds use `run_id` (unique across TestFlight and App Store). |
 | Wrong backend in build | Check **`production`** environment `EXPO_PUBLIC_*` secrets |
 | Cannot submit for review | Complete App Store listing metadata in App Store Connect first |
