@@ -1,0 +1,36 @@
+# Quick check that production (or development) iOS PKCS#12 secrets import cleanly.
+name: iOS Signing Preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment whose IOS_DISTRIBUTION_CERTIFICATE_* to validate
+        required: true
+        type: choice
+        options:
+          - production
+          - development
+        default: production
+
+jobs:
+  preflight:
+    name: PKCS#12 preflight
+    runs-on: macos-15
+    timeout-minutes: 10
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Preflight distribution certificate
+        env:
+          IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          GITHUB_ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          chmod +x caremate-mobile/scripts/preflight-ios-distribution-p12.sh
+          caremate-mobile/scripts/preflight-ios-distribution-p12.sh

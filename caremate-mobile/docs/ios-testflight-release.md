@@ -170,6 +170,7 @@ After upload, open App Store Connect → TestFlight → wait for **Processing** 
 
 | Issue | Fix |
 |-------|-----|
+| `Unable to decode the provided data` / PKCS#12 preflight fails | `IOS_DISTRIBUTION_CERTIFICATE_BASE64` or `IOS_DISTRIBUTION_CERTIFICATE_PASSWORD` on GitHub Environment **`development`** is corrupt or mismatched. Re-export `CareMate-Distribution.p12` and update both secrets (`base64 -i CareMate-Distribution.p12 \| tr -d '\n' \| pbcopy`). Update **`production`** with the same cert+password when shipping App Store. |
 | Provisioning profile doesn't include **Associated Domains** / **Push Notifications** | Enable **Push Notifications** on App ID `com.softlyft.caremate.dev`, regenerate the App Store profile, update `IOS_PROVISIONING_PROFILE_BASE64` |
 | `No signing certificate "Apple Distribution"` | Re-export `.p12`; confirm cert is not expired |
 | Provisioning profile mismatch | Regenerate App Store profile for `com.softlyft.caremate.dev` |
