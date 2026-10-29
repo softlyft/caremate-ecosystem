@@ -20,20 +20,24 @@ Local `config.toml` wires CareMate-branded **6-digit** templates:
 - Confirm signup → `templates/confirmation.html` (`{{ .Token }}`)
 - Reset password → `templates/recovery.html` (`{{ .Token }}`)
 
-**Hosted Supabase does not read these files automatically.** Push them with:
+**Hosted Supabase does not read these files automatically.** CI syncs them on
+push to `main` / `prod` when `supabase/templates/**` (or the sync script /
+Supabase Deploy workflow) changes — see `.github/workflows/supabase-migrate.yml`.
+
+Manual push (Management API; personal access token required):
 
 ```bash
-supabase config push --project-ref eybakmhqtotoywwgwgjy --yes
-```
-
-Or via Management API (personal access token required):
-
-```bash
+# development (caremate-dev)
 SUPABASE_ACCESS_TOKEN=sbp_... SUPABASE_PROJECT_REF=eybakmhqtotoywwgwgjy \
+  npm run supabase:sync-auth-emails
+
+# production
+SUPABASE_ACCESS_TOKEN=sbp_... SUPABASE_PROJECT_REF=aokorersszvediuatagp \
   npm run supabase:sync-auth-emails
 ```
 
-Use the production project ref when cutting over; do not treat `caremate-dev` as prod.
+Or **Actions → Supabase Deploy → Run workflow** → target `production` (leave
+auth-email sync enabled). Do not treat `caremate-dev` as prod.
 
 ## Docs
 

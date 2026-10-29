@@ -55,4 +55,4 @@ RLS and auth logic are shared infrastructure. App-level authorization must still
 
 ## Auth email templates
 
-Mobile signup confirmation and password reset expect a **6-digit `{{ .Token }}`** in CareMate-branded HTML (`supabase/templates/`). Hosted projects must sync those templates (Dashboard or `scripts/sync-supabase-auth-email-templates.mjs`); otherwise users get the default Supabase magic-link email.
+Mobile signup confirmation and password reset expect a **6-digit `{{ .Token }}`** in CareMate-branded HTML (`supabase/templates/`). Hosted projects must sync those templates (Dashboard, `npm run supabase:sync-auth-emails`, or **Supabase Deploy** on push to `main`/`prod` when templates change); otherwise users get the default Supabase magic-link email.

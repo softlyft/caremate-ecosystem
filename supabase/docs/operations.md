@@ -28,18 +28,20 @@ npm run supabase:db:push
 
 `npm run supabase:link` is an alias of `supabase:link:dev`.
 
-## CI — migrations + Edge Functions per env
+## CI — migrations + Edge Functions + Auth emails per env
 
 Workflow: [`.github/workflows/supabase-migrate.yml`](../../.github/workflows/supabase-migrate.yml) (**Supabase Deploy**)
 
-| Trigger | Target | Migrations | Functions |
-|---------|--------|------------|-----------|
-| Push to **`main`** (supabase paths) | development → caremate-dev | apply (if migrations changed) | deploy all (if `functions/` changed) |
-| Push to **`prod`** (supabase paths) | production → caremate prod | apply (if migrations changed) | deploy all (if `functions/` changed) |
-| PR into `main` / `prod` | matching base branch project | dry-run | skipped |
-| **Actions → Supabase Deploy** | choose development or production | apply / dry-run / skip | deploy / skip |
+| Trigger | Target | Migrations | Functions | Auth email templates |
+|---------|--------|------------|-----------|----------------------|
+| Push to **`main`** (supabase paths) | development → caremate-dev | apply (if migrations changed) | deploy all (if `functions/` changed) | sync (if `templates/` or sync script changed) |
+| Push to **`prod`** (supabase paths) | production → caremate prod | apply (if migrations changed) | deploy all (if `functions/` changed) | sync (if `templates/` or sync script changed) |
+| PR into `main` / `prod` | matching base branch project | dry-run | skipped | skipped |
+| **Actions → Supabase Deploy** | choose development or production | apply / dry-run / skip | deploy / skip | sync / skip |
 
 Function deploy uses `supabase functions deploy <name> --use-api` for every folder under `supabase/functions/` that has `index.ts` (skips `_shared`).
+
+Auth OTP templates (`supabase/templates/*.html`) are **not** applied by `db push`. CI runs `npm run supabase:sync-auth-emails` (Management API) when templates change, or on manual dispatch (unless `skip_auth_emails`). To fix prod immediately without a template commit: **Run workflow** → target `production` → skip migrations/functions if desired → leave auth-email sync on.
 
 ### GitHub Environment secrets (each of `development` and `production`)
 

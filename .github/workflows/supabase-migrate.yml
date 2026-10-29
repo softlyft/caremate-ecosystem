@@ -1,8 +1,11 @@
-# Deploy supabase migrations + Edge Functions to the matching hosted project.
+# Deploy supabase migrations + Edge Functions + Auth email templates.
 # - push to main  → GitHub Environment development → caremate-dev
 # - push to prod  → GitHub Environment production  → caremate prod
-# - pull_request   → migration dry-run only (no function deploy)
+# - pull_request   → migration dry-run only (no function/template deploy)
 # - workflow_dispatch → choose development or production
+#
+# Auth OTP templates (`supabase/templates/*.html`) are NOT applied by db push —
+# they are synced via Management API (`npm run supabase:sync-auth-emails`).
 #
 # Required per environment: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD
 # See supabase/docs/operations.md
@@ -16,7 +19,9 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'supabase/functions/**'
+      - 'supabase/templates/**'
       - 'supabase/config.toml'
+      - 'scripts/sync-supabase-auth-email-templates.mjs'
       - '.github/workflows/supabase-migrate.yml'
 
   pull_request:
@@ -26,7 +31,9 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'supabase/functions/**'
+      - 'supabase/templates/**'
       - 'supabase/config.toml'
+      - 'scripts/sync-supabase-auth-email-templates.mjs'
       - '.github/workflows/supabase-migrate.yml'
 
   workflow_dispatch:
@@ -40,17 +47,22 @@ on:
           - development
           - production
       dry_run:
-        description: Migration dry-run only (skips function deploy)
+        description: Migration dry-run only (skips function + auth-email deploy)
         required: false
         type: boolean
         default: false
       skip_migrations:
-        description: Skip db push (functions only)
+        description: Skip db push (functions / auth emails only)
         required: false
         type: boolean
         default: false
       skip_functions:
-        description: Skip Edge Function deploy (migrations only)
+        description: Skip Edge Function deploy
+        required: false
+        type: boolean
+        default: false
+      skip_auth_emails:
+        description: Skip Auth email template sync
         required: false
         type: boolean
         default: false
@@ -69,6 +81,7 @@ jobs:
       mode: ${{ steps.out.outputs.mode }}
       run_migrations: ${{ steps.out.outputs.run_migrations }}
       run_functions: ${{ steps.out.outputs.run_functions }}
+      run_auth_emails: ${{ steps.out.outputs.run_auth_emails }}
     steps:
       - name: Checkout (for path detection)
         if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -85,12 +98,14 @@ jobs:
 
           RUN_MIGRATIONS=true
           RUN_FUNCTIONS=true
+          RUN_AUTH_EMAILS=true
 
           if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
             ENV='${{ inputs.target }}'
             if [ '${{ inputs.dry_run }}' = 'true' ]; then
               MODE='dry-run'
               RUN_FUNCTIONS=false
+              RUN_AUTH_EMAILS=false
             else
               MODE='push'
             fi
@@ -100,6 +115,9 @@ jobs:
             if [ '${{ inputs.skip_functions }}' = 'true' ]; then
               RUN_FUNCTIONS=false
             fi
+            if [ '${{ inputs.skip_auth_emails }}' = 'true' ]; then
+              RUN_AUTH_EMAILS=false
+            fi
           elif [ "${{ github.event_name }}" = 'pull_request' ]; then
             BASE='${{ github.base_ref }}'
             if [ "$BASE" = 'prod' ]; then
@@ -108,8 +126,9 @@ jobs:
               ENV='development'
             fi
             MODE='dry-run'
-            # PRs never deploy functions.
+            # PRs never deploy functions or mutate hosted Auth templates.
             RUN_FUNCTIONS=false
+            RUN_AUTH_EMAILS=false
             if ! git diff --name-only "origin/${BASE}...HEAD" | grep -qE '^supabase/migrations/|^supabase/config.toml'; then
               RUN_MIGRATIONS=false
             fi
@@ -130,10 +149,14 @@ jobs:
               if ! echo "$CHANGED" | grep -qE '^supabase/functions/|^\.github/workflows/supabase-migrate\.yml'; then
                 RUN_FUNCTIONS=false
               fi
-              # Workflow file change → do both.
+              if ! echo "$CHANGED" | grep -qE '^supabase/templates/|^scripts/sync-supabase-auth-email-templates\.mjs|^\.github/workflows/supabase-migrate\.yml'; then
+                RUN_AUTH_EMAILS=false
+              fi
+              # Workflow file change → do all deploy lanes.
               if echo "$CHANGED" | grep -qE '^\.github/workflows/supabase-migrate\.yml'; then
                 RUN_MIGRATIONS=true
                 RUN_FUNCTIONS=true
+                RUN_AUTH_EMAILS=true
               fi
             fi
           fi
@@ -144,7 +167,7 @@ jobs:
             REF="$DEV_REF"
           fi
 
-          if [ "$RUN_MIGRATIONS" != 'true' ] && [ "$RUN_FUNCTIONS" != 'true' ]; then
+          if [ "$RUN_MIGRATIONS" != 'true' ] && [ "$RUN_FUNCTIONS" != 'true' ] && [ "$RUN_AUTH_EMAILS" != 'true' ]; then
             echo "Nothing to deploy for this change set."
             # Keep job green but skip work via flags.
           fi
@@ -154,12 +177,16 @@ jobs:
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "run_migrations=$RUN_MIGRATIONS" >> "$GITHUB_OUTPUT"
           echo "run_functions=$RUN_FUNCTIONS" >> "$GITHUB_OUTPUT"
-          echo "Resolved env=$ENV project_ref=$REF mode=$MODE migrations=$RUN_MIGRATIONS functions=$RUN_FUNCTIONS"
+          echo "run_auth_emails=$RUN_AUTH_EMAILS" >> "$GITHUB_OUTPUT"
+          echo "Resolved env=$ENV project_ref=$REF mode=$MODE migrations=$RUN_MIGRATIONS functions=$RUN_FUNCTIONS auth_emails=$RUN_AUTH_EMAILS"
 
   deploy:
     name: Deploy · ${{ needs.resolve.outputs.environment }}
     needs: resolve
-    if: needs.resolve.outputs.run_migrations == 'true' || needs.resolve.outputs.run_functions == 'true'
+    if: >
+      needs.resolve.outputs.run_migrations == 'true' ||
+      needs.resolve.outputs.run_functions == 'true' ||
+      needs.resolve.outputs.run_auth_emails == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: ${{ needs.resolve.outputs.environment }}
@@ -193,11 +220,13 @@ jobs:
           fi
 
       - name: Setup Supabase CLI
+        if: needs.resolve.outputs.run_migrations == 'true' || needs.resolve.outputs.run_functions == 'true'
         uses: supabase/setup-cli@v1
         with:
           version: latest
 
       - name: Link project
+        if: needs.resolve.outputs.run_migrations == 'true' || needs.resolve.outputs.run_functions == 'true'
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
 
       - name: Dry-run migrations
@@ -236,3 +265,10 @@ jobs:
             exit 1
           fi
           echo "All Edge Functions deployed to $SUPABASE_PROJECT_REF"
+
+      - name: Sync Auth email templates
+        if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_auth_emails == 'true'
+        run: |
+          set -euo pipefail
+          node scripts/sync-supabase-auth-email-templates.mjs
+          echo "Auth email templates synced to $SUPABASE_PROJECT_REF"
