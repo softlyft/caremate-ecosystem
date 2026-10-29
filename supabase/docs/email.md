@@ -141,7 +141,7 @@ CI deploys function **code** only; it does not copy secrets between projects.
 | Setting | Where | Values |
 |---------|--------|--------|
 | Custom SMTP | Dashboard → **Authentication → SMTP** | Same host/user/pass as product SMTP when using cPanel |
-| Templates | `supabase/templates/*.html` | Sync with `supabase config push` / `npm run supabase:sync-auth-emails` |
+| Templates | `supabase/templates/*.html` | CI on `main`/`prod` via Supabase Deploy, or `npm run supabase:sync-auth-emails` |
 
 Auth does **not** read `EMAIL_PROVIDER`. Point Auth SMTP at the same mailbox for a consistent From address.
 
