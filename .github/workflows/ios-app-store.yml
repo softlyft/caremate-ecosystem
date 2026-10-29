@@ -192,6 +192,15 @@ jobs:
           chmod +x caremate-mobile/scripts/install-ios-provisioning-profile.sh
           caremate-mobile/scripts/install-ios-provisioning-profile.sh
 
+      - name: Configure manual code signing
+        working-directory: caremate-mobile
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          chmod +x scripts/configure-ios-manual-signing.sh
+          scripts/configure-ios-manual-signing.sh .
+
       - name: Resolve Xcode workspace
         working-directory: caremate-mobile
         run: |
@@ -206,13 +215,19 @@ jobs:
           echo "XCODE_WORKSPACE=$WORKSPACE" >> "$GITHUB_ENV"
           echo "XCODE_SCHEME=$SCHEME" >> "$GITHUB_ENV"
           echo "Using workspace=$WORKSPACE scheme=$SCHEME"
+          echo "Resolved signing settings:"
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -showBuildSettings \
+            | grep -E 'CODE_SIGN_STYLE|DEVELOPMENT_TEAM|PROVISIONING_PROFILE|CODE_SIGN_IDENTITY|PRODUCT_BUNDLE_IDENTIFIER' \
+            | grep -v 'PODS_|TEST_' || true
 
       - name: Archive iOS app
         working-directory: caremate-mobile
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
           ARCHIVE_PATH="$RUNNER_TEMP/CareMate.xcarchive"
-          # Match TestFlight: specifier by profile name only (UUID override confuses Xcode 26).
+          TEAM="$(printf '%s' "$APPLE_TEAM_ID" | tr -d '[:space:]')"
           xcodebuild \
             -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
@@ -221,7 +236,7 @@ jobs:
             -archivePath "$ARCHIVE_PATH" \
             archive \
             CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            DEVELOPMENT_TEAM="$TEAM" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
           echo "ARCHIVE_PATH=$ARCHIVE_PATH" >> "$GITHUB_ENV"

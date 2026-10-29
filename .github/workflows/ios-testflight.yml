@@ -198,6 +198,15 @@ jobs:
           chmod +x caremate-mobile/scripts/install-ios-provisioning-profile.sh
           caremate-mobile/scripts/install-ios-provisioning-profile.sh
 
+      - name: Configure manual code signing
+        working-directory: caremate-mobile
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          chmod +x scripts/configure-ios-manual-signing.sh
+          scripts/configure-ios-manual-signing.sh .
+
       - name: Resolve Xcode workspace
         working-directory: caremate-mobile
         run: |
@@ -215,9 +224,12 @@ jobs:
 
       - name: Archive iOS app
         working-directory: caremate-mobile
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
           ARCHIVE_PATH="$RUNNER_TEMP/CareMate.xcarchive"
+          TEAM="$(printf '%s' "$APPLE_TEAM_ID" | tr -d '[:space:]')"
           xcodebuild \
             -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
@@ -226,7 +238,7 @@ jobs:
             -archivePath "$ARCHIVE_PATH" \
             archive \
             CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            DEVELOPMENT_TEAM="$TEAM" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
           echo "ARCHIVE_PATH=$ARCHIVE_PATH" >> "$GITHUB_ENV"
