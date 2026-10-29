@@ -195,27 +195,8 @@ jobs:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
           set -euo pipefail
-          PROFILE_PATH="$RUNNER_TEMP/CareMate.mobileprovision"
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
-          test -s "$PROFILE_PATH"
-
-          PROFILE_PLIST="$(security cms -D -i "$PROFILE_PATH")"
-          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin <<< "$PROFILE_PLIST")"
-          PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print Name' /dev/stdin <<< "$PROFILE_PLIST")"
-
-          # Xcode 16+ / 26 look here; older tooling still uses MobileDevice.
-          PROFILE_DESTS=(
-            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
-            "$HOME/Library/MobileDevice/Provisioning Profiles"
-          )
-          for dest in "${PROFILE_DESTS[@]}"; do
-            mkdir -p "$dest"
-            cp "$PROFILE_PATH" "$dest/${PROFILE_UUID}.mobileprovision"
-          done
-
-          echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
-          echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
-          echo "Installed provisioning profile: $PROFILE_NAME ($PROFILE_UUID)"
+          chmod +x caremate-mobile/scripts/install-ios-provisioning-profile.sh
+          caremate-mobile/scripts/install-ios-provisioning-profile.sh
 
       - name: Resolve Xcode workspace
         working-directory: caremate-mobile
@@ -247,7 +228,6 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE="$PROFILE_UUID" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
           echo "ARCHIVE_PATH=$ARCHIVE_PATH" >> "$GITHUB_ENV"
 
