@@ -152,10 +152,10 @@ jobs:
               if ! echo "$CHANGED" | grep -qE '^supabase/templates/|^scripts/sync-supabase-auth-email-templates\.mjs|^\.github/workflows/supabase-migrate\.yml'; then
                 RUN_AUTH_EMAILS=false
               fi
-              # Workflow file change → do all deploy lanes.
+              # Workflow file change → ensure auth-email sync runs (Management API;
+              # does not require supabase link). Keep migrations/functions path-based
+              # so a CLI/link failure cannot block template sync.
               if echo "$CHANGED" | grep -qE '^\.github/workflows/supabase-migrate\.yml'; then
-                RUN_MIGRATIONS=true
-                RUN_FUNCTIONS=true
                 RUN_AUTH_EMAILS=true
               fi
             fi
@@ -206,18 +206,31 @@ jobs:
         run: |
           set -euo pipefail
           missing=0
-          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD; do
-            if [ -z "${!name}" ]; then
-              echo "Missing secret on GitHub Environment '${{ needs.resolve.outputs.environment }}': $name"
+          if [ -z "${SUPABASE_ACCESS_TOKEN}" ]; then
+            echo "Missing secret on GitHub Environment '${{ needs.resolve.outputs.environment }}': SUPABASE_ACCESS_TOKEN"
+            missing=1
+          fi
+          if [ '${{ needs.resolve.outputs.run_migrations }}' = 'true' ] || [ '${{ needs.resolve.outputs.run_functions }}' = 'true' ]; then
+            if [ -z "${SUPABASE_DB_PASSWORD}" ]; then
+              echo "Missing secret on GitHub Environment '${{ needs.resolve.outputs.environment }}': SUPABASE_DB_PASSWORD"
               missing=1
             fi
-          done
+          fi
           if [ "$missing" -ne 0 ]; then
             echo "Create a Supabase access token (Account → Access Tokens)."
-            echo "Use the database password for project ${{ needs.resolve.outputs.project_ref }}."
+            echo "Use the database password for project ${{ needs.resolve.outputs.project_ref }} when deploying migrations/functions."
             echo "See supabase/docs/operations.md"
             exit 1
           fi
+
+      # Auth templates use Management API only — run before CLI link so a link/
+      # privilege failure cannot skip the template sync (prod gap we are fixing).
+      - name: Sync Auth email templates
+        if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_auth_emails == 'true'
+        run: |
+          set -euo pipefail
+          node scripts/sync-supabase-auth-email-templates.mjs
+          echo "Auth email templates synced to $SUPABASE_PROJECT_REF"
 
       - name: Setup Supabase CLI
         if: needs.resolve.outputs.run_migrations == 'true' || needs.resolve.outputs.run_functions == 'true'
@@ -265,10 +278,3 @@ jobs:
             exit 1
           fi
           echo "All Edge Functions deployed to $SUPABASE_PROJECT_REF"
-
-      - name: Sync Auth email templates
-        if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_auth_emails == 'true'
-        run: |
-          set -euo pipefail
-          node scripts/sync-supabase-auth-email-templates.mjs
-          echo "Auth email templates synced to $SUPABASE_PROJECT_REF"
