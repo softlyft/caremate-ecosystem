@@ -129,3 +129,4 @@ A stricter CSP with nonces across all portals is a follow-up (Next App Router ne
 - Supabase auth/RLS: [`supabase/docs/auth-and-rls.md`](../supabase/docs/auth-and-rls.md)
 - Admin RBAC: [`caremate-admin-portal/docs/auth-rbac.md`](../caremate-admin-portal/docs/auth-rbac.md)
 - Provider claim: [`caremate-provider-portal/docs/auth-claim.md`](../caremate-provider-portal/docs/auth-claim.md)
+- Main-branch audit (2026-09-30): [`audits/2026-09-30-main-security-audit.md`](./audits/2026-09-30-main-security-audit.md)
