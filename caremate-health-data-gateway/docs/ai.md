@@ -26,7 +26,7 @@ libs/ai/
   ai.controller.ts
   ai.service.ts
   graph/education-graph.ts   # LangGraph StateGraph + ChatOpenAI + bounded history
-  safety/policy.ts           # Multi-signal safety (negation/context, emergency, meds)
+  safety/policy.ts           # Multi-signal safety + strict health-only scope gate
   dto/ai.dto.ts
 ```
 

@@ -1,4 +1,8 @@
-export type SafetyIntent = 'education' | 'unsupported_clinical' | 'emergency';
+export type SafetyIntent =
+  | 'education'
+  | 'unsupported_clinical'
+  | 'out_of_scope'
+  | 'emergency';
 
 export type SafetyDecision = {
   intent: SafetyIntent;
@@ -147,6 +151,47 @@ const URGENT_ASSESSMENT_REPLY =
   'Those symptoms can need urgent clinical assessment. CareMate AI cannot evaluate your personal case. ' +
   'Please contact a clinician promptly, or emergency services if symptoms are severe or worsening.';
 
+const OUT_OF_SCOPE_REPLY =
+  'I only help with general health education in CareMate — things like symptoms, conditions, ' +
+  'prevention, nutrition, and wellness. I cannot help with math homework, finance, coding, ' +
+  'or other non-health topics. If you have a health question, ask me that instead.';
+
+/** Short greetings / capability checks — no model cost concern; allow a brief scoped reply. */
+const GREETING_OR_META_RE =
+  /^(hi|hello|hey|good\s+(morning|afternoon|evening)|thanks|thank\s+you|ok|okay|bye|what\s+can\s+you\s+do|who\s+are\s+you|help|how\s+does\s+this\s+work)[\s!.?]*$/i;
+
+/**
+ * Positive health / wellness signal. Used as an allowlist gate so generic
+ * assistant tasks never reach the model.
+ */
+const HEALTH_SIGNAL_RE =
+  /\b(?:health|healthy|healthcare|medical|medicin\w*|medication|symptom\w*|disease\w*|illness\w*|condition\w*|diagnos\w*|doctor|physician|clinician|nurse|clinic|hospital|pharmacy|pharmacist|pregnan\w*|prenatal|postnatal|breastfeed\w*|baby|infant|newborn|vaccine\w*|immuni\w*|allerg\w*|anaphyla\w*|infect\w*|fever|pain|ache|cough|headache|migraine|rash|itch\w*|dizz\w*|fatigue|sore|swell\w*|bleed\w*|bruise\w*|flu|cold|pneumonia|bronchit\w*|breath\w*|shortness\s+of\s+breath|blood|heart|cardiac|diabet\w*|hypertens\w*|asthma|cancer|tumor\w*|mental\s+health|anxiety|depress\w*|stress|suicid\w*|nutrition|nutrient\w*|diet\w*|calorie\w*|bmi|body\s+mass|exercise|fitness|workout|sleep|insomnia|hygiene|sanitation|first\s+aid|wound\w*|injur\w*|fracture\w*|stroke|seizure\w*|antibiotic\w*|insulin|metformin|covid|malaria|hiv|aids|tb|tuberculo\w*|anemi\w*|cholera|typhoid|sickle|genotype|blood\s+pressure|cholesterol|obesity|overweight|wellness|vitamin\w*|supplement\w*|oral\s+health|dental|tooth|teeth|eye\s+health|vision|hearing|menstrua\w*|period\s+pain|contracep\w*|std|sti|sexual\s+health|reproductive|kidney|liver|lung|respirat\w*|digest\w*|stomach|nausea|vomit\w*|diarrh\w*|constipat\w*|dehydrat\w*|heat\s+stroke|mosquito|caremate)\b/i;
+
+/** Clear non-health assistant workloads — refuse even before the health-signal gate. */
+const OUT_OF_SCOPE_PATTERNS: RegExp[] = [
+  // Math / homework
+  /\b(solve|calculate|compute|simplify)\b.{0,40}\b(equation|integral|derivative|algebra|polynomial|matrix)\b/i,
+  /\b(what\s+is|what'?s)\s+\d+\s*[\+\-\*\/x×÷]\s*\d+/i,
+  /\b\d+\s*[\+\-\*\/x×÷]\s*\d+\s*=/i,
+  /\b(calculus|algebra|geometry|trigonometry|quadratic|factorial)\b/i,
+  /\b(do|finish|write)\s+(my\s+)?(math|homework|assignment|essay|paper)\b/i,
+  // Finance / business (non-health)
+  /\b(stock|shares?|crypto|bitcoin|forex|portfolio|dividends?)\b/i,
+  /\b(invest(?:ing|ment)?|trading|hedge\s+fund)\b/i,
+  /\b(loan\s+interest|mortgage\s+payment|compound\s+interest|roi)\b/i,
+  /\b(file\s+(my\s+)?taxes|tax\s+return|bookkeeping)\b/i,
+  // Software / coding
+  /\b(write|generate|debug|refactor)\b.{0,40}\b(code|script|function|class|sql|regex)\b/i,
+  /\b(python|javascript|typescript|java|golang|rust|c\+\+|html|css)\b.{0,40}\b(code|function|program|script)\b/i,
+  /\b(leetcode|unit\s+test|pull\s+request|github)\b/i,
+  // Creative / entertainment
+  /\b(write|compose)\s+(a\s+)?(poem|song|story|screenplay|joke|riddle)\b/i,
+  /\b(movie|netflix|spotify|football\s+score|premier\s+league)\b/i,
+  // Generic productivity
+  /\b(summarize\s+this\s+(email|article|pdf)|translate\s+this\s+to)\b/i,
+  /\b(plan\s+my\s+(vacation|wedding|itinerary))\b/i,
+];
+
 function normalize(content: string): string {
   return content.trim().replace(/\s+/g, ' ');
 }
@@ -262,15 +307,80 @@ function matchUrgentAssessment(text: string): boolean {
   return false;
 }
 
+function hasHealthSignal(text: string): boolean {
+  return HEALTH_SIGNAL_RE.test(text);
+}
+
+function isGreetingOrMeta(text: string): boolean {
+  return GREETING_OR_META_RE.test(text);
+}
+
+/** Short pronoun / elaboration turns that depend on prior health context. */
+function isShortHealthFollowUp(text: string): boolean {
+  return (
+    text.length <= 120 &&
+    /^(what|why|how|when|and|also|so|then|tell me more|explain(?:\s+more)?|more|is that|does that|what about|how about|can you explain)\b/i.test(
+      text,
+    )
+  );
+}
+
+function matchesHardOutOfScopeDomain(text: string): boolean {
+  return /\b(stock|crypto|bitcoin|forex|python|javascript|typescript|leetcode|poem|movie|mortgage|netflix)\b/i.test(
+    text,
+  );
+}
+
+/**
+ * Strict out-of-scope gate: clear non-health workloads, or any ask with no
+ * health/wellness signal (except greetings and short follow-ups when prior
+ * turns were health-related). Never calls the model for generic assistant work.
+ */
+function matchOutOfScope(
+  text: string,
+  context?: { priorTexts?: string[] },
+): boolean {
+  if (isGreetingOrMeta(text)) {
+    return false;
+  }
+
+  const health = hasHealthSignal(text);
+  const priorHealth = (context?.priorTexts ?? []).some((t) =>
+    hasHealthSignal(t),
+  );
+  const denylisted = OUT_OF_SCOPE_PATTERNS.some((pattern) => pattern.test(text));
+
+  if (denylisted) {
+    if (!health || matchesHardOutOfScopeDomain(text)) {
+      return true;
+    }
+    // Health + soft denylist verb (e.g. "calculate BMI") → in scope.
+  }
+
+  if (!health) {
+    if (
+      priorHealth &&
+      isShortHealthFollowUp(text) &&
+      !denylisted &&
+      !matchesHardOutOfScopeDomain(text)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * Multi-signal safety evaluation (deterministic).
- * Order: self-harm → emergency keywords (with negation/context) →
- * urgent self-report → personal meds/diagnosis → allow.
- *
- * Ambiguous topic questions that only mention emergency terms are allowed
- * through for general education; the system prompt still forbids personal advice.
+ * Order: self-harm → emergency → urgent self-report → personal meds/diagnosis →
+ * out-of-scope (no model call) → allow health education.
  */
-export function classifyUserMessage(content: string): SafetyDecision {
+export function classifyUserMessage(
+  content: string,
+  context?: { priorTexts?: string[] },
+): SafetyDecision {
   const text = normalize(content);
   if (!text) {
     return {
@@ -326,6 +436,15 @@ export function classifyUserMessage(content: string): SafetyDecision {
     };
   }
 
+  if (matchOutOfScope(text, context)) {
+    return {
+      intent: 'out_of_scope',
+      action: 'refuse',
+      reply: OUT_OF_SCOPE_REPLY,
+      category: 'out_of_scope',
+    };
+  }
+
   return {
     intent: 'education',
     action: 'allow',
@@ -334,6 +453,8 @@ export function classifyUserMessage(content: string): SafetyDecision {
 }
 
 export const SYSTEM_PROMPT = `You are CareMate AI, a general health education assistant inside the CareMate patient app.
+You ONLY discuss general health, wellness, prevention, and related education topics.
+You must refuse math homework, finance, investing, coding, entertainment, travel planning, and any non-health request in one short sentence and invite a health question instead.
 You provide clear, accurate, accessible health information for education only.
 You are NOT a doctor and do not provide personal medical advice, diagnosis, prescriptions, or dose changes.
 If the user asks for personal clinical decisions, politely refuse and suggest seeing a clinician or pharmacist.
@@ -343,4 +464,4 @@ Keep answers concise (a few short paragraphs unless the user asks for more detai
 Audience context: many users are in Nigeria or similar settings; avoid assuming high-resource care when giving practical tips.`;
 
 /** Bump when safety rules / categories change (stored on ai_safety_event). */
-export const POLICY_VERSION = 'caremate-ai-safety-v2';
+export const POLICY_VERSION = 'caremate-ai-safety-v3';

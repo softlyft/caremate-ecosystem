@@ -123,7 +123,9 @@ export function createEducationGraph(apiKey: string, modelName: string) {
   const model = buildModel(apiKey, modelName);
 
   const classify = async (state: GraphStateType): Promise<Partial<GraphStateType>> => {
-    const safety = classifyUserMessage(state.userMessage);
+    const safety = classifyUserMessage(state.userMessage, {
+      priorTexts: (state.priorMessages ?? []).map((m) => m.content),
+    });
     return { safety };
   };
 
@@ -209,7 +211,11 @@ export async function runEducationGraph(input: {
     completionTokens: null,
   });
 
-  const safety = finalState.safety ?? classifyUserMessage(input.userMessage);
+  const safety =
+    finalState.safety ??
+    classifyUserMessage(input.userMessage, {
+      priorTexts: priorMessages.map((m) => m.content),
+    });
   return {
     reply: finalState.reply || safety.reply || '',
     safety,

@@ -137,4 +137,56 @@ describe('classifyUserMessage', () => {
       expect(result.category).toBe('self_harm');
     });
   });
+
+  describe('out of scope — no model call for non-health', () => {
+    it.each([
+      'What is 15% of 200?',
+      'Solve this quadratic equation for x',
+      'Should I buy Bitcoin right now?',
+      'Write a Python function to sort a list',
+      'Write me a poem about the ocean',
+      'Plan my vacation itinerary to Dubai',
+      'What is the capital of France?',
+      'Summarize this email for my boss',
+    ])('refuse: %s', (message) => {
+      const result = classifyUserMessage(message);
+      expect(result.action).toBe('refuse');
+      expect(result.intent).toBe('out_of_scope');
+      expect(result.category).toBe('out_of_scope');
+    });
+
+    it('allows health-framed BMI calculation education', () => {
+      const result = classifyUserMessage('How do I calculate BMI for adults?');
+      expect(result.action).toBe('allow');
+    });
+
+    it('allows short follow-ups when prior turns were health-related', () => {
+      const result = classifyUserMessage('What causes it?', {
+        priorTexts: [
+          'What is hypertension?',
+          'Hypertension means high blood pressure.',
+        ],
+      });
+      expect(result.action).toBe('allow');
+    });
+
+    it('refuses short follow-ups with no prior health context', () => {
+      const result = classifyUserMessage('What causes it?');
+      expect(result.action).toBe('refuse');
+      expect(result.intent).toBe('out_of_scope');
+    });
+
+    it('allows greetings without calling them out of scope', () => {
+      expect(classifyUserMessage('Hello').action).toBe('allow');
+      expect(classifyUserMessage('What can you do?').action).toBe('allow');
+    });
+
+    it('refuses finance even if "health" is mentioned incidentally', () => {
+      const result = classifyUserMessage(
+        'Is Bitcoin a healthy investment for my portfolio?',
+      );
+      expect(result.action).toBe('refuse');
+      expect(result.intent).toBe('out_of_scope');
+    });
+  });
 });
