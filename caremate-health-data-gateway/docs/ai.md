@@ -26,7 +26,7 @@ libs/ai/
   ai.controller.ts
   ai.service.ts
   graph/education-graph.ts   # LangGraph StateGraph + ChatOpenAI
-  safety/policy.ts           # Deterministic emergency / scope policy
+  safety/policy.ts           # Multi-signal safety (negation/context, emergency, meds)
   dto/ai.dto.ts
 ```
 
