@@ -14,7 +14,7 @@ Full product SoT: SoftLyft `caremate-docs/CareMate_AI_Source_of_Truth.md` (and [
 ## Decision
 
 1. **Runtime:** Implement CareMate AI as a **NestJS library/module inside HDG** (`libs/ai`), same JWT auth pattern as existing `/v1/*` routes.
-2. **Storage:** Persist AI data in **parallel `ai_*` tables** in Supabase Postgres. Do **not** add an `ai_assistant` kind to `message_conversations`.
+2. **Storage:** Persist AI data in **parallel `ai_*` tables** in Supabase Postgres. Do **not** add an `ai_assistant` kind to `message_conversations`. Tables are **HDG service_role only** — no authenticated PostgREST grants (prevents bypassing rate limits / safety / orchestration).
 3. **UX entry:** Pin a CareMate AI row at the **top of the Messages inbox**; use a **dedicated AI thread** screen and data client (may reuse chat UI patterns only).
 4. **Orchestration:** **OpenAI API** behind a provider interface; orchestration with **LangGraph.js (StateGraph)** in the HDG module.
 5. **Phase 1 transport:** **Buffered REST** — one HTTP request returns the full assistant message (no SSE). Matches Lambda HTTP API + 30s timeout.

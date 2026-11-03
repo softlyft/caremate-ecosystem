@@ -90,65 +90,12 @@ alter table public.ai_message_source enable row level security;
 alter table public.ai_feedback enable row level security;
 alter table public.ai_safety_event enable row level security;
 
--- Owner read/write via authenticated role (HDG uses service role and still enforces ownership in app code).
-drop policy if exists ai_conversation_owner_all on public.ai_conversation;
-create policy ai_conversation_owner_all
-  on public.ai_conversation
-  for all
-  to authenticated
-  using (user_id = auth.uid())
-  with check (user_id = auth.uid());
+-- No grants to authenticated: mobile must use HDG (service_role).
+-- RLS remains enabled as defense-in-depth; service_role bypasses RLS.
+-- Do not add owner write policies for authenticated — that would allow
+-- bypassing HDG rate limits, safety policy, and orchestration.
 
-drop policy if exists ai_message_owner_all on public.ai_message;
-create policy ai_message_owner_all
-  on public.ai_message
-  for all
-  to authenticated
-  using (
-    exists (
-      select 1 from public.ai_conversation c
-      where c.id = conversation_id and c.user_id = auth.uid()
-    )
-  )
-  with check (
-    exists (
-      select 1 from public.ai_conversation c
-      where c.id = conversation_id and c.user_id = auth.uid()
-    )
-  );
-
-drop policy if exists ai_message_source_owner_select on public.ai_message_source;
-create policy ai_message_source_owner_select
-  on public.ai_message_source
-  for select
-  to authenticated
-  using (
-    exists (
-      select 1
-      from public.ai_message m
-      join public.ai_conversation c on c.id = m.conversation_id
-      where m.id = message_id and c.user_id = auth.uid()
-    )
-  );
-
-drop policy if exists ai_feedback_owner_all on public.ai_feedback;
-create policy ai_feedback_owner_all
-  on public.ai_feedback
-  for all
-  to authenticated
-  using (user_id = auth.uid())
-  with check (user_id = auth.uid());
-
--- Safety events: owners can read their own; inserts via service role / HDG.
-drop policy if exists ai_safety_event_owner_select on public.ai_safety_event;
-create policy ai_safety_event_owner_select
-  on public.ai_safety_event
-  for select
-  to authenticated
-  using (user_id = auth.uid());
-
-grant select, insert, update, delete on public.ai_conversation to authenticated;
-grant select, insert, update, delete on public.ai_message to authenticated;
-grant select on public.ai_message_source to authenticated;
-grant select, insert, update, delete on public.ai_feedback to authenticated;
-grant select on public.ai_safety_event to authenticated;
+comment on table public.ai_conversation is
+  'CareMate AI threads — HDG service_role only; not mixed with message_conversations.';
+comment on table public.ai_message is
+  'CareMate AI messages — HDG service_role only; Phase 1 education-only content.';
