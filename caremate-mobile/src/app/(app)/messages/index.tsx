@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
-import { isHealthDataGatewayConfigured } from '@/domains/health-data-gateway/client';
 import { useTranslation } from '@/domains/localization';
 import { useMessageInbox } from '@/domains/messaging/hooks';
 import type { MessageConversation } from '@/domains/messaging/repository';
@@ -117,29 +116,15 @@ export default function MessagesInboxScreen() {
   const isGuest = useIsGuest();
   useMessagingOpened();
   const query = useMessageInbox();
-  const showAiPin = !isGuest && isHealthDataGatewayConfigured();
-
-  if (query.isLoading) {
-    return <LoadingState title={t('messages.loading')} />;
-  }
-
-  if (query.isError) {
-    return (
-      <ErrorState
-        title={t('messages.loadFailed')}
-        message={t('common.loadFailedMessage')}
-        actionLabel={t('common.retry')}
-        onAction={() => void query.refetch()}
-      />
-    );
-  }
+  // Signed-in users always see the pin; AI screen handles missing gateway.
+  const showAiPin = !isGuest;
 
   const items = query.data ?? [];
-  const isEmpty = items.length === 0;
+  const isEmpty = !query.isLoading && !query.isError && items.length === 0;
 
   return (
     <Screen padded={false} style={{ paddingBottom: insets.bottom + spacing.md }}>
-      {!isEmpty ? (
+      {!isGuest && !isEmpty && !query.isLoading && !query.isError ? (
         <View style={styles.toolbar}>
           <Button
             style={styles.newButton}
@@ -163,7 +148,16 @@ export default function MessagesInboxScreen() {
         </View>
       ) : null}
 
-      {isEmpty ? (
+      {query.isLoading ? (
+        <LoadingState title={t('messages.loading')} />
+      ) : query.isError ? (
+        <ErrorState
+          title={t('messages.loadFailed')}
+          message={t('common.loadFailedMessage')}
+          actionLabel={t('common.retry')}
+          onAction={() => void query.refetch()}
+        />
+      ) : isEmpty ? (
         <EmptyState
           title={t('messages.emptyTitle')}
           message={t('messages.emptyMessage')}
