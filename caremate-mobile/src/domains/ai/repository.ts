@@ -9,8 +9,11 @@ import type {
   AiPostMessageResult,
 } from '@/domains/ai/types';
 
-/** AI calls can approach the HDG Lambda 30s budget. */
-const AI_GATEWAY_TIMEOUT_MS = 28_000;
+/**
+ * Client wait budget under HDG Lambda (45s) and after the 20s model deadline.
+ * Keep below Lambda so the gateway can mark the turn failed before the client aborts.
+ */
+const AI_GATEWAY_TIMEOUT_MS = 40_000;
 
 async function aiGatewayRequest<T>(
   method: 'GET' | 'PUT' | 'POST' | 'DELETE',

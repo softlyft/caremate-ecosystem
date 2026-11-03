@@ -42,7 +42,7 @@ Update SAM/`template.yaml` env when wiring production.
 
 ## Constraints
 
-- Lambda **30s** timeout — keep Phase 1 non-streaming and model calls bounded.
+- Lambda **45s** timeout; mobile client **40s**; OpenAI call hard-capped at **20s** (`MODEL_REQUEST_TIMEOUT_MS`, no retries). Timeouts/provider errors mark the user turn `failed` and return 504/503. Phase 1 stays buffered (non-streaming).
 - **Conversation context:** load a bounded prior history (message + char caps) into the generate node so follow-ups resolve; safety still classifies the current user turn only.
 - **Message lifecycle:** insert user as `pending`; on model/policy success mark `complete` and write assistant (`complete`/`refused`); on OpenAI/infra failure mark user `failed` (no orphan “complete” turn). `clientRequestId` + `parent_message_id` make retries idempotent.
 - No patient PHI tools in Phase 1 graph nodes.

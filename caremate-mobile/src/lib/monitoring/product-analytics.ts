@@ -39,6 +39,7 @@ export const ProductEvents = {
   aiConversationStarted: 'ai_conversation_started',
   aiMessageSent: 'ai_message_sent',
   aiResponseGenerated: 'ai_response_generated',
+  aiResponseFailed: 'ai_response_failed',
   aiResponseFeedback: 'ai_response_feedback',
   aiSafetyEscalation: 'ai_safety_escalation',
   broadcastViewed: 'broadcast_viewed',
@@ -342,9 +343,24 @@ export function trackAiMessageSent(): void {
 
 export function trackAiResponseGenerated(params?: {
   safetyState?: string;
+  latencyMs?: number;
 }): void {
   track(ProductEvents.aiResponseGenerated, {
     safety_state: params?.safetyState ?? null,
+    latency_ms: params?.latencyMs ?? null,
+  });
+}
+
+/** No message text — reason is a coarse code only (timeout | http | network | unknown). */
+export function trackAiResponseFailed(params: {
+  reason: 'timeout' | 'http' | 'network' | 'unknown';
+  latencyMs?: number;
+  status?: number | null;
+}): void {
+  track(ProductEvents.aiResponseFailed, {
+    reason: params.reason,
+    latency_ms: params.latencyMs ?? null,
+    status: params.status ?? null,
   });
 }
 

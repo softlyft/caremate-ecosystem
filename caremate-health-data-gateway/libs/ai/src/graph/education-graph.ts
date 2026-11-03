@@ -11,6 +11,10 @@ import {
   classifyUserMessage,
   type SafetyDecision,
 } from '../safety/policy';
+import {
+  MODEL_REQUEST_TIMEOUT_MS,
+  withModelTimeout,
+} from './model-errors';
 
 export type EducationHistoryMessage = {
   role: 'user' | 'assistant';
@@ -23,6 +27,8 @@ export type EducationGraphResult = {
   model: string;
   promptTokens: number | null;
   completionTokens: number | null;
+  /** Wall time for classify + generate (ms). */
+  latencyMs: number;
 };
 
 /** Keep enough turns for pronouns/follow-ups without blowing Lambda time/cost. */
@@ -48,6 +54,9 @@ function buildModel(apiKey: string, modelName: string): ChatOpenAI {
     model: modelName,
     temperature: 0.3,
     maxTokens: 1000,
+    // Provider-side deadline; generate also races AbortSignal for a hard cap.
+    timeout: MODEL_REQUEST_TIMEOUT_MS,
+    maxRetries: 0,
   });
 }
 
@@ -143,8 +152,9 @@ export function createEducationGraph(apiKey: string, modelName: string) {
       return {};
     }
     const prior = selectBoundedHistory(state.priorMessages ?? []);
-    const response = await model.invoke(
-      toLangChainMessages(prior, state.userMessage),
+    const messages = toLangChainMessages(prior, state.userMessage);
+    const response = await withModelTimeout((signal) =>
+      model.invoke(messages, { signal }),
     );
     const content =
       typeof response.content === 'string'
@@ -186,6 +196,7 @@ export async function runEducationGraph(input: {
   userMessage: string;
   priorMessages?: EducationHistoryMessage[];
 }): Promise<EducationGraphResult> {
+  const started = Date.now();
   const priorMessages = selectBoundedHistory(input.priorMessages ?? []);
   const graph = createEducationGraph(input.apiKey, input.modelName);
   const finalState = await graph.invoke({
@@ -205,5 +216,6 @@ export async function runEducationGraph(input: {
     model: finalState.model || input.modelName,
     promptTokens: finalState.promptTokens,
     completionTokens: finalState.completionTokens,
+    latencyMs: Date.now() - started,
   };
 }

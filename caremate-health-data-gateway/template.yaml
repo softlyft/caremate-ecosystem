@@ -33,7 +33,8 @@ Parameters:
 
 Globals:
   Function:
-    Timeout: 30
+    # 45s leaves headroom beyond the 20s model deadline for cold start + DB/crypto.
+    Timeout: 45
     MemorySize: 512
     Runtime: nodejs22.x
     Architectures:

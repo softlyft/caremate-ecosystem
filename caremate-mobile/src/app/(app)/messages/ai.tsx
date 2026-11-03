@@ -30,10 +30,12 @@ import {
   trackAiChatOpened,
   trackAiConversationStarted,
   trackAiMessageSent,
+  trackAiResponseFailed,
   trackAiResponseFeedback,
   trackAiResponseGenerated,
   trackAiSafetyEscalation,
 } from '@/lib/monitoring/product-analytics';
+import { HealthDataGatewayError } from '@/domains/health-data-gateway/client';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 const STACK_HEADER_HEIGHT = 64;
@@ -164,9 +166,13 @@ export default function CareMateAiThreadScreen() {
         ? pendingRequestRef.current.clientRequestId
         : crypto.randomUUID();
     pendingRequestRef.current = { content, clientRequestId };
+    const sendStarted = Date.now();
     try {
       const result = await postMessage.mutateAsync({ content, clientRequestId });
-      trackAiResponseGenerated({ safetyState: result.assistantMessage.safety_state });
+      trackAiResponseGenerated({
+        safetyState: result.assistantMessage.safety_state,
+        latencyMs: Date.now() - sendStarted,
+      });
       if (
         result.assistantMessage.safety_state === 'emergency' ||
         result.assistantMessage.safety_state === 'refused'
@@ -176,10 +182,24 @@ export default function CareMateAiThreadScreen() {
       pendingRequestRef.current = null;
       setDraft('');
     } catch (error) {
-      void alert(
-        t('messages.aiSendFailedTitle'),
-        error instanceof Error ? error.message : t('messages.aiSendFailedMessage'),
-      );
+      const latencyMs = Date.now() - sendStarted;
+      const message =
+        error instanceof Error ? error.message : t('messages.aiSendFailedMessage');
+      const isTimeout =
+        error instanceof HealthDataGatewayError &&
+        (error.status === 504 || /timed out|timeout/i.test(message));
+      trackAiResponseFailed({
+        reason: isTimeout
+          ? 'timeout'
+          : error instanceof HealthDataGatewayError && error.status
+            ? 'http'
+            : error instanceof Error && error.name === 'AbortError'
+              ? 'timeout'
+              : 'network',
+        latencyMs,
+        status: error instanceof HealthDataGatewayError ? error.status ?? null : null,
+      });
+      void alert(t('messages.aiSendFailedTitle'), message);
     } finally {
       setWaiting(false);
     }

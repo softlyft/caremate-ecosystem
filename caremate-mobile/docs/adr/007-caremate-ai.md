@@ -17,7 +17,7 @@ Full product SoT: SoftLyft `caremate-docs/CareMate_AI_Source_of_Truth.md` (and [
 2. **Storage:** Persist AI data in **parallel `ai_*` tables** in Supabase Postgres. Do **not** add an `ai_assistant` kind to `message_conversations`. Tables are **HDG service_role only** — no authenticated PostgREST grants (prevents bypassing rate limits / safety / orchestration). Free-text (`title`, `content`, feedback `comment`) is **encrypted at rest** with the owner DEK via HDG (same envelope as messaging). Decrypt only in HDG; OpenAI still receives plaintext for generation.
 3. **UX entry:** Pin a CareMate AI row at the **top of the Messages inbox**; use a **dedicated AI thread** screen and data client (may reuse chat UI patterns only).
 4. **Orchestration:** **OpenAI API** behind a provider interface; orchestration with **LangGraph.js (StateGraph)** in the HDG module.
-5. **Phase 1 transport:** **Buffered REST** — one HTTP request returns the full assistant message (no SSE). Matches Lambda HTTP API + 30s timeout.
+5. **Phase 1 transport:** **Buffered REST** — one HTTP request returns the full assistant message (no SSE). Lambda **45s**, client **~40s**, model hard cap **20s**; timeouts fail the turn cleanly (no streaming in Phase 1).
 6. **Phase 1 model:** **`gpt-4o-mini`**; rate limits and token metadata as in the SoT.
 7. **Prior art:** Do **not** port `experimental/ai` Personal Health Assistant code.
 8. **Phase 1 scope:** General health education only — no patient-record tools in the model context.

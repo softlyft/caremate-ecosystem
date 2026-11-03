@@ -1,9 +1,11 @@
 import {
   ForbiddenException,
+  GatewayTimeoutException,
   HttpException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -19,6 +21,10 @@ import {
   selectBoundedHistory,
   type EducationHistoryMessage,
 } from './graph/education-graph';
+import {
+  isAiModelTimeoutError,
+  classifyModelError,
+} from './graph/model-errors';
 import { POLICY_VERSION } from './safety/policy';
 
 const DAILY_MESSAGE_LIMIT = 30;
@@ -54,6 +60,8 @@ type AiMessageRow = {
 
 @Injectable()
 export class AiService {
+  private readonly logger = new Logger(AiService.name);
+
   constructor(
     private readonly supabase: SupabaseService,
     private readonly config: ConfigService,
@@ -175,6 +183,7 @@ export class AiService {
     );
     const userRow = turn.userRow;
 
+    const requestStarted = Date.now();
     let result;
     try {
       // Model call uses plaintext in memory only; at-rest storage stays encrypted.
@@ -187,9 +196,27 @@ export class AiService {
       });
     } catch (err) {
       await this.markUserMessageStatus(userRow.id, 'failed');
-      const message = err instanceof Error ? err.message : 'Model request failed';
-      throw new InternalServerErrorException(message);
+      const classified = classifyModelError(err);
+      const totalMs = Date.now() - requestStarted;
+      this.logger.warn(
+        `CareMate AI model failure user=${userId} conversation=${conversationId} ` +
+          `code=${classified.code} total_ms=${totalMs}`,
+      );
+      if (isAiModelTimeoutError(classified)) {
+        throw new GatewayTimeoutException(
+          'CareMate AI took too long to respond. Please try again.',
+        );
+      }
+      throw new ServiceUnavailableException(
+        'CareMate AI is temporarily unavailable. Please try again shortly.',
+      );
     }
+
+    this.logger.log(
+      `CareMate AI ok user=${userId} conversation=${conversationId} ` +
+        `action=${result.safety.action} model_ms=${result.latencyMs} ` +
+        `total_ms=${Date.now() - requestStarted}`,
+    );
 
     const safetyState =
       result.safety.action === 'emergency'
