@@ -8,6 +8,10 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  EncryptionService,
+  isEncryptedEnvelope,
+} from '@caremate/encryption';
 import { SupabaseService } from '@caremate/supabase-client';
 import { AiFeedbackDto, CreateAiConversationDto, PostAiMessageDto } from './dto/ai.dto';
 import { runEducationGraph } from './graph/education-graph';
@@ -25,6 +29,7 @@ type AiConversationRow = {
   retention_state: string;
   created_at: string;
   updated_at: string;
+  phi_encrypted_at?: string | null;
 };
 
 type AiMessageRow = {
@@ -38,6 +43,7 @@ type AiMessageRow = {
   completion_tokens: number | null;
   safety_state: string;
   created_at: string;
+  phi_encrypted_at?: string | null;
 };
 
 @Injectable()
@@ -45,14 +51,21 @@ export class AiService {
   constructor(
     private readonly supabase: SupabaseService,
     private readonly config: ConfigService,
+    private readonly encryption: EncryptionService,
   ) {}
 
   async createConversation(userId: string, dto: CreateAiConversationDto) {
+    await this.encryption.bootstrapUserKey(userId);
+    const titlePlain = dto.title?.trim() || 'CareMate AI';
+    const title = await this.encryption.encryptValue(userId, titlePlain);
+    const now = new Date().toISOString();
+
     const insert = await this.supabase.admin
       .from('ai_conversation')
       .insert({
         user_id: userId,
-        title: dto.title?.trim() || 'CareMate AI',
+        title,
+        phi_encrypted_at: now,
       })
       .select('*')
       .single();
@@ -60,7 +73,7 @@ export class AiService {
     if (insert.error) {
       throw new InternalServerErrorException(insert.error.message);
     }
-    return insert.data as AiConversationRow;
+    return this.decryptConversation(insert.data as AiConversationRow);
   }
 
   async listConversations(userId: string) {
@@ -74,7 +87,8 @@ export class AiService {
     if (list.error) {
       throw new InternalServerErrorException(list.error.message);
     }
-    return (list.data ?? []) as AiConversationRow[];
+    const rows = (list.data ?? []) as AiConversationRow[];
+    return Promise.all(rows.map((row) => this.decryptConversation(row)));
   }
 
   async getConversation(userId: string, conversationId: string) {
@@ -89,15 +103,19 @@ export class AiService {
       throw new InternalServerErrorException(messages.error.message);
     }
 
+    const rows = (messages.data ?? []) as AiMessageRow[];
     return {
       conversation,
-      messages: (messages.data ?? []) as AiMessageRow[],
+      messages: await Promise.all(
+        rows.map((row) => this.decryptMessage(userId, row)),
+      ),
     };
   }
 
   async postMessage(userId: string, conversationId: string, dto: PostAiMessageDto) {
     await this.requireConversation(userId, conversationId);
     await this.assertRateLimits(userId);
+    await this.encryption.bootstrapUserKey(userId);
 
     const apiKey = this.config.get<string>('OPENAI_API_KEY')?.trim();
     if (!apiKey) {
@@ -106,14 +124,22 @@ export class AiService {
     const modelName =
       this.config.get<string>('OPENAI_MODEL')?.trim() || 'gpt-4o-mini';
 
+    const contentPlain = dto.content.trim();
+    const now = new Date().toISOString();
+    const encryptedUserContent = await this.encryption.encryptValue(
+      userId,
+      contentPlain,
+    );
+
     const userInsert = await this.supabase.admin
       .from('ai_message')
       .insert({
         conversation_id: conversationId,
         role: 'user',
-        content: dto.content.trim(),
+        content: encryptedUserContent,
         status: 'complete',
         safety_state: 'ok',
+        phi_encrypted_at: now,
       })
       .select('*')
       .single();
@@ -124,10 +150,11 @@ export class AiService {
 
     let result;
     try {
+      // Model call uses plaintext in memory only; at-rest storage stays encrypted.
       result = await runEducationGraph({
         apiKey,
         modelName,
-        userMessage: dto.content.trim(),
+        userMessage: contentPlain,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Model request failed';
@@ -143,17 +170,23 @@ export class AiService {
     const status =
       result.safety.action === 'allow' ? 'complete' : 'refused';
 
+    const encryptedAssistantContent = await this.encryption.encryptValue(
+      userId,
+      result.reply,
+    );
+
     const assistantInsert = await this.supabase.admin
       .from('ai_message')
       .insert({
         conversation_id: conversationId,
         role: 'assistant',
-        content: result.reply,
+        content: encryptedAssistantContent,
         status,
         model: result.model,
         prompt_tokens: result.promptTokens,
         completion_tokens: result.completionTokens,
         safety_state: safetyState,
+        phi_encrypted_at: now,
       })
       .select('*')
       .single();
@@ -162,7 +195,10 @@ export class AiService {
       throw new InternalServerErrorException(assistantInsert.error.message);
     }
 
-    const assistant = assistantInsert.data as AiMessageRow;
+    const assistant = await this.decryptMessage(
+      userId,
+      assistantInsert.data as AiMessageRow,
+    );
 
     if (result.safety.action !== 'allow') {
       await this.recordSafetyEvent({
@@ -182,7 +218,10 @@ export class AiService {
       .eq('user_id', userId);
 
     return {
-      userMessage: userInsert.data as AiMessageRow,
+      userMessage: await this.decryptMessage(
+        userId,
+        userInsert.data as AiMessageRow,
+      ),
       assistantMessage: assistant,
     };
   }
@@ -209,6 +248,13 @@ export class AiService {
       userId,
       messageLookup.data.conversation_id as string,
     );
+    await this.encryption.bootstrapUserKey(userId);
+
+    const commentPlain = dto.comment?.trim() || null;
+    const comment = commentPlain
+      ? await this.encryption.encryptValue(userId, commentPlain)
+      : null;
+    const now = commentPlain ? new Date().toISOString() : null;
 
     const upsert = await this.supabase.admin.from('ai_feedback').upsert(
       {
@@ -216,7 +262,8 @@ export class AiService {
         user_id: userId,
         rating: dto.rating,
         category: dto.category ?? null,
-        comment: dto.comment ?? null,
+        comment,
+        phi_encrypted_at: now,
       },
       { onConflict: 'message_id,user_id' },
     );
@@ -263,7 +310,31 @@ export class AiService {
     if ((result.data as AiConversationRow).user_id !== userId) {
       throw new ForbiddenException('Not allowed');
     }
-    return result.data as AiConversationRow;
+    return this.decryptConversation(result.data as AiConversationRow);
+  }
+
+  private async decryptConversation(
+    row: AiConversationRow,
+  ): Promise<AiConversationRow> {
+    if (!row.title) {
+      return row;
+    }
+    if (!isEncryptedEnvelope(row.title)) {
+      return row;
+    }
+    const title = await this.encryption.decryptValue(row.user_id, row.title);
+    return { ...row, title: title ?? '' };
+  }
+
+  private async decryptMessage(
+    ownerUserId: string,
+    row: AiMessageRow,
+  ): Promise<AiMessageRow> {
+    if (!isEncryptedEnvelope(row.content)) {
+      return row;
+    }
+    const content = await this.encryption.decryptValue(ownerUserId, row.content);
+    return { ...row, content: content ?? '' };
   }
 
   private async assertRateLimits(userId: string) {

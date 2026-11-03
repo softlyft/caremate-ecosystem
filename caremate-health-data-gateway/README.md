@@ -39,6 +39,8 @@ NestJS monorepo trust layer for field-level PHI encryption. Schema and migration
 
 **Messages:** `body`, `subject`, `last_message_preview` (org threads use patient DEK; DMs use sender DEK + `phi_key_user_id`).
 
+**CareMate AI:** `ai_conversation.title`, `ai_message.content`, optional `ai_feedback.comment` (owner DEK). Decrypted only in HDG for history / model calls. Model providers still receive plaintext in transit for generation.
+
 **Documents:** `title`, `file_name` (patient DEK). File **bytes** in Storage are not encrypted yet.
 
 Left plaintext (profile/emergency): ids, `user_id`, `patient_id`, `email`, `full_name`, avatar/photo URLs, locale flags, `emergency_share_token`, timestamps.
