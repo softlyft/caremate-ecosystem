@@ -145,9 +145,9 @@ export class AiService {
       }
     }
 
-    // New turns (and failed retries that need a model call) respect rate limits.
-    // Idempotent finished replays return above without counting again.
-    await this.assertRateLimits(userId);
+    // Atomic reservation (advisory lock). Finished idempotent replays return above.
+    // Same clientRequestId reuses the slot after failure; a new id consumes again.
+    await this.assertRateLimits(userId, clientRequestId);
 
     const now = new Date().toISOString();
     const encryptedUserContent = await this.encryption.encryptValue(
@@ -633,60 +633,48 @@ export class AiService {
     return { ...row, content: content ?? '' };
   }
 
-  private async assertRateLimits(userId: string) {
-    const convIds = await this.listActiveConversationIds(userId);
-    if (convIds.length === 0) {
+  /**
+   * Atomic per-user quota via Postgres advisory lock + reservation row.
+   * Same clientRequestId reuses the reservation (failed/retry does not double-count).
+   * New clientRequestId always consumes a slot — including after a prior failure.
+   */
+  private async assertRateLimits(
+    userId: string,
+    clientRequestId: string | null,
+  ) {
+    const result = await this.supabase.admin.rpc('ai_consume_rate_limit', {
+      p_user_id: userId,
+      p_client_request_id: clientRequestId,
+      p_daily_limit: DAILY_MESSAGE_LIMIT,
+      p_burst_limit: BURST_LIMIT,
+      p_burst_window_seconds: Math.round(BURST_WINDOW_MS / 1000),
+    });
+
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+
+    const payload = (result.data ?? {}) as {
+      allowed?: boolean;
+      reason?: string | null;
+      idempotent?: boolean;
+    };
+
+    if (payload.allowed) {
       return;
     }
-    const sinceDay = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const sinceMinute = new Date(Date.now() - BURST_WINDOW_MS).toISOString();
 
-    // Failed turns should not burn the daily budget on retry.
-    const dayCount = await this.supabase.admin
-      .from('ai_message')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'user')
-      .in('status', ['pending', 'complete', 'refused'])
-      .in('conversation_id', convIds)
-      .gte('created_at', sinceDay);
-    if (dayCount.error) {
-      throw new InternalServerErrorException(dayCount.error.message);
-    }
-    if ((dayCount.count ?? 0) >= DAILY_MESSAGE_LIMIT) {
-      throw new HttpException(
-        'Daily CareMate AI message limit reached. Try again tomorrow.',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-
-    const burstCount = await this.supabase.admin
-      .from('ai_message')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'user')
-      .in('status', ['pending', 'complete', 'refused'])
-      .in('conversation_id', convIds)
-      .gte('created_at', sinceMinute);
-    if (burstCount.error) {
-      throw new InternalServerErrorException(burstCount.error.message);
-    }
-    if ((burstCount.count ?? 0) >= BURST_LIMIT) {
+    if (payload.reason === 'burst') {
       throw new HttpException(
         'Too many CareMate AI messages. Wait a minute and try again.',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
-  }
 
-  private async listActiveConversationIds(userId: string): Promise<string[]> {
-    const list = await this.supabase.admin
-      .from('ai_conversation')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('retention_state', 'active');
-    if (list.error) {
-      throw new InternalServerErrorException(list.error.message);
-    }
-    return ((list.data ?? []) as { id: string }[]).map((row) => row.id);
+    throw new HttpException(
+      'Daily CareMate AI message limit reached. Try again tomorrow.',
+      HttpStatus.TOO_MANY_REQUESTS,
+    );
   }
 
   private async recordSafetyEvent(input: {

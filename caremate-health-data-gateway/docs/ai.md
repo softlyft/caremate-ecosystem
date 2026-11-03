@@ -49,7 +49,7 @@ Update SAM/`template.yaml` env when wiring production.
 - **At-rest encryption:** `title` / `content` / feedback `comment` use the same HDG field cipher as messaging (owner DEK). Decrypt only in HDG. OpenAI still receives plaintext for generation — contractual retention/training controls apply.
 - Tables are **service_role only** (no authenticated PostgREST grants).
 - Log/metrics: no message bodies in routine logs; store token usage on `ai_message`.
-- Rate limit: 30 messages / 24h / user; burst ~5 / minute.
+- Rate limit: 30 / 24h / user and burst ~5 / minute via atomic `ai_consume_rate_limit` (advisory lock + `ai_rate_reservation`). Same `clientRequestId` is idempotent; a new id after failure consumes another slot.
 - Retention: user delete soft-archives; account deletion scrubs `ai_*` (see delete-account).
 
 ## Later phases

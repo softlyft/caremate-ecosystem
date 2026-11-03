@@ -22,6 +22,7 @@ const PERSONAL_TABLES = [
   // CareMate AI (cascade deletes messages/feedback/sources via ai_conversation)
   'ai_conversation',
   'ai_safety_event',
+  'ai_rate_reservation',
 ] as const;
 
 /**
