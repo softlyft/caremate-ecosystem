@@ -50,5 +50,18 @@ export const HEALTH_TIMELINE_PHI_FIELDS = ['title', 'summary', 'payload'] as con
 
 export type HealthTimelinePhiField = (typeof HEALTH_TIMELINE_PHI_FIELDS)[number];
 
+/** CareMate AI free-text (education chat may still contain user-disclosed health details). */
+export const AI_CONVERSATION_PHI_FIELDS = ['title'] as const;
+
+export type AiConversationPhiField = (typeof AI_CONVERSATION_PHI_FIELDS)[number];
+
+export const AI_MESSAGE_PHI_FIELDS = ['content'] as const;
+
+export type AiMessagePhiField = (typeof AI_MESSAGE_PHI_FIELDS)[number];
+
+export const AI_FEEDBACK_PHI_FIELDS = ['comment'] as const;
+
+export type AiFeedbackPhiField = (typeof AI_FEEDBACK_PHI_FIELDS)[number];
+
 /** Ciphertext envelope prefix used by the gateway field cipher. */
 export const FIELD_CIPHER_PREFIX = 'v1:';

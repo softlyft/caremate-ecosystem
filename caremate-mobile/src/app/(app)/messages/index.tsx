@@ -1,14 +1,16 @@
 import { router } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Plus, Sparkles } from 'lucide-react-native';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
 
 import { AppText } from '@/components/ui/AppText';
 import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
+import { isHealthDataGatewayConfigured } from '@/domains/health-data-gateway/client';
 import { useTranslation } from '@/domains/localization';
 import { useMessageInbox } from '@/domains/messaging/hooks';
 import type { MessageConversation } from '@/domains/messaging/repository';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { useMessagingOpened } from '@/lib/monitoring/use-product-analytics';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
@@ -24,6 +26,38 @@ function formatThreadTime(value: string | null): string {
     return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function CareMateAiPin() {
+  const { t } = useTranslation();
+  return (
+    <Button
+      style={styles.row}
+      onPress={() => router.push('/(app)/messages/ai')}
+      accessibilityRole="button"
+      accessibilityLabel={t('messages.aiTitle')}
+      variant="plain"
+    >
+      <View style={[styles.avatar, styles.aiAvatar]}>
+        <Sparkles color={palette.primaryDark} size={22} strokeWidth={2.2} />
+      </View>
+      <View style={styles.rowBody}>
+        <View style={styles.rowTop}>
+          <AppText variant="cardTitle" style={styles.rowTitle} numberOfLines={1}>
+            {t('messages.aiTitle')}
+          </AppText>
+          <View style={styles.aiBadge}>
+            <AppText variant="caption" style={styles.aiBadgeText}>
+              {t('messages.aiPinBadge')}
+            </AppText>
+          </View>
+        </View>
+        <AppText variant="caption" style={styles.preview} numberOfLines={2}>
+          {t('messages.aiPinPreview')}
+        </AppText>
+      </View>
+    </Button>
+  );
 }
 
 function ConversationRow({ item }: { item: MessageConversation }) {
@@ -80,8 +114,10 @@ function ConversationRow({ item }: { item: MessageConversation }) {
 export default function MessagesInboxScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const isGuest = useIsGuest();
   useMessagingOpened();
   const query = useMessageInbox();
+  const showAiPin = !isGuest && isHealthDataGatewayConfigured();
 
   if (query.isLoading) {
     return <LoadingState title={t('messages.loading')} />;
@@ -117,6 +153,13 @@ export default function MessagesInboxScreen() {
               {t('messages.newMessage')}
             </AppText>
           </Button>
+        </View>
+      ) : null}
+
+      {showAiPin ? (
+        <View style={styles.aiPinWrap}>
+          <CareMateAiPin />
+          <View style={styles.separator} />
         </View>
       ) : null}
 
@@ -166,6 +209,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.xl,
   },
+  aiPinWrap: {
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.sm,
+  },
   separator: {
     height: 1,
     backgroundColor: palette.divider,
@@ -184,6 +231,20 @@ const styles = StyleSheet.create({
     backgroundColor: palette.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  aiAvatar: {
+    borderWidth: 1,
+    borderColor: primaryAlpha(0.28),
+  },
+  aiBadge: {
+    borderRadius: radius.full,
+    backgroundColor: primaryAlpha(0.14),
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  aiBadgeText: {
+    color: palette.primaryDark,
+    fontWeight: '700',
   },
   avatarLetter: {
     color: palette.primaryDark,

@@ -152,6 +152,18 @@ export default function AppLayout() {
             backAccessibilityLabel: t('nav.backToMessages'),
           })}
         />
+        <Stack.Screen
+          name="messages/ai"
+          options={glossyStackHeaderOptions({
+            title: t('messages.aiTitle'),
+            accent: palette.primary,
+            soft: palette.primaryLight,
+            softEnd: '#F0FDFA',
+            titleColor: palette.primaryDark,
+            icon: MessageCircle,
+            backAccessibilityLabel: t('nav.backToMessages'),
+          })}
+        />
         <Stack.Screen name="setup/emergency" options={{ headerShown: false }} />
         <Stack.Screen name="setup/family-prompt" options={{ headerShown: false }} />
         <Stack.Screen name="setup/done" options={{ headerShown: false }} />

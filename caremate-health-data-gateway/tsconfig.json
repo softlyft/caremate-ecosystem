@@ -39,7 +39,9 @@
       "@caremate/documents": ["libs/documents/src"],
       "@caremate/documents/*": ["libs/documents/src/*"],
       "@caremate/health-timeline": ["libs/health-timeline/src"],
-      "@caremate/health-timeline/*": ["libs/health-timeline/src/*"]
+      "@caremate/health-timeline/*": ["libs/health-timeline/src/*"],
+      "@caremate/ai": ["libs/ai/src"],
+      "@caremate/ai/*": ["libs/ai/src/*"]
     }
   }
 }

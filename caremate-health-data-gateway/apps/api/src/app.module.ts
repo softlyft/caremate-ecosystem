@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AiModule } from '@caremate/ai';
 import { CommonModule } from '@caremate/common';
 import { DocumentsModule } from '@caremate/documents';
 import { EncryptionModule } from '@caremate/encryption';
@@ -29,6 +30,7 @@ import { HealthController } from './health.controller';
     MessagesModule,
     DocumentsModule,
     HealthTimelineModule,
+    AiModule,
   ],
   controllers: [HealthController, CryptoController],
 })

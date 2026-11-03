@@ -21,10 +21,20 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Base64-encoded 32-byte master key
+  OpenAiApiKey:
+    Type: String
+    NoEcho: true
+    Default: ''
+    Description: OpenAI API key for CareMate AI (optional until AI is enabled)
+  OpenAiModel:
+    Type: String
+    Default: gpt-4o-mini
+    Description: OpenAI chat model id for CareMate AI
 
 Globals:
   Function:
-    Timeout: 30
+    # 45s leaves headroom beyond the 20s model deadline for cold start + DB/crypto.
+    Timeout: 45
     MemorySize: 512
     Runtime: nodejs22.x
     Architectures:
@@ -46,6 +56,8 @@ Resources:
           SUPABASE_SERVICE_ROLE_KEY: !Ref SupabaseServiceRoleKey
           SUPABASE_JWT_SECRET: !Ref SupabaseJwtSecret
           GATEWAY_MASTER_KEY: !Ref GatewayMasterKey
+          OPENAI_API_KEY: !Ref OpenAiApiKey
+          OPENAI_MODEL: !Ref OpenAiModel
       Events:
         HttpApi:
           Type: HttpApi

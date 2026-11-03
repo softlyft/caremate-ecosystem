@@ -25,6 +25,7 @@ NestJS monorepo trust layer for field-level PHI encryption. Schema and migration
 | `PUT /v1/documents` | Bearer JWT | Encrypt title/file_name → upsert |
 | `GET /v1/documents` | Bearer JWT | List decrypted docs (optional `?organizationId=`) |
 | `GET /v1/documents/:id` | Bearer JWT | Load one decrypted document |
+| `/v1/ai/*` | Bearer JWT | CareMate AI conversations — see [docs/ai.md](./docs/ai.md) |
 
 ## PHI fields encrypted
 
@@ -37,6 +38,8 @@ NestJS monorepo trust layer for field-level PHI encryption. Schema and migration
 **Family members:** `date_of_birth`, `gender`, `notes` (encrypted under household **owner** DEK so spouses can decrypt via gateway). Left plaintext: `full_name`, ids, `kind`, `linked_user_id`. Invite email/phone stay plaintext (same policy as profile email).
 
 **Messages:** `body`, `subject`, `last_message_preview` (org threads use patient DEK; DMs use sender DEK + `phi_key_user_id`).
+
+**CareMate AI:** `ai_conversation.title`, `ai_message.content`, optional `ai_feedback.comment` (owner DEK). Decrypted only in HDG for history / model calls. Model providers still receive plaintext in transit for generation.
 
 **Documents:** `title`, `file_name` (patient DEK). File **bytes** in Storage are not encrypted yet.
 
@@ -63,6 +66,7 @@ libs/mini-app-snapshots/  Mini-app snapshot APIs (leaf PHI encryption)
 libs/family/              Family member PHI APIs
 libs/messages/            Messaging PHI APIs
 libs/documents/           Document metadata PHI APIs
+libs/ai/                  CareMate AI — see docs/ai.md
 ```
 
 ## Local run

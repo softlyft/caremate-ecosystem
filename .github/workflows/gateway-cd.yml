@@ -175,8 +175,11 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
           GATEWAY_MASTER_KEY: ${{ secrets.GATEWAY_MASTER_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
         run: |
           set -euo pipefail
+          MODEL="${OPENAI_MODEL:-gpt-4o-mini}"
           # Artifact already built by esbuild into dist-lambda/ (CodeUri).
           sam deploy \
             --template-file template.yaml \
@@ -190,7 +193,9 @@ jobs:
               "SupabaseUrl=${SUPABASE_URL}" \
               "SupabaseServiceRoleKey=${SUPABASE_SERVICE_ROLE_KEY}" \
               "SupabaseJwtSecret=${SUPABASE_JWT_SECRET}" \
-              "GatewayMasterKey=${GATEWAY_MASTER_KEY}"
+              "GatewayMasterKey=${GATEWAY_MASTER_KEY}" \
+              "OpenAiApiKey=${OPENAI_API_KEY}" \
+              "OpenAiModel=${MODEL}"
 
       - name: Print API endpoint
         working-directory: caremate-health-data-gateway
