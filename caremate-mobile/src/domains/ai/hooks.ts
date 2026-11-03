@@ -48,7 +48,8 @@ export function useCreateAiConversation() {
 export function usePostAiMessage(conversationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (content: string) => postAiMessage(conversationId, content),
+    mutationFn: (input: { content: string; clientRequestId: string }) =>
+      postAiMessage(conversationId, input.content, input.clientRequestId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [...QUERY_KEYS.aiConversation, conversationId],

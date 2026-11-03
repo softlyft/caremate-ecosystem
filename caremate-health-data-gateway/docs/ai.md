@@ -14,7 +14,7 @@ NestJS library inside the Health Data Gateway that owns CareMate AI HTTP APIs, L
 | `POST` | `/v1/ai/conversations` | Bearer JWT | Create |
 | `GET` | `/v1/ai/conversations` | Bearer JWT | List for subject |
 | `GET` | `/v1/ai/conversations/:id` | Bearer JWT | History |
-| `POST` | `/v1/ai/conversations/:id/messages` | Bearer JWT | Full assistant reply in body (buffered) |
+| `POST` | `/v1/ai/conversations/:id/messages` | Bearer JWT | Body: `content`, optional `clientRequestId` (idempotent). Lifecycle: user `pending` → `complete` \| `failed`; assistant `complete` \| `refused`. |
 | `POST` | `/v1/ai/messages/:id/feedback` | Bearer JWT | Feedback |
 | `DELETE` | `/v1/ai/conversations/:id` | Bearer JWT | Soft-delete (`retention_state=deleted`) |
 
@@ -44,6 +44,7 @@ Update SAM/`template.yaml` env when wiring production.
 
 - Lambda **30s** timeout — keep Phase 1 non-streaming and model calls bounded.
 - **Conversation context:** load a bounded prior history (message + char caps) into the generate node so follow-ups resolve; safety still classifies the current user turn only.
+- **Message lifecycle:** insert user as `pending`; on model/policy success mark `complete` and write assistant (`complete`/`refused`); on OpenAI/infra failure mark user `failed` (no orphan “complete” turn). `clientRequestId` + `parent_message_id` make retries idempotent.
 - No patient PHI tools in Phase 1 graph nodes.
 - **At-rest encryption:** `title` / `content` / feedback `comment` use the same HDG field cipher as messaging (owner DEK). Decrypt only in HDG. OpenAI still receives plaintext for generation — contractual retention/training controls apply.
 - Tables are **service_role only** (no authenticated PostgREST grants).

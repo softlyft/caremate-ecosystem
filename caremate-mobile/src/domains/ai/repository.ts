@@ -100,11 +100,12 @@ export async function getAiConversation(id: string): Promise<AiConversationDetai
 export async function postAiMessage(
   conversationId: string,
   content: string,
+  clientRequestId: string,
 ): Promise<AiPostMessageResult> {
   return aiGatewayRequest<AiPostMessageResult>(
     'POST',
     `/v1/ai/conversations/${conversationId}/messages`,
-    { content },
+    { content, clientRequestId },
   );
 }
 

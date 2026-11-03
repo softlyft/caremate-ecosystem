@@ -13,12 +13,14 @@ export type AiMessage = {
   conversation_id: string;
   role: 'user' | 'assistant' | 'system' | string;
   content: string;
-  status: string;
+  status: 'pending' | 'complete' | 'failed' | 'refused' | string;
   model: string | null;
   prompt_tokens: number | null;
   completion_tokens: number | null;
   safety_state: string;
   created_at: string;
+  client_request_id?: string | null;
+  parent_message_id?: string | null;
 };
 
 export type AiConversationDetail = {

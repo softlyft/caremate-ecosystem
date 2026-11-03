@@ -105,6 +105,10 @@ export default function CareMateAiThreadScreen() {
   const postMessage = usePostAiMessage(conversationId ?? '');
   const feedback = useAiFeedback();
   const startedRef = useRef(false);
+  /** Reuse idempotency key when retrying the same draft after a failed send. */
+  const pendingRequestRef = useRef<{ content: string; clientRequestId: string } | null>(
+    null,
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions(
@@ -155,8 +159,13 @@ export default function CareMateAiThreadScreen() {
     }
     setWaiting(true);
     trackAiMessageSent();
+    const clientRequestId =
+      pendingRequestRef.current?.content === content
+        ? pendingRequestRef.current.clientRequestId
+        : crypto.randomUUID();
+    pendingRequestRef.current = { content, clientRequestId };
     try {
-      const result = await postMessage.mutateAsync(content);
+      const result = await postMessage.mutateAsync({ content, clientRequestId });
       trackAiResponseGenerated({ safetyState: result.assistantMessage.safety_state });
       if (
         result.assistantMessage.safety_state === 'emergency' ||
@@ -164,6 +173,7 @@ export default function CareMateAiThreadScreen() {
       ) {
         trackAiSafetyEscalation(result.assistantMessage.safety_state);
       }
+      pendingRequestRef.current = null;
       setDraft('');
     } catch (error) {
       void alert(

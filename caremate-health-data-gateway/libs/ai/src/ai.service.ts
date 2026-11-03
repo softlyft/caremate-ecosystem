@@ -48,6 +48,8 @@ type AiMessageRow = {
   safety_state: string;
   created_at: string;
   phi_encrypted_at?: string | null;
+  client_request_id?: string | null;
+  parent_message_id?: string | null;
 };
 
 @Injectable()
@@ -118,7 +120,6 @@ export class AiService {
 
   async postMessage(userId: string, conversationId: string, dto: PostAiMessageDto) {
     await this.requireConversation(userId, conversationId);
-    await this.assertRateLimits(userId);
     await this.encryption.bootstrapUserKey(userId);
 
     const apiKey = this.config.get<string>('OPENAI_API_KEY')?.trim();
@@ -129,32 +130,50 @@ export class AiService {
       this.config.get<string>('OPENAI_MODEL')?.trim() || 'gpt-4o-mini';
 
     const contentPlain = dto.content.trim();
-    const priorMessages = await this.loadPriorHistoryForModel(
-      userId,
-      conversationId,
-    );
+    const clientRequestId = dto.clientRequestId?.trim() || null;
+
+    if (clientRequestId) {
+      const existing = await this.findUserMessageByClientRequest(
+        conversationId,
+        clientRequestId,
+      );
+      if (existing) {
+        const finished = await this.tryReturnFinishedTurn(userId, existing);
+        if (finished) {
+          return finished;
+        }
+      }
+    }
+
+    // New turns (and failed retries that need a model call) respect rate limits.
+    // Idempotent finished replays return above without counting again.
+    await this.assertRateLimits(userId);
+
     const now = new Date().toISOString();
     const encryptedUserContent = await this.encryption.encryptValue(
       userId,
       contentPlain,
     );
-
-    const userInsert = await this.supabase.admin
-      .from('ai_message')
-      .insert({
-        conversation_id: conversationId,
-        role: 'user',
-        content: encryptedUserContent,
-        status: 'complete',
-        safety_state: 'ok',
-        phi_encrypted_at: now,
-      })
-      .select('*')
-      .single();
-
-    if (userInsert.error) {
-      throw new InternalServerErrorException(userInsert.error.message);
+    if (!encryptedUserContent) {
+      throw new InternalServerErrorException('Failed to encrypt message');
     }
+
+    const turn = await this.resolveOrBeginUserTurn({
+      conversationId,
+      userId,
+      encryptedUserContent,
+      clientRequestId,
+      now,
+    });
+    if (turn.kind === 'finished') {
+      return turn.response;
+    }
+
+    const priorMessages = await this.loadPriorHistoryForModel(
+      userId,
+      conversationId,
+    );
+    const userRow = turn.userRow;
 
     let result;
     try {
@@ -167,6 +186,7 @@ export class AiService {
         priorMessages,
       });
     } catch (err) {
+      await this.markUserMessageStatus(userRow.id, 'failed');
       const message = err instanceof Error ? err.message : 'Model request failed';
       throw new InternalServerErrorException(message);
     }
@@ -177,38 +197,32 @@ export class AiService {
         : result.safety.action === 'refuse'
           ? 'refused'
           : 'ok';
-    const status =
+    const assistantStatus =
       result.safety.action === 'allow' ? 'complete' : 'refused';
 
     const encryptedAssistantContent = await this.encryption.encryptValue(
       userId,
       result.reply,
     );
-
-    const assistantInsert = await this.supabase.admin
-      .from('ai_message')
-      .insert({
-        conversation_id: conversationId,
-        role: 'assistant',
-        content: encryptedAssistantContent,
-        status,
-        model: result.model,
-        prompt_tokens: result.promptTokens,
-        completion_tokens: result.completionTokens,
-        safety_state: safetyState,
-        phi_encrypted_at: now,
-      })
-      .select('*')
-      .single();
-
-    if (assistantInsert.error) {
-      throw new InternalServerErrorException(assistantInsert.error.message);
+    if (!encryptedAssistantContent) {
+      await this.markUserMessageStatus(userRow.id, 'failed');
+      throw new InternalServerErrorException('Failed to encrypt assistant reply');
     }
 
-    const assistant = await this.decryptMessage(
+    const assistant = await this.persistAssistantReply({
       userId,
-      assistantInsert.data as AiMessageRow,
-    );
+      conversationId,
+      parentMessageId: userRow.id,
+      content: encryptedAssistantContent,
+      status: assistantStatus,
+      model: result.model,
+      promptTokens: result.promptTokens,
+      completionTokens: result.completionTokens,
+      safetyState,
+      now,
+    });
+
+    const userComplete = await this.markUserMessageStatus(userRow.id, 'complete');
 
     if (result.safety.action !== 'allow') {
       await this.recordSafetyEvent({
@@ -228,11 +242,8 @@ export class AiService {
       .eq('user_id', userId);
 
     return {
-      userMessage: await this.decryptMessage(
-        userId,
-        userInsert.data as AiMessageRow,
-      ),
-      assistantMessage: assistant,
+      userMessage: await this.decryptMessage(userId, userComplete),
+      assistantMessage: await this.decryptMessage(userId, assistant),
     };
   }
 
@@ -304,8 +315,8 @@ export class AiService {
   }
 
   /**
-   * Decrypt prior turns for model context (current user message not yet inserted).
-   * Bounded for token/latency; safety still runs on the new message alone.
+   * Decrypt finished prior turns for model context.
+   * Skips pending/failed so incomplete retries do not pollute the prompt.
    */
   private async loadPriorHistoryForModel(
     userId: string,
@@ -313,9 +324,10 @@ export class AiService {
   ): Promise<EducationHistoryMessage[]> {
     const messages = await this.supabase.admin
       .from('ai_message')
-      .select('role, content, created_at')
+      .select('role, content, status, created_at')
       .eq('conversation_id', conversationId)
       .in('role', ['user', 'assistant'])
+      .in('status', ['complete', 'refused'])
       .order('created_at', { ascending: true });
 
     if (messages.error) {
@@ -324,7 +336,7 @@ export class AiService {
 
     const rows = (messages.data ?? []) as Pick<
       AiMessageRow,
-      'role' | 'content' | 'created_at'
+      'role' | 'content' | 'status' | 'created_at'
     >[];
     const decrypted: EducationHistoryMessage[] = [];
     for (const row of rows) {
@@ -336,7 +348,7 @@ export class AiService {
         conversation_id: conversationId,
         role: row.role,
         content: row.content,
-        status: 'complete',
+        status: row.status,
         model: null,
         prompt_tokens: null,
         completion_tokens: null,
@@ -350,6 +362,231 @@ export class AiService {
     }
 
     return selectBoundedHistory(decrypted);
+  }
+
+  private async findUserMessageByClientRequest(
+    conversationId: string,
+    clientRequestId: string,
+  ): Promise<AiMessageRow | null> {
+    const result = await this.supabase.admin
+      .from('ai_message')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .eq('client_request_id', clientRequestId)
+      .eq('role', 'user')
+      .maybeSingle();
+
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    return (result.data as AiMessageRow | null) ?? null;
+  }
+
+  private async findAssistantForParent(
+    parentMessageId: string,
+  ): Promise<AiMessageRow | null> {
+    const result = await this.supabase.admin
+      .from('ai_message')
+      .select('*')
+      .eq('parent_message_id', parentMessageId)
+      .eq('role', 'assistant')
+      .maybeSingle();
+
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    return (result.data as AiMessageRow | null) ?? null;
+  }
+
+  private async tryReturnFinishedTurn(
+    userId: string,
+    userRow: AiMessageRow,
+  ): Promise<{ userMessage: AiMessageRow; assistantMessage: AiMessageRow } | null> {
+    const assistant = await this.findAssistantForParent(userRow.id);
+    if (!assistant || assistant.status === 'failed') {
+      return null;
+    }
+    if (userRow.status === 'pending' || userRow.status === 'failed') {
+      await this.markUserMessageStatus(userRow.id, 'complete');
+    }
+    const freshUser = await this.getMessageById(userRow.id);
+    return {
+      userMessage: await this.decryptMessage(userId, freshUser ?? userRow),
+      assistantMessage: await this.decryptMessage(userId, assistant),
+    };
+  }
+
+  private async getMessageById(id: string): Promise<AiMessageRow | null> {
+    const result = await this.supabase.admin
+      .from('ai_message')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    return (result.data as AiMessageRow | null) ?? null;
+  }
+
+  private async resolveOrBeginUserTurn(input: {
+    conversationId: string;
+    userId: string;
+    encryptedUserContent: string;
+    clientRequestId: string | null;
+    now: string;
+  }): Promise<
+    | {
+        kind: 'finished';
+        response: { userMessage: AiMessageRow; assistantMessage: AiMessageRow };
+      }
+    | { kind: 'pending'; userRow: AiMessageRow }
+  > {
+    if (input.clientRequestId) {
+      const existing = await this.findUserMessageByClientRequest(
+        input.conversationId,
+        input.clientRequestId,
+      );
+      if (existing) {
+        const finished = await this.tryReturnFinishedTurn(
+          input.userId,
+          existing,
+        );
+        if (finished) {
+          return { kind: 'finished', response: finished };
+        }
+        const updated = await this.supabase.admin
+          .from('ai_message')
+          .update({
+            status: 'pending',
+            content: input.encryptedUserContent,
+            phi_encrypted_at: input.now,
+          })
+          .eq('id', existing.id)
+          .select('*')
+          .single();
+        if (updated.error) {
+          throw new InternalServerErrorException(updated.error.message);
+        }
+        return { kind: 'pending', userRow: updated.data as AiMessageRow };
+      }
+    }
+
+    const insert = await this.supabase.admin
+      .from('ai_message')
+      .insert({
+        conversation_id: input.conversationId,
+        role: 'user',
+        content: input.encryptedUserContent,
+        status: 'pending',
+        safety_state: 'ok',
+        client_request_id: input.clientRequestId,
+        phi_encrypted_at: input.now,
+      })
+      .select('*')
+      .single();
+
+    if (insert.error) {
+      // Concurrent retry with same client_request_id — resume that row.
+      if (input.clientRequestId && insert.error.code === '23505') {
+        const raced = await this.findUserMessageByClientRequest(
+          input.conversationId,
+          input.clientRequestId,
+        );
+        if (raced) {
+          const finished = await this.tryReturnFinishedTurn(
+            input.userId,
+            raced,
+          );
+          if (finished) {
+            return { kind: 'finished', response: finished };
+          }
+          const updated = await this.markUserMessageStatus(raced.id, 'pending');
+          return { kind: 'pending', userRow: updated };
+        }
+      }
+      throw new InternalServerErrorException(insert.error.message);
+    }
+
+    return { kind: 'pending', userRow: insert.data as AiMessageRow };
+  }
+
+  private async markUserMessageStatus(
+    messageId: string,
+    status: 'pending' | 'complete' | 'failed' | 'refused',
+  ): Promise<AiMessageRow> {
+    const updated = await this.supabase.admin
+      .from('ai_message')
+      .update({ status })
+      .eq('id', messageId)
+      .select('*')
+      .single();
+    if (updated.error) {
+      throw new InternalServerErrorException(updated.error.message);
+    }
+    return updated.data as AiMessageRow;
+  }
+
+  private async persistAssistantReply(input: {
+    userId: string;
+    conversationId: string;
+    parentMessageId: string;
+    content: string;
+    status: string;
+    model: string;
+    promptTokens: number | null;
+    completionTokens: number | null;
+    safetyState: string;
+    now: string;
+  }): Promise<AiMessageRow> {
+    const existing = await this.findAssistantForParent(input.parentMessageId);
+    if (existing) {
+      const updated = await this.supabase.admin
+        .from('ai_message')
+        .update({
+          content: input.content,
+          status: input.status,
+          model: input.model,
+          prompt_tokens: input.promptTokens,
+          completion_tokens: input.completionTokens,
+          safety_state: input.safetyState,
+          phi_encrypted_at: input.now,
+        })
+        .eq('id', existing.id)
+        .select('*')
+        .single();
+      if (updated.error) {
+        throw new InternalServerErrorException(updated.error.message);
+      }
+      return updated.data as AiMessageRow;
+    }
+
+    const insert = await this.supabase.admin
+      .from('ai_message')
+      .insert({
+        conversation_id: input.conversationId,
+        role: 'assistant',
+        content: input.content,
+        status: input.status,
+        model: input.model,
+        prompt_tokens: input.promptTokens,
+        completion_tokens: input.completionTokens,
+        safety_state: input.safetyState,
+        parent_message_id: input.parentMessageId,
+        phi_encrypted_at: input.now,
+      })
+      .select('*')
+      .single();
+
+    if (insert.error) {
+      if (insert.error.code === '23505') {
+        const raced = await this.findAssistantForParent(input.parentMessageId);
+        if (raced) {
+          return raced;
+        }
+      }
+      throw new InternalServerErrorException(insert.error.message);
+    }
+    return insert.data as AiMessageRow;
   }
 
   private async requireConversation(userId: string, conversationId: string) {
@@ -404,10 +641,12 @@ export class AiService {
     const sinceDay = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const sinceMinute = new Date(Date.now() - BURST_WINDOW_MS).toISOString();
 
+    // Failed turns should not burn the daily budget on retry.
     const dayCount = await this.supabase.admin
       .from('ai_message')
       .select('id', { count: 'exact', head: true })
       .eq('role', 'user')
+      .in('status', ['pending', 'complete', 'refused'])
       .in('conversation_id', convIds)
       .gte('created_at', sinceDay);
     if (dayCount.error) {
@@ -424,6 +663,7 @@ export class AiService {
       .from('ai_message')
       .select('id', { count: 'exact', head: true })
       .eq('role', 'user')
+      .in('status', ['pending', 'complete', 'refused'])
       .in('conversation_id', convIds)
       .gte('created_at', sinceMinute);
     if (burstCount.error) {

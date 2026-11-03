@@ -12,6 +12,11 @@ export class PostAiMessageDto {
   @MinLength(1)
   @MaxLength(4000)
   content!: string;
+
+  /** Client idempotency key — retries with the same id reuse/resume the turn. */
+  @IsOptional()
+  @IsUUID('4')
+  clientRequestId?: string;
 }
 
 export class AiFeedbackDto {
