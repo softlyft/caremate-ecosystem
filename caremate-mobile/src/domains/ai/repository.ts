@@ -3,11 +3,7 @@ import {
   HealthDataGatewayError,
   isHealthDataGatewayConfigured,
 } from '@/domains/health-data-gateway/client';
-import type {
-  AiConversation,
-  AiConversationDetail,
-  AiPostMessageResult,
-} from '@/domains/ai/types';
+import type { AiConversation, AiConversationDetail, AiPostMessageResult } from '@/domains/ai/types';
 
 /**
  * Client wait budget under HDG Lambda (45s) and after the 20s model deadline.
@@ -112,10 +108,7 @@ export async function postAiMessage(
   );
 }
 
-export async function submitAiFeedback(
-  messageId: string,
-  rating: 'up' | 'down',
-): Promise<void> {
+export async function submitAiFeedback(messageId: string, rating: 'up' | 'down'): Promise<void> {
   await aiGatewayRequest('POST', `/v1/ai/messages/${messageId}/feedback`, { rating });
 }
 

@@ -24,8 +24,11 @@ import {
   usePostAiMessage,
 } from '@/domains/ai/hooks';
 import type { AiMessage } from '@/domains/ai/types';
+import {
+  HealthDataGatewayError,
+  isHealthDataGatewayConfigured,
+} from '@/domains/health-data-gateway/client';
 import { useTranslation } from '@/domains/localization';
-import { isHealthDataGatewayConfigured } from '@/domains/health-data-gateway/client';
 import {
   trackAiChatOpened,
   trackAiConversationStarted,
@@ -35,7 +38,6 @@ import {
   trackAiResponseGenerated,
   trackAiSafetyEscalation,
 } from '@/lib/monitoring/product-analytics';
-import { HealthDataGatewayError } from '@/domains/health-data-gateway/client';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 const STACK_HEADER_HEIGHT = 64;
@@ -60,10 +62,7 @@ function MessageBubble({
           message.safety_state === 'emergency' ? styles.bubbleEmergency : null,
         ]}
       >
-        <AppText
-          variant="body"
-          style={isUser ? styles.bubbleTextUser : styles.bubbleTextAssistant}
-        >
+        <AppText variant="body" style={isUser ? styles.bubbleTextUser : styles.bubbleTextAssistant}>
           {message.content}
         </AppText>
         {showFeedback ? (
@@ -98,8 +97,9 @@ export default function CareMateAiThreadScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const composerRef = useRef<MessageComposerHandle>(null);
+  const gatewayConfigured = isHealthDataGatewayConfigured();
   const [conversationId, setConversationId] = useState<string | undefined>();
-  const [bootstrapping, setBootstrapping] = useState(true);
+  const [bootstrapping, setBootstrapping] = useState(gatewayConfigured);
   const [waiting, setWaiting] = useState(false);
   const [draft, setDraft] = useState('');
   const ensure = useEnsureAiConversation();
@@ -108,9 +108,7 @@ export default function CareMateAiThreadScreen() {
   const feedback = useAiFeedback();
   const startedRef = useRef(false);
   /** Reuse idempotency key when retrying the same draft after a failed send. */
-  const pendingRequestRef = useRef<{ content: string; clientRequestId: string } | null>(
-    null,
-  );
+  const pendingRequestRef = useRef<{ content: string; clientRequestId: string } | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions(
@@ -128,8 +126,7 @@ export default function CareMateAiThreadScreen() {
 
   useEffect(() => {
     trackAiChatOpened();
-    if (!isHealthDataGatewayConfigured()) {
-      setBootstrapping(false);
+    if (!gatewayConfigured) {
       return;
     }
     void (async () => {
@@ -183,8 +180,7 @@ export default function CareMateAiThreadScreen() {
       setDraft('');
     } catch (error) {
       const latencyMs = Date.now() - sendStarted;
-      const message =
-        error instanceof Error ? error.message : t('messages.aiSendFailedMessage');
+      const message = error instanceof Error ? error.message : t('messages.aiSendFailedMessage');
       const isTimeout =
         error instanceof HealthDataGatewayError &&
         (error.status === 504 || /timed out|timeout/i.test(message));
@@ -197,7 +193,7 @@ export default function CareMateAiThreadScreen() {
               ? 'timeout'
               : 'network',
         latencyMs,
-        status: error instanceof HealthDataGatewayError ? error.status ?? null : null,
+        status: error instanceof HealthDataGatewayError ? (error.status ?? null) : null,
       });
       void alert(t('messages.aiSendFailedTitle'), message);
     } finally {
@@ -250,10 +246,7 @@ export default function CareMateAiThreadScreen() {
         <FlatList
           data={messages}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={[
-            styles.list,
-            { paddingBottom: insets.bottom + spacing.md },
-          ]}
+          contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + spacing.md }]}
           ListEmptyComponent={
             <View style={styles.empty}>
               <AppText variant="cardTitle" style={styles.emptyTitle}>
