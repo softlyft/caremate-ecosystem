@@ -80,6 +80,8 @@ export const QUERY_KEYS = {
   notifications: ['notifications'] as const,
   notificationsUnread: ['notifications', 'unread'] as const,
   messages: ['messages'] as const,
+  aiConversations: ['ai-conversations'] as const,
+  aiConversation: ['ai-conversation'] as const,
   ads: ['ads'] as const,
   healthTimeline: ['health-timeline'] as const,
 } as const;

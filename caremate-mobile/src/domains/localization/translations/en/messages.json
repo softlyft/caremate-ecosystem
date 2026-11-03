@@ -54,5 +54,19 @@
   "senderRoleCareTeam": "care team",
   "senderYou": "You",
   "today": "Today",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "aiTitle": "CareMate AI",
+  "aiPinPreview": "Ask a general health question",
+  "aiPinBadge": "AI",
+  "aiDisclaimer": "CareMate AI shares general health education only — not a substitute for professional medical care.",
+  "aiEmptyTitle": "Ask CareMate AI",
+  "aiEmptyMessage": "Try questions about common conditions, prevention, or health concepts. It won’t diagnose or prescribe.",
+  "aiReplyPlaceholder": "Ask a health question…",
+  "aiThinking": "Thinking…",
+  "aiLoading": "Starting CareMate AI…",
+  "aiLoadFailed": "Couldn't open CareMate AI",
+  "aiSendFailedTitle": "Couldn't get a reply",
+  "aiSendFailedMessage": "Check your connection and try again.",
+  "aiUnavailableTitle": "CareMate AI unavailable",
+  "aiUnavailableMessage": "CareMate AI needs a signed-in session and the health data gateway. Try again after signing in."
 }

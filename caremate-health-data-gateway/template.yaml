@@ -21,6 +21,15 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Base64-encoded 32-byte master key
+  OpenAiApiKey:
+    Type: String
+    NoEcho: true
+    Default: ''
+    Description: OpenAI API key for CareMate AI (optional until AI is enabled)
+  OpenAiModel:
+    Type: String
+    Default: gpt-4o-mini
+    Description: OpenAI chat model id for CareMate AI
 
 Globals:
   Function:
@@ -46,6 +55,8 @@ Resources:
           SUPABASE_SERVICE_ROLE_KEY: !Ref SupabaseServiceRoleKey
           SUPABASE_JWT_SECRET: !Ref SupabaseJwtSecret
           GATEWAY_MASTER_KEY: !Ref GatewayMasterKey
+          OPENAI_API_KEY: !Ref OpenAiApiKey
+          OPENAI_MODEL: !Ref OpenAiModel
       Events:
         HttpApi:
           Type: HttpApi

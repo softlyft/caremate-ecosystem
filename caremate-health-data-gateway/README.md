@@ -25,6 +25,7 @@ NestJS monorepo trust layer for field-level PHI encryption. Schema and migration
 | `PUT /v1/documents` | Bearer JWT | Encrypt title/file_name → upsert |
 | `GET /v1/documents` | Bearer JWT | List decrypted docs (optional `?organizationId=`) |
 | `GET /v1/documents/:id` | Bearer JWT | Load one decrypted document |
+| `/v1/ai/*` | Bearer JWT | CareMate AI conversations — see [docs/ai.md](./docs/ai.md) |
 
 ## PHI fields encrypted
 
@@ -63,6 +64,7 @@ libs/mini-app-snapshots/  Mini-app snapshot APIs (leaf PHI encryption)
 libs/family/              Family member PHI APIs
 libs/messages/            Messaging PHI APIs
 libs/documents/           Document metadata PHI APIs
+libs/ai/                  CareMate AI — see docs/ai.md
 ```
 
 ## Local run
