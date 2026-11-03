@@ -14,7 +14,11 @@ import {
 } from '@caremate/encryption';
 import { SupabaseService } from '@caremate/supabase-client';
 import { AiFeedbackDto, CreateAiConversationDto, PostAiMessageDto } from './dto/ai.dto';
-import { runEducationGraph } from './graph/education-graph';
+import {
+  runEducationGraph,
+  selectBoundedHistory,
+  type EducationHistoryMessage,
+} from './graph/education-graph';
 import { POLICY_VERSION } from './safety/policy';
 
 const DAILY_MESSAGE_LIMIT = 30;
@@ -125,6 +129,10 @@ export class AiService {
       this.config.get<string>('OPENAI_MODEL')?.trim() || 'gpt-4o-mini';
 
     const contentPlain = dto.content.trim();
+    const priorMessages = await this.loadPriorHistoryForModel(
+      userId,
+      conversationId,
+    );
     const now = new Date().toISOString();
     const encryptedUserContent = await this.encryption.encryptValue(
       userId,
@@ -151,10 +159,12 @@ export class AiService {
     let result;
     try {
       // Model call uses plaintext in memory only; at-rest storage stays encrypted.
+      // Safety still classifies the current turn only; prior turns are generate context.
       result = await runEducationGraph({
         apiKey,
         modelName,
         userMessage: contentPlain,
+        priorMessages,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Model request failed';
@@ -291,6 +301,55 @@ export class AiService {
       throw new InternalServerErrorException(update.error.message);
     }
     return { ok: true };
+  }
+
+  /**
+   * Decrypt prior turns for model context (current user message not yet inserted).
+   * Bounded for token/latency; safety still runs on the new message alone.
+   */
+  private async loadPriorHistoryForModel(
+    userId: string,
+    conversationId: string,
+  ): Promise<EducationHistoryMessage[]> {
+    const messages = await this.supabase.admin
+      .from('ai_message')
+      .select('role, content, created_at')
+      .eq('conversation_id', conversationId)
+      .in('role', ['user', 'assistant'])
+      .order('created_at', { ascending: true });
+
+    if (messages.error) {
+      throw new InternalServerErrorException(messages.error.message);
+    }
+
+    const rows = (messages.data ?? []) as Pick<
+      AiMessageRow,
+      'role' | 'content' | 'created_at'
+    >[];
+    const decrypted: EducationHistoryMessage[] = [];
+    for (const row of rows) {
+      if (row.role !== 'user' && row.role !== 'assistant') {
+        continue;
+      }
+      const plain = await this.decryptMessage(userId, {
+        id: '',
+        conversation_id: conversationId,
+        role: row.role,
+        content: row.content,
+        status: 'complete',
+        model: null,
+        prompt_tokens: null,
+        completion_tokens: null,
+        safety_state: 'ok',
+        created_at: row.created_at,
+      });
+      decrypted.push({
+        role: row.role,
+        content: plain.content,
+      });
+    }
+
+    return selectBoundedHistory(decrypted);
   }
 
   private async requireConversation(userId: string, conversationId: string) {

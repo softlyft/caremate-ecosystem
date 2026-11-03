@@ -1,11 +1,21 @@
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import {
+  AIMessage,
+  HumanMessage,
+  SystemMessage,
+  type BaseMessage,
+} from '@langchain/core/messages';
 import {
   SYSTEM_PROMPT,
   classifyUserMessage,
   type SafetyDecision,
 } from '../safety/policy';
+
+export type EducationHistoryMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 export type EducationGraphResult = {
   reply: string;
@@ -15,8 +25,14 @@ export type EducationGraphResult = {
   completionTokens: number | null;
 };
 
+/** Keep enough turns for pronouns/follow-ups without blowing Lambda time/cost. */
+export const MAX_HISTORY_MESSAGES = 16;
+/** Rough char budget for prior turns (~2k tokens); current user message is separate. */
+export const MAX_HISTORY_CHARS = 8_000;
+
 const GraphState = Annotation.Root({
   userMessage: Annotation<string>,
+  priorMessages: Annotation<EducationHistoryMessage[]>,
   safety: Annotation<SafetyDecision | null>,
   reply: Annotation<string>,
   model: Annotation<string>,
@@ -36,7 +52,63 @@ function buildModel(apiKey: string, modelName: string): ChatOpenAI {
 }
 
 /**
+ * Keep the most recent prior turns that fit message + char budgets.
+ * Input must be chronological (oldest → newest). Current user turn is excluded.
+ */
+export function selectBoundedHistory(
+  messages: EducationHistoryMessage[],
+  options: {
+    maxMessages?: number;
+    maxChars?: number;
+  } = {},
+): EducationHistoryMessage[] {
+  const maxMessages = options.maxMessages ?? MAX_HISTORY_MESSAGES;
+  const maxChars = options.maxChars ?? MAX_HISTORY_CHARS;
+
+  const cleaned = messages
+    .filter(
+      (m) =>
+        (m.role === 'user' || m.role === 'assistant') &&
+        typeof m.content === 'string' &&
+        m.content.trim().length > 0,
+    )
+    .map((m) => ({ role: m.role, content: m.content.trim() }));
+
+  const selected: EducationHistoryMessage[] = [];
+  let chars = 0;
+
+  for (let i = cleaned.length - 1; i >= 0; i -= 1) {
+    const msg = cleaned[i];
+    const nextChars = chars + msg.content.length;
+    if (selected.length >= maxMessages || nextChars > maxChars) {
+      break;
+    }
+    selected.push(msg);
+    chars = nextChars;
+  }
+
+  return selected.reverse();
+}
+
+function toLangChainMessages(
+  prior: EducationHistoryMessage[],
+  userMessage: string,
+): BaseMessage[] {
+  const out: BaseMessage[] = [new SystemMessage(SYSTEM_PROMPT)];
+  for (const msg of prior) {
+    if (msg.role === 'user') {
+      out.push(new HumanMessage(msg.content));
+    } else {
+      out.push(new AIMessage(msg.content));
+    }
+  }
+  out.push(new HumanMessage(userMessage));
+  return out;
+}
+
+/**
  * Phase 1 LangGraph: classify → safety gate → generate (or short-circuit).
+ * Safety classifies the **current** user message only; prior turns are context for generate.
  */
 export function createEducationGraph(apiKey: string, modelName: string) {
   const model = buildModel(apiKey, modelName);
@@ -70,10 +142,10 @@ export function createEducationGraph(apiKey: string, modelName: string) {
     if (state.safety && state.safety.action !== 'allow') {
       return {};
     }
-    const response = await model.invoke([
-      new SystemMessage(SYSTEM_PROMPT),
-      new HumanMessage(state.userMessage),
-    ]);
+    const prior = selectBoundedHistory(state.priorMessages ?? []);
+    const response = await model.invoke(
+      toLangChainMessages(prior, state.userMessage),
+    );
     const content =
       typeof response.content === 'string'
         ? response.content
@@ -112,10 +184,13 @@ export async function runEducationGraph(input: {
   apiKey: string;
   modelName: string;
   userMessage: string;
+  priorMessages?: EducationHistoryMessage[];
 }): Promise<EducationGraphResult> {
+  const priorMessages = selectBoundedHistory(input.priorMessages ?? []);
   const graph = createEducationGraph(input.apiKey, input.modelName);
   const finalState = await graph.invoke({
     userMessage: input.userMessage,
+    priorMessages,
     safety: null,
     reply: '',
     model: input.modelName,

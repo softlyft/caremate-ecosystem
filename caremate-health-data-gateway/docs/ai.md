@@ -25,7 +25,7 @@ libs/ai/
   ai.module.ts
   ai.controller.ts
   ai.service.ts
-  graph/education-graph.ts   # LangGraph StateGraph + ChatOpenAI
+  graph/education-graph.ts   # LangGraph StateGraph + ChatOpenAI + bounded history
   safety/policy.ts           # Multi-signal safety (negation/context, emergency, meds)
   dto/ai.dto.ts
 ```
@@ -43,6 +43,7 @@ Update SAM/`template.yaml` env when wiring production.
 ## Constraints
 
 - Lambda **30s** timeout — keep Phase 1 non-streaming and model calls bounded.
+- **Conversation context:** load a bounded prior history (message + char caps) into the generate node so follow-ups resolve; safety still classifies the current user turn only.
 - No patient PHI tools in Phase 1 graph nodes.
 - **At-rest encryption:** `title` / `content` / feedback `comment` use the same HDG field cipher as messaging (owner DEK). Decrypt only in HDG. OpenAI still receives plaintext for generation — contractual retention/training controls apply.
 - Tables are **service_role only** (no authenticated PostgREST grants).
