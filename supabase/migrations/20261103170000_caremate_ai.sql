@@ -79,11 +79,6 @@ create table if not exists public.ai_safety_event (
 create index if not exists ai_safety_event_created_idx
   on public.ai_safety_event (created_at desc);
 
-comment on table public.ai_conversation is
-  'CareMate AI threads — separate from message_conversations (human/org chat).';
-comment on table public.ai_message is
-  'CareMate AI messages; Phase 1 education-only content.';
-
 alter table public.ai_conversation enable row level security;
 alter table public.ai_message enable row level security;
 alter table public.ai_message_source enable row level security;
