@@ -2,15 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { MessageCircle } from 'lucide-react-native';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import {
-  Dimensions,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddCareCoordinationButton } from '@/components/messaging/AddCareCoordinationButton';
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
@@ -33,13 +25,12 @@ import {
   patientMessageErrorKey,
   sendPatientReply,
 } from '@/domains/messaging/repository';
+import { useComposerKeyboardLift } from '@/hooks/use-composer-keyboard-lift';
 import { useCurrentUserId } from '@/hooks/use-current-user-id';
 import { layoutSpacing, palette, radius, spacing } from '@/theme';
 
 /** Glossy stack header row height (excludes status bar) for iOS KeyboardAvoidingView. */
 const STACK_HEADER_HEIGHT = 64;
-/** Keep a little air between the composer and the keyboard top edge. */
-const KEYBOARD_CLEARANCE = spacing.sm;
 
 type ThreadItem =
   | { kind: 'day'; id: string; label: string }
@@ -179,72 +170,6 @@ function MessageRow({
   );
 }
 
-/**
- * Lift the composer by whatever keyboard height the layout hasn't already absorbed.
- * Android edge-to-edge can partially resize the window — subtracting only the remainder
- * avoids both under-lift (covered input) and double-lift.
- */
-function useKeyboardLift() {
-  const insets = useSafeAreaInsets();
-  const baselineHeightRef = useRef(Dimensions.get('window').height);
-  const keyboardHeightRef = useRef(0);
-
-  const [lift, setLift] = useState(0);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
-
-  useEffect(() => {
-    const recompute = (keyboardHeight: number) => {
-      keyboardHeightRef.current = keyboardHeight;
-      const windowHeight = Dimensions.get('window').height;
-      const open = keyboardHeight > 0;
-
-      if (!open) {
-        baselineHeightRef.current = windowHeight;
-        setKeyboardOpen(false);
-        setLift(0);
-        return;
-      }
-
-      setKeyboardOpen(true);
-
-      if (Platform.OS === 'ios') {
-        // iOS uses KeyboardAvoidingView; keep lift at 0 to avoid double-adjustment.
-        setLift(0);
-        return;
-      }
-
-      // Android: only lift the portion not already taken by window resize / insets.
-      const shrunkBy = Math.max(0, baselineHeightRef.current - windowHeight);
-      const remaining = Math.max(0, keyboardHeight - shrunkBy);
-      setLift(remaining + KEYBOARD_CLEARANCE);
-    };
-
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(showEvent, (event) => {
-      recompute(event.endCoordinates.height);
-    });
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      recompute(0);
-    });
-    const dimSub = Dimensions.addEventListener('change', () => {
-      recompute(keyboardHeightRef.current);
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-      dimSub.remove();
-    };
-  }, []);
-
-  const composerPaddingBottom = keyboardOpen
-    ? KEYBOARD_CLEARANCE
-    : Math.max(insets.bottom, KEYBOARD_CLEARANCE);
-
-  return { lift, composerPaddingBottom, keyboardOpen };
-}
-
 export default function MessageThreadScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -260,7 +185,7 @@ export default function MessageThreadScreen() {
   const [sending, setSending] = useState(false);
   const threadConversation = threadQuery.data?.conversation ?? null;
   const isGroupChat = isGroupConversation(threadConversation);
-  const { lift, composerPaddingBottom, keyboardOpen } = useKeyboardLift();
+  const { lift, composerPaddingBottom, keyboardOpen } = useComposerKeyboardLift();
   const isIOS = Platform.OS === 'ios';
   const keyboardVerticalOffset = isIOS ? insets.top + STACK_HEADER_HEIGHT : 0;
   const todayLabel = t('messages.today');

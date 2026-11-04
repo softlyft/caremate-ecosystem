@@ -29,6 +29,7 @@ import {
   isHealthDataGatewayConfigured,
 } from '@/domains/health-data-gateway/client';
 import { useTranslation } from '@/domains/localization';
+import { useComposerKeyboardLift } from '@/hooks/use-composer-keyboard-lift';
 import {
   trackAiChatOpened,
   trackAiConversationStarted,
@@ -41,7 +42,6 @@ import {
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 const STACK_HEADER_HEIGHT = 64;
-const KEYBOARD_CLEARANCE = spacing.sm;
 
 function MessageBubble({
   message,
@@ -97,6 +97,7 @@ export default function CareMateAiThreadScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const composerRef = useRef<MessageComposerHandle>(null);
+  const listRef = useRef<FlatList<AiMessage>>(null);
   const gatewayConfigured = isHealthDataGatewayConfigured();
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [bootstrapping, setBootstrapping] = useState(gatewayConfigured);
@@ -110,6 +111,9 @@ export default function CareMateAiThreadScreen() {
   const startedRef = useRef(false);
   /** Reuse idempotency key when retrying the same draft after a failed send. */
   const pendingRequestRef = useRef<{ content: string; clientRequestId: string } | null>(null);
+  const { lift, composerPaddingBottom } = useComposerKeyboardLift();
+  const isIOS = Platform.OS === 'ios';
+  const keyboardVerticalOffset = isIOS ? insets.top + STACK_HEADER_HEIGHT : 0;
 
   useLayoutEffect(() => {
     navigation.setOptions(
@@ -243,64 +247,81 @@ export default function CareMateAiThreadScreen() {
     );
   }
 
-  return (
-    <Screen padded={false}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={STACK_HEADER_HEIGHT + KEYBOARD_CLEARANCE}
-      >
-        <AppText variant="caption" style={styles.disclaimer}>
-          {t('messages.aiDisclaimer')}
-        </AppText>
-        <FlatList
-          data={messages}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + spacing.md }]}
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              <AppText variant="cardTitle" style={styles.emptyTitle}>
-                {t('messages.aiEmptyTitle')}
-              </AppText>
-              <AppText variant="body" style={styles.emptyBody}>
-                {t('messages.aiEmptyMessage')}
-              </AppText>
-            </View>
-          }
-          renderItem={({ item }) => (
-            <MessageBubble
-              message={item}
-              onFeedback={
-                item.role === 'assistant'
-                  ? (rating) => {
-                      void feedback.mutateAsync({ messageId: item.id, rating });
-                      trackAiResponseFeedback(rating);
-                    }
-                  : undefined
-              }
-            />
-          )}
-        />
-        {waiting ? (
-          <View style={styles.waiting}>
-            <ActivityIndicator color={palette.primary} />
-            <AppText variant="caption" style={styles.waitingText}>
-              {t('messages.aiThinking')}
+  const threadBody = (
+    <>
+      <AppText variant="caption" style={styles.disclaimer}>
+        {t('messages.aiDisclaimer')}
+      </AppText>
+      <FlatList
+        ref={listRef}
+        data={messages}
+        keyExtractor={(item) => item.id}
+        style={styles.listFlex}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={isIOS ? 'interactive' : 'on-drag'}
+        automaticallyAdjustKeyboardInsets={false}
+        contentContainerStyle={[styles.list, { paddingBottom: spacing.md }]}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <AppText variant="cardTitle" style={styles.emptyTitle}>
+              {t('messages.aiEmptyTitle')}
+            </AppText>
+            <AppText variant="body" style={styles.emptyBody}>
+              {t('messages.aiEmptyMessage')}
             </AppText>
           </View>
-        ) : null}
-        <MessageComposer
-          ref={composerRef}
-          value={draft}
-          onChangeText={setDraft}
-          onSend={() => void onSend()}
-          placeholder={t('messages.aiReplyPlaceholder')}
-          sending={waiting}
-          sendLabel={t('messages.send')}
-          sendingLabel={t('messages.aiThinking')}
-          paddingBottom={insets.bottom + spacing.sm}
-        />
-      </KeyboardAvoidingView>
+        }
+        renderItem={({ item }) => (
+          <MessageBubble
+            message={item}
+            onFeedback={
+              item.role === 'assistant'
+                ? (rating) => {
+                    void feedback.mutateAsync({ messageId: item.id, rating });
+                    trackAiResponseFeedback(rating);
+                  }
+                : undefined
+            }
+          />
+        )}
+        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+      />
+      {waiting ? (
+        <View style={styles.waiting}>
+          <ActivityIndicator color={palette.primary} />
+          <AppText variant="caption" style={styles.waitingText}>
+            {t('messages.aiThinking')}
+          </AppText>
+        </View>
+      ) : null}
+      <MessageComposer
+        ref={composerRef}
+        value={draft}
+        onChangeText={setDraft}
+        onSend={() => void onSend()}
+        placeholder={t('messages.aiReplyPlaceholder')}
+        sending={waiting}
+        sendLabel={t('messages.send')}
+        sendingLabel={t('messages.aiThinking')}
+        paddingBottom={composerPaddingBottom}
+        marginBottom={isIOS ? 0 : lift}
+      />
+    </>
+  );
+
+  return (
+    <Screen padded={false} style={styles.flex}>
+      {isIOS ? (
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior="padding"
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          {threadBody}
+        </KeyboardAvoidingView>
+      ) : (
+        threadBody
+      )}
     </Screen>
   );
 }
@@ -312,6 +333,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: layoutSpacing.screenHorizontal,
     paddingTop: spacing.sm,
     paddingBottom: spacing.xs,
+  },
+  listFlex: {
+    flex: 1,
   },
   list: {
     paddingHorizontal: layoutSpacing.screenHorizontal,
