@@ -31,7 +31,7 @@ function CareMateAiPin() {
   const { t } = useTranslation();
   return (
     <Button
-      style={styles.row}
+      style={styles.aiRow}
       onPress={() => router.push('/(app)/messages/ai')}
       accessibilityRole="button"
       accessibilityLabel={t('messages.aiTitle')}
@@ -51,7 +51,7 @@ function CareMateAiPin() {
             </AppText>
           </View>
         </View>
-        <AppText variant="caption" style={styles.preview} numberOfLines={2}>
+        <AppText variant="caption" style={styles.aiPreview} numberOfLines={2}>
           {t('messages.aiPinPreview')}
         </AppText>
       </View>
@@ -212,6 +212,12 @@ const styles = StyleSheet.create({
     backgroundColor: palette.divider,
     marginLeft: 64,
   },
+  aiRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    alignItems: 'flex-start',
+  },
   row: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -227,6 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   aiAvatar: {
+    marginTop: 2,
     borderWidth: 1,
     borderColor: primaryAlpha(0.28),
   },
@@ -267,6 +274,10 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     color: palette.textSecondary,
+  },
+  aiPreview: {
+    color: palette.textSecondary,
+    lineHeight: 18,
   },
   previewUnread: {
     color: palette.text,

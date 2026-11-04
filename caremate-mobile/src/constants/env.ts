@@ -7,8 +7,11 @@ function trimTrailingSlash(value: string): string {
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const paymentUrl = process.env.EXPO_PUBLIC_PAYMENT_URL ?? '';
+/** Shared CareMate HDG (API Gateway). Override with EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL. */
+const DEFAULT_HEALTH_DATA_GATEWAY_URL =
+  'https://2pssx73li6.execute-api.us-east-1.amazonaws.com';
 const healthDataGatewayUrl = trimTrailingSlash(
-  process.env.EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL?.trim() || '',
+  process.env.EXPO_PUBLIC_HEALTH_DATA_GATEWAY_URL?.trim() || DEFAULT_HEALTH_DATA_GATEWAY_URL,
 );
 const websiteUrl = trimTrailingSlash(
   process.env.EXPO_PUBLIC_WEBSITE_URL?.trim() || 'https://main.dim7uuolmjgc9.amplifyapp.com',
