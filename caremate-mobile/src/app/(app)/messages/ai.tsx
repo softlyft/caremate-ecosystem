@@ -205,11 +205,30 @@ export default function CareMateAiThreadScreen() {
     return rows;
   }, [detail.data?.messages, pendingUser, waiting, conversationId]);
 
-  const onSend = async () => {
+  // Drop the optimistic bubble once the real turn is in the query cache.
+  useEffect(() => {
+    if (!pendingUser) {
+      return;
+    }
+    const serverMessages = detail.data?.messages ?? [];
+    const landed = serverMessages.some(
+      (m) =>
+        (pendingUser.client_request_id != null &&
+          m.client_request_id === pendingUser.client_request_id) ||
+        (m.role === 'user' && m.content === pendingUser.content && m.status !== 'failed'),
+    );
+    if (landed) {
+      setPendingUser(null);
+    }
+  }, [detail.data?.messages, pendingUser]);
+
+  const onSend = async (text: string) => {
     if (!conversationId || waiting) {
       return;
     }
-    const content = draft.trim();
+    // Prefer text from the composer press (live ref) over React state — Android IME
+    // can leave controlled `draft` one tick behind what the user typed.
+    const content = text.trim() || draft.trim();
     if (!content) {
       return;
     }
@@ -245,7 +264,8 @@ export default function CareMateAiThreadScreen() {
     const sendStarted = Date.now();
     try {
       const result = await postMessage.mutateAsync({ content, clientRequestId });
-      setPendingUser(null);
+      // Keep pendingUser until the cache merge shows the real row (avoids a blank gap
+      // if setQueryData races or the detail query was briefly empty).
       trackAiResponseGenerated({
         safetyState: result.assistantMessage.safety_state,
         latencyMs: Date.now() - sendStarted,
@@ -367,7 +387,7 @@ export default function CareMateAiThreadScreen() {
         ref={composerRef}
         value={draft}
         onChangeText={setDraft}
-        onSend={() => void onSend()}
+        onSend={(text) => void onSend(text)}
         placeholder={t('messages.aiReplyPlaceholder')}
         sending={waiting}
         sendLabel={t('messages.send')}

@@ -256,8 +256,8 @@ export default function MessageThreadScreen() {
     return () => clearTimeout(timer);
   }, [keyboardOpen]);
 
-  async function handleSend() {
-    const body = draft.trim();
+  async function handleSend(text: string) {
+    const body = text.trim() || draft.trim();
     if (!body || !conversationId || sending) return;
     setSending(true);
     try {
@@ -339,7 +339,7 @@ export default function MessageThreadScreen() {
         ref={composerRef}
         value={draft}
         onChangeText={setDraft}
-        onSend={() => void handleSend()}
+        onSend={(text) => void handleSend(text)}
         placeholder={t('messages.replyPlaceholder')}
         sending={sending}
         sendLabel={t('messages.send')}
