@@ -100,6 +100,7 @@ export default function CareMateAiThreadScreen() {
   const gatewayConfigured = isHealthDataGatewayConfigured();
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [bootstrapping, setBootstrapping] = useState(gatewayConfigured);
+  const [bootstrapError, setBootstrapError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
   const [draft, setDraft] = useState('');
   const ensure = useEnsureAiConversation();
@@ -131,14 +132,17 @@ export default function CareMateAiThreadScreen() {
     }
     void (async () => {
       try {
+        setBootstrapError(null);
         const conv = await ensure.mutateAsync();
         setConversationId(conv.id);
         if (!startedRef.current) {
           startedRef.current = true;
           trackAiConversationStarted();
         }
-      } catch {
-        // Error UI below
+      } catch (error) {
+        setBootstrapError(
+          error instanceof Error ? error.message : t('messages.aiUnavailableMessage'),
+        );
       } finally {
         setBootstrapping(false);
       }
@@ -201,11 +205,11 @@ export default function CareMateAiThreadScreen() {
     }
   };
 
-  if (!isHealthDataGatewayConfigured()) {
+  if (!gatewayConfigured) {
     return (
       <ErrorState
         title={t('messages.aiUnavailableTitle')}
-        message={t('messages.aiUnavailableMessage')}
+        message={t('messages.aiGatewayMissingMessage')}
       />
     );
   }
@@ -214,18 +218,24 @@ export default function CareMateAiThreadScreen() {
     return <LoadingState title={t('messages.aiLoading')} />;
   }
 
-  if (!conversationId || detail.isError) {
+  if (!conversationId || detail.isError || bootstrapError) {
     return (
       <ErrorState
         title={t('messages.aiLoadFailed')}
-        message={t('common.loadFailedMessage')}
+        message={bootstrapError ?? t('messages.aiUnavailableMessage')}
         actionLabel={t('common.retry')}
         onAction={() => {
           setBootstrapping(true);
+          setBootstrapError(null);
           void ensure
             .mutateAsync()
             .then((conv) => {
               setConversationId(conv.id);
+            })
+            .catch((error) => {
+              setBootstrapError(
+                error instanceof Error ? error.message : t('messages.aiUnavailableMessage'),
+              );
             })
             .finally(() => setBootstrapping(false));
         }}

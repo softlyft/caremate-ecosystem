@@ -68,5 +68,6 @@
   "aiSendFailedTitle": "Couldn't get a reply",
   "aiSendFailedMessage": "Check your connection and try again.",
   "aiUnavailableTitle": "CareMate AI unavailable",
-  "aiUnavailableMessage": "CareMate AI needs a signed-in session and the health data gateway. Try again after signing in."
+  "aiUnavailableMessage": "CareMate AI couldn’t reach the health data gateway. Check your connection and try again.",
+  "aiGatewayMissingMessage": "This build isn’t configured with the health data gateway URL, so CareMate AI can’t start yet."
 }
