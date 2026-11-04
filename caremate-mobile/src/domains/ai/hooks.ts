@@ -50,10 +50,22 @@ export function usePostAiMessage(conversationId: string) {
   return useMutation({
     mutationFn: (input: { content: string; clientRequestId: string }) =>
       postAiMessage(conversationId, input.content, input.clientRequestId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [...QUERY_KEYS.aiConversation, conversationId],
-      });
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        [...QUERY_KEYS.aiConversation, conversationId],
+        (current: Awaited<ReturnType<typeof getAiConversation>> | undefined) => {
+          if (!current) {
+            return current;
+          }
+          const withoutDupes = current.messages.filter(
+            (m) => m.id !== result.userMessage.id && m.id !== result.assistantMessage.id,
+          );
+          return {
+            ...current,
+            messages: [...withoutDupes, result.userMessage, result.assistantMessage],
+          };
+        },
+      );
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.aiConversations });
     },
   });

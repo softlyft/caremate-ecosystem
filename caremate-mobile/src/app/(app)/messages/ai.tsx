@@ -1,6 +1,6 @@
 import { useNavigation } from 'expo-router';
 import { Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react-native';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -42,16 +42,21 @@ import {
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
 const STACK_HEADER_HEIGHT = 64;
+const OPTIMISTIC_USER_ID = 'optimistic-user';
+const TYPING_ROW_ID = 'assistant-typing';
 
 function MessageBubble({
   message,
   onFeedback,
+  thinkingLabel,
 }: {
   message: AiMessage;
   onFeedback?: (rating: 'up' | 'down') => void;
+  thinkingLabel?: string;
 }) {
   const isUser = message.role === 'user';
-  const showFeedback = !isUser && message.role === 'assistant' && onFeedback;
+  const isTyping = message.id === TYPING_ROW_ID;
+  const showFeedback = !isUser && !isTyping && message.role === 'assistant' && onFeedback;
 
   return (
     <View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowAssistant]}>
@@ -62,9 +67,21 @@ function MessageBubble({
           message.safety_state === 'emergency' ? styles.bubbleEmergency : null,
         ]}
       >
-        <AppText variant="body" style={isUser ? styles.bubbleTextUser : styles.bubbleTextAssistant}>
-          {message.content}
-        </AppText>
+        {isTyping ? (
+          <View style={styles.typingRow}>
+            <ActivityIndicator color={palette.primaryDark} size="small" />
+            <AppText variant="body" style={styles.bubbleTextAssistant}>
+              {thinkingLabel}
+            </AppText>
+          </View>
+        ) : (
+          <AppText
+            variant="body"
+            style={isUser ? styles.bubbleTextUser : styles.bubbleTextAssistant}
+          >
+            {message.content}
+          </AppText>
+        )}
         {showFeedback ? (
           <View style={styles.feedbackRow}>
             <Button
@@ -104,6 +121,8 @@ export default function CareMateAiThreadScreen() {
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
   const [draft, setDraft] = useState('');
+  /** Local optimistic user bubble until the server turn lands in the query cache. */
+  const [pendingUser, setPendingUser] = useState<AiMessage | null>(null);
   const ensure = useEnsureAiConversation();
   const detail = useAiConversation(conversationId);
   const postMessage = usePostAiMessage(conversationId ?? '');
@@ -154,7 +173,37 @@ export default function CareMateAiThreadScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once
   }, []);
 
-  const messages = detail.data?.messages ?? [];
+  const messages = useMemo(() => {
+    const serverMessages = detail.data?.messages ?? [];
+    const rows = [...serverMessages];
+    const pendingStillMissing =
+      pendingUser &&
+      !serverMessages.some(
+        (m) =>
+          m.id === pendingUser.id ||
+          (pendingUser.client_request_id != null &&
+            m.client_request_id === pendingUser.client_request_id) ||
+          (m.role === 'user' && m.content === pendingUser.content && m.status !== 'failed'),
+      );
+    if (pendingStillMissing && pendingUser) {
+      rows.push(pendingUser);
+    }
+    if (waiting) {
+      rows.push({
+        id: TYPING_ROW_ID,
+        conversation_id: conversationId ?? '',
+        role: 'assistant',
+        content: '',
+        status: 'pending',
+        model: null,
+        prompt_tokens: null,
+        completion_tokens: null,
+        safety_state: 'ok',
+        created_at: new Date().toISOString(),
+      });
+    }
+    return rows;
+  }, [detail.data?.messages, pendingUser, waiting, conversationId]);
 
   const onSend = async () => {
     if (!conversationId || waiting) {
@@ -164,16 +213,39 @@ export default function CareMateAiThreadScreen() {
     if (!content) {
       return;
     }
-    setWaiting(true);
-    trackAiMessageSent();
     const clientRequestId =
       pendingRequestRef.current?.content === content
         ? pendingRequestRef.current.clientRequestId
         : crypto.randomUUID();
     pendingRequestRef.current = { content, clientRequestId };
+
+    const optimistic: AiMessage = {
+      id: OPTIMISTIC_USER_ID,
+      conversation_id: conversationId,
+      role: 'user',
+      content,
+      status: 'pending',
+      model: null,
+      prompt_tokens: null,
+      completion_tokens: null,
+      safety_state: 'ok',
+      created_at: new Date().toISOString(),
+      client_request_id: clientRequestId,
+    };
+
+    // Chat-style: clear the composer and show the user bubble immediately.
+    setDraft('');
+    setPendingUser(optimistic);
+    setWaiting(true);
+    trackAiMessageSent();
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToEnd({ animated: true });
+    });
+
     const sendStarted = Date.now();
     try {
       const result = await postMessage.mutateAsync({ content, clientRequestId });
+      setPendingUser(null);
       trackAiResponseGenerated({
         safetyState: result.assistantMessage.safety_state,
         latencyMs: Date.now() - sendStarted,
@@ -185,8 +257,12 @@ export default function CareMateAiThreadScreen() {
         trackAiSafetyEscalation(result.assistantMessage.safety_state);
       }
       pendingRequestRef.current = null;
-      setDraft('');
+      requestAnimationFrame(() => {
+        listRef.current?.scrollToEnd({ animated: true });
+      });
     } catch (error) {
+      setPendingUser(null);
+      setDraft(content);
       const latencyMs = Date.now() - sendStarted;
       const message = error instanceof Error ? error.message : t('messages.aiSendFailedMessage');
       const isTimeout =
@@ -274,8 +350,9 @@ export default function CareMateAiThreadScreen() {
         renderItem={({ item }) => (
           <MessageBubble
             message={item}
+            thinkingLabel={t('messages.aiThinking')}
             onFeedback={
-              item.role === 'assistant'
+              item.role === 'assistant' && item.id !== TYPING_ROW_ID
                 ? (rating) => {
                     void feedback.mutateAsync({ messageId: item.id, rating });
                     trackAiResponseFeedback(rating);
@@ -284,16 +361,8 @@ export default function CareMateAiThreadScreen() {
             }
           />
         )}
-        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
       />
-      {waiting ? (
-        <View style={styles.waiting}>
-          <ActivityIndicator color={palette.primary} />
-          <AppText variant="caption" style={styles.waitingText}>
-            {t('messages.aiThinking')}
-          </AppText>
-        </View>
-      ) : null}
       <MessageComposer
         ref={composerRef}
         value={draft}
@@ -394,14 +463,9 @@ const styles = StyleSheet.create({
   feedbackBtn: {
     padding: 4,
   },
-  waiting: {
+  typingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingHorizontal: layoutSpacing.screenHorizontal,
-    paddingBottom: spacing.xs,
-  },
-  waitingText: {
-    color: palette.textSecondary,
   },
 });
