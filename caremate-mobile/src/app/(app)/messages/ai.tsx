@@ -218,18 +218,24 @@ export default function CareMateAiThreadScreen() {
     return <LoadingState title={t('messages.aiLoading')} />;
   }
 
-  if (!conversationId || detail.isError) {
+  if (!conversationId || detail.isError || bootstrapError) {
     return (
       <ErrorState
         title={t('messages.aiLoadFailed')}
-        message={t('common.loadFailedMessage')}
+        message={bootstrapError ?? t('messages.aiUnavailableMessage')}
         actionLabel={t('common.retry')}
         onAction={() => {
           setBootstrapping(true);
+          setBootstrapError(null);
           void ensure
             .mutateAsync()
             .then((conv) => {
               setConversationId(conv.id);
+            })
+            .catch((error) => {
+              setBootstrapError(
+                error instanceof Error ? error.message : t('messages.aiUnavailableMessage'),
+              );
             })
             .finally(() => setBootstrapping(false));
         }}
