@@ -54,15 +54,33 @@ export function usePostAiMessage(conversationId: string) {
       queryClient.setQueryData(
         [...QUERY_KEYS.aiConversation, conversationId],
         (current: Awaited<ReturnType<typeof getAiConversation>> | undefined) => {
-          if (!current) {
-            return current;
-          }
-          const withoutDupes = current.messages.filter(
+          const priorMessages = current?.messages ?? [];
+          const withoutDupes = priorMessages.filter(
             (m) => m.id !== result.userMessage.id && m.id !== result.assistantMessage.id,
           );
+          const messages = [...withoutDupes, result.userMessage, result.assistantMessage];
+          if (!current) {
+            // Cache may be empty if the detail query hadn't settled; still surface the turn.
+            return {
+              conversation: {
+                id: conversationId,
+                user_id: '',
+                title: 'CareMate AI',
+                status: 'active',
+                retention_state: 'active',
+                created_at: result.userMessage.created_at,
+                updated_at: result.assistantMessage.created_at,
+              },
+              messages,
+            };
+          }
           return {
             ...current,
-            messages: [...withoutDupes, result.userMessage, result.assistantMessage],
+            conversation: {
+              ...current.conversation,
+              updated_at: result.assistantMessage.created_at,
+            },
+            messages,
           };
         },
       );
