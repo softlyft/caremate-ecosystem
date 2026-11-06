@@ -317,6 +317,9 @@ jobs:
           chmod +x caremate-mobile/scripts/ensure-testflight-test-information.sh
           caremate-mobile/scripts/ensure-testflight-test-information.sh
 
+      # Do not pass uses-non-exempt-encryption: Info.plist already sets
+      # ITSAppUsesNonExemptEncryption=false. Re-setting via ASC API returns 409
+      # ("You cannot update when the value is already set") after a successful upload.
       - name: Submit build to TestFlight
         if: ${{ inputs.upload }}
         uses: apple-actions/upload-testflight-build@v5
@@ -325,4 +328,3 @@ jobs:
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
-          uses-non-exempt-encryption: 'false'
