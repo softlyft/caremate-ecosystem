@@ -3,6 +3,8 @@
 Marketing site for CareMate — welcome page, patient guide, CareMate Community Network (CCN),
 provider marketing + guide, privacy, and terms.
 
+**Version:** see [`CHANGELOG.md`](./CHANGELOG.md) (`package.json`).
+
 ## Pages
 
 | Path | Purpose |

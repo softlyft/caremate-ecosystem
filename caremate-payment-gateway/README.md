@@ -1,5 +1,7 @@
 # CareMate Payment
 
+**Version:** see [`CHANGELOG.md`](./CHANGELOG.md) (`package.json`).
+
 Lightweight Vite + React checkout host for **all CareMate Paystack payments**:
 
 - Patient Premium (website + community)

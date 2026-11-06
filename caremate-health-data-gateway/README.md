@@ -2,6 +2,8 @@
 
 NestJS monorepo trust layer for field-level PHI encryption. Schema and migrations live in the **root** [`supabase/`](../supabase/) folder — this package only connects via a service-role client.
 
+**Version:** see [`CHANGELOG.md`](./CHANGELOG.md) (`package.json`).
+
 ## Services (this slice)
 
 | Path | Auth | Behavior |
