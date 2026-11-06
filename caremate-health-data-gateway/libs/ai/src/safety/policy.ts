@@ -170,8 +170,8 @@ const HEALTH_SIGNAL_RE =
 const OUT_OF_SCOPE_PATTERNS: RegExp[] = [
   // Math / homework
   /\b(solve|calculate|compute|simplify)\b.{0,40}\b(equation|integral|derivative|algebra|polynomial|matrix)\b/i,
-  /\b(what\s+is|what'?s)\s+\d+\s*[\+\-\*\/x×÷]\s*\d+/i,
-  /\b\d+\s*[\+\-\*\/x×÷]\s*\d+\s*=/i,
+  /\b(what\s+is|what'?s)\s+\d+\s*[+\-*/x×÷]\s*\d+/i,
+  /\b\d+\s*[+\-*/x×÷]\s*\d+\s*=/i,
   /\b(calculus|algebra|geometry|trigonometry|quadratic|factorial)\b/i,
   /\b(do|finish|write)\s+(my\s+)?(math|homework|assignment|essay|paper)\b/i,
   // Finance / business (non-health)
