@@ -27,7 +27,7 @@ import {
 } from './graph/model-errors';
 import { POLICY_VERSION } from './safety/policy';
 
-const DAILY_MESSAGE_LIMIT = 30;
+const DAILY_MESSAGE_LIMIT = 5;
 const BURST_LIMIT = 5;
 const BURST_WINDOW_MS = 60_000;
 
