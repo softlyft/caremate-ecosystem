@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { v4 as uuidv4 } from 'uuid';
 
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { alert } from '@/components/ui/AppDialogHost';
@@ -205,23 +206,6 @@ export default function CareMateAiThreadScreen() {
     return rows;
   }, [detail.data?.messages, pendingUser, waiting, conversationId]);
 
-  // Drop the optimistic bubble once the real turn is in the query cache.
-  useEffect(() => {
-    if (!pendingUser) {
-      return;
-    }
-    const serverMessages = detail.data?.messages ?? [];
-    const landed = serverMessages.some(
-      (m) =>
-        (pendingUser.client_request_id != null &&
-          m.client_request_id === pendingUser.client_request_id) ||
-        (m.role === 'user' && m.content === pendingUser.content && m.status !== 'failed'),
-    );
-    if (landed) {
-      setPendingUser(null);
-    }
-  }, [detail.data?.messages, pendingUser]);
-
   const onSend = async (text: string) => {
     if (!conversationId || waiting) {
       return;
@@ -232,10 +216,11 @@ export default function CareMateAiThreadScreen() {
     if (!content) {
       return;
     }
+    // RN Hermes has no `crypto.randomUUID`; use the shared uuid helper (UUID v4 for HDG DTO).
     const clientRequestId =
       pendingRequestRef.current?.content === content
         ? pendingRequestRef.current.clientRequestId
-        : crypto.randomUUID();
+        : uuidv4();
     pendingRequestRef.current = { content, clientRequestId };
 
     const optimistic: AiMessage = {

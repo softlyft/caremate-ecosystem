@@ -11,10 +11,7 @@ import {
   classifyUserMessage,
   type SafetyDecision,
 } from '../safety/policy';
-import {
-  MODEL_REQUEST_TIMEOUT_MS,
-  withModelTimeout,
-} from './model-errors';
+import { MODEL_REQUEST_TIMEOUT_MS, withModelTimeout } from './model-errors';
 
 export type EducationHistoryMessage = {
   role: 'user' | 'assistant';
@@ -122,7 +119,9 @@ function toLangChainMessages(
 export function createEducationGraph(apiKey: string, modelName: string) {
   const model = buildModel(apiKey, modelName);
 
-  const classify = async (state: GraphStateType): Promise<Partial<GraphStateType>> => {
+  const classify = async (
+    state: GraphStateType,
+  ): Promise<Partial<GraphStateType>> => {
     const safety = classifyUserMessage(state.userMessage, {
       priorTexts: (state.priorMessages ?? []).map((m) => m.content),
     });
