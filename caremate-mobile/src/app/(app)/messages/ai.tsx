@@ -206,23 +206,6 @@ export default function CareMateAiThreadScreen() {
     return rows;
   }, [detail.data?.messages, pendingUser, waiting, conversationId]);
 
-  // Drop the optimistic bubble once the real turn is in the query cache.
-  useEffect(() => {
-    if (!pendingUser) {
-      return;
-    }
-    const serverMessages = detail.data?.messages ?? [];
-    const landed = serverMessages.some(
-      (m) =>
-        (pendingUser.client_request_id != null &&
-          m.client_request_id === pendingUser.client_request_id) ||
-        (m.role === 'user' && m.content === pendingUser.content && m.status !== 'failed'),
-    );
-    if (landed) {
-      setPendingUser(null);
-    }
-  }, [detail.data?.messages, pendingUser]);
-
   const onSend = async (text: string) => {
     if (!conversationId || waiting) {
       return;

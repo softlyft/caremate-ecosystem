@@ -1,8 +1,5 @@
 export type SafetyIntent =
-  | 'education'
-  | 'unsupported_clinical'
-  | 'out_of_scope'
-  | 'emergency';
+  'education' | 'unsupported_clinical' | 'out_of_scope' | 'emergency';
 
 export type SafetyDecision = {
   intent: SafetyIntent;
@@ -22,8 +19,7 @@ const EDUCATIONAL_FRAME_RE =
   /\b(what\s+(are|is|does|do|causes?)|symptoms?\s+of|signs?\s+of|tell\s+me\s+about|explain|define|definition\s+of|causes?\s+of|how\s+(does|do|is|are|can)|information\s+(on|about)|learn\s+about|difference\s+between|overview\s+of|meaning\s+of)\b/i;
 
 /** User describing their own present situation. */
-const FIRST_PERSON_RE =
-  /\b(i(?:'m| am|'?ve| have)|im\b|my\b|me\b)\b/i;
+const FIRST_PERSON_RE = /\b(i(?:'m| am|'?ve| have)|im\b|my\b|me\b)\b/i;
 
 const ACUTE_SELF_REPORT_RE =
   /\b(i(?:'m| am|'?ve| have)|im)\b.{0,48}\b(have|having|had|feel(?:ing)?|felt|got|getting|experienc(?:e|ing)|suffer(?:ing)?|woke\s+up\s+with)\b/i;
@@ -78,7 +74,8 @@ const EMERGENCY_KEYWORDS: KeywordRule[] = [
   },
   {
     id: 'unconscious',
-    pattern: /\b(unconscious|unresponsive|not\s+breathing|passed\s+out\s+and\s+won'?t\s+wake)\b/i,
+    pattern:
+      /\b(unconscious|unresponsive|not\s+breathing|passed\s+out\s+and\s+won'?t\s+wake)\b/i,
   },
   { id: 'overdose', pattern: /\b(overdose|took\s+too\s+many\s+pills)\b/i },
   { id: 'choking', pattern: /\b(choking|heimlich)\b/i },
@@ -97,11 +94,13 @@ const EMERGENCY_KEYWORDS: KeywordRule[] = [
   // Other urgent red flags
   {
     id: 'worst_headache',
-    pattern: /\b(worst\s+headache\s+of\s+(my|his|her)\s+life|thunderclap\s+headache)\b/i,
+    pattern:
+      /\b(worst\s+headache\s+of\s+(my|his|her)\s+life|thunderclap\s+headache)\b/i,
   },
   {
     id: 'meningism',
-    pattern: /\b(stiff\s+neck).{0,24}\b(fever|vomiting)\b|\b(fever).{0,24}\b(stiff\s+neck)\b/i,
+    pattern:
+      /\b(stiff\s+neck).{0,24}\b(fever|vomiting)\b|\b(fever).{0,24}\b(stiff\s+neck)\b/i,
   },
   {
     id: 'seizure_now',
@@ -248,7 +247,11 @@ function matchEmergencyKeyword(text: string): { id: string } | null {
       continue;
     }
     // Pure topic question ("What are the symptoms of a heart attack?") → education.
-    if (educational && !acuteSelf && !/\bi\s+(?:have|am\s+having|think)\b/i.test(text)) {
+    if (
+      educational &&
+      !acuteSelf &&
+      !/\bi\s+(?:have|am\s+having|think)\b/i.test(text)
+    ) {
       continue;
     }
     // Keyword without first-person context and without acute phrasing → likely topic mention.
@@ -281,9 +284,15 @@ function matchMedicationDecision(text: string): boolean {
 }
 
 function matchDiagnosisAsk(text: string): boolean {
-  if (isEducationalQuery(text) && !/\b(do\s+i\s+have|wrong\s+with\s+me)\b/i.test(text)) {
+  if (
+    isEducationalQuery(text) &&
+    !/\b(do\s+i\s+have|wrong\s+with\s+me)\b/i.test(text)
+  ) {
     // "What is a diagnosis of diabetes?" / "How is diabetes diagnosed?" → education
-    if (/\bhow\s+is\b.{0,20}\bdiagnos/i.test(text) || /\bdiagnos\w+\s+of\b/i.test(text)) {
+    if (
+      /\bhow\s+is\b.{0,20}\bdiagnos/i.test(text) ||
+      /\bdiagnos\w+\s+of\b/i.test(text)
+    ) {
       return false;
     }
   }
@@ -348,7 +357,9 @@ function matchOutOfScope(
   const priorHealth = (context?.priorTexts ?? []).some((t) =>
     hasHealthSignal(t),
   );
-  const denylisted = OUT_OF_SCOPE_PATTERNS.some((pattern) => pattern.test(text));
+  const denylisted = OUT_OF_SCOPE_PATTERNS.some((pattern) =>
+    pattern.test(text),
+  );
 
   if (denylisted) {
     if (!health || matchesHardOutOfScopeDomain(text)) {

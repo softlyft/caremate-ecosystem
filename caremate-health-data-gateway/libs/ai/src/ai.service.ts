@@ -10,12 +10,13 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  EncryptionService,
-  isEncryptedEnvelope,
-} from '@caremate/encryption';
+import { EncryptionService, isEncryptedEnvelope } from '@caremate/encryption';
 import { SupabaseService } from '@caremate/supabase-client';
-import { AiFeedbackDto, CreateAiConversationDto, PostAiMessageDto } from './dto/ai.dto';
+import {
+  AiFeedbackDto,
+  CreateAiConversationDto,
+  PostAiMessageDto,
+} from './dto/ai.dto';
 import {
   runEducationGraph,
   selectBoundedHistory,
@@ -126,7 +127,11 @@ export class AiService {
     };
   }
 
-  async postMessage(userId: string, conversationId: string, dto: PostAiMessageDto) {
+  async postMessage(
+    userId: string,
+    conversationId: string,
+    dto: PostAiMessageDto,
+  ) {
     await this.requireConversation(userId, conversationId);
     await this.encryption.bootstrapUserKey(userId);
 
@@ -233,7 +238,9 @@ export class AiService {
     );
     if (!encryptedAssistantContent) {
       await this.markUserMessageStatus(userRow.id, 'failed');
-      throw new InternalServerErrorException('Failed to encrypt assistant reply');
+      throw new InternalServerErrorException(
+        'Failed to encrypt assistant reply',
+      );
     }
 
     const assistant = await this.persistAssistantReply({
@@ -249,7 +256,10 @@ export class AiService {
       now,
     });
 
-    const userComplete = await this.markUserMessageStatus(userRow.id, 'complete');
+    const userComplete = await this.markUserMessageStatus(
+      userRow.id,
+      'complete',
+    );
 
     if (result.safety.action !== 'allow') {
       await this.recordSafetyEvent({
@@ -274,11 +284,7 @@ export class AiService {
     };
   }
 
-  async submitFeedback(
-    userId: string,
-    messageId: string,
-    dto: AiFeedbackDto,
-  ) {
+  async submitFeedback(userId: string, messageId: string, dto: AiFeedbackDto) {
     const messageLookup = await this.supabase.admin
       .from('ai_message')
       .select('id, conversation_id, role')
@@ -428,7 +434,10 @@ export class AiService {
   private async tryReturnFinishedTurn(
     userId: string,
     userRow: AiMessageRow,
-  ): Promise<{ userMessage: AiMessageRow; assistantMessage: AiMessageRow } | null> {
+  ): Promise<{
+    userMessage: AiMessageRow;
+    assistantMessage: AiMessageRow;
+  } | null> {
     const assistant = await this.findAssistantForParent(userRow.id);
     if (!assistant || assistant.status === 'failed') {
       return null;
@@ -656,7 +665,10 @@ export class AiService {
     if (!isEncryptedEnvelope(row.content)) {
       return row;
     }
-    const content = await this.encryption.decryptValue(ownerUserId, row.content);
+    const content = await this.encryption.decryptValue(
+      ownerUserId,
+      row.content,
+    );
     return { ...row, content: content ?? '' };
   }
 

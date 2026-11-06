@@ -19,11 +19,15 @@ export class AiModelProviderError extends Error {
   }
 }
 
-export function isAiModelTimeoutError(err: unknown): err is AiModelTimeoutError {
+export function isAiModelTimeoutError(
+  err: unknown,
+): err is AiModelTimeoutError {
   return err instanceof AiModelTimeoutError;
 }
 
-export function classifyModelError(err: unknown): AiModelTimeoutError | AiModelProviderError {
+export function classifyModelError(
+  err: unknown,
+): AiModelTimeoutError | AiModelProviderError {
   if (err instanceof AiModelTimeoutError) {
     return err;
   }
