@@ -19,6 +19,8 @@ import {
   PostAiMessageDto,
 } from './dto/ai.dto';
 import {
+  MAX_HISTORY_CHARS,
+  MAX_HISTORY_MESSAGES,
   runEducationGraph,
   selectBoundedHistory,
   type EducationHistoryMessage,
@@ -402,29 +404,41 @@ export class AiService {
   }
 
   /**
-   * Decrypt finished prior turns for model context.
-   * Skips pending/failed so incomplete retries do not pollute the prompt.
+   * Decrypt a bounded window of finished prior turns for model context.
+   * Fetches only the newest eligible rows from the DB (message budget), then
+   * applies the char budget in memory. Skips pending/failed so incomplete
+   * retries do not pollute the prompt.
    */
   private async loadPriorHistoryForModel(
     userId: string,
     conversationId: string,
   ): Promise<EducationHistoryMessage[]> {
+    const { maxMessages, maxChars, fetchLimit } = this.historyBounds();
+
+    // Newest-first + limit keeps decrypt work O(budget), not O(conversation).
     const messages = await this.supabase.admin
       .from('ai_message')
       .select('role, content, status, created_at')
       .eq('conversation_id', conversationId)
       .in('role', ['user', 'assistant'])
       .in('status', ['complete', 'refused'])
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false })
+      .limit(fetchLimit);
 
     if (messages.error) {
       throw new InternalServerErrorException(messages.error.message);
     }
 
-    const rows = (messages.data ?? []) as Pick<
-      AiMessageRow,
-      'role' | 'content' | 'status' | 'created_at'
-    >[];
+    const rows = (
+      (messages.data ?? []) as Pick<
+        AiMessageRow,
+        'role' | 'content' | 'status' | 'created_at'
+      >[]
+    )
+      // Restore chronological order for selectBoundedHistory / LangGraph.
+      .slice()
+      .reverse();
+
     const decrypted: EducationHistoryMessage[] = [];
     for (const row of rows) {
       if (row.role !== 'user' && row.role !== 'assistant') {
@@ -448,7 +462,34 @@ export class AiService {
       });
     }
 
-    return selectBoundedHistory(decrypted);
+    return selectBoundedHistory(decrypted, { maxMessages, maxChars });
+  }
+
+  /** Explicit history budgets (env overrides; defaults match education-graph). */
+  private historyBounds(): {
+    maxMessages: number;
+    maxChars: number;
+    fetchLimit: number;
+  } {
+    const maxMessages = this.readPositiveInt(
+      'AI_HISTORY_MAX_MESSAGES',
+      MAX_HISTORY_MESSAGES,
+    );
+    const maxChars = this.readPositiveInt(
+      'AI_HISTORY_MAX_CHARS',
+      MAX_HISTORY_CHARS,
+    );
+    // Fetch exactly the message budget from DB; char trim still happens in memory.
+    return { maxMessages, maxChars, fetchLimit: maxMessages };
+  }
+
+  private readPositiveInt(envKey: string, fallback: number): number {
+    const raw = this.config.get<string>(envKey)?.trim();
+    if (!raw) {
+      return fallback;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
   }
 
   private async findUserMessageByClientRequest(
