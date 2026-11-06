@@ -14,7 +14,7 @@ NestJS library inside the Health Data Gateway that owns CareMate AI HTTP APIs, L
 | `POST` | `/v1/ai/conversations` | Bearer JWT | Create |
 | `GET` | `/v1/ai/conversations` | Bearer JWT | List for subject |
 | `GET` | `/v1/ai/conversations/:id` | Bearer JWT | History |
-| `POST` | `/v1/ai/conversations/:id/messages` | Bearer JWT | Body: `content`, optional `clientRequestId` (idempotent). Lifecycle: user `pending` → `complete` \| `failed`; assistant `complete` \| `refused`. |
+| `POST` | `/v1/ai/conversations/:id/messages` | Bearer JWT | Body: `content`, optional `clientRequestId` (idempotent). Lifecycle: user `pending` → `complete` \| `failed`; assistant `complete` \| `refused`. Concurrent same-key retries: one request claims the turn (`processing_claimed_at`); peers wait for the result or receive `409 ai_turn_processing`. |
 | `POST` | `/v1/ai/messages/:id/feedback` | Bearer JWT | Feedback |
 | `DELETE` | `/v1/ai/conversations/:id` | Bearer JWT | Soft-delete (`retention_state=deleted`) |
 
@@ -44,7 +44,7 @@ Update SAM/`template.yaml` env when wiring production.
 
 - Lambda **45s** timeout; mobile client **40s**; OpenAI call hard-capped at **20s** (`MODEL_REQUEST_TIMEOUT_MS`, no retries). Timeouts/provider errors mark the user turn `failed` and return 504/503. Phase 1 stays buffered (non-streaming).
 - **Conversation context:** load a bounded prior history (last ~16 turns / ~8k chars) into generate so follow-ups resolve. Safety classifies the current turn, but short health follow-ups (“which is best?”, “tell me more”) are allowed when prior turns already carry a health signal.
-- **Message lifecycle:** insert user as `pending`; on model/policy success mark `complete` and write assistant (`complete`/`refused`); on OpenAI/infra failure mark user `failed` (no orphan “complete” turn). `clientRequestId` + `parent_message_id` make retries idempotent.
+- **Message lifecycle:** insert user as `pending`; **claim** the turn via `ai_try_claim_user_message` (lease on `processing_claimed_at`) before any model call; on success mark `complete` and write assistant (`complete`/`refused`); on OpenAI/infra failure mark user `failed` and clear the lease. `clientRequestId` + `parent_message_id` make retries idempotent for rows; the claim prevents duplicate OpenAI calls under concurrency. Stale leases expire after ~45s so a dead worker can be reclaimed.
 - No patient PHI tools in Phase 1 graph nodes.
 - **At-rest encryption:** `title` / `content` / feedback `comment` use the same HDG field cipher as messaging (owner DEK). Decrypt only in HDG. OpenAI still receives plaintext for generation — contractual retention/training controls apply.
 - Tables are **service_role only** (no authenticated PostgREST grants).

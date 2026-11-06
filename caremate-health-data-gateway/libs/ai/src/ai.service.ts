@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   GatewayTimeoutException,
   HttpException,
@@ -26,6 +27,13 @@ import {
   isAiModelTimeoutError,
   classifyModelError,
 } from './graph/model-errors';
+import {
+  AI_PEER_POLL_MS,
+  AI_PEER_WAIT_MS,
+  AI_PROCESSING_LEASE_SECONDS,
+  type AiClaimResult,
+  waitUntil,
+} from './processing-claim';
 import { POLICY_VERSION } from './safety/policy';
 
 const DAILY_MESSAGE_LIMIT = 5;
@@ -57,6 +65,7 @@ type AiMessageRow = {
   phi_encrypted_at?: string | null;
   client_request_id?: string | null;
   parent_message_id?: string | null;
+  processing_claimed_at?: string | null;
 };
 
 @Injectable()
@@ -182,11 +191,33 @@ export class AiService {
       return turn.response;
     }
 
+    const claimed = await this.tryClaimUserMessage(turn.userRow.id);
+    if (!claimed) {
+      const peerFinished = await this.waitForFinishedTurn(
+        userId,
+        turn.userRow.id,
+      );
+      if (peerFinished) {
+        return peerFinished;
+      }
+      throw new ConflictException({
+        code: 'ai_turn_processing',
+        message:
+          'CareMate AI is still processing this message. Retry shortly with the same clientRequestId.',
+      });
+    }
+
+    // Only the claim holder may refresh content / call the model.
+    const userRow = await this.refreshClaimedUserContent(
+      turn.userRow.id,
+      encryptedUserContent,
+      now,
+    );
+
     const priorMessages = await this.loadPriorHistoryForModel(
       userId,
       conversationId,
     );
-    const userRow = turn.userRow;
 
     const requestStarted = Date.now();
     let result;
@@ -490,20 +521,8 @@ export class AiService {
         if (finished) {
           return { kind: 'finished', response: finished };
         }
-        const updated = await this.supabase.admin
-          .from('ai_message')
-          .update({
-            status: 'pending',
-            content: input.encryptedUserContent,
-            phi_encrypted_at: input.now,
-          })
-          .eq('id', existing.id)
-          .select('*')
-          .single();
-        if (updated.error) {
-          throw new InternalServerErrorException(updated.error.message);
-        }
-        return { kind: 'pending', userRow: updated.data as AiMessageRow };
+        // Content/status updates happen only after winning the processing claim.
+        return { kind: 'pending', userRow: existing };
       }
     }
 
@@ -536,8 +555,7 @@ export class AiService {
           if (finished) {
             return { kind: 'finished', response: finished };
           }
-          const updated = await this.markUserMessageStatus(raced.id, 'pending');
-          return { kind: 'pending', userRow: updated };
+          return { kind: 'pending', userRow: raced };
         }
       }
       throw new InternalServerErrorException(insert.error.message);
@@ -546,13 +564,73 @@ export class AiService {
     return { kind: 'pending', userRow: insert.data as AiMessageRow };
   }
 
+  private async tryClaimUserMessage(messageId: string): Promise<boolean> {
+    const result = await this.supabase.admin.rpc('ai_try_claim_user_message', {
+      p_message_id: messageId,
+      p_lease_seconds: AI_PROCESSING_LEASE_SECONDS,
+    });
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    const payload = result.data as AiClaimResult | null;
+    return Boolean(payload?.claimed);
+  }
+
+  private async refreshClaimedUserContent(
+    messageId: string,
+    encryptedUserContent: string,
+    now: string,
+  ): Promise<AiMessageRow> {
+    const updated = await this.supabase.admin
+      .from('ai_message')
+      .update({
+        status: 'pending',
+        content: encryptedUserContent,
+        phi_encrypted_at: now,
+      })
+      .eq('id', messageId)
+      .select('*')
+      .single();
+    if (updated.error) {
+      throw new InternalServerErrorException(updated.error.message);
+    }
+    return updated.data as AiMessageRow;
+  }
+
+  private async waitForFinishedTurn(
+    userId: string,
+    userMessageId: string,
+  ): Promise<{
+    userMessage: AiMessageRow;
+    assistantMessage: AiMessageRow;
+  } | null> {
+    return waitUntil(
+      async () => {
+        const row = await this.getMessageById(userMessageId);
+        if (!row) {
+          return null;
+        }
+        return this.tryReturnFinishedTurn(userId, row);
+      },
+      { timeoutMs: AI_PEER_WAIT_MS, intervalMs: AI_PEER_POLL_MS },
+    );
+  }
+
   private async markUserMessageStatus(
     messageId: string,
     status: 'pending' | 'complete' | 'failed' | 'refused',
   ): Promise<AiMessageRow> {
+    const patch: {
+      status: typeof status;
+      processing_claimed_at?: null;
+    } = { status };
+    if (status === 'complete' || status === 'failed' || status === 'refused') {
+      // Release the lease when the turn leaves in-flight processing.
+      patch.processing_claimed_at = null;
+    }
     const updated = await this.supabase.admin
       .from('ai_message')
-      .update({ status })
+      .update(patch)
       .eq('id', messageId)
       .select('*')
       .single();
@@ -576,6 +654,10 @@ export class AiService {
   }): Promise<AiMessageRow> {
     const existing = await this.findAssistantForParent(input.parentMessageId);
     if (existing) {
+      // Never overwrite a finished assistant row from a racing claimer.
+      if (existing.status !== 'failed') {
+        return existing;
+      }
       const updated = await this.supabase.admin
         .from('ai_message')
         .update({
