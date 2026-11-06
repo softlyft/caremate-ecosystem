@@ -32,6 +32,7 @@ Each service keeps its own README plus a local `docs/` set.
 | `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
 | Amplify hosting | Website, payment, admin, provider, and community portals | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
 | Security (non-mobile) | Edge, payment gateway, portals — threat models & controls | [`docs/security.md`](./docs/security.md) |
+| Security audit (main) | Post-hardening findings on `main` (2026-09-30) | [`docs/audits/2026-09-30-main-security-audit.md`](./docs/audits/2026-09-30-main-security-audit.md) |
 
 ## Root Workflows
 
