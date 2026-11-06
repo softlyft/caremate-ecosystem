@@ -82,6 +82,7 @@ Play can **promote the same AAB** across tracks in Play Console. `prod` CI uploa
 - **iOS** `CFBundleVersion`: `IOS_BUILD_NUMBER_OFFSET` + `github.run_id` (repo-wide unique — TestFlight and App Store cannot collide)
 - **Android** `versionCode`: `ANDROID_VERSION_CODE_OFFSET` + `github.run_number`
 - **Marketing version** (`1.0.0`): bump `caremate-mobile/app.json` → `expo.version` before release
+- **Changelog**: keep [CHANGELOG.md](../CHANGELOG.md) updated (Keep a Changelog). Move `[Unreleased]` entries into a new version section when bumping `expo.version`. Paste a short “What’s New” into App Store Connect / Play Console from that section.
 
 ## Deploy `main` (dev)
 
