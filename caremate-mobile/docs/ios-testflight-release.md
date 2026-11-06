@@ -188,6 +188,7 @@ One-time manual fill (if you prefer the UI):
 | Provisioning profile mismatch | Regenerate App Store profile for `com.softlyft.caremate.dev` |
 | Export says `$(PRODUCT_BUNDLE_IDENTIFIER)` / Push Notifications feature missing | Workflow must map ExportOptions to the real bundle id (`com.softlyft.caremate.dev`). Also enable **Push Notifications** on that App ID, regenerate the App Store profile, update `IOS_PROVISIONING_PROFILE_BASE64` |
 | `Refusing to upload: TestFlight Test Information is not ready` | Fill TestFlight → Test Information for `com.softlyft.caremate.dev`, or re-run CD after this repo’s `ensure-testflight-test-information` step lands on `main`. |
+| `Failed to update encryption compliance` / 409 `usesNonExemptEncryption` already set | Harmless after a successful upload — compliance is already declared via `ITSAppUsesNonExemptEncryption` in `app.json`. Do **not** pass `uses-non-exempt-encryption` to the upload action. |
 | Upload fails with 401/403 | Check API key role and secret values |
 | Build number already used | Increase `IOS_BUILD_NUMBER_OFFSET` or pass **build_number**. Auto builds use `run_id` (unique across TestFlight and App Store). |
 | Xcode / ExpoModulesJSI failure | Ensure root `postinstall` applies `patches/expo-modules-jsi+57.0.1.patch` (xcframework output path) and `patches/caremate-mobile++expo-modules-jsi+57.0.4.patch` (`Swift.abs` on Xcode 26.3) |
