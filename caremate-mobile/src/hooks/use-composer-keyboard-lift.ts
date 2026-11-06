@@ -53,8 +53,7 @@ export function useComposerKeyboardLift() {
       // Prefer the live frame: screenY is the top of the IME (incl. suggestion bar when
       // reported). Overlap vs the current window bottom catches under-reported heights.
       const frameHeight = metrics?.height ?? keyboardHeight;
-      const overlapFromScreenY =
-        metrics != null ? Math.max(0, windowHeight - metrics.screenY) : 0;
+      const overlapFromScreenY = metrics != null ? Math.max(0, windowHeight - metrics.screenY) : 0;
       const covered = Math.max(frameHeight, overlapFromScreenY);
 
       // Android: only lift the portion not already taken by window resize / insets.
