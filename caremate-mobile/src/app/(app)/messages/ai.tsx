@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { v4 as uuidv4 } from 'uuid';
 
 import { glossyStackHeaderOptions } from '@/components/navigation/glossyStackHeader';
 import { alert } from '@/components/ui/AppDialogHost';
@@ -232,10 +233,11 @@ export default function CareMateAiThreadScreen() {
     if (!content) {
       return;
     }
+    // RN Hermes has no `crypto.randomUUID`; use the shared uuid helper (UUID v4 for HDG DTO).
     const clientRequestId =
       pendingRequestRef.current?.content === content
         ? pendingRequestRef.current.clientRequestId
-        : crypto.randomUUID();
+        : uuidv4();
     pendingRequestRef.current = { content, clientRequestId };
 
     const optimistic: AiMessage = {
