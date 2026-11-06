@@ -170,6 +170,30 @@ describe('classifyUserMessage', () => {
       expect(result.action).toBe('allow');
     });
 
+    it.each([
+      'Which do you think is best?',
+      'Which one is safest?',
+      'What is the best option?',
+      'Do you recommend any of those?',
+      'Is that effective?',
+      'Tell me more',
+      'Anything else?',
+    ])('allows comparative follow-up after health topic: %s', (message) => {
+      const result = classifyUserMessage(message, {
+        priorTexts: [
+          'Can you give me methods to prevent pregnancy?',
+          'Common contraceptive options include condoms, pills, IUDs, and implants.',
+        ],
+      });
+      expect(result.action).toBe('allow');
+    });
+
+    it('refuses comparative follow-up with no prior health context', () => {
+      const result = classifyUserMessage('Which do you think is best?');
+      expect(result.action).toBe('refuse');
+      expect(result.intent).toBe('out_of_scope');
+    });
+
     it('refuses short follow-ups with no prior health context', () => {
       const result = classifyUserMessage('What causes it?');
       expect(result.action).toBe('refuse');

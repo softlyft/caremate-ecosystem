@@ -43,7 +43,7 @@ Update SAM/`template.yaml` env when wiring production.
 ## Constraints
 
 - Lambda **45s** timeout; mobile client **40s**; OpenAI call hard-capped at **20s** (`MODEL_REQUEST_TIMEOUT_MS`, no retries). Timeouts/provider errors mark the user turn `failed` and return 504/503. Phase 1 stays buffered (non-streaming).
-- **Conversation context:** load a bounded prior history (message + char caps) into the generate node so follow-ups resolve; safety still classifies the current user turn only.
+- **Conversation context:** load a bounded prior history (last ~16 turns / ~8k chars) into generate so follow-ups resolve. Safety classifies the current turn, but short health follow-ups (“which is best?”, “tell me more”) are allowed when prior turns already carry a health signal.
 - **Message lifecycle:** insert user as `pending`; on model/policy success mark `complete` and write assistant (`complete`/`refused`); on OpenAI/infra failure mark user `failed` (no orphan “complete” turn). `clientRequestId` + `parent_message_id` make retries idempotent.
 - No patient PHI tools in Phase 1 graph nodes.
 - **At-rest encryption:** `title` / `content` / feedback `comment` use the same HDG field cipher as messaging (owner DEK). Decrypt only in HDG. OpenAI still receives plaintext for generation — contractual retention/training controls apply.

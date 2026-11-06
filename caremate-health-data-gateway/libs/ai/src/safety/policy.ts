@@ -170,8 +170,8 @@ const HEALTH_SIGNAL_RE =
 const OUT_OF_SCOPE_PATTERNS: RegExp[] = [
   // Math / homework
   /\b(solve|calculate|compute|simplify)\b.{0,40}\b(equation|integral|derivative|algebra|polynomial|matrix)\b/i,
-  /\b(what\s+is|what'?s)\s+\d+\s*[\+\-\*\/x×÷]\s*\d+/i,
-  /\b\d+\s*[\+\-\*\/x×÷]\s*\d+\s*=/i,
+  /\b(what\s+is|what'?s)\s+\d+\s*[+\-*/x×÷]\s*\d+/i,
+  /\b\d+\s*[+\-*/x×÷]\s*\d+\s*=/i,
   /\b(calculus|algebra|geometry|trigonometry|quadratic|factorial)\b/i,
   /\b(do|finish|write)\s+(my\s+)?(math|homework|assignment|essay|paper)\b/i,
   // Finance / business (non-health)
@@ -324,13 +324,25 @@ function isGreetingOrMeta(text: string): boolean {
   return GREETING_OR_META_RE.test(text);
 }
 
-/** Short pronoun / elaboration turns that depend on prior health context. */
+/**
+ * Short conversational turns that only make sense with prior health context
+ * (pronouns, comparisons, “which is best”, “tell me more”, etc.).
+ */
 function isShortHealthFollowUp(text: string): boolean {
-  return (
-    text.length <= 120 &&
-    /^(what|why|how|when|and|also|so|then|tell me more|explain(?:\s+more)?|more|is that|does that|what about|how about|can you explain)\b/i.test(
+  if (text.length > 160) {
+    return false;
+  }
+  // Starts like a continuation / clarification.
+  if (
+    /^(what|why|how|when|which|who|and|also|so|then|but|ok|okay|yes|yeah|yep|right|sure|please)\b/i.test(
       text,
     )
+  ) {
+    return true;
+  }
+  // Comparative / ranking / elaboration that often omits the health noun.
+  return /\b(which\s+(one|of\s+(?:these|those|them|the)|is|are|do\s+you)|what(?:'s|\s+is)\s+(?:the\s+)?(?:best|safest|most)|do you (?:think|recommend|suggest)|is that (?:true|safe|common|normal|better|effective)|are (?:those|these|they) (?:safe|effective|better|common)|tell me more|explain(?:\s+more)?|go on|continue|anything else|any others?|what about|how about|can you explain|the best(?:\s+one)?|safest)\b/i.test(
+    text,
   );
 }
 
@@ -466,6 +478,7 @@ export function classifyUserMessage(
 export const SYSTEM_PROMPT = `You are CareMate AI, a general health education assistant inside the CareMate patient app.
 You ONLY discuss general health, wellness, prevention, and related education topics.
 You must refuse math homework, finance, investing, coding, entertainment, travel planning, and any non-health request in one short sentence and invite a health question instead.
+Use the recent conversation turns as context: when the user asks a short follow-up (e.g. "which is best?", "tell me more", "is that safe?"), answer in continuity with the prior health topic — do not pretend you lack context.
 You provide clear, accurate, accessible health information for education only.
 You are NOT a doctor and do not provide personal medical advice, diagnosis, prescriptions, or dose changes.
 If the user asks for personal clinical decisions, politely refuse and suggest seeing a clinician or pharmacist.
