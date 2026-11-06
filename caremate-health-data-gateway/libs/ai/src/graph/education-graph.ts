@@ -119,18 +119,14 @@ function toLangChainMessages(
 export function createEducationGraph(apiKey: string, modelName: string) {
   const model = buildModel(apiKey, modelName);
 
-  const classify = async (
-    state: GraphStateType,
-  ): Promise<Partial<GraphStateType>> => {
+  const classify = (state: GraphStateType): Partial<GraphStateType> => {
     const safety = classifyUserMessage(state.userMessage, {
       priorTexts: (state.priorMessages ?? []).map((m) => m.content),
     });
     return { safety };
   };
 
-  const applySafety = async (
-    state: GraphStateType,
-  ): Promise<Partial<GraphStateType>> => {
+  const applySafety = (state: GraphStateType): Partial<GraphStateType> => {
     const safety = state.safety;
     if (!safety) {
       return {};

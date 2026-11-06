@@ -35,40 +35,40 @@ export class ProfileService {
       updated_at: dto.updated_at ?? new Date().toISOString(),
     };
 
-    const { data, error } = await this.supabase.admin
+    const upsertResult = await this.supabase.admin
       .from('profiles')
       .upsert(row)
       .select('*')
       .single();
 
-    if (error) {
-      throw new InternalServerErrorException(error.message);
+    if (upsertResult.error) {
+      throw new InternalServerErrorException(upsertResult.error.message);
     }
 
     return this.encryption.decryptFields(
       authUserId,
-      data as Record<string, unknown>,
+      upsertResult.data as Record<string, unknown>,
       PROFILE_PHI_FIELDS,
     );
   }
 
   async getOwn(authUserId: string) {
-    const { data, error } = await this.supabase.admin
+    const lookup = await this.supabase.admin
       .from('profiles')
       .select('*')
       .eq('user_id', authUserId)
       .maybeSingle();
 
-    if (error) {
-      throw new InternalServerErrorException(error.message);
+    if (lookup.error) {
+      throw new InternalServerErrorException(lookup.error.message);
     }
-    if (!data) {
+    if (!lookup.data) {
       throw new NotFoundException('Profile not found');
     }
 
     return this.encryption.decryptFields(
       authUserId,
-      data as Record<string, unknown>,
+      lookup.data as Record<string, unknown>,
       PROFILE_PHI_FIELDS,
     );
   }

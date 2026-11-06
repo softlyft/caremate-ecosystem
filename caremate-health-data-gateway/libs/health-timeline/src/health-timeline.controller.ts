@@ -36,7 +36,10 @@ export class HealthTimelineController {
   }
 
   @Put()
-  put(@CurrentUser() user: AuthUser, @Body() body: UpsertHealthTimelineEventDto) {
+  put(
+    @CurrentUser() user: AuthUser,
+    @Body() body: UpsertHealthTimelineEventDto,
+  ) {
     return this.timeline.upsert(user.userId, body);
   }
 

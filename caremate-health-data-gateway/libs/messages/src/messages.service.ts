@@ -4,10 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  EncryptionService,
-  isEncryptedEnvelope,
-} from '@caremate/encryption';
+import { EncryptionService, isEncryptedEnvelope } from '@caremate/encryption';
 import { SupabaseService } from '@caremate/supabase-client';
 import { PostMessageDto, SealMessagesDto } from './dto/messages.dto';
 
@@ -112,7 +109,10 @@ export class MessagesService {
     return Promise.all(allowed.map((row) => this.decryptConversation(row)));
   }
 
-  async listPayerOrgConversations(authUserId: string, payerOrganizationId: string) {
+  async listPayerOrgConversations(
+    authUserId: string,
+    payerOrganizationId: string,
+  ) {
     await this.requirePayerOrgMember(authUserId, payerOrganizationId);
 
     const listResult = await this.supabase.admin
@@ -135,7 +135,10 @@ export class MessagesService {
       }
       if (
         row.patient_user_id &&
-        (await this.hasPayerPatientConnection(payerOrganizationId, row.patient_user_id))
+        (await this.hasPayerPatientConnection(
+          payerOrganizationId,
+          row.patient_user_id,
+        ))
       ) {
         allowed.push(row);
       }
@@ -248,7 +251,7 @@ export class MessagesService {
       })
       .eq('id', dto.conversation_id);
 
-    return this.decryptMessage(insertResult.data as MessageRow);
+    return this.decryptMessage(insertResult.data);
   }
 
   /**
@@ -337,10 +340,7 @@ export class MessagesService {
     conversation: ConversationRow,
     fallbackUserId: string,
   ): string {
-    if (
-      conversation.kind === 'org_patient' &&
-      conversation.patient_user_id
-    ) {
+    if (conversation.kind === 'org_patient' && conversation.patient_user_id) {
       return conversation.patient_user_id;
     }
     return fallbackUserId;
@@ -422,7 +422,10 @@ export class MessagesService {
     }
 
     if (conversation.payer_organization_id) {
-      await this.requirePayerOrgMember(authUserId, conversation.payer_organization_id);
+      await this.requirePayerOrgMember(
+        authUserId,
+        conversation.payer_organization_id,
+      );
       if (
         conversation.kind === 'org_patient' &&
         conversation.patient_user_id &&
@@ -493,7 +496,10 @@ export class MessagesService {
     }
   }
 
-  private async requirePayerOrgMember(authUserId: string, payerOrganizationId: string) {
+  private async requirePayerOrgMember(
+    authUserId: string,
+    payerOrganizationId: string,
+  ) {
     const memberResult = await this.supabase.admin
       .from('payer_org_members')
       .select('id')

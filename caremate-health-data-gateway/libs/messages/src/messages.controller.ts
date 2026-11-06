@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { PostMessageDto, SealMessagesDto } from './dto/messages.dto';
 import { MessagesService } from './messages.service';

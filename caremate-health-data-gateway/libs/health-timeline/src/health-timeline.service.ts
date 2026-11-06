@@ -34,7 +34,9 @@ export class HealthTimelineService {
 
   async upsert(authUserId: string, dto: UpsertHealthTimelineEventDto) {
     if (dto.user_id !== authUserId) {
-      throw new ForbiddenException('Cannot write another user health timeline event');
+      throw new ForbiddenException(
+        'Cannot write another user health timeline event',
+      );
     }
 
     await this.encryption.bootstrapUserKey(authUserId);
@@ -105,7 +107,9 @@ export class HealthTimelineService {
       throw new NotFoundException('Health timeline event not found');
     }
     if (data.user_id !== authUserId) {
-      throw new ForbiddenException('Cannot delete another user health timeline event');
+      throw new ForbiddenException(
+        'Cannot delete another user health timeline event',
+      );
     }
 
     const { error: deleteError } = await this.supabase.admin
@@ -132,7 +136,9 @@ export class HealthTimelineService {
       'health_timeline',
     );
     if (!window.periodStart || !window.periodEnd) {
-      throw new ForbiddenException('Health timeline consent has no date window');
+      throw new ForbiddenException(
+        'Health timeline consent has no date window',
+      );
     }
 
     const { data, error } = await this.supabase.admin
@@ -155,7 +161,7 @@ export class HealthTimelineService {
   private async decryptRow(keyUserId: string, row: TimelineRow) {
     return this.encryption.decryptFields(
       keyUserId,
-      row as unknown as Record<string, unknown>,
+      row,
       HEALTH_TIMELINE_PHI_FIELDS,
       ['payload'],
     );
@@ -186,13 +192,14 @@ export class HealthTimelineService {
       throw new ForbiddenException('Not a member of this organization');
     }
 
-    const { data: connection, error: connectionError } = await this.supabase.admin
-      .from('patient_provider_connections')
-      .select('id')
-      .eq('organization_id', organizationId)
-      .eq('patient_id', patientId)
-      .eq('status', 'approved')
-      .maybeSingle();
+    const { data: connection, error: connectionError } =
+      await this.supabase.admin
+        .from('patient_provider_connections')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .eq('patient_id', patientId)
+        .eq('status', 'approved')
+        .maybeSingle();
 
     if (connectionError) {
       throw new InternalServerErrorException(connectionError.message);
