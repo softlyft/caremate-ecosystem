@@ -7,6 +7,12 @@ export const AI_PEER_WAIT_MS = 28_000;
 /** Poll interval while waiting for a peer claimer (ms). */
 export const AI_PEER_POLL_MS = 400;
 
+/**
+ * Pending user turns older than this (seconds) are healed/failed by
+ * `ai_recover_stale_pending_turns`. Must exceed the processing lease.
+ */
+export const AI_STALE_PENDING_SECONDS = 120;
+
 export type AiClaimResult = {
   claimed: boolean;
   reason?: string | null;
