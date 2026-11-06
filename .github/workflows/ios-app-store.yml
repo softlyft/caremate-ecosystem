@@ -303,6 +303,17 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+      - name: Ensure TestFlight Test Information
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          TEST_INFORMATION_CONFIG: caremate-mobile/.apple-actions/test-information.prod.json
+        run: |
+          chmod +x caremate-mobile/scripts/ensure-testflight-test-information.sh
+          caremate-mobile/scripts/ensure-testflight-test-information.sh
+
       - name: Upload to App Store Connect
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
         uses: apple-actions/upload-testflight-build@v5
@@ -311,3 +322,4 @@ jobs:
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          uses-non-exempt-encryption: 'false'

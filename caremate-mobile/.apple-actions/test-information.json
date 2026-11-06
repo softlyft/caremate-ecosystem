@@ -1,0 +1,8 @@
+{
+  "bundleId": "com.softlyft.caremate.dev",
+  "locale": "en-US",
+  "description": "CareMate development TestFlight build. Exercise messaging, CareMate AI, mini-apps, and care workflows against staging backends. Report bugs via the feedback email.",
+  "feedbackEmail": "hello@getcaremate.com",
+  "marketingUrl": "https://getcaremate.com",
+  "privacyPolicyUrl": "https://getcaremate.com/privacy"
+}
