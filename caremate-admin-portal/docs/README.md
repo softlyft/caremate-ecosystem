@@ -6,6 +6,7 @@ This docs set covers the implemented behavior of the CareMate admin portal.
 
 | Topic | Read |
 |------|------|
+| Changelog / SemVer | [`../CHANGELOG.md`](../CHANGELOG.md) |
 | Service overview and structure | [Architecture](./architecture.md) |
 | Staff auth, roles, middleware, audit | [Auth & RBAC](./auth-rbac.md) |
 | Articles, tips, providers, media workflows | [Catalogs](./catalogs.md) |

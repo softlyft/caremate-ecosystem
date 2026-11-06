@@ -7,6 +7,7 @@ CareMate mobile app. Enrollment is limited to existing patients with a CareMate 
 
 | Topic | Read |
 |-------|------|
+| Changelog / SemVer | [`../CHANGELOG.md`](../CHANGELOG.md) |
 | Package layout, routes, session | [Architecture](./architecture.md) |
 | Patient ID verification + login | [Auth](./auth.md) |
 | Tables and migrations | [Data model](./data-model.md) |

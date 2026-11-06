@@ -8,6 +8,7 @@ Same Supabase project as the CareMate mobile app and SoftLyft admin portal. Prov
 
 | Topic | Read |
 |-------|------|
+| Changelog / SemVer | [`../CHANGELOG.md`](../CHANGELOG.md) |
 | Positioning, package layout, routes | [Architecture](./architecture.md) |
 | Claim, login, RBAC | [Auth & claim](./auth-claim.md) |
 | Bidirectional connections, verification gate | [Connections](./connections.md) |
