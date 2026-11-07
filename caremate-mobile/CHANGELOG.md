@@ -22,6 +22,7 @@ First public App Store / Play store release. Scope matches what ships on the
 ### Added
 
 #### Core experience
+
 - Guest-first launch: browse Home, Learn, Nearby, and Emergency without an account
 - Email/password registration and sign-in (Supabase Auth), with local session restore
 - In-app **Delete account** (Settings) with server deidentification and local wipe
@@ -31,23 +32,28 @@ First public App Store / Play store release. Scope matches what ships on the
 - Localization preferences (language / country) with multi-language UI strings
 
 #### Learn
+
 - Evergreen health articles (categories, bookmarks, reading history)
 - Currents health news (international + country slots; short retention window)
 - Mark-as-reading / mark-as-read with sync for signed-in users
 
 #### Nearby & care discovery
+
 - Nearby provider discovery with location permission flow and favorites
 - Provider detail and connection flows toward care organizations
 
 #### Emergency
+
 - Emergency health profile (view / edit) with offline access
 - Share / lock-card style surfaces for critical info when needed
 
 #### Family
+
 - Family household setup (children + invited adults)
 - Plan-based child and invite caps (Free / Standard / Family Premium)
 
 #### Mini-apps (Apps tab; signed-in)
+
 - Medication Assistant (free-tier active medication cap)
 - Checkup Planner (free-tier visibility / Premium unlock)
 - Immunization Tracker (multi-child; Premium unlock depth)
@@ -56,6 +62,7 @@ First public App Store / Play store release. Scope matches what ships on the
 - Vitals Tracker
 
 #### Premium & monetization
+
 - Free, Standard Premium, and Family Premium plan matrix
 - In-app Premium via **Apple In-App Purchase** / **Google Play Billing** (`expo-iap`)
 - Entitlement sync into local SQLite for offline plan gates
@@ -63,21 +70,25 @@ First public App Store / Play store release. Scope matches what ships on the
 - House / sponsored ad slots with portal-managed catalog
 
 #### Messaging & notifications
+
 - In-app messaging with connected care parties (patient ↔ org)
 - Notification inbox with deep links into related screens
 - Push notification plumbing (device registration)
 
 #### Community & profile
+
 - Profile and settings (including notification preferences)
 - CareMate Community Network join entry from Me
 - Insurance / payer connection surfaces where configured
 
 #### Platform & operations
+
 - GitHub Actions release pipelines: TestFlight (`main`), App Store / Play (`prod`)
 - Sentry crash reporting and PostHog product analytics (env-gated)
 - At-rest encryption for sensitive local fields (SQLCipher / secure storage patterns)
 
 ### Notes for store “What’s New”
+
 Suggested short copy for App Store Connect / Play Console:
 
 > Welcome to CareMate 1.0 — your offline-friendly health companion. Learn health topics, track medications, pregnancy, periods, immunizations and more, find nearby care, keep an emergency profile, manage family profiles, and unlock Premium tools when you need them.

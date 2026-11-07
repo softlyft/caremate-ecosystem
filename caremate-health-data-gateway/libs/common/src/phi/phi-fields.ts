@@ -46,14 +46,20 @@ export const DOCUMENT_PHI_FIELDS = ['title', 'file_name'] as const;
 export type DocumentPhiField = (typeof DOCUMENT_PHI_FIELDS)[number];
 
 /** Health timeline display fields. Query keys (occurred_on, app_key, kind) stay plaintext. */
-export const HEALTH_TIMELINE_PHI_FIELDS = ['title', 'summary', 'payload'] as const;
+export const HEALTH_TIMELINE_PHI_FIELDS = [
+  'title',
+  'summary',
+  'payload',
+] as const;
 
-export type HealthTimelinePhiField = (typeof HEALTH_TIMELINE_PHI_FIELDS)[number];
+export type HealthTimelinePhiField =
+  (typeof HEALTH_TIMELINE_PHI_FIELDS)[number];
 
 /** CareMate AI free-text (education chat may still contain user-disclosed health details). */
 export const AI_CONVERSATION_PHI_FIELDS = ['title'] as const;
 
-export type AiConversationPhiField = (typeof AI_CONVERSATION_PHI_FIELDS)[number];
+export type AiConversationPhiField =
+  (typeof AI_CONVERSATION_PHI_FIELDS)[number];
 
 export const AI_MESSAGE_PHI_FIELDS = ['content'] as const;
 

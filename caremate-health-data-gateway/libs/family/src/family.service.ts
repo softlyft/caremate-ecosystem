@@ -106,8 +106,7 @@ export class FamilyService {
     const rows = (listResult.data ?? []) as MemberRow[];
     return Promise.all(
       rows.map((row) => {
-        const keyUserId =
-          ownerByHousehold.get(row.household_id) ?? authUserId;
+        const keyUserId = ownerByHousehold.get(row.household_id) ?? authUserId;
         return this.decryptMember(keyUserId, row);
       }),
     );
@@ -145,7 +144,7 @@ export class FamilyService {
   private async decryptMember(keyUserId: string, row: MemberRow) {
     const decrypted = await this.encryption.decryptFields(
       keyUserId,
-      row as unknown as Record<string, unknown>,
+      row,
       FAMILY_MEMBER_PHI_FIELDS,
     );
     return decrypted;
@@ -168,7 +167,7 @@ export class FamilyService {
       throw new NotFoundException('Household not found');
     }
 
-    const household = getResult.data as HouseholdRow;
+    const household = getResult.data;
     if (household.created_by_user_id === authUserId) {
       return household;
     }
@@ -233,11 +232,13 @@ export class FamilyService {
       }
 
       const now = Date.now();
-      const premiumIds = ((familySubs.data ?? []) as {
-        household_id: string;
-        status: string;
-        current_period_end: string | null;
-      }[])
+      const premiumIds = (
+        (familySubs.data ?? []) as {
+          household_id: string;
+          status: string;
+          current_period_end: string | null;
+        }[]
+      )
         .filter((row) => {
           if (!row.current_period_end) return false;
           const end = Date.parse(row.current_period_end);
@@ -309,6 +310,6 @@ export class FamilyService {
     if (result.error) {
       throw new InternalServerErrorException(result.error.message);
     }
-    return (result.data ?? []) as HouseholdRow[];
+    return result.data ?? [];
   }
 }

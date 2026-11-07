@@ -128,7 +128,7 @@ export class DocumentsService {
   private async decryptDocument(row: DocumentRow) {
     return this.encryption.decryptFields(
       row.patient_id,
-      row as unknown as Record<string, unknown>,
+      row,
       DOCUMENT_PHI_FIELDS,
     );
   }
@@ -142,7 +142,9 @@ export class DocumentsService {
     }
 
     if (!dto.organization_id) {
-      throw new ForbiddenException('Provider documents require an organization');
+      throw new ForbiddenException(
+        'Provider documents require an organization',
+      );
     }
     await this.requireOrgMember(authUserId, dto.organization_id);
   }

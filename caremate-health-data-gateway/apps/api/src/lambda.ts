@@ -28,5 +28,7 @@ export const handler: Handler = async (
   // Reuse the Nest app across warm invocations.
   context.callbackWaitsForEmptyEventLoop = false;
   const server = await bootstrapServer();
-  return server(event, context, callback);
+  // serverless-express Handler is typed loosely (Promise<any>); narrow for ESLint.
+  const result: unknown = await server(event, context, callback);
+  return result;
 };

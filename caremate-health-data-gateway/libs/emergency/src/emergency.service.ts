@@ -35,14 +35,14 @@ export class EmergencyService {
 
     // One row per user_id — reuse the existing primary key so a fresh local id
     // does not trip the unique(user_id) constraint on insert.
-    const { data: existing, error: lookupError } = await this.supabase.admin
+    const existingLookup = await this.supabase.admin
       .from('emergency_profiles')
       .select('id')
       .eq('user_id', authUserId)
       .maybeSingle();
 
-    if (lookupError) {
-      throw new InternalServerErrorException(lookupError.message);
+    if (existingLookup.error) {
+      throw new InternalServerErrorException(existingLookup.error.message);
     }
 
     const encrypted = await this.encryption.encryptFields(
@@ -51,6 +51,7 @@ export class EmergencyService {
       EMERGENCY_PHI_FIELDS,
     );
 
+    const existing = existingLookup.data;
     const row = {
       ...encrypted,
       id: existing?.id ?? dto.id,
@@ -59,41 +60,41 @@ export class EmergencyService {
       updated_at: dto.updated_at ?? new Date().toISOString(),
     };
 
-    const { data, error } = await this.supabase.admin
+    const upsertResult = await this.supabase.admin
       .from('emergency_profiles')
       .upsert(row, { onConflict: 'id' })
       .select('*')
       .single();
 
-    if (error) {
-      throw new InternalServerErrorException(error.message);
+    if (upsertResult.error) {
+      throw new InternalServerErrorException(upsertResult.error.message);
     }
 
     return this.encryption.decryptFields(
       authUserId,
-      data as Record<string, unknown>,
+      upsertResult.data as Record<string, unknown>,
       EMERGENCY_PHI_FIELDS,
       EMERGENCY_JSON_PHI_FIELDS,
     );
   }
 
   async getOwn(authUserId: string) {
-    const { data, error } = await this.supabase.admin
+    const lookup = await this.supabase.admin
       .from('emergency_profiles')
       .select('*')
       .eq('user_id', authUserId)
       .maybeSingle();
 
-    if (error) {
-      throw new InternalServerErrorException(error.message);
+    if (lookup.error) {
+      throw new InternalServerErrorException(lookup.error.message);
     }
-    if (!data) {
+    if (!lookup.data) {
       throw new NotFoundException('Emergency profile not found');
     }
 
     return this.encryption.decryptFields(
       authUserId,
-      data as Record<string, unknown>,
+      lookup.data as Record<string, unknown>,
       EMERGENCY_PHI_FIELDS,
       EMERGENCY_JSON_PHI_FIELDS,
     );
@@ -104,24 +105,29 @@ export class EmergencyService {
     patientId: string,
     organizationId: string,
   ) {
-    await this.requireOrgConsent(staffUserId, patientId, organizationId, 'emergency');
+    await this.requireOrgConsent(
+      staffUserId,
+      patientId,
+      organizationId,
+      'emergency',
+    );
 
-    const { data, error } = await this.supabase.admin
+    const lookup = await this.supabase.admin
       .from('emergency_profiles')
       .select('*')
       .eq('user_id', patientId)
       .maybeSingle();
 
-    if (error) {
-      throw new InternalServerErrorException(error.message);
+    if (lookup.error) {
+      throw new InternalServerErrorException(lookup.error.message);
     }
-    if (!data) {
+    if (!lookup.data) {
       throw new NotFoundException('Emergency profile not found');
     }
 
     return this.encryption.decryptFields(
       patientId,
-      data as Record<string, unknown>,
+      lookup.data as Record<string, unknown>,
       EMERGENCY_PHI_FIELDS,
       EMERGENCY_JSON_PHI_FIELDS,
     );
@@ -137,7 +143,7 @@ export class EmergencyService {
       throw new BadRequestException('organizationId is required');
     }
 
-    const { data: member, error: memberError } = await this.supabase.admin
+    const memberResult = await this.supabase.admin
       .from('provider_org_members')
       .select('id')
       .eq('organization_id', organizationId)
@@ -145,14 +151,14 @@ export class EmergencyService {
       .is('deleted_at', null)
       .maybeSingle();
 
-    if (memberError) {
-      throw new InternalServerErrorException(memberError.message);
+    if (memberResult.error) {
+      throw new InternalServerErrorException(memberResult.error.message);
     }
-    if (!member) {
+    if (!memberResult.data) {
       throw new ForbiddenException('Not a member of this organization');
     }
 
-    const { data: connection, error: connectionError } = await this.supabase.admin
+    const connectionResult = await this.supabase.admin
       .from('patient_provider_connections')
       .select('id')
       .eq('organization_id', organizationId)
@@ -160,28 +166,32 @@ export class EmergencyService {
       .eq('status', 'approved')
       .maybeSingle();
 
-    if (connectionError) {
-      throw new InternalServerErrorException(connectionError.message);
+    if (connectionResult.error) {
+      throw new InternalServerErrorException(connectionResult.error.message);
     }
-    if (!connection) {
+    if (!connectionResult.data) {
       throw new ForbiddenException('No approved connection to this patient');
     }
 
-    const { data: definition, error: defError } = await this.supabase.admin
+    const connection = connectionResult.data;
+
+    const definitionResult = await this.supabase.admin
       .from('consent_definitions')
       .select('id')
       .eq('code', code)
       .is('organization_id', null)
       .maybeSingle();
 
-    if (defError) {
-      throw new InternalServerErrorException(defError.message);
+    if (definitionResult.error) {
+      throw new InternalServerErrorException(definitionResult.error.message);
     }
-    if (!definition) {
+    if (!definitionResult.data) {
       throw new ForbiddenException('Consent definition not found');
     }
 
-    const { data: grant, error: grantError } = await this.supabase.admin
+    const definition = definitionResult.data;
+
+    const grantResult = await this.supabase.admin
       .from('patient_provider_consents')
       .select('id')
       .eq('connection_id', connection.id)
@@ -190,10 +200,10 @@ export class EmergencyService {
       .eq('provision_type', 'permit')
       .maybeSingle();
 
-    if (grantError) {
-      throw new InternalServerErrorException(grantError.message);
+    if (grantResult.error) {
+      throw new InternalServerErrorException(grantResult.error.message);
     }
-    if (!grant) {
+    if (!grantResult.data) {
       throw new ForbiddenException('Patient has not granted this consent');
     }
   }

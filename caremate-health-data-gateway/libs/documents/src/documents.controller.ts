@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthUser, CurrentUser, SupabaseJwtGuard } from '@caremate/common';
 import { UpsertDocumentDto } from './dto/upsert-document.dto';
 import { DocumentsService } from './documents.service';
