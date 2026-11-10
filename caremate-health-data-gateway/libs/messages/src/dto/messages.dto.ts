@@ -1,4 +1,10 @@
-import { ArrayNotEmpty, IsArray, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class PostMessageDto {
   @IsUUID()

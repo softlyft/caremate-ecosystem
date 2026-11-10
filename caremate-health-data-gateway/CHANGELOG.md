@@ -10,7 +10,10 @@ HDG versions independently of mobile and the portals. Prefer git tags like `hdg-
 
 ## [Unreleased]
 
-<!-- Add entries here as they merge to main; move into a version section at release. -->
+### Fixed
+- Concurrent retries with the same `clientRequestId` no longer double-call the model: exclusive `processing_claimed_at` lease via `ai_try_claim_user_message`; peers wait for the finished turn or receive `409 ai_turn_processing`. Finished assistant rows are not overwritten by a racing writer.
+- Post-claim failures (history decrypt, encrypt, persist, etc.) no longer leave user turns stuck in `pending`: full-turn try/fail via `ai_fail_user_turn`, transactional `ai_complete_user_turn`, and `ai_recover_stale_pending_turns` on send/read (~120s).
+- Prior-history load for the model is bounded at the DB (`order created_at desc` + `limit`), not only after decrypt; budgets via `AI_HISTORY_MAX_MESSAGES` / `AI_HISTORY_MAX_CHARS`.
 
 ## [0.1.0] — 2026-11-06
 

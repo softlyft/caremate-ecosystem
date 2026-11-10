@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   GatewayTimeoutException,
   HttpException,
@@ -18,14 +19,25 @@ import {
   PostAiMessageDto,
 } from './dto/ai.dto';
 import {
+  MAX_HISTORY_CHARS,
+  MAX_HISTORY_MESSAGES,
   runEducationGraph,
   selectBoundedHistory,
   type EducationHistoryMessage,
 } from './graph/education-graph';
 import {
+  AiModelProviderError,
   isAiModelTimeoutError,
   classifyModelError,
 } from './graph/model-errors';
+import {
+  AI_PEER_POLL_MS,
+  AI_PEER_WAIT_MS,
+  AI_PROCESSING_LEASE_SECONDS,
+  AI_STALE_PENDING_SECONDS,
+  type AiClaimResult,
+  waitUntil,
+} from './processing-claim';
 import { POLICY_VERSION } from './safety/policy';
 
 const DAILY_MESSAGE_LIMIT = 5;
@@ -57,6 +69,7 @@ type AiMessageRow = {
   phi_encrypted_at?: string | null;
   client_request_id?: string | null;
   parent_message_id?: string | null;
+  processing_claimed_at?: string | null;
 };
 
 @Injectable()
@@ -108,6 +121,7 @@ export class AiService {
 
   async getConversation(userId: string, conversationId: string) {
     const conversation = await this.requireConversation(userId, conversationId);
+    await this.recoverStalePendingTurns(conversationId);
     const messages = await this.supabase.admin
       .from('ai_message')
       .select('*')
@@ -134,6 +148,7 @@ export class AiService {
   ) {
     await this.requireConversation(userId, conversationId);
     await this.encryption.bootstrapUserKey(userId);
+    await this.recoverStalePendingTurns(conversationId);
 
     const apiKey = this.config.get<string>('OPENAI_API_KEY')?.trim();
     if (!apiKey) {
@@ -182,106 +197,147 @@ export class AiService {
       return turn.response;
     }
 
-    const priorMessages = await this.loadPriorHistoryForModel(
-      userId,
-      conversationId,
-    );
-    const userRow = turn.userRow;
+    const claimed = await this.tryClaimUserMessage(turn.userRow.id);
+    if (!claimed) {
+      const peerFinished = await this.waitForFinishedTurn(
+        userId,
+        turn.userRow.id,
+      );
+      if (peerFinished) {
+        return peerFinished;
+      }
+      throw new ConflictException({
+        code: 'ai_turn_processing',
+        message:
+          'CareMate AI is still processing this message. Retry shortly with the same clientRequestId.',
+      });
+    }
 
     const requestStarted = Date.now();
-    let result;
+    let userRow = turn.userRow;
     try {
+      // Entire post-claim lifecycle: history → model → encrypt → transactional complete.
+      userRow = await this.refreshClaimedUserContent(
+        turn.userRow.id,
+        encryptedUserContent,
+        now,
+      );
+
+      const priorMessages = await this.loadPriorHistoryForModel(
+        userId,
+        conversationId,
+      );
+
       // Model call uses plaintext in memory only; at-rest storage stays encrypted.
       // Safety still classifies the current turn only; prior turns are generate context.
-      result = await runEducationGraph({
+      const result = await runEducationGraph({
         apiKey,
         modelName,
         userMessage: contentPlain,
         priorMessages,
       });
+
+      this.logger.log(
+        `CareMate AI ok user=${userId} conversation=${conversationId} ` +
+          `action=${result.safety.action} model_ms=${result.latencyMs} ` +
+          `total_ms=${Date.now() - requestStarted}`,
+      );
+
+      const safetyState =
+        result.safety.action === 'emergency'
+          ? 'emergency'
+          : result.safety.action === 'refuse'
+            ? 'refused'
+            : 'ok';
+      const assistantStatus =
+        result.safety.action === 'allow' ? 'complete' : 'refused';
+
+      const encryptedAssistantContent = await this.encryption.encryptValue(
+        userId,
+        result.reply,
+      );
+      if (!encryptedAssistantContent) {
+        throw new InternalServerErrorException(
+          'Failed to encrypt assistant reply',
+        );
+      }
+
+      const completed = await this.completeUserTurn({
+        userMessageId: userRow.id,
+        conversationId,
+        content: encryptedAssistantContent,
+        status: assistantStatus,
+        model: result.model,
+        promptTokens: result.promptTokens,
+        completionTokens: result.completionTokens,
+        safetyState,
+        now,
+      });
+
+      // Best-effort side effects after the turn is durable.
+      if (result.safety.action !== 'allow') {
+        try {
+          await this.recordSafetyEvent({
+            conversationId,
+            messageId: completed.assistantMessage.id,
+            userId,
+            category: result.safety.category,
+            severity:
+              result.safety.action === 'emergency' ? 'critical' : 'warning',
+            action: result.safety.action,
+          });
+        } catch (sideErr) {
+          this.logger.warn(
+            `CareMate AI safety event write failed conversation=${conversationId}: ${
+              sideErr instanceof Error ? sideErr.message : String(sideErr)
+            }`,
+          );
+        }
+      }
+
+      const touched = await this.supabase.admin
+        .from('ai_conversation')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversationId)
+        .eq('user_id', userId);
+      if (touched.error) {
+        this.logger.warn(
+          `CareMate AI conversation touch failed conversation=${conversationId}: ${touched.error.message}`,
+        );
+      }
+
+      return {
+        userMessage: await this.decryptMessage(userId, completed.userMessage),
+        assistantMessage: await this.decryptMessage(
+          userId,
+          completed.assistantMessage,
+        ),
+      };
     } catch (err) {
-      await this.markUserMessageStatus(userRow.id, 'failed');
-      const classified = classifyModelError(err);
+      await this.failUserTurnBestEffort(userRow.id);
       const totalMs = Date.now() - requestStarted;
+      const classified = classifyModelError(err);
       this.logger.warn(
-        `CareMate AI model failure user=${userId} conversation=${conversationId} ` +
+        `CareMate AI turn failure user=${userId} conversation=${conversationId} ` +
           `code=${classified.code} total_ms=${totalMs}`,
       );
-      if (isAiModelTimeoutError(classified)) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      if (isAiModelTimeoutError(err) || isAiModelTimeoutError(classified)) {
         throw new GatewayTimeoutException(
           'CareMate AI took too long to respond. Please try again.',
         );
       }
-      throw new ServiceUnavailableException(
-        'CareMate AI is temporarily unavailable. Please try again shortly.',
-      );
-    }
-
-    this.logger.log(
-      `CareMate AI ok user=${userId} conversation=${conversationId} ` +
-        `action=${result.safety.action} model_ms=${result.latencyMs} ` +
-        `total_ms=${Date.now() - requestStarted}`,
-    );
-
-    const safetyState =
-      result.safety.action === 'emergency'
-        ? 'emergency'
-        : result.safety.action === 'refuse'
-          ? 'refused'
-          : 'ok';
-    const assistantStatus =
-      result.safety.action === 'allow' ? 'complete' : 'refused';
-
-    const encryptedAssistantContent = await this.encryption.encryptValue(
-      userId,
-      result.reply,
-    );
-    if (!encryptedAssistantContent) {
-      await this.markUserMessageStatus(userRow.id, 'failed');
+      if (err instanceof AiModelProviderError) {
+        throw new ServiceUnavailableException(
+          'CareMate AI is temporarily unavailable. Please try again shortly.',
+        );
+      }
       throw new InternalServerErrorException(
-        'Failed to encrypt assistant reply',
+        err instanceof Error ? err.message : 'CareMate AI turn failed',
       );
     }
-
-    const assistant = await this.persistAssistantReply({
-      userId,
-      conversationId,
-      parentMessageId: userRow.id,
-      content: encryptedAssistantContent,
-      status: assistantStatus,
-      model: result.model,
-      promptTokens: result.promptTokens,
-      completionTokens: result.completionTokens,
-      safetyState,
-      now,
-    });
-
-    const userComplete = await this.markUserMessageStatus(
-      userRow.id,
-      'complete',
-    );
-
-    if (result.safety.action !== 'allow') {
-      await this.recordSafetyEvent({
-        conversationId,
-        messageId: assistant.id,
-        userId,
-        category: result.safety.category,
-        severity: result.safety.action === 'emergency' ? 'critical' : 'warning',
-        action: result.safety.action,
-      });
-    }
-
-    await this.supabase.admin
-      .from('ai_conversation')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', conversationId)
-      .eq('user_id', userId);
-
-    return {
-      userMessage: await this.decryptMessage(userId, userComplete),
-      assistantMessage: await this.decryptMessage(userId, assistant),
-    };
   }
 
   async submitFeedback(userId: string, messageId: string, dto: AiFeedbackDto) {
@@ -348,29 +404,41 @@ export class AiService {
   }
 
   /**
-   * Decrypt finished prior turns for model context.
-   * Skips pending/failed so incomplete retries do not pollute the prompt.
+   * Decrypt a bounded window of finished prior turns for model context.
+   * Fetches only the newest eligible rows from the DB (message budget), then
+   * applies the char budget in memory. Skips pending/failed so incomplete
+   * retries do not pollute the prompt.
    */
   private async loadPriorHistoryForModel(
     userId: string,
     conversationId: string,
   ): Promise<EducationHistoryMessage[]> {
+    const { maxMessages, maxChars, fetchLimit } = this.historyBounds();
+
+    // Newest-first + limit keeps decrypt work O(budget), not O(conversation).
     const messages = await this.supabase.admin
       .from('ai_message')
       .select('role, content, status, created_at')
       .eq('conversation_id', conversationId)
       .in('role', ['user', 'assistant'])
       .in('status', ['complete', 'refused'])
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false })
+      .limit(fetchLimit);
 
     if (messages.error) {
       throw new InternalServerErrorException(messages.error.message);
     }
 
-    const rows = (messages.data ?? []) as Pick<
-      AiMessageRow,
-      'role' | 'content' | 'status' | 'created_at'
-    >[];
+    const rows = (
+      (messages.data ?? []) as Pick<
+        AiMessageRow,
+        'role' | 'content' | 'status' | 'created_at'
+      >[]
+    )
+      // Restore chronological order for selectBoundedHistory / LangGraph.
+      .slice()
+      .reverse();
+
     const decrypted: EducationHistoryMessage[] = [];
     for (const row of rows) {
       if (row.role !== 'user' && row.role !== 'assistant') {
@@ -394,7 +462,34 @@ export class AiService {
       });
     }
 
-    return selectBoundedHistory(decrypted);
+    return selectBoundedHistory(decrypted, { maxMessages, maxChars });
+  }
+
+  /** Explicit history budgets (env overrides; defaults match education-graph). */
+  private historyBounds(): {
+    maxMessages: number;
+    maxChars: number;
+    fetchLimit: number;
+  } {
+    const maxMessages = this.readPositiveInt(
+      'AI_HISTORY_MAX_MESSAGES',
+      MAX_HISTORY_MESSAGES,
+    );
+    const maxChars = this.readPositiveInt(
+      'AI_HISTORY_MAX_CHARS',
+      MAX_HISTORY_CHARS,
+    );
+    // Fetch exactly the message budget from DB; char trim still happens in memory.
+    return { maxMessages, maxChars, fetchLimit: maxMessages };
+  }
+
+  private readPositiveInt(envKey: string, fallback: number): number {
+    const raw = this.config.get<string>(envKey)?.trim();
+    if (!raw) {
+      return fallback;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
   }
 
   private async findUserMessageByClientRequest(
@@ -490,20 +585,8 @@ export class AiService {
         if (finished) {
           return { kind: 'finished', response: finished };
         }
-        const updated = await this.supabase.admin
-          .from('ai_message')
-          .update({
-            status: 'pending',
-            content: input.encryptedUserContent,
-            phi_encrypted_at: input.now,
-          })
-          .eq('id', existing.id)
-          .select('*')
-          .single();
-        if (updated.error) {
-          throw new InternalServerErrorException(updated.error.message);
-        }
-        return { kind: 'pending', userRow: updated.data as AiMessageRow };
+        // Content/status updates happen only after winning the processing claim.
+        return { kind: 'pending', userRow: existing };
       }
     }
 
@@ -536,8 +619,7 @@ export class AiService {
           if (finished) {
             return { kind: 'finished', response: finished };
           }
-          const updated = await this.markUserMessageStatus(raced.id, 'pending');
-          return { kind: 'pending', userRow: updated };
+          return { kind: 'pending', userRow: raced };
         }
       }
       throw new InternalServerErrorException(insert.error.message);
@@ -546,13 +628,111 @@ export class AiService {
     return { kind: 'pending', userRow: insert.data as AiMessageRow };
   }
 
-  private async markUserMessageStatus(
+  private async tryClaimUserMessage(messageId: string): Promise<boolean> {
+    const result = await this.supabase.admin.rpc('ai_try_claim_user_message', {
+      p_message_id: messageId,
+      p_lease_seconds: AI_PROCESSING_LEASE_SECONDS,
+    });
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    const payload = result.data as AiClaimResult | null;
+    return Boolean(payload?.claimed);
+  }
+
+  private async recoverStalePendingTurns(
+    conversationId: string,
+  ): Promise<void> {
+    const result = await this.supabase.admin.rpc(
+      'ai_recover_stale_pending_turns',
+      {
+        p_conversation_id: conversationId,
+        p_stale_seconds: AI_STALE_PENDING_SECONDS,
+      },
+    );
+    if (result.error) {
+      this.logger.warn(
+        `CareMate AI stale pending recovery failed conversation=${conversationId}: ${result.error.message}`,
+      );
+      return;
+    }
+    const payload = result.data as {
+      healed?: number;
+      failed?: number;
+    } | null;
+    if ((payload?.healed ?? 0) > 0 || (payload?.failed ?? 0) > 0) {
+      this.logger.log(
+        `CareMate AI stale recovery conversation=${conversationId} ` +
+          `healed=${payload?.healed ?? 0} failed=${payload?.failed ?? 0}`,
+      );
+    }
+  }
+
+  private async failUserTurnBestEffort(messageId: string): Promise<void> {
+    const result = await this.supabase.admin.rpc('ai_fail_user_turn', {
+      p_user_message_id: messageId,
+    });
+    if (result.error) {
+      this.logger.warn(
+        `CareMate AI fail-turn cleanup failed message=${messageId}: ${result.error.message}`,
+      );
+    }
+  }
+
+  private async completeUserTurn(input: {
+    userMessageId: string;
+    conversationId: string;
+    content: string;
+    status: string;
+    model: string;
+    promptTokens: number | null;
+    completionTokens: number | null;
+    safetyState: string;
+    now: string;
+  }): Promise<{ userMessage: AiMessageRow; assistantMessage: AiMessageRow }> {
+    const result = await this.supabase.admin.rpc('ai_complete_user_turn', {
+      p_user_message_id: input.userMessageId,
+      p_conversation_id: input.conversationId,
+      p_content: input.content,
+      p_status: input.status,
+      p_model: input.model,
+      p_prompt_tokens: input.promptTokens,
+      p_completion_tokens: input.completionTokens,
+      p_safety_state: input.safetyState,
+      p_phi_encrypted_at: input.now,
+    });
+    if (result.error) {
+      throw new InternalServerErrorException(result.error.message);
+    }
+    const payload = result.data as {
+      ok?: boolean;
+      reason?: string;
+      user_message?: AiMessageRow;
+      assistant_message?: AiMessageRow;
+    } | null;
+    if (!payload?.ok || !payload.user_message || !payload.assistant_message) {
+      throw new InternalServerErrorException(
+        `Failed to complete AI turn (${payload?.reason ?? 'unknown'})`,
+      );
+    }
+    return {
+      userMessage: payload.user_message,
+      assistantMessage: payload.assistant_message,
+    };
+  }
+
+  private async refreshClaimedUserContent(
     messageId: string,
-    status: 'pending' | 'complete' | 'failed' | 'refused',
+    encryptedUserContent: string,
+    now: string,
   ): Promise<AiMessageRow> {
     const updated = await this.supabase.admin
       .from('ai_message')
-      .update({ status })
+      .update({
+        status: 'pending',
+        content: encryptedUserContent,
+        phi_encrypted_at: now,
+      })
       .eq('id', messageId)
       .select('*')
       .single();
@@ -562,67 +742,47 @@ export class AiService {
     return updated.data as AiMessageRow;
   }
 
-  private async persistAssistantReply(input: {
-    userId: string;
-    conversationId: string;
-    parentMessageId: string;
-    content: string;
-    status: string;
-    model: string;
-    promptTokens: number | null;
-    completionTokens: number | null;
-    safetyState: string;
-    now: string;
-  }): Promise<AiMessageRow> {
-    const existing = await this.findAssistantForParent(input.parentMessageId);
-    if (existing) {
-      const updated = await this.supabase.admin
-        .from('ai_message')
-        .update({
-          content: input.content,
-          status: input.status,
-          model: input.model,
-          prompt_tokens: input.promptTokens,
-          completion_tokens: input.completionTokens,
-          safety_state: input.safetyState,
-          phi_encrypted_at: input.now,
-        })
-        .eq('id', existing.id)
-        .select('*')
-        .single();
-      if (updated.error) {
-        throw new InternalServerErrorException(updated.error.message);
-      }
-      return updated.data as AiMessageRow;
-    }
+  private async waitForFinishedTurn(
+    userId: string,
+    userMessageId: string,
+  ): Promise<{
+    userMessage: AiMessageRow;
+    assistantMessage: AiMessageRow;
+  } | null> {
+    return waitUntil(
+      async () => {
+        const row = await this.getMessageById(userMessageId);
+        if (!row) {
+          return null;
+        }
+        return this.tryReturnFinishedTurn(userId, row);
+      },
+      { timeoutMs: AI_PEER_WAIT_MS, intervalMs: AI_PEER_POLL_MS },
+    );
+  }
 
-    const insert = await this.supabase.admin
+  private async markUserMessageStatus(
+    messageId: string,
+    status: 'pending' | 'complete' | 'failed' | 'refused',
+  ): Promise<AiMessageRow> {
+    const patch: {
+      status: typeof status;
+      processing_claimed_at?: null;
+    } = { status };
+    if (status === 'complete' || status === 'failed' || status === 'refused') {
+      // Release the lease when the turn leaves in-flight processing.
+      patch.processing_claimed_at = null;
+    }
+    const updated = await this.supabase.admin
       .from('ai_message')
-      .insert({
-        conversation_id: input.conversationId,
-        role: 'assistant',
-        content: input.content,
-        status: input.status,
-        model: input.model,
-        prompt_tokens: input.promptTokens,
-        completion_tokens: input.completionTokens,
-        safety_state: input.safetyState,
-        parent_message_id: input.parentMessageId,
-        phi_encrypted_at: input.now,
-      })
+      .update(patch)
+      .eq('id', messageId)
       .select('*')
       .single();
-
-    if (insert.error) {
-      if (insert.error.code === '23505') {
-        const raced = await this.findAssistantForParent(input.parentMessageId);
-        if (raced) {
-          return raced;
-        }
-      }
-      throw new InternalServerErrorException(insert.error.message);
+    if (updated.error) {
+      throw new InternalServerErrorException(updated.error.message);
     }
-    return insert.data as AiMessageRow;
+    return updated.data as AiMessageRow;
   }
 
   private async requireConversation(userId: string, conversationId: string) {
