@@ -23,6 +23,7 @@ migrations on the target project.
 ### Added
 
 #### CareMate AI
+
 - CareMate AI pin in Messages and dedicated AI chat thread (signed-in)
 - Phase 1 general health education via HDG (`/v1/ai/*`); daily quota **5** messages
 - Optimistic send bubbles, thumbs feedback, conversation soft-delete
@@ -30,10 +31,12 @@ migrations on the target project.
 - PostHog events for AI chat usage (env-gated)
 
 #### Store & release ops
+
 - TestFlight Test Information populated before IPA upload
 - Updated App Store phone screenshots and marketing header artwork
 
 ### Fixed
+
 - AI send dropping composer text; Hermes crash on missing `crypto.randomUUID`
 - AI pin clipping / missing gateway URL on Android
 - Composer covered by soft keyboard and Android IME suggestion bar
