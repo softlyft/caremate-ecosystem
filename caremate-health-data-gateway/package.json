@@ -1,6 +1,6 @@
 {
   "name": "caremate-health-data-gateway",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CareMate Health Data Gateway — NestJS trust layer for PHI encryption",
   "private": true,
   "license": "UNLICENSED",

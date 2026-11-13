@@ -14,10 +14,39 @@ automatically in CI and are separate from this marketing version — see
 
 <!-- Add entries here as they merge to main; move into a version section at release. -->
 
+## [1.1.0] — 2026-11-13
+
+Prod release: CareMate AI Phase 1 (education companion) plus store / composer
+hardening. Requires Health Data Gateway **≥ 0.1.1** and the CareMate AI Supabase
+migrations on the target project.
+
+### Added
+
+#### CareMate AI
+- CareMate AI pin in Messages and dedicated AI chat thread (signed-in)
+- Phase 1 general health education via HDG (`/v1/ai/*`); daily quota **5** messages
+- Optimistic send bubbles, thumbs feedback, conversation soft-delete
+- Short health follow-up continuity (“which is best?”, “tell me more”) when prior turns are in scope
+- PostHog events for AI chat usage (env-gated)
+
+#### Store & release ops
+- TestFlight Test Information populated before IPA upload
+- Updated App Store phone screenshots and marketing header artwork
+
+### Fixed
+- AI send dropping composer text; Hermes crash on missing `crypto.randomUUID`
+- AI pin clipping / missing gateway URL on Android
+- Composer covered by soft keyboard and Android IME suggestion bar
+- TestFlight CI 409 when encryption compliance was already set
+
+### Notes for store “What’s New”
+
+> CareMate 1.1 — ask CareMate AI for general health education in Messages (signed-in, daily limit applies). Also improves chat typing on Android and TestFlight upload reliability.
+
 ## [1.0.0] — 2026-11-06
 
-First public App Store / Play store release. Scope matches what ships on the
-**`prod`** branch (CareMate AI is **not** included in this release).
+First public App Store / Play store release. Scope matches what shipped on the
+**`prod`** branch at that cut (CareMate AI was **not** included in 1.0.0).
 
 ### Added
 
@@ -93,4 +122,5 @@ Suggested short copy for App Store Connect / Play Console:
 
 > Welcome to CareMate 1.0 — your offline-friendly health companion. Learn health topics, track medications, pregnancy, periods, immunizations and more, find nearby care, keep an emergency profile, manage family profiles, and unlock Premium tools when you need them.
 
+[1.1.0]: https://github.com/softlyft/caremate-ecosystem/releases/tag/mobile-v1.1.0
 [1.0.0]: https://github.com/softlyft/caremate-ecosystem/releases/tag/mobile-v1.0.0
