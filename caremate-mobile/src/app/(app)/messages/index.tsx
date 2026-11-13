@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Plus, Sparkles } from 'lucide-react-native';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/form-controls';
@@ -9,6 +9,7 @@ import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui/sc
 import { useTranslation } from '@/domains/localization';
 import { useMessageInbox } from '@/domains/messaging/hooks';
 import type { MessageConversation } from '@/domains/messaging/repository';
+import { useIsGuest } from '@/hooks/use-current-user-id';
 import { useMessagingOpened } from '@/lib/monitoring/use-product-analytics';
 import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
 
@@ -24,6 +25,38 @@ function formatThreadTime(value: string | null): string {
     return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function CareMateAiPin() {
+  const { t } = useTranslation();
+  return (
+    <Button
+      style={styles.aiRow}
+      onPress={() => router.push('/(app)/messages/ai')}
+      accessibilityRole="button"
+      accessibilityLabel={t('messages.aiTitle')}
+      variant="plain"
+    >
+      <View style={[styles.avatar, styles.aiAvatar]}>
+        <Sparkles color={palette.primaryDark} size={22} strokeWidth={2.2} />
+      </View>
+      <View style={styles.rowBody}>
+        <View style={styles.rowTop}>
+          <AppText variant="cardTitle" style={styles.rowTitle} numberOfLines={1}>
+            {t('messages.aiTitle')}
+          </AppText>
+          <View style={styles.aiBadge}>
+            <AppText variant="caption" style={styles.aiBadgeText}>
+              {t('messages.aiPinBadge')}
+            </AppText>
+          </View>
+        </View>
+        <AppText variant="caption" style={styles.aiPreview} numberOfLines={2}>
+          {t('messages.aiPinPreview')}
+        </AppText>
+      </View>
+    </Button>
+  );
 }
 
 function ConversationRow({ item }: { item: MessageConversation }) {
@@ -80,30 +113,18 @@ function ConversationRow({ item }: { item: MessageConversation }) {
 export default function MessagesInboxScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const isGuest = useIsGuest();
   useMessagingOpened();
   const query = useMessageInbox();
-
-  if (query.isLoading) {
-    return <LoadingState title={t('messages.loading')} />;
-  }
-
-  if (query.isError) {
-    return (
-      <ErrorState
-        title={t('messages.loadFailed')}
-        message={t('common.loadFailedMessage')}
-        actionLabel={t('common.retry')}
-        onAction={() => void query.refetch()}
-      />
-    );
-  }
+  // Signed-in users always see the pin; AI screen handles missing gateway.
+  const showAiPin = !isGuest;
 
   const items = query.data ?? [];
-  const isEmpty = items.length === 0;
+  const isEmpty = !query.isLoading && !query.isError && items.length === 0;
 
   return (
     <Screen padded={false} style={{ paddingBottom: insets.bottom + spacing.md }}>
-      {!isEmpty ? (
+      {!isGuest && !isEmpty && !query.isLoading && !query.isError ? (
         <View style={styles.toolbar}>
           <Button
             style={styles.newButton}
@@ -120,7 +141,23 @@ export default function MessagesInboxScreen() {
         </View>
       ) : null}
 
-      {isEmpty ? (
+      {showAiPin ? (
+        <View style={styles.aiPinWrap}>
+          <CareMateAiPin />
+          <View style={styles.separator} />
+        </View>
+      ) : null}
+
+      {query.isLoading ? (
+        <LoadingState title={t('messages.loading')} />
+      ) : query.isError ? (
+        <ErrorState
+          title={t('messages.loadFailed')}
+          message={t('common.loadFailedMessage')}
+          actionLabel={t('common.retry')}
+          onAction={() => void query.refetch()}
+        />
+      ) : isEmpty ? (
         <EmptyState
           title={t('messages.emptyTitle')}
           message={t('messages.emptyMessage')}
@@ -166,10 +203,20 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.xl,
   },
+  aiPinWrap: {
+    paddingHorizontal: layoutSpacing.screenHorizontal,
+    paddingTop: spacing.sm,
+  },
   separator: {
     height: 1,
     backgroundColor: palette.divider,
     marginLeft: 64,
+  },
+  aiRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    alignItems: 'flex-start',
   },
   row: {
     flexDirection: 'row',
@@ -184,6 +231,21 @@ const styles = StyleSheet.create({
     backgroundColor: palette.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  aiAvatar: {
+    marginTop: 2,
+    borderWidth: 1,
+    borderColor: primaryAlpha(0.28),
+  },
+  aiBadge: {
+    borderRadius: radius.full,
+    backgroundColor: primaryAlpha(0.14),
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  aiBadgeText: {
+    color: palette.primaryDark,
+    fontWeight: '700',
   },
   avatarLetter: {
     color: palette.primaryDark,
@@ -212,6 +274,10 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     color: palette.textSecondary,
+  },
+  aiPreview: {
+    color: palette.textSecondary,
+    lineHeight: 18,
   },
   previewUnread: {
     color: palette.text,

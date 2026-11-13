@@ -28,11 +28,12 @@ Use this page as the **table of contents**. Each linked document goes deeper on 
 | Product analytics (WAU, MAU, retention, events) | [PostHog Analytics v1](./posthog-analytics.md) |
 | Ship Android to Play (GitHub Actions AAB) | [Play Android release](./play-android-release.md) |
 | Ship iOS dev build to TestFlight (GitHub Actions) | [iOS TestFlight release](./ios-testflight-release.md) |
-| Ship iOS/Android store releases (`prod` branch) | [Mobile release strategy](./mobile-release.md) |
+| Ship iOS/Android store releases (`prod` branch) | [Mobile release strategy](./mobile-release.md) · [Changelog](../CHANGELOG.md) |
 | See what’s left before App Store / Play submit | [Production readiness](./production-readiness.md) |
 | Follow dev conventions and scripts | [Development Guide](./development.md) |
 | Run QA / manual regression | [QA Test Cases](./qa-test-cases.md) |
 | See what's planned next | [Roadmap & Gaps](./roadmap.md) |
+| CareMate AI (chat companion — SoT / Phase 1) | [CareMate AI](./caremate-ai.md) · [ADR-007](./adr/007-caremate-ai.md) |
 | Provider engagement portal (connections, docs, messages) | [Provider Portal](../../caremate-provider-portal/docs/README.md) · [Messaging](../../caremate-provider-portal/docs/messaging.md) · [Provider model](./provider-model.md) |
 | CareMate Community Network | [Website `/ccn`](../../caremate-website/README.md) · [Community Portal](../../caremate-community-portal/docs/README.md) · Me → Join our movement |
 

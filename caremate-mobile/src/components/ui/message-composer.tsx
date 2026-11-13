@@ -1,5 +1,11 @@
 import { Send } from 'lucide-react-native';
-import { forwardRef, useImperativeHandle, useRef, type ComponentPropsWithRef } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  type ComponentPropsWithRef,
+} from 'react';
 import type { StyleProp, TextInput, ViewStyle } from 'react-native';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -18,7 +24,8 @@ export const MessageComposer = forwardRef<
   {
     value: string;
     onChangeText: (text: string) => void;
-    onSend: () => void;
+    /** Receives the trimmed composer text at press time (avoids stale React state). */
+    onSend: (text: string) => void;
     placeholder: string;
     sending?: boolean;
     sendLabel: string;
@@ -43,7 +50,12 @@ export const MessageComposer = forwardRef<
   ref,
 ) {
   const inputRef = useRef<TextInput>(null);
+  const valueRef = useRef(value);
   const canSend = value.trim().length > 0 && !sending;
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -51,9 +63,20 @@ export const MessageComposer = forwardRef<
     },
   }));
 
+  function handleChangeText(text: string) {
+    valueRef.current = text;
+    onChangeText(text);
+  }
+
   function handleSendPress() {
-    if (!canSend) return;
-    onSend();
+    if (sending) {
+      return;
+    }
+    const text = valueRef.current.trim();
+    if (!text) {
+      return;
+    }
+    onSend(text);
     // Tapping send moves focus to the button; refocus so the keyboard stays up for rapid replies.
     requestAnimationFrame(() => {
       inputRef.current?.focus();
@@ -70,7 +93,7 @@ export const MessageComposer = forwardRef<
           <InputField
             ref={inputRef as ComponentPropsWithRef<typeof InputField>['ref']}
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={handleChangeText}
             placeholder={placeholder}
             multiline
             blurOnSubmit={false}

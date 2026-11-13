@@ -242,13 +242,14 @@ jobs:
         if: needs.resolve.outputs.run_migrations == 'true' || needs.resolve.outputs.run_functions == 'true'
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
 
+      # CLI v3 defaults db push to the local stack; CI must target the linked project.
       - name: Dry-run migrations
         if: needs.resolve.outputs.mode == 'dry-run' && needs.resolve.outputs.run_migrations == 'true'
-        run: supabase db push --dry-run
+        run: supabase db push --dry-run --remote
 
       - name: Push migrations
         if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_migrations == 'true'
-        run: supabase db push --yes
+        run: supabase db push --yes --remote
 
       - name: Deploy Edge Functions
         if: needs.resolve.outputs.mode == 'push' && needs.resolve.outputs.run_functions == 'true'

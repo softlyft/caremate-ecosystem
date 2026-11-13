@@ -2,7 +2,7 @@
   "expo": {
     "name": "CareMate",
     "slug": "caremate",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/caremate-icon.png",
     "scheme": "caremate",

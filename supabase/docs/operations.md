@@ -41,6 +41,8 @@ Workflow: [`.github/workflows/supabase-migrate.yml`](../../.github/workflows/sup
 
 Function deploy uses `supabase functions deploy <name> --use-api` for every folder under `supabase/functions/` that has `index.ts` (skips `_shared`).
 
+Migrations use `supabase db push --yes --remote` (CLI v3 defaults to local Docker without `--remote`). PR dry-run uses `supabase db push --dry-run --remote` against the linked hosted project.
+
 Auth OTP templates (`supabase/templates/*.html`) are **not** applied by `db push`. CI runs `npm run supabase:sync-auth-emails` (Management API) when templates change, or on manual dispatch (unless `skip_auth_emails`). To fix prod immediately without a template commit: **Run workflow** → target `production` → skip migrations/functions if desired → leave auth-email sync on.
 
 ### GitHub Environment secrets (each of `development` and `production`)

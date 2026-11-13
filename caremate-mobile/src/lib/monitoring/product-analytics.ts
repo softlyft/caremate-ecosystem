@@ -35,6 +35,13 @@ export const ProductEvents = {
   messagingOpened: 'messaging_opened',
   conversationStarted: 'conversation_started',
   messageSent: 'message_sent',
+  aiChatOpened: 'ai_chat_opened',
+  aiConversationStarted: 'ai_conversation_started',
+  aiMessageSent: 'ai_message_sent',
+  aiResponseGenerated: 'ai_response_generated',
+  aiResponseFailed: 'ai_response_failed',
+  aiResponseFeedback: 'ai_response_feedback',
+  aiSafetyEscalation: 'ai_safety_escalation',
   broadcastViewed: 'broadcast_viewed',
   familyOpened: 'family_opened',
   familyMemberAdded: 'family_member_added',
@@ -307,6 +314,62 @@ export function trackMessageSent(): void {
     feature: 'messaging',
     surface: 'messaging',
   });
+}
+
+/** CareMate AI — never include message text or PHI in properties. */
+export function trackAiChatOpened(): void {
+  trackOnce('ai_chat_opened', () => {
+    track(ProductEvents.aiChatOpened);
+  });
+}
+
+export function trackAiConversationStarted(): void {
+  track(ProductEvents.aiConversationStarted);
+  trackCaremateActive({
+    activityType: 'feature_used',
+    feature: 'caremate_ai',
+    surface: 'messaging',
+  });
+}
+
+export function trackAiMessageSent(): void {
+  track(ProductEvents.aiMessageSent);
+  trackCaremateActive({
+    activityType: 'feature_used',
+    feature: 'caremate_ai',
+    surface: 'messaging',
+  });
+}
+
+export function trackAiResponseGenerated(params?: {
+  safetyState?: string;
+  latencyMs?: number;
+}): void {
+  track(ProductEvents.aiResponseGenerated, {
+    safety_state: params?.safetyState ?? null,
+    latency_ms: params?.latencyMs ?? null,
+  });
+}
+
+/** No message text — reason is a coarse code only (timeout | http | network | unknown). */
+export function trackAiResponseFailed(params: {
+  reason: 'timeout' | 'http' | 'network' | 'unknown';
+  latencyMs?: number;
+  status?: number | null;
+}): void {
+  track(ProductEvents.aiResponseFailed, {
+    reason: params.reason,
+    latency_ms: params.latencyMs ?? null,
+    status: params.status ?? null,
+  });
+}
+
+export function trackAiResponseFeedback(rating: 'up' | 'down'): void {
+  track(ProductEvents.aiResponseFeedback, { rating });
+}
+
+export function trackAiSafetyEscalation(category: string): void {
+  track(ProductEvents.aiSafetyEscalation, { category });
 }
 
 export function trackFamilyOpened(): void {

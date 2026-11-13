@@ -1,0 +1,8 @@
+{
+  "bundleId": "com.softlyft.caremate",
+  "locale": "en-US",
+  "description": "CareMate production candidate for TestFlight QA. Validate release builds before App Store review. Report bugs via the feedback email.",
+  "feedbackEmail": "hello@getcaremate.com",
+  "marketingUrl": "https://getcaremate.com",
+  "privacyPolicyUrl": "https://getcaremate.com/privacy"
+}

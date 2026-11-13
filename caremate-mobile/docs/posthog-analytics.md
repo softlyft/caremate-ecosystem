@@ -265,9 +265,15 @@ This answers what people are actually looking for. Do not send the search query 
 | `messaging_opened` |
 | `conversation_started` |
 | `message_sent` |
+| `ai_chat_opened` |
+| `ai_conversation_started` |
+| `ai_message_sent` |
+| `ai_response_generated` |
+| `ai_response_feedback` |
+| `ai_safety_escalation` |
 | `broadcast_viewed` |
 
-Track the behavior, not the message content.
+Track the behavior, not the message content. Never include CareMate AI message text or health identifiers.
 
 ### Family
 

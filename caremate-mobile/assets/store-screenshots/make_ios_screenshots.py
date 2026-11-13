@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Compose App Store phone screenshots (1290×2796) from iOS Simulator captures."""
+"""Compose App Store phone screenshots (1206×2622) from iOS Simulator captures.
+
+1206×2622 is the portrait size ASC accepts for iPhone 6.1″ / 6.3″ displays
+(alongside 1179×2556). Older 1290×2796 (6.5″/6.7″) is rejected in that slot.
+"""
 
 from __future__ import annotations
 
@@ -13,7 +17,8 @@ ROOT = Path(__file__).resolve().parent
 CAPTIONS_PATH = ROOT / "ios-captions.json"
 OUTPUT_DIR = ROOT / "app-store-phone"
 
-CANVAS_W, CANVAS_H = 1290, 2796
+# iPhone 6.3″ portrait (also accepted for the 6.1″ / 6.3″ App Store slot).
+CANVAS_W, CANVAS_H = 1206, 2622
 BRAND_COLOR = (13, 148, 136)  # #0D9488
 TEXT_DARK = (17, 24, 39)  # #111827
 TEXT_MUTED = (75, 85, 99)  # #4B5563
@@ -124,48 +129,49 @@ def compose_one(screen: dict, brand_line: str) -> Image.Image:
     soft_blob(canvas, (1080, 2300), 420, (37, 99, 235), alpha=28)
 
     draw = ImageDraw.Draw(canvas)
-    brand_font = load_font(34, bold=True)
-    headline_font = load_font(64, bold=True)
-    subline_font = load_font(36, bold=False)
+    brand_font = load_font(32, bold=True)
+    headline_font = load_font(58, bold=True)
+    subline_font = load_font(34, bold=False)
 
-    margin_x = 86
+    margin_x = 80
     text_width = CANVAS_W - margin_x * 2
 
-    brand_y = 96
+    brand_y = 88
     draw.text((margin_x, brand_y), brand_line, font=brand_font, fill=BRAND_COLOR)
 
     headline_lines = wrap_text(draw, screen["headline"], headline_font, text_width)
-    headline_y = brand_y + 62
-    line_gap = 10
+    headline_y = brand_y + 56
+    line_gap = 8
+    headline_line_h = 58
     for i, line in enumerate(headline_lines[:3]):
         draw.text(
-            (margin_x, headline_y + i * (64 + line_gap)),
+            (margin_x, headline_y + i * (headline_line_h + line_gap)),
             line,
             font=headline_font,
             fill=TEXT_DARK,
         )
-    headline_block_h = len(headline_lines[:3]) * (64 + line_gap)
+    headline_block_h = len(headline_lines[:3]) * (headline_line_h + line_gap)
 
-    sub_y = headline_y + headline_block_h + 10
+    sub_y = headline_y + headline_block_h + 8
     sub_lines = wrap_text(draw, screen["subline"], subline_font, text_width)
     for i, line in enumerate(sub_lines[:2]):
         draw.text(
-            (margin_x, sub_y + i * (36 + 8)),
+            (margin_x, sub_y + i * (34 + 8)),
             line,
             font=subline_font,
             fill=TEXT_MUTED,
         )
-    sub_block_h = max(1, len(sub_lines[:2])) * (36 + 8)
-    text_bottom = sub_y + sub_block_h + 36
+    sub_block_h = max(1, len(sub_lines[:2])) * (34 + 8)
+    text_bottom = sub_y + sub_block_h + 32
 
     # iPhone geometry — thinner bezel, taller corners.
-    side_pad = 118
-    bezel = 14
-    corner = 72
-    screen_corner = 58
+    side_pad = 108
+    bezel = 12
+    corner = 66
+    screen_corner = 54
     phone_w = CANVAS_W - side_pad * 2
     phone_top = text_bottom
-    phone_bottom_pad = 72
+    phone_bottom_pad = 64
     phone_h = CANVAS_H - phone_top - phone_bottom_pad
     phone_x = side_pad
     phone_y = phone_top
@@ -173,11 +179,11 @@ def compose_one(screen: dict, brand_line: str) -> Image.Image:
     shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     shadow_draw = ImageDraw.Draw(shadow)
     shadow_draw.rounded_rectangle(
-        (phone_x + 12, phone_y + 22, phone_x + phone_w + 12, phone_y + phone_h + 22),
+        (phone_x + 10, phone_y + 18, phone_x + phone_w + 10, phone_y + phone_h + 18),
         radius=corner,
         fill=(15, 23, 42, 70),
     )
-    shadow = shadow.filter(ImageFilter.GaussianBlur(32))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(28))
     canvas.alpha_composite(shadow)
 
     bezel_layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
@@ -212,13 +218,13 @@ def compose_one(screen: dict, brand_line: str) -> Image.Image:
     canvas.alpha_composite(rounded)
 
     # Subtle Dynamic Island on the bezel top edge (decorative).
-    island_w, island_h = 126, 36
+    island_w, island_h = 118, 34
     island_x = phone_x + (phone_w - island_w) // 2
-    island_y = phone_y + 18
+    island_y = phone_y + 16
     island = ImageDraw.Draw(canvas)
     island.rounded_rectangle(
         (island_x, island_y, island_x + island_w, island_y + island_h),
-        radius=18,
+        radius=17,
         fill=(*BEZEL, 255),
     )
 

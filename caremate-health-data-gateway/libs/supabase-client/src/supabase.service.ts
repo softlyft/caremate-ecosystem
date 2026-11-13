@@ -17,15 +17,16 @@ export class SupabaseService implements OnModuleInit {
 
     // Gateway only uses PostgREST (service role). supabase-js still boots Realtime,
     // which needs a WebSocket impl on Node < 22 (Lambda is nodejs20.x today).
+    // supabase-js generics vary by version; cast once at construction.
     this.client = createClient(url, serviceRoleKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
       },
       realtime: {
-        transport: ws as any,
+        transport: ws as unknown as typeof WebSocket,
       },
-    });
+    }) as SupabaseClient;
   }
 
   get admin(): SupabaseClient {

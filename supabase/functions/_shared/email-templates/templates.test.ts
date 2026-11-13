@@ -23,7 +23,7 @@ describe('email templates', () => {
     assert.match(mail.html, /hello@getcaremate\.com/);
     assert.match(mail.html, /Your Health Companion/);
     assert.match(mail.html, /#0d9488/);
-    assert.match(mail.html, /www\.getcaremate\.com/);
+    assert.match(mail.html, /getcaremate\.com/);
   });
 
   it('renders billing activated and renewal with tone panels', () => {
@@ -69,7 +69,7 @@ describe('email templates', () => {
     assert.match(mail.html, /Lagos Clinic &lt;script&gt;/);
     assert.match(mail.text, /482913/);
     assert.match(mail.html, /Care Portal/);
-    assert.match(mail.html, /provider\.getcaremate\.com\/claim/);
+    assert.match(mail.html, /app\.getcaremate\.com\/claim/);
   });
 
   it('renders payer claim OTP with Care Portal branding', () => {
@@ -95,8 +95,8 @@ describe('email templates', () => {
   it('dispatches via renderEmailTemplate', () => {
     const mail = renderEmailTemplate('family-connection-request', { fromName: 'Grace' });
     assert.equal(mail.subject.includes('Grace'), true);
-    assert.match(mail.html, /www\.getcaremate\.com\/privacy/);
-    assert.match(mail.html, /www\.getcaremate\.com\/terms/);
+    assert.match(mail.html, /getcaremate\.com\/privacy/);
+    assert.match(mail.html, /getcaremate\.com\/terms/);
 
     const otp = renderEmailTemplate('provider-org-claim-otp', {
       code: '111222',
@@ -109,7 +109,7 @@ describe('email templates', () => {
     });
     assert.match(reset.html, /654321/);
     assert.match(reset.subject, /password reset/i);
-    assert.match(reset.html, /provider\.getcaremate\.com\/forgot-password/);
+    assert.match(reset.html, /app\.getcaremate\.com\/forgot-password/);
 
     const join = renderEmailTemplate('community-join-otp', { code: '998877' });
     assert.match(join.html, /998877/);

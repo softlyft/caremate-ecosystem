@@ -14,6 +14,7 @@ ADRs capture **significant, hard-to-reverse technical choices** for CareMate. Pr
 | [ADR-004](./004-guest-first.md) | Guest First | Accepted |
 | [ADR-005](./005-repository-pattern.md) | Repository Pattern | Accepted |
 | [ADR-006](./006-core-vs-mini-apps.md) | Core shell vs mini-app packaging | Accepted |
+| [ADR-007](./007-caremate-ai.md) | CareMate AI (HDG, parallel tables, OpenAI + LangGraph) | Accepted |
 
 ## Conventions
 

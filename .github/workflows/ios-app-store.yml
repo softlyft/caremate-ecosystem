@@ -303,6 +303,20 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+      - name: Ensure TestFlight Test Information
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          TEST_INFORMATION_CONFIG: caremate-mobile/.apple-actions/test-information.prod.json
+        run: |
+          chmod +x caremate-mobile/scripts/ensure-testflight-test-information.sh
+          caremate-mobile/scripts/ensure-testflight-test-information.sh
+
+      # Do not pass uses-non-exempt-encryption: Info.plist already sets
+      # ITSAppUsesNonExemptEncryption=false. Re-setting via ASC API returns 409
+      # ("You cannot update when the value is already set") after a successful upload.
       - name: Upload to App Store Connect
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
         uses: apple-actions/upload-testflight-build@v5

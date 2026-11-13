@@ -19,19 +19,36 @@ caremate-ecosystem/
 
 Each service keeps its own README plus a local `docs/` set.
 
-| Service | Purpose | Docs |
-|---------|---------|------|
-| `caremate-mobile/` | Mobile experience for patients and families | `caremate-mobile/docs/README.md` |
-| `caremate-admin-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-admin-portal/docs/README.md` |
-| `caremate-provider-portal/` | Provider org patient engagement (connections, docs, messages) | `caremate-provider-portal/docs/README.md` |
-| `caremate-community-portal/` | Contributor community (chapters, events, recognition) | `caremate-community-portal/docs/README.md` |
-| `caremate-payment-gateway/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `caremate-payment-gateway/README.md` |
-| `caremate-provider-ingestion/` | Provider resource ingest and projection rebuilds | `caremate-provider-ingestion/docs/README.md` |
-| `caremate-website/` | Marketing + patient / CCN / provider guides + privacy/terms | `caremate-website/README.md` |
-| `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` |
-| `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` |
-| Amplify hosting | Website, payment, admin, provider, and community portals | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) |
-| Security (non-mobile) | Edge, payment gateway, portals — threat models & controls | [`docs/security.md`](./docs/security.md) |
+| Service | Purpose | Docs | Changelog |
+|---------|---------|------|-----------|
+| `caremate-mobile/` | Mobile experience for patients and families | `caremate-mobile/docs/README.md` | [`CHANGELOG`](./caremate-mobile/CHANGELOG.md) (`1.1.0`) |
+| `caremate-health-data-gateway/` | NestJS PHI trust layer + CareMate AI APIs | `caremate-health-data-gateway/README.md` | [`CHANGELOG`](./caremate-health-data-gateway/CHANGELOG.md) (`0.1.1`) |
+| `caremate-admin-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-admin-portal/docs/README.md` | [`CHANGELOG`](./caremate-admin-portal/CHANGELOG.md) (`0.1.0`) |
+| `caremate-provider-portal/` | Provider org patient engagement (connections, docs, messages) | `caremate-provider-portal/docs/README.md` | [`CHANGELOG`](./caremate-provider-portal/CHANGELOG.md) (`0.1.0`) |
+| `caremate-community-portal/` | Contributor community (chapters, events, recognition) | `caremate-community-portal/docs/README.md` | [`CHANGELOG`](./caremate-community-portal/CHANGELOG.md) (`0.1.0`) |
+| `caremate-payment-gateway/` | Hosted Premium checkout (Paystack NGN / Stripe USD) | `caremate-payment-gateway/README.md` | [`CHANGELOG`](./caremate-payment-gateway/CHANGELOG.md) (`0.1.0`) |
+| `caremate-provider-ingestion/` | Provider resource ingest and projection rebuilds | `caremate-provider-ingestion/docs/README.md` | — |
+| `caremate-website/` | Marketing + patient / CCN / provider guides + privacy/terms | `caremate-website/README.md` | [`CHANGELOG`](./caremate-website/CHANGELOG.md) (`0.1.0`) |
+| `supabase/` | Shared cloud schema, RLS, RPCs, and Edge Functions | `supabase/docs/README.md` | — |
+| `packages/db-types/` | Shared generated and aliased database types | `packages/db-types/docs/README.md` | — |
+| Amplify hosting | Website, payment, admin, provider, and community portals | [`docs/amplify-hosting.md`](./docs/amplify-hosting.md) | — |
+| Security (non-mobile) | Edge, payment gateway, portals — threat models & controls | [`docs/security.md`](./docs/security.md) | — |
+
+## Versioning
+
+Apps version **independently** (SemVer + Keep a Changelog). Do not invent a single ecosystem version.
+
+| App | Version source | Current | Git tag prefix |
+|-----|----------------|---------|----------------|
+| Mobile | `caremate-mobile/app.json` → `expo.version` (+ CI build numbers) | `1.1.0` | `mobile-v` |
+| HDG | `caremate-health-data-gateway/package.json` | `0.1.1` | `hdg-v` |
+| Admin portal | `caremate-admin-portal/package.json` | `0.1.0` | `admin-portal-v` |
+| Provider portal | `caremate-provider-portal/package.json` | `0.1.0` | `provider-portal-v` |
+| Community portal | `caremate-community-portal/package.json` | `0.1.0` | `community-portal-v` |
+| Website | `caremate-website/package.json` | `0.1.0` | `website-v` |
+| Payment gateway | `caremate-payment-gateway/package.json` | `0.1.0` | `payment-v` |
+
+When shipping an app: bump that package’s version, move `[Unreleased]` entries into a dated section in its `CHANGELOG.md`, and tag with the prefix above. Cross-app features get a line in each affected changelog only.
 
 ## Root Workflows
 
