@@ -36,8 +36,8 @@ export function daysBetween(start: Date, end: Date): number {
 
 /**
  * Sunday-start weeks for `reference`'s month.
- * Leading and trailing cells are real adjacent-month dates so a period that
- * crosses the month boundary stays visible without changing months.
+ * Leading/trailing cells are adjacent-month dates for weekday alignment only;
+ * `MonthCalendarGrid` leaves those cells blank so only the focused month shows.
  */
 export function getMonthMatrix(reference: Date): Date[] {
   const year = reference.getFullYear();
