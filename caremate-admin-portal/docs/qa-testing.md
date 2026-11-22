@@ -93,11 +93,15 @@ Should not be able to:
 - Trigger password reset
 - Change role as admin
 - Verify support cannot assign roles
+- While a user is **Disabled**, confirm the role select is disabled and shows “Enable the account before assigning a staff role”
+- Attempting role change while disabled (if forced) should fail with that same message
+- Confirm Disable explain that login is blocked and the email stays reserved until Enable (or the patient deletes in CareMate)
 
 Expected:
 
 - actions complete without server errors
 - visible role restrictions match backend permissions
+- disabled accounts cannot receive a new staff role until enabled
 
 ## Learn / Articles Tests
 

@@ -20,6 +20,11 @@ const INTERNAL_ENDPOINT_PATTERN =
 export const AUTH_EMAIL_DELIVERY_MESSAGE =
   "We couldn't send the email right now. Please try again in a few minutes.";
 
+export const AUTH_ACCOUNT_DISABLED_MESSAGE =
+  'This account has been disabled. Contact support.';
+
+const AUTH_BANNED_PATTERN = /\bbanned\b/i;
+
 export function extractErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     const parts = [error.message];
@@ -65,6 +70,14 @@ export function isAuthEmailDeliveryError(error: unknown): boolean {
   return isAuthEmailDeliveryMessage(extractErrorMessage(error));
 }
 
+export function isAuthBannedMessage(message: string): boolean {
+  return AUTH_BANNED_PATTERN.test(message.trim());
+}
+
+export function isAuthBannedError(error: unknown): boolean {
+  return isAuthBannedMessage(extractErrorMessage(error));
+}
+
 export function isNetworkError(error: unknown): boolean {
   return isNetworkErrorMessage(extractErrorMessage(error));
 }
@@ -82,10 +95,14 @@ export function toUserFacingErrorMessage(
   fallback: string,
   networkMessage: string = fallback,
   emailDeliveryMessage: string = AUTH_EMAIL_DELIVERY_MESSAGE,
+  accountDisabledMessage: string = AUTH_ACCOUNT_DISABLED_MESSAGE,
 ): string {
   const raw = extractErrorMessage(error).trim();
   if (!raw) {
     return fallback;
+  }
+  if (isAuthBannedMessage(raw)) {
+    return accountDisabledMessage;
   }
   if (isAuthEmailDeliveryMessage(raw)) {
     return emailDeliveryMessage;

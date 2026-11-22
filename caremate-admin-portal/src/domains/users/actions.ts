@@ -102,6 +102,12 @@ export async function sendPasswordReset(email: string) {
   });
 }
 
+function isUserCurrentlyBanned(bannedUntil: string | null | undefined): boolean {
+  if (!bannedUntil) return false;
+  const until = Date.parse(bannedUntil);
+  return Number.isFinite(until) && until > Date.now();
+}
+
 export async function setUserRole(userId: string, role: StaffRole | null) {
   const session = await requirePortalSession();
   if (!canAssignRoles(session.role)) {
@@ -114,6 +120,10 @@ export async function setUserRole(userId: string, role: StaffRole | null) {
   const admin = createAdminClient();
   const { data: existing, error: getError } = await admin.auth.admin.getUserById(userId);
   if (getError) throw getError;
+
+  if (isUserCurrentlyBanned(existing.user.banned_until)) {
+    throw new Error('Enable the account before assigning a staff role');
+  }
 
   const nextMeta = { ...(existing.user.app_metadata ?? {}) };
   if (role) {
