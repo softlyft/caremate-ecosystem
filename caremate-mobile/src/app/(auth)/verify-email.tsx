@@ -18,6 +18,7 @@ import {
 import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
+import { ConsumerMobileAccountError } from '@/domains/auth/assert-consumer-mobile-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { useTranslation } from '@/domains/localization';
 import { resolvePostSignupHref } from '@/domains/onboarding';
@@ -94,6 +95,15 @@ export default function VerifyEmailScreen() {
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
+      if (error instanceof ConsumerMobileAccountError) {
+        void alert(
+          t('auth.verify.error'),
+          error.reason === 'admin_only'
+            ? t('auth.login.adminOnly')
+            : t('auth.login.carePortalOnly'),
+        );
+        return;
+      }
       void alert(
         t('auth.verify.error'),
         toUserFacingErrorMessage(
