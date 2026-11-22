@@ -121,6 +121,8 @@ export default function LoginScreen() {
         error,
         t('auth.login.error'),
         t('common.networkError'),
+        t('common.emailDeliveryError'),
+        t('auth.login.accountDisabled'),
       );
       if (!isNetworkError(error) && /email not confirmed|confirm your email/i.test(message)) {
         void alert(t('auth.login.error'), t('auth.login.emailNotConfirmed'), [

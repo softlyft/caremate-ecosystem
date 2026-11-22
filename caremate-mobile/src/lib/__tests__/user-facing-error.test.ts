@@ -1,6 +1,8 @@
 import {
+  AUTH_ACCOUNT_DISABLED_MESSAGE,
   AUTH_EMAIL_DELIVERY_MESSAGE,
   extractErrorMessage,
+  isAuthBannedError,
   isAuthEmailDeliveryError,
   isNetworkError,
   isNetworkErrorMessage,
@@ -45,6 +47,17 @@ describe('user-facing-error', () => {
     ).toBe(emailFallback);
     expect(toUserFacingErrorMessage(new Error(message), 'fallback', networkFallback)).toBe(
       AUTH_EMAIL_DELIVERY_MESSAGE,
+    );
+  });
+
+  it('maps banned Auth users to account-disabled copy', () => {
+    const error = new Error('User is banned');
+    expect(isAuthBannedError(error)).toBe(true);
+    expect(
+      toUserFacingErrorMessage(error, 'fallback', networkFallback, emailFallback, 'disabled'),
+    ).toBe('disabled');
+    expect(toUserFacingErrorMessage(error, 'fallback', networkFallback)).toBe(
+      AUTH_ACCOUNT_DISABLED_MESSAGE,
     );
   });
 

@@ -75,9 +75,19 @@ Implemented capabilities:
 - View user detail
 - Disable / enable users
 - Send reset code (6-digit email OTP; user enters it in CareMate → Forgot password → Already have a code?)
-- Assign staff role
+- Assign staff role (only while the account is **enabled**)
 
 Support can manage users, but only admins can assign roles.
+
+### Disable vs delete / email reuse
+
+| Action | Login | Email reusable | Admin visibility |
+|--------|-------|----------------|------------------|
+| **Disable** (admin ban) | Blocked | **No** — email stays reserved | **Yes** (Enable / manage) |
+| **Enable** | Restored | Same account | Yes |
+| **Delete** (patient self-delete in CareMate) | Soft-deleted | **Yes** — new signup allowed | Tombstoned / deidentified |
+
+Disable is a **suspend**, not deletion. Assigning a staff role while disabled is blocked in the UI and by `setUserRole` until the account is enabled. Full matrix: [`caremate-mobile/docs/account-deletion.md`](../../caremate-mobile/docs/account-deletion.md#admin-disable-vs-mobile-delete).
 
 ## Audit Logging
 
