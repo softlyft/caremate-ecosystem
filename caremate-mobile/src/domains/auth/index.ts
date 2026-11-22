@@ -1,4 +1,13 @@
 export { getRememberedLoginEmail, setRememberedLoginEmail } from './remember-login';
+export {
+  ADMIN_ONLY_MOBILE_MESSAGE,
+  CARE_PORTAL_ONLY_MOBILE_MESSAGE,
+  ConsumerMobileAccountError,
+  assertConsumerMobileAccount,
+  isSoftLyftStaffRole,
+  type ConsumerMobileAccountChecks,
+  type ConsumerMobileRejectReason,
+} from './assert-consumer-mobile-account';
 export { identityFromAuthUser } from './auth-identity';
 export { bootstrapLocalAccountRecords } from './bootstrap-local-account';
 export { confirmDeviceAccountForAuth } from './confirm-device-account';

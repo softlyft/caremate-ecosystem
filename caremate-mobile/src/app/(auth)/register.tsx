@@ -32,6 +32,7 @@ import {
   sanitizePersonNameInput,
   sanitizePhoneInput,
 } from '@/domains/emergency/validation';
+import { ConsumerMobileAccountError } from '@/domains/auth/assert-consumer-mobile-account';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { passwordSchema } from '@/domains/auth/password';
@@ -138,6 +139,15 @@ export default function RegisterScreen() {
       const href = await resolvePostSignupHref();
       router.replace(href);
     } catch (error) {
+      if (error instanceof ConsumerMobileAccountError) {
+        void alert(
+          t('auth.register.error'),
+          error.reason === 'admin_only'
+            ? t('auth.register.adminOnly')
+            : t('auth.register.carePortalOnly'),
+        );
+        return;
+      }
       void alert(
         t('auth.register.error'),
         toUserFacingErrorMessage(
