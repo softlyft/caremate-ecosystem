@@ -20,8 +20,7 @@ const INTERNAL_ENDPOINT_PATTERN =
 export const AUTH_EMAIL_DELIVERY_MESSAGE =
   "We couldn't send the email right now. Please try again in a few minutes.";
 
-export const AUTH_ACCOUNT_DISABLED_MESSAGE =
-  'This account has been disabled. Contact support.';
+export const AUTH_ACCOUNT_DISABLED_MESSAGE = 'This account has been disabled. Contact support.';
 
 const AUTH_BANNED_PATTERN = /\bbanned\b/i;
 
