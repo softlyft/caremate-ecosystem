@@ -18,6 +18,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/form-controls';
 import { MessageComposer, type MessageComposerHandle } from '@/components/ui/message-composer';
 import { ErrorState, LoadingState, Screen } from '@/components/ui/screen-states';
+import { AiMarkdownText } from '@/domains/ai/AiMarkdownText';
 import {
   useAiConversation,
   useAiFeedback,
@@ -40,24 +41,36 @@ import {
   trackAiResponseGenerated,
   trackAiSafetyEscalation,
 } from '@/lib/monitoring/product-analytics';
-import { layoutSpacing, palette, primaryAlpha, radius, spacing } from '@/theme';
+import { layoutSpacing, palette, primaryAlpha, radius, spacing, typography } from '@/theme';
 
 const STACK_HEADER_HEIGHT = 64;
 const OPTIMISTIC_USER_ID = 'optimistic-user';
 const TYPING_ROW_ID = 'assistant-typing';
 
+type FeedbackRating = 'up' | 'down';
+
 function MessageBubble({
   message,
   onFeedback,
+  selectedRating,
+  feedbackPending,
+  helpfulLabel,
+  notHelpfulLabel,
   thinkingLabel,
 }: {
   message: AiMessage;
-  onFeedback?: (rating: 'up' | 'down') => void;
+  onFeedback?: (rating: FeedbackRating) => void;
+  selectedRating?: FeedbackRating | null;
+  feedbackPending?: boolean;
+  helpfulLabel: string;
+  notHelpfulLabel: string;
   thinkingLabel?: string;
 }) {
   const isUser = message.role === 'user';
   const isTyping = message.id === TYPING_ROW_ID;
   const showFeedback = !isUser && !isTyping && message.role === 'assistant' && onFeedback;
+  const upSelected = selectedRating === 'up';
+  const downSelected = selectedRating === 'down';
 
   return (
     <View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowAssistant]}>
@@ -75,33 +88,48 @@ function MessageBubble({
               {thinkingLabel}
             </AppText>
           </View>
-        ) : (
-          <AppText
-            variant="body"
-            style={isUser ? styles.bubbleTextUser : styles.bubbleTextAssistant}
-          >
+        ) : isUser ? (
+          <AppText variant="body" style={styles.bubbleTextUser}>
             {message.content}
           </AppText>
+        ) : (
+          <AiMarkdownText content={message.content} style={styles.bubbleTextAssistant} />
         )}
         {showFeedback ? (
           <View style={styles.feedbackRow}>
             <Button
               variant="plain"
               accessibilityRole="button"
-              accessibilityLabel="Helpful"
+              accessibilityLabel={helpfulLabel}
+              accessibilityState={{ selected: upSelected, disabled: feedbackPending }}
+              disabled={feedbackPending}
+              hitSlop={12}
               onPress={() => onFeedback('up')}
-              style={styles.feedbackBtn}
+              style={[styles.feedbackBtn, upSelected ? styles.feedbackBtnSelected : null]}
             >
-              <ThumbsUp size={16} color={palette.primaryDark} />
+              <ThumbsUp
+                size={18}
+                color={upSelected ? palette.primaryDark : palette.textSecondary}
+                fill={upSelected ? palette.primaryDark : 'transparent'}
+                pointerEvents="none"
+              />
             </Button>
             <Button
               variant="plain"
               accessibilityRole="button"
-              accessibilityLabel="Not helpful"
+              accessibilityLabel={notHelpfulLabel}
+              accessibilityState={{ selected: downSelected, disabled: feedbackPending }}
+              disabled={feedbackPending}
+              hitSlop={12}
               onPress={() => onFeedback('down')}
-              style={styles.feedbackBtn}
+              style={[styles.feedbackBtn, downSelected ? styles.feedbackBtnSelected : null]}
             >
-              <ThumbsDown size={16} color={palette.textSecondary} />
+              <ThumbsDown
+                size={18}
+                color={downSelected ? palette.primaryDark : palette.textSecondary}
+                fill={downSelected ? palette.primaryDark : 'transparent'}
+                pointerEvents="none"
+              />
             </Button>
           </View>
         ) : null}
@@ -124,6 +152,11 @@ export default function CareMateAiThreadScreen() {
   const [draft, setDraft] = useState('');
   /** Local optimistic user bubble until the server turn lands in the query cache. */
   const [pendingUser, setPendingUser] = useState<AiMessage | null>(null);
+  /** Local thumb ratings for assistant rows (session-scoped; API does not return prior ratings). */
+  const [feedbackByMessageId, setFeedbackByMessageId] = useState<
+    Record<string, FeedbackRating>
+  >({});
+  const [feedbackPendingId, setFeedbackPendingId] = useState<string | null>(null);
   const ensure = useEnsureAiConversation();
   const detail = useAiConversation(conversationId);
   const postMessage = usePostAiMessage(conversationId ?? '');
@@ -290,6 +323,37 @@ export default function CareMateAiThreadScreen() {
     }
   };
 
+  const onFeedback = async (messageId: string, rating: FeedbackRating) => {
+    if (feedbackPendingId === messageId) {
+      return;
+    }
+    const previous = feedbackByMessageId[messageId] ?? null;
+    if (previous === rating) {
+      return;
+    }
+    setFeedbackByMessageId((current) => ({ ...current, [messageId]: rating }));
+    setFeedbackPendingId(messageId);
+    try {
+      await feedback.mutateAsync({ messageId, rating });
+      trackAiResponseFeedback(rating);
+    } catch (error) {
+      setFeedbackByMessageId((current) => {
+        const next = { ...current };
+        if (previous) {
+          next[messageId] = previous;
+        } else {
+          delete next[messageId];
+        }
+        return next;
+      });
+      const message =
+        error instanceof Error ? error.message : t('messages.aiFeedbackFailedMessage');
+      void alert(t('messages.aiFeedbackFailedTitle'), message);
+    } finally {
+      setFeedbackPendingId((current) => (current === messageId ? null : current));
+    }
+  };
+
   if (!gatewayConfigured) {
     return (
       <ErrorState
@@ -356,11 +420,14 @@ export default function CareMateAiThreadScreen() {
           <MessageBubble
             message={item}
             thinkingLabel={t('messages.aiThinking')}
+            helpfulLabel={t('messages.aiFeedbackHelpful')}
+            notHelpfulLabel={t('messages.aiFeedbackNotHelpful')}
+            selectedRating={feedbackByMessageId[item.id] ?? null}
+            feedbackPending={feedbackPendingId === item.id}
             onFeedback={
               item.role === 'assistant' && item.id !== TYPING_ROW_ID
                 ? (rating) => {
-                    void feedback.mutateAsync({ messageId: item.id, rating });
-                    trackAiResponseFeedback(rating);
+                    void onFeedback(item.id, rating);
                   }
                 : undefined
             }
@@ -458,15 +525,24 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   bubbleTextAssistant: {
+    ...typography.body,
     color: palette.text,
   },
   feedbackRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: spacing.xs,
     marginTop: spacing.xs,
+    marginHorizontal: -spacing.xs,
   },
   feedbackBtn: {
-    padding: 4,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+  },
+  feedbackBtnSelected: {
+    backgroundColor: primaryAlpha(0.14),
   },
   typingRow: {
     flexDirection: 'row',

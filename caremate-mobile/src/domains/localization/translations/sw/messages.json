@@ -34,5 +34,9 @@
   "patientLabel": "Mgonjwa",
   "directBadge": "Moja kwa moja",
   "today": "Leo",
-  "yesterday": "Jana"
+  "yesterday": "Jana",
+  "aiFeedbackHelpful": "Inasaidia",
+  "aiFeedbackNotHelpful": "Haisaidii",
+  "aiFeedbackFailedTitle": "Imeshindikana kuhifadhi maoni",
+  "aiFeedbackFailedMessage": "Angalia muunganisho wako kisha jaribu tena."
 }

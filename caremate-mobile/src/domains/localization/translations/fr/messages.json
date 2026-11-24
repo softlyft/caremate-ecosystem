@@ -34,5 +34,9 @@
   "patientLabel": "Patient",
   "directBadge": "Direct",
   "today": "Aujourd'hui",
-  "yesterday": "Hier"
+  "yesterday": "Hier",
+  "aiFeedbackHelpful": "Utile",
+  "aiFeedbackNotHelpful": "Pas utile",
+  "aiFeedbackFailedTitle": "Impossible d'enregistrer l'avis",
+  "aiFeedbackFailedMessage": "Vérifiez votre connexion et réessayez."
 }

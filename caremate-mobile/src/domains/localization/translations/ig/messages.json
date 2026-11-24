@@ -34,5 +34,9 @@
   "patientLabel": "Onye ọrịa",
   "directBadge": "Ozugbo",
   "today": "Taa",
-  "yesterday": "Ụnyaahụ"
+  "yesterday": "Ụnyaahụ",
+  "aiFeedbackHelpful": "Helpful",
+  "aiFeedbackNotHelpful": "Not helpful",
+  "aiFeedbackFailedTitle": "Couldn't save feedback",
+  "aiFeedbackFailedMessage": "Check your connection and try again."
 }
