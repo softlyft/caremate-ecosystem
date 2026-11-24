@@ -85,9 +85,8 @@ async function runBackgroundStartupTasks() {
     .then(async () => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ads });
       try {
-        const { resyncDailyTipScheduledNotifications } = await import(
-          '@/domains/tips/scheduled-notifications'
-        );
+        const { resyncDailyTipScheduledNotifications } =
+          await import('@/domains/tips/scheduled-notifications');
         await resyncDailyTipScheduledNotifications();
       } catch {
         // Tip schedules are best-effort after catalog refresh.

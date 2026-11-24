@@ -238,9 +238,8 @@ class SyncEngine {
       const auth = useAuthStore.getState();
       const userId = auth.user?.id;
       if (plan.evaluateAlerts) {
-        const { resyncDailyTipScheduledNotifications } = await import(
-          '@/domains/tips/scheduled-notifications'
-        );
+        const { resyncDailyTipScheduledNotifications } =
+          await import('@/domains/tips/scheduled-notifications');
         await resyncDailyTipScheduledNotifications();
 
         if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
