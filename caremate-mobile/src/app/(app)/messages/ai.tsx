@@ -153,9 +153,9 @@ export default function CareMateAiThreadScreen() {
   /** Local optimistic user bubble until the server turn lands in the query cache. */
   const [pendingUser, setPendingUser] = useState<AiMessage | null>(null);
   /** Local thumb ratings for assistant rows (session-scoped; API does not return prior ratings). */
-  const [feedbackByMessageId, setFeedbackByMessageId] = useState<
-    Record<string, FeedbackRating>
-  >({});
+  const [feedbackByMessageId, setFeedbackByMessageId] = useState<Record<string, FeedbackRating>>(
+    {},
+  );
   const [feedbackPendingId, setFeedbackPendingId] = useState<string | null>(null);
   const ensure = useEnsureAiConversation();
   const detail = useAiConversation(conversationId);
