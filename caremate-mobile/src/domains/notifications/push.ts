@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 const FALLBACK_EAS_PROJECT_ID = 'de6abf70-ee13-417b-915f-9dea1066ed27';
 const REGISTERED_TOKEN_KEY = 'caremate_expo_push_token';
 /** Prefixes for OS-scheduled reminders that must die with the session. */
-const LOCAL_REMINDER_PREFIXES = ['med:', 'pregnancy-tt:'] as const;
+const LOCAL_REMINDER_PREFIXES = ['med:', 'pregnancy-tt:', 'tip:'] as const;
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -377,6 +377,7 @@ export async function applyNotificationsEnabledPreference(enabled: boolean): Pro
 }> {
   if (!enabled) {
     await persistNotificationsEnabled(false);
+    await clearLocalReminderNotifications();
     await clearPushRegistration();
     return { applied: true, osGranted: false };
   }
@@ -390,6 +391,7 @@ export async function applyNotificationsEnabledPreference(enabled: boolean): Pro
   }
 
   await persistNotificationsEnabled(false);
+  await clearLocalReminderNotifications();
   await clearPushRegistration();
   return { applied: false, osGranted: false };
 }

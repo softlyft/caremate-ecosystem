@@ -21,6 +21,9 @@
   "notifications": {
     "title": "Notifications",
     "push": "Push notifications",
+    "dailyTip": "Daily insight reminder",
+    "dailyTipSubtitle": "8:00 every morning",
+    "dailyTipRequiresMaster": "Turn on push notifications to enable",
     "permissionDeniedTitle": "Notifications are off",
     "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
     "openSystemSettings": "Open Settings"

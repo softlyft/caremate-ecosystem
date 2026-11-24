@@ -2,8 +2,8 @@
 
 [← Back to index](./README.md)
 
-> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message` + **provider connection** via `notify-provider-connection` + **provider document shared** via `notify-provider-document` + **Medication Assistant** via local scheduled OS notifications + `notify-medication`). Quiet hours and category prefs still pending.  
-> Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push.
+> **Status:** Local in-app inbox + **cloud sync** for signed-in users (SQLite ↔ Supabase `notifications`). Product email via **Amazon SES** (Edge Functions). Push scaffold wired (**Expo Notifications** + `notification_devices` + family request/accept/decline OS push + **Messages** via `notify-message` + **provider connection** via `notify-provider-connection` + **provider document shared** via `notify-provider-document` + **Medication Assistant** via local scheduled OS notifications + `notify-medication` + **Daily insight** local 08:00 tip reminders). Quiet hours and category prefs still pending.  
+> Preference toggle (`notificationsEnabled`) gates token registration and is respected for product push. `dailyTipRemindersEnabled` (default on) gates local tip schedules under Notification settings.
 
 ## Decisions (locked)
 
@@ -166,6 +166,12 @@ Home header Bell
 | Exhausted retries on important data | ✅ | ⚪ (Self) | — | Emergency / mini-app data |
 
 ---
+
+## Home — Daily insight
+
+| Action | In-app | Push | Email | Notes |
+|--------|:------:|:----:|:-----:|-------|
+| Daily tip at 08:00 local | ✅ (Home card) | ✅ (Self, local DATE only) | — | Guests + signed-in; `tip:YYYY-MM-DD`; ~7-day horizon; same copy as `getDailyHealthTip`; tap → Home. Device-local only (no Expo push token / remote tip send — still compatible with [Decision #6](#decisions-locked)). Opt out via Settings → Daily insight reminder. |
 
 ## Mini-app matrix
 
@@ -498,7 +504,9 @@ In Google Cloud → credentials for the Android API key in `google-services.json
 
 | Piece | Path |
 |-------|------|
-| Pref toggle (settings / onboarding) | `app_settings.notifications_enabled`, profile store |
+| Pref toggle (settings / onboarding) | `settings.notifications_enabled`, profile store |
+| Daily tip reminder toggle | `settings.daily_tip_reminders_enabled` (default true), profile store |
+| Daily tip local scheduler | `src/domains/tips/scheduled-notifications.ts` |
 | Home bell (UI only today) | `src/features/home/components/HomeHeader.tsx` |
 | Feature stub | `src/features/notifications/` |
 | SES shared sender | `supabase/functions/_shared/ses.ts`, `email.ts`, `email-templates/` |

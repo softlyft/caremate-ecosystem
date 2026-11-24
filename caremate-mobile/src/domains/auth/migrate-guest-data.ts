@@ -145,6 +145,7 @@ async function migrateSettings(toUserId: string): Promise<void> {
     await profileRepository.saveSettings(toUserId, {
       theme: 'light',
       notificationsEnabled: guestSettings.notificationsEnabled,
+      dailyTipRemindersEnabled: guestSettings.dailyTipRemindersEnabled !== false,
       subscribedCategoryIds: guestSettings.subscribedCategoryIds,
     });
     return;
@@ -153,6 +154,7 @@ async function migrateSettings(toUserId: string): Promise<void> {
   await profileRepository.saveSettings(toUserId, {
     theme: 'light',
     notificationsEnabled: targetSettings.notificationsEnabled,
+    dailyTipRemindersEnabled: targetSettings.dailyTipRemindersEnabled !== false,
     subscribedCategoryIds:
       targetSettings.subscribedCategoryIds.length > 0
         ? targetSettings.subscribedCategoryIds

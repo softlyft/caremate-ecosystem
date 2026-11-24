@@ -233,52 +233,59 @@ class SyncEngine {
     this.wasOnline = online;
 
     // Medication + Pregnancy in-app alert cards (never blocks sync).
+    // Daily tip local schedules also run for guests (device-local only).
     try {
       const auth = useAuthStore.getState();
       const userId = auth.user?.id;
-      if (plan.evaluateAlerts && userId && userId !== GUEST_USER_ID && !auth.isGuest) {
-        const [
-          { useMedicationTrackerStore },
-          { usePregnancyTrackerStore },
-          { useSettingsStore },
-          { evaluateMedicationAlerts },
-          { syncMedicationScheduledNotifications },
-          { evaluatePregnancyAlerts },
-          { toDateKey },
-        ] = await Promise.all([
-          import('@/mini-apps/medication-tracker/store'),
-          import('@/mini-apps/pregnancy-tracker/store'),
-          import('@/domains/profile/store'),
-          import('@/mini-apps/medication-tracker/alerts'),
-          import('@/mini-apps/medication-tracker/scheduled-notifications'),
-          import('@/mini-apps/pregnancy-tracker/alerts'),
-          import('@/mini-apps/_kit/date-utils'),
-        ]);
-        const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
-        const medState = useMedicationTrackerStore.getState();
-        await syncMedicationScheduledNotifications({
-          medications: medState.medications,
-          logs: medState.logs,
-          notificationsEnabled,
-        });
-        await evaluateMedicationAlerts({
-          userId,
-          medications: medState.medications,
-          logs: medState.logs,
-          notificationsEnabled,
-        });
-        const pregnancy = usePregnancyTrackerStore.getState();
-        const todayKey = toDateKey(new Date());
-        await evaluatePregnancyAlerts({
-          userId,
-          lastMenstrualPeriod: pregnancy.lastMenstrualPeriod,
-          dueDate: pregnancy.dueDate,
-          babyNickname: pregnancy.babyNickname,
-          hasTodayLog: Boolean(pregnancy.dailyLogs[todayKey]),
-          status: pregnancy.status,
-          maternalTtDoses: pregnancy.maternalTtDoses,
-          notificationsEnabled,
-        });
+      if (plan.evaluateAlerts) {
+        const { resyncDailyTipScheduledNotifications } =
+          await import('@/domains/tips/scheduled-notifications');
+        await resyncDailyTipScheduledNotifications();
+
+        if (userId && userId !== GUEST_USER_ID && !auth.isGuest) {
+          const [
+            { useMedicationTrackerStore },
+            { usePregnancyTrackerStore },
+            { useSettingsStore },
+            { evaluateMedicationAlerts },
+            { syncMedicationScheduledNotifications },
+            { evaluatePregnancyAlerts },
+            { toDateKey },
+          ] = await Promise.all([
+            import('@/mini-apps/medication-tracker/store'),
+            import('@/mini-apps/pregnancy-tracker/store'),
+            import('@/domains/profile/store'),
+            import('@/mini-apps/medication-tracker/alerts'),
+            import('@/mini-apps/medication-tracker/scheduled-notifications'),
+            import('@/mini-apps/pregnancy-tracker/alerts'),
+            import('@/mini-apps/_kit/date-utils'),
+          ]);
+          const notificationsEnabled = useSettingsStore.getState().notificationsEnabled;
+          const medState = useMedicationTrackerStore.getState();
+          await syncMedicationScheduledNotifications({
+            medications: medState.medications,
+            logs: medState.logs,
+            notificationsEnabled,
+          });
+          await evaluateMedicationAlerts({
+            userId,
+            medications: medState.medications,
+            logs: medState.logs,
+            notificationsEnabled,
+          });
+          const pregnancy = usePregnancyTrackerStore.getState();
+          const todayKey = toDateKey(new Date());
+          await evaluatePregnancyAlerts({
+            userId,
+            lastMenstrualPeriod: pregnancy.lastMenstrualPeriod,
+            dueDate: pregnancy.dueDate,
+            babyNickname: pregnancy.babyNickname,
+            hasTodayLog: Boolean(pregnancy.dailyLogs[todayKey]),
+            status: pregnancy.status,
+            maternalTtDoses: pregnancy.maternalTtDoses,
+            notificationsEnabled,
+          });
+        }
       }
     } catch {
       // Best-effort inbox updates.

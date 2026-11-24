@@ -78,6 +78,13 @@
       "when": 1788854400000,
       "tag": "0010_family_invite_relationship",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1789200000000,
+      "tag": "0011_daily_tip_reminders",
+      "breakpoints": true
     }
   ]
 }
