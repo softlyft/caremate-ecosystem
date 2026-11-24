@@ -130,6 +130,7 @@ describe('push registration', () => {
     mockSaveSettings.mockResolvedValue(undefined);
     mockSettingsGetState.mockReturnValue({
       notificationsEnabled: true,
+      dailyTipRemindersEnabled: true,
       setNotificationsEnabled: mockSetNotificationsEnabled,
     });
   });
@@ -295,6 +296,8 @@ describe('push registration', () => {
     mockGetAllScheduledNotificationsAsync.mockResolvedValue([
       { identifier: 'med:dose:1' },
       { identifier: 'pregnancy-tt:TT1' },
+      { identifier: 'tip:2026-11-25' },
+      { identifier: 'other:keep' },
     ]);
 
     await clearDeviceNotificationState();
@@ -302,6 +305,8 @@ describe('push registration', () => {
     expect(mockGetAllScheduledNotificationsAsync).toHaveBeenCalled();
     expect(mockCancelScheduledNotificationAsync).toHaveBeenCalledWith('med:dose:1');
     expect(mockCancelScheduledNotificationAsync).toHaveBeenCalledWith('pregnancy-tt:TT1');
+    expect(mockCancelScheduledNotificationAsync).toHaveBeenCalledWith('tip:2026-11-25');
+    expect(mockCancelScheduledNotificationAsync).not.toHaveBeenCalledWith('other:keep');
     expect(mockDeleteEq).toHaveBeenCalled();
   });
 

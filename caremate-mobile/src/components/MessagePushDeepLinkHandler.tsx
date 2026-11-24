@@ -3,6 +3,7 @@ import { router, type Href } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
 import { config } from '@/constants/env';
+import { DAILY_TIP_HOME_PATH } from '@/domains/tips/scheduled-notifications';
 import { MEDICATION_TRACKER_PATH } from '@/mini-apps/medication-tracker/push-alerts';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -62,9 +63,21 @@ function extractFamilyPath(data: Record<string, unknown> | undefined): Href | nu
   return '/(app)/family';
 }
 
+function extractTipsPath(data: Record<string, unknown> | undefined): Href | null {
+  if (!data || data.domain !== 'tips') {
+    return null;
+  }
+  const path = data.path;
+  if (typeof path === 'string' && path.trim()) {
+    return path.trim() as Href;
+  }
+  return DAILY_TIP_HOME_PATH;
+}
+
 /**
  * Opens org message push taps (provider or payer) on the matching thread,
- * medication alerts on the tracker, and family invite pushes on Review requests.
+ * medication alerts on the tracker, daily tip reminders on Home,
+ * and family invite pushes on Review requests.
  */
 export function MessagePushDeepLinkHandler() {
   const handledColdStart = useRef(false);
@@ -81,6 +94,11 @@ export function MessagePushDeepLinkHandler() {
       const medicationPath = extractMedicationPath(data);
       if (medicationPath) {
         router.push(medicationPath);
+        return;
+      }
+      const tipsPath = extractTipsPath(data);
+      if (tipsPath) {
+        router.push(tipsPath);
         return;
       }
       const familyPath = extractFamilyPath(data);

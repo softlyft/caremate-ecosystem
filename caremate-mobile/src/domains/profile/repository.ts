@@ -99,6 +99,7 @@ function mapSettings(row: typeof settings.$inferSelect): AppSettings {
     userId: row.userId,
     theme: row.theme as AppSettings['theme'],
     notificationsEnabled: row.notificationsEnabled,
+    dailyTipRemindersEnabled: row.dailyTipRemindersEnabled !== false,
     subscribedCategoryIds: parseJsonArray<string>(row.subscribedCategoryIds),
     syncStatus: row.syncStatus as AppSettings['syncStatus'],
     deletedAt: row.deletedAt,
@@ -464,6 +465,7 @@ class ProfileRepository extends BaseRepository {
         .set({
           theme: updated.theme,
           notificationsEnabled: updated.notificationsEnabled,
+          dailyTipRemindersEnabled: updated.dailyTipRemindersEnabled,
           subscribedCategoryIds: JSON.stringify(updated.subscribedCategoryIds),
           syncStatus: 'pending',
           updatedAt: timestamp,
@@ -486,6 +488,7 @@ class ProfileRepository extends BaseRepository {
       userId,
       theme: 'light',
       notificationsEnabled: input.notificationsEnabled ?? true,
+      dailyTipRemindersEnabled: input.dailyTipRemindersEnabled ?? true,
       subscribedCategoryIds: input.subscribedCategoryIds ?? [],
       syncStatus: 'pending',
       deletedAt: null,
@@ -498,6 +501,7 @@ class ProfileRepository extends BaseRepository {
       userId: appSettings.userId,
       theme: appSettings.theme,
       notificationsEnabled: appSettings.notificationsEnabled,
+      dailyTipRemindersEnabled: appSettings.dailyTipRemindersEnabled,
       subscribedCategoryIds: JSON.stringify(appSettings.subscribedCategoryIds),
       syncStatus: 'pending',
       deletedAt: null,
@@ -587,6 +591,7 @@ class ProfileRepository extends BaseRepository {
       user_id: appSettings.userId,
       theme: appSettings.theme,
       notifications_enabled: appSettings.notificationsEnabled,
+      daily_tip_reminders_enabled: appSettings.dailyTipRemindersEnabled !== false,
       subscribed_category_ids: appSettings.subscribedCategoryIds,
       updated_at: appSettings.updatedAt,
     });
@@ -822,6 +827,7 @@ class ProfileRepository extends BaseRepository {
     const db = getDatabase();
     for (const row of data) {
       const timestamp = nowIso();
+      const dailyTipRemindersEnabled = row.daily_tip_reminders_enabled !== false;
       await db
         .insert(settings)
         .values({
@@ -829,6 +835,7 @@ class ProfileRepository extends BaseRepository {
           userId: row.user_id,
           theme: row.theme,
           notificationsEnabled: row.notifications_enabled,
+          dailyTipRemindersEnabled,
           subscribedCategoryIds: JSON.stringify(row.subscribed_category_ids ?? []),
           syncStatus: 'synced',
           deletedAt: null,
@@ -840,6 +847,7 @@ class ProfileRepository extends BaseRepository {
           set: {
             theme: row.theme,
             notificationsEnabled: row.notifications_enabled,
+            dailyTipRemindersEnabled,
             subscribedCategoryIds: JSON.stringify(row.subscribed_category_ids ?? []),
             syncStatus: 'synced',
             updatedAt: row.updated_at ?? timestamp,
