@@ -34,5 +34,9 @@
   "patientLabel": "Aláìsàn",
   "directBadge": "Taara",
   "today": "Lónìí",
-  "yesterday": "Àná"
+  "yesterday": "Àná",
+  "aiFeedbackHelpful": "Helpful",
+  "aiFeedbackNotHelpful": "Not helpful",
+  "aiFeedbackFailedTitle": "Couldn't save feedback",
+  "aiFeedbackFailedMessage": "Check your connection and try again."
 }
