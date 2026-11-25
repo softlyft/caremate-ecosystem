@@ -84,9 +84,12 @@ jobs:
           echo "Disk before cleanup:"
           df -h /
           # ubuntu-latest ships large toolchains RN release builds do not need.
-          # Android SDK is removed here and reinstalled by setup-android below.
+          # Wipe the preinstalled Android SDK, then recreate the path so
+          # android-actions/setup-android can install into it without EACCES.
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
+          sudo mkdir -p /usr/local/lib/android
+          sudo chown -R "$USER:$USER" /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/.ghcup
           sudo rm -rf /usr/share/swift
