@@ -29,7 +29,11 @@
     }
   },
   "dailyTip": {
-    "label": "每日洞察"
+    "label": "每日洞察",
+    "shareA11y": "分享每日洞察",
+    "shareFooter": "来自 CareMate · getcaremate.com",
+    "shareFailedTitle": "无法分享",
+    "shareFailedMessage": "生成图片时出错，请重试。"
   },
   "searchA11y": "搜索 CareMate",
   "quickActions": {

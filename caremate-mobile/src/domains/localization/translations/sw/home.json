@@ -29,7 +29,11 @@
     }
   },
   "dailyTip": {
-    "label": "Ufahamu wa kila siku"
+    "label": "Ufahamu wa kila siku",
+    "shareA11y": "Shiriki ufahamu wa kila siku",
+    "shareFooter": "Imeshirikiwa kutoka CareMate · getcaremate.com",
+    "shareFailedTitle": "Imeshindikana kushiriki",
+    "shareFailedMessage": "Hitilafu ilitokea kuunda picha. Jaribu tena."
   },
   "searchA11y": "Tafuta CareMate",
   "quickActions": {

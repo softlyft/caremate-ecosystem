@@ -29,7 +29,11 @@
     }
   },
   "dailyTip": {
-    "label": "Idea del día"
+    "label": "Idea del día",
+    "shareA11y": "Compartir idea del día",
+    "shareFooter": "Compartido desde CareMate · getcaremate.com",
+    "shareFailedTitle": "No se pudo compartir",
+    "shareFailedMessage": "Algo salió mal al crear la imagen. Inténtalo de nuevo."
   },
   "searchA11y": "Buscar en CareMate",
   "quickActions": {

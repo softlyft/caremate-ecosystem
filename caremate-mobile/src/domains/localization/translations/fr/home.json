@@ -29,7 +29,11 @@
     }
   },
   "dailyTip": {
-    "label": "Conseil du jour"
+    "label": "Conseil du jour",
+    "shareA11y": "Partager le conseil du jour",
+    "shareFooter": "Partagé depuis CareMate · getcaremate.com",
+    "shareFailedTitle": "Partage impossible",
+    "shareFailedMessage": "La création de l'image a échoué. Réessayez."
   },
   "searchA11y": "Rechercher dans CareMate",
   "quickActions": {
