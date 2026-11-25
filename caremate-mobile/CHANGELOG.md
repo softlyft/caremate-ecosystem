@@ -14,6 +14,34 @@ automatically in CI and are separate from this marketing version — see
 
 <!-- Add entries here as they merge to main; move into a version section at release. -->
 
+## [1.2.0] — 2026-11-25
+
+Prod release: Daily insight share + local morning reminders, CareMate AI reply polish,
+and account / calendar hardening. HDG stays at **0.1.1** (no gateway code changes this cut).
+
+### Added
+
+#### Daily insight
+
+- Share today’s tip from Home as a CareMate-branded image (single teal template + OS share sheet)
+- Local 08:00 Daily insight reminders (device DATE schedules; default on; Settings opt-out; guests included)
+- Preference `dailyTipRemindersEnabled` synced with settings
+
+#### CareMate AI
+
+- Assistant replies render common markdown (`**bold**`, italic, inline code) instead of raw markers
+- Thumbs up/down show selected state, larger hit targets, and error alerts on failed feedback saves
+
+### Fixed
+
+- Disabled / banned accounts: clearer login copy; block role assign while suspended (admin)
+- Care Portal and SoftLyft admin accounts cannot sign into the patient mobile app
+- Shared month calendar no longer paints adjacent-month day numbers
+
+### Notes for store “What’s New”
+
+> CareMate 1.2 — share your Daily insight as a CareMate image, get an optional 8am tip reminder, and enjoy clearer CareMate AI replies (markdown + feedback). Also hardens account access and the calendar grid.
+
 ## [1.1.0] — 2026-11-13
 
 Prod release: CareMate AI Phase 1 (education companion) plus store / composer
@@ -125,5 +153,6 @@ Suggested short copy for App Store Connect / Play Console:
 
 > Welcome to CareMate 1.0 — your offline-friendly health companion. Learn health topics, track medications, pregnancy, periods, immunizations and more, find nearby care, keep an emergency profile, manage family profiles, and unlock Premium tools when you need them.
 
+[1.2.0]: https://github.com/softlyft/caremate-ecosystem/releases/tag/mobile-v1.2.0
 [1.1.0]: https://github.com/softlyft/caremate-ecosystem/releases/tag/mobile-v1.1.0
 [1.0.0]: https://github.com/softlyft/caremate-ecosystem/releases/tag/mobile-v1.0.0
