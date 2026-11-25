@@ -78,6 +78,30 @@ jobs:
       EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER: ${{ secrets.EXPO_PUBLIC_ADMOB_BANNER_PERIOD_FOOTER }}
 
     steps:
+      - name: Free disk space
+        run: |
+          set -euo pipefail
+          echo "Disk before cleanup:"
+          df -h /
+          # ubuntu-latest ships large toolchains RN release builds do not need.
+          # Android SDK is removed here and reinstalled by setup-android below.
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/go
+          sudo rm -rf /opt/hostedtoolcache/Python
+          sudo rm -rf /opt/hostedtoolcache/Ruby
+          sudo rm -rf /opt/hostedtoolcache/PyPy
+          sudo docker image prune -af || true
+          echo "Disk after cleanup:"
+          df -h /
+
       - name: Checkout
         uses: actions/checkout@v5
 
