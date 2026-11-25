@@ -98,11 +98,7 @@ export function DailyHealthTip({ userKey = 'guest' }: DailyHealthTipProps) {
       </View>
 
       {/* Off-screen branded canvas for capture — sibling so overflow:hidden won't clip it. */}
-      <ViewShot
-        ref={shareRef}
-        style={styles.captureHost}
-        options={{ format: 'png', quality: 1 }}
-      >
+      <ViewShot ref={shareRef} style={styles.captureHost} options={{ format: 'png', quality: 1 }}>
         <DailyInsightShareCard
           tip={tip.tip}
           categoryName={tip.categoryName}

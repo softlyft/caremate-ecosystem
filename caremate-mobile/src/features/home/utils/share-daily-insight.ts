@@ -11,8 +11,7 @@ import {
 const CAPTURE_SCALE = 3;
 
 export type ShareDailyInsightResult =
-  | { ok: true }
-  | { ok: false; reason: 'unavailable' | 'capture' | 'share' };
+  { ok: true } | { ok: false; reason: 'unavailable' | 'capture' | 'share' };
 
 /**
  * Capture the branded Daily insight card and open the OS share sheet.
