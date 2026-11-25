@@ -26,7 +26,7 @@ Home renders from SQLite first, then refreshes remote data where supported.
 | `HomeHeader` | `features/home/components/HomeHeader.tsx` | Greeting, tagline, notifications |
 | `OfflineBanner` | `components/OfflineBanner.tsx` | Connectivity status |
 | `HomeSearchBar` | `features/home/components/HomeSearchBar.tsx` | Opens global search |
-| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips` |
+| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips`; share icon exports a CareMate-branded image |
 | `AdSlot` (`home.tips`) | `features/ads/AdSlot.tsx` | Banner after tip |
 | `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Learn categories |
 | `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending: 1 CareMate evergreen + 2 INT news + up to 2 country news |

@@ -137,6 +137,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins.push('expo-localization');
   }
 
+  if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-sharing')) {
+    plugins.push('expo-sharing');
+  }
+
   if (!plugins.some((p) => (Array.isArray(p) ? p[0] : p) === 'expo-iap')) {
     plugins.push('expo-iap');
   }
