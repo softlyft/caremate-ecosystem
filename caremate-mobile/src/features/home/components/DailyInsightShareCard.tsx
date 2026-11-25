@@ -36,7 +36,9 @@ export function DailyInsightShareCard({
       <View style={styles.bgBlobBottom} />
 
       <View style={styles.header}>
-        <Image source={images.icon} style={styles.logo} accessibilityIgnoresInvertColors />
+        <View style={styles.logoBadge}>
+          <Image source={images.icon} style={styles.logo} accessibilityIgnoresInvertColors />
+        </View>
         <Text style={styles.brand}>CareMate</Text>
       </View>
 
@@ -90,8 +92,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     marginBottom: 28,
+  },
+  /** White plate so the teal/blue mark stays visible on the branded teal canvas. */
+  logoBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.lg,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 4,
   },
   logo: {
     width: 36,
@@ -134,16 +146,18 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   footer: {
-    gap: 12,
+    gap: 14,
   },
   footerRule: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.28)',
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.45)',
   },
   footerText: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    fontWeight: '400',
-    color: 'rgba(255,255,255,0.7)',
+    fontFamily: fontFamily.medium,
+    fontSize: 15,
+    fontWeight: '500',
+    lineHeight: 20,
+    color: 'rgba(255,255,255,0.92)',
+    letterSpacing: 0.15,
   },
 });
