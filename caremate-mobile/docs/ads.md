@@ -16,7 +16,7 @@
 | 5 | Offline | House + sponsored campaigns **sync into SQLite** and render offline. AdMob requires network and is skipped offline. |
 | 6 | Premium | **AdMob-free** via entitlement. House and sponsored still allowed unless a future ads-free SKU is added. |
 | 7 | Guests | May see house, sponsored, and AdMob per slot mode (subject to consent for AdMob). |
-| 8 | Consent | Google UMP via `react-native-google-mobile-ads`; non-personalized by default. Never pass health signals into ad requests. |
+| 8 | Consent / tracking | Google UMP via `react-native-google-mobile-ads`; **non-personalized ads only** (`requestNonPersonalizedAdsOnly: true`). **No App Tracking Transparency** — do not set `userTrackingUsageDescription` / `NSUserTrackingUsageDescription`, and never call the ATT prompt. App Store Connect → App Privacy must declare **Does not track**. Never pass health signals into ad requests. |
 | 9 | Kids / family | **No AdMob** on kid-related surfaces or when the active profile is a child (hard blocklist). |
 | 10 | Labeling | Sponsored creative always shows **Sponsored**. House may use softer “From CareMate” labeling. |
 | 11 | Build | AdMob requires a **dev client / EAS build** (not Expo Go). Store data-safety declarations must list ads. |
@@ -197,6 +197,10 @@ IDs are chosen by **app env**, not `__DEV__` alone:
 Google prefers a distinct banner unit per placement for reporting, but **one Android banner reused on every Android slot** and **one iOS banner reused on every iOS slot** is valid and enough for v1.
 
 App IDs are wired via `app.config.ts` (run `npx expo prebuild` after changing them so the native manifest gets `APPLICATION_ID`). Pinned package: `react-native-google-mobile-ads@16.0.0` (Expo 57 / Kotlin 2.1).
+
+### iOS — no ATT (Path A)
+
+CareMate does **not** track users across apps. AdMob requests are NPA-only (`getAdMobRequestOptions`). Do **not** add `userTrackingUsageDescription` to the AdMob Expo plugin (that would inject `NSUserTrackingUsageDescription` and invite Guideline 5.1.2 rejection if no ATT prompt is shown). In App Store Connect → App Privacy, answer **Does not track**. The GMA SDK may still weak-link `AppTrackingTransparency`; without the purpose string and without calling the prompt, that is fine for Path A.
 
 ---
 
