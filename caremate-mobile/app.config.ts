@@ -114,9 +114,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         androidAppId,
         iosAppId,
         delayAppMeasurementInit: true,
-        // Runtime requests non-personalized ads only (see domains/ads/consent.ts).
-        userTrackingUsageDescription:
-          'This identifier may be used to measure ad performance and keep ads relevant. CareMate requests non-personalized ads.',
+        // No NSUserTrackingUsageDescription / ATT prompt: Path A non-tracking.
+        // Runtime always requests non-personalized ads (domains/ads/consent.ts).
       },
     ]);
   }
