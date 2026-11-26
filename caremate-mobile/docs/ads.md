@@ -202,6 +202,10 @@ App IDs are wired via `app.config.ts` (run `npx expo prebuild` after changing th
 
 CareMate does **not** track users across apps. AdMob requests are NPA-only (`getAdMobRequestOptions`). Do **not** add `userTrackingUsageDescription` to the AdMob Expo plugin (that would inject `NSUserTrackingUsageDescription` and invite Guideline 5.1.2 rejection if no ATT prompt is shown). In App Store Connect → App Privacy, answer **Does not track**. The GMA SDK may still weak-link `AppTrackingTransparency`; without the purpose string and without calling the prompt, that is fine for Path A.
 
+### app-ads.txt (store verification)
+
+AdMob app verification crawls `https://getcaremate.com/app-ads.txt` (Play / App Store **developer website** must be that host). The file lives at [`caremate-website/public/app-ads.txt`](../../caremate-website/public/app-ads.txt) and ships with the marketing site Amplify deploy. After changing the publisher line, redeploy the website, confirm `curl -s https://getcaremate.com/app-ads.txt` returns `text/plain` with the AdMob snippet, then **Check for updates** in AdMob (can take up to ~24h).
+
 ---
 
 ## Premium interplay
