@@ -43,8 +43,8 @@ Until fixed, prefer `caremate://` fallbacks.
 
 ### 3. Store compliance / listing (ops)
 
-- App Privacy (iOS) + Data Safety (Play), including ads + health data  
-- IAP products in ASC / Play matching `caremate.premium.{personal\|family}.{monthly\|yearly}`  
+- App Privacy (iOS): **Does not track** (NPA AdMob only — no ATT / no `NSUserTrackingUsageDescription`). Data Safety (Play), including ads + health data  
+- IAP products in ASC / Play matching `caremate.premium.{personal\|family}.{monthly\|yearly}` — submit **with** the binary (not “Ready to Submit” alone)  
 - Screenshots, age rating, health disclaimers  
 - Submit for Review (iOS) / complete Play release (draft upload ≠ live)
 
