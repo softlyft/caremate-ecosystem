@@ -23,7 +23,7 @@ import { profileRepository } from '@/domains/profile/repository';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useLocalizationPreferences } from '@/hooks/use-localization-preferences';
 import { usePremiumState } from '@/hooks/use-premium-state';
-import { QUERY_KEYS } from '@/constants/config';
+import { LEGAL_URLS, QUERY_KEYS } from '@/constants/config';
 import { fontFamily, layoutSpacing, palette, radius, shadow, spacing } from '@/theme';
 
 const ACCENT = '#B45309';
@@ -396,6 +396,20 @@ export default function PremiumScreen() {
         ) : null}
 
         <AnimatedSection index={5}>
+          <View style={styles.legalRow} accessibilityRole="text">
+            <TextLink external href={LEGAL_URLS.privacy} style={styles.legalLink}>
+              {t('settings.legal.privacy')}
+            </TextLink>
+            <AppText variant="caption" style={styles.legalSep}>
+              ·
+            </AppText>
+            <TextLink external href={LEGAL_URLS.terms} style={styles.legalLink}>
+              {t('settings.legal.terms')}
+            </TextLink>
+          </View>
+        </AnimatedSection>
+
+        <AnimatedSection index={6}>
           <Button style={styles.refreshCta} onPress={() => void refresh()} variant="plain">
             <RefreshCw color={ACCENT} size={16} strokeWidth={2.25} />
             <AppText variant="button" style={styles.refreshLabel}>
@@ -685,6 +699,22 @@ const styles = StyleSheet.create({
   },
   secondaryCtaLabel: {
     color: ACCENT,
+  },
+  legalRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: spacing.xs,
+  },
+  legalLink: {
+    color: ACCENT,
+    fontFamily: fontFamily.semiBold,
+    fontSize: 13,
+  },
+  legalSep: {
+    color: palette.textSecondary,
   },
   refreshCta: {
     flexDirection: 'row',
