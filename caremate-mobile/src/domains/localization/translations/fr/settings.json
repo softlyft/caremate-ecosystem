@@ -23,7 +23,10 @@
     "push": "Notifications push",
     "permissionDeniedTitle": "Notifications are off",
     "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
-    "openSystemSettings": "Open Settings"
+    "openSystemSettings": "Open Settings",
+    "dailyTip": "Rappel d’insight quotidien",
+    "dailyTipSubtitle": "8:00 chaque matin",
+    "dailyTipRequiresMaster": "Activez les notifications push pour l’activer"
   },
   "location": {
     "title": "Localisation",

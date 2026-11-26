@@ -23,7 +23,10 @@
     "push": "Ọkwa push",
     "permissionDeniedTitle": "Notifications are off",
     "permissionDeniedMessage": "CareMate cannot send push alerts until you allow notifications in system settings.",
-    "openSystemSettings": "Open Settings"
+    "openSystemSettings": "Open Settings",
+    "dailyTip": "Daily insight reminder",
+    "dailyTipSubtitle": "8:00 every morning",
+    "dailyTipRequiresMaster": "Turn on push notifications to enable"
   },
   "location": {
     "title": "Ebe",

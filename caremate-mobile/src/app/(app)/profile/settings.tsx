@@ -28,6 +28,7 @@ import { localizationService, useTranslation } from '@/domains/localization';
 import { applyNotificationsEnabledPreference } from '@/domains/notifications/push';
 import { profileRepository } from '@/domains/profile/repository';
 import { useSettingsStore } from '@/domains/profile/store';
+import { resyncDailyTipScheduledNotifications } from '@/domains/tips/scheduled-notifications';
 import { useAuthStore } from '@/features/auth/store';
 import { useCurrentUserId, useIsGuest } from '@/hooks/use-current-user-id';
 import { useNetworkStatus } from '@/hooks/use-network-status';
@@ -49,6 +50,10 @@ export default function SettingsScreen() {
   const deleteAccount = useAuthStore((state) => state.deleteAccount);
 
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
+  const dailyTipRemindersEnabled = useSettingsStore((state) => state.dailyTipRemindersEnabled);
+  const setDailyTipRemindersEnabled = useSettingsStore(
+    (state) => state.setDailyTipRemindersEnabled,
+  );
 
   const profileQuery = useQuery({
     queryKey: [...QUERY_KEYS.profile, userId],
@@ -94,7 +99,23 @@ export default function SettingsScreen() {
           },
         ],
       );
+      return;
     }
+    void resyncDailyTipScheduledNotifications({
+      title: t('home.dailyTip.label'),
+    });
+  }
+
+  async function updateDailyTipReminders(value: boolean) {
+    setDailyTipRemindersEnabled(value);
+    try {
+      await profileRepository.saveSettings(userId, { dailyTipRemindersEnabled: value });
+    } catch {
+      // Local store already updated; settings persist is best-effort.
+    }
+    void resyncDailyTipScheduledNotifications({
+      title: t('home.dailyTip.label'),
+    });
   }
 
   async function handleSyncNow() {
@@ -257,6 +278,22 @@ export default function SettingsScreen() {
               icon={Bell}
               label={t('settings.notifications.push')}
               trailing={<Switch value={notificationsEnabled} onValueChange={updateNotifications} />}
+            />
+            <SettingRow
+              icon={Bell}
+              label={t('settings.notifications.dailyTip')}
+              subtitle={
+                notificationsEnabled
+                  ? t('settings.notifications.dailyTipSubtitle')
+                  : t('settings.notifications.dailyTipRequiresMaster')
+              }
+              trailing={
+                <Switch
+                  value={dailyTipRemindersEnabled && notificationsEnabled}
+                  disabled={!notificationsEnabled}
+                  onValueChange={updateDailyTipReminders}
+                />
+              }
             />
           </View>
         </AnimatedSection>
@@ -484,10 +521,12 @@ function SectionLabel({ icon: Icon, title }: { icon: typeof Settings; title: str
 function SettingRow({
   icon: Icon,
   label,
+  subtitle,
   trailing,
 }: {
   icon: typeof Settings;
   label: string;
+  subtitle?: string;
   trailing: ReactNode;
 }) {
   return (
@@ -496,9 +535,16 @@ function SettingRow({
         <View style={styles.rowIcon}>
           <Icon color={ACCENT} size={16} strokeWidth={2.2} />
         </View>
-        <AppText variant="body" style={styles.rowLabel}>
-          {label}
-        </AppText>
+        <View style={styles.rowText}>
+          <AppText variant="body" style={styles.rowLabel}>
+            {label}
+          </AppText>
+          {subtitle ? (
+            <AppText variant="caption" style={styles.rowSubtitle}>
+              {subtitle}
+            </AppText>
+          ) : null}
+        </View>
       </View>
       {trailing}
     </View>
@@ -626,9 +672,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rowText: {
+    flex: 1,
+    flexShrink: 1,
+    gap: 2,
+  },
   rowLabel: {
     color: palette.text,
     flexShrink: 1,
+  },
+  rowSubtitle: {
+    color: palette.textSecondary,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

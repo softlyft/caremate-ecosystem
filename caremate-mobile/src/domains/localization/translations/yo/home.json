@@ -29,7 +29,11 @@
     }
   },
   "dailyTip": {
-    "label": "Ìmọ̀ ọjọ́ kọ̀ọ̀kan"
+    "label": "Ìmọ̀ ọjọ́ kọ̀ọ̀kan",
+    "shareA11y": "Share daily insight",
+    "shareFooter": "Shared from CareMate · getcaremate.com",
+    "shareFailedTitle": "Couldn't share",
+    "shareFailedMessage": "Something went wrong creating the image. Try again."
   },
   "searchA11y": "Wá CareMate",
   "quickActions": {

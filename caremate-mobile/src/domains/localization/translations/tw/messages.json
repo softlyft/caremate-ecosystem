@@ -34,5 +34,9 @@
   "patientLabel": "Patient",
   "directBadge": "Direct",
   "today": "Ɛnnɛ",
-  "yesterday": "Nnora"
+  "yesterday": "Nnora",
+  "aiFeedbackHelpful": "Helpful",
+  "aiFeedbackNotHelpful": "Not helpful",
+  "aiFeedbackFailedTitle": "Couldn't save feedback",
+  "aiFeedbackFailedMessage": "Check your connection and try again."
 }

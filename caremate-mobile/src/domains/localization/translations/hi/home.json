@@ -29,7 +29,11 @@
     }
   },
   "dailyTip": {
-    "label": "आज की जानकारी"
+    "label": "आज की जानकारी",
+    "shareA11y": "Share daily insight",
+    "shareFooter": "Shared from CareMate · getcaremate.com",
+    "shareFailedTitle": "Couldn't share",
+    "shareFailedMessage": "Something went wrong creating the image. Try again."
   },
   "searchA11y": "CareMate खोजें",
   "quickActions": {

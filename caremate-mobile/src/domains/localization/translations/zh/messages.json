@@ -34,5 +34,9 @@
   "patientLabel": "患者",
   "directBadge": "直接",
   "today": "今天",
-  "yesterday": "昨天"
+  "yesterday": "昨天",
+  "aiFeedbackHelpful": "有帮助",
+  "aiFeedbackNotHelpful": "没有帮助",
+  "aiFeedbackFailedTitle": "无法保存反馈",
+  "aiFeedbackFailedMessage": "请检查网络后重试。"
 }

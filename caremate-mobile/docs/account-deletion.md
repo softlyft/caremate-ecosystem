@@ -117,9 +117,11 @@ Local wipe is **best-effort** if the cloud delete already succeeded.
 | **Mechanism** | Deidentify + soft `deleteUser` | `ban_duration` + `admin_revoke_user_sessions` |
 | **Cloud personal PHI** | Scrubbed / tombstoned | **Retained** |
 | **Org interaction history** | Retained as Deleted user | Retained with real identity |
-| **Sign-in** | Soft-deleted; email free for a **new** account | Blocked while banned |
+| **Sign-in** | Soft-deleted; email free for a **new** account | Blocked while banned (clear “account disabled” copy) |
+| **Email reuse** | Allowed after soft-delete | **Not** while disabled — Enable restores the same account; delete is required to free the email |
+| **Staff role assign** | N/A | Blocked until Enable |
 | **Local app data** | Wiped | Unchanged until session ends |
-| **Implementation** | `delete-account` edge | `caremate-admin-portal` → `banUser` |
+| **Implementation** | `delete-account` edge | `caremate-admin-portal` → `banUser` / `unbanUser` |
 
 ---
 

@@ -34,5 +34,9 @@
   "patientLabel": "Mara lafiya",
   "directBadge": "Kai tsaye",
   "today": "Yau",
-  "yesterday": "Jiya"
+  "yesterday": "Jiya",
+  "aiFeedbackHelpful": "Helpful",
+  "aiFeedbackNotHelpful": "Not helpful",
+  "aiFeedbackFailedTitle": "Couldn't save feedback",
+  "aiFeedbackFailedMessage": "Check your connection and try again."
 }

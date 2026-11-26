@@ -11,6 +11,20 @@ Implementation spans:
 - `src/features/auth/store.ts` — Zustand auth state
 - `src/lib/storage.ts` — Secure token persistence
 - `src/constants/guest.ts` — Guest user constants
+- `src/domains/auth/assert-consumer-mobile-account.ts` — patient-app account-type gate (#242)
+
+### Who may use the patient app
+
+Shared Auth serves multiple surfaces. Mobile only allows **patient / consumer** accounts (and **mark-as-staff** dual-role patients):
+
+| Account type | Detection | Mobile |
+|--------------|-----------|--------|
+| Patient / consumer | No Care Portal org membership | Allowed |
+| Provider / Payer Care Portal–only | Active `provider_org_members` / `payer_org_members`, no approved patient↔org connection | **Blocked** — signed out with Care Portal message |
+| SoftLyft staff | `app_metadata.role` ∈ admin/editor/support | **Blocked** — signed out with admin message |
+| Mark-as-staff dual-role | Org membership **and** approved `patient_*_connections` as patient | Allowed (mobile + Care Portal) |
+
+The gate runs at the start of `prepareLocalAccount` (sign-in, signup with session, OTP verify, recovery verify, cold-start restore).
 
 ---
 

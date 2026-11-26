@@ -3344,6 +3344,7 @@ export type Database = {
       settings: {
         Row: {
           created_at: string
+          daily_tip_reminders_enabled: boolean
           id: string
           notifications_enabled: boolean
           subscribed_category_ids: Json
@@ -3353,6 +3354,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          daily_tip_reminders_enabled?: boolean
           id: string
           notifications_enabled?: boolean
           subscribed_category_ids?: Json
@@ -3362,6 +3364,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          daily_tip_reminders_enabled?: boolean
           id?: string
           notifications_enabled?: boolean
           subscribed_category_ids?: Json

@@ -66,11 +66,12 @@ describe('mini-apps/_kit/date-utils', () => {
     const inMonth = cells.filter((cell) => cell.getMonth() === 6);
     expect(inMonth[0]!.getDate()).toBe(1);
     expect(inMonth[inMonth.length - 1]!.getDate()).toBe(31);
+    // Padding dates exist for alignment; the grid UI leaves them blank.
     expect(cells[0]!.getMonth()).toBe(5);
     expect(cells[cells.length - 1]!.getMonth()).toBe(7);
   });
 
-  it('keeps next-month continuation days in the last week', () => {
+  it('pads the last week with next-month dates for alignment', () => {
     const cells = getMonthMatrix(new Date(2026, 8, 1));
     const trailing = cells.filter((cell) => cell.getMonth() === 9);
     expect(trailing.map((cell) => cell.getDate())).toEqual([1, 2, 3]);

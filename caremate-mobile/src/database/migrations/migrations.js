@@ -12,6 +12,7 @@ import m0007 from './0007_oval_jamie_braddock.sql';
 import m0008 from './0008_narrow_blizzard.sql';
 import m0009 from './0009_health_timeline_events.sql';
 import m0010 from './0010_family_invite_relationship.sql';
+import m0011 from './0011_daily_tip_reminders.sql';
 
 export default {
   journal,
@@ -27,5 +28,6 @@ export default {
     m0008,
     m0009,
     m0010,
+    m0011,
   },
 };

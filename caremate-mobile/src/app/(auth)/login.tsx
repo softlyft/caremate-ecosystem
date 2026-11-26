@@ -22,6 +22,7 @@ import {
 import { KeyboardAwareScroll } from '@/components/ui/KeyboardAwareScroll';
 import { Screen } from '@/components/ui/screen-states';
 import { config } from '@/constants/env';
+import { ConsumerMobileAccountError } from '@/domains/auth/assert-consumer-mobile-account';
 import { confirmDeviceAccountForAuth } from '@/domains/auth/confirm-device-account';
 import { normalizeAccountEmail } from '@/domains/auth/device-account-binding';
 import { getRememberedLoginEmail, setRememberedLoginEmail } from '@/domains/auth/remember-login';
@@ -117,10 +118,21 @@ export default function LoginScreen() {
       await setRememberedLoginEmail(email, values.rememberMe);
       await continueAfterAuth();
     } catch (error) {
+      if (error instanceof ConsumerMobileAccountError) {
+        void alert(
+          t('auth.login.error'),
+          error.reason === 'admin_only'
+            ? t('auth.login.adminOnly')
+            : t('auth.login.carePortalOnly'),
+        );
+        return;
+      }
       const message = toUserFacingErrorMessage(
         error,
         t('auth.login.error'),
         t('common.networkError'),
+        t('common.emailDeliveryError'),
+        t('auth.login.accountDisabled'),
       );
       if (!isNetworkError(error) && /email not confirmed|confirm your email/i.test(message)) {
         void alert(t('auth.login.error'), t('auth.login.emailNotConfirmed'), [

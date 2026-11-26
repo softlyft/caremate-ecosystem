@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/browser';
 import { isStaffRole } from '@/constants/roles';
+import { toPortalLoginErrorMessage } from '@/lib/auth-errors';
 import { sanitizePostLoginPath } from '@/lib/safe-redirect';
 import { useAuthStore } from '@/features/auth/store';
 import { Button } from '@/components/ui/button';
@@ -62,7 +63,7 @@ export function LoginForm() {
       router.replace(next);
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Login failed');
+      toast.error(toPortalLoginErrorMessage(err));
     } finally {
       setLoading(false);
     }

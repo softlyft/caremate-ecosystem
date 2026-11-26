@@ -135,6 +135,9 @@ export const settings = sqliteTable('settings', {
   notificationsEnabled: integer('notifications_enabled', { mode: 'boolean' })
     .notNull()
     .default(true),
+  dailyTipRemindersEnabled: integer('daily_tip_reminders_enabled', { mode: 'boolean' })
+    .notNull()
+    .default(true),
   subscribedCategoryIds: text('subscribed_category_ids').notNull().default('[]'),
   ...syncColumns,
 });

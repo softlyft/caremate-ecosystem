@@ -126,6 +126,8 @@ export interface AppSettings extends BaseEntity {
   /** Always light — dark/system values may exist in legacy rows but are ignored. */
   theme: 'light' | 'dark' | 'system';
   notificationsEnabled: boolean;
+  /** Local 8am daily insight OS reminder. Missing / legacy rows treat as on. */
+  dailyTipRemindersEnabled: boolean;
   subscribedCategoryIds: string[];
 }
 

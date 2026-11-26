@@ -21,7 +21,7 @@ Each service keeps its own README plus a local `docs/` set.
 
 | Service | Purpose | Docs | Changelog |
 |---------|---------|------|-----------|
-| `caremate-mobile/` | Mobile experience for patients and families | `caremate-mobile/docs/README.md` | [`CHANGELOG`](./caremate-mobile/CHANGELOG.md) (`1.1.0`) |
+| `caremate-mobile/` | Mobile experience for patients and families | `caremate-mobile/docs/README.md` | [`CHANGELOG`](./caremate-mobile/CHANGELOG.md) (`1.2.0`) |
 | `caremate-health-data-gateway/` | NestJS PHI trust layer + CareMate AI APIs | `caremate-health-data-gateway/README.md` | [`CHANGELOG`](./caremate-health-data-gateway/CHANGELOG.md) (`0.1.1`) |
 | `caremate-admin-portal/` | SoftLyft staff admin (catalogs, users, billing, ads) | `caremate-admin-portal/docs/README.md` | [`CHANGELOG`](./caremate-admin-portal/CHANGELOG.md) (`0.1.0`) |
 | `caremate-provider-portal/` | Provider org patient engagement (connections, docs, messages) | `caremate-provider-portal/docs/README.md` | [`CHANGELOG`](./caremate-provider-portal/CHANGELOG.md) (`0.1.0`) |
@@ -40,7 +40,7 @@ Apps version **independently** (SemVer + Keep a Changelog). Do not invent a sing
 
 | App | Version source | Current | Git tag prefix |
 |-----|----------------|---------|----------------|
-| Mobile | `caremate-mobile/app.json` → `expo.version` (+ CI build numbers) | `1.1.0` | `mobile-v` |
+| Mobile | `caremate-mobile/app.json` → `expo.version` (+ CI build numbers) | `1.2.0` | `mobile-v` |
 | HDG | `caremate-health-data-gateway/package.json` | `0.1.1` | `hdg-v` |
 | Admin portal | `caremate-admin-portal/package.json` | `0.1.0` | `admin-portal-v` |
 | Provider portal | `caremate-provider-portal/package.json` | `0.1.0` | `provider-portal-v` |

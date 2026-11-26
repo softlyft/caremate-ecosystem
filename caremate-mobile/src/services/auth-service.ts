@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '@/constants/config';
+import { assertConsumerMobileAccount } from '@/domains/auth/assert-consumer-mobile-account';
 import { identityFromAuthUser } from '@/domains/auth/auth-identity';
 import { bootstrapLocalAccountRecords } from '@/domains/auth/bootstrap-local-account';
 import {
@@ -121,10 +122,14 @@ export class AuthService {
       email?: string | null;
       phone?: string | null;
       user_metadata?: Record<string, unknown>;
+      app_metadata?: Record<string, unknown> | null;
     },
     overrides?: { fullName?: string; phone?: string; email?: string },
     options?: { forceDeviceDefaults?: boolean; deferRemoteHydration?: boolean },
   ) {
+    // Block Care Portal–only / SoftLyft admin accounts before any local bootstrap (#242).
+    await assertConsumerMobileAccount(user);
+
     try {
       await migrateGuestLocalData(user.id);
     } catch {

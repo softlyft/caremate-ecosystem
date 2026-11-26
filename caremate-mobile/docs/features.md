@@ -26,7 +26,7 @@ Home renders from SQLite first, then refreshes remote data where supported.
 | `HomeHeader` | `features/home/components/HomeHeader.tsx` | Greeting, tagline, notifications |
 | `OfflineBanner` | `components/OfflineBanner.tsx` | Connectivity status |
 | `HomeSearchBar` | `features/home/components/HomeSearchBar.tsx` | Opens global search |
-| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips` |
+| `DailyHealthTip` | `features/home/components/DailyHealthTip.tsx` | Rotating tip from `health_tips`; share icon exports a CareMate-branded image |
 | `AdSlot` (`home.tips`) | `features/ads/AdSlot.tsx` | Banner after tip |
 | `HealthCategoriesRow` | `features/home/components/HealthCategoriesRow.tsx` | Learn categories |
 | `FeaturedArticles` | `features/home/components/FeaturedArticles.tsx` | Trending: 1 CareMate evergreen + 2 INT news + up to 2 country news |
@@ -213,6 +213,7 @@ Full rules: [Provider Portal connections — Patient ↔ payer](../../caremate-p
 
 - Theme preference (light, dark, system)
 - Notifications preference (gates Expo push token registration for Messages and other product push)
+- Daily insight reminder (local 08:00 OS notification; default on for guests and signed-in users; opt out under Notification settings)
 - Region and location-related profile fields
 - Privacy policy and terms of service links (`LEGAL_URLS`)
 - In-app account deletion (signed-in; cloud erase + local wipe) — [Account deletion](./account-deletion.md)
@@ -221,6 +222,7 @@ Full rules: [Provider Portal connections — Patient ↔ payer](../../caremate-p
 
 - Biometric unlock UI is hidden until an app-lock gate is implemented (`authenticateWithBiometrics` exists but is unused)
 - Medication Assistant: local OS schedules at dose times + Expo push via `notify-medication` when alerts are evaluated; **Messages** org/direct push via `notify-message` when the device is registered
+- Daily insight reminders are **local-only** (no remote tip push); guests get the same local 08:00 schedule when notifications are allowed
 - Hosted CareMate privacy/terms pages live in `caremate-website/` (deploy to `getcaremate.com` before store submission)
 - Premium tier detection, AdMob suppression, mini-app account gate, usage caps, blur paywalls, and family profile limits are enforced — see [Premium & plans](./premium-and-plans.md)
 
