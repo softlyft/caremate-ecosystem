@@ -206,9 +206,10 @@ class AdsRepository extends BaseRepository {
 
   async recordAdMobEvent(params: {
     userId: string | null;
-    eventType: 'impression' | 'click';
+    eventType: 'impression' | 'click' | 'request' | 'load_error' | 'skip';
     slotId: AdSlotId;
-    unitId: string;
+    unitId: string | null;
+    detail?: string | null;
   }): Promise<void> {
     await this.recordEvent({
       userId: params.userId,
@@ -218,17 +219,19 @@ class AdsRepository extends BaseRepository {
       campaignId: null,
       creativeId: null,
       adUnitId: params.unitId,
+      detail: params.detail ?? null,
     });
   }
 
   private async recordEvent(params: {
     userId: string | null;
-    eventType: 'impression' | 'click';
+    eventType: 'impression' | 'click' | 'request' | 'load_error' | 'skip';
     slotId: AdSlotId;
     source: string;
     campaignId: string | null;
     creativeId: string | null;
     adUnitId: string | null;
+    detail?: string | null;
   }): Promise<void> {
     const db = getDatabase();
     const timestamp = nowIso();
@@ -243,6 +246,7 @@ class AdsRepository extends BaseRepository {
       slotId: params.slotId,
       source: params.source,
       adUnitId: params.adUnitId,
+      detail: params.detail ?? null,
       syncStatus: 'pending',
       deletedAt: null,
       createdAt: timestamp,
@@ -262,6 +266,7 @@ class AdsRepository extends BaseRepository {
         slotId: params.slotId,
         source: params.source,
         adUnitId: params.adUnitId,
+        detail: params.detail ?? null,
         createdAt: timestamp,
       },
     });
@@ -277,6 +282,7 @@ class AdsRepository extends BaseRepository {
       slotId: string;
       source: string;
       adUnitId: string | null;
+      detail?: string | null;
       createdAt: string;
     };
 
@@ -289,6 +295,7 @@ class AdsRepository extends BaseRepository {
       slot_id: event.slotId,
       source: event.source,
       ad_unit_id: event.adUnitId,
+      detail: event.detail ?? null,
       created_at: event.createdAt,
     });
 

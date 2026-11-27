@@ -193,6 +193,7 @@ export type Database = {
           campaign_id: string | null
           created_at: string
           creative_id: string | null
+          detail: string | null
           event_type: string
           id: string
           slot_id: string
@@ -204,6 +205,7 @@ export type Database = {
           campaign_id?: string | null
           created_at?: string
           creative_id?: string | null
+          detail?: string | null
           event_type: string
           id: string
           slot_id: string
@@ -215,6 +217,7 @@ export type Database = {
           campaign_id?: string | null
           created_at?: string
           creative_id?: string | null
+          detail?: string | null
           event_type?: string
           id?: string
           slot_id?: string
