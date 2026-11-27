@@ -103,6 +103,9 @@ export default async function AdsPage({
   let counts = {
     impressions: 0,
     clicks: 0,
+    requests: 0,
+    loadErrors: 0,
+    skips: 0,
     bySource: {} as Record<string, { impressions: number; clicks: number }>,
   };
 
@@ -144,6 +147,9 @@ export default async function AdsPage({
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Impressions (7d)" value={counts.impressions} />
         <StatCard label="Clicks (7d)" value={counts.clicks} />
+        <StatCard label="AdMob requests (7d)" value={counts.requests} />
+        <StatCard label="AdMob load errors (7d)" value={counts.loadErrors} />
+        <StatCard label="AdMob skips (7d)" value={counts.skips} />
         {Object.entries(counts.bySource).map(([source, stats]) => (
           <StatCard
             key={source}

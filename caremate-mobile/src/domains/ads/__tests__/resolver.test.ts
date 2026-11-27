@@ -1,9 +1,10 @@
-import { resolveAdForSlot } from '@/domains/ads/resolver';
+import { resetAdMobSkipLogForTests, resolveAdForSlot } from '@/domains/ads/resolver';
 import { AD_SLOTS } from '@/domains/ads/types';
 
 const mockGetRemoteConfig = jest.fn();
 const mockListEligibleForSlot = jest.fn();
 const mockCountImpressionsToday = jest.fn();
+const mockRecordAdMobEvent = jest.fn();
 const mockGetCachedPremiumState = jest.fn();
 const mockIsOnline = jest.fn();
 const mockIsAdsConsentReady = jest.fn();
@@ -16,6 +17,7 @@ jest.mock('@/domains/ads/repository', () => ({
     getRemoteConfig: (...args: unknown[]) => mockGetRemoteConfig(...args),
     listEligibleForSlot: (...args: unknown[]) => mockListEligibleForSlot(...args),
     countImpressionsToday: (...args: unknown[]) => mockCountImpressionsToday(...args),
+    recordAdMobEvent: (...args: unknown[]) => mockRecordAdMobEvent(...args),
   },
 }));
 
@@ -79,8 +81,10 @@ const catalogItem = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  resetAdMobSkipLogForTests();
   mockGetDeviceDefaults.mockResolvedValue({ countryCode: 'NG' });
   mockCountImpressionsToday.mockResolvedValue(0);
+  mockRecordAdMobEvent.mockResolvedValue(undefined);
   mockGetCachedPremiumState.mockResolvedValue({ tier: 'free' });
   mockIsOnline.mockResolvedValue(true);
   mockIsAdsConsentReady.mockReturnValue(true);
@@ -282,6 +286,13 @@ describe('resolveAdForSlot', () => {
     });
 
     expect(result).toBeNull();
+    expect(mockRecordAdMobEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'skip',
+        detail: 'premium',
+        slotId,
+      }),
+    );
   });
 
   it('returns null for AdMob when offline', async () => {
@@ -298,6 +309,13 @@ describe('resolveAdForSlot', () => {
     });
 
     expect(result).toBeNull();
+    expect(mockRecordAdMobEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'skip',
+        detail: 'offline',
+        slotId,
+      }),
+    );
   });
 
   it('throws while AdMob consent is still pending so queries can retry', async () => {
@@ -331,6 +349,13 @@ describe('resolveAdForSlot', () => {
     });
 
     expect(result).toBeNull();
+    expect(mockRecordAdMobEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'skip',
+        detail: 'consent_denied',
+        slotId,
+      }),
+    );
   });
 
   it('returns null for AdMob when unit id is missing', async () => {
@@ -347,6 +372,13 @@ describe('resolveAdForSlot', () => {
     });
 
     expect(result).toBeNull();
+    expect(mockRecordAdMobEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'skip',
+        detail: 'missing_unit_id',
+        slotId,
+      }),
+    );
   });
 
   it('does not fall back from house to admob when house is empty', async () => {

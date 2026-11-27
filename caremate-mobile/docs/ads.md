@@ -101,14 +101,28 @@ Slot requested
   → mode house                         → eligible house catalog or nothing
   → mode sponsored                     → eligible sponsored + verified advertiser or nothing
   → mode admob
-       → Premium signed-in?            → nothing (AdMob-free)
-       → offline / no consent / no unit id? → nothing
-       → AdMob adaptive banner         → load failure → nothing
+       → Premium signed-in?            → skip(`premium`) → nothing
+       → offline / no consent / no unit id? → skip(reason) → nothing
+       → AdMob adaptive banner
+            → request logged
+            → load success → impression
+            → load failure → load_error(detail) → nothing
 ```
 
 **Frequency caps** (house + sponsored): `countImpressionsToday(campaignId, slotId)` vs `frequency_cap_per_day`. Welcome house campaign is seeded with cap `4` **per slot**.
 
 **Eligibility:** active campaign, placement for that `slot_id`, in-date window, country allow-list (if set), sponsored requires **verified** advertiser.
+
+### Diagnostics (`ad_events`)
+
+| `event_type` | When | `detail` |
+|--------------|------|----------|
+| `request` | BannerAd issues a fill request | — |
+| `impression` / `click` | Successful load / open | — |
+| `load_error` | SDK fail-to-load (incl. no-fill) | SDK message / code |
+| `skip` | Resolver blocked AdMob before request | `premium` · `offline` · `consent_denied` · `missing_unit_id` · `slot_suppressed` |
+
+Skips are logged **once per slot+reason per app session**. Load errors always log (and `console.warn`). Guests sync with `user_id = null` via the anon insert RLS policy.
 
 ---
 
@@ -116,7 +130,7 @@ Slot requested
 
 1. **Cold start (background):** after first paint, `AppProviders` pulls `adsRepository.pullFromRemote()` alongside articles and health tips, then invalidates `QUERY_KEYS.ads`.
 2. **Background:** sync handler `ad_catalog` pulls config, advertisers, campaigns, creatives, placements.
-3. **Events:** impressions/clicks write local `ad_events` and enqueue `ad_events` for push.
+3. **Events:** impressions/clicks/request/load_error/skip write local `ad_events` and enqueue `ad_events` for push.
 
 If a slot looks empty after a portal/migration change, force sync or restart so SQLite picks up new placements and modes.
 
@@ -140,9 +154,9 @@ Reporting separates events by `source` (`house`, `sponsored`, `admob`).
 
 ## Data model
 
-**Cloud (Supabase):** `ad_remote_config`, `ad_advertisers`, `ad_campaigns`, `ad_creatives`, `ad_placements`, `ad_events` (nullable campaign/creative for AdMob; `ad_unit_id`).
+**Cloud (Supabase):** `ad_remote_config`, `ad_advertisers`, `ad_campaigns`, `ad_creatives`, `ad_placements`, `ad_events` (nullable campaign/creative for AdMob; `ad_unit_id`; optional `detail`).
 
-**SQLite (mobile):** mirrored catalog + local event outbox. AdMob has no creative cache. Drizzle migrations `0002` + `0003`.
+**SQLite (mobile):** mirrored catalog + local event outbox. AdMob has no creative cache. Drizzle migrations `0002` + `0003` + `0012` (`detail`).
 
 ### Supabase migrations (order)
 
@@ -156,6 +170,7 @@ Reporting separates events by `source` (`house`, `sponsored`, `admob`).
 | `20260716203000_ads_article_footer_slot.sql` | `learn.article_footer` |
 | `20260717091500_ads_pregnancy_tracker_slots.sql` | `pregnancy.timeline` + `pregnancy.footer` |
 | `20260717092500_ads_period_tracker_slots.sql` | `period.week` + `period.footer` |
+| `20261127150000_ad_events_diagnostics.sql` | `request` / `load_error` / `skip` event types + `detail` |
 
 Seed campaign id: `camp_house_welcome` (creative `cre_house_welcome`). New slots need both a **mode** row and a **placement** row or house mode will show nothing.
 
@@ -228,6 +243,7 @@ Full plan matrix: [Premium & plans](./premium-and-plans.md).
 | Portal `/dashboard/ads` 500 | `"use server"` file exporting non-async constants — keep constants in `constants.ts` |
 | AdMob crash on Android | Missing AdMob app ID in native manifest — re-run prebuild |
 | Slot mode house but nothing shows | No active campaign with a placement for that `slot_id` |
+| No visible AdMob + unsure if requested | Check admin Ads stats: `request` / `load_error` / `skip`, or SQL `ad_events` where `source = 'admob'` |
 
 ---
 

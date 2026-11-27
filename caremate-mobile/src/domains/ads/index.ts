@@ -23,7 +23,11 @@ export {
   trackCatalogImpression,
   trackAdMobClick,
   trackAdMobImpression,
+  trackAdMobRequest,
+  trackAdMobLoadError,
+  trackAdMobSkip,
   trackAdClick,
   trackAdImpression,
 } from '@/domains/ads/resolver';
+export type { AdMobSkipReason } from '@/domains/ads/resolver';
 export { useAdForSlot } from '@/domains/ads/hooks';

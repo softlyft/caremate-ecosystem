@@ -324,7 +324,7 @@ export const adPlacements = sqliteTable('ad_placements', {
   ...syncColumns,
 });
 
-/** Local impression/click outbox → sync to public.ad_events. */
+/** Local ad outbox → sync to public.ad_events (impression/click/request/load_error/skip). */
 export const adEvents = sqliteTable('ad_events', {
   id: text('id').primaryKey(),
   userId: text('user_id'),
@@ -334,6 +334,7 @@ export const adEvents = sqliteTable('ad_events', {
   slotId: text('slot_id').notNull(),
   source: text('source').notNull().default('house'),
   adUnitId: text('ad_unit_id'),
+  detail: text('detail'),
   ...syncColumns,
 });
 
