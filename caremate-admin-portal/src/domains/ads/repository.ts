@@ -126,6 +126,9 @@ export async function listSponsoredCampaigns(): Promise<CampaignWithCreative[]> 
 export async function getAdEventCounts(days = 7): Promise<{
   impressions: number;
   clicks: number;
+  requests: number;
+  loadErrors: number;
+  skips: number;
   bySource: Record<string, { impressions: number; clicks: number }>;
 }> {
   const supabase = await createClient();
@@ -142,6 +145,9 @@ export async function getAdEventCounts(days = 7): Promise<{
   const bySource: Record<string, { impressions: number; clicks: number }> = {};
   let impressions = 0;
   let clicks = 0;
+  let requests = 0;
+  let loadErrors = 0;
+  let skips = 0;
 
   for (const row of data ?? []) {
     const source = row.source ?? 'unknown';
@@ -154,8 +160,14 @@ export async function getAdEventCounts(days = 7): Promise<{
     } else if (row.event_type === 'click') {
       clicks += 1;
       bySource[source].clicks += 1;
+    } else if (row.event_type === 'request') {
+      requests += 1;
+    } else if (row.event_type === 'load_error') {
+      loadErrors += 1;
+    } else if (row.event_type === 'skip') {
+      skips += 1;
     }
   }
 
-  return { impressions, clicks, bySource };
+  return { impressions, clicks, requests, loadErrors, skips, bySource };
 }
